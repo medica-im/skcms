@@ -13,6 +13,6 @@ export const getGhostData = async (fetch: any, key: string, count: number = 10) 
             throw new Error(error);
         }
     } catch (error) {
-        return error;
+        return null;
     }
 }
