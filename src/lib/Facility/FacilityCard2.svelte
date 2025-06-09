@@ -3,25 +3,20 @@
 	import Map from '$lib/components/Map/Map.svelte';
 	import Address from '$lib/Address/Address.svelte';
 	import Navigation from '$lib/Navigation/Navigation.svelte';
-	import Email from '$lib/Email/Email.svelte';
-	import SoMed from '$lib/SoMed/SoMed.svelte';
-	import Website from '$lib/components/Website/Website.svelte';
 	import { browser } from '$app/environment';
 	import { isMobile } from '$lib/helpers/deviceDetector.ts';
-	import { createFacilitiesMapData } from '$lib/components/Map/mapData.ts';
-	import type { Facility } from '$lib/interfaces/facility.interface.ts';
-	import type { Entry } from '$lib/store/directoryStoreInterface';
+	import { createMapData2 } from '$lib/components/Map/mapData.ts';
+	import type { Facility } from '$lib/interfaces/v2/facility.ts';
 
 	export let data: Facility;
-	export let entries;
+	export let entries = null;
 
 	const createFacilityGeoData = (facility: Facility) => {
-		let address = facility?.address;
 		let facilityGeoData = {
 			name: facility?.name ?? 'default',
-			latitude: Number(address?.latitude ?? 0),
-			longitude: Number(address?.longitude ?? 0),
-			zoom: address?.zoom ?? 0
+			latitude: Number(facility.location?.latitude ?? 0),
+			longitude: Number(facility.location?.longitude ?? 0),
+			zoom: facility?.zoom ?? 0
 		};
 		return facilityGeoData;
 	};
@@ -40,41 +35,31 @@
 					<h4 class="h4">{data.name}</h4>
 				</a>
 				<div class="space-x-2">
-					<Address {data} />
+					<address>
+						{data?.street}<br />
+						{data?.zip}
+						{data?.commune.name_fr ?? 'city'}
+					</address>
 				</div>
-				{#if data?.emails}
-					<ul class="list">
-						{#each data?.emails as email}
-							<Email data={email} />
-						{/each}
-					</ul>
-				{/if}
-
 				{#if browser}
 					{#if isMobile(window)}
 						<Navigation geoData={createFacilityGeoData(data)} />
 					{/if}
 				{/if}
-
-				<span class="inline-block align-middle space-x-1">
-					{#if data?.websites}
-						{#each data.websites as website}
-							<Website {website} />
-						{/each}
-					{/if}
-					{#if data?.socialnetworks}
-						<SoMed data={data.socialnetworks} appBar={false} />
-					{/if}
-				</span>
 			</div>
 			{#if entries}
-			<div>
-				<Directory data={entries} typesView={true} propSelectFacility={data.uid} displayEntries={false} />
-			</div>
+				<div>
+					<Directory
+						data={entries}
+						typesView={true}
+						propSelectFacility={data.uid}
+						displayEntries={false}
+					/>
+				</div>
 			{/if}
 		</div>
 		<div class="mx-2 p-1 h-64 lg:w-full z-0">
-			<Map data={createFacilitiesMapData([data])} />
+			<Map data={createMapData2(data)} />
 		</div>
 	</div>
 
