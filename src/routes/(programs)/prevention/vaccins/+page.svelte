@@ -4,11 +4,11 @@
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers.ts';
 	import { organizationStore } from '$lib/store/facilityStore.ts';
 	import * as m from "$msgs";	import ProgramNav from '$lib/ProgramNav/ProgramNav.svelte';
-	import vaccines2024h from '$lib/assets/images/vaccines/vaccination_schedule_2024_horizontal.png';
-	import vaccines2024v from '$lib/assets/images/vaccines/vaccination_schedule_2024_vertical.png';
-	import vaccinsATousLesAges2024 from '$lib/assets/pdf/vaccines/vaccins_a_tous_les_ages_2024.pdf';
-	import calendrierSimplifieVaccinationsPdf2024 from '$lib/assets/pdf/vaccines/calendrier_simplifie_des_vaccinations_2024.pdf';
-	import calendrierSimplifieVaccinationsJpg2024 from '$lib/assets/images/vaccines/calendrier_simplifie_des_vaccinations_2024.jpg';
+	import vaccines2024h from '$assets/images/vaccines/vaccination_schedule_2024_horizontal.png';
+	import vaccines2024v from '$assets/images/vaccines/vaccination_schedule_2024_vertical.png';
+	import vaccinsATousLesAges2024 from '$assets/pdf/vaccines/vaccins_a_tous_les_ages_2024.pdf';
+	import calendrierSimplifieVaccinationsPdf2024 from '$assets/pdf/vaccines/calendrier_simplifie_des_vaccinations_2024.pdf';
+	import calendrierSimplifieVaccinationsJpg2024 from '$assets/images/vaccines/calendrier_simplifie_des_vaccinations_2024.jpg';
 	import Directory from '$lib/components/Directory/CtxDirectory.svelte';
 	import { Fa, FaLayers } from 'svelte-fa';
 	import { faCalendarCheck }from '@fortawesome/free-regular-svg-icons';

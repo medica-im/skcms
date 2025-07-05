@@ -14,7 +14,7 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import { page } from '$app/state';
 	import ProgramNav from '$lib/ProgramNav/ProgramNav.svelte';
-	import colonRectum from '$lib/assets/images/colorectal_cancer/colon-rectum.jpg';
+	import colonRectum from '$assets/images/colorectal_cancer/colon-rectum.jpg';
 	import VideoPlayer from '$lib/components/Video/VideoPlayer.svelte';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import { programsNavLinks } from "$var/variables.ts";

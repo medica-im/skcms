@@ -16,6 +16,7 @@ const config = {
 	kit: {
 		adapter: adapter(),
 		alias: {
+			$assets: './src/assets',
 			$msgs: './src/paraglide/messages.js',
 			$prgld: './src/paraglide/',
 			$var: './src/var'

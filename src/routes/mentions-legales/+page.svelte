@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as m from "$msgs";	import { language } from '$lib/store/languageStore';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import LegalEntity from '../../lib/components/LegalEntity/LegalEntity.svelte';
+	import LegalEntity from '$lib/components/LegalEntity/LegalEntity.svelte';
 	import { organizationStore } from '$lib/store/facilityStore.ts';
 	import Address from '$lib/Address/Address.svelte';
 	import Fa from 'svelte-fa';

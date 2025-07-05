@@ -3,8 +3,8 @@
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers.ts';
 	import { organizationStore } from '$lib/store/facilityStore.ts';
 	import * as m from "$msgs";	import ProgramNav from '$lib/ProgramNav/ProgramNav.svelte';
-	import et3p from '$lib/assets/pdf/et3p/msa_education_therapeutique_patient_polypathologique.pdf';
-	import crozetEtAl2017 from '$lib/assets/pdf/et3p/crozet_et_al_2017.pdf';
+	import et3p from '$assets/pdf/et3p/msa_education_therapeutique_patient_polypathologique.pdf';
+	import crozetEtAl2017 from '$assets/pdf/et3p/crozet_et_al_2017.pdf';
 	import { Fa } from 'svelte-fa';
 	import {
 		faFilePdf,

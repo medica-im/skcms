@@ -6,7 +6,7 @@
 	import { faCheck } from '@fortawesome/free-solid-svg-icons';
 	import { page } from '$app/state';
 	import ProgramNav from '$lib/ProgramNav/ProgramNav.svelte';
-	import bloodPressureSelfMeasurementPdf from '$lib/assets/pdf/releve_automesure_tensionnelle_cnam.pdf';
+	import bloodPressureSelfMeasurementPdf from '$assets/pdf/releve_automesure_tensionnelle_cnam.pdf';
 	import { programsNavLinks } from "$var/variables.ts";
 </script>
 

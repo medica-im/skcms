@@ -6,12 +6,12 @@
 	import { faCheck } from '@fortawesome/free-solid-svg-icons';
 	import { page } from '$app/stores';
 	import ProgramNav from '$lib/ProgramNav/ProgramNav.svelte';
-	import epworthUrl from '$lib/assets/pdf/echelle_somnolence_epworth.pdf?url';
-	import normal from '$lib/assets/images/sleep_apnea/normal.png';
-	import hypopnea from '$lib/assets/images/sleep_apnea/hypopnea.png';
-	import apnea from '$lib/assets/images/sleep_apnea/apnea.png';
-	import homeSleepTestLarge from '$lib/assets/images/sleep_apnea/home_sleep_test_large.jpg';
-	import homeSleepTestSmall from '$lib/assets/images/sleep_apnea/home_sleep_test_small.jpg';
+	import epworthUrl from '$assets/pdf/echelle_somnolence_epworth.pdf?url';
+	import normal from '$assets/images/sleep_apnea/normal.png';
+	import hypopnea from '$assets/images/sleep_apnea/hypopnea.png';
+	import apnea from '$assets/images/sleep_apnea/apnea.png';
+	import homeSleepTestLarge from '$assets/images/sleep_apnea/home_sleep_test_large.jpg';
+	import homeSleepTestSmall from '$assets/images/sleep_apnea/home_sleep_test_small.jpg';
 	import { programsNavLinks } from "$var/variables.ts";
 </script>
 

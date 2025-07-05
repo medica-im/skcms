@@ -15,9 +15,9 @@
     import { page } from '$app/state';
     import { getCurrentUser, browserGet } from '$lib/utils/requestUtils';
     import { variables } from '$lib/utils/constants';
-    import favIcon from '$lib/assets/favicon/favicon.svg';
-    import maskIcon from '$lib/assets/favicon/mask-icon.svg';
-    import appleTouchIcon from '$lib/assets/favicon/apple-touch-icon.png';
+    import favIcon from '$assets/favicon/favicon.svg';
+    import maskIcon from '$assets/favicon/mask-icon.svg';
+    import appleTouchIcon from '$assets/favicon/apple-touch-icon.png';
     import { AppShell } from '@skeletonlabs/skeleton';
     import { Toast } from '@skeletonlabs/skeleton';
     // Modal Components

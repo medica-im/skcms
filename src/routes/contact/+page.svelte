@@ -23,7 +23,7 @@
 		faBlog
 	} from '@fortawesome/free-solid-svg-icons';
 	//import Logo from '$lib/components/Logo/Logo.svelte';
-	import logo from "$lib/assets/images/logo.png";
+	import logo from "$assets/images/logo.png";
 
 	export let data;
 </script>

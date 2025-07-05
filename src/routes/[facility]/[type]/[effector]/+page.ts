@@ -1,5 +1,5 @@
 import type { PageLoad } from './$types';
-import { variables } from '$lib/utils/constants';
+import { variables } from '$lib/utils/constants.ts';
 import { handleRequestsWithPermissions } from '$lib/utils/requestUtils';
 import { dev } from '$app/environment';
 

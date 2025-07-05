@@ -12,9 +12,9 @@
 	import { dateTime } from '$lib/store/dateTimeStore.ts';
 	import PhoneReceptionSchedule from '$lib/Schedule/PhoneReceptionSchedule.svelte';
 	import MobileSchedule from '$lib/Schedule/MobileSchedule.svelte';
-	import secretariat from '$lib/assets/images/parcours/secretariat.png';
-	import smsLight from '$lib/assets/images/parcours/sms_light.png';
-	import smsDark from '$lib/assets/images/parcours/sms_dark.png';
+	import secretariat from '$assets/images/parcours/secretariat.png';
+	import smsLight from '$assets/images/parcours/sms_light.png';
+	import smsDark from '$assets/images/parcours/sms_dark.png';
     import { programsNavLinks } from "$var/variables.ts";
 	
 	const formatter = new Intl.DateTimeFormat('fr', {

@@ -13,10 +13,10 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import { page } from '$app/stores';
 	import ProgramNav from '$lib/ProgramNav/ProgramNav.svelte';
-	import autoQuestionnaire_18_25 from '$lib/assets/pdf/auto_questionnaire_18_25_ans.pdf';
-	import autoQuestionnaire_45_50 from '$lib/assets/pdf/auto_questionnaire_45_50_ans.pdf';
-	import autoQuestionnaire_60_65 from '$lib/assets/pdf/auto_questionnaire_60_65_ans.pdf';
-	import autoQuestionnaire_70_75 from '$lib/assets/pdf/auto_questionnaire_70_75_ans.pdf';
+	import autoQuestionnaire_18_25 from '$assets/pdf/auto_questionnaire_18_25_ans.pdf';
+	import autoQuestionnaire_45_50 from '$assets/pdf/auto_questionnaire_45_50_ans.pdf';
+	import autoQuestionnaire_60_65 from '$assets/pdf/auto_questionnaire_60_65_ans.pdf';
+	import autoQuestionnaire_70_75 from '$assets/pdf/auto_questionnaire_70_75_ans.pdf';
 	import VideoPlayer from '$lib/components/Video/VideoPlayer.svelte';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import { RangeSlider } from '@skeletonlabs/skeleton';

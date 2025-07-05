@@ -2,7 +2,7 @@
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers.ts';
 	import { organizationStore } from '$lib/store/facilityStore.ts';
 	import * as m from "$msgs";
-	import calendrierSimplifieVaccinationsPdf2024 from '$lib/assets/pdf/vaccines/calendrier_simplifie_des_vaccinations_2024.pdf';
+	import calendrierSimplifieVaccinationsPdf2024 from '$assets/pdf/vaccines/calendrier_simplifie_des_vaccinations_2024.pdf';
 	import { Fa } from 'svelte-fa';
 	import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 </script>
