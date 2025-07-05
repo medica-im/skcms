@@ -1,3 +1,3 @@
-[submodule "src/sklib"]
-	path = src/sklib
+[submodule "src/lib"]
+	path = src/lib
 	url = git@github.com:medica-im/sklib.git
