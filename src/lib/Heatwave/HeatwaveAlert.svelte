@@ -76,7 +76,9 @@ async function getHeatwaveAlert() {
 </script>
 
 {#await getHeatwaveAlert()}
-  <p>Loading alert...</p>
+	{#if (import.meta.env.VITE_DEV == 'true')}
+    <p>Loading alert...</p>
+	{/if}
 {:then alert}
 {alert.start_time}
 {#if alert.start_time && alert.end_time && alert.risk_code && isActive(alert) && visible}
