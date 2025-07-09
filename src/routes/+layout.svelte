@@ -135,8 +135,7 @@
 			<SkeletonAppBar facility="{$organizationStore}"></SkeletonAppBar>
 		</svelte:fragment>
 		<svelte:fragment slot="sidebarLeft">
-					<div id="sidebar-left" class="hidden lg:block">
-			<Sidebar embedded={true} _class="hidden lg:grid w-[360px] overflow-hidden"/></div>
+			<Sidebar/>
 		</svelte:fragment>
 		<svelte:fragment slot="pageHeader">
 			{#if $notificationData}
