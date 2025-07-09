@@ -129,14 +129,14 @@
 <Modal components="{modalComponentRegistry}"></Modal>
 <Toast></Toast>
 
-<Drawer data="{$organizationStore}"></Drawer>
-
-<AppShell class="z-[90000]" {slotSidebarLeft} regionpage="overflow-y-scroll" slotfooter="bg-black p-4" on:scroll="{scrollHandler}">
+<Drawer />
+<AppShell class="z-[90000]" regionpage="overflow-y-scroll" slotfooter="bg-black p-4" on:scroll="{scrollHandler}">
 		<svelte:fragment slot="header">
 			<SkeletonAppBar facility="{$organizationStore}"></SkeletonAppBar>
 		</svelte:fragment>
 		<svelte:fragment slot="sidebarLeft">
-			<Sidebar data="{$organizationStore}" class="hidden lg:grid w-[360px] overflow-hidden"></Sidebar>
+					<div id="sidebar-left" class="hidden lg:block">
+			<Sidebar embedded={true} _class="hidden lg:grid w-[360px] overflow-hidden"/></div>
 		</svelte:fragment>
 		<svelte:fragment slot="pageHeader">
 			{#if $notificationData}

@@ -1,4 +1,5 @@
 import {
+    faTemperatureHigh,
     faUsers,
     faCaretDown,
     faInfo,
@@ -203,7 +204,7 @@ export const programsNavLinks: ProgramsNavLinks = {
                 href: '/prevention/canicule',
                 label: "Canicule",
                 keywords: 'canicule, pic, chaleur',
-                icon: null,
+                icon: faTemperatureHigh,
                 category: 'program',
                 active: true
             }
@@ -267,7 +268,16 @@ export const menuNavLinks: any = {
     ...programsNavLinks
 };
 
-export const menuNavCats: any[] = [
+interface MenuNavCat {
+    id: string,
+    title: {
+        en: string,
+        fr: string
+    },
+    list: string[]
+}
+
+export const menuNavCats: MenuNavCat[] = [
     // outpatient clinic
     {
         id: 'msp',
