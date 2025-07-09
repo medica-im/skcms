@@ -1,8 +1,9 @@
 <script lang="ts">
+	import { organizationStore } from '$lib/store/facilityStore.ts';
 	import { getContext } from 'svelte';
 	import { language } from '$lib/store/languageStore.ts';
-	import * as m from "$msgs";
-	import { page } from '$app/stores';
+	import * as m from '$msgs';
+	import { page } from '$app/state';
 	import { variables } from '$lib/utils/constants.ts';
 	import DocsIcon from '$lib/Icon/Icon.svelte';
 	import { menuNavLinks, menuNavCats } from '$var/variables.ts';
@@ -10,97 +11,91 @@
 	import SoMed from '$lib/SoMed/SoMed.svelte';
 	import Fa from 'svelte-fa';
 	import { faBlog } from '@fortawesome/free-solid-svg-icons';
+	import type { DrawerSettings } from '@skeletonlabs/skeleton';
 
-	const widthSetting: {width: string} = getContext('widthSetting');
-
+	const widthSetting: { width: string } = $state(getContext('widthSetting'));
 	const drawerStore = getDrawerStore();
-	// Props
-	export let embedded = false;
-	export let data;
-
-	// Local
-	let currentRailCategory: string | undefined = undefined;
+	let { embedded, _class = 'lg:hidden' }: { embedded: boolean; _class: string } = $props();
 
 	function onClickAnchor(): void {
 		currentRailCategory = undefined;
 		drawerStore.close();
 	}
 
-	let filteredMenuNavLinks: any[] = [];
-
 	// ListItem Click Handler
 	function onListItemClick(): void {
 		// On Drawer embed Only:
-		if (!embedded) return;
-		drawerStore.close();
+		if (embedded) {
+			drawerStore.close();
+		}
 	}
-	// Lifecycle
-	page.subscribe((page) => {
-		let basePath: string = page.url.pathname.split('/')[1];
-		let menuNavCat = menuNavCats.find(e=>e.list.includes(basePath));
-		if (menuNavCat) {
-		    currentRailCategory = menuNavCat.id;
+	function drawerOpen(): void {
+		const s: DrawerSettings = { id: 'doc-sidenav' };
+		drawerStore.open(s);
+	}
+
+	let basePath: string = $derived(page.url.pathname.split('/')[1]);
+	let currentRailCategory: string | undefined = $derived(
+		menuNavCats.find((e) => e.list.includes(basePath))?.id
+	);
+
+	$effect(() => {
+		if (!menuNavCats.some((e) => e.list.includes(basePath))) {
+			_class = 'lg:hidden';
+		} else {
+			_class = '';
 		}
 	});
-	function getMenuNavLinks(currentRailCategory: string|undefined) {
-		if (!currentRailCategory) return;
-		let path: string = $page.url.pathname;
-		//console.log(`path: ${path}`);
-		//console.log(`currentRailCategory: ${currentRailCategory}`);
-		//let basePath: string = page.url.pathname.split('/')[1];
 
-		//if (!path || path == '/') return;
-		// Translate path to menuNavCats id
-		const cat = menuNavCats.find(cat=>cat.id==currentRailCategory);
-		//console.log(`cat: ${JSON.stringify(cat)}`);
-		const list = cat.list;
-		//console.log(`list: ${JSON.stringify(list)}`);
-		let _filteredMenuNavLinks = Object.values(menuNavLinks).filter((linkSet: any) => {
+	const getMenuNavLinks = (): any[] | undefined => {
+		if (!currentRailCategory) {
+			return;
+		}
+		const cat = menuNavCats.find((cat) => cat.id == currentRailCategory);
+		const list = cat?.list;
+		if (!list) {
+			return;
+		}
+		let _filteredMenuNavLinks: any[] = Object.values(menuNavLinks).filter((linkSet: any) => {
 			return list.some((e: any) => e == linkSet.id);
 		});
-		//console.log(filteredMenuNavLinks);
 		if (_filteredMenuNavLinks.length) {
-			let menuNavLinkId = _filteredMenuNavLinks[0].id;
-			let selectNavCats = menuNavCats.filter((navCat: any) => {
-				return navCat.list.some((e: any) => e == menuNavLinkId);
-			});
-			//console.log(`selectNavCats: ${JSON.stringify(selectNavCats)}`);
-			if (selectNavCats.length) {
-				let menuNavCatId: string = selectNavCats[0].id;
-				currentRailCategory = menuNavCatId;
-				//console.log(`currentRailCategory: ${currentRailCategory}`)
-			}
+			return _filteredMenuNavLinks;
+		} else {
+			return;
 		}
-		//console.log(`_filteredMenuNavLinks: ${JSON.stringify(_filteredMenuNavLinks)}`);
-		return _filteredMenuNavLinks
 	};
+	let navLinks = $derived(getMenuNavLinks(page));
 
 	// Reactive
 	//$: filteredMenuNavLinks = Object.values(menuNavLinks).filter((e) => e.id == currentRailCategory);
-	$: filteredMenuNavLinks = getMenuNavLinks(currentRailCategory);
-	$: classesActive = (href: string) => {
-		return $page.url.pathname == href ? 'variant-ringed-primary' : '';
-	};
+	let classesActive = $derived((href: string) => {
+		return page.url.pathname == href ? 'variant-ringed-primary' : '';
+	});
 	// Set the width of the Drawer component to hide empty space.
-	$: if (widthSetting) {
-		if (!filteredMenuNavLinks?.length) {
-			widthSetting.width="w-[80]"
-		} else {
-			widthSetting.width=""
-		};
-	};
+	$effect(() => {
+		if (widthSetting) {
+			if (navLinks?.length) {
+				widthSetting.width = '';
+			} else {
+				widthSetting.width = 'w-[80]';
+			}
+		}
+	});
+
+	$inspect(currentRailCategory, navLinks, widthSetting);
 </script>
 
 <div
-	class="grid grid-cols-[auto_1fr] h-full bg-surface-50-900-token border-r border-surface-500/30 {$$props.class ??
+	class="grid grid-cols-[auto_1fr] h-full bg-surface-50-900-token border-r border-surface-500/30 {_class ??
 		''}"
 >
 	<!-- App Rail -->
 	<AppRail background="!bg-transparent" border="border-r border-surface-500/30">
 		<AppRailAnchor
-		    data-sveltekit-preload-data="off"
+			data-sveltekit-preload-data="off"
 			href="/"
-			selected={$page.url.pathname == '/' && !currentRailCategory}
+			selected={page.url.pathname == '/' && !currentRailCategory}
 			class="lg:hidden"
 			on:click={() => {
 				onClickAnchor();
@@ -113,9 +108,11 @@
 		</AppRailAnchor>
 		<AppRailAnchor
 			href="/annuaire"
-			selected={$page.url.pathname.startsWith('/annuaire') && !currentRailCategory}
+			selected={page.url.pathname.startsWith('/annuaire') && !currentRailCategory}
 			class="lg:hidden"
-			on:click={() => {onClickAnchor();}}
+			on:click={() => {
+				onClickAnchor();
+			}}
 		>
 			<svelte:fragment slot="lead"
 				><DocsIcon name="addressBook" width="w-6" height="h-6" /></svelte:fragment
@@ -124,7 +121,7 @@
 		</AppRailAnchor>
 		<AppRailAnchor
 			href="/sites"
-			selected={$page.url.pathname == '/sites' && !currentRailCategory}
+			selected={page.url.pathname == '/sites' && !currentRailCategory}
 			class="lg:hidden"
 			on:click={() => {
 				onClickAnchor();
@@ -165,7 +162,7 @@
 		{/if}
 		<AppRailAnchor
 			href="/contact"
-			selected={$page.url.pathname == '/contact' && !currentRailCategory}
+			selected={page.url.pathname == '/contact' && !currentRailCategory}
 			class="lg:hidden"
 			on:click={() => {
 				onClickAnchor();
@@ -191,15 +188,15 @@
 				<span>Blog</span>
 			</AppRailAnchor>
 		{/if}
-		{#if data?.contact?.socialnetworks}
-			<SoMed data={data.contact.socialnetworks} appRail={true} />
+		{#if $organizationStore && $organizationStore.contact?.socialnetworks}
+			<SoMed data={$organizationStore.contact.socialnetworks} appRail={true} />
 		{/if}
 	</AppRail>
-	{#if filteredMenuNavLinks?.length}
+	{#if navLinks?.length}
 		<!-- Nav Links -->
-		<section class="p-4 pb-20 space-y-4 overflow-y-auto">
-			{#each filteredMenuNavLinks as { id, title, href, list }, i}
-				{#if list.filter(e=>e.active!=false).length > 0}
+		<section class="p-4 pb-20 space-y-4 overflow-y-auto w-[360px]">
+			{#each navLinks as { id, title, href, list }, i}
+				{#if list.filter((e) => e.active != false).length > 0}
 					<!-- Title -->
 					<div {id} class="text-primary-700 dark:text-primary-500 font-bold uppercase px-4">
 						{title[$language]}
@@ -207,9 +204,16 @@
 					<!-- Navigation List -->
 					<nav class="list-nav">
 						<ul>
-							{#each list.filter(e=>e.active!=false) as { href, label, badge }}
+							{#each list.filter((e) => e.active != false) as { href, label, badge }}
 								<li>
-									<a href={href} class={classesActive(href)} data-sveltekit-preload-data="hover" on:click={onListItemClick}>
+									<a
+										{href}
+										class={classesActive(href)}
+										data-sveltekit-preload-data="hover"
+										on:click={() => {
+											onListItemClick();
+										}}
+									>
 										<span class="flex-auto">{@html label}</span>
 										{#if badge}<span class="badge variant-filled-secondary">{badge}</span>{/if}
 									</a>
@@ -218,7 +222,7 @@
 						</ul>
 					</nav>
 					<!-- Divider -->
-					{#if i + 1 < filteredMenuNavLinks.length}<hr class="!my-6 opacity-50" />{/if}
+					{#if i + 1 < navLinks?.length}<hr class="!my-6 opacity-50" />{/if}
 				{/if}
 			{/each}
 		</section>

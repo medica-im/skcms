@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { dateTime } from '$lib/store/dateTimeStore.ts';
-	import secretary from '$lib/assets/images/parcours/secretary.png';
-	import { Avatar } from '@skeletonlabs/skeleton';
 	import Fa from 'svelte-fa';
 	import {
 		faSync,

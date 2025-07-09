@@ -3,6 +3,9 @@
 	import { language } from '$lib/store/languageStore.ts';
 	import { capitalizeFirstLetter, lowercaseFirstLetter } from '$lib/helpers/stringHelpers.ts';
 	import { getProgram, getIsOther } from '$lib/links.ts';
+	import Fa from "svelte-fa";
+	import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
+
 	export let pathname;
 	export let programsNavLinks;
 
@@ -46,11 +49,13 @@
 			<ul class="space-y-4">
 				{#each program.list as prog}
 					<li class="py-1">
-						<a href={prog.href} class="btn variant-ghost-surface p-2">
-							{#if prog.icon}
-								<span class="badge bg-primary-500">{prog.icon}</span>
+						<a href={prog.href} class="btn variant-ghost-surface p-2 place-items-center">
+							<div class="flex space-x-1 items-center">
+							{#if prog.icon && Object.getOwnPropertyDescriptors(prog.icon).prefix.value=="fas"}
+							<span><Fa icon={prog.icon as IconDefinition}/></span>
 							{/if}
 							<span class="flex-auto">{prog.label}</span>
+							</div>
 						</a>
 					</li>
 				{/each}

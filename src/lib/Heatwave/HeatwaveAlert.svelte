@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { variables } from '$lib/utils/constants';
 	import Fa from 'svelte-fa';
 	import {
@@ -18,11 +19,13 @@ let visible: boolean = $state(true);
 let alert: HeatwaveAlert;
 
 async function getHeatwaveAlert() {
-	const url=`${variables.BASE_API_URI}/heatwave/warning/84/`
-	console.log(url);
+	const department = page.data.organization.department.code;
+	const url=`${variables.BASE_API_URI}/heatwave/warning/${department}/`;
+	if (import.meta.env.VITE_DEV == 'true') {
+	    console.log(url);
+	}
     const result = await fetch(url);
     const alert = await result.json() as HeatwaveAlert
-	console.log(`${JSON.stringify(alert)}`);
     return alert;
 }
 

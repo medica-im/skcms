@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { dateTime } from '$lib/store/dateTimeStore.ts';
-	import secretary from '$lib/assets/images/parcours/secretary.png';
-	import { Avatar } from '@skeletonlabs/skeleton';
 	import Fa from 'svelte-fa';
 	import {
 		faSync,
@@ -15,9 +13,6 @@
 	import { isServiceAvailable } from '$lib/Schedule/available.ts';
 	import { publicHolidays } from '$lib/store/publicHolidaysStore.ts';
 	import { loadAll } from '@square/svelte-store';
-	import SkeletonAppBar from '$lib/SkeletonAppBar/SkeletonAppBar.svelte';
-
-	export let data;
 </script>
 
 <div class="card h-full">
