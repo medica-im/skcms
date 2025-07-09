@@ -1,18 +1,20 @@
 <script lang="ts">
-import { getDrawerStore, Drawer } from '@skeletonlabs/skeleton';
-import Sidebar from '$lib/SkeletonAppBar/Sidebar.svelte';
-import { setContext } from 'svelte';
+	import { getDrawerStore, Drawer } from '@skeletonlabs/skeleton';
+	import Sidebar from '$lib/SkeletonAppBar/Sidebar.svelte';
+	import MobileSidebar from '$lib/SkeletonAppBar/MobileSidebar.svelte';
 
-let widthSetting = $state({width: 'w-[80]'});
-setContext('widthSetting', widthSetting);
-const drawerStore = getDrawerStore();
+	import { setContext } from 'svelte';
 
+	let widthSetting = $state({ width: 'w-[80]' });
+	setContext('widthSetting', widthSetting);
+	const drawerStore = getDrawerStore();
 </script>
 
 <Drawer width={widthSetting.width}>
 	{#if $drawerStore.id === 'doc-sidenav'}
-		<!-- Sidebar -->
-		<Sidebar embedded={true} _class={'lg:hidden'} />
+		<Sidebar />
+	{:else if $drawerStore.id === 'mobile'}
+		<MobileSidebar />
 	{:else}
 		<!-- Fallback Error -->
 		<div class="w-full h-full flex justify-center items-center">
