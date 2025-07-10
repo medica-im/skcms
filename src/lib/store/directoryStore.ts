@@ -1,3 +1,4 @@
+import { version } from '$app/environment';
 import { writable, derived, readable, get, asyncReadable, asyncDerived } from '@square/svelte-store';
 import { variables } from '$lib/utils/constants.ts';
 import { browser } from "$app/environment"
@@ -51,6 +52,7 @@ export const effectorTypeLabels = async () => {
 		cachedData = JSON.parse(cachedData);
 		let elapsed = Date.now() - cachedData.cachetime;
 		expired = elapsed > cachelife;
+		console.log(`expired: ${expired}`);
 		if ('data' in cachedData) {
 			if (cachedData.data?.length) {
 				empty = false;
@@ -243,8 +245,27 @@ async function processCachedEntries(changedObj: ChangedObj) {
 }
 
 export const getEntries = async () => {
+	if (browser) {
+		let localVersion = localStorage.getItem("version");
+		console.log(`localVersion: ${localVersion}`);
+		console.log(`app version: ${version}`);
+		if (!localVersion) {
+			console.log("No local version: clearing localstorage...");
+			localStorage.clear();
+			localStorage.setItem("version", version);
+		}
+		else if (!(localVersion == version)) {
+			console.log(`Local version (${localVersion}) is different from the app version (${version}): clearing localstorage...`);
+			localStorage.clear();
+			localStorage.setItem("version", version);
+		} else {
+			console.log(`Local version (${localVersion}) is up to date with app version (${version}): all good!`);
+		}
+	}
 	let contacts = getLocalStorage("contacts")?.data;
 	const refreshContacts = (!import.meta.env.DEV && PUBLIC_CACHE_CONTACTS == "false" || contacts == null);
+	console.log(`import.meta.env.DEV: ${import.meta.env.DEV}`);
+	console.log(`refreshContacts: ${refreshContacts}`);
 	if (refreshContacts) {
 		contacts = await downloadElements("contacts");
 		setLocalStorage('contacts', contacts)
@@ -346,7 +367,7 @@ export const communes = async () => {
 export const categories = async () => {
 	const effectors: Entry[] = await getEntries();
 	let categories = (
-		uniq(effectors.map(e=>e.effector_type).flat()).sort(function (a, b) {
+		uniq(effectors.map(e => e.effector_type).flat()).sort(function (a, b) {
 			return a.uid.localeCompare(b.uid);
 		})
 	);
@@ -367,6 +388,7 @@ export const getSituations = async (): Promise<Situation[]> => {
 		cachedData = JSON.parse(cachedData);
 		let elapsed = Date.now() - cachedData.cachetime;
 		expired = elapsed > cachelife;
+		console.log(`expired: ${expired}`);
 		if ('data' in cachedData) {
 			if (cachedData.data?.length) {
 				empty = false;
@@ -625,7 +647,7 @@ export const cardinalCategorizedFilteredEffectorsF = async (categorizedFilteredE
 					label = eTL[type.uid]['P']['F']
 				} else {
 					try {
-					    label = eTL[type.uid]['P']['M']
+						label = eTL[type.uid]['P']['M']
 					} catch (error) {
 						console.error(error);
 						console.error(key);
@@ -708,7 +730,7 @@ export const cardinalTypes = asyncDerived(
 			value.forEach(
 				(e) => {
 					//type = e.types.find(e => e.name == key);
-					type=e.effector_type
+					type = e.effector_type
 					if (e.gender == 'F') {
 						countF += 1;
 					} else if (e.gender == 'M') {
