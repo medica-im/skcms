@@ -119,6 +119,8 @@
 	<link rel="icon" href="{favIcon}">
 	<link rel="mask-icon" href="{maskIcon}" color="#000000">
 	<link rel="apple-touch-icon" href="{appleTouchIcon}">
+	<script src="//cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script>
 	<!--script defer data-domain="sante-gadagne.fr" src="https://plausible.medica.im/js/script.js"></script-->
 	<!--set .env variable VITE_NOINDEX to "true" to prevent all search engines that support the noindex rule (including Google) from indexing a page on your site--> 
 	{#if variables.NOINDEX==true}
