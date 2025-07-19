@@ -3,7 +3,7 @@ import { post, browserSet, browserGet, setCurrentUser } from '$lib/utils/request
 import { variables } from '$lib/utils/constants';
 import { SvelteKitAuth } from "@auth/sveltekit";
 import type { DefaultSession } from "@auth/sveltekit";
-import { AUTH_PROVIDER_ID, AUTH_PROVIDER_NAME, AUTH_PROVIDER_ISSUER, AUTH_PROVIDER_CLIENT_ID, AUTH_PROVIDER_CLIENT_SECRET } from '$env/static/private';
+import { AUTH_PROVIDER_ID, AUTH_PROVIDER_NAME, AUTH_PROVIDER_ISSUER, AUTH_PROVIDER_CLIENT_ID, AUTH_PROVIDER_CLIENT_SECRET, AUTH_DEBUG } from '$env/static/private';
 import GitHub from "@auth/sveltekit/providers/github"
 import Google from "@auth/sveltekit/providers/google"
 
@@ -63,7 +63,8 @@ const handleLogin = async (credential: string) => {
 };
 
 export const { handle, signIn, signOut } = SvelteKitAuth({
-  debug: true,
+  trustHost:true,
+  debug: AUTH_DEBUG=='true' ? true : false,
   providers: [Google, GitHub],
   callbacks: {
     jwt({ token, user, account }) {
