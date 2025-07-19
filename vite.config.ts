@@ -12,8 +12,15 @@ export default defineConfig({
 	},
 	plugins: [
 		paraglideVitePlugin(
-			{ project: './project.inlang', outdir: './src/paraglide',			strategy: ['url', 'cookie', 'baseLocale'],
-			}), sveltekit(), isoImport() /*, purgeCss()*/],
+			{
+				project: './project.inlang',
+				outdir: './src/paraglide',
+				strategy: ['cookie', 'preferredLanguage', 'baseLocale'],
+			}
+		),
+		sveltekit(),
+		isoImport() /*, purgeCss()*/
+	],
 	resolve: {
 		alias: {
 			'$': path.resolve(__dirname, 'src'),
