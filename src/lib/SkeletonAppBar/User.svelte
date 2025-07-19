@@ -1,13 +1,12 @@
 <script lang="ts">
 	import * as m from "$msgs";
 	import { page } from '$app/state';
+	import { SignOut } from "@auth/sveltekit/components"
 	import { logOutUser } from '$lib/utils/requestUtils';
-	import { userData } from '$lib/store/userStore';
 	import { getDrawerStore } from '@skeletonlabs/skeleton';
-	import { isObjectEmpty } from '$lib/utils/utils';
 	import { popup } from '@skeletonlabs/skeleton';
 	import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
-	import { isAuth } from '$lib/store/authStore';
+    import type { OauthSession } from "$lib/interfaces/oidc";
 
 	import Fa from 'svelte-fa';
 	import {
@@ -26,7 +25,7 @@
 		faUser,
 		faHexagonNodes
 	} from '@fortawesome/free-solid-svg-icons';
-	export let embedded = false;
+	let { embedded = false, sideBar = false} : { embedded: boolean; sideBar: boolean } = $props();
 	const drawerStore = getDrawerStore();
 
 	// ListItem Click Handler
@@ -35,23 +34,44 @@
 		if (!embedded) return;
 		drawerStore.close();
 	}
-	export let facility;
-	export let sideBar = false;
+    let session = $derived(page.data.session);
 
-	$: classesActive = (href: string) => (href === page.url.pathname ? '!bg-primary-500' : '');
+	let signin = "/signin";
+	let classesActive = $derived((href: string) => {
+		return page.url.pathname == href ? '!bg-primary-500' : '';
+	});
+
+	//let classesActive = (href: string) => (href === page.url.pathname ? '!bg-primary-500' : '');
 </script>
 
-{#key $isAuth}
 {#if sideBar}
 	<ul class="navbar-nav">
-		{#if isObjectEmpty($userData)}
+		{#if session}
 			<li class="nav-item">
-				<a class={classesActive('/accounts/login')} href="/accounts/login"
+				<a
+					href="/dashboard"
+					class={classesActive("/dashboard")}
+					><span><Fa icon={faUser} size="lg" /></span>
+					<span>{m.NAVBAR_HI()} {session.user.name}</span></a
+				>
+			</li>
+			<li class="nav-item">
+				<button type="button" onclick={async () => await logOutUser()}
+					><span><Fa icon={faRightFromBracket} size="lg" /></span>
+					<span>{m.NAVBAR_LOGOUT()}</span></button
+				>
+				<!--a class="nav-link" href="#" on:click={async () => await logOutUser()}
+				>{m.NAVBAR_LOGOUT()}</a
+            -->
+			</li>
+		{:else}
+			<li class="nav-item">
+				<a class={classesActive(signin)} href={signin}
 					><span><Fa icon={faRightToBracket} size="lg" /></span>
 					<span>{m.NAVBAR_LOGIN()}</span></a
 				>
 			</li>
-			{#if facility.registration === true}
+			{#if page.data.facility.registration === true}
 				<li>
 					<a
 						class={page.url.pathname === '/accounts/register' ? 'active aria-current="page"' : ''}
@@ -60,60 +80,30 @@
 				</li>
 			{/if}
 		{/if}
-		{#if $userData && $userData.username && $userData.username.length}
-			<li class="nav-item">
-				<a
-					href="/accounts/user/{$userData.username}-{$userData.id}"
-					class={classesActive(`/accounts/user/${$userData.username}-${$userData.id}`)}
-					><span><Fa icon={faUser} size="lg" /></span>
-					<span>{m.NAVBAR_HI()} {$userData.username}</span></a
-				>
-			</li>
-			<li class="nav-item">
-				<button type="button" on:click={async () => await logOutUser()}
-					><span><Fa icon={faRightFromBracket} size="lg" /></span>
-					<span>{m.NAVBAR_LOGOUT()}</span></button
-				>
-				<!--a class="nav-link" href="#" on:click={async () => await logOutUser()}
-				>{m.NAVBAR_LOGOUT()}</a
-            -->
-			</li>
-		{/if}
 	</ul>
 {:else}
-	{#if isObjectEmpty($userData)}
-		<a
-			class="{classesActive('/accounts/login')} btn hover:variant-soft-primary lg:inline-block"
-			href="/accounts/login"
-			title={m.NAVBAR_LOGIN()}
-			><span class="lg:inline-block align-text-bottom"
-				><Fa icon={faRightToBracket} size="lg" /></span
-			>
-			<span class="hidden xl:inline-block">{m.NAVBAR_LOGIN()}</span></a
-		>
-	{/if}
-	{#if $userData && $userData.username && $userData.username.length}
+	{#if session?.user}
 		<button
 		    use:popup={{ event: 'click', target: 'user' }}
-			title={$userData.username}
-			class="{classesActive(
-				`/accounts/user/${$userData.username}-${$userData.id}`
+			title={session.user.name}
+			class="{classesActive('/dashboard'
 			)} btn hover:variant-soft-primary"
 			><span class="lg:inline-block align-text-bottom"><Fa icon={faUser} size="lg" /></span>
-			<span class="hidden lg:inline-block">{$userData.username}</span>
+			<span class="hidden lg:inline-block">{session.user.name}</span>
 			<span class="opacity-50"><Fa icon={faCaretDown} /></span>
 			</button
 		>
-		<button
-			type="button"
-			class="btn hover:variant-soft-primary lg:inline-block"
-			title={m.NAVBAR_LOGOUT()}
-			on:click={async () => await logOutUser()}
-			><span class="lg:inline-block align-text-bottom"
+        <SignOut className="">
+          <div
+            slot="submitButton"
+            class="btn hover:variant-soft-primary lg:inline-block"
+          >
+            <span class="lg:inline-block align-text-bottom"
 				><Fa icon={faRightFromBracket} size="lg" /></span
 			>
-			<span class="hidden lg:inline-block">{m.NAVBAR_LOGOUT()}</span></button
-		>
+			<span class="hidden lg:inline-block">{m.NAVBAR_LOGOUT()}</span>
+          </div>
+        </SignOut>
 		<div class="">
 			<!-- popup -->
 			<!-- prettier-ignore -->
@@ -122,11 +112,11 @@
 				<ul>
 
 					<li>
-						<a href="/accounts/user/{$userData.username}-{$userData.id}"
-						title={$userData.username}
+						<a href="/dashboard"
+						title={session.user.name}
 						>
 							<span class="w-6 text-center"><Fa icon={faUser} /></span>
-							<span>{$userData.username}</span>
+							<span>{session.user.name}</span>
 						</a>
 						<a href="/web">
 							<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
@@ -142,7 +132,15 @@
 			</nav>
 		</div>
 		</div>
-		
+	{:else}
+		<a
+			class="{classesActive(signin)} btn hover:variant-soft-primary lg:inline-block"
+			href={signin}
+			title={m.NAVBAR_LOGIN()}
+			><span class="lg:inline-block align-text-bottom"
+				><Fa icon={faRightToBracket} size="lg" /></span
+			>
+			<span class="hidden xl:inline-block">{m.NAVBAR_LOGIN()}</span></a
+		>
 	{/if}
 {/if}
-{/key}

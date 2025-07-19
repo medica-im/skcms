@@ -1,5 +1,6 @@
 <script lang="ts">
-	import * as m from "$msgs";	import Fa from 'svelte-fa';
+	import * as m from "$msgs";
+	import Fa from 'svelte-fa';
 	import { faInfo } from '@fortawesome/free-solid-svg-icons';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import Languages from './Languages.svelte';
