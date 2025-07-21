@@ -1,5 +1,5 @@
 import type { Variables } from '$lib/interfaces/variables.interface.ts';
-import { PUBLIC_INPUT_GEOCODER, PUBLIC_INPUT_CATEGORY, PUBLIC_INPUT_COMMUNE, PUBLIC_INPUT_FACILITY, PUBLIC_INPUT_SEARCH, PUBLIC_INPUT_SITUATION, PUBLIC_BLOG_URI, PUBLIC_VITE_TIMELINE } from '$env/static/public';
+import { PUBLIC_INPUT_GEOCODER, PUBLIC_INPUT_CATEGORY, PUBLIC_INPUT_COMMUNE, PUBLIC_INPUT_FACILITY, PUBLIC_INPUT_SEARCH, PUBLIC_INPUT_SITUATION, PUBLIC_BLOG_URI, PUBLIC_VITE_TIMELINE, PUBLIC_ORGANIZATION_CATEGORY } from '$env/static/public';
 
 const BASE_API_URI: string = (import.meta.env.VITE_DEV == "true")
 	? import.meta.env.VITE_BASE_API_URI_DEV
@@ -23,7 +23,7 @@ const TIMELINE: boolean = PUBLIC_VITE_TIMELINE == "true"
 	? true
 	: false;
 
-const ORGANIZATION_CATEGORY: string = import.meta.env.VITE_ORGANIZATION_CATEGORY
+const ORGANIZATION_CATEGORY: string = PUBLIC_ORGANIZATION_CATEGORY
 
 const NOINDEX: boolean = (import.meta.env.VITE_NOINDEX == "true")
 	? true
