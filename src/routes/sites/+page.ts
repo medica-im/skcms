@@ -5,7 +5,7 @@ import { allFacilityEntries } from '$lib/components/Directory/sites.ts';
 
 import type { PageLoad } from './$types';
 
-export const load: PageLoad = async ({parent}) => {
+export const load: PageLoad = async ({ parent }) => {
     currentOrg.set(true);
     const { organization } = await parent();
     return {
