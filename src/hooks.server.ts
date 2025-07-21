@@ -2,6 +2,8 @@ import type { Handle } from '@sveltejs/kit';
 import { paraglideMiddleware } from '$prgld/server';
 import { sequence } from '@sveltejs/kit/hooks';
 
+import { handle as handleAuth } from "$lib/auth.ts"
+
 const cookie: Handle = async ({ event, resolve }) => {
 	let theme = '';
 	const cookieTheme = event.cookies.get('theme');
@@ -27,4 +29,4 @@ const paraglideHandle: Handle = ({ event, resolve }) =>
 		});
 	});
 
-export const handle = sequence(cookie, paraglideHandle);
+export const handle = sequence(handleAuth, cookie, paraglideHandle);

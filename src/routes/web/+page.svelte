@@ -130,7 +130,8 @@
 						<EffectorTypeSelect bind:selectedEffectorType />
 						{#if selectedEffectorType}
 							<p>Catégorie sélectionnée: {selectedEffectorType.label}</p>
-							{#if data.user?.role.name == 'superuser'}
+							<!-- TODO: add user role to session -->
+							{#if true}
 								<p class="text-sm">
 									{selectedEffectorType.value}
 									<button use:copy={selectedEffectorType.value} class="btn btn-sm variant-ghost"

@@ -6,7 +6,7 @@
 	"packageManager": "pnpm@10.4.0",
 	"scripts": {
 		"dev": "npm run sveltekit",
-		"sveltekit": "vite --host --port 3000",
+		"sveltekit": "vite --host 127.0.0.1 --port 3000",
 		"build": "vite build",
 		"preview": "vite preview",
 		"test": "vitest",
@@ -17,7 +17,7 @@
 		"format": "prettier --plugin-search-dir . --write ."
 	},
 	"devDependencies": {
-		"@inlang/paraglide-js": "2.0.11",
+		"@inlang/paraglide-js": "2.2.0",
 		"@playwright/test": "^1.50.1",
 		"@skeletonlabs/skeleton": "^2.11.0",
 		"@skeletonlabs/tw-plugin": "^0.4.1",
@@ -55,6 +55,7 @@
 		"vitest": "^3.1.1"
 	},
 	"dependencies": {
+		"@auth/sveltekit": "^1.10.0",
 		"@floating-ui/dom": "^1.6.13",
 		"@fortawesome/fontawesome-svg-core": "^6.7.2",
 		"@fortawesome/free-brands-svg-icons": "^6.7.2",
@@ -70,7 +71,7 @@
 		"@ts-ghost/admin-api": "^4.2.1",
 		"@turf/bbox": "^7.2.0",
 		"@turf/helpers": "^7.2.0",
-		"@zerodevx/svelte-json-view": "^1.0.7",
+		"@zerodevx/svelte-json-view": "^1.0.11",
 		"cl-editor": "^2.3.0",
 		"esm-seedrandom": "^3.0.5",
 		"geojson": "^0.5.0",
