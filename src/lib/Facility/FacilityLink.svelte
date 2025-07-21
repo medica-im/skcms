@@ -5,6 +5,7 @@
 	export let data: Facility;
 </script>
 
+{#if data}
 <a href="/sites/{data.slug}" class="unstyled underline underline-offset-4 flex gap-2 items-center">
 	<span>
 		<Fa icon={faLocationDot}/>
@@ -13,3 +14,4 @@
 		{data.label||data.name}
 	</span>
 </a>
+{/if}
