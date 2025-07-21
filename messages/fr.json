@@ -120,5 +120,9 @@
   "CHANGE_PASSWORD_SUCCESS": "Mot de passe changé avec succès!",
   "PASSWORD_FORGOTTEN": "Mot de passe oublié?",
   "CHARACTER_SINGULAR": "caractère",
-  "CHARACTER_PLURAL": "caractères"
+  "CHARACTER_PLURAL": "caractères",
+  "SIGNIN": "S'identifier",
+  "signout": "Se déconnecter",
+  "with": "avec",
+  "from": "de"
 }
