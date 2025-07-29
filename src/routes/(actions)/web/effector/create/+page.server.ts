@@ -11,17 +11,17 @@ export const actions = {
     let jsonString = JSON.stringify(Object.fromEntries(formData));
     let json = JSON.parse(jsonString);
     console.log(`data:${JSON.stringify(json)}`);
-    fetch('https://dev.sante-gadagne.fr/api/v2/cookie', {
+    let response = await fetch('https://dev.sante-gadagne.fr/api/v2/cookie', {
   method: 'POST'
 })
-.then(res => res.json())
-.then(res => console.log(`normal fetch ${res}`));
-event.fetch('https://dev.sante-gadagne.fr/api/v2/cookie', {
+    let _json = await response.json()
+    console.log(`normal fetch ${_json}`);
+  response = await event.fetch('https://dev.sante-gadagne.fr/api/v2/cookie', {
   method: 'POST'
 })
-.then(res => res.json())
-.then(res => console.log(`event fetch ${res}`));
-    const response = await event.fetch(`${variables.BASE_URI}/api/v2/effectors/`, {
+  _json = await response.json()
+  console.log(`event fetch ${_json}`);
+    response = await event.fetch(`${variables.BASE_URI}/api/v2/effectors/`, {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
