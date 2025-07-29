@@ -105,13 +105,7 @@
 
     // Disable left sidebar on homepage
     $: slotSidebarLeft = matchList(page.url.pathname) ? 'bg-surface-50-900-token lg:w-auto z-auto' : 'w-0';
-	const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        enabled: browser,
-      },
-    },
-  })
+	const queryClient = new QueryClient()
 </script>
 
 <svelte:head>
