@@ -9,8 +9,8 @@
 	import * as m from '$msgs';
 	import OrganizationSelect from '$lib/Web/OrganizationSelect.svelte';
 	import FacilitySelect from '$lib/Web/FacilitySelect.svelte';
+	import EffectorSelect from './EffectorSelect.svelte';
 	import EffectorTypeSelect from '$lib/Web/EffectorTypeSelect.svelte';
-	import FacilityCard from '$lib/Facility/FacilityCardDisplay.svelte';
 	import DisplayFacility from '$lib/Web/DisplayFacility.svelte';
 	import FacilityCreationForm from '$lib/Web/FacilityCreationForm.svelte';
 	import EffectorCreationForm from '$lib/Web/EffectorCreationForm.svelte';
@@ -18,7 +18,7 @@
 	import { getFacility } from '$lib/Web/data';
 	import { useQueryClient, createQuery } from '@tanstack/svelte-query';
 	import { copy } from 'svelte-copy';
-	import type { Facility, Commune } from '$lib/interfaces/v2/facility.ts';
+	import type { FacilityV2, Commune } from '$lib/interfaces/v2/facility.ts';
 	import type { CreateQueryResult } from '@tanstack/svelte-query';
 	import type { PageProps } from './$types';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
@@ -28,27 +28,31 @@
 	let memberOfOrg: boolean|undefined = $state();
 	let showCreateFacilityForm: boolean = $state(false);
 	let showCreateEffectorForm: boolean = $state(false);
+	let showSelectEffectorForm: boolean = $state(false);
 	let selectedOrganization: string | null = $state(null);
 	let selectedFacility: { label: string; value: string } | undefined = $state();
 	let createdFacility: { label: string; value: string } | undefined = $state();
 	let createdEffector: Effector | undefined = $state();
 	let selectedCommune: { label: string; value: string } | undefined = $state();
 
-	let facility: CreateQueryResult<Facility, Error> | undefined = $state();
+	//let facility: CreateQueryResult<FacilityV2, Error> | undefined = $state();
 	let selectedFacilityUid: string | undefined = $derived(selectedFacility?.value);
 	let facilityCount: number = $state(0);
+	let department: {label: string, value: string}|undefined = $state();
 	let selectedEffectorType: { label: string; value: string } | undefined = $state();
 	let effectorType = $derived(selectedEffectorType?.value);
 	let showEntryCreationForm: boolean = $derived(memberOfOrg !== undefined && selectedFacility !== undefined && selectedEffectorType !== undefined && createdEffector !== undefined);
 
-	$effect(() => {
-		if (selectedFacility && selectedFacilityUid) {
-			facility = createQuery<Facility, Error>({
+	/*let facility = $derived.by(() => {
+		if (selectedFacilityUid) {
+		let facility = createQuery<FacilityV2, Error>(
+			{
 				queryKey: ['facilities', selectedFacilityUid],
 				queryFn: () => getFacility(selectedFacilityUid)
-			});
-		}
-	});
+		    }
+		)
+        return facility;
+		}});*/
 	$effect(() => {
 		if (createdFacility) {
 			selectedFacility = createdFacility;
@@ -62,14 +66,15 @@
 				<EntryCreationForm {memberOfOrg} {createdEffector} {selectedFacility} {selectedEffectorType} bind:showEntryCreationForm bind:showCreateEffectorForm {form}/>
 			</div>
 		{:else}
-			<div class="grid grid-cols-1 gap-4 w-full variant-ringed p-2">
+			<div class="grid grid-cols-1 gap-4 w-full p-2">
 				<h3 class="h3">Sélectionner ou créer un établissement</h3>
 				<!--div class="grid grid-cols-1 gap-2 w-full variant-ringed p-2">
 					<OrganizationSelect bind:value={selectedOrganization} />
 				</div-->
 				<div class="grid grid-cols-1 gap-2 w-full variant-ringed p-2">
 					<FacilitySelect
-						bind:value={selectedFacility}
+						bind:facility={selectedFacility}
+						bind:department
 						bind:commune={selectedCommune}
 						bind:facilityCount
 					/>
@@ -143,6 +148,14 @@
 						<button
 							type="button"
 							class="btn variant-ghost w-min justify-self-center"
+							disabled={showSelectEffectorForm}
+							onclick={() => {
+								showSelectEffectorForm = true;
+							}}>Sélectionner une personne existante</button
+						>
+						<button
+							type="button"
+							class="btn variant-ghost w-min justify-self-center"
 							disabled={showCreateEffectorForm}
 							onclick={() => {
 								showCreateEffectorForm = true;
@@ -158,6 +171,8 @@
 								{selectedEffectorType}
 								{selectedFacility}
 							/>
+						{:else if showSelectEffectorForm}
+							<EffectorSelect bind:effector={createdEffector} />
 						{/if}
 					</div>
 				{/if}

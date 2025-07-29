@@ -6,7 +6,7 @@
 	export let data;
 
 	function compareFn(a:Facility, b:Facility) {
-		return b.effectors.length - a.effectors.length
+		return b.entries.length - a.entries.length
 	}
 </script>
 

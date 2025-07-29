@@ -9,13 +9,14 @@
 	import { browser } from '$app/environment';
 	import { isMobile } from '$lib/helpers/deviceDetector.ts';
 	import { createMapData2 } from '$lib/components/Map/mapData.ts';
+	import type { FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 	import type { Facility } from '$lib/interfaces/v2/facility.ts';
 
-	export let data: Facility;
+	export let data: FacilityV2;
 	export let entries = null;
 	export let showEffectors = false;
 
-	const createFacilityGeoData = (facility: Facility) => {
+	const createFacilityGeoData = (facility: FacilityV2) => {
 		let facilityGeoData = {
 			name: facility?.name ?? 'default',
 			latitude: Number(facility.location?.latitude ?? 0),
@@ -27,7 +28,7 @@
 </script>
 
 <div id="{data.name}_anchor" class="card variant-soft p-4 space-y-4 lg:scroll-mt-12">
-	{#if page.data.user?.role.name == 'superuser'}
+	{#if (import.meta.env.VITE_DEV == 'true')}
 	<div class="card variant-ringed">
 		<Accordion>
 			<AccordionItem>

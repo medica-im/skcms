@@ -13,7 +13,7 @@
 
 	import type { ModalSettings } from '@skeletonlabs/skeleton';
 	import type { SubmitFunction } from '@sveltejs/kit';
-	import type { Select } from '$lib/interfaces/select.ts';
+	import type { SelectType } from '$lib/interfaces/select.ts';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
 
 	interface FacilityCreationForm {
@@ -33,9 +33,9 @@
 		createdEffector: Effector | undefined;
 		showCreateEffectorForm: boolean;
 		org_cat: string;
-		selectedFacility: Select | undefined;
+		selectedFacility: SelectType | undefined;
 		form: any;
-		selectedEffectorType: Select | undefined;
+		selectedEffectorType: SelectType | undefined;
 	} = $props();
 
 	interface InputClass {

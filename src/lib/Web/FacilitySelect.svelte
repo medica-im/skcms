@@ -1,25 +1,25 @@
 <script lang="ts">
 	import { reactiveQueryArgs } from '$lib/utils/utils.svelte';
 	import Select from 'svelte-select';
+	import type { SelectType } from '$lib/interfaces/select.ts';
 	import { useQueryClient, createQuery } from '@tanstack/svelte-query';
   import type { CreateQueryResult } from '@tanstack/svelte-query';
-	import type { Commune, DepartmentOfFrance, Facility } from '$lib/interfaces/v2/facility.ts';
+	import type { Commune, DepartmentOfFrance, FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 	import { getCommunesByDpt, getDepartments, getFacilities } from './data';
 
-	let { value = $bindable(), commune = $bindable(), facilityCount = $bindable() }: { value: {label: string, value: string} | undefined, commune: {label: string, value: string} | undefined; facilityCount: number } = $props();
-	let department: any = $state();
-	let departmentCode: string | null = $derived(department?.value);
+	let { facility = $bindable(), department = $bindable(), commune = $bindable(), facilityCount = $bindable(0) }: { facility: SelectType | undefined, department: SelectType | undefined; commune: SelectType | undefined; facilityCount: number } = $props();
+	let departmentCode: string | undefined = $derived(department?.value);
 	let communes: CreateQueryResult<Commune[], Error> | undefined = $state();
     //let commune: any = $state();
     
-	const facilities = createQuery<Facility[], Error>({
+	const facilities = createQuery<FacilityV2[], Error>({
 		queryKey: ['facilities'],
 		queryFn: () => getFacilities()
 	});
 
     const facilityStore = createQuery(
 		reactiveQueryArgs(() => ({
-			queryKey: ['facilities'],
+			queryKey: ['facilityStore'],
 		  queryFn: () => getFacilities()
 		}))
 	);
@@ -46,7 +46,7 @@
 		}
 	});
 
-	const getName = (facility: Facility) => {
+	const getName = (facility: FacilityV2) => {
 		if (facility.name) {
 			return facility.name;
 		} else if (facility.effectors) {
@@ -57,11 +57,11 @@
 			return facility.uid;
 		}
 	};
-	const getLabel = (facility: Facility) => {
+	const getLabel = (facility: FacilityV2) => {
 		return `[${facility.commune.department.name}] - [${facility.commune.name_fr}] - ${getName(facility)}`;
 	};
 
-	function compareFnFacility(a: Facility, b: Facility) {
+	function compareFnFacility(a: FacilityV2, b: FacilityV2) {
 		const dpt = a.commune.department.name.localeCompare(b.commune.department.name);
 		if (dpt == 0) {
 			return a.commune.name_fr.localeCompare(b.commune.name_fr);
@@ -81,7 +81,7 @@
 		});
 	};
 
-	const getFacilityItems = (facilities: Facility[], department: any, commune: any) => {
+	const getFacilityItems = (facilities: FacilityV2[], department: any, commune: any) => {
 		facilities.sort(compareFnFacility);
 		return facilities
 			.filter((e) => (department ? e.commune.department.code == department.value : true)).filter((e) => (commune ? e.commune.uid == commune.value : true))
@@ -90,11 +90,11 @@
 			});
 	};
 
-  const getFacilityCount = (facilities: Facility[]) => {
+  const getFacilityCount = (facilities: FacilityV2[]) => {
     return facilities ? getFacilityItems(facilities, department, commune).length : 0;
   }
 
-  const facilityLabel = (facilities: Facility[]) => {
+  const facilityLabel = (facilities: FacilityV2[]) => {
     return `Établissement${getFacilityCount(facilities)>1 ? 's': ''}: ${getFacilityCount(facilities)}`
   }
 
@@ -137,7 +137,7 @@ const getCommuneItems = (communes: Commune[]|undefined) => {
 		<span>Error: {$facilities.error.message}</span>
 	{:else}
     <p>{facilityLabel($facilities.data)}</p>
-		<Select items={getFacilityItems($facilities.data, department, commune)} bind:value />
+		<Select items={getFacilityItems($facilities.data, department, commune)} bind:value={facility} />
 	{/if}
   </div>
 </div>

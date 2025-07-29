@@ -1,4 +1,4 @@
-export interface Select {
+export interface SelectType {
     label: string,
     value: string
 }

@@ -2,7 +2,7 @@
 	import * as m from '$msgs';
 	import { reactiveQueryArgs } from '$lib/utils/utils.svelte';
 	import { useQueryClient, createQuery } from '@tanstack/svelte-query';
-	import { getEffector } from './data';
+	import { getEffectors } from './data';
 	import { Avatar } from '@skeletonlabs/skeleton';
 	import { faUser } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
@@ -13,7 +13,7 @@
 	const effectorStore = createQuery(
 		reactiveQueryArgs(() => ({
 			queryKey: ['effectors', effectorType, facility],
-			queryFn: () => getEffector(effectorType, facility)
+			queryFn: () => getEffectors({effector_type: effectorType, facility: facility})
 		}))
 	);
 	let { error, isLoading, isRefetching, data } = $derived($effectorStore);

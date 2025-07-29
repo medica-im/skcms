@@ -150,7 +150,7 @@
 	}
 
     $effect(()=>{
-		if (addressValue) {
+		if (addressValue && response?.features?.length) {
 			const feature: AddressFeature = response.features.find((x) => x.properties.id == addressValue);
 		    addressFeature = feature;
 			inputAddress = feature.properties.name

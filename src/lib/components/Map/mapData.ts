@@ -24,7 +24,7 @@ export const createMapData2 = (facility: Facility2) => {
         latLng: [Number(facility?.location?.latitude ?? 0), Number(facility?.location?.longitude ?? 0)],
         zoom: facility?.zoom ?? 0,
         tooltip: {
-            text: facility.name,
+            text: facility.name || "",
             permanent: false,
             direction: "auto",
             opacity: 0.7

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { invalidateAll } from '$app/navigation';
 	import Fa from 'svelte-fa';
 	import { faUser } from '@fortawesome/free-regular-svg-icons';
 	import { faXmark } from '@fortawesome/free-solid-svg-icons';
@@ -14,9 +15,9 @@
 
 	import type { ModalSettings } from '@skeletonlabs/skeleton';
 	import type { SubmitFunction } from '@sveltejs/kit';
-	import type { Select } from '$lib/interfaces/select.ts';
+	import type { SelectType } from '$lib/interfaces/select.ts';
 
-	let { memberOfOrg, createdEffector, showEntryCreationForm = $bindable(), 	showCreateEffectorForm = $bindable(), selectedFacility, form, selectedEffectorType }: { memberOfOrg: boolean; createdEffector: Effector; showEntryCreationForm: boolean; showCreateEffectorForm: boolean; selectedFacility: Select; form: any; selectedEffectorType: Select; } = $props();
+	let { memberOfOrg, createdEffector, showEntryCreationForm = $bindable(), 	showCreateEffectorForm = $bindable(), selectedFacility, form, selectedEffectorType }: { memberOfOrg: boolean; createdEffector: Effector; showEntryCreationForm: boolean; showCreateEffectorForm: boolean; selectedFacility: SelectType; form: any; selectedEffectorType: SelectType; } = $props();
 
 	interface InputClass {
 		effector: string;
@@ -141,7 +142,7 @@
 			{#if form?.data}
 			<DisplayEntry entryUid={form.data} />
 			{/if}
-			<button type="button" class="btn variant-filled" onclick={() => {console.log(JSON.stringify(form)); form=null; success=false; 	showCreateEffectorForm = true; showEntryCreationForm=false; }}>Créer une nouvelle entrée</button>
+			<button type="button" class="btn variant-filled" onclick={() => {console.log(JSON.stringify(form)); form=null; success=false; 	showCreateEffectorForm = true; showEntryCreationForm=false; invalidateAll(); }}>Créer une nouvelle entrée</button>
 			</div>
 {:else}
 	<div class="rounded-lg p-4 variant-ghost-secondary gap-2 items-center place-items-center">
