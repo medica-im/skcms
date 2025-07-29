@@ -6,14 +6,17 @@ import type { Actions } from './$types';
 export const actions = {
   default: async (event) => {
     const formData = await event.request.formData();
+    const cookieKey = import.meta.env.VITE_DEV == 'true' ? 'authjs.session-token' : '__Secure-authjs.session-token';
+    console.log(`form action auth cookie: ${JSON.stringify(event.cookies.get(cookieKey))}`);
     let jsonString = JSON.stringify(Object.fromEntries(formData));
     let json = JSON.parse(jsonString);
     console.log(`data:${JSON.stringify(json)}`);
-    const response = await fetch(`${variables.BASE_URI}/api/v2/effectors/`, {
+    const response = await event.fetch(`${variables.BASE_URI}/api/v2/effectors/`, {
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
+      credentials: 'include',
       method: 'POST',
       body: JSON.stringify(json)
     });
@@ -26,11 +29,12 @@ export const actions = {
       }
     } else {
       const json = await response.json()
-      console.log(`Success! Status: ${response.status} Status text: ${response.statusText}`);
+      console.log(`Status: ${response.status} Status text: ${response.statusText}`);
       console.log(json);
       return {
         success: true,
         status: response.status,
+        message: response.statusText,
         data: json
       }
     }

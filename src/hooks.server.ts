@@ -28,5 +28,25 @@ const paraglideHandle: Handle = ({ event, resolve }) =>
 			}
 		});
 	});
+/*
+const handleFetch: Handle = async ({ event, resolve }) => {
+	const url: string = event.url.toString();
+	console.log(import.meta.env.BASE_URL);
+    if (url.startsWith(import.meta.env.BASE_URL)) {
+        // clone the original request, but change the URL
+        let cookies = event.request.headers.get("__Secure-authjs.session-token")
+        console.log("Cookies Are : ")
+        console.log(event.request.headers)
+        event.request.headers.set(
+    'cookie',
+    event.cookies
+        .getAll()
+        .filter(({ value }) => value !== '') // account for cookie that got deleted in the current request
+        .map(({ name, value }) => `${name}=${encodeURIComponent(value)}`)
+        .join('; ')
+);
+    }
+    return fetch(event.request);
+};*/
 
 export const handle = sequence(handleAuth, cookie, paraglideHandle);

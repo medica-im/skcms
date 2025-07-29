@@ -6,7 +6,7 @@
 	"packageManager": "pnpm@10.4.0",
 	"scripts": {
 		"dev": "npm run sveltekit",
-		"sveltekit": "vite --host 127.0.0.1 --port 3000",
+		"sveltekit": "vite --port 3000",
 		"build": "vite build",
 		"preview": "vite preview",
 		"test": "vitest",
