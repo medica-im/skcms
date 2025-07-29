@@ -21,12 +21,12 @@ export const actions = {
 })
   _json = await response.json()
   console.log(`event fetch ${_json}`);
-    response = await event.fetch(`${variables.BASE_URI}/api/v2/effectors/`, {
-      headers: {
+    response = await event.fetch(`${variables.BASE_URI}/api/v2/effectors`, {
+      /*headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
       },
-      credentials: 'include',
+      credentials: 'include',*/
       method: 'POST',
       body: JSON.stringify(json)
     });
