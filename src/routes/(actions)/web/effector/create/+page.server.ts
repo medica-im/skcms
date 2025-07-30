@@ -6,8 +6,9 @@ import type { Actions } from './$types';
 export const actions = {
   default: async (event) => {
     const formData = await event.request.formData();
-    const cookieKey = import.meta.env.VITE_DEV == 'true' ? 'authjs.session-token' : '__Secure-authjs.session-token';
-    console.log(`form action auth cookie: ${JSON.stringify(event.cookies.get(cookieKey))}`);
+    const cookieName = import.meta.env.VITE_DEV == 'true' ? 'authjs.session-token' : '__Secure-authjs.session-token';
+    console.log(`form action auth cookie: ${JSON.stringify(event.cookies.get(cookieName))}`);
+    const cookieValue = event.cookies.get(cookieName);
     let jsonString = JSON.stringify(Object.fromEntries(formData));
     let json = JSON.parse(jsonString);
     console.log(`data:${JSON.stringify(json)}`);
@@ -38,8 +39,8 @@ response = await fetch('https://dev.sante-gadagne.fr/api/v2/debug', {
       headers: {
         'accept': 'application/json',
         'Content-Type': 'application/json',
+        'Cookie': `${cookieName}=${cookieValue}`
       },
-      credentials: 'include',
       method: 'POST',
       body: JSON.stringify(json)
     });
