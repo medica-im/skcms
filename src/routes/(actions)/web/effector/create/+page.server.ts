@@ -26,7 +26,7 @@ export const actions = {
   _json = await response.json()
   console.log(`event fetch ${_json}`);
 
-response = await event.fetch('https://dev.sante-gadagne.fr/api/v2/debug', {
+response = await fetch('https://dev.sante-gadagne.fr/api/v2/debug', {
     credentials: 'include',
   method: 'POST'
 })
