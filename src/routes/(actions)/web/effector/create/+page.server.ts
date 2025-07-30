@@ -34,11 +34,11 @@ response = await fetch('https://dev.sante-gadagne.fr/api/v2/debug', {
   _json = await response.json()
   console.log(`event debug ${_json}`);
 
-    response = await event.fetch(`${variables.BASE_URI}/api/v2/effectors`, {
-      /*headers: {
-        'Accept': 'application/json',
+    response = await fetch(`${variables.BASE_URI}/api/v2/effectors`, {
+      headers: {
+        'accept': 'application/json',
         'Content-Type': 'application/json',
-      },*/
+      },
       credentials: 'include',
       method: 'POST',
       body: JSON.stringify(json)
