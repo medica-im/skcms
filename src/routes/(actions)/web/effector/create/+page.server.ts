@@ -15,31 +15,37 @@ export const actions = {
     let response = await fetch('https://dev.sante-gadagne.fr/api/v2/cookie', {
       credentials: 'include',
       method: 'GET'
-})
+    })
     console.log(`normal fetch ${response}`);
     let _json = await response.json()
     console.log(`normal fetch ${_json}`);
-  response = await event.fetch('https://dev.sante-gadagne.fr/api/v2/cookie', {
-    credentials: 'include',
-  method: 'POST'
-})
-  console.log(`event fetch ${response}`);
-  _json = await response.json()
-  console.log(`event fetch ${_json}`);
+    response = await event.fetch('https://dev.sante-gadagne.fr/api/v2/cookie', {
+      credentials: 'include',
+      method: 'POST'
+    })
+    console.log(`event fetch ${response}`);
+    _json = await response.json()
+    console.log(`event fetch ${_json}`);
 
-response = await fetch('https://dev.sante-gadagne.fr/api/v2/debug', {
-    credentials: 'include',
-  method: 'POST'
-})
-  console.log(`event debug ${response}`);
-  _json = await response.json()
-  console.log(`event debug ${_json}`);
+    const cookie = `${cookieName}=${cookieValue}`;
+    console.log(cookie)
+
+    response = await fetch('https://dev.sante-gadagne.fr/api/v2/debug', {
+      headers: {
+        'Cookie': cookie
+      },
+      credentials: 'include',
+      method: 'POST'
+    })
+    console.log(`event debug ${response}`);
+    _json = await response.json()
+    console.log(`event debug ${_json}`);
 
     response = await fetch(`${variables.BASE_URI}/api/v2/effectors`, {
       headers: {
         'accept': 'application/json',
         'Content-Type': 'application/json',
-        'Cookie': `${cookieName}=${cookieValue}`
+        'Cookie': cookie
       },
       method: 'POST',
       body: JSON.stringify(json)
