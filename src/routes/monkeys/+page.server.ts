@@ -4,7 +4,16 @@ import { variables } from '$lib/utils/constants';
 export const actions = {
     default: async ({ request, fetch, cookies }) => {
         const formData = await request.formData();
-        await fetch(`${variables.BASE_URI}/api/v2/auth/`);
+        const jwtres = await fetch(
+            `${variables.BASE_URI}/api/v2/jwt/`,
+        {credentials: 'include'}
+        );
+        console.log(jwtres);
+        const authres = await fetch(
+            `${variables.BASE_URI}/api/v2/auth/`,
+        {credentials: 'include'}
+        );
+        console.log(authres);
         console.log(`all cookies:${JSON.stringify(cookies.getAll())}`);
         console.log(formData.get('name'))
         const url = `${variables.BASE_URI}/api/v2/monkeys/`;
