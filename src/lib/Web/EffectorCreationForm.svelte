@@ -206,10 +206,9 @@
 					manipulateForm(formData);
 					return async ({ result, update }) => {
 						//if (do_update) update();
-						console.log(`result: ${result}`);
-						console.log(`result.type: ${result.type}`);
+						console.log(`result: ${JSON.stringify(result)}`);
 						await applyAction(result);
-						console.log(`result.data:${JSON.stringify(result)}`);
+						console.log(`result: ${JSON.stringify(result)}`);
 						if (result.type === 'success') {
 							success = true;
 						}

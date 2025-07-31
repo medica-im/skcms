@@ -99,8 +99,12 @@ async function getHeatwaveAlert() {
 			</div>
 			<!-- Actions -->
 			<div class="flex flex-wrap lg:flex-nowrap alert-actions gap-4 align-center place-content-center">
-				{#if link}<a href="/prevention/canicule" class="btn variant-ghost"><span><Fa icon={faArrowRight}/></span><span>Fiche prévention canicule</span></a>{/if}
-			<button onclick={()=>visible=false} class="btn variant-ghost"><span><Fa icon={faXmark}/></span></div>
+				{#if link}<a href="/prevention/canicule" class="btn variant-ghost">
+					<span><Fa icon={faArrowRight}/></span>
+					<span>Fiche prévention canicule</span>
+				</a>
+				{/if}
+			<button onclick={()=>visible=false} class="btn variant-ghost">OK</button><span><Fa icon={faXmark}/></span></div>
 		</aside>
 </div>
 {/if}
