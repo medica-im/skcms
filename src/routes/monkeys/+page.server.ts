@@ -2,22 +2,32 @@ import type { Actions, PageServerLoad } from './$types';
 import { variables } from '$lib/utils/constants';
 
 export const actions = {
-    default: async ({ request, cookies, fetch }) => {
-        const formData = await request.formData();
-        const jwtres = await fetch(
+    default: async ( event ) => {
+        const formData = await event.request.formData();
+        let _request = new Request(
             `${variables.BASE_URI}/api/v2/jwt`,
-        {credentials: 'include'}
+            {credentials: 'include'}
         );
-        console.log(jwtres);
+        _request.headers.set(
+    'cookie',
+    event.cookies
+    .getAll()
+        .filter(({ value }) => value !== '') // account for cookie that got deleted in the current request
+        .map(({ name, value }) => `${name}=${encodeURIComponent(value)}`)
+        .join('; ')
+);
+        const jwtres = await fetch(_request);
+        let data = await jwtres.json();
+        console.log(data);
         const authres = await fetch(
             `${variables.BASE_URI}/api/v2/auth`,
         {credentials: 'include'}
         );
-        console.log(authres);
-        console.log(`all cookies:${JSON.stringify(cookies.getAll())}`);
+        data = await authres.json();
+        console.log(data);
+        console.log(`all cookies:${JSON.stringify(event.cookies.getAll())}`);
         console.log(formData.get('name'))
         const url = `${variables.BASE_URI}/api/v2/monkeys/`;
-        console.log(url);
         const res = await fetch(url,
             {
                 method: 'POST',
