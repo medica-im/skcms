@@ -2,7 +2,7 @@ import type { Actions, PageServerLoad } from './$types';
 import { variables } from '$lib/utils/constants';
 
 export const actions = {
-    default: async ({ request, fetch, cookies }) => {
+    default: async ({ request, cookies }) => {
         const formData = await request.formData();
         const jwtres = await fetch(
             `${variables.BASE_URI}/api/v2/jwt/`,
