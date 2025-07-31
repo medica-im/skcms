@@ -7,7 +7,7 @@
 	"scripts": {
 		"dev": "npm run sveltekit",
 		"sveltekit": "vite --port 3000",
-		"build": "vite build",
+		"build": "svelte-kit sync && vite build",
 		"preview": "vite preview",
 		"test": "vitest",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
