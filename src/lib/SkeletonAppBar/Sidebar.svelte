@@ -5,6 +5,7 @@
 	import DocsIcon from '$lib/Icon/Icon.svelte';
 	import { menuNavLinks, menuNavCats } from '$var/variables.ts';
 	import { AppRail, AppRailTile } from '@skeletonlabs/skeleton';
+	import { variables } from '$lib/utils/constants';
 
 	let basePath: string = $derived(page.url.pathname.split('/')[1]);
 	let currentRailCategory: string | undefined = $derived(
@@ -45,12 +46,21 @@
 		>
 			<!-- App Rail -->
 			<AppRail background="!bg-transparent" border="border-r border-surface-500/30">
+				{#if variables.ORGANIZATION_CATEGORY == "cpts"}
+				<AppRailTile bind:group={currentRailCategory} name="cpts" value={'cpts'}>
+					<svelte:fragment slot="lead"
+						><DocsIcon name="outpatientClinic" width="w-6" height="h-6" /></svelte:fragment
+					>
+					<span>CPTS</span>
+				</AppRailTile>
+				{:else if variables.ORGANIZATION_CATEGORY == "msp"}
 				<AppRailTile bind:group={currentRailCategory} name="msp" value={'msp'}>
 					<svelte:fragment slot="lead"
 						><DocsIcon name="outpatientClinic" width="w-6" height="h-6" /></svelte:fragment
 					>
 					<span>Maison de santé</span>
 				</AppRailTile>
+				{/if}
 				<AppRailTile bind:group={currentRailCategory} name="education" value={'education'}>
 					<svelte:fragment slot="lead"
 						><DocsIcon name="faPersonChalkboard" width="w-6" height="h-6" /></svelte:fragment
