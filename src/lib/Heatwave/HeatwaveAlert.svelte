@@ -2,61 +2,67 @@
 	import { page } from '$app/state';
 	import { variables } from '$lib/utils/constants';
 	import Fa from 'svelte-fa';
-	import {
-		faArrowRight,
-		faXmark,
-		faTemperatureHigh
-	} from '@fortawesome/free-solid-svg-icons';
+	import { faArrowRight, faXmark, faTemperatureHigh } from '@fortawesome/free-solid-svg-icons';
 
-    let { link }: { link: boolean } = $props();
-	
-interface HeatwaveAlert  {
-	start_time: string|null,
-    end_time: string|null,
-	risk_code: string|null
-}
-let visible: boolean = $state(true);
-let alert: HeatwaveAlert;
+	let { link }: { link: boolean } = $props();
 
-async function getHeatwaveAlert() {
-	const department = page.data.organization.department.code;
-	const url=`${variables.BASE_API_URI}/heatwave/warning/${department}/`;
-	if (import.meta.env.VITE_DEV == 'true') {
-	    console.log(url);
+	interface HeatwaveAlert {
+		start_time: string | null;
+		end_time: string | null;
+		risk_code: string | null;
 	}
-    const result = await fetch(url);
-    const alert = await result.json() as HeatwaveAlert
-    return alert;
-}
+	let visible: boolean = $state(true);
+	let alert: HeatwaveAlert | null;
 
-    interface Risk { name: string, color: string};
+	async function getHeatwaveAlert() {
+		const department = page.data.organization.department.code;
+		const url = `${variables.BASE_API_URI}/heatwave/warning/${department}/`;
+		if (import.meta.env.VITE_DEV == 'true') {
+			console.log(url);
+		}
+		const result = await fetch(url);
+		if (result.ok) {
+			alert = (await result.json()) as HeatwaveAlert;
+		} else {
+			if (import.meta.env.VITE_DEV == 'true') {
+				console.log(result);
+			}
+			alert = null;
+		}
+		return alert;
+	}
+
+	interface Risk {
+		name: string;
+		color: string;
+	}
 	interface RiskDict {
 		[key: number]: Risk;
 	}
-    const risk: RiskDict = {
+	const risk: RiskDict = {
 		1: {
-			name:"vert",
-			color: "green",
+			name: 'vert',
+			color: 'green'
 		},
 		2: {
-			name:"jaune",
-			color: "#f9ff00",
+			name: 'jaune',
+			color: '#f9ff00'
 		},
 		3: {
-			name: "orange",
-			color: "#f7a401"
+			name: 'orange',
+			color: '#f7a401'
 		},
 		4: {
-        name: "rouge",
-		color: "red"
+			name: 'rouge',
+			color: 'red'
 		}
 	};
-	
-	const riskColor = (alert: HeatwaveAlert)=>{
+
+	const riskColor = (alert: HeatwaveAlert) => {
 		const key = Number(alert.risk_code);
 		return risk[key as keyof RiskDict].color;
 	};
-	const riskName = (alert: HeatwaveAlert)=>{
+	const riskName = (alert: HeatwaveAlert) => {
 		const key = Number(alert.risk_code);
 		return risk[key as keyof RiskDict].name;
 	};
@@ -66,49 +72,62 @@ async function getHeatwaveAlert() {
 			return false;
 		}
 		const stopEventDate = new Date(alert.end_time);
-		return (new Date().getTime() < stopEventDate.getTime());
-	}
-	const formatDate = (date_iso: string)=>{
+		return new Date().getTime() < stopEventDate.getTime();
+	};
+	const formatDate = (date_iso: string) => {
 		const date = new Date(date_iso);
-        return new Intl.DateTimeFormat('fr-FR', {
-    dateStyle: 'full',
-	timeStyle: "short",
-    timeZone: 'Europe/Paris'
-}).format(date);
-	}
+		return new Intl.DateTimeFormat('fr-FR', {
+			dateStyle: 'full',
+			timeStyle: 'short',
+			timeZone: 'Europe/Paris'
+		}).format(date);
+	};
 </script>
 
 {#await getHeatwaveAlert()}
-	{#if (import.meta.env.VITE_DEV == 'true')}
-    <p>Loading alert...</p>
+	{#if import.meta.env.VITE_DEV == 'true'}
+		<p>Loading alert...</p>
 	{/if}
 {:then alert}
-{alert.start_time}
-{#if alert.start_time && alert.end_time && alert.risk_code && isActive(alert) && visible}
-<div class="py-8 lg:py-10">
-		<aside class="alert variant-ghost-warning">
-			<!-- Icon -->
-			<div class="hidden lg:block">
-			<Fa icon={faTemperatureHigh} color={riskColor(alert)} size="3x" />
+	{#if alert && alert.start_time && alert.end_time && alert.risk_code && isActive(alert) && visible}
+		<div class="py-8 lg:py-10">
+			<aside class="alert variant-ghost-warning">
+				<!-- Icon -->
+				<div class="hidden lg:block">
+					<Fa icon={faTemperatureHigh} color={riskColor(alert)} size="3x" />
+				</div>
+				<!-- Message -->
+				<div class="alert-message">
+					<h3 class="h3">
+						<span class="inline-block lg:hidden px-2"
+							><Fa icon={faTemperatureHigh} color={riskColor(alert)} /></span
+						>
+						Vigilance {riskName(alert)} canicule
+					</h3>
+					<p>
+						Vigilance météorologique canicule Vaucluse émise par Météo France le {formatDate(
+							alert.start_time
+						)} valable jusqu'au {formatDate(alert.end_time)}.
+					</p>
+				</div>
+				<!-- Actions -->
+				<div
+					class="flex flex-wrap lg:flex-nowrap alert-actions gap-4 align-center place-content-center"
+				>
+					{#if link}<a href="/prevention/canicule" class="btn variant-ghost">
+							<span><Fa icon={faArrowRight} /></span>
+							<span>Fiche prévention canicule</span>
+						</a>
+					{/if}
+					<button onclick={() => (visible = false)} class="btn variant-ghost">OK</button><span
+						><Fa icon={faXmark} /></span
+					>
+				</div>
+			</aside>
 		</div>
-			<!-- Message -->
-			<div class="alert-message">
-				<h3 class="h3"><span class="inline-block lg:hidden px-2"><Fa icon={faTemperatureHigh} color={riskColor(alert)}/></span>
-				Vigilance {riskName(alert)} canicule </h3>
-				<p>Vigilance météorologique canicule Vaucluse émise par Météo France le {formatDate(alert.start_time)} valable jusqu'au {formatDate(alert.end_time)}.</p>
-			</div>
-			<!-- Actions -->
-			<div class="flex flex-wrap lg:flex-nowrap alert-actions gap-4 align-center place-content-center">
-				{#if link}<a href="/prevention/canicule" class="btn variant-ghost">
-					<span><Fa icon={faArrowRight}/></span>
-					<span>Fiche prévention canicule</span>
-				</a>
-				{/if}
-			<button onclick={()=>visible=false} class="btn variant-ghost">OK</button><span><Fa icon={faXmark}/></span></div>
-		</aside>
-</div>
-{/if}
+	{/if}
 {:catch error}
-  <p>Error loading heatwave alert: {error.message}</p>
-{/await}  
-
+	{#if import.meta.env.VITE_DEV == 'true'}
+		<p>Error loading heatwave alert: {error.message}</p>
+	{/if}
+{/await}
