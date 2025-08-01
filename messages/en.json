@@ -60,6 +60,7 @@
 	"TOLOGIN": "Login",
 	"NOACCOUNT": "No account yet?",
 	"SIGNINGIN": "Signing in...",
+	"SIGNIN": "Sign in",
 	"CREATEACCOUNT": "Create an account",
 	"LOGIN_SUCCESSFUL": "Login successful...",
 	"LOGOUT_SUCCESSFUL": "You have successfully logged out...",
@@ -120,7 +121,6 @@
 	"SKELETON_AUTOCOMPLETE_EMPTY_STATE": "No results found",
 	"CHARACTER_SINGULAR": "character",
 	"CHARACTER_PLURAL": "characters",
-	"SIGNIN": "Sign in",
 	"signout": "Sign out",
 	"with": "with",
 	"from": "from"
