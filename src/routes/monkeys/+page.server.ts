@@ -1,28 +1,37 @@
 import type { Actions, PageServerLoad } from './$types';
 import { variables } from '$lib/utils/constants';
 
+const setAuthHeader = (request: Request, cookies: Array<{ name: string, value: string }>) => {
+    request.headers.set(
+        'cookie',
+        cookies.filter(({ name }) => ['authjs.session-token', '__Secure-authjs.session-token'].includes(name)).map(({ name, value }) => `${name}=${encodeURIComponent(value)}`).join('; ')
+    )
+}
+
 export const actions = {
-    default: async ( event ) => {
+    default: async (event) => {
         const formData = await event.request.formData();
         let _request = new Request(
             `${variables.BASE_URI}/api/v2/jwt`,
-            {credentials: 'include'}
+            { credentials: 'include' }
         );
         _request.headers.set(
-    'cookie',
-    event.cookies
-    .getAll()
-        .filter(({ value }) => value !== '') // account for cookie that got deleted in the current request
-        .map(({ name, value }) => `${name}=${encodeURIComponent(value)}`)
-        .join('; ')
-);
+            'cookie',
+            event.cookies
+                .getAll()
+                .filter(({ value }) => value !== '') // account for cookie that got deleted in the current request
+                .map(({ name, value }) => `${name}=${encodeURIComponent(value)}`)
+                .join('; ')
+        );
         const jwtres = await fetch(_request);
         let data = await jwtres.json();
         console.log(data);
-        const authres = await fetch(
-            `${variables.BASE_URI}/api/v2/auth`,
-        {credentials: 'include'}
-        );
+        _request = new Request(
+            `${variables.BASE_URI}/api/v2/auth`, {
+            credentials: 'include'
+        });
+        setAuthHeader(_request, event.cookies.getAll());
+        const authres = await fetch(_request);
         data = await authres.json();
         console.log(data);
         console.log(`all cookies:${JSON.stringify(event.cookies.getAll())}`);
@@ -31,8 +40,8 @@ export const actions = {
         const res = await fetch(url,
             {
                 method: 'POST',
-                headers: {"content-type": "application/json"},
-                body: JSON.stringify({'name': formData.get('name')})
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({ 'name': formData.get('name') })
             }
         );
         if (res.ok) {
