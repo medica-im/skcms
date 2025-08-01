@@ -6,13 +6,46 @@ import type { Actions } from './$types';
 export const actions = {
   default: async (event) => {
     const formData = await event.request.formData();
+    const cookieName = import.meta.env.VITE_DEV == 'true' ? 'authjs.session-token' : '__Secure-authjs.session-token';
+    console.log(`form action auth cookie: ${JSON.stringify(event.cookies.get(cookieName))}`);
+    const cookieValue = event.cookies.get(cookieName);
     let jsonString = JSON.stringify(Object.fromEntries(formData));
     let json = JSON.parse(jsonString);
     console.log(`data:${JSON.stringify(json)}`);
-    const response = await fetch(`${variables.BASE_URI}/api/v2/effectors/`, {
+    let response = await fetch('https://dev.sante-gadagne.fr/api/v2/cookie', {
+      credentials: 'include',
+      method: 'GET'
+    })
+    console.log(`normal fetch ${response}`);
+    let _json = await response.json()
+    console.log(`normal fetch ${_json}`);
+    response = await event.fetch('https://dev.sante-gadagne.fr/api/v2/cookie', {
+      credentials: 'include',
+      method: 'POST'
+    })
+    console.log(`event fetch ${response}`);
+    _json = await response.json()
+    console.log(`event fetch ${_json}`);
+
+    const cookie = `${cookieName}=${cookieValue}`;
+    console.log(cookie)
+
+    response = await fetch('https://dev.sante-gadagne.fr/api/v2/debug', {
       headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Cookie': cookie
+      },
+      credentials: 'include',
+      method: 'POST'
+    })
+    console.log(`event debug ${response}`);
+    _json = await response.json()
+    console.log(`event debug ${_json}`);
+
+    response = await fetch(`${variables.BASE_URI}/api/v2/effectors`, {
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Cookie': cookie
       },
       method: 'POST',
       body: JSON.stringify(json)
@@ -26,11 +59,12 @@ export const actions = {
       }
     } else {
       const json = await response.json()
-      console.log(`Success! Status: ${response.status} Status text: ${response.statusText}`);
+      console.log(`Status: ${response.status} Status text: ${response.statusText}`);
       console.log(json);
       return {
         success: true,
         status: response.status,
+        message: response.statusText,
         data: json
       }
     }

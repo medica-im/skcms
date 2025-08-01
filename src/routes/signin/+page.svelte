@@ -23,8 +23,8 @@
 					<SignIn
 						options={{
 							redirectTo: page.data.redirectTo
-								? `/${decodeURIComponent(page.data.redirectTo).slice(1)}`
-								: `/dashboard`
+								? `/api/v2/auth?redirect=${decodeURIComponent(page.data.redirectTo).slice(1)}`
+								: `/api/v2/auth?redirect=dashboard`
 						}}
 						provider={provider.name}
 						signInPage="signin"

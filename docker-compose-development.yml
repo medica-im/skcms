@@ -5,6 +5,7 @@ services:
       - .env
     build:
       context: .
+    image: skcms_dev
     ports:
       - "${NODE_PORT_EXTERNAL_DEVELOPMENT}:3000"
     environment:
