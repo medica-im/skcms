@@ -17,14 +17,14 @@
 	async function getHeatwaveAlert() {
 		const department = page.data.organization.department.code;
 		const url = `${variables.BASE_API_URI}/heatwave/warning/${department}/`;
-		if (import.meta.env.VITE_DEV == 'true') {
+		if (import.meta.env.DEV) {
 			console.log(url);
 		}
 		const result = await fetch(url);
 		if (result.ok) {
 			alert = (await result.json()) as HeatwaveAlert;
 		} else {
-			if (import.meta.env.VITE_DEV == 'true') {
+			if (import.meta.env.DEV) {
 				console.log(result);
 			}
 			alert = null;
@@ -85,7 +85,7 @@
 </script>
 
 {#await getHeatwaveAlert()}
-	{#if import.meta.env.VITE_DEV == 'true'}
+	{#if import.meta.env.DEV}
 		<p>Loading alert...</p>
 	{/if}
 {:then alert}
@@ -127,7 +127,7 @@
 		</div>
 	{/if}
 {:catch error}
-	{#if import.meta.env.VITE_DEV == 'true'}
+	{#if import.meta.env.DEV }
 		<p>Error loading heatwave alert: {error.message}</p>
 	{/if}
 {/await}
