@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import * as m from '$msgs';
 	import { reactiveQueryArgs } from '$lib/utils/utils.svelte';
 	import Select from 'svelte-select';
@@ -12,11 +13,11 @@
 	import { getCommunesByDpt, getDepartments, getFacilities, getEffectors } from './data';
 
 	let { effector = $bindable() }: { effector: Effector | undefined } = $props();
-
+    const defaultDpt: SelectType = {label: page.data.organization.department.name, value: page.data.organization.department.code};
 	let selectedEffector: SelectType | undefined = $state();
 	let selectedEffectorType: SelectType | undefined = $state();
 	let facility: SelectType | undefined = $state();
-	let department: SelectType | undefined = $state();
+	let department: SelectType | undefined = $state(defaultDpt);
 	let departmentCode: string | undefined = $derived(department?.value);
 	let communes: CreateQueryResult<Commune[], Error> | undefined = $state();
 	let commune: any = $state();

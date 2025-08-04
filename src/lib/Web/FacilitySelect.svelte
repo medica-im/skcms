@@ -1,4 +1,5 @@
 <script lang="ts">
+	import  { page } from '$app/state';
 	import { reactiveQueryArgs } from '$lib/utils/utils.svelte';
 	import Select from 'svelte-select';
 	import type { SelectType } from '$lib/interfaces/select.ts';
@@ -6,7 +7,6 @@
   import type { CreateQueryResult } from '@tanstack/svelte-query';
 	import type { Commune, DepartmentOfFrance, FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 	import { getCommunesByDpt, getDepartments, getFacilities } from './data';
-
 	let { facility = $bindable(), department = $bindable(), commune = $bindable(), facilityCount = $bindable(0) }: { facility: SelectType | undefined, department: SelectType | undefined; commune: SelectType | undefined; facilityCount: number } = $props();
 	let departmentCode: string | undefined = $derived(department?.value);
 	let communes: CreateQueryResult<Commune[], Error> | undefined = $state();

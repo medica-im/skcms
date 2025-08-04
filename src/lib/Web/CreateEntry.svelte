@@ -20,11 +20,13 @@
 	import { copy } from 'svelte-copy';
 	import type { FacilityV2, Commune } from '$lib/interfaces/v2/facility.ts';
 	import type { CreateQueryResult } from '@tanstack/svelte-query';
+	import EntryCreationForm from '$lib/Web/EntryCreationForm.svelte';
 	import type { PageProps } from './$types';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
-	import EntryCreationForm from '$lib/Web/EntryCreationForm.svelte';
+	import type { SelectType } from '$lib/interfaces/select.ts';
 
 	let { form }: { form: PageProps } = $props();
+	const defaultDpt: SelectType = {label: page.data.organization.department.name, value: page.data.organization.department.code};
 	let memberOfOrg: boolean|undefined = $state();
 	let showCreateFacilityForm: boolean = $state(false);
 	let showCreateEffectorForm: boolean = $state(false);
@@ -38,7 +40,7 @@
 	//let facility: CreateQueryResult<FacilityV2, Error> | undefined = $state();
 	let selectedFacilityUid: string | undefined = $derived(selectedFacility?.value);
 	let facilityCount: number = $state(0);
-	let department: {label: string, value: string}|undefined = $state();
+	let department: {label: string, value: string}|undefined = $state(defaultDpt);
 	let selectedEffectorType: { label: string; value: string } | undefined = $state();
 	let effectorType = $derived(selectedEffectorType?.value);
 	let showEntryCreationForm: boolean = $derived(memberOfOrg !== undefined && selectedFacility !== undefined && selectedEffectorType !== undefined && createdEffector !== undefined);
