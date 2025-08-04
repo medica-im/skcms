@@ -8,15 +8,15 @@ import Google from "@auth/sveltekit/providers/google"
 declare module "@auth/sveltekit" {
   interface Session {
     user: {
-      userId: string,
-      provider: string,
+      userId: string;
+      provider: string;
       /**
        * By default, TypeScript merges new interface properties and overwrites existing ones.
        * In this case, the default session user properties will be overwritten,
        * with the new ones defined above. To keep the default session user properties,
        * you need to add them back into the newly declared interface.
        */
-    } & DefaultSession["user"]
+    } & DefaultSession["user"];
   }
 }
 
