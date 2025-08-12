@@ -2,7 +2,8 @@ import { paraglideVitePlugin } from '@inlang/paraglide-js'
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 import { purgeCss } from 'vite-plugin-tailwind-purgecss';
-import { isoImport } from 'vite-plugin-iso-import'
+import { isoImport } from 'vite-plugin-iso-import';
+import devtoolsJson from 'vite-plugin-devtools-json';
 import 'vitest/config';
 import * as path from 'path';
 
@@ -11,6 +12,7 @@ export default defineConfig({
 		include: ['lodash.get', 'lodash.isequal', 'lodash.clonedeep'],
 	},
 	plugins: [
+		devtoolsJson(),
 		paraglideVitePlugin(
 			{
 				project: './project.inlang',

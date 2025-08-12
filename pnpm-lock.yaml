@@ -198,6 +198,9 @@ importers:
       vite:
         specifier: ^6.2.5
         version: 6.2.5(@types/node@20.17.30)(jiti@1.21.7)(yaml@2.7.1)
+      vite-plugin-devtools-json:
+        specifier: ^0.4.1
+        version: 0.4.1(vite@6.2.5(@types/node@20.17.30)(jiti@1.21.7)(yaml@2.7.1))
       vite-plugin-iso-import:
         specifier: ^1.1.0
         version: 1.2.0(vite@6.2.5(@types/node@20.17.30)(jiti@1.21.7)(yaml@2.7.1))
@@ -2798,6 +2801,10 @@ packages:
     resolution: {integrity: sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==}
     hasBin: true
 
+  uuid@11.1.0:
+    resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
+    hasBin: true
+
   validate-npm-package-license@3.0.4:
     resolution: {integrity: sha512-DpKm2Ui/xN7/HQKCtpZxoRWBhZ9Z0kqtygG8XCgNQ8ZlDnxuQmWhj566j8fN4Cu3/JmbhsDo7fcAJq4s9h27Ew==}
 
@@ -2824,6 +2831,11 @@ packages:
     resolution: {integrity: sha512-V+IxPAE2FvXpTCHXyNem0M+gWm6J7eRyWPR6vYoG/Gl+IscNOjXzztUhimQgTxaAoUoj40Qqimaa0NLIOOAH4w==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
+
+  vite-plugin-devtools-json@0.4.1:
+    resolution: {integrity: sha512-pN+QJL+NwZUV+Via8w/Sh6X2pDrVClIMDAXdl7+EteXKB6mcHhsFGGclmxrPx6ZPGKSK5ez5ns64oRpjE5wFCg==}
+    peerDependencies:
+      vite: ^2.7.0 || ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
 
   vite-plugin-iso-import@1.2.0:
     resolution: {integrity: sha512-z8EI6cbN6Gg8ht09KAgkUlaC4XLuvZAEJenIyB5AsASQ0nfiXg0E670SBmv8qx48ZzGbEDgYTCOgxcRZJ3ROXw==}
@@ -5559,6 +5571,8 @@ snapshots:
 
   uuid@10.0.0: {}
 
+  uuid@11.1.0: {}
+
   validate-npm-package-license@3.0.4:
     dependencies:
       spdx-correct: 3.2.0
@@ -5612,6 +5626,11 @@ snapshots:
       - terser
       - tsx
       - yaml
+
+  vite-plugin-devtools-json@0.4.1(vite@6.2.5(@types/node@20.17.30)(jiti@1.21.7)(yaml@2.7.1)):
+    dependencies:
+      uuid: 11.1.0
+      vite: 6.2.5(@types/node@20.17.30)(jiti@1.21.7)(yaml@2.7.1)
 
   vite-plugin-iso-import@1.2.0(vite@6.2.5(@types/node@20.17.30)(jiti@1.21.7)(yaml@2.7.1)):
     dependencies:

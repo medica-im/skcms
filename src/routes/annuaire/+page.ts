@@ -5,11 +5,6 @@ import type { PageLoad } from './$types';
 import { browser, building, dev, version } from '$app/environment';
 
 export const load: PageLoad = async () => {
-    //currentOrg.set(true);
-    //limitCategories.set([]);
-    //if ( !browser ) {
-    //    selectCategories.set([]);
-    //}
     return {
         //websiteSchema: await websiteSchema.load(),
         //occupationsCardinal: await occupationsCardinal.load(),
