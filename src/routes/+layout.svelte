@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { browser } from '$app/environment'
 	import { autoModeWatcher } from '@skeletonlabs/skeleton';
 	import { initializeStores, Modal } from '@skeletonlabs/skeleton';
     import { organizationStore } from '$lib/store/facilityStore';
@@ -7,13 +6,10 @@
     import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
     import { storePopup } from '@skeletonlabs/skeleton';
     import Sidebar from '$lib/SkeletonAppBar/Sidebar.svelte';
-    import { userData } from '$lib/store/userStore';
     import { afterNavigate } from '$app/navigation';
     import { notificationData } from '$lib/store/notificationStore';
     import { fly } from 'svelte/transition';
-    import { afterUpdate, onMount } from 'svelte';
     import { page } from '$app/state';
-    import { getCurrentUser, browserGet } from '$lib/utils/requestUtils';
     import { variables } from '$lib/utils/constants';
     import favIcon from '$assets/favicon/favicon.svg';
     import maskIcon from '$assets/favicon/mask-icon.svg';
@@ -22,20 +18,16 @@
     import { Toast } from '@skeletonlabs/skeleton';
     // Modal Components
     import Search from '$lib/Search/Search.svelte';
-
     // Types
     import type { ModalComponent } from '@skeletonlabs/skeleton';
     // components
     import SkeletonAppBar from '$lib/SkeletonAppBar/SkeletonAppBar.svelte';
     import Drawer from '$lib/Drawer/Drawer.svelte';
     import Footer from '$lib/Footer/Footer.svelte';
-
     // Theme stylesheet is loaded from LayoutServerData
     import { QueryClientProvider, QueryClient } from '@tanstack/svelte-query'
     import type { ComponentProps } from 'svelte';
     import { scrollY } from '$lib/store/scrollStore';
-	import type { User } from '$lib/interfaces/user.interface';
-	import type { CustomError } from '$lib/interfaces/error.interface';
 	import { locales, localizeHref } from '$prgld/runtime.js';
 	import { programsNavLinks } from '$var/variables.ts';
 
@@ -46,33 +38,6 @@
 }
 
     storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
-
-    onMount(async () => {
-		if (browserGet('refreshToken')) {
-			const [response, errs]: [User, CustomError[]] = await getCurrentUser(fetch);
-			//console.log(`User: ${JSON.stringify(response)}`);
-			if (errs.length <= 0) {
-				userData.set(response);
-			} else {
-				userData.set(undefined);
-			}
-		}
-	});
-
-    afterUpdate(async () => {
-		const notifyEl = document.getElementById('notification') as HTMLElement;
-		// const notifyEl = document.getElementsByClassName('notification');
-		if (notifyEl && $notificationData !== '') {
-			setTimeout(() => {
-				notifyEl.classList.add('disappear');
-				notificationData.set('');
-			}, 3000);
-		}
-		if (browserGet('refreshToken')) {
-			const [response, _] = await getCurrentUser(fetch);
-			userData.update(() => response);
-		}
-	});
 
     afterNavigate((params: any) => {
 		// Scroll to top

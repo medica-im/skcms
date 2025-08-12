@@ -5,7 +5,9 @@ import type { LayoutLoad } from './$types'
 
 export const load: LayoutLoad<{}> = async ({ fetch, parent, data }) => {
   return {
+    directory: data.directory,
     session: data.session,
+    user: data.user,
     organization: await organizationStore.load(),
     sections: [
       { slug: 'profile', title: 'Profile' },
