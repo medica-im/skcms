@@ -30,6 +30,7 @@
     import { scrollY } from '$lib/store/scrollStore';
 	import { locales, localizeHref } from '$prgld/runtime.js';
 	import { programsNavLinks } from '$var/variables.ts';
+	import { PUBLIC_PLAUSIBLE_SCRIPT_SRC } from '$env/static/public';
 
 	initializeStores();
 
@@ -78,7 +79,9 @@
 	<link rel="icon" href="{favIcon}">
 	<link rel="mask-icon" href="{maskIcon}" color="#000000">
 	<link rel="apple-touch-icon" href="{appleTouchIcon}">
-	<!--script defer data-domain="sante-gadagne.fr" src="https://plausible.medica.im/js/script.js"></script-->
+	{#if PUBLIC_PLAUSIBLE_SCRIPT_SRC}
+	<script defer data-domain="sante-gadagne.fr" src={PUBLIC_PLAUSIBLE_SCRIPT_SRC}></script>
+	{/if}
 	<!--set .env variable VITE_NOINDEX to "true" to prevent all search engines that support the noindex rule (including Google) from indexing a page on your site--> 
 	{#if variables.NOINDEX==true}
 	<meta name="robots" content="noindex">
