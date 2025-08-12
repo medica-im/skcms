@@ -35,10 +35,10 @@
 		<Directory
 		data={data?.cardinal}
 		propCurrentOrg={true}
-		displayCommune={true}
-		displayGeocoder={true}
+		displayCommune={false}
+		displayGeocoder={false}
 		displayCategory={true}
-		displaySituation={true}
+		displaySituation={false}
 		avatar={true} />
 		{/key}
 	</div>
