@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Select from 'svelte-select';
 	import { onMount } from 'svelte';
-	import { categories, selectFacilityValue } from '$lib/store/directoryStore';
+	import { categories } from '$lib/store/directoryStore';
 	import * as m from "$msgs";	import { get } from '@square/svelte-store';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';

@@ -16,18 +16,13 @@ export interface Role {
 }
 
 export interface User {
-	id?: string;
-	email?: string;
-	username: string;
-	password?: string;
-	tokens?: Token;
-	bio?: string;
-	full_name: string;
-	birth_date?: string;
-	is_staff?: boolean;
-	is_superuser?: boolean;
-	role: Role;
-	access?: Access[];
+	name: string;
+	email: string;
+	picture: string;
+	full_name: string|null;
+	role: string|null;
+	effector: string|null;
+	gender: string|null;
 }
 
 export interface UserResponse {

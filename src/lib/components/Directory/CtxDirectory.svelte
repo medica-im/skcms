@@ -135,6 +135,8 @@
 		}
 	);
 
+	setContext('categorizedFilteredEffectors', categorizedFilteredEffectors);
+
 	const cardinalCategorizedFilteredEffectors = asyncDerived(
 		[categorizedFilteredEffectors, filteredEffectors],
 		async ([$categorizedFilteredEffectors, $filteredEffectors]) => {

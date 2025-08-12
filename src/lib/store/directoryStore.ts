@@ -244,7 +244,7 @@ async function processCachedEntries(changedObj: ChangedObj) {
 	return entries;
 }
 
-export const getEntries = async () => {
+export const getEntries = async ():Promise<Entry[]> => {
 	if (browser) {
 		let localVersion = localStorage.getItem("version");
 		console.log(`localVersion: ${localVersion}`);
@@ -273,33 +273,33 @@ export const getEntries = async () => {
 	var cachelife = parseInt(PUBLIC_ENTRIES_TTL);
 	let expired: boolean = true;
 	let empty: boolean = true;
-	const cachedEffectorsObj = getLocalStorage('entries');
+	const cachedEntriesObj = getLocalStorage('entries');
 	let changedObj;
-	if (cachedEffectorsObj) {
-		let elapsed = Date.now() - cachedEffectorsObj.cachetime;
+	if (cachedEntriesObj) {
+		let elapsed = Date.now() - cachedEntriesObj.cachetime;
 		expired = elapsed > cachelife;
-		if ('data' in cachedEffectorsObj) {
-			if (cachedEffectorsObj.data?.length) {
+		if ('data' in cachedEntriesObj) {
+			if (cachedEntriesObj.data?.length) {
 				empty = false;
 			}
 		}
 	}
 	if (empty) {
-		const allEffectors = await downloadAllEntries();
-		return allEffectors;
+		const allEntries = await downloadAllEntries();
+		return allEntries;
 	}
 	if (expired) {
 		contacts = await downloadElements("contacts");
 		setLocalStorage('contacts', contacts);
-		changedObj = changedContacts(contacts, cachedEffectorsObj.data);
+		changedObj = changedContacts(contacts, cachedEntriesObj.data);
 		if (isUnchanged(changedObj)) {
-			return cachedEffectorsObj.data;
+			return cachedEntriesObj.data;
 		} else {
-			const effectors = await processCachedEntries(changedObj);
-			return effectors;
+			const entries = await processCachedEntries(changedObj);
+			return entries;
 		}
 	}
-	return cachedEffectorsObj.data;
+	return cachedEntriesObj.data;
 };
 
 export const getAvatars = asyncDerived(
@@ -323,16 +323,16 @@ export const distanceEffectorsF = async (addressFeature: AddressFeature) => {
 		return {};
 	}
 	const distanceOfEffector: DistanceEffectors = {};
-	const effectors = await getEntries();
-	for (const effector of effectors) {
-		let longitude = effector.address.longitude;
-		let latitude = effector.address.latitude;
+	const entries = await getEntries();
+	for (const entry of entries) {
+		let longitude = entry.address.longitude;
+		let latitude = entry.address.latitude;
 		if (!longitude || !latitude) {
 			continue;
 		}
 		const effectorGeoJSON = [parseFloat(longitude), parseFloat(latitude)] as any;
 		const dist = haversine(targetGeoJSON, effectorGeoJSON);
-		distanceOfEffector[effector.address.facility_uid] = dist;
+		distanceOfEffector[entry.address.facility_uid] = dist;
 	}
 	return distanceOfEffector;
 }
@@ -461,10 +461,10 @@ function compareEffectorDistance(a, b, distEffectors) {
 	}
 }
 
-export const fullFilteredEffectorsF = async (term: string, selectSituation: string, distanceEffectors: DistanceEffectors | null, currentOrg: Boolean | null, organizationStore: Organization, limitCategories: String[]) => {
+export const fullFilteredEffectorsF = async (term: string, selectSituation: string|null, distanceEffectors: DistanceEffectors | null, currentOrg: Boolean | null, organizationStore: Organization, limitCategories: String[]): Promise<Entry[]> => {
 	const entries: Entry[] = await getEntries();
 	if (
-		selectSituation == ''
+		selectSituation == null
 		&& term == ''
 		&& distanceEffectors == null
 		&& currentOrg == null
@@ -495,12 +495,15 @@ export const fullFilteredEffectorsF = async (term: string, selectSituation: stri
 				return normalize(x.name).includes(normalize(term))
 			}
 		}).filter(function (x) {
-			if (selectSituation == '') {
+			if (selectSituation == null) {
 				return true
 			} else {
-				let effectors = situations.find(obj => { return obj.uid == selectSituation })?.effectors;
-				let condition = effectors.includes(x.uid);
-				return condition;
+				let entries = situations.find(obj => { return obj.uid == selectSituation })?.entries;
+				if (entries) {
+				    return entries.includes(x.uid);
+				} else {
+					return false
+				}
 			}
 		})
 	}
@@ -572,14 +575,14 @@ export const categorizedCachedEffectors =
 	};
 */
 
-export const categorizedFilteredEffectorsF = (filteredEffectors: Entry[], distanceEffectors: DistanceEffectors | null, selectSituation: string) => {
-	let categorySet = new Set();
+export const categorizedFilteredEffectorsF = (filteredEffectors: Entry[], distanceEffectors: DistanceEffectors | null, selectSituation: string|null) => {
+	let categorySet: Set<string> = new Set();
 	for (let effector of filteredEffectors) {
 		categorySet.add(effector.effector_type.name)
 	}
 	let categoryArr = Array.from(categorySet);
 	categoryArr.sort();
-	const effectorsObj = categoryArr.reduce((acc, current) => {
+	const effectorsObj: Record<string, Entry[]> = categoryArr.reduce((acc:Record<string,[]>, current) => {
 		acc[current] = [];
 		return acc;
 	}, {});
@@ -592,7 +595,7 @@ export const categorizedFilteredEffectorsF = (filteredEffectors: Entry[], distan
 	});
 	const effectorsMap = new Map(sortedEffectorsObj);
 	if (distanceEffectors) {
-		effectorsMap.forEach((value: any) => value.sort((a, b) => compareEffectorDistance(a, b, distanceEffectors)))
+		effectorsMap.forEach((value) => value.sort((a, b) => compareEffectorDistance(a, b, distanceEffectors)))
 	}
 	return effectorsMap as CategorizedEntries;
 };

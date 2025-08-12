@@ -8,6 +8,7 @@
 	import { getModalStore } from '@skeletonlabs/skeleton';
 	import AddMarkerMap from '$lib/MapLibre/AddMarkerMap.svelte';
 	import Geocoder from '$lib/components/Geocoder/Geocoder.svelte';
+	import { slugify } from '$lib/helpers/stringHelpers.ts';
 	import * as m from '$msgs';
 	import type { Commune } from '$lib/interfaces/v2/facility.ts';
 
@@ -32,6 +33,7 @@
 		name: string;
 		label: string;
 		slug: string;
+		geocoder: string;
 		building: string;
 		street: string;
 		geographical_complement: string;
@@ -43,6 +45,7 @@
 		name: boolean;
 		label: boolean;
 		slug: boolean;
+		geocoder: boolean;
 		building: boolean;
 		street: boolean;
 		geographical_complement: boolean;
@@ -52,6 +55,8 @@
 	}
 	const inputError = 'input-error';
 	let addressFeature: AddressFeature | undefined = $state();
+	let ban_id = $derived(addressFeature?.properties.id);
+	let ban_banId = $derived(addressFeature?.properties.banId);
 	let triggered: boolean = $state(false);
 	const modalStore = getModalStore();
 	let visible: boolean = $state(true);
@@ -61,6 +66,7 @@
 		name: '',
 		label: '',
 		slug: '',
+		geocoder: '',
 		building: '',
 		street: '',
 		geographical_complement: '',
@@ -70,8 +76,9 @@
 	});
 	const validateForm: ValidateForm = $state({
 		name: org_cat == 'msp' ? false : true,
-		label: org_cat == 'msp' ? false : true,
+		label: true,
 		slug: org_cat == 'msp' ? false : true,
+		geocoder: false,
 		building: true,
 		street: false,
 		geographical_complement: true,
@@ -101,13 +108,6 @@
 		return new Promise((resolve) => setTimeout(resolve, ms));
 	}
 
-	const modalFunction = async (r: any) => {
-		/*email = '';
-		await delay(100);
-		modalStore.clear();
-		inputClass = '';*/
-	};
-
 	const nameIsValid = (value: string) => {
 		return true;
 	};
@@ -126,34 +126,15 @@
 		return value >= 0 && value <= 20;
 	};
 
+	/**
+	 * Calculate slug
+	 */
 	$effect(() => {
-		/*
-		if (
-			lastEmails.includes(email) &&
-			page?.form?.success === false &&
-			page?.form?.errors.some((e: GhostAddMemberError) =>
-				e.context.includes('existing email address')
-			)
-		) {
-			errorMsg = `Un membre avec l'adresse e-mail ${email} existe déjà. Essayez de vous connecter en suivant le lien "Se connecter".`;
-
-			const modal: ModalSettings = {
-				type: 'alert',
-				title: 'Erreur',
-				body: errorMsg,
-				buttonTextCancel: m.CANCEL(),
-				response: modalFunction
-			};
-			if (!triggered) {
-				modalStore.trigger(modal);
-				triggered = true;
-			}
-			if (lastEmails.includes(email)) {
-				inputClass = 'input-error';
-			} else {
-				inputClass = '';
-			}
-		}*/
+		if (name) {
+			slug=slugify(name)
+		} else if (addressFeature) {
+			slug=slugify(addressFeature.properties.street)
+		}
 	});
 	/**
 	 * Validate name input.
@@ -171,13 +152,10 @@
 	 * Validate label input.
 	 */
 	$effect(() => {
-		if (!label) {
-			validateForm.label = false;
-			inputClass.label = inputError;
-		} else if (label && labelIsValid(label)) {
+		if (label && labelIsValid(label)) {
 			inputClass.label = '';
 			validateForm.label = true;
-		} else {
+		} else if (label && !labelIsValid(label)) {
 			inputClass.label = inputError;
 			validateForm.label = false;
 		}
@@ -195,6 +173,19 @@
 		} else {
 			inputClass.slug = inputError;
 			validateForm.slug = false;
+		}
+	});
+	/**
+	 * Validate geocoder input.
+	 */
+	$effect(() => {
+		if (addressFeature || street) {
+			validateForm.geocoder = true;
+			inputClass.geocoder = '';
+			return;
+		} else {
+			inputClass.geocoder = inputError;
+			validateForm.geocoder = false;
 		}
 	});
 	/**
@@ -349,6 +340,25 @@
 							bind:value={slug}
 						/>
 					</label>
+					{#if commune}
+						<Geocoder bind:addressFeature commune={commune?.label} placeholder={"Entrer l'adresse"} inputClass={inputClass.geocoder} />
+					{/if}
+					<input
+							oninput={() => {}}
+							class="input hidden"
+							name="ban_id"
+							type="text"
+							placeholder=""
+							bind:value={ban_id}
+						/>
+					<input
+							oninput={() => {}}
+							class="input hidden"
+							name="ban_banId"
+							type="text"
+							placeholder=""
+							bind:value={ban_banId}
+						/>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
 						<span>Bâtiment</span>
 						<input
@@ -371,9 +381,7 @@
 							bind:value={street}
 						/>
 					</label>
-					{#if commune}
-						<Geocoder bind:addressFeature commune={commune?.label} />
-					{/if}
+					
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
 						<span>Complément géographique</span>
 						<input

@@ -1,15 +1,22 @@
 <script lang="ts">
+	import { getContext } from 'svelte';
 	import { onMount } from 'svelte';
-	import {
-		categories,
-		selectCategories,
-		categorizedFullFilteredEffectors
-	} from '$lib/store/directoryStore';
-	import * as m from "$msgs";	import { get } from '@square/svelte-store';
+	import { categories } from '$lib/store/directoryStore';
+	import { getSelectCategories } from './context';
+	import * as m from '$msgs';
+	import { get } from '@square/svelte-store';
 	import Fa from 'svelte-fa';
 	import { faCheck } from '@fortawesome/free-solid-svg-icons';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { variables } from '$lib/utils/constants';
+	import type { Loadable } from '@square/svelte-store';
+	import type { CategorizedEntries } from '$lib/store/directoryStoreInterface';
+
+	const categorizedFilteredEffectors = getContext<Loadable<CategorizedEntries>>(
+		'categorizedFilteredEffectors'
+	);
+
+	let selectCategories = getSelectCategories();
 
 	let value = null;
 
@@ -48,10 +55,10 @@
 			selectCategories.set([]);
 			category = '';
 		} else {
-		category = c;
-		let effectorType = effectorTypes.find((x) => x.name == c);
-		console.debug(`effectorType: ${JSON.stringify(effectorType)}`);
-		selectCategories.set([effectorType.uid]);
+			category = c;
+			let effectorType = effectorTypes.find((x) => x.name == c);
+			console.debug(`effectorType: ${JSON.stringify(effectorType)}`);
+			selectCategories.set([effectorType.uid]);
 		}
 	}
 
@@ -98,7 +105,7 @@
 </script>
 
 <div class="text-surface-700 theme space-x-2 space-y-2">
-	{#await categorizedFullFilteredEffectors.load()}
+	{#await categorizedFilteredEffectors.load()}
 		<div class="placeholder"></div>
 	{:then}
 		{#if $query.status === 'pending'}
@@ -107,7 +114,7 @@
 			<p>Error: {$query.error.message}</p>
 		{:else}
 			{#key category}
-				{#each [...$categorizedFullFilteredEffectors] as [c, value], index}
+				{#each [...$categorizedFilteredEffectors] as [c, value], index}
 					<!-- prettier-ignore -->
 					<span
 					role="button"
@@ -122,19 +129,19 @@
 					<span>{$query.data.find(x=>x.name==c).label}</span>
 				</span>
 				{/each}
-				{#if $categorizedFullFilteredEffectors.size>1}
-				<span
- 				    role="button"
-                    tabindex="{$categorizedFullFilteredEffectors.size}"
-					class="chip {category === '' ? 'variant-filled' : 'variant-soft'}"
-					on:click={() => {
-						select('', $query.data);
-					}}
-					on:keypress
-				>
-					{#if category === ''}<span><Fa icon={faCheck} /></span>{/if}
-					<span>{m.ADDRESSBOOK_CATEGORIES_ALL()}</span>
-				</span>
+				{#if $categorizedFilteredEffectors.size > 1}
+					<span
+						role="button"
+						tabindex={$categorizedFilteredEffectors.size}
+						class="chip {category === '' ? 'variant-filled' : 'variant-soft'}"
+						on:click={() => {
+							select('', $query.data);
+						}}
+						on:keypress
+					>
+						{#if category === ''}<span><Fa icon={faCheck} /></span>{/if}
+						<span>{m.ADDRESSBOOK_CATEGORIES_ALL()}</span>
+					</span>
 				{/if}
 			{/key}
 		{/if}

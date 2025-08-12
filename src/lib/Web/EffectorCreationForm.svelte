@@ -6,20 +6,12 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { getModalStore } from '@skeletonlabs/skeleton';
-	import AddMarkerMap from '$lib/MapLibre/AddMarkerMap.svelte';
-	import Geocoder from '$lib/components/Geocoder/Geocoder.svelte';
-	import * as m from '$msgs';
-	import type { Commune } from '$lib/interfaces/v2/facility.ts';
-
-	import type { ModalSettings } from '@skeletonlabs/skeleton';
+	import OrganizationRadio from './OrganizationRadio.svelte';
+	import { slugify } from '$lib/helpers/stringHelpers';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import type { SelectType } from '$lib/interfaces/select.ts';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
 
-	interface FacilityCreationForm {
-		commune: string;
-		department: string;
-	}
 	let {
 		memberOfOrg = $bindable(),
 		createdEffector = $bindable(),
@@ -29,7 +21,7 @@
 		form,
 		selectedEffectorType
 	}: {
-		memberOfOrg: boolean|undefined;
+		memberOfOrg: boolean | undefined;
 		createdEffector: Effector | undefined;
 		showCreateEffectorForm: boolean;
 		org_cat: string;
@@ -63,23 +55,20 @@
 		label_fr: '',
 		slug_fr: '',
 		gender: '',
-		memberOfOrg: '',
+		memberOfOrg: ''
 	});
 	const validateForm: ValidateForm = $state({
 		name_fr: false,
 		label_fr: true,
 		slug_fr: true,
 		gender: true,
-		memberOfOrg: false,
+		memberOfOrg: false
 	});
 	let name_fr: string = $state('');
 	let label_fr: string = $state('');
-	let slug_fr: string = $state('');
+	let slug_fr: string = $derived(slugify(name_fr));
 	let gender: string = $state('');
-	let orgRadio: string | undefined = $state();
-	$effect(() => {
-        memberOfOrg = orgRadio=="yes";
-	});
+
 	let disabled: boolean = $derived(!Object.values(validateForm).every((v) => v === true));
 
 	function delay(ms: number) {
@@ -147,7 +136,7 @@
 	 * Validate radio memberOfOrg input.
 	 */
 	$effect(() => {
-		if (orgRadio) {
+		if (memberOfOrg) {
 			validateForm.memberOfOrg = true;
 			inputClass.memberOfOrg = '';
 		} else {
@@ -273,26 +262,13 @@
 				</label>
 			</form>
 
-			<div class="py-2 space-y-2">
-				<div>
-					Cette personne est-elle membre de {page.data.organization
-						.formatted_name_definite_article}?
-				</div>
-				<div class="flex items-center space-x-4">
-					<label class="flex items-center space-x-2">
-						<input class="radio {inputClass.memberOfOrg}" type="radio" name="radio-direct" value="yes" bind:group={orgRadio} />
-						<p>Oui</p>
-					</label>
-					<label class="flex items-center space-x-2">
-						<input class="radio {inputClass.memberOfOrg}" type="radio" name="radio-direct" value="no" bind:group={orgRadio} />
-						<p>Non</p>
-					</label>
-				</div>
-			</div>
+			<OrganizationRadio bind:memberOfOrg inputClass={inputClass.memberOfOrg} />
 		</div>
 		<div class="flex gap-8">
 			<div class="w-auto justify-center">
-				<button type="submit" form="effector" class="variant-filled-secondary btn w-min" {disabled}>Envoyer</button>
+				<button type="submit" form="effector" class="variant-filled-secondary btn w-min" {disabled}
+					>Envoyer</button
+				>
 			</div>
 			<div class="w-auto justify-center">
 				<button

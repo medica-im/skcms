@@ -57,12 +57,12 @@ export function getSelCatVal() {
 }
 
 export function setSelectSituation() {
-    let selectSituation: Writable<string> = writable("");
+    let selectSituation: Writable<string|null> = writable(null);
     setContext('selectSituation', selectSituation);
 }
 
 export function getSelectSituation() {
-    return getContext<Writable<string>>('selectSituation');
+    return getContext<Writable<string|null>>('selectSituation');
 }
 
 export function setSelectSituationValue() {
