@@ -84,7 +84,7 @@ const accessRefresh = async () => {
 		const _accessRefresh: Token = await response.json();
 		return _accessRefresh;
 	}else {
-        console.log(`HTTP Response Code: ${response?.status}`)
+        console.log(`Request Utils HTTP Response Code: ${response?.status}`)
     }
 };
 

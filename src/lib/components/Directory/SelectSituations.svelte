@@ -1,39 +1,26 @@
 <script lang="ts">
 	import Select from 'svelte-select';
 	import { onMount } from 'svelte';
-	import { situations, selectSituation, selectSituationValue } from '$lib/store/directoryStore';
-	import * as m from "$msgs";	import { get } from '@square/svelte-store';
+	import { getSelectSituation, getSelectSituationValue } from './context';
+	import { situations } from '$lib/store/directoryStore';
+	import type { SelectType } from '$lib/interfaces/select';
+	import * as m from '$msgs';
 	const label = 'label';
 	const itemId = 'value';
 
-	onMount(async () => {
-		const _situations = await situations();
-		selectSituationValue.set(getValue(_situations));
-	});
+	let selectSituation = getSelectSituation();
 
-	function getValue(situations) {
-		let sSituation = get(selectSituation);
-		//console.log(`sSituation:${sSituation}`);
-		if (sSituation == '') {
-			return '';
-		} else {
-			//console.log(`s: ${JSON.stringify(s)}`);
-			//console.log(`typeof s: ${typeof(s)}`);
-			if (situations) {
-				let val = situations.find((x) => sSituation == x.value);
-				//console.log(`getValue(): ${JSON.stringify(val)}`);
-				return val;
-			}
-		}
-	}
+	let selected: SelectType | undefined = $state();
 
-	function handleClear(event) {
+	onMount(async () => {});
+
+	function handleClear(event: CustomEvent) {
 		if (event.detail) {
-			selectSituation.set("");
+			selectSituation.set(null);
 		}
 	}
 
-	function handleChange(event) {
+	function handleChange(event: CustomEvent) {
 		//console.log(event);
 		if (event.detail) {
 			//console.log(event.detail);
@@ -42,6 +29,7 @@
 		}
 	}
 </script>
+
 <!--
 $selectSituation: {$selectSituation}<br>
 value: {JSON.stringify(value)}
@@ -60,7 +48,7 @@ value: {JSON.stringify(value)}
 			on:change={handleChange}
 			on:clear={handleClear}
 			placeholder={m.ADDRESSBOOK_SITUATIONS_PLACEHOLDER()}
-			bind:value={$selectSituationValue}
+			bind:value={selected}
 		/>
 	</div>
 {/await}

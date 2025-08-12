@@ -90,16 +90,16 @@
 	{/if}
 {:then alert}
 	{#if alert && alert.start_time && alert.end_time && alert.risk_code && isActive(alert) && visible}
-		<div class="py-8 lg:py-10">
-			<aside class="alert variant-ghost-warning">
+		<div class="py-6 lg:py-10 ">
+			<aside class="alert border-4" style="border-color:{riskColor(alert)}">
 				<!-- Icon -->
 				<div class="hidden lg:block">
-					<Fa icon={faTemperatureHigh} color={riskColor(alert)} size="3x" />
+					<Fa icon={faTemperatureHigh} color='{riskColor(alert)}' size="3x" />
 				</div>
 				<!-- Message -->
 				<div class="alert-message">
-					<h3 class="h3">
-						<span class="inline-block lg:hidden px-2"
+					<h3 class="h3 text-center">
+						<span class="inline-block lg:hidden px-1"
 							><Fa icon={faTemperatureHigh} color={riskColor(alert)} /></span
 						>
 						Vigilance {riskName(alert)} canicule
@@ -119,9 +119,9 @@
 							<span>Fiche prévention canicule</span>
 						</a>
 					{/if}
-					<button onclick={() => (visible = false)} class="btn variant-ghost">OK</button><span
+					<button onclick={() => (visible = false)} class="btn variant-ghost"><span
 						><Fa icon={faXmark} /></span
-					>
+					></button>
 				</div>
 			</aside>
 		</div>

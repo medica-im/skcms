@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import Select from 'svelte-select';
 	import { onMount } from 'svelte';
 	import { communes } from '$lib/store/directoryStore';
-	import * as m from "$msgs";	import { get } from '@square/svelte-store';
+	import * as m from "$msgs";
 	import { getSelectCommunes, getSelectCommunesValue } from './context';
-
+	import type { Commune } from '$lib/interfaces/geography.interface.ts';
 	export let communeOf;
 
 	const label = 'label';
@@ -17,7 +17,7 @@
 	let selectCommunesValue = getSelectCommunesValue();
 
 	onMount(async () => {
-		communesParam = $page.url.searchParams.get('communes');
+		communesParam = page.url.searchParams.get('communes');
 		if (!communesParam) return;
 		const communeUids: string[] = JSON.parse(communesParam);
 		selectCommunes.set(communeUids);
@@ -26,14 +26,14 @@
 		if (communesVal) selectCommunesValue.set(communesVal);
 	});
 
-	function getItems(communes) {
+	function getItems(communes: Commune[]) {
 		return communes.map(function (x) {
 			let dct = { value: x.uid, label: x.name };
 			return dct;
 		});
 	}
 
-	function getValue(communeUids, allCommunes) {
+	function getValue(communeUids: string[], allCommunes: Commune[]) {
 		if (allCommunes) {
 			let val = allCommunes
 				.filter((x) => communeUids.includes(x.uid))
@@ -45,13 +45,13 @@
 		}
 	}
 
-	function handleClear(event) {
+	function handleClear(event: CustomEvent) {
 		if (event.detail) {
 			selectCommunes.set([]);
 		}
 	}
 
-	function handleChange(event) {
+	function handleChange(event: CustomEvent) {
 		if (event.detail) {
 			selectCommunes.set([event.detail.value]);
 		}
@@ -80,6 +80,8 @@ communeOf: {$communeOf} ({$communeOf.length})
 			bind:value={$selectCommunesValue}
 		/>
 	</div>
+	{:catch error}
+	{error}
 {/await}
 
 <style>

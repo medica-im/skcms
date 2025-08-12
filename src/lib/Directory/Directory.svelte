@@ -10,7 +10,6 @@
 		limitCategories,
 		selectCategories,
 		categories,
-		fullFilteredEffectors
 	} from '$lib/store/directoryStore.ts';
 	import * as m from "$msgs";	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers.ts';
 	import { language } from '$lib/store/languageStore.ts';

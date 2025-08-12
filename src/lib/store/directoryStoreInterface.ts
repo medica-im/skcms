@@ -99,8 +99,14 @@ export interface FullEffector {
     websites: Website[] | null
 }
 
+export interface FeatureCollection {
+    type: "FeatureCollection",
+    features: AddressFeature[],
+    query: string
+}
+
 export interface AddressFeature {
-    type: string,
+    type: "Feature",
     geometry: {
         type: string,
         coordinates: [number, number]
@@ -110,6 +116,7 @@ export interface AddressFeature {
         score: number,
         housenumber: string,
         id: string,
+        banId: string,
         name: string,
         postcode: string,
         citycode: string,
@@ -120,6 +127,7 @@ export interface AddressFeature {
         type: string,
         importance: number,
         street: string
+        _type: string
     }
 }
 

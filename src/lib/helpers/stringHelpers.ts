@@ -16,3 +16,13 @@ export const workerTitleFormattedName = (w) =>
 export const removeSpaces = (s: string) => s.replace(/\s+/g, '-').normalize("NFD").replace(/\p{Diacritic}/gu, "");
 
 export const normalize = (x: string) => x.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
+
+export function slugify(str: string) {
+  str = str.replace(/^\s+|\s+$/g, ''); // trim leading/trailing white space
+  str = normalize(str);
+  str = str.toLocaleLowerCase('fr'); // convert string to lowercase
+  str = str.replace(/[^a-z0-9 -]/g, '') // remove any non-alphanumeric characters
+           .replace(/\s+/g, '-') // replace spaces with hyphens
+           .replace(/-+/g, '-'); // remove consecutive hyphens
+  return str;
+}

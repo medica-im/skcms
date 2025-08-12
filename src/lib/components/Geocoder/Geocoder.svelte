@@ -1,21 +1,29 @@
 <script lang="ts">
-	import isEmpty from 'lodash.isempty';
+	import { page } from '$app/state';
 	import * as m from '$msgs';
 	import { normalize } from '$lib/helpers/stringHelpers';
 	import { faAddressCard } from '@fortawesome/free-regular-svg-icons';
 	import Fa from 'svelte-fa';
 	import DocsIcon from '$lib/Icon/Icon.svelte';
-	import { variables } from '$lib/utils/constants';
-	import { handleRequestsWithPermissions } from '$lib/utils/requestUtils';
 	import { PUBLIC_DIRECTORY_TTL } from '$env/static/public';
-	import Svelecte from 'svelecte';
 	import SelectAddress from '$lib/Web/SelectAddress.svelte';
-	import type { AddressFeature } from '$lib/store/directoryStoreInterface';
+	import type { AddressFeature, FeatureCollection } from '$lib/store/directoryStoreInterface';
 
+	let {
+		addressFeature = $bindable(),
+		commune = null,
+	    placeholder = '',
+		inputClass = ''
+	}: {
+		addressFeature?: AddressFeature | undefined;
+		commune?: string|null,
+		placeholder?: string,
+		inputClass?: string
+	} = $props();
 
 	let addressValue: string|null = $state(null);
 	let visible: boolean = $state(false);
-	let response: any = $state();
+	let response: FeatureCollection|undefined = $state();
 	const cachelife: number = parseInt(PUBLIC_DIRECTORY_TTL || '0');
 
 	type SelectOption = {value: string, label: string};
@@ -35,12 +43,7 @@
 	//let CACHE = '';
 	//let RESULTS: Array<Object> = [];
 	let inputAddress: string | undefined = $state();
-	let {
-		addressFeature = $bindable(),
-		commune
-	}: { addressFeature: AddressFeature | undefined; commune: string } = $props();
 
-	let normalizedInputAddress = $derived(inputAddress ? normalize(inputAddress) : '');
 	$effect(() => {
 		if (inputAddress && inputAddress.length > options.minChar) {
 			response = search();
@@ -50,38 +53,35 @@
 		visible = !addressFeature && !(inputAddress === undefined) && !(inputAddress==null) && inputAddress.length > options.minChar;
 	});
 
-	const getDirectory = async () => {
-		let expired;
-		var cacheddata: string | null = localStorage.getItem('directory');
-		if (cacheddata) {
-			const cachedDataObj = JSON.parse(cacheddata);
-			expired = Math.trunc(Date.now() / 1000) - cachedDataObj.cachetime > cachelife;
-			if (!expired) {
-				return cachedDataObj.data;
-			}
-		} else {
-			const url = `${variables.BASE_API_URI}/directory/`;
-			const [directory, err] = await handleRequestsWithPermissions(fetch, url);
-			let json = { data: directory, cachetime: Math.trunc(Date.now() / 1000) };
-			localStorage.setItem('directory', JSON.stringify(json));
-			return directory;
-		}
-	};
-
 	$effect(() => {
-		addressOptions = getAddressOptions(response);
+		if (response) {
+			addressOptions = getAddressOptions(response);
+		}
 	});
 
-	function getAddressOptions(res) {
+	const getLabel = (address: AddressFeature) => {
+		return `${address.properties.housenumber} ${address.properties.street}${commune ? '' : ' [' + address.properties.city +']'}`
+	}
+
+	function getAddressOptions(res: FeatureCollection) {
+		console.log(res);
+		console.log(JSON.stringify(res));
+
 		if (!res || !res?.features?.length) {
 			return [];
 		}
 		let _addressOptions = res.features
+		.filter((e: AddressFeature) => {
+			return e.properties.housenumber
+		})
 			.filter((e: AddressFeature) => {
-				return e.properties.city == commune;
+				return commune? e.properties.city == commune : true;
 			})
-			.map((e) => {
-				return { label: normalize(e.properties.name), value: e.properties.id };
+			.filter((e: AddressFeature)=> {
+				return page.data.directory.postal_codes ? page.data.directory.postal_codes.includes(e.properties.postcode.substring(0,2)) : true
+			})
+			.map((e: AddressFeature) => {
+				return { label: getLabel(e), value: e.properties.id };
 			});
 		return _addressOptions;
 	}
@@ -100,22 +100,16 @@
 	}
 
 	function getParams() {
-		//var x;
-		//var y;
-		//if (this.options.includePosition) {
-		//  [x, y] = this.options.includePosition();
-		//} else {
-		//  x = y = null;
-		//}
-		return {
-			q: inputAddress,
+		let params = {
+			q: `${inputAddress} ${commune ?? ''}`,
 			limit: options.limit,
 			lat: null,
 			lon: null
 		};
+		return params;
 	}
 
-	function search() {
+	function search(): FeatureCollection|undefined {
 		if (inputAddress === '') {
 			return;
 		}
@@ -132,6 +126,7 @@
 
 	async function fetchGeojson() {
 		let url = options.url + buildQueryString();
+		console.log(`geocoder: ${url}`);
 		const res = await fetch(url, {
 			method: 'GET',
 			mode: 'cors'
@@ -142,18 +137,23 @@
 		}
 		const geojson = await res.json();
 		response = geojson;
+		console.log(response)
 	}
 
 	function recordAddressFeature(featureId: string) {
-		const feature = response.features.find((x) => x.properties.id == featureId);
+		const feature = response?.features.find((x: AddressFeature) => x.properties.id == featureId);
 		addressFeature = feature;
 	}
 
     $effect(()=>{
 		if (addressValue && response?.features?.length) {
-			const feature: AddressFeature = response.features.find((x) => x.properties.id == addressValue);
+			const feature: AddressFeature|undefined = response.features.find((x) => x.properties.id == addressValue);
 		    addressFeature = feature;
-			inputAddress = feature.properties.name
+			inputAddress = feature?.properties.name
+			if (!commune) {
+				const city = `[${feature?.properties.city}]`;
+				inputAddress = inputAddress?.concat(" ", city)
+			}
 		}
 	});
 
@@ -172,21 +172,15 @@
 	}
 </script>
 
-addressFeature:<br />
-{JSON.stringify(addressFeature)}<br />
-commune: "{commune}"<br />
-addressOptions:<br />
-{JSON.stringify(addressOptions)}
-
 <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
 	<div class="input-group-shim"><Fa icon={faAddressCard} /></div>
 	<input
-		class="input"
+		class="input {inputClass}"
 		type="search"
 		name="geocoder"
 		autocomplete="off"
 		disabled={Boolean(addressFeature)}
-		placeholder={m.ADDRESSBOOK_GEOCODER_PLACEHOLDER()}
+		placeholder={placeholder}
 		bind:value={inputAddress}
 		aria-label={m.ADDRESSBOOK_GEOCODER_ARIA_LABEL()}
 	/>

@@ -3,9 +3,11 @@
 type SelectOption = {value: string, label: string};
 let { address = $bindable(), addressOptions, visible = $bindable() } :{ address: string|null, addressOptions: SelectOption[], visible: boolean } = $props();
 </script>
+<div class="flex flex-wrap gap-2 w-full">
 {#each addressOptions as addressOption}
 <button class="chip variant-soft hover:variant-filled" onclick={()=>{address= addressOption.value; visible=false;}}>
 	<span><MapPinHouse/></span>
 	<span>{addressOption.label}</span>
 </button>
 {/each}
+</div>
