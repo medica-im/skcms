@@ -1,4 +1,4 @@
-FROM node:20-slim AS builder
+FROM node:22-alpine AS builder
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
@@ -9,7 +9,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     pnpm install --frozen-lockfile
 RUN pnpm run -r build
 
-FROM node:20-slim
+FROM node:22-alpine
 
 WORKDIR /app
 ENV NODE_ENV=production
