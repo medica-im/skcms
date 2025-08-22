@@ -1,17 +1,8 @@
 <script lang="ts">
-	import type PageData from '$types';
-	import EffectorContact from '$lib/Directory/EffectorContact.svelte';
-	import CareHomePage from '$lib/Directory/CareHomePage.svelte';
-	import UsldPage from '$lib/Directory/UsldPage.svelte';
-	import { userData } from '$lib/store/userStore.ts';
-	export let data: PageData;
-
-	const componentSelect = {
-		default: EffectorContact,
-		careHome: CareHomePage,
-		usld: UsldPage
-	};
-	let component = componentSelect[data.component];
+	import EffectorContact from '$lib/components/Directory/EffectorContact.svelte';
+	import type { PageProps } from './$types';
+	let { data }: PageProps = $props();
+	console.log(`form on page: ${JSON.stringify(data?.form)}`);
 </script>
 
 <svelte:head>
@@ -20,7 +11,7 @@
 
 <section id="programs" class="bg-surface-100-800-token programs-gradient">
 	<div class="section-container">
-		<svelte:component this={component} effector={data.effector} userData={$userData} />
+		<EffectorContact {data} />
 	</div>
 </section>
 

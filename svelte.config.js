@@ -23,6 +23,9 @@ const config = {
 			$msgs: './src/paraglide/messages.js',
 			$prgld: './src/paraglide/',
 			$var: './src/var'
+		},
+		experimental: {
+			remoteFunctions: true
 		}
 	}
 };

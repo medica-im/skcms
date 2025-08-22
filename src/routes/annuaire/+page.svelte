@@ -34,11 +34,11 @@
 		{#key [page.url]}
 		<Directory
 		data={data?.cardinal}
-		propCurrentOrg={true}
-		displayCommune={false}
-		displayGeocoder={false}
+		propCurrentOrg={null}
+		displayCommune={true}
+		displayGeocoder={true}
 		displayCategory={true}
-		displaySituation={false}
+		displaySituation={true}
 		avatar={true} />
 		{/key}
 	</div>

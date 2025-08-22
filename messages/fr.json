@@ -124,5 +124,6 @@
   "SIGNIN": "S'identifier",
   "signout": "Se déconnecter",
   "with": "avec",
-  "from": "de"
+  "from": "de",
+  "CLOSE": "Fermer"
 }

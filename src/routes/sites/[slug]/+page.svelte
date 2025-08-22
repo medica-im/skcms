@@ -25,7 +25,7 @@
 <div class="mx-0 flex flex-col items-center justify-center p-4 py-6">
 <div class="grid grid-cols-1 gap-4">
 	<div>
-		<FacilityPage facility={data.facility} userData={$userData} entries={data.entries} />
+		<FacilityPage facility={data.facility} entries={data?.entries} />
 	</div>
 	<div>
 		<SitesLink />
