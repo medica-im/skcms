@@ -11,7 +11,6 @@ export const load: PageLoad = async ({ fetch, params }) => {
     console.log(url);
     const response = await fetch(url,
         {
-            credentials: 'include',
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -34,7 +33,6 @@ export const entries: EntryGenerator = async () => {
     const response = await fetch(
         url,
         {
-            credentials: 'include',
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
