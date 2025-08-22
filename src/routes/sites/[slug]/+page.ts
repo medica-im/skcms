@@ -14,7 +14,6 @@ export const load: PageLoad = async ({ fetch, params }) => {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
-                'content-type': 'application/json'
             }
         });
     const facility: Facility = await response.json();
