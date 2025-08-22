@@ -6,7 +6,6 @@ import {
 		faLinkedin,
 		faInstagram,
 		faYoutube,
-		faSkype
 	} from '@fortawesome/free-brands-svg-icons';
 
 export const providers = [

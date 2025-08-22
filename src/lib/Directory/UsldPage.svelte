@@ -1,5 +1,5 @@
 <script lang="ts">
-	import EffectorContact from './EffectorContact.svelte';
+	import EffectorContact from '../components/Directory/EffectorContact.svelte';
 	export let effector: any;
 	let data = effector.careHome;
 	let count = 0;

@@ -1,9 +1,12 @@
 <script lang="ts">
+	import { getEditMode } from '$lib/components/Directory/context';
 	import Phone from './Phone.svelte';
-	export let data: any;
+	let { data} = $props();
+
+	const editMode = getEditMode();
 </script>
 <div class="">
 {#each data as phone}
-<Phone data={phone}/>
+<Phone phoneData={phone} editMode={$editMode}/>
 {/each}
 </div>

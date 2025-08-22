@@ -35,6 +35,7 @@
 		fullFilteredEffectorsF,
 		filteredEffectorsF,
 		categorizedFilteredEffectorsF,
+		categorizedFullFilteredEffectorsF,
 		cardinalCategorizedFilteredEffectorsF,
 		categoryOfF,
 		communeOfF,
@@ -137,6 +138,15 @@
 
 	setContext('categorizedFilteredEffectors', categorizedFilteredEffectors);
 
+	const categorizedFullFilteredEffectors = asyncDerived(
+	(fullFilteredEffectors),
+	async ($fullFilteredEffectors) => {
+		return categorizedFullFilteredEffectorsF($fullFilteredEffectors);
+	}
+	)
+
+	setContext('categorizedFullFilteredEffectors', categorizedFullFilteredEffectors);
+
 	const cardinalCategorizedFilteredEffectors = asyncDerived(
 		[categorizedFilteredEffectors, filteredEffectors],
 		async ([$categorizedFilteredEffectors, $filteredEffectors]) => {
@@ -154,20 +164,22 @@
 	);
 
 	const communeOf = asyncDerived(
-		[selectCategories, fullFilteredEffectors, selectFacility, currentOrg, limitCategories],
+		[selectCategories, fullFilteredEffectors, selectFacility, currentOrg, limitCategories, selectSituation],
 		async ([
 			$selectCategories,
 			$fullFilteredEffectors,
 			$selectFacility,
 			$currentOrg,
-			$limitCategories
+			$limitCategories,
+			$selectSituation
 		]) => {
 			return communeOfF(
 				$selectCategories,
 				$fullFilteredEffectors,
 				$selectFacility,
 				$currentOrg,
-				$limitCategories
+				$limitCategories,
+				$selectSituation
 			);
 		}
 	);
@@ -209,7 +221,6 @@
 </script>
 {#if typesView}
 <Types
-    {data}
 	{displayEntries}
 />
 {:else}

@@ -26,7 +26,6 @@
 		return facilityGeoData;
 	};
 </script>
-
 <div id="{data.name}_anchor" class="card variant-soft px-4 py-2 lg:scroll-mt-12">
 	<div class="grid grid-cols-1 md:grid-cols-2">
 		<div class="overflow-hidden m-1 p-1">

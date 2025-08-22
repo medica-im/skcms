@@ -11,10 +11,10 @@
 	import { createFacilitiesMapData } from '$lib/components/Map/mapData';
 	import { variables } from '$lib/utils/constants';
 	import { copy } from 'svelte-copy';
+	import { page } from '$app/state';
 	import type { Facility } from '$lib/interfaces/facility.interface.ts';
 
 	export let facility: Facility;
-	export let userData;
 	export let entries;
 
 	const createFacilityGeoData = (facility: Facility) => {
@@ -36,7 +36,6 @@
 		}
 	}
 </script>
-
 <div class="grid grid-cols-1 lg:grid-cols-{lgGridCols()} card variant-soft p-4 space-x-4 space-y-4 w-fit">
 	<div class="space-y-2 space-x-2 mx-0">
 		<div class="space-y-4">
@@ -68,13 +67,12 @@
 			</span>
 		</div>
 		{/if}
-		{#if userData && userData?.is_staff}
+		{#if page.data?.user?.role == 'superuser'}
 			<div>
 				{facility.uid}
 				<button use:copy={facility.uid}> Copy! </button>
 			</div>
 		{/if}
-		{#if entries && [...entries]?.length}
 		<div>
 			<Directory
 				data={entries}
@@ -83,7 +81,6 @@
 				displayEntries={true}
 			/>
 		</div>
-		{/if}
 	</div>
 	{#if facility?.avatar?.raw}
 		<div>
