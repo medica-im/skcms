@@ -5,28 +5,31 @@
 	import SitesLink from '$lib/components/Sites/SitesLink.svelte';
 	import { userData } from '$lib/store/userStore.ts';
 	import { page } from '$app/state';
+	import type { PageProps } from './$types';
 
-	export let data;
+	let { data }: PageProps = $props();
 </script>
 
 <svelte:head>
 	<title>
-		{data.facility.name} - {capitalizeFirstLetter(page.data.organization.formatted_name, $language)}
+		{data.facility?.name} - {capitalizeFirstLetter(page.data.organization.formatted_name, $language)}
 	</title>
 </svelte:head>
 
 
 <header id="hero" class="bg-surface-100-800-token hero-gradient">
     <div class="mx-0 flex flex-col items-center justify-center p-4 py-6">
-    <h2 class="h2">{data.facility.name}</h2>
+    <h2 class="h2">{data.facility?.name}</h2>
 </div>
 </header>
 
 <div class="mx-0 flex flex-col items-center justify-center p-4 py-6">
 <div class="grid grid-cols-1 gap-4">
+	{#if data?.facility}
 	<div>
-		<FacilityPage facility={data.facility} />
+		<FacilityPage facility={data.facility} entries={data.entryMap}  />
 	</div>
+	{/if}
 	<div>
 		<SitesLink />
 	</div>

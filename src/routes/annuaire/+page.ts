@@ -1,10 +1,13 @@
 import { websiteSchema } from '$lib/store/facilityStore.ts';
-import { cardinalCategorizedFilteredEffectors, selectCategories, limitCategories, currentOrg } from '$lib/store/directoryStore.ts';
+import { cardCatEntries } from '$lib/components/Directory/directory.ts';
 import { openGraphStore } from '$lib/store/openGraphStore.ts';
 import type { PageLoad } from './$types';
 import { browser, building, dev, version } from '$app/environment';
 
-export const load: PageLoad = async () => {
+export const load: PageLoad = async ({parent}) => {
+    const { organization } = await parent();
+    const currentOrg: boolean = true;
+    const orgUid = organization.uid;
     return {
         //websiteSchema: await websiteSchema.load(),
         //occupationsCardinal: await occupationsCardinal.load(),
@@ -12,6 +15,6 @@ export const load: PageLoad = async () => {
         //workforceOccupation: await workforceOccupation.load(),
         //teamCarousel: await teamCarouselStore.load(),
         //ghost: data.ghost
-        cardinal: await cardinalCategorizedFilteredEffectors.load()
+        cardinal: await cardCatEntries(currentOrg, orgUid)
     };
 }

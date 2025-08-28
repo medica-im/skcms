@@ -22,16 +22,16 @@ const getEntryData = async (url: string, fetch)=> {
 
 export const load: PageLoad = async ({ fetch, params, depends }) => {
     const apiUrl = `${variables.BASE_API_URI}/fulleffector/${params.facility}/${params.type}/${params.effector}/`;
-    let [res, error]= await handleRequestsWithPermissions(fetch,apiUrl);
-    if (dev) {
-        console.log(res);
-        console.log(error);
-    }
+    //let [res, error]= await handleRequestsWithPermissions(fetch,apiUrl);
+    //if (dev) {
+    //    console.log(res);
+    //    console.log(error);
+    //}
     const canonicalUrl = `${variables.BASE_URI}/${params.facility}/${params.type}/${params.effector}`;
     depends('entry:now')
     
     return {
-        effector: await getEntryData(apiUrl,fetch),
+        entry: await getEntryData(apiUrl,fetch),
         canonicalUrl: canonicalUrl
     }
 }

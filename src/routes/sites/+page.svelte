@@ -1,24 +1,25 @@
 <script lang="ts">
+	import type { PageProps } from './$types';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import { language } from '$lib/store/languageStore';
 	import { page } from '$app/state';
 	import FacilityCard from '$lib/Facility/FacilityCard.svelte';
 	import type { Facility } from '$lib/interfaces/facility.interface.ts';
 
-	export let data;
+ 	let { data }: PageProps = $props();
 	function filterFacilities(facilities: Facility[]) {
 		const f = facilities.filter((facility) =>
-			facility.organizations.includes(data.organization.uid)
+			facility.organizations.includes(page.data.organization.uid)
 		);
 		return f;
 	};
-	const facilities = filterFacilities(data.facilities);
+	const filteredFacilities = filterFacilities(data.facilities);
 
 	const getHeader = () => {
-        return (facilities.length < 2) ? "Notre établissement" : `Nos ${facilities.length} établissements`
+        return (filteredFacilities.length < 2) ? "Notre établissement" : `Nos ${filteredFacilities.length} établissements`
 	}
 	const getTitle = () => {
-        return (facilities.length < 2) ? 'Établissement' : 'Établissements'
+        return (filteredFacilities.length < 2) ? 'Établissement' : 'Établissements'
 	}
 </script>
 
@@ -40,12 +41,12 @@
 	<section id="programs" class="bg-surface-100-800-token programs-gradient">
 		<div class="section-container">
 			<div class="lg:hidden logo-cloud grid-cols-1 gap-0.5">
-				{#each facilities as facility}
+				{#each data.facilities as facility}
 				<a href="#{facility.name}_anchor" class="logo-item p-2">{facility.name}</a>
 				{/each}
 			</div>
 			<div class="grid lg:grid-cols-2 gap-6">
-				{#each facilities as facility}
+				{#each data.facilities as facility}
 					<FacilityCard data={facility} entries={data.entries.get(facility.uid)} />
 				{/each}
 			</div>
