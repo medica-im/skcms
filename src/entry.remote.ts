@@ -9,7 +9,8 @@ const RoleEnum = z.enum(['anonymous', 'staff', 'administrator' , 'superuser']);
 const Patch = z.object({
 	entry: z.string().optional(),
 	//roles: z.array(RoleEnum),
-	carte_vitale: z.nullable(z.boolean()),
+	carte_vitale: z.nullable(z.boolean()).optional(),
+	payment: z.nullable(z.array(z.string())).optional()
 });
 
 export const patchCommand = command(Patch, async (data) => {
@@ -36,6 +37,12 @@ export const patchCommand = command(Patch, async (data) => {
 	}
 });
 
+export const getPaymentMethods = query(async () => {
+	const res = await fetch(`${variables.BASE_URI}/api/v2/payment_methods/`);
+	if (res.ok) {
+		return await res.json();
+	}
+});
 
 export const patchForm = form(async (data) => {
 	const entry_uid = data.get('entry');
