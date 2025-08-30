@@ -10,7 +10,8 @@ const Patch = z.object({
 	entry: z.string().optional(),
 	//roles: z.array(RoleEnum),
 	carte_vitale: z.nullable(z.boolean()).optional(),
-	payment: z.nullable(z.array(z.string())).optional()
+	payment: z.nullable(z.array(z.string())).optional(),
+	third_party_payment: z.nullable(z.array(z.string())).optional()
 });
 
 export const patchCommand = command(Patch, async (data) => {
