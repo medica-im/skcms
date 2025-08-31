@@ -11,7 +11,8 @@ const Patch = z.object({
 	//roles: z.array(RoleEnum),
 	carte_vitale: z.nullable(z.boolean()).optional(),
 	payment: z.nullable(z.array(z.string())).optional(),
-	third_party_payment: z.nullable(z.array(z.string())).optional()
+	third_party_payer: z.nullable(z.array(z.string())).optional(),
+	convention: z.nullable(z.string()).optional()
 });
 
 export const patchCommand = command(Patch, async (data) => {
@@ -40,6 +41,20 @@ export const patchCommand = command(Patch, async (data) => {
 
 export const getPaymentMethods = query(async () => {
 	const res = await fetch(`${variables.BASE_URI}/api/v2/payment_methods/`);
+	if (res.ok) {
+		return await res.json();
+	}
+});
+
+export const getThirdPartyPayers = query(async () => {
+	const res = await fetch(`${variables.BASE_URI}/api/v2/third_party_payers/`);
+	if (res.ok) {
+		return await res.json();
+	}
+});
+
+export const getConventions = query(async () => {
+	const res = await fetch(`${variables.BASE_URI}/api/v2/conventions/`);
 	if (res.ok) {
 		return await res.json();
 	}
