@@ -3,6 +3,14 @@ import { writable, derived, readable, get, asyncReadable, asyncDerived } from '@
 import type { Writable } from '@square/svelte-store';
 import type { LimitCategoriesStore, AddressFeature, CurrentOrgStore, CommunesValueStore, Type } from '$lib/store/directoryStoreInterface';
 
+export function setEntryUid(uid:string) {
+    setContext('entryUid', uid)
+}
+
+export function getEntryUid() {
+    return getContext<string>('entryUid')
+}
+
 export function setEditMode() {
     let editMode = writable<boolean>(false);
     setContext('editMode', editMode)

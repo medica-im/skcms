@@ -20,3 +20,55 @@ export const isObjectEmpty = (obj: Object) => {
 	for (var i in obj) return false;
 	return true;
 }
+
+export const hyphenateUuid = (i: string) => {
+	return i.substring(0, 8) + "-" + i.substring(8, 12) + "-" + i.substring(12, 16) + "-" + i.substring(16, 20) + "-" + i.substring(20);
+}
+
+export function filterInPlace(array: any[], fn: Function) {
+	let from = 0, to = 0;
+	while (from < array.length) {
+		if (fn(array[from])) {
+			array[to] = array[from];
+			to++;
+		}
+		from++;
+	}
+	array.length = to;
+}
+
+/** assumes array elements are primitive types
+* check whether 2 arrays are equal sets.
+* @param  {} a1 is an array
+* @param  {} a2 is an array
+*/
+function areArraysEqualSets(a1:string[], a2: string[]) {
+  const superSet = {};
+  for (const i of a1) {
+    const e = i + typeof i;
+    superSet[e] = 1;
+  }
+
+  for (const i of a2) {
+    const e = i + typeof i;
+    if (!superSet[e]) {
+      return false;
+    }
+    superSet[e] = 2;
+  }
+
+  for (let e in superSet) {
+    if (superSet[e] === 1) {
+      return false;
+    }
+  }
+
+  return true;
+}
+export const getByValue = (map: Map<string, string[]>, searchValue: string[]) => {
+	for (let [key, value] of map.entries()) {
+		if (areArraysEqualSets(value, searchValue)) {
+			return key;
+		}
+	}
+}

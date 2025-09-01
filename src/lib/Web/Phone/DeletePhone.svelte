@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import { deletePhone } from '../../../data.remote';
+	import { deletePhone } from '../../../phone.remote';
 	import { invalidate } from '$app/navigation';
 	import {
 		faCheck,
@@ -57,7 +57,7 @@
 							name="id"
 							type="text"
 							placeholder=""
-							bind:value={phoneData.id}
+							value={phoneData.id}
 						/>
             <div class="p-2 space-y-4 justify-items-stretch gap-6">
          

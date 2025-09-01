@@ -5,11 +5,11 @@
 	import AvatarList from '$lib/components/Effector/Avatar/AvatarList.svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import type { FullEffector } from '$lib/store/directoryStoreInterface';
-	export let entry: FullEffector;
+	import type { Entry } from '$lib/store/directoryStoreInterface';
+	export let entry: Entry;
 	export let avatar: boolean;
 
-	function entryPageUrl(entry: FullEffector, pathname: string) {
+	function entryPageUrl(entry: Entry, pathname: string) {
 		let typeSlug = entry.effector_type.slug;
 		let facilitySlug = entry.facility.slug;
 		let nameSlug = entry.slug;
@@ -49,7 +49,7 @@
 				<Phones data={entry.phones} />
 			{/if}
 			{#if entry.emails?.length}
-				<Emails data={entry.emails} />
+				<Emails data={entry.emails} editMode={false} />
 			{/if}
 				{#if entry.facility}
 					<div><FacilityLink data={entry.facility} /></div>

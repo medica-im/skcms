@@ -1,14 +1,16 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import { updatePhone } from '../../../data.remote';
+	import { updatePhone } from '../../../phone.remote';
 	import { invalidate } from '$app/navigation';
 	import { faCheck, faWindowClose, faPenToSquare, faExclamationCircle, faTrashCanArrowUp } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import type { Phone } from '$lib/interfaces/phone.interface.ts';
 	import Select from 'svelte-select';
 	import Dialog from '../Dialog.svelte';
+	import { accessSelectTypes, getRoles, getSelectedAccess } from '$lib/Web/access.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
 	import type { FormResult } from '$lib/interfaces/v2/form';
+	import { dataTagErrorSymbol } from '@tanstack/svelte-query';
 
 	let {
 		phoneData
@@ -17,6 +19,8 @@
 	} = $props();
 
 	let dialog: HTMLDialogElement;
+
+	let roles: string[] = $derived(phoneData.roles.map(e=>e.name));
 
 	let result: FormResult | undefined = $state();
 
@@ -34,6 +38,7 @@
 		}
 		return items;
 	};
+	
 	let _id: number = $state(phoneData.id);
 	let _phone: string = $state(phoneData.phone);
 	let selectedType: SelectType | undefined = $state({
@@ -41,8 +46,13 @@
 		value: phoneData.type
 	});
 	let _type: string = $derived(selectedType.value);
+	let selectedAccess: SelectType|undefined = $state(getSelectedAccess(phoneData.roles.map(e=>e.name)));
+	let _roles: string[]|undefined = $derived(getRoles(selectedAccess?.value))
+	console.log(roles);
+	console.log(getSelectedAccess(roles))
+	console.log(`selectedAccess:${JSON.stringify(selectedAccess)}`)
 	let disabled: boolean = $derived(
-		selectedType.value == phoneData.type && _phone == phoneData.phone
+		selectedType.value == phoneData.type && _phone == phoneData.phone && ( selectedAccess?.value == getSelectedAccess(roles)?.value  )
 	);
 	function manipulateForm(data: FormData) {
 		data.append('id', _id.toString());
@@ -55,16 +65,17 @@
 		_type=phoneData.type;
 		selectedType={label: types[phoneData.type],
 		value: phoneData.type};
+		selectedAccess=getSelectedAccess(phoneData.roles.map(e=>e.name));
 		result=undefined;
 	}
 </script>
 
-<button onclick={() => {dialog.showModal();}} title="Modifier"><Fa icon={faPenToSquare} /></button>
+<button onclick={() => {invalidate('entry:now'); dialog.showModal(); resetForm();}} title="Modifier"><Fa icon={faPenToSquare} /></button>
 
 <Dialog bind:dialog={dialog} on:close={() => console.log('closed')}>
 	<div class="rounded-lg p-4 variant-ghost-secondary gap-2 items-center place-items-center">
 		<button id="close" aria-label={m.CLOSE()} onclick={()=>dialog.close()} class="btn variant-ringed" formnovalidate><Fa icon={faWindowClose}/></button>
-		<p>id: {_id} phone: {_phone} type: {_type}</p>
+		<p>id: {_id} phone: {_phone} type: {_type} selectedAccess: {selectedAccess} roles: {roles}</p>
 
 		<form
 			{...updatePhone.enhance(async ({ form, data, submit }) => {
@@ -117,6 +128,18 @@
 							bind:value={_type}
 						/>
 						<Select items={getItems()} bind:value={selectedType} />
+					</label>
+					<label class="flex label place-self-start place-items-center space-x-2 w-full">
+						<span>Accès:</span>
+						<input
+							oninput={() => {}}
+							class="input hidden"
+							name="roles"
+							type="text"
+							placeholder=""
+							bind:value={_roles}
+						/>
+						<Select items={accessSelectTypes} bind:value={selectedAccess} />
 					</label>
 				</div>
 			</div>

@@ -9,7 +9,8 @@
 		faCircleNodes,
 		faPhone,
 		faMapLocationDot,
-		faPenToSquare
+		faPenToSquare,
+		faCopy,
 	} from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
 	import Emails from '$lib/Email/Emails.svelte';
@@ -28,14 +29,20 @@
 	import Back from '$lib/components/Directory/Back.svelte';
 	import Switch from '$lib/Switch/Switch.svelte';
 	import CreatePhone from '$lib/Web/Phone/CreatePhone.svelte';
+	import CreateEmail from '$lib/Web/Email/Create.svelte';
+	import CreateWebsite from '$lib/Web/Website/Create.svelte';
 	import { copy } from 'svelte-copy';
-	import { setEditMode, getEditMode } from './context';
+	import { setEditMode, getEditMode, setEntryUid } from './context';
+	import { hyphenateUuid } from '$lib/utils/utils';
+	import UuidHex from '$lib/Uuid/UuidHex.svelte';
+	import UuidHyphen from '$lib/Uuid/UuidHyphen.svelte';
+	import type { EntryFull } from '$lib/store/directoryStoreInterface';
 
 	let { data } = $props();
 
-	let effector = $derived(data.effector);
+	let entry: EntryFull = $derived(data.entry);
 
-	//let editView: boolean = $state(false);
+	setEntryUid(data.entry.uid);
 	setEditMode();
 	const editMode = getEditMode();
 
@@ -44,7 +51,7 @@
 
 <svelte:head>
 	<title>
-		{effector.name} - {capitalizeFirstLetter(page.data.organization.formatted_name, $language)}
+		{entry.name} - {capitalizeFirstLetter(page.data.organization.formatted_name, $language)}
 	</title>
 </svelte:head>
 <div class="grid grid-col-1 justify-center space-y-4">
@@ -60,98 +67,107 @@
 
 	<div class="flex flex-wrap p-2 gap-10">
 		<div class="space-y-2">
-			<h2 class="h2 flex-initial break-words overflow-hidden">{effector.name}</h2>
 			{#if isSuperUser}
-				{effector?.effector_uid}
-				<button type="button" class="btn btn-sm variant-ghost" use:copy={effector?.effector_uid}>
-					Copy!
-				</button>
+				entry {entry?.uid}
+				<UuidHex data={entry?.uid}/>
+				<UuidHyphen data={entry?.uid}/>
 			{/if}
-			<h3 class="h3 italic">{effector?.effector_type?.label}</h3>
+			<h2 class="h2 flex-initial break-words overflow-hidden">{entry.name}</h2>
 			{#if isSuperUser}
-				{effector?.effector_type?.uid}
-				<button
-					type="button"
-					class="btn btn-sm variant-ghost"
-					use:copy={effector?.effector_type?.uid}>Copy!</button
-				>
+				effector {entry?.effector_uid}
+				<UuidHex data={entry?.effector_uid}/>
+				<UuidHyphen data={entry?.effector_uid}/>
+			{/if}
+			<h3 class="h3 italic">{entry?.effector_type?.label}</h3>
+			{#if isSuperUser}
+				type {entry?.effector_type?.uid}
+				<UuidHex data={entry?.effector_type?.uid}/>
+				<UuidHyphen data={entry?.effector_type?.uid}/>
 			{/if}
 
-			<FacilityLink data={effector.facility} />
+			<FacilityLink data={entry.facility} />
+			{#if isSuperUser}
+			facility {entry?.facility?.uid}
+			<UuidHex data={entry?.facility?.uid}/>
+			<UuidHyphen data={entry?.facility?.uid}/>
+			{/if}
+			
 		</div>
 		<div class="flex-none">
-			{#if effector?.avatar}
-				<AvatarList data={effector} />
+			{#if entry?.avatar}
+				<AvatarList data={entry} />
 			{/if}
 		</div>
 	</div>
 	<div class="grid grid-col-1 lg:grid-cols-1 p-2 gap-4">
-		{#if effector?.appointments?.length}
+		{#if entry?.appointments?.length}
 			<div class="d-flex justify-content-between align-items-start">
-				<Appointment appointments={effector.appointments} />
+				<Appointment appointments={entry.appointments} />
 			</div>
 		{/if}
-		{#if effector.phones?.length || $editMode}
+		{#if entry.phones?.length || $editMode}
 			<div class="d-flex justify-content-between align-items-start">
 				<div class="flex items-center py-2">
 					<div class="w-9"><Fa icon={faPhone} size="sm" /></div>
 					<div>
-						<h3 class="h3 flex place-items-center gap-1">{capitalizeFirstLetter(m.PHONE())} {#if $editMode}<CreatePhone entry={effector.uid}/>{/if}</h3>
+						<h3 class="h3 flex place-items-center gap-1">{capitalizeFirstLetter(m.PHONE())} {#if $editMode}<CreatePhone entry={entry.uid}/>{/if}</h3>
 						
 					</div>
 				</div>
 				<div class="flex items-center p-1">
 					<div class="w-9"></div>
 					<div class="py-2 space-x-2">
-						<Phones data={effector.phones} />
+						<Phones data={entry.phones} />
 					</div>
 				</div>
 			</div>
 		{/if}
-		{#if effector.emails?.length}
+		{#if entry.emails?.length || $editMode}
 			<div class="d-flex justify-content-between align-items-start">
 				<div class="flex items-center py-2">
 					<div class="w-9"><Fa icon={faEnvelope} size="sm" /></div>
 					<div>
-						<h3 class="h3">Email</h3>
+						<h3 class="h3 flex place-items-center gap-1">Email{#if $editMode}<CreateEmail entry={entry.uid}/>{/if}</h3>
 					</div>
 				</div>
 				<div class="flex">
 					<div class="w-9"></div>
 					<div class="py-2">
-						<Emails data={effector.emails} />
+						<Emails data={entry.emails} editMode={$editMode} />
 					</div>
 				</div>
 			</div>
 		{/if}
 
-		{#if effector?.convention || effector?.carte_vitale || effector?.third_party_payers?.length || effector?.payment_methods?.length}
+		{#if entry?.convention || entry?.carte_vitale != null || entry?.third_party_payers || $editMode}
 			<div class="d-flex justify-content-between align-items-start">
-				<Cost data={effector} />
+				<Cost data={entry} />
 			</div>
-			{#if effector?.payment_methods?.length}
+		{/if}
+			{#if entry.payment_methods != null || $editMode}
 				<div class="d-flex justify-content-between align-items-start">
-					<Payment data={effector.payment_methods} />
+					<Payment data={entry.payment_methods} editMode={$editMode} />
 				</div>
 			{/if}
-		{/if}
-		{#if effector.websites?.length}
+		{#if entry.websites?.length || $editMode}
 			<div class="d-flex justify-content-between align-items-start">
 				<div class="flex items-center p-1">
 					<div class="w-9"><Fa icon={faGlobe} size="sm" /></div>
 					<div>
-						<h3 class="h3">Web</h3>
+						<h3 class="h3 flex place-items-center gap-1">Web{#if $editMode}<CreateWebsite entry={entry.uid}/>{/if}</h3>
 					</div>
 				</div>
+				{#if entry.websites}
 				<div class="flex p-1">
 					<div class="w-9"></div>
 					<div class="p-1 space-x-2">
-						<Websites data={effector.websites} />
+						<Websites data={entry.websites} />
 					</div>
 				</div>
+				{/if}
 			</div>
 		{/if}
-		{#if effector.socialnetworks?.length}
+		{#if entry.socialnetworks?.length}
 			<div class="d-flex justify-content-between align-items-start">
 				<div class="flex items-center p-1">
 					<div class="w-9"><Fa icon={faCircleNodes} /></div>
@@ -162,18 +178,18 @@
 				<div class="flex p-1">
 					<div class="w-9"></div>
 					<div class="p-1 space-x-2">
-						<SoMed data={effector.socialnetworks} appBar={false} />
+						<SoMed data={entry.socialnetworks} appBar={false} />
 					</div>
 				</div>
 			</div>
 		{/if}
-		{#if effector?.spoken_languages || effector?.rpps || effector?.adeli}
+		{#if entry?.spoken_languages || entry?.rpps}
 			<div class="d-flex justify-content-between align-items-start">
-				<Info data={effector} />
+				<Info data={entry} />
 			</div>
 		{/if}
 	</div>
-	{#if effector.address}
+	{#if entry.address}
 		<div class="px-2">
 			<div class="flex items-center p-1">
 				<div class="w-9"><Fa icon={faMapLocationDot} size="sm" /></div>
@@ -185,12 +201,12 @@
 				<div class="w-9"></div>
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 p-1">
 					<div class="space-y-2">
-						<FacilityLink data={effector.facility} />
-						<Address data={effector.address} />
+						<FacilityLink data={entry.facility} />
+						<Address data={entry.address} />
 					</div>
-					{#if effector.address.longitude && effector.address.latitude}
+					{#if entry.address.longitude && entry.address.latitude}
 						<div class="h-56 w-64 lg:h-64 lg:w-96 p-2 z-0">
-							<Map data={createMapData(effector.address, effector.facility.name)} />
+							<Map data={createMapData(entry.address, entry.facility.name)} />
 						</div>
 					{/if}
 				</div>

@@ -44,7 +44,7 @@
 				{#if data?.emails}
 					<ul class="list">
 						{#each data?.emails as email}
-							<Email data={email} />
+							<Email data={email} editMode={false} />
 						{/each}
 					</ul>
 				{/if}

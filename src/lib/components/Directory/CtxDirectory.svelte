@@ -222,6 +222,7 @@
 {#if typesView}
 <Types
 	{displayEntries}
+	{data}
 />
 {:else}
 <FullDirectory

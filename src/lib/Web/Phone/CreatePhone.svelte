@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import { createPhone } from '../../../data.remote';
+	import { createPhone } from '../../../phone.remote';
 	import { invalidate } from '$app/navigation';
 	import {
 		faCheck,
@@ -17,6 +17,7 @@
 	import Dialog from '../Dialog.svelte';
 	import { copy } from 'svelte-copy';
 	import { page } from '$app/state';
+	import { accessSelectTypes, getRoles } from '$lib/Web/access.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
 	import type { FormResult } from '$lib/interfaces/v2/form';
 
@@ -39,21 +40,7 @@
 		F: 'Fax',
 		AS: 'Answering service'
 	};
-	const access: SelectType[] = [
-		{ value: 'W', label: 'Tout le monde' },
-		{ value: 'M', label: 'Membres' },
-		{ value: 'A', label: 'Administrateurs' }
-	];
-	const getRoles = (access: string) => {
-		if ( access == 'W' ) {
-			return ['anonymous', 'staff', 'administrator' , 'superuser']
-		} else if ( access == 'M' ) {
-			return ['staff', 'administrator', 'superuser']
-		} else if ( access=='A' ) {
-			return ['administrator', 'superuser']
-		}
-		return ['anonymous', 'staff', 'administrator' , 'superuser']
-	}
+	
 	const getTypeItems = () => {
 		const items = [];
 		for (const [key, value] of Object.entries(types)) {
@@ -64,9 +51,9 @@
 
 	let _phone: string|undefined = $state();
 	let selectedType: SelectType | undefined = $state();
-	let selectedAccess: SelectType = $state(access[0]);
+	let selectedAccess: SelectType|undefined = $state();
 	let _type: string|undefined = $derived(selectedType?.value);
-	let _roles: string[] = $derived(getRoles(selectedAccess.value))
+	let _roles: string[]|undefined = $derived(getRoles(selectedAccess?.value))
 	let disabled: boolean = $derived(
 		selectedType == undefined || _phone == undefined
 	);
@@ -74,6 +61,7 @@
 		_phone = undefined;
 		_type = undefined;
 		selectedType = undefined;
+		selectedAccess = undefined;
 		result = undefined;
 	}
 </script>
@@ -159,7 +147,7 @@
 							placeholder=""
 							bind:value={_roles}
 						/>
-						<Select items={access} bind:value={selectedAccess} />
+						<Select items={accessSelectTypes} bind:value={selectedAccess} />
 					</label>
 				</div>
 			</div>

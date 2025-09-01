@@ -5,7 +5,7 @@
     import Fa from 'svelte-fa';
     import type { Entry } from '$lib/store/directoryStoreInterface';
 
-    export let data: any[];
+    export let data: Entry[];
 
     function entryUrl(entry: Entry) {
 		let typeSlug = entry.effector_type.slug;

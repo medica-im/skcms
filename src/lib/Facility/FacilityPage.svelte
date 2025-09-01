@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Directory from '$lib/components/Directory/CtxDirectory.svelte';
-	import Map from '$lib/components/Map/Map.svelte';
+	import MapSvelte from '$lib/components/Map/Map.svelte';
 	import Address from '$lib/Address/Address.svelte';
 	import Navigation from '$lib/Navigation/Navigation.svelte';
 	import Email from '$lib/Email/Email.svelte';
@@ -13,9 +13,10 @@
 	import { copy } from 'svelte-copy';
 	import { page } from '$app/state';
 	import type { Facility } from '$lib/interfaces/facility.interface.ts';
+	import type { Entry } from '$lib/store/directoryStoreInterface';
 
 	export let facility: Facility;
-	export let entries;
+	export let entries: Map<any, any>;
 
 	const createFacilityGeoData = (facility: Facility) => {
 		let address = facility?.address;
@@ -100,7 +101,7 @@
 	{/if}
 	{#if facility.address.longitude && facility.address.latitude}
 	<div class="h-64 w-64 lg:w-96 lg:h-96 z-0">
-		<Map data={createFacilitiesMapData([facility])} />
+		<MapSvelte data={createFacilitiesMapData([facility])} />
 	</div>
 	{/if}
 </div>

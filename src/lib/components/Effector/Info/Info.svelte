@@ -30,12 +30,4 @@
 			</div>
 		</div>
 	{/if}
-	{#if data.adeli}
-	<div class="flex">
-		<div class="w-9"></div>
-		<div>
-			N° ADELI: {data.adeli}
-		</div>
-	</div>
-{/if}
 

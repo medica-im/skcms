@@ -3,11 +3,14 @@
 	import { language } from '$lib/store/languageStore';
 	import Fa from 'svelte-fa';
 	import { faAddressBook, faEnvelope } from '@fortawesome/free-regular-svg-icons';
+	import Update from "$lib/Web/Email/Update.svelte";
+	import Delete from "$lib/Web/Email/Delete.svelte";
+	import type { Email } from '$lib/interfaces/email.interface';
 
-	export let data;
+	let { data, editMode } : { data: Email; editMode: boolean } = $props();
 </script>
 
-<div class="flex content-start space-x-2 items-center">
+<div class="flex content-start space-x-4 items-center">
 	<div class="flex-initial break-words overflow-hidden p-0">
 		<span class="w-4"><Fa icon={faEnvelope} size="sm" /></span>
 	</div>
@@ -16,4 +19,7 @@
 			{data.email}
 		</div>
 	</a>
+	{#if editMode}
+	<Update {data} /> <Delete {data} />
+	{/if}
 </div>

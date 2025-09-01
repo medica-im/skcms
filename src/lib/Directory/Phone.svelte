@@ -19,7 +19,7 @@
 	}
 </script>
 
-<div class="flex content-start space-x-2 items-center">
+<div class="flex content-start space-x-4 items-center">
 	<div class="flex-initial">
 		<span class="w-4"><Fa icon={getIcon(phoneData.type)} size="sm" /></span>
 	</div>

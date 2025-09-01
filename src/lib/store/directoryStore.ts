@@ -25,7 +25,7 @@ export const selectSituation: Writable<string> = writable("");
 export const selectSituationValue: Writable<string | null> = writable(null);
 export const addressFeature: Writable<AddressFeature | null> = writable(null);
 export const inputAddress = writable("");
-export const selectFacility = writable("");
+export const selectFacility: Writable<string> = writable("");
 export const selectFacilityValue: Writable<string | null> = writable(null);
 export const currentOrg: CurrentOrgStore = writable(true);
 export const directoryRedirect = writable(true);
@@ -244,7 +244,7 @@ async function processCachedEntries(changedObj: ChangedObj) {
 	return entries;
 }
 
-export const getEntries = async ():Promise<Entry[]> => {
+export const getEntries = async (): Promise<Entry[]> => {
 	if (browser) {
 		let localVersion = localStorage.getItem("version");
 		console.log(`localVersion: ${localVersion}`);
@@ -264,7 +264,6 @@ export const getEntries = async ():Promise<Entry[]> => {
 	}
 	let contacts = getLocalStorage("contacts")?.data;
 	const refreshContacts = (!import.meta.env.DEV && PUBLIC_CACHE_CONTACTS == "false" || contacts == null);
-	console.log(`import.meta.env.DEV: ${import.meta.env.DEV}`);
 	console.log(`refreshContacts: ${refreshContacts}`);
 	if (refreshContacts) {
 		contacts = await downloadElements("contacts");
@@ -461,7 +460,7 @@ function compareEffectorDistance(a, b, distEffectors) {
 	}
 }
 
-export const fullFilteredEffectorsF = async (term: string, selectSituation: string|null, distanceEffectors: DistanceEffectors | null, currentOrg: Boolean | null, organizationStore: Organization, limitCategories: String[]): Promise<Entry[]> => {
+export const fullFilteredEffectorsF = async (term: string, selectSituation: string | null=null, distanceEffectors: DistanceEffectors | null=null, currentOrg: Boolean | null=null, organizationStore: Organization|undefined, limitCategories: String[]): Promise<Entry[]> => {
 	const entries: Entry[] = await getEntries();
 	if (
 		selectSituation == null
@@ -480,9 +479,9 @@ export const fullFilteredEffectorsF = async (term: string, selectSituation: stri
 				return limitCategories.includes(x.effector_type.slug)
 			}
 		}).filter(function (x) {
-			if (currentOrg == true) {
+			if (currentOrg == true && organizationStore) {
 				return x.organizations?.includes(organizationStore.uid) || x.employers?.includes(organizationStore.uid)
-			} else if (currentOrg == false) {
+			} else if (currentOrg == false && organizationStore) {
 				return !x.organizations?.includes(organizationStore.uid) && !x.employers?.includes(organizationStore.uid)
 			} else {
 				return true
@@ -500,7 +499,7 @@ export const fullFilteredEffectorsF = async (term: string, selectSituation: stri
 			} else {
 				let entries = situations.find(obj => { return obj.uid == selectSituation })?.entries;
 				if (entries) {
-				    return entries.includes(x.uid);
+					return entries.includes(x.uid);
 				} else {
 					return false
 				}
@@ -517,7 +516,7 @@ export const fullFilteredEffectors = asyncDerived(
 );
 
 export const filteredEffectorsF = (fullFilteredEffectors: Entry[], selectCategories: String[], selectCommunes: String[], selectFacility: string) => {
-	if (!selectCategories?.length && !selectCommunes?.length && selectFacility === "") {
+	if (!selectCategories?.length && !selectCommunes?.length && selectFacility == "") {
 		return fullFilteredEffectors
 	} else {
 		return fullFilteredEffectors.filter(function (x) {
@@ -533,7 +532,7 @@ export const filteredEffectorsF = (fullFilteredEffectors: Entry[], selectCategor
 				return selectCommunes.includes(x.commune.uid)
 			}
 		}).filter(function (x) {
-			if (selectFacility === "") {
+			if (selectFacility == "") {
 				return true
 			} else {
 				return selectFacility == x.facility.uid
@@ -575,14 +574,14 @@ export const categorizedCachedEffectors =
 	};
 */
 
-export const categorizedFilteredEffectorsF = (filteredEffectors: Entry[], distanceEffectors: DistanceEffectors | null, selectSituation: string|null) => {
+export const categorizedFilteredEffectorsF = (filteredEffectors: Entry[], distanceEffectors: DistanceEffectors | null = null, selectSituation: string | null=null) => {
 	let categorySet: Set<string> = new Set();
 	for (let effector of filteredEffectors) {
 		categorySet.add(effector.effector_type.name)
 	}
 	let categoryArr = Array.from(categorySet);
 	categoryArr.sort();
-	const effectorsObj: Record<string, Entry[]> = categoryArr.reduce((acc:Record<string,[]>, current) => {
+	const effectorsObj: Record<string, Entry[]> = categoryArr.reduce((acc: Record<string, []>, current) => {
 		acc[current] = [];
 		return acc;
 	}, {});
@@ -640,14 +639,29 @@ export const cardinalCategorizedFilteredEffectorsF = async (categorizedFilteredE
 		)
 		if (value.length == countNone) {
 			if (value.length > 1) {
-				label = eTL[type.uid]['P']['N']
+				try {
+					label = eTL[type.uid]['P']['N']
+				} catch (error) {
+					console.error(error);
+					console.error(key);
+				}
 			} else {
-				label = eTL[type.uid]['S']['N']
+				try {
+					label = eTL[type.uid]['S']['N']
+				} catch (error) {
+					console.error(error);
+					console.error(key);
+				}
 			}
 		} else {
 			if (value.length > 1) {
 				if (countF > countM) {
-					label = eTL[type.uid]['P']['F']
+					try {
+						label = eTL[type.uid]['P']['F']
+					} catch (error) {
+						console.error(error);
+						console.error(key);
+					}
 				} else {
 					try {
 						label = eTL[type.uid]['P']['M']
@@ -658,20 +672,32 @@ export const cardinalCategorizedFilteredEffectorsF = async (categorizedFilteredE
 				}
 			} else {
 				if (countF > countM) {
-					label = eTL[type.uid]['S']['F']
+					try {
+						label = eTL[type.uid]['S']['F']
+					} catch (error) {
+						console.error(error);
+						console.error(key);
+					}
 				} else {
-					label = eTL[type.uid]['S']['M']
+					try {
+						label = eTL[type.uid]['S']['M']
+					} catch (error) {
+						console.error(error);
+						console.error(key);
+					}
 				}
 			}
 		}
 		cardinalMap.set(label, value)
+
 	}
+	
 	return cardinalMap;
 };
 
 export const cardinalCategorizedFilteredEffectors = asyncDerived(
-	([categorizedFilteredEffectors, filteredEffectors]),
-	async ([$categorizedFilteredEffectors, $filteredEffectors]) => {
+	([categorizedFilteredEffectors]),
+	async ([$categorizedFilteredEffectors]) => {
 		return cardinalCategorizedFilteredEffectorsF($categorizedFilteredEffectors);
 	}
 )
@@ -703,7 +729,7 @@ const categorizedEffectors = asyncDerived(
 		}
 		let categoryArr = Array.from(categorySet);
 		categoryArr.sort();
-		const effectorsObj: Record<string, Entry[]> = categoryArr.reduce((acc: Record<string,[]>, current) => {
+		const effectorsObj: Record<string, Entry[]> = categoryArr.reduce((acc: Record<string, []>, current) => {
 			acc[current] = [];
 			return acc;
 		}, {});
@@ -784,7 +810,7 @@ export const categorizedFullFilteredEffectorsF = (fullFilteredEffectors: Entry[]
 	}
 	let categoryArr = Array.from(categorySet);
 	categoryArr.sort();
-	const effectorsObj = categoryArr.reduce((acc:Record<string,[]>, current) => {
+	const effectorsObj = categoryArr.reduce((acc: Record<string, []>, current) => {
 		acc[current] = [];
 		return acc;
 	}, {});
@@ -794,6 +820,7 @@ export const categorizedFullFilteredEffectorsF = (fullFilteredEffectors: Entry[]
 	const effectorsMap = new Map(Object.entries(effectorsObj).sort((a, b) => a[1].length - b[1].length));
 	return effectorsMap as CategorizedEntries;
 }
+
 
 export const categorizedFullFilteredEffectors = asyncDerived(
 	(fullFilteredEffectors),
@@ -838,7 +865,7 @@ export const categoryOf = asyncDerived(
 	}
 )
 
-export const communeOfF = async (selectCategories: string[], fullFilteredEffectors: Entry[], selectFacility: string, currentOrg: CurrentOrg, limitCategories: String[], selectSituation: string|null) => {
+export const communeOfF = async (selectCategories: string[], fullFilteredEffectors: Entry[], selectFacility: string, currentOrg: CurrentOrg, limitCategories: String[], selectSituation: string | null) => {
 	const _communes = await communes();
 	const situations = await getSituations();
 	if (!selectCategories?.length && !selectFacility && currentOrg == null && !limitCategories?.length && !selectSituation) {
@@ -855,7 +882,7 @@ export const communeOfF = async (selectCategories: string[], fullFilteredEffecto
 			} else {
 				let entries = situations.find(obj => { return obj.uid == selectSituation })?.entries;
 				if (entries) {
-				    return entries.includes(x.uid);
+					return entries.includes(x.uid);
 				} else {
 					return false
 				}

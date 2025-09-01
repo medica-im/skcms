@@ -1,6 +1,7 @@
+import type { Role } from '$lib/interfaces/access.interface';
+
 export interface Website {
     id: number,
-    website: string,
-    type: string,
-    type_display: string
+    url: string,
+    roles: Role[]
 }
