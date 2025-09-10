@@ -125,5 +125,7 @@
   "signout": "Se déconnecter",
   "with": "avec",
   "from": "de",
-  "CLOSE": "Fermer"
+  "CLOSE": "Fermer",
+  "APPOINTMENT": "Rendez-vous",
+  "WEB_ADDRESS": "adresse web"
 }

@@ -124,5 +124,7 @@
 	"signout": "Sign out",
 	"with": "with",
 	"from": "from",
-	"CLOSE": "Close"
+	"CLOSE": "Close",
+	"APPOINTMENT": "Appointment",
+	"WEB_ADDRESS": "web address"
 }

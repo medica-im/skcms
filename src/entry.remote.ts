@@ -3,6 +3,7 @@ import { getRequestEvent, query, form, command } from '$app/server';
 import * as z from "zod";
 import { authReq } from '$lib/utils/request.ts';
 import { variables } from '$lib/utils/constants.ts';
+import { JoinedData } from 'svelte-maplibre';
 
 const RoleEnum = z.enum(['anonymous', 'staff', 'administrator' , 'superuser']);
 
@@ -16,6 +17,7 @@ const Patch = z.object({
 });
 
 export const patchCommand = command(Patch, async (data) => {
+	console.log(JSON.stringify(data));
 	const entry_uid = data.entry;
 	delete data.entry;
 	const { cookies } = getRequestEvent();
