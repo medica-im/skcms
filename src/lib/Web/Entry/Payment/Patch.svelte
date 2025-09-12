@@ -49,7 +49,7 @@
 	let selectedItems: SelectType[] | undefined = $state();
 	let commandData = $derived({
 		entry: uid,
-		payment: selectedItems !== undefined ? selectedItems.map((e) => e.value) : null
+		payment: selectedItems == undefined ? null : selectedItems.map((e) => e.value)
 	});
 
 	let disabled: boolean = $derived(selectedItems?.map((e) => e.value) == data?.map((e) => e.name));
@@ -71,20 +71,14 @@
 		dialog.showModal();
 	}}
 	class={data ? '' : 'btn-icon btn-icon-sm variant-ghost-surface'}
-	title="Modifier"><Fa icon={data ? faPenToSquare : faPlus} /></button
+	title={data ? 'Modifier' : 'Créer'}><Fa icon={data ? faPenToSquare : faPlus} /></button
 >
 
 <Dialog bind:dialog on:close={() => console.log('closed')}>
-	<div class="rounded-lg h-64 w-96 p-4 variant-ghost-secondary items-center place-items-center">
+	<div class="rounded-lg h-72 w-96 p-4 variant-ghost-secondary items-center place-items-center">
 		<!--p>data: {JSON.stringify(data?.map(e=>e.name))}</p>
-		<p>selectedItems: {JSON.stringify(selectedItems?.map(e=>e.value))}</-->
-		<!--button
-			id="close"
-			aria-label={m.CLOSE()}
-			onclick={() => dialog.close()}
-			class="btn variant-ringed"
-			formnovalidate><Fa icon={faWindowClose} /></button
-		-->
+		<p>commandData: {JSON.stringify(commandData)}</p>
+		<p>selectedItems: {JSON.stringify(selectedItems?.map(e=>e.value))}</p-->
 		<div class="grid grid-cols-1 item-center place-items-center gap-12 w-full">
 			<h3 class="h3">{m.ADDRESSBOOK_PAYMENT_METHODS()}</h3>
 			<Select multiple items={paymentItems} bind:value={selectedItems} />

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import { patchCommand } from '../../../../entry.remote';
+	import { patchCommand } from './../../../entry.remote';
 	import { invalidate } from '$app/navigation';
 	import {
 		faCheck,
@@ -12,7 +12,7 @@
 	import Fa from 'svelte-fa';
 	import type { Email } from '$lib/interfaces/email.interface.ts';
 	import Select from 'svelte-select';
-	import Dialog from '../../Dialog.svelte';
+	import Dialog from '$lib/Web/Dialog.svelte';
 	import { getEntryUid } from '$lib/components/Directory/context';
 	import type { SelectType } from '$lib/interfaces/select.ts';
 	import type { FormResult } from '$lib/interfaces/v2/form';

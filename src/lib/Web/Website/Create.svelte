@@ -55,13 +55,6 @@
 
 <Dialog bind:dialog on:close={() => console.log('closed')}>
 	<div class="rounded-lg p-4 variant-ghost-secondary gap-2 items-center place-items-center">
-		<button
-			id="close"
-			aria-label={m.CLOSE()}
-			onclick={() => dialog.close()}
-			class="btn variant-ringed"
-			formnovalidate><Fa icon={faWindowClose} /></button
-		>
 		<form
 			{...create.enhance(async ({ form, data, submit }) => {
 				try {

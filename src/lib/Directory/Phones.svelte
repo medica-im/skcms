@@ -6,7 +6,7 @@
 	const editMode = getEditMode();
 </script>
 <div class="">
-{#each data as phone}
+{#each data as phone (phone.id)}
 <Phone phoneData={phone} editMode={$editMode}/>
 {/each}
 </div>

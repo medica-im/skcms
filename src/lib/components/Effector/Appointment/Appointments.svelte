@@ -1,50 +1,71 @@
 <script lang="ts">
-	import * as m from "$msgs";	import Fa from 'svelte-fa';
+	import * as m from '$msgs';
+	import Fa from 'svelte-fa';
 	import { faCalendarCheck } from '@fortawesome/free-regular-svg-icons';
 	import Appointment from './Appointment.svelte';
+	import { getEditMode, getEntryUid } from '$lib/components/Directory/context.ts';
+	import CreateAppointment from '$lib/Web/Appointment/Create.svelte';
 	import type { Appointment as AppointmentType } from '$lib/interfaces/appointment.interface';
+	const editMode = getEditMode();
 
-	export let appointments: AppointmentType[];
+	let { data }: { data: AppointmentType[] | null } = $props();
+
+	function filterAppointment(location: string | null) {
+		const a = data?.filter((a) => a.location == location);
+		return a;
+	}
+	let appointments = $derived(filterAppointment(null));
+	let appointmentsHouseCall = $derived(filterAppointment('house_call'));
+	let appointmentsOffice = $derived(filterAppointment('office'));
 </script>
 
 <div class="flex items-center p-1">
 	<div class="w-9"><Fa icon={faCalendarCheck} size="sm" /></div>
 	<div>
-		<h3 class="h3">{m.ADDRESSBOOK_APPOINTMENT_LABEL()}</h3>
+		<h3 class="h3 flex place-items-center gap-1">
+			{m.ADDRESSBOOK_APPOINTMENT_LABEL()}{#if $editMode}<CreateAppointment />{/if}
+		</h3>
 	</div>
 </div>
-<div class="flex items-center p-1">
-	<div class="w-9"></div>
-		{#if appointments.some((a) => a.house_call)}
-			<div class="flex flex-wrap gap-8">
-				<div class="p-2">
-					<p>Pour des soins à domicile</p>
-					<div class="space-y-2 py-2">
-						{#each appointments.filter((a) => a.house_call) as appointment}
-							<div>
-								<Appointment {appointment} />
-							</div>
-						{/each}
-					</div>
+{#if data && data?.length}
+	<div class="flex items-center">
+		<div class="w-9"></div>
+		<div class="grid grid-cols-1">
+			{#if appointments}
+				<div class="space-y-2 py-2">
+					{#each appointments as appointment (appointment.uid)}
+						<div>
+							<Appointment data={appointment} editMode={$editMode} />
+						</div>
+					{/each}
 				</div>
-				<div class="p-2">
+			{/if}
+			{#if data.some((a) => a.location == 'house_call')}
+				{#if appointmentsHouseCall}
+					<div class="">
+						<p>Pour des soins à domicile</p>
+						<div class="space-y-2 py-2">
+							{#each appointmentsHouseCall as appointment (appointment.uid)}
+								<div>
+									<Appointment data={appointment} editMode={$editMode} />
+								</div>
+							{/each}
+						</div>
+					</div>
+				{/if}
+			{/if}
+			{#if appointmentsOffice?.length}
+				<div class="">
 					<p>Pour des soins au cabinet</p>
 					<div class="space-y-2 py-2">
-						{#each appointments.filter((a) => !a.house_call) as appointment}
+						{#each appointmentsOffice as appointment (appointment.uid)}
 							<div>
-								<Appointment {appointment} />
+								<Appointment data={appointment} editMode={$editMode} />
 							</div>
 						{/each}
 					</div>
 				</div>
-			</div>
-		{:else}
-			<ul class="space-y-2 py-2">
-				{#each appointments as appointment}
-					<li>
-						<Appointment {appointment} />
-					</li>
-				{/each}
-			</ul>
-		{/if}
-</div>
+			{/if}
+		</div>
+	</div>
+{/if}

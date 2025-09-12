@@ -48,7 +48,7 @@
 >
 
 <Dialog bind:dialog on:close={() => console.log('closed')}>
-	<div class="rounded-lg h-56 p-8 variant-ghost-secondary gap-8 items-center place-items-center">
+	<div class="rounded-lg h-64 p-8 variant-ghost-secondary gap-8 items-center place-items-center">
 		<!--button
 			id="close"
 			aria-label={m.CLOSE()}
@@ -64,6 +64,14 @@
 				<p>Êtes-vous sûr de vouloir supprimer cet élément?</p>
 			</div>
 			<div class="flex flex-wrap gap-4 justify-end">
+				<div class="flex gap-2 items-center">
+					{#if result?.success}
+						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
+					{:else if result && !result?.success}
+						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span
+						>{result.text}
+					{/if}
+				</div>
 				<button
 					onclick={async () => {
 						try {
@@ -77,14 +85,6 @@
 					type="submit"
 					class="variant-filled-warning btn w-min">Supprimer</button
 				>
-				<div class="flex gap-2 items-center">
-					{#if result?.success}
-						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
-					{:else if result && !result?.success}
-						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span
-						>{result.text}
-					{/if}
-				</div>
 				<button
 					type="button"
 					class="variant-filled-error btn w-min"

@@ -55,7 +55,7 @@
 >
 
 <Dialog bind:dialog on:close={() => console.log('closed')}>
-	<div class="rounded-lg p-4 variant-ghost-secondary gap-2 items-center place-items-center">
+	<div class="rounded-lg h-64 p-4 variant-ghost-secondary gap-2 items-center place-items-center">
 		<button
 			id="close"
 			aria-label={m.CLOSE()}
@@ -119,11 +119,6 @@
 				</div>
 			</div>
 			<div class="flex gap-8">
-				<div class="w-auto justify-center">
-					<button type="submit" class="variant-filled-secondary btn w-min" {disabled}
-						>Créer</button
-					>
-				</div>
 				<div class="flex gap-2 items-center">
 					{#if result?.success}
 						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
@@ -131,6 +126,11 @@
 						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span
 						>{result.text}
 					{/if}
+				</div>
+				<div class="w-auto justify-center">
+					<button type="submit" class="variant-filled-secondary btn w-min" {disabled}
+						>Créer</button
+					>
 				</div>
 				<div class="w-auto justify-center">
 					<button

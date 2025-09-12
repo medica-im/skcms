@@ -30,6 +30,7 @@
 			<div>
 				N° RPPS: {data.rpps}
 			</div>
+
 		</div>
 	{/if}
 {/if}

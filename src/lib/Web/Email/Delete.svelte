@@ -31,7 +31,7 @@
 >
 
 <Dialog bind:dialog on:close={() => console.log('closed')}>
-	<div class="rounded-lg p-4 variant-ghost-secondary gap-4 items-center place-items-center">
+	<div class="rounded-lg h-64 p-4 variant-ghost-secondary gap-4 items-center place-items-center">
 
 		<form
 			{...deleteEmail.enhance(async ({ form, data, submit }) => {

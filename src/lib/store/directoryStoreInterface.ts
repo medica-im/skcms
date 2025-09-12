@@ -47,7 +47,8 @@ export interface Type {
     name: string,
     slug: string,
     synonyms: string[] | null,
-    uid: string
+    uid: string,
+    labels: string[]
 }
 
 export interface Entry {
@@ -89,7 +90,7 @@ export interface EntryFull {
     phones: Phone[] | null,
     profile: any | null,
     resource_uri: string,
-    rpps: string | null,
+    rpps: number | null,
     slug: string,
     socialnetworks: SocialNetwork[] | null,
     spoken_languages: SpokenLanguage[] | null,

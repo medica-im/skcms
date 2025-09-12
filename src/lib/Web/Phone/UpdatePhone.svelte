@@ -72,11 +72,9 @@
 
 <button onclick={() => {invalidate('entry:now'); dialog.showModal(); resetForm();}} title="Modifier"><Fa icon={faPenToSquare} /></button>
 
-<Dialog bind:dialog={dialog} on:close={() => console.log('closed')}>
-	<div class="rounded-lg p-4 variant-ghost-secondary gap-2 items-center place-items-center">
-		<button id="close" aria-label={m.CLOSE()} onclick={()=>dialog.close()} class="btn variant-ringed" formnovalidate><Fa icon={faWindowClose}/></button>
-		<p>id: {_id} phone: {_phone} type: {_type} selectedAccess: {selectedAccess} roles: {roles}</p>
-
+<Dialog bind:dialog={dialog}>
+	<div class="rounded-lg h-96 p-4 variant-ghost-secondary gap-2 items-center place-items-center">
+		<!--p>id: {_id} phone: {_phone} type: {_type} selectedAccess: {selectedAccess} roles: {roles}</p-->
 		<form
 			{...updatePhone.enhance(async ({ form, data, submit }) => {
 				try {
@@ -93,8 +91,6 @@
 		>
 			<div class="p-2 space-y-4 justify-items-stretch gap-6">
 				<div class="p-2 space-y-2 w-full">
-					<label class="flex label place-self-start place-items-center space-x-2 w-full">
-						<span>ID</span>
 						<input
 							oninput={() => {}}
 							class="input hidden"
@@ -103,9 +99,6 @@
 							placeholder=""
 							bind:value={_id}
 						/>
-					</label>
-					<div class="badge variant-ghost-surface">{phoneData.id}</div>
-
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
 						<span>Téléphone:</span>
 						<input
@@ -144,17 +137,17 @@
 				</div>
 			</div>
 			<div class="flex gap-8">
-				<div class="w-auto justify-center">
-					<button type="submit" class="variant-filled-secondary btn w-min" {disabled}
-						>Envoyer</button
-					>
-				</div>
 				<div class="flex gap-2 items-center">
 					{#if result?.success}
 						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
 					{:else if result && !result?.success}
 						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span>{result.text}
 					{/if}
+				</div>
+				<div class="w-auto justify-center">
+					<button type="submit" class="variant-filled-secondary btn w-min" {disabled}
+						>Envoyer</button
+					>
 				</div>
 				<div class="w-auto justify-center">
 					<button type="button" class="variant-filled-error btn w-min" onclick={()=>{dialog.close(); resetForm();}}

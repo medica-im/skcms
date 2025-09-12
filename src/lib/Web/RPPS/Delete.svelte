@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import { patchCommand } from '../../../../entry.remote';
+	import { patchCommand } from '../../../effector.remote';
 	import { invalidate } from '$app/navigation';
 	import {
 		faCheck,
@@ -13,51 +13,42 @@
 	import Fa from 'svelte-fa';
 	import type { Email } from '$lib/interfaces/email.interface.ts';
 	import Select from 'svelte-select';
-	import Dialog from '../../Dialog.svelte';
-	import { getEntryUid } from '$lib/components/Directory/context';
-	import Convention from '$lib/components/Effector/Cost/Convention.svelte';
+	import Dialog from '$lib/Web/Dialog.svelte';
+	import { getEffectorUid } from '$lib/components/Directory/context';
 	import type { SelectType } from '$lib/interfaces/select.ts';
 	import type { FormResult } from '$lib/interfaces/v2/form';
-	import type { Convention as ConvetionType } from '$lib/interfaces/fullEffector.interface';
+	import type { EntryFull } from '$lib/store/directoryStoreInterface';
 
 	let {
 		data
 	}: {
-		data: ConvetionType | null;
+		data: EntryFull;
 	} = $props();
 
-	let res = $state();
-
-	const uid = getEntryUid();
-
-	let dialog: HTMLDialogElement;
-
+	let dialog: HTMLDialogElement | undefined = $state();
+	const effectorUid = getEffectorUid();
 	let result: FormResult | undefined = $state();
 	let commandData = {
-		entry: uid,
-		convention: null
+		effector: effectorUid,
+		rpps: null
 	};
 </script>
 
 <button
 	onclick={() => {
 		result = undefined;
-		dialog.showModal();
+		dialog?.showModal();
 	}}
 	title="Supprimer"><Fa icon={faTrashCanArrowUp} /></button
 >
 
-<Dialog bind:dialog on:close={() => console.log('closed')}>
+<Dialog bind:dialog>
 	<div class="rounded-lg h-64 p-8 variant-ghost-secondary gap-8 items-center place-items-center">
-		<!--button
-			id="close"
-			aria-label={m.CLOSE()}
-			onclick={() => dialog.close()}
-			class="btn variant-ringed"
-			formnovalidate><Fa icon={faWindowClose} /></button
-		-->
 		<div class="grid grid-cols-1 gap-4">
-			<Convention {data} />
+			<h3 class="h3">RPPS</h3>
+			<div>
+				N° RPPS: {data.rpps || '∅'}
+			</div>
 			<div class="flex space-x-2 place-items-center">
 				<Fa icon={faTriangleExclamation} />
 				<p>Êtes-vous sûr de vouloir supprimer cet élément?</p>
@@ -75,10 +66,11 @@
 					onclick={async () => {
 						try {
 							result = await patchCommand(commandData);
-							console.log(JSON.stringify(res));
-							invalidate('entry:now');
+							if (result.success) {
+								invalidate('entry:now');
+							}
 						} catch (error) {
-							console.error(error);
+							console.error(`error:${error}`);
 						}
 					}}
 					type="submit"
@@ -88,7 +80,8 @@
 					type="button"
 					class="variant-filled-error btn w-min"
 					onclick={() => {
-						dialog.close();
+						dialog?.close();
+						result = undefined;
 					}}
 					>{#if result?.success}Fermer{:else}Annuler{/if}</button
 				>

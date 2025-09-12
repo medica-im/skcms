@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import { patchCommand } from '../../../../entry.remote';
+	import { deleteCommand } from '../../../appointment.remote';
 	import { invalidate } from '$app/navigation';
 	import {
 		faCheck,
@@ -13,52 +13,53 @@
 	import Fa from 'svelte-fa';
 	import type { Email } from '$lib/interfaces/email.interface.ts';
 	import Select from 'svelte-select';
-	import Dialog from '../../Dialog.svelte';
+	import Dialog from '$lib/Web/Dialog.svelte';
 	import { getEntryUid } from '$lib/components/Directory/context';
-	import Convention from '$lib/components/Effector/Cost/Convention.svelte';
+	import Payment from '$lib/Addressbook/Payment/Payment.svelte';
 	import type { SelectType } from '$lib/interfaces/select.ts';
 	import type { FormResult } from '$lib/interfaces/v2/form';
-	import type { Convention as ConvetionType } from '$lib/interfaces/fullEffector.interface';
+	import type { Appointment } from '$lib/interfaces/appointment.interface';
+	import Appntmnt from '$lib/components/Effector/Appointment/Appointment.svelte';
 
 	let {
 		data
 	}: {
-		data: ConvetionType | null;
+		data: Appointment;
 	} = $props();
 
-	let res = $state();
-
-	const uid = getEntryUid();
-
-	let dialog: HTMLDialogElement;
+	let dialog: HTMLDialogElement|undefined = $state();
 
 	let result: FormResult | undefined = $state();
 	let commandData = {
-		entry: uid,
-		convention: null
+		uid: data.uid
 	};
+	let disabled: boolean = $state(false);
+	let visibility: string = $state("visible");
 </script>
 
 <button
 	onclick={() => {
 		result = undefined;
-		dialog.showModal();
+		disabled = false;
+		visibility = "visible";
+		dialog?.showModal();
 	}}
 	title="Supprimer"><Fa icon={faTrashCanArrowUp} /></button
 >
 
-<Dialog bind:dialog on:close={() => console.log('closed')}>
+<Dialog bind:dialog>
 	<div class="rounded-lg h-64 p-8 variant-ghost-secondary gap-8 items-center place-items-center">
-		<!--button
-			id="close"
-			aria-label={m.CLOSE()}
-			onclick={() => dialog.close()}
-			class="btn variant-ringed"
-			formnovalidate><Fa icon={faWindowClose} /></button
-		-->
 		<div class="grid grid-cols-1 gap-4">
-			<Convention {data} />
-			<div class="flex space-x-2 place-items-center">
+			<h3 class="h3">{m.APPOINTMENT()}</h3>
+			{#if data.location == 'house_call'}
+				<p class="{visibility}">Domicile</p>
+			{:else if data.location}
+				<p class="{visibility}">Cabinet</p>
+			{/if}
+			<div class="{visibility}">
+			<Appntmnt data={data} editMode={false} />
+			</div>
+			<div class="flex space-x-2 place-items-center {visibility}">
 				<Fa icon={faTriangleExclamation} />
 				<p>Êtes-vous sûr de vouloir supprimer cet élément?</p>
 			</div>
@@ -74,21 +75,26 @@
 				<button
 					onclick={async () => {
 						try {
-							result = await patchCommand(commandData);
-							console.log(JSON.stringify(res));
-							invalidate('entry:now');
+							result = await deleteCommand(commandData);
+							if (result.success) {
+								disabled=true;
+								visibility="invisible";
+								invalidate('entry:now');
+							}
 						} catch (error) {
 							console.error(error);
 						}
 					}}
 					type="submit"
-					class="variant-filled-warning btn w-min">Supprimer</button
+					class="variant-filled-warning btn w-min"
+					{disabled}>Supprimer</button
 				>
 				<button
 					type="button"
 					class="variant-filled-error btn w-min"
 					onclick={() => {
-						dialog.close();
+						dialog?.close();
+						result=undefined;
 					}}
 					>{#if result?.success}Fermer{:else}Annuler{/if}</button
 				>

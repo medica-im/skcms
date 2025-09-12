@@ -43,7 +43,8 @@
 		});
 		return items;
 	};
-	const getSelectedItem = () => { return choices?.find((e) => data?.name == e.value);
+	const getSelectedItem = () => {
+		return choices?.find((e) => data?.name == e.value);
 	};
 	let choices: SelectType[] | undefined = $state();
 	let result: FormResult | undefined = $state();
@@ -57,11 +58,11 @@
 
 	onMount(async () => {
 		conventions = await getConventions();
-		console.log(JSON.stringify(conventions))
+		console.log(JSON.stringify(conventions));
 		if (conventions) {
 			choices = getItems(conventions);
 		}
-		selectedItem = getSelectedItem()
+		selectedItem = getSelectedItem();
 	});
 </script>
 
@@ -72,18 +73,17 @@
 		dialog.showModal();
 	}}
 	class={data ? '' : 'btn-icon btn-icon-sm variant-ghost-surface'}
-	title="Modifier"><Fa icon={data ? faPenToSquare : faPlus} /></button
+	title={data ? 'Modifier' : 'Créer'}><Fa icon={data ? faPenToSquare : faPlus} /></button
 >
 
 <Dialog bind:dialog on:close={() => console.log('closed')}>
-	<div class="rounded-lg h-64 w-96 p-4 variant-ghost-secondary items-center place-items-center">
-		<p class="text-sm">data: {JSON.stringify(data?.name)}</p>
+	<div class="rounded-lg h-96 w-96 p-4 variant-ghost-secondary items-center place-items-center">
+		<!--p class="text-sm">data: {JSON.stringify(data?.name)}</p>
 		<p class="text-sm">selectedItem: {JSON.stringify(getSelectedItem())}</p>
-		<p class="text-sm">commandData: {JSON.stringify(commandData)}</p>
+		<p class="text-sm">commandData: {JSON.stringify(commandData)}</p-->
 		<div class="grid grid-cols-1 item-center place-items-center gap-12 w-full">
 			<h3 class="h3">Convention</h3>
-			<Select items={choices} bind:value={selectedItem} />
-
+				<Select items={choices} bind:value={selectedItem} />
 			<div class="flex w-full items-center">
 				<div class="w-1/3">
 					{#if result?.success}
@@ -123,3 +123,10 @@
 		</div>
 	</div>
 </Dialog>
+
+<style>
+	.select {
+		position: relative;
+		z-index: 1000;
+	}
+</style>

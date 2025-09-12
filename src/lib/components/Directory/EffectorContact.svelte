@@ -32,7 +32,7 @@
 	import CreateEmail from '$lib/Web/Email/Create.svelte';
 	import CreateWebsite from '$lib/Web/Website/Create.svelte';
 	import { copy } from 'svelte-copy';
-	import { setEditMode, getEditMode, setEntryUid } from './context';
+	import { setEditMode, getEditMode, setEntryUid, setEffectorUid } from './context';
 	import { hyphenateUuid } from '$lib/utils/utils';
 	import UuidHex from '$lib/Uuid/UuidHex.svelte';
 	import UuidHyphen from '$lib/Uuid/UuidHyphen.svelte';
@@ -43,6 +43,7 @@
 	let entry: EntryFull = $derived(data.entry);
 
 	setEntryUid(data.entry.uid);
+	setEffectorUid(data.entry.effector_uid);
 	setEditMode();
 	const editMode = getEditMode();
 
@@ -100,9 +101,9 @@
 		</div>
 	</div>
 	<div class="grid grid-col-1 lg:grid-cols-1 p-2 gap-4">
-		{#if entry?.appointments?.length}
+		{#if entry?.appointments?.length || $editMode}
 			<div class="d-flex justify-content-between align-items-start">
-				<Appointment appointments={entry.appointments} />
+				<Appointment data={entry.appointments} />
 			</div>
 		{/if}
 		{#if entry.phones?.length || $editMode}
@@ -183,7 +184,7 @@
 				</div>
 			</div>
 		{/if}
-		{#if entry?.spoken_languages || entry?.rpps}
+		{#if entry?.spoken_languages || entry?.rpps || $editMode}
 			<div class="d-flex justify-content-between align-items-start">
 				<Info data={entry} />
 			</div>

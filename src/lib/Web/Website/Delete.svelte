@@ -63,10 +63,6 @@
                 <p>Êtes-vous sûr de vouloir supprimer cet élément?</p>
             </div>
 			<div class="flex gap-8">
-
-				<div class="w-auto justify-center">
-					<button type="submit" class="variant-filled-warning btn w-min">Confirmer</button>
-				</div>
 				<div class="flex gap-2 items-center">
 					{#if result?.success}
 						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
@@ -74,6 +70,9 @@
 						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span
 						>{result.text}
 					{/if}
+				</div>
+				<div class="w-auto justify-center">
+					<button type="submit" class="variant-filled-warning btn w-min">Confirmer</button>
 				</div>
 				<div class="w-auto justify-center">
 					<button

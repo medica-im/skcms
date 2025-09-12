@@ -9,7 +9,7 @@
 		faExclamationCircle,
 		faTrashCanArrowUp,
 		faPlus,
-		faSquarePlus,
+		faSquarePlus
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import type { Phone } from '$lib/interfaces/phone.interface.ts';
@@ -40,7 +40,7 @@
 		F: 'Fax',
 		AS: 'Answering service'
 	};
-	
+
 	const getTypeItems = () => {
 		const items = [];
 		for (const [key, value] of Object.entries(types)) {
@@ -49,13 +49,13 @@
 		return items;
 	};
 
-	let _phone: string|undefined = $state();
+	let _phone: string | undefined = $state();
 	let selectedType: SelectType | undefined = $state();
-	let selectedAccess: SelectType|undefined = $state();
-	let _type: string|undefined = $derived(selectedType?.value);
-	let _roles: string[]|undefined = $derived(getRoles(selectedAccess?.value))
+	let selectedAccess: SelectType | undefined = $state();
+	let _type: string | undefined = $derived(selectedType?.value);
+	let _roles: string[] | undefined = $derived(getRoles(selectedAccess?.value));
 	let disabled: boolean = $derived(
-		selectedType == undefined || _phone == undefined
+		selectedType == undefined || _phone == undefined || selectedAccess == undefined
 	);
 	function resetForm() {
 		_phone = undefined;
@@ -66,23 +66,17 @@
 	}
 </script>
 
-<button class="btn-icon btn-icon-sm variant-ghost-surface"
+<button
+	class="btn-icon btn-icon-sm variant-ghost-surface"
 	onclick={() => {
 		dialog.showModal();
 	}}
 	title="Ajouter"><Fa icon={faPlus} /></button
 >
 
-<Dialog bind:dialog on:close={() => console.log('closed')}>
-	<div class="rounded-lg p-4 variant-ghost-secondary gap-2 items-center place-items-center">
-		<button
-			id="close"
-			aria-label={m.CLOSE()}
-			onclick={() => dialog.close()}
-			class="btn variant-ringed"
-			formnovalidate><Fa icon={faWindowClose} /></button
-		>
-		<p>phone: {_phone} type: {_type} roles: {_roles}</p>
+<Dialog bind:dialog>
+	<div class="rounded-lg h-96 p-4 variant-ghost-secondary gap-2 items-center place-items-center">
+		<!--p>phone: {_phone} type: {_type} roles: {_roles}</p-->
 
 		<form
 			{...createPhone.enhance(async ({ form, data, submit }) => {
@@ -137,7 +131,7 @@
 						/>
 						<Select items={getTypeItems()} bind:value={selectedType} />
 					</label>
-<label class="flex label place-self-start place-items-center space-x-2 w-full">
+					<label class="flex label place-self-start place-items-center space-x-2 w-full">
 						<span>Accès:</span>
 						<input
 							oninput={() => {}}
@@ -151,13 +145,8 @@
 					</label>
 				</div>
 			</div>
-			<div class="flex gap-8">
-				<div class="w-auto justify-center">
-					<button type="submit" class="variant-filled-secondary btn w-min" {disabled}
-						>Créer</button
-					>
-				</div>
-				<div class="flex gap-2 items-center">
+			<div class="flex w-full items-center">
+				<div class="w-1/3">
 					{#if result?.success}
 						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
 					{:else if result && !result?.success}
@@ -165,16 +154,19 @@
 						>{result.text}
 					{/if}
 				</div>
-				<div class="w-auto justify-center">
-					<button
-						type="button"
-						class="variant-filled-error btn w-min"
-						onclick={() => {
-							dialog.close();
-							resetForm();
-						}}
-						>{#if result?.success || disabled}Fermer{:else}Annuler{/if}</button
-					>
+				<div class="w-2/3 flex gap-2">
+					<button type="submit" class="variant-filled-secondary btn w-min" {disabled}>Créer</button>
+					<div class="w-auto justify-center">
+						<button
+							type="button"
+							class="variant-filled-error btn w-min"
+							onclick={() => {
+								dialog.close();
+								resetForm();
+							}}
+							>{#if result?.success || disabled}Fermer{:else}Annuler{/if}</button
+						>
+					</div>
 				</div>
 			</div>
 		</form>

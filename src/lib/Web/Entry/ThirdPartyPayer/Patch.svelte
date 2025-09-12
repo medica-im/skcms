@@ -75,25 +75,17 @@
 		dialog.showModal();
 	}}
 	class={data ? '' : 'btn-icon btn-icon-sm variant-ghost-surface'}
-	title="Modifier"><Fa icon={data ? faPenToSquare : faPlus} /></button
+	title={data==null ? "Créer":"Modifier"}><Fa icon={data ? faPenToSquare : faPlus} /></button
 >
 
 <Dialog bind:dialog on:close={() => console.log('closed')}>
-	<div class="rounded-lg h-64 w-96 p-4 variant-ghost-secondary items-center place-items-center">
-		<p class="text-sm">data: {JSON.stringify(data?.map(e=>e.name))}</p>
+	<div class="rounded-lg h-96 w-96 p-4 variant-ghost-secondary items-center place-items-center">
+		<!--p class="text-sm">data: {JSON.stringify(data?.map(e=>e.name))}</p>
 		<p class="text-sm">selectedItems: {JSON.stringify(selectedItems?.map(e=>e.value))}</p>
-		<p class="text-sm">commandData: {JSON.stringify(commandData)}</p>
-		<!--button
-			id="close"
-			aria-label={m.CLOSE()}
-			onclick={() => dialog.close()}
-			class="btn variant-ringed"
-			formnovalidate><Fa icon={faWindowClose} /></button
-		-->
+		<p class="text-sm">commandData: {JSON.stringify(commandData)}</p-->
 		<div class="grid grid-cols-1 item-center place-items-center gap-12 w-full">
 			<h3 class="h3">{m.ADDRESSBOOK_THIRD_PARTY_PAYER()}</h3>
 			<Select multiple items={choices} bind:value={selectedItems} />
-
 			<div class="flex w-full items-center">
 				<div class="w-1/3">
 					{#if result?.success}
