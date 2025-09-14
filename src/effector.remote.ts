@@ -9,7 +9,8 @@ const RoleEnum = z.enum(['anonymous', 'staff', 'administrator' , 'superuser']);
 const Patch = z.object({
     effector: z.string().regex(/^[0-9a-fA-F]{32}$/).optional(),
     //roles: z.array(RoleEnum),
-    rpps: z.nullable(z.coerce.number().int().gte(10000000000).lte(99999999999)).optional()
+    rpps: z.nullable(z.coerce.number().int().gte(10000000000).lte(99999999999)).optional(),
+    spoken_languages: z.nullable(z.array(z.string())).optional()
 });
 
 export const patchCommand = command(Patch, async (data) => {
