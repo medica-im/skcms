@@ -67,7 +67,7 @@
 </script>
 
 <button class="btn variant-filled-error" type="reset" on:click={erase} disabled={isDisabled}
-	>page
+	>
 	<span><Fa icon={faEraser} size="lg" /></span>
 	<span>Tout effacer</span>
 </button>

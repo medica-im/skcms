@@ -125,6 +125,8 @@
 		}
 	);
 
+	setContext('filteredEffectors', filteredEffectors);
+
 	const categorizedFilteredEffectors = asyncDerived(
 		[filteredEffectors, distanceEffectors, selectSituation],
 		async ([$filteredEffectors, $distanceEffectors, $selectSituation]) => {

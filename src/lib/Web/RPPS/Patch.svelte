@@ -50,7 +50,7 @@
 		rpps = data.rpps;
 		dialog.showModal();
 	}}
-	class="btn-icon btn-icon-sm variant-ghost-surface"
+	class="btn-icon btn-icon-sm"
 	title="Modifier"><Fa icon={faPenToSquare} /></button
 >
 

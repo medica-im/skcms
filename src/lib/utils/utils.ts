@@ -1,3 +1,4 @@
+import type { Entry } from '$lib/store/directoryStoreInterface.ts';
 // Replaces the locale slug in a URL.
 //
 // If the `full` argument is set to `true`, the full URL is returned as a string.
@@ -70,5 +71,18 @@ export const getByValue = (map: Map<string, string[]>, searchValue: string[]) =>
 		if (areArraysEqualSets(value, searchValue)) {
 			return key;
 		}
+	}
+}
+
+export const entryPageUrl = (entry: Entry, org_category: string|null=null) => {
+	const typeSlug = entry.effector_type.slug;
+	const communeSlug = entry.commune.slug;
+	const nameSlug = entry.slug;
+	const facilitySlug = entry.facility.slug;
+	//console.log(`${typeSlug}, ${communeSlug}, ${nameSlug}, ${org_category}`);
+	if (org_category == 'msp') {
+		return `/${facilitySlug}/${typeSlug}/${nameSlug}`;
+	} else {
+		return `/${typeSlug}/${communeSlug}/${nameSlug}`;
 	}
 }

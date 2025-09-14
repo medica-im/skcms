@@ -5,9 +5,10 @@
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import Languages from './Languages.svelte';
 	import { getEffectorUid, getEditMode } from '$lib/components/Directory/context';
-	import Create from '$lib/Web/RPPS/Create.svelte';
-	import Patch from '$lib/Web/RPPS/Patch.svelte';
-	import Delete from '$lib/Web/RPPS/Delete.svelte';
+	import RPPSCreate from '$lib/Web/RPPS/Create.svelte';
+	import RPPSPatch from '$lib/Web/RPPS/Patch.svelte';
+	import RPPSDelete from '$lib/Web/RPPS/Delete.svelte';
+	import LanguagesPatch from '$lib/Web/Languages/Patch.svelte';
 	import type { EntryFull } from '$lib/store/directoryStoreInterface';
 
 	let { data }: { data: EntryFull } = $props();
@@ -23,24 +24,28 @@
 		</h3>
 	</div>
 </div>
-{#if data.spoken_languages && data?.spoken_languages.length}
+{#if data.effector_type.labels.includes('HCW') && (data.spoken_languages || $editMode)}
 	<div class="flex p-1">
 		<div class="w-9"></div>
-		<div>
+		<div class="flex gap-4">
 			<Languages data={data.spoken_languages} />
+			{#if $editMode}
+			<LanguagesPatch data={data.spoken_languages}/>
+			{/if}
 		</div>
 	</div>
 {/if}
 {#if data.effector_type.labels.includes('RPPS') && (data.rpps || $editMode)}
-	<div class="flex p-1 space-x-4">
+	<div class="flex p-1">
 		<div class="w-9"></div>
-		<div>
+		<div class="flex gap-4">
 			N° RPPS: {data.rpps || '∅'}
-		</div>
+		
 		{#if $editMode && data.rpps == null}
-			<Create/>
+			<RPPSCreate/>
 			{:else if $editMode && data.rpps !== null}
-				<Patch {data}/><Delete {data}/>
+				<RPPSPatch {data}/><RPPSDelete {data}/>
 		{/if}
+		</div>
 	</div>
 {/if}
