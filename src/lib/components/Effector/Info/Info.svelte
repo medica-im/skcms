@@ -4,11 +4,12 @@
 	import { faInfo } from '@fortawesome/free-solid-svg-icons';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import Languages from './Languages.svelte';
-	import { getEffectorUid, getEditMode } from '$lib/components/Directory/context';
+	import { getEditMode } from '$lib/components/Directory/context';
 	import RPPSCreate from '$lib/Web/RPPS/Create.svelte';
 	import RPPSPatch from '$lib/Web/RPPS/Patch.svelte';
 	import RPPSDelete from '$lib/Web/RPPS/Delete.svelte';
 	import LanguagesPatch from '$lib/Web/Languages/Patch.svelte';
+	import LanguagesDelete from '$lib/Web/Languages/Delete.svelte';
 	import type { EntryFull } from '$lib/store/directoryStoreInterface';
 
 	let { data }: { data: EntryFull } = $props();
@@ -31,6 +32,9 @@
 			<Languages data={data.spoken_languages} />
 			{#if $editMode}
 			<LanguagesPatch data={data.spoken_languages}/>
+			{#if data.spoken_languages !== null}
+			<LanguagesDelete data={data.spoken_languages}/>
+			{/if}
 			{/if}
 		</div>
 	</div>

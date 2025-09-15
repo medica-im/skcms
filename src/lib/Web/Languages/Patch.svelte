@@ -13,6 +13,7 @@
 	import Dialog from '$lib/Web/Dialog.svelte';
 	import { getEffectorUid } from '$lib/components/Directory/context';
 	import languagesFr from './languages_fr.json';
+	import { areArraysEqualSets } from '$lib/utils/utils';
 	import type { FormResult } from '$lib/interfaces/v2/form';
 	import type { SpokenLanguage } from "$lib/interfaces/fullEffector.interface";
 
@@ -37,7 +38,7 @@
 		}
 		return arr
 	}
-	const getItems = (data: string[] | null) => {
+	const getItems = () => {
 		if (data==null) return undefined;
 		return items().filter((e) => data?.includes(e.label.toLocaleLowerCase()));
 	};
@@ -48,18 +49,30 @@
 	}
 
 	let result: FormResult | undefined = $state();
-	let selectedItems: SelectType[] | undefined = $state(getItems(data));
+	let selectedItems: SelectType[] | undefined = $state(getItems());
 	let commandData = $derived({
 		effector: uid,
 		spoken_languages: getLangData()
 	});
 
-	let disabled: boolean = $derived(data ? selectedItems?.map(e=>e.label) == data : selectedItems == undefined);
+	let disabled: boolean = $derived.by(
+		() => {
+			if ( result?.success ) return true;
+			if ( data && selectedItems ) {
+				const select = selectedItems.map(e=>e.label.toLocaleLowerCase('fr'));
+				console.log(select);
+				console.log(data);
+				return areArraysEqualSets(select,data)
+			} else {
+				return selectedItems == undefined
+			}
+		});
 </script>
 
 <button
 	onclick={() => {
 		result = undefined;
+		selectedItems = getItems();
 		dialog?.showModal();
 	}}
 	class={data ? '' : 'btn-icon btn-icon-sm variant-ghost-surface'}
@@ -67,10 +80,10 @@
 >
 
 <Dialog bind:dialog on:close={() => console.log('closed')}>
-	<div class="rounded-lg h-48 p-8 variant-ghost-secondary gap-8 items-center place-items-center">
-		{JSON.stringify(items())}
-		<p>selectedItems: {JSON.stringify(selectedItems)}</p>
-		<p>commandData: {JSON.stringify(commandData)}</p>
+	<div class="rounded-lg h-48 min-w-96 p-8 variant-ghost-secondary gap-8 items-center place-items-center">
+		<!--p>{JSON.stringify(data)}</p-->
+		<!--p>selectedItems: {JSON.stringify(selectedItems)}</p>
+		<p>commandData: {JSON.stringify(commandData)}</p-->
 		<div class="grid grid-cols-1 gap-4">
 			<h3 class="h3">Langues</h3>
 			<Select multiple items={items()} bind:value={selectedItems} />
@@ -88,7 +101,10 @@
 						try {
 							result = await patchCommand(commandData);
 							console.log(JSON.stringify(result));
-							invalidate('entry:now');
+							if (result.success == true) {
+								invalidate('entry:now');
+								disabled=true;
+							}
 						} catch (error) {
 							console.error(error);
 						}

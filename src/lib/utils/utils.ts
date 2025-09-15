@@ -43,7 +43,7 @@ export function filterInPlace(array: any[], fn: Function) {
 * @param  {} a1 is an array
 * @param  {} a2 is an array
 */
-function areArraysEqualSets(a1:string[], a2: string[]) {
+export function areArraysEqualSets(a1:string[], a2: string[]) {
   const superSet = {};
   for (const i of a1) {
     const e = i + typeof i;
