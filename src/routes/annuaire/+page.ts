@@ -2,7 +2,6 @@ import { websiteSchema } from '$lib/store/facilityStore.ts';
 import { cardCatEntries } from '$lib/components/Directory/directory.ts';
 import { openGraphStore } from '$lib/store/openGraphStore.ts';
 import type { PageLoad } from './$types';
-import { browser, building, dev, version } from '$app/environment';
 
 export const load: PageLoad = async ({parent}) => {
     const { organization } = await parent();
