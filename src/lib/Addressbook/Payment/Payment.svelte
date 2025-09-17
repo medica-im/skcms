@@ -27,18 +27,18 @@
 	</div>
 </div>
 {#if data}
-<div class="flex p-1 space-x-4">
+	<div class="flex p-1">
 	<div class="w-9"></div>
-	<div class="p-1">
+	<div class="flex p-1 gap-4">
 		{#each data as method, i}
 			{#if i == 0}{capitalizeFirstLetter(
 					method.label_fr as string
 				)}{:else}{' '}{method.label_fr}{/if}{#if i < data.length - 2},
 			{:else if i == data.length - 2}{' '}{m.AND()}{:else}.{/if}
 		{/each}
-	</div>
 	{#if editMode}
 	<Patch {data}/><Delete {data}/>
 	{/if}
+	</div>
 </div>
 {/if}

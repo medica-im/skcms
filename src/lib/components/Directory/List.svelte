@@ -44,8 +44,10 @@
 <div class="m-4 space-y-4">
 	{#if displayMap}
 		<div class="h-screen px-4 z-[-1]">
-            {#await filteredEffectors.load() then fE}
-			<FacilityMap data={fE} addressFeature={$addressFeature} />
+            {#await filteredEffectors.load()}
+			<Spinner w={12} h={12} />
+			{:then}
+			<FacilityMap data={$filteredEffectors} addressFeature={$addressFeature} />
             {/await}
 		</div>
 	{:else}

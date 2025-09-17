@@ -5,11 +5,11 @@
 	import type { Entry } from '$lib/store/directoryStoreInterface.ts';
 	import type { AddressFeature } from '$lib/store/directoryStoreInterface.ts';
 
-	export let data: Entry[];
-	export let addressFeature: AddressFeature|null;
+	let { data, addressFeature } : { data: Entry[]; addressFeature: AddressFeature|null; } = $props();
 	const org_category = page.data.organization.category.name;
+	let mapData = $derived(createEntriesMapData(data, false, addressFeature, org_category));
 </script>
 
 	{#key data}
-	<Map data={createEntriesMapData(data, false, addressFeature, org_category)} />
+	<Map data={mapData} />
 	{/key}
