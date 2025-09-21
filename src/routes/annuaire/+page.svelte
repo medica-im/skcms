@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { organizationStore } from '$lib/store/facilityStore';
 	import * as m from '$msgs';
 	import OpenGraph from '$lib/components/OpenGraph/OpenGraph.svelte';
 	import { language } from '$lib/store/languageStore';
@@ -27,7 +26,7 @@
 	{/if}
 
 	<title>
-		Annuaire - {capitalizeFirstLetter($organizationStore.formatted_name, $language)}
+		Annuaire - {capitalizeFirstLetter(page.data.organization.formatted_name, $language)}
 	</title>
 </svelte:head>
 <div>
@@ -43,12 +42,12 @@
 		{#key [page.url]}
 			<Directory
 				data={data?.cardinal}
-				propCurrentOrg={true}
+				propCurrentOrg={null}
 				displayCommune={true}
 				displayGeocoder={true}
 				displayCategory={true}
 				displaySituation={true}
-				avatar={true}
+				avatar={false}
 			/>
 		{/key}
 	</div>

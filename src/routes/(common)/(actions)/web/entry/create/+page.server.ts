@@ -1,7 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import { variables } from '$lib/utils/constants.ts';
 import { authReq } from '$lib/utils/request';
-import type { Effector } from '$lib/interfaces/v2/effector.ts';
 import type { Actions } from './$types';
 
 export const actions = {

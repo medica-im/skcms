@@ -5,7 +5,7 @@ import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({parent}) => {
     const { organization } = await parent();
-    const currentOrg: boolean = true;
+    const currentOrg: boolean|null = null;
     const orgUid = organization.uid;
     return {
         //websiteSchema: await websiteSchema.load(),

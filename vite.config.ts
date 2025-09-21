@@ -35,10 +35,10 @@ export default defineConfig({
 		proxy: {
 			'/media/profile_images': 'https://dev.sante-gadagne.fr',
 			'/api/v2': 'https://dev.sante-gadagne.fr',
-			'/api/v1': {
+			/*'/api/v1': {
 				target: 'https://dev.sante-gadagne.fr',
 				changeOrigin: false
-			},
+			},*/
 			'/blog': 'https://sante-gadagne.fr'
 		}
 	}

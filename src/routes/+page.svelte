@@ -36,46 +36,8 @@
 		<div class="">
 			<Welcome formattedNameDefiniteArticle={$organizationStore.formatted_name_definite_article} />
 		</div>
-		<div class="">
-			Votre <a href="/maison-de-sante/a-propos" class="anchor">maison de santé pluriprofessionnelle</a> à Châteauneuf-de-Gadagne.
-		</div>
-		{#if browser}
-		<HeatwaveAlert link={true} />
-	    {/if}
 	</div>
 </header>
-<!-- team -->
-<section id="team" class="bg-surface-100-800-token team-gradient">
-	<div class="section-container">
-		<Team
-			data={{
-				cardinalTypes: data.cardinalTypes,
-				teamCarousel: data.teamCarousel
-			}}
-		/>
-	</div>
-</section>
-<!-- Facility -->
-<section id="team" class="bg-surface-100-800-token facility-gradient">
-	<div class="section-container">
-		<Facility data={{ facilities: data.facilities, carousel: data.facilityCarousel, organization: data.organization }} />
-	</div>
-</section>
-	<!-- blog -->
-	<section id="blog" class="bg-surface-100-800-token blog-gradient">
-		<div class="section-container">
-			<div class=" grid grid-cols-1 gap-6 place-items-center">
-			    <Ghost data={data.ghost} ghost={data.ghostSite} />
-			    <SignupForm data={data.ghostSite}/>
-		    </div>
-		</div>
-	</section>
-<!-- programs -->
-{#if variables.ORGANIZATION_CATEGORY == 'msp'}
-	<section id="programs" class="bg-surface-100-800-token programs-gradient">
-		<div class="section-container"><OutpatientClinicPrograms {programsNavLinks} /></div>
-	</section>
-{/if}
 
 <style lang="postcss">
 	.section-container {
