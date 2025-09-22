@@ -22,7 +22,7 @@ import {
 import type { ProgramsNavLinks } from '$lib/interfaces/variables.interface';
 
 export const programsNavLinks: ProgramsNavLinks = {
-    'soins': {
+    /*'soins': {
         id: 'soins',
         title: {
             en: 'Health services',
@@ -125,7 +125,7 @@ export const programsNavLinks: ProgramsNavLinks = {
                 category: 'program'
             }
         ]
-    },*/
+    },
     'prevention': {
         id: 'prevention',
         title: {
@@ -209,12 +209,12 @@ export const programsNavLinks: ProgramsNavLinks = {
                 active: true
             }
         ]
-    }
+    }*/
 };
 
 const outpatientClinicLinks: any = {
 	// outpatient clinic
-	'msp': {
+	/*'msp': {
 		id: 'maison-de-sante',
 		title: {
 			en: 'Outpatient clinic',
@@ -260,7 +260,7 @@ const outpatientClinicLinks: any = {
 				icon: null
 			}
 		]
-	}
+	}*/
 }
 
 export const menuNavLinks: any = {
@@ -279,7 +279,7 @@ interface MenuNavCat {
 
 export const menuNavCats: MenuNavCat[] = [
     // outpatient clinic
-    {
+    /*{
         id: 'msp',
         title: {
             en: 'Outpatient clinic',
@@ -311,5 +311,5 @@ export const menuNavCats: MenuNavCat[] = [
             fr: 'Soins'
         },
         list: ['soins']
-    }
+    }*/
 ];

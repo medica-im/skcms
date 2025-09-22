@@ -23,7 +23,7 @@
     // components
     import SkeletonAppBar from '$lib/SkeletonAppBar/SkeletonAppBar.svelte';
     import Drawer from '$lib/Drawer/Drawer.svelte';
-    import Footer from '$lib/Footer/Footer.svelte';
+    import Footer from '$lib/Footer/AddressbookFooter.svelte';
     // Theme stylesheet is loaded from LayoutServerData
     import { QueryClientProvider, QueryClient } from '@tanstack/svelte-query'
     import type { ComponentProps } from 'svelte';

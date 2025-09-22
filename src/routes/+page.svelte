@@ -1,4 +1,5 @@
 <script lang="ts">
+	import * as m from "$msgs";
 	import { browser } from '$app/environment';
 	import { variables } from '$lib/utils/constants';
 	import { organizationStore } from '$lib/store/facilityStore';
@@ -15,6 +16,7 @@
 	import LDTag from '$lib/Schema/LDTag.svelte';
 	import { Facility } from '$lib';
 	import HeatwaveAlert from '$lib/Heatwave/HeatwaveAlert.svelte';
+	import Directory from '$lib/components/Directory/CtxDirectory.svelte';
 
     let { data, form } = $props();
 </script>
@@ -26,18 +28,32 @@
 	{/if}
 
 	<title>
-		{capitalizeFirstLetter($organizationStore.formatted_name, $language)}
+		{m.ADDRESSBOOK_TITLE()} - {capitalizeFirstLetter($organizationStore.formatted_name, $language)}
 	</title>
 </svelte:head>
 
 <!-- hero -->
-<header id="hero" class="bg-surface-100-800-token hero-gradient">
-	<div class="mx-0 flex flex-col items-center justify-center p-4 py-6 space-y-2">
-		<div class="">
-			<Welcome formattedNameDefiniteArticle={$organizationStore.formatted_name_definite_article} />
-		</div>
+<header id="hero" class="hero-gradient">
+	<!--div class="mx-0 flex flex-col items-center justify-center p-4 py-6 space-y-2"-->
+	<div class="section-container">
+
+		<h2 class="h2">
+			{m.NAVBAR_ADDRESSBOOK()}
+		</h2>
 	</div>
 </header>
+
+	<div>
+		<Directory
+				data={data?.cardinal}
+				propCurrentOrg={null}
+				displayCommune={true}
+				displayGeocoder={true}
+				displayCategory={true}
+				displaySituation={true}
+				avatar={false}
+			/>
+	</div>
 
 <style lang="postcss">
 	.section-container {
