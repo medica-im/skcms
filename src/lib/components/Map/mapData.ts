@@ -75,7 +75,7 @@ function getTarget(addressFeature: AddressFeature) {
         } as MapData
 }
 
-export const createEntriesMapData = (entries: Entry[], tooltip = false, target: AddressFeature|null, org_category: string|null=null) => {
+export const createEntriesMapData = (entries: Entry[], tooltip = false, target: AddressFeature|undefined, org_category: string|null=null) => {
     const points: MapData[] = [];
     entries.forEach((entry: Entry) => {
         let tooltipHtml = `

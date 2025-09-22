@@ -1,5 +1,6 @@
 <script lang="ts">
-	import * as m from "$msgs";	import { userData } from '$lib/store/userStore';
+	import * as m from "$msgs";
+	import { userData } from '$lib/store/userStore';
 
 	export let formattedNameDefiniteArticle;
 </script>

@@ -203,7 +203,7 @@
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 p-1">
 					<div class="space-y-2">
 						<FacilityLink data={entry.facility} />
-						<Address data={entry.address} />
+						<Address data={entry.address} distance={false} />
 					</div>
 					{#if entry.address.longitude && entry.address.latitude}
 						<div class="h-56 w-64 lg:h-64 lg:w-96 p-2 z-0">

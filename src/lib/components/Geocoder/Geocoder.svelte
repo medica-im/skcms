@@ -5,28 +5,26 @@
 	import { faAddressCard } from '@fortawesome/free-regular-svg-icons';
 	import Fa from 'svelte-fa';
 	import DocsIcon from '$lib/Icon/Icon.svelte';
-	import { PUBLIC_DIRECTORY_TTL } from '$env/static/public';
 	import SelectAddress from '$lib/Web/SelectAddress.svelte';
+	import { getAddressFeature } from '../Directory/context';
 	import type { AddressFeature, FeatureCollection } from '$lib/store/directoryStoreInterface';
 
 	let {
-		addressFeature = $bindable(),
 		commune = null,
 	    placeholder = '',
 		inputClass = ''
 	}: {
-		addressFeature?: AddressFeature | undefined;
 		commune?: string|null,
 		placeholder?: string,
 		inputClass?: string
 	} = $props();
 
-	let addressValue: string|null = $state(null);
+	let addressFeature = $state(getAddressFeature());
 	let visible: boolean = $state(false);
-	let response: FeatureCollection|undefined = $state();
-	const cachelife: number = parseInt(PUBLIC_DIRECTORY_TTL || '0');
+	let inputDisabled: boolean = $derived(Boolean($addressFeature));
+	let disableFetch: boolean = $state(false);
 
-	type SelectOption = {value: string, label: string};
+	type SelectOption = {value: AddressFeature, label: string};
 
 	let addressOptions: SelectOption[] = $state([]);
 
@@ -45,18 +43,7 @@
 	let inputAddress: string | undefined = $state();
 
 	$effect(() => {
-		if (inputAddress && inputAddress.length > options.minChar) {
-			response = search();
-		}
-	});
-	$effect(() => {
-		visible = !addressFeature && !(inputAddress === undefined) && !(inputAddress==null) && inputAddress.length > options.minChar;
-	});
-
-	$effect(() => {
-		if (response) {
-			addressOptions = getAddressOptions(response);
-		}
+		visible = !$addressFeature && !(inputAddress === undefined) && !(inputAddress==null) && inputAddress.length > options.minChar;
 	});
 
 	const getLabel = (address: AddressFeature) => {
@@ -81,7 +68,7 @@
 				return page.data.directory.postal_codes ? page.data.directory.postal_codes.includes(e.properties.postcode.substring(0,2)) : true
 			})
 			.map((e: AddressFeature) => {
-				return { label: getLabel(e), value: e.properties.id };
+				return { label: getLabel(e), value: e };
 			});
 		return _addressOptions;
 	}
@@ -109,22 +96,13 @@
 		return params;
 	}
 
-	function search(): FeatureCollection|undefined {
-		if (inputAddress === '') {
-			return;
-		}
-		if (inputAddress && inputAddress.length < options.minChar) {
-			return;
-		}
-		//if (value + '' === CACHE + '') {
-		//	return;
-		//} else {
-		//	CACHE = value;
-		//}
-		fetchGeojson();
-	}
-
 	async function fetchGeojson() {
+		if ( disableFetch ) {
+			return
+		}
+		if ( inputAddress && inputAddress?.length < options.minChar ) {
+			return
+		}
 		let url = options.url + buildQueryString();
 		console.log(`geocoder: ${url}`);
 		const res = await fetch(url, {
@@ -134,44 +112,31 @@
 		if (!res.ok) {
 			const message = `An error has occured: ${res.status}`;
 			throw new Error(message);
+		} else {
+			const geojson = await res.json();
+			console.log(JSON.stringify(geojson));
+			//response = geojson;
+			addressOptions = getAddressOptions(geojson);
 		}
-		const geojson = await res.json();
-		response = geojson;
-		console.log(response)
-	}
-
-	function recordAddressFeature(featureId: string) {
-		const feature = response?.features.find((x: AddressFeature) => x.properties.id == featureId);
-		addressFeature = feature;
 	}
 
     $effect(()=>{
-		if (addressValue && response?.features?.length) {
-			const feature: AddressFeature|undefined = response.features.find((x) => x.properties.id == addressValue);
-		    addressFeature = feature;
-			inputAddress = feature?.properties.name
-			if (!commune) {
-				const city = `[${feature?.properties.city}]`;
-				inputAddress = inputAddress?.concat(" ", city)
+		if ($addressFeature) {
+			if (commune) {
+				inputAddress = $addressFeature.properties.name
+			} else {
+				const city = `[${$addressFeature.properties.city}]`;
+				inputAddress = `${$addressFeature.properties.name} ${city}`; 
 			}
 		}
 	});
 
-	function onAddressSelection(event: any): void {
-		inputAddress = event.detail.label;
-		recordAddressFeature(event.detail.value);
-		visible = false;
-	}
-	const onInput = () => (visible = true);
-
 	function handleClear() {
 		visible = false;
 		inputAddress = '';
-		addressFeature = undefined;
-		addressValue = null;
+		$addressFeature = null;
 	}
 </script>
-
 <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
 	<div class="input-group-shim"><Fa icon={faAddressCard} /></div>
 	<input
@@ -179,8 +144,9 @@
 		type="search"
 		name="geocoder"
 		autocomplete="off"
-		disabled={Boolean(addressFeature)}
+		disabled={inputDisabled}
 		placeholder={placeholder}
+		oninput={()=>{if (!inputDisabled) {fetchGeojson()}}}
 		bind:value={inputAddress}
 		aria-label={m.ADDRESSBOOK_GEOCODER_ARIA_LABEL()}
 	/>
@@ -193,26 +159,8 @@
 		<DocsIcon name="clear" width="w-5" height="h-5" />
 	</button>
 </div>
-	<!--div class="card w-full max-w-md max-h-48 p-4 overflow-y-auto" tabindex="-1">
-		{#key addressOptions}
-			<Autocomplete
-				bind:input={inputAddress}
-				options={addressOptions}
-				on:selection={onAddressSelection}
-				emptyState={m.SKELETON_AUTOCOMPLETE_EMPTY_STATE()}
-			/>
-		{/key}
-	</div-->
-	<!--div class="card w-full max-w-md max-h-48 p-4 overflow-y-auto" tabindex="-1">
-		{#key addressOptions}
-			<Svelecte
-				bind:value={addressValue}
-				options={addressOptions}
-			/>
-		{/key}
-		</div-->
 		{#if visible}
-		<SelectAddress {addressOptions} bind:visible={visible} bind:address={addressValue}  />
+		<SelectAddress {addressOptions} bind:visible bind:addressFeature={$addressFeature} bind:disableFetch  />
 		{/if}
 
 <style>

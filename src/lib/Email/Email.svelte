@@ -7,7 +7,7 @@
 	import Delete from "$lib/Web/Email/Delete.svelte";
 	import type { Email } from '$lib/interfaces/email.interface';
 
-	let { data, editMode } : { data: Email; editMode: boolean } = $props();
+	let { data, editMode=false } : { data: Email; editMode?: boolean } = $props();
 </script>
 
 <div class="flex content-start space-x-4 items-center">

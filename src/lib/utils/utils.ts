@@ -43,28 +43,28 @@ export function filterInPlace(array: any[], fn: Function) {
 * @param  {} a1 is an array
 * @param  {} a2 is an array
 */
-export function areArraysEqualSets(a1:string[], a2: string[]) {
-  const superSet = {};
-  for (const i of a1) {
-    const e = i + typeof i;
-    superSet[e] = 1;
-  }
+export function areArraysEqualSets(a1: string[], a2: string[]) {
+	const superSet = {};
+	for (const i of a1) {
+		const e = i + typeof i;
+		superSet[e] = 1;
+	}
 
-  for (const i of a2) {
-    const e = i + typeof i;
-    if (!superSet[e]) {
-      return false;
-    }
-    superSet[e] = 2;
-  }
+	for (const i of a2) {
+		const e = i + typeof i;
+		if (!superSet[e]) {
+			return false;
+		}
+		superSet[e] = 2;
+	}
 
-  for (let e in superSet) {
-    if (superSet[e] === 1) {
-      return false;
-    }
-  }
+	for (let e in superSet) {
+		if (superSet[e] === 1) {
+			return false;
+		}
+	}
 
-  return true;
+	return true;
 }
 export const getByValue = (map: Map<string, string[]>, searchValue: string[]) => {
 	for (let [key, value] of map.entries()) {
@@ -74,15 +74,44 @@ export const getByValue = (map: Map<string, string[]>, searchValue: string[]) =>
 	}
 }
 
-export const entryPageUrl = (entry: Entry, org_category: string|null=null) => {
+export const entryPageUrl = (entry: Entry, org_category: string | null = null, pathname: string | null = null, facility: string | null = null, types: string[] | null = null, term: string | null = null, communes: string[] | null = null, situation: string | null = null) => {
 	const typeSlug = entry.effector_type.slug;
 	const communeSlug = entry.commune.slug;
 	const nameSlug = entry.slug;
 	const facilitySlug = entry.facility.slug;
-	//console.log(`${typeSlug}, ${communeSlug}, ${nameSlug}, ${org_category}`);
+	const originParam = pathname ? `${encodeURIComponent(pathname)}` : '';
+	const facilityParam = facility ? `${encodeURIComponent(facility)}` : '';
+	const typesParam = types?.length ? `${encodeURIComponent(JSON.stringify(types))}` : '';
+	const termParam = term ? `${encodeURIComponent(term)}` : '';
+	const communesParam = communes?.length
+		? `${encodeURIComponent(JSON.stringify(communes))}`
+		: '';
+	const situationParam = situation ? `${encodeURIComponent(situation)}`: '';
+	const params: { [key: string]: string; }[] = [
+		{origin: originParam},
+		{facility: facilityParam},
+		{types: typesParam},
+		{term: termParam},
+		{communes: communesParam},
+		{situation:	situationParam}
+	]
+	const urlParams: string[] = [];
+	params.forEach((value, index)=>{
+		const key = Object.keys(value)[0];
+		const param = value[key]
+		if (!param) return;
+		const p = index==0 ? '?':'&';
+		urlParams.push(`${p}${key}=${param}`);
+	});
+	const qs = urlParams.join('');
 	if (org_category == 'msp') {
-		return `/${facilitySlug}/${typeSlug}/${nameSlug}`;
+		return `/${facilitySlug}/${typeSlug}/${nameSlug}${qs}`;
 	} else {
-		return `/${typeSlug}/${communeSlug}/${nameSlug}`;
+		return `/${typeSlug}/${communeSlug}/${nameSlug}${qs}`;
 	}
+}
+
+export function isExpired(ttl: number, cacheTime: number): boolean {
+	const elapsed = Date.now() - cacheTime;
+	return elapsed > ttl * 1000;
 }

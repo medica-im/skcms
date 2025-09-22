@@ -3,18 +3,20 @@
 	import { FacilityLink } from '$lib';
 	import AvatarList from '$lib/components/Effector/Avatar/AvatarList.svelte';
 	import { page } from '$app/state';
-	import { getSelectFacility, getSelectCategories, getTerm, getSelectCommunes } from './context';
+	import { getSelectFacility, getSelectCategories, getTerm, getSelectCommunes, getSelectSituation } from './context';
 	import { goto } from '$app/navigation';
+	import CommunityAddress from '$lib/Address/CommunityAddress.svelte';
+	import { entryPageUrl } from '$lib/utils/utils';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
-	export let entry: Entry;
-	export let avatar: boolean;
+	let { entry, avatar }:{ entry: Entry; avatar: boolean;} = $props();
 
+	let selectSituation = getSelectSituation();
 	let selectFacility = getSelectFacility();
 	let selectCategories = getSelectCategories();
 	let selectCommunes = getSelectCommunes();
 	let term = getTerm();
 
-	function entryPageUrl(
+	function _entryPageUrl(
 		entry: Entry,
 		pathname: string,
 		facility: string,
@@ -37,19 +39,21 @@
 	const goTo = () => {
 		const url = entryPageUrl(
 			entry,
+			page.data.organization.category.name,
 			page.url.pathname,
 			$selectFacility,
 			$selectCategories,
 			$term,
-			$selectCommunes
+			$selectCommunes,
+			$selectSituation
 		);
 		goto(url, { replaceState: false });
 	};
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-<button
-	on:click={() => {
+<div
+	onclick={() => {
 		goTo();
 	}}
 	style="all: unset; cursor: pointer;"
@@ -72,11 +76,15 @@
 			{#if entry.phones?.length}
 				<Phones data={entry.phones} />
 			{/if}
+			{#if page.data.organization.category.name=="cpts"}
+			<CommunityAddress data={entry.address} />
+			{:else}
 			<div class="space-y-1">
 				{#if entry.facility}
 					<div><FacilityLink data={entry.facility} /></div>
 				{/if}
 			</div>
+			{/if}
 		</div>
 	</div>
-</button>
+</div>

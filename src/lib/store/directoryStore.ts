@@ -14,6 +14,7 @@ import type { Facility } from '$lib/interfaces/facility.interface.ts';
 import type { Tastypie } from '$lib/interfaces/api.interface.ts';
 import type { CustomError } from '$lib/interfaces/error.interface.ts';
 import type { Organization } from '$lib/interfaces/organization.ts';
+import { isExpired } from '$lib/utils/utils.ts';
 
 export const term: Writable<string> = writable("");
 export const selectCommunes: Writable<string[]> = writable([]);
@@ -23,7 +24,7 @@ export const selectCategories: Writable<string[]> = writable([]);
 export const limitCategories: LimitCategoriesStore = writable([]);
 export const selectSituation: Writable<string> = writable("");
 export const selectSituationValue: Writable<string | null> = writable(null);
-export const addressFeature: Writable<AddressFeature | null> = writable(null);
+export const addressFeature: Writable<AddressFeature | null> = writable();
 export const inputAddress = writable("");
 export const selectFacility: Writable<string> = writable("");
 export const selectFacilityValue: Writable<string | null> = writable(null);
@@ -51,7 +52,7 @@ export const effectorTypeLabels = async () => {
 	if (cachedData) {
 		cachedData = JSON.parse(cachedData);
 		let elapsed = Date.now() - cachedData.cachetime;
-		expired = elapsed > cachelife;
+		expired = elapsed > cachelife*1000;
 		console.log(`expired: ${expired}`);
 		if ('data' in cachedData) {
 			if (cachedData.data?.length) {
@@ -77,32 +78,35 @@ export const effectorTypeLabels = async () => {
 	}
 };
 
-export async function fetchElements(path: string, next: string): Promise<[any[], string | null]> {
-	const url = `${variables.BASE_API_URI}/${path}/${next || ""}`;
+export async function fetchElements(path: string, next: string, limit: number|null = null): Promise<[any[], string | null]> {
+	const limit_qs: string = limit ? `?limit=${limit}` : ''; 
+	const url = `${variables.BASE_API_URI}/${path}/${limit_qs}${next || ""}`;
 	const [data, err]: [Tastypie, CustomError] = await handleRequestsWithPermissions(fetch, url);
 	const _next = data.meta.next;
 	const objects = data[path] as any[];
 	return [objects, _next]
 };
 
-export async function downloadElements(path: string) {
+export async function downloadElements(path: string, limit: number=100) {
 	let hasMore = true;
 	let data: any[] = [];
 	let next = "";
+	let _limit: number|null = limit;
 	while (hasMore) {
-		const [_elements, _next] = await fetchElements(path, next);
+		const [_elements, _next] = await fetchElements(path, next, _limit);
 		data = [...data, ..._elements];
 		if (_next === null) {
 			hasMore = false;
 		} else {
 			next = _next
 		}
+		_limit=null;
 	}
 	return data
 }
 
 async function fetchEntries(next: string) {
-	const url = `${variables.BASE_API_URI}/entries/${next || ""}`;
+	const url = `${variables.BASE_API_URI}/entries/?limit=${variables.ENTRIES_LIMIT}${next || ""}`;
 	const [response, err] = await handleRequestsWithPermissions(fetch, url);
 	if (response) {
 		let data: any = response;
@@ -266,22 +270,21 @@ export const getEntries = async (): Promise<Entry[]> => {
 	const refreshContacts = (!import.meta.env.DEV && PUBLIC_CACHE_CONTACTS == "false" || contacts == null);
 	console.log(`refreshContacts: ${refreshContacts}`);
 	if (refreshContacts) {
-		contacts = await downloadElements("contacts");
+		contacts = await downloadElements("contacts",variables.ENTRIES_LIMIT);
 		setLocalStorage('contacts', contacts)
 	}
-	var cachelife = parseInt(PUBLIC_ENTRIES_TTL);
-	let expired: boolean = true;
+	var ttl = variables.ENTRIES_TTL;
 	let empty: boolean = true;
 	const cachedEntriesObj = getLocalStorage('entries');
+	let expired: boolean = true;
 	let changedObj;
 	if (cachedEntriesObj) {
-		let elapsed = Date.now() - cachedEntriesObj.cachetime;
-		expired = elapsed > cachelife;
 		if ('data' in cachedEntriesObj) {
 			if (cachedEntriesObj.data?.length) {
 				empty = false;
 			}
 		}
+		expired = isExpired(ttl, cachedEntriesObj.cachetime);
 	}
 	if (empty) {
 		const allEntries = await downloadAllEntries();
@@ -316,7 +319,7 @@ export const getAvatars = asyncDerived(
 		return carousel
 	});
 
-export const distanceEffectorsF = async (addressFeature: AddressFeature) => {
+export const distanceEffectorsF = async (addressFeature: AddressFeature|null) => {
 	const targetGeoJSON = addressFeature?.geometry?.coordinates;
 	if (!targetGeoJSON) {
 		return {};
@@ -375,7 +378,7 @@ export const categories = async () => {
 
 export const getSituations = async (): Promise<Situation[]> => {
 	let situations: Situation[] = [];
-	var cachelife = parseInt(PUBLIC_SITUATIONS_TTL);
+	const ttl = variables.SITUATIONS_TTL;
 	const cacheName = "situations";
 	let cachedData;
 	let expired: boolean = true;
@@ -385,25 +388,24 @@ export const getSituations = async (): Promise<Situation[]> => {
 	}
 	if (cachedData) {
 		cachedData = JSON.parse(cachedData);
-		let elapsed = Date.now() - cachedData.cachetime;
-		expired = elapsed > cachelife;
+		expired = isExpired(ttl, cachedData.cachetime);
 		console.log(`expired: ${expired}`);
 		if ('data' in cachedData) {
 			if (cachedData.data?.length) {
 				empty = false;
 			}
 		}
+		console.log(`empty:${empty}`);
 	}
 	if (cachedData && !expired && !empty) {
 		situations = cachedData.data;
 	} else {
-		const url = `${variables.BASE_API_URI}/situations`;
+		const url = `${variables.BASE_API_URI}/situations/`;
 		const [response, err] = await handleRequestsWithPermissions(fetch, url);
 		if (response) {
 			situations = response?.situations;
 			if (browser) {
-				var json = { data: situations, cachetime: Date.now() }
-				localStorage.setItem(`${cacheName}`, JSON.stringify(json));
+				setLocalStorage(cacheName, situations);
 			}
 		} else if (err) {
 			console.error(err);
@@ -437,7 +439,7 @@ export const situations = async () => {
 	return situationItems;
 };
 
-function distanceOfEffector(entry: Entry, distEffectors) {
+function distanceOfEffector(entry: Entry, distEffectors: DistanceEffectors) {
 	let uid = entry.address?.facility_uid;
 	if (uid) {
 		return distEffectors[uid];
@@ -446,7 +448,7 @@ function distanceOfEffector(entry: Entry, distEffectors) {
 	}
 }
 
-function compareEffectorDistance(a, b, distEffectors) {
+function compareEffectorDistance(a, b, distEffectors: DistanceEffectors) {
 	let dist_a = distanceOfEffector(a, distEffectors);
 	let dist_b = distanceOfEffector(b, distEffectors);
 	if (!dist_a && !dist_b) {
@@ -460,12 +462,11 @@ function compareEffectorDistance(a, b, distEffectors) {
 	}
 }
 
-export const fullFilteredEffectorsF = async (term: string, selectSituation: string | null=null, distanceEffectors: DistanceEffectors | null=null, currentOrg: Boolean | null=null, organizationStore: Organization|undefined, limitCategories: String[]): Promise<Entry[]> => {
+export const fullFilteredEffectorsF = async (term: string, selectSituation: string | null=null, currentOrg: Boolean | null=null, organizationStore: Organization|undefined, limitCategories: String[]): Promise<Entry[]> => {
 	const entries: Entry[] = await getEntries();
 	if (
 		selectSituation == null
 		&& term == ''
-		&& distanceEffectors == null
 		&& currentOrg == null
 		&& !limitCategories?.length
 	) {
@@ -509,9 +510,9 @@ export const fullFilteredEffectorsF = async (term: string, selectSituation: stri
 };
 
 export const fullFilteredEffectors = asyncDerived(
-	([term, selectSituation, distanceEffectors, currentOrg, organizationStore, limitCategories]),
-	async ([$term, $selectSituation, $distanceEffectors, $currentOrg, $organizationStore, $limitCategories]) => {
-		return await fullFilteredEffectorsF($term, $selectSituation, $distanceEffectors, $currentOrg, $organizationStore, $limitCategories)
+	([term, selectSituation, currentOrg, organizationStore, limitCategories]),
+	async ([$term, $selectSituation, $currentOrg, $organizationStore, $limitCategories]) => {
+		return await fullFilteredEffectorsF($term, $selectSituation, $currentOrg, $organizationStore, $limitCategories)
 	}
 );
 
@@ -911,7 +912,7 @@ export const facilityOfF = (selectCategories: String[], fullFilteredEffectors: E
 			(x) => {
 				return (
 					(!selectCategories.length || selectCategories.includes(x.effector_type.uid)
-					) && (!selectCommunes.length || selectCommunes.includes(getFacilities.find(({ uid }) => uid === x.facility.uid).commune)
+					) && (!selectCommunes?.length || selectCommunes.includes(getFacilities.find(({ uid }) => uid === x.facility.uid)?.commune)
 					))
 			}
 		).map(x => x.facility.uid)

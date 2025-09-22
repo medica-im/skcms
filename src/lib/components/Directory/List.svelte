@@ -29,7 +29,6 @@
 		return `${count} contact${count > 1 ? 's' : ''}`;
 	}
 </script>
-
 <div class="flex justify-between w-full">
 	<span class="badge variant-ghost-surface">{contactCount(data)}</span>
 	<div class="inline-flex items-center space-x-2 m-0 p-0">
@@ -51,6 +50,7 @@
             {/await}
 		</div>
 	{:else}
+	{#if data}
 		{#each [...data] as [key, value]}
 			<div class="space-y-6 my-6 anchordiv" id={key}>
 				<div class="relative inline-block">
@@ -58,7 +58,7 @@
 						{value.length}
 					</span>
 
-					<span class="badge variant-filled"><h4 class="h4">{capitalizeFirstLetter(key)}</h4></span>
+					<span class="badge variant-filled"><h4 class="h4">{#if key}{capitalizeFirstLetter(key)}{/if}</h4></span>
 				</div>
 			</div>
 			<div class="grid grid-cols-1 lg:grid-cols-2 lg:gap-x-16 lg:gap-y-8 space-y-4">
@@ -67,5 +67,6 @@
 				{/each}
 			</div>
 		{/each}
+		{/if}
 	{/if}
 </div>

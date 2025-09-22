@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
@@ -132,9 +133,9 @@
 			<a data-sveltekit-preload-data="off" href="/" title={m.NAVBAR_GO_HOME()}>
 				<div class="flex items-center">
 
-				<div class="w-8 h-8 mx-1 flex-none"><OutpatientClinicLogo /></div>
+				<div class="hidden 2xl:inline-block w-8 h-8 mx-1 flex-none"><OutpatientClinicLogo /></div>
 				{#if isObjectEmpty($userData)}
-					<div class="2xl:hidden flex-none">MSP Gadagne</div>
+					<div class="2xl:hidden flex-none">{capitalizeFirstLetter(facility.formatted_name, $language)}</div>
 					<span class="hidden 2xl:inline-block"
 						><h3 class="h3">{capitalizeFirstLetter(facility.formatted_name, $language)}</h3></span
 					>
@@ -159,13 +160,14 @@
 					use:popup={{ event: 'click', target: 'features' }}
 				>
 					<span>{m.NAVBAR_NAVIGATE()}</span>
-					<span class="opacity-50"><Fa icon={faCaretDown} /></span>
+					<span class="opacity-50"><Fa icon={faCaretDown} size="sm" /></span>
 				</button>
 				<!-- popup -->
 				<!-- prettier-ignore -->
 				<div class="card p-4 w-60 shadow-xl" data-popup="features">
 				<nav class="list-nav">
 					<ul>
+						{#if page.data?.organization?.category?.name == "msp"}
 						<li>
 							<a data-sveltekit-preload-data="off" href="/">
 								<span class="w-6 text-center"><Fa icon={faHouse} /></span>
@@ -178,13 +180,20 @@
 								<span>{m.NAVBAR_ADDRESSBOOK()}</span>
 							</a>
 						</li>
+						{:else}
 						<li>
+							<a data-sveltekit-preload-data="tap" href="/">
+								<span class="w-6 text-center"><Fa icon={faAddressBook} /></span>
+								<span>{m.NAVBAR_ADDRESSBOOK()}</span>
+							</a>
+						</li>
+						{/if}
+						<!--li>
 							<a href="/sites">
 								<span class="w-6 text-center"><Fa icon={faMapLocationDot} /></span>
 								<span>Sites</span>
 							</a>
-						</li>
-
+						</li-->
 						<li>
 							<a href="/contact">
 								<span class="w-6 text-center"><Fa icon={faEnvelope} /></span>
@@ -209,8 +218,7 @@
 				<div class="card p-4 w-60 shadow-xl" data-popup="facility">
 				<nav class="list-nav">
 					<ul>
-						{#if variables.ORGANIZATION_CATEGORY == "msp"}
-
+						{#if page.data?.organization?.category?.name == "msp"}
 						<li>
 							<a href="/{ facility.category.slug }/a-propos">
 								<span class="w-6 text-center"><Fa icon={faInfo} /></span>
@@ -239,14 +247,14 @@
 
 			<!-- trigger-->
 			<button
-				class="btn hover:variant-soft-primary"
+				class="btn btn-sm hover:variant-soft-primary"
 				use:popup={{ event: 'click', target: 'theme' }}
 			>
 				<span class="2xl:hidden">
-					<Fa icon={faPalette} />
+					<Fa icon={faPalette} size="sm" />
 				</span>
 				<span class="hidden 2xl:inline-block">{m.NAVBAR_THEME()}</span>
-				<span class="opacity-50"><Fa icon={faCaretDown} /></span>
+				<span class="opacity-50"><Fa icon={faCaretDown} size="sm" /></span>
 			</button>
 			<!-- popup -->
 			<div class="card p-4 w-60 shadow-xl" data-popup="theme">
@@ -291,10 +299,8 @@
 			</a>
 			{/if}
         </div>
-			<div>
-				<section class="space-x-1">
-					<User {facility} />
-				</section>
-			</div>
+			
+					<User />
+			
 	</svelte:fragment>
 </AppBar>

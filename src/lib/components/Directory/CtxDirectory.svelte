@@ -26,7 +26,8 @@
 		getAddressFeature,
 		setSelCatVal,
 		setSelectSituationValue,
-		setInputAddress
+		setInputAddress,
+		setDistanceEffectors
 	} from './context';
 	import { variables } from '$lib/utils/constants.ts';
 	import { organizationStore, getFacilities } from '$lib/store/facilityStore.ts';
@@ -86,18 +87,16 @@
 	let limitCategories = getLimitCategories();
 
 	const distanceEffectors = asyncDerived([addressFeature], async ([$addressFeature]) => {
-		if ($addressFeature) {
-		    return distanceEffectorsF($addressFeature);
-		}
-		return null;
+		    return await distanceEffectorsF($addressFeature);
 	});
 
+	setDistanceEffectors(distanceEffectors);
+
 	const fullFilteredEffectors = asyncDerived(
-		[term, selectSituation, distanceEffectors, currentOrg, organizationStore, limitCategories],
+		[term, selectSituation, currentOrg, organizationStore, limitCategories],
 		async ([
 			$term,
 			$selectSituation,
-			$distanceEffectors,
 			$currentOrg,
 			$organizationStore,
 			$limitCategories
@@ -105,7 +104,6 @@
 			return await fullFilteredEffectorsF(
 				$term,
 				$selectSituation,
-				$distanceEffectors,
 				$currentOrg,
 				$organizationStore,
 				$limitCategories

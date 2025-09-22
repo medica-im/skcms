@@ -86,7 +86,7 @@ export interface EntryFull {
     label: string,
     name: string,
     payment_methods: PaymentMethod[] | null,
-    organizations: string[] | null,
+    organizations: string[],
     phones: Phone[] | null,
     profile: any | null,
     resource_uri: string,

@@ -3,7 +3,7 @@
 	import Mssante from '$lib/Email/Mssante.svelte';
 	import type { Email as EmailType } from '$lib/interfaces/email.interface';
 
-	let { data, editMode }: { data: EmailType[]; editMode: boolean } = $props();
+	let { data, editMode=false }: { data: EmailType[]; editMode?: boolean } = $props();
 
 
 	const mss: string = 'mssante';

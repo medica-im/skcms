@@ -5,19 +5,13 @@
 	import AvatarList from '$lib/components/Effector/Avatar/AvatarList.svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
+	import { entryPageUrl } from '$lib/utils/utils';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 	export let entry: Entry;
 	export let avatar: boolean;
 
-	function entryPageUrl(entry: Entry, pathname: string) {
-		let typeSlug = entry.effector_type.slug;
-		let facilitySlug = entry.facility.slug;
-		let nameSlug = entry.slug;
-		return `/${facilitySlug}/${typeSlug}/${nameSlug}?origin=${encodeURIComponent(pathname)}`;
-	}
-
 	const goTo = () => {
-		const url = entryPageUrl(entry, page.url.pathname);
+		const url = entryPageUrl(entry, page.data.organization.category.name, page.url.pathname);
 		goto(url, { replaceState: false });
 	};
 </script>
