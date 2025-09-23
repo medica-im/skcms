@@ -127,5 +127,10 @@
   "from": "de",
   "CLOSE": "Fermer",
   "APPOINTMENT": "Rendez-vous",
-  "WEB_ADDRESS": "adresse web"
+  "WEB_ADDRESS": "adresse web",
+  "ROLE": {
+    "ADMINISTRATOR": "administrateur",
+    "SUPERUSER": "super-utilisateur",
+    "STAFF": "équipier"
+  }
 }

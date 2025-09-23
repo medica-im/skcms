@@ -202,7 +202,7 @@
 		<p></p>
 		<div class="pl-5">
 			<ul class="list-disc space-y-4 p-4">
-				<li><Phone data={{type: "M", phone: "0 800 06 66 66"}}/></li>
+				<li><Phone phoneData={{type: "M", phone: "0 800 06 66 66"}}/></li>
 				<li>Appel et service gratuits</li>
 				<li>Ouvert uniquement pendant les périodes de fortes chaleurs</li>
 			</ul>
