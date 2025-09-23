@@ -130,6 +130,7 @@
 	"ROLE": {
 		"ADMINISTRATOR": "administrator",
 		"SUPERUSER": "superuser",
-		"STAFF": ""
+		"STAFF": "staff",
+		"ANONYMOUS": "inconnu"
 	}
 }

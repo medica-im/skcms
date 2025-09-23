@@ -131,6 +131,7 @@
   "ROLE": {
     "ADMINISTRATOR": "administrateur",
     "SUPERUSER": "super-utilisateur",
-    "STAFF": "équipier"
+    "STAFF": "équipier",
+    "ANONYMOUS": "inconnu"
   }
 }

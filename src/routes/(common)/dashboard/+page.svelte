@@ -7,9 +7,7 @@
 </script>
 
 <div class="section-container">
-{#if session?.user}
-    {JSON.stringify(page.data?.user)}
-
+{#if session}
 <div class="flex flex-wrap">
     <UserCard data={session}/>
     </div>

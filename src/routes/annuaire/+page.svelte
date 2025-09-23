@@ -42,12 +42,21 @@
 		{#key [page.url]}
 			<Directory
 				data={data?.cardinal}
+<<<<<<< HEAD
 				propCurrentOrg={null}
 				displayCommune={true}
 				displayGeocoder={true}
 				displayCategory={true}
 				displaySituation={true}
 				avatar={false}
+=======
+				propCurrentOrg={true}
+				displayCommune={false}
+				displayGeocoder={false}
+				displayCategory={true}
+				displaySituation={false}
+				avatar={true}
+>>>>>>> 9b7babe
 			/>
 		{/key}
 	</div>
