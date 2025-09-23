@@ -172,6 +172,12 @@
 								<span>{m.NAVBAR_ADDRESSBOOK()}</span>
 							</a>
 						</li>
+						<li>
+							<a href="/sites">
+								<span class="w-6 text-center"><Fa icon={faMapLocationDot} /></span>
+								<span>Sites</span>
+							</a>
+						</li>
 						{:else}
 						<li>
 							<a data-sveltekit-preload-data="tap" href="/">
@@ -180,12 +186,7 @@
 							</a>
 						</li>
 						{/if}
-						<!--li>
-							<a href="/sites">
-								<span class="w-6 text-center"><Fa icon={faMapLocationDot} /></span>
-								<span>Sites</span>
-							</a>
-						</li-->
+						
 						<li>
 							<a href="/contact">
 								<span class="w-6 text-center"><Fa icon={faEnvelope} /></span>
