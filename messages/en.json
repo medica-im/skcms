@@ -126,5 +126,10 @@
 	"from": "from",
 	"CLOSE": "Close",
 	"APPOINTMENT": "Appointment",
-	"WEB_ADDRESS": "web address"
+	"WEB_ADDRESS": "web address",
+	"ROLE": {
+		"ADMINISTRATOR": "administrator",
+		"SUPERUSER": "superuser",
+		"STAFF": ""
+	}
 }
