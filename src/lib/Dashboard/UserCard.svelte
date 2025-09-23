@@ -13,7 +13,8 @@
     const role = {
         administrator: m["ROLE.ADMINISTRATOR"](),
         superuser: m["ROLE.SUPERUSER"](),
-        staff: m["ROLE.STAFF"]()
+        staff: m["ROLE.STAFF"](),
+        anonymous: m["ROLE.ANONYMOUS"]()
     };
 </script>
 <div class="max-w-sm bg-white shadow-lg rounded-lg overflow-hidden my-4">
@@ -50,7 +51,7 @@
                 <h1 class="px-2 text-sm">{data.user.email}</h1>
             </div>
             <div class="flex items-center mt-4 text-gray-700">
-                <h1 class="px-2 text-sm">Rôle: {role[page.data?.user.role]}</h1>
+                <h1 class="px-2 text-sm">Rôle: {role[page.data?.user.role as keyof object]}</h1>
             </div>
         </div>
     </div>
