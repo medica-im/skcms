@@ -94,7 +94,7 @@
 <Drawer />
 <AppShell class="z-[90000]" regionpage="overflow-y-scroll" slotfooter="bg-black p-4" on:scroll="{scrollHandler}">
 		<svelte:fragment slot="header">
-			<SkeletonAppBar facility="{$organizationStore}"></SkeletonAppBar>
+			<SkeletonAppBar/>
 		</svelte:fragment>
 		<svelte:fragment slot="sidebarLeft">
 			<Sidebar/>
