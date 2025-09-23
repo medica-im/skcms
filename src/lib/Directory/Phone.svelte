@@ -5,7 +5,7 @@
 	import Fa from 'svelte-fa';
 	import { faMobileScreen, faPhone, faFax, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 	import type { Phone } from '$lib/interfaces/phone.interface.ts';
-	let { phoneData, editMode }:{phoneData: Phone; editMode: boolean} = $props();
+	let { phoneData, editMode }:{phoneData: Phone; editMode?: boolean} = $props();
 
 	const iconDict: object = {
 		M: faMobileScreen,

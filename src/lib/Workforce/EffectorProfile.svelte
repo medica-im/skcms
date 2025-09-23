@@ -2,7 +2,8 @@
 	import { onMount } from 'svelte';
 	import type { Worker } from '$lib/interfaces/workforce.interface';
 	import { variables } from '$lib/utils/constants';
-	import * as m from "$msgs";	import Editor from '@tinymce/tinymce-svelte';
+	import * as m from "$msgs";
+	import Editor from '@tinymce/tinymce-svelte';
 	import { handlePostRequestsWithPermissions } from '$lib/utils/requestUtils';
 	import Fa from 'svelte-fa';
 	import { faWindowClose, faEdit } from '@fortawesome/free-solid-svg-icons';

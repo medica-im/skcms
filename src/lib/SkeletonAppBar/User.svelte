@@ -91,7 +91,7 @@
 			)} btn btn-sm hover:variant-soft-primary"
 			><span class="hidden lg:inline-block align-text-bottom"><Fa icon={faUser} size="lg" /></span><span class="lg:hidden"><Fa icon={faUser} size="sm" /></span>
 			<span class="hidden lg:inline-block">{session.user.name}</span>
-			<span class="opacity-50"><Fa icon={faCaretDown} size="sm" /></span>
+			<span class="opacity-50"><Fa icon={faCaretDown} /></span>
 			</button
 		>
         <SignOut className="">
@@ -138,7 +138,7 @@
 		</div>
 	{:else}
 		<a
-			class="{classesActive(signin)} btn hover:variant-soft-primary lg:inline-block"
+			class="{classesActive(signin)} btn btn-sm lg:btn-md hover:variant-soft-primary lg:inline-block"
 			href={signin}
 			title={m.NAVBAR_LOGIN()}
 			><span class="hidden lg:inline-block align-text-bottom"

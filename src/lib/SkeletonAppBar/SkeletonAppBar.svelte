@@ -247,14 +247,14 @@
 
 			<!-- trigger-->
 			<button
-				class="btn btn-sm hover:variant-soft-primary"
+				class="btn-sm lg:btn-md btn hover:variant-soft-primary"
 				use:popup={{ event: 'click', target: 'theme' }}
 			>
 				<span class="2xl:hidden">
 					<Fa icon={faPalette} size="sm" />
 				</span>
 				<span class="hidden 2xl:inline-block">{m.NAVBAR_THEME()}</span>
-				<span class="opacity-50"><Fa icon={faCaretDown} size="sm" /></span>
+				<span class="opacity-50"><Fa icon={faCaretDown} /></span>
 			</button>
 			<!-- popup -->
 			<div class="card p-4 w-60 shadow-xl" data-popup="theme">

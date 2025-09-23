@@ -2,7 +2,7 @@ import { categorizedFilteredEffectorsF, cardinalCategorizedFilteredEffectorsF, g
 import { filterInPlace } from '$lib/utils/utils';
 import type { Entry } from '$lib/store/directoryStoreInterface';
 
-export const cardCatEntries = async (currentOrg: boolean|null, orgUid: string) => {
+export const cardCatEntries = async (currentOrg: boolean|null, orgUid: string, types: string[]|null=null) => {
     const entries = await getEntries();
     filterInPlace(entries, (e: Entry) => {
             if (currentOrg == true) {
@@ -13,6 +13,11 @@ export const cardCatEntries = async (currentOrg: boolean|null, orgUid: string) =
 				return true
 			}
         });
+    if (types) {
+        filterInPlace(entries, (e: Entry) => {
+            return types.includes(e.effector_type.uid)
+        });
+    }
     const categorizedEntries = categorizedFilteredEffectorsF(entries);
     const cardinalCategorizedEntries = await cardinalCategorizedFilteredEffectorsF(categorizedEntries);
     /*for (let [key, value] of cardinalCategorizedEntries) {
