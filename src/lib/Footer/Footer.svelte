@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { getLocale } from "$prgld/runtime.js";
 	import * as m from "$msgs";
 	import { variables } from '$lib/utils/constants';
@@ -53,7 +54,7 @@
 						</li>
 					</ul>
 				</div>
-				{#if variables.ORGANIZATION_CATEGORY=="msp"}
+				{#if page.data.organization.category.name=="msp"}
 				<div>
 					<h6 class="mb-6 text-sm font-semibold uppercase">
 						{m.OUTPATIENT_CLINIC_PROGRAMS()}

@@ -110,7 +110,7 @@
 			>
 			<span>Sites</span>
 		</AppRailAnchor>
-		{#if variables.ORGANIZATION_CATEGORY == 'msp'}
+		{#if page.data.organization.category.name == 'msp'}
 			<AppRailTile bind:group={currentRailCategory} name="msp" value={'msp'}>
 				<svelte:fragment slot="lead"
 					><DocsIcon name="outpatientClinic" width="w-6" height="h-6" /></svelte:fragment
