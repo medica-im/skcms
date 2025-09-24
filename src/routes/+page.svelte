@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { browser } from '$app/environment';
 	import { variables } from '$lib/utils/constants';
 	import { organizationStore } from '$lib/store/facilityStore';
@@ -71,7 +72,7 @@
 		</div>
 	</section>
 <!-- programs -->
-{#if variables.ORGANIZATION_CATEGORY == 'msp'}
+{#if page.data.organization.category.name == 'msp'}
 	<section id="programs" class="bg-surface-100-800-token programs-gradient">
 		<div class="section-container"><OutpatientClinicPrograms {programsNavLinks} /></div>
 	</section>
