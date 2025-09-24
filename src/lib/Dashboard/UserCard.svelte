@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { page } from '$app/state';
+    import * as m from "$msgs";
     import Fa from 'svelte-fa';
     import { JsonView } from '@zerodevx/svelte-json-view';
     import { providers } from '$lib/Auth/data.ts';
@@ -7,6 +9,13 @@
     let session = $derived(data as OauthSession);
     let provider = providers.find(e=>e.name==session.user.provider)
     const defaultImg = "/media/profile_images/default_profile_picture.png"
+
+    const role = {
+        administrator: m["ROLE.ADMINISTRATOR"](),
+        superuser: m["ROLE.SUPERUSER"](),
+        staff: m["ROLE.STAFF"](),
+        anonymous: m["ROLE.ANONYMOUS"]()
+    };
 </script>
 <div class="max-w-sm bg-white shadow-lg rounded-lg overflow-hidden my-4">
         <img class="w-full h-56 object-cover object-center" src={session.user.image} alt="avatar">
@@ -16,7 +25,7 @@
             <Fa icon={provider.icon}/>
         </div>
         {/if}
-        <div class="py-4 px-6">
+        <div class="flex flex-wrap py-4 px-6 gap-4">
             <h1 class="text-2xl font-semibold text-gray-800">{session.user.name}</h1>
             {#if import.meta.env.VITE_DEV == 'true'}
             <div class="p-2 text-lg text-gray-700">
@@ -40,6 +49,9 @@
                     <path d="M437.332 80H74.668C51.199 80 32 99.198 32 122.667v266.666C32 412.802 51.199 432 74.668 432h362.664C460.801 432 480 412.802 480 389.333V122.667C480 99.198 460.801 80 437.332 80zM432 170.667L256 288 80 170.667V128l176 117.333L432 128v42.667z"/>
                 </svg>
                 <h1 class="px-2 text-sm">{data.user.email}</h1>
+            </div>
+            <div class="flex items-center mt-4 text-gray-700">
+                <h1 class="px-2 text-sm">Rôle: {role[page.data?.user.role as keyof object]}</h1>
             </div>
         </div>
     </div>

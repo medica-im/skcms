@@ -3,9 +3,10 @@
 	import Select from 'svelte-select';
 	import { onMount } from 'svelte';
 	import { communes } from '$lib/store/directoryStore';
-	import * as m from "$msgs";
+	import * as m from '$msgs';
 	import { getSelectCommunes, getSelectCommunesValue } from './context';
 	import type { Commune } from '$lib/interfaces/geography.interface.ts';
+	import type { SelectType } from '$lib/interfaces/select';
 	export let communeOf;
 
 	const label = 'label';
@@ -40,7 +41,7 @@
 				.map(function (x) {
 					let dct = { value: x.uid, label: x.name };
 					return dct;
-				})[0];
+				});
 			return val;
 		}
 	}
@@ -53,7 +54,10 @@
 
 	function handleChange(event: CustomEvent) {
 		if (event.detail) {
-			selectCommunes.set([event.detail.value]);
+			console.log(JSON.stringify(event.detail));
+			const communeUids = event.detail.map((e: SelectType) => e.value);
+			console.log(communeUids);
+			$selectCommunes = communeUids;
 		}
 	}
 </script>
@@ -63,11 +67,6 @@
 		<Select loading={true} placeholder={m.ADDRESSBOOK_COMMUNES_PLACEHOLDER()} />
 	</div>
 {:then}
-<!--
-selectCommunes: {$selectCommunes}<br>
-selectCommunesValue: {$selectCommunesValue}<br>
-communeOf: {$communeOf} ({$communeOf.length})
--->
 	<div class="text-surface-700 theme">
 		<Select
 			{label}
@@ -77,10 +76,11 @@ communeOf: {$communeOf} ({$communeOf.length})
 			on:change={handleChange}
 			on:clear={handleClear}
 			placeholder={m.ADDRESSBOOK_COMMUNES_PLACEHOLDER()}
+			multiple={true}
 			bind:value={$selectCommunesValue}
 		/>
 	</div>
-	{:catch error}
+{:catch error}
 	{error}
 {/await}
 

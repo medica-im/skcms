@@ -1,6 +1,7 @@
+import type { Role } from '$lib/interfaces/access.interface';
+
 export interface Email {
     id: number,
     email: string,
-    type: string,
-    type_display: string
+    roles: Role[]
 }

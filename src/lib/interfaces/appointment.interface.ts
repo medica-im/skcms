@@ -1,5 +1,7 @@
 export interface Appointment {
-    url?: string,
-    phone?: string,
-    house_call?: boolean,
+    uid: string,
+    entry: string,
+    url: string|null,
+    phone: string|null,
+    location: 'house_call'|'office'|null
 }

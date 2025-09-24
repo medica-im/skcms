@@ -7,8 +7,9 @@
 		faMapLocationDot,
 		faLocationDot
 	} from '@fortawesome/free-solid-svg-icons';
+	import type { Address } from '$lib/interfaces/facility.interface.ts';
 	import Distance from './Distance.svelte';
-	export let data;
+	let { data, distance=true }:{ data:Address; distance:boolean; }=$props();
 </script>
 
 <div>
@@ -32,11 +33,13 @@
 			</div>
 		</li>
 		{#if data.latitude && data.longitude}
+		{#if distance}
 			<li>
 				<div>
 					<Distance uid={data.facility_uid} />
 				</div>
 			</li>
+			{/if}
 			<li>
 				<div class="flex space-x-4">
 					<div>

@@ -16,23 +16,37 @@
 	import { faArrowsUpToLine } from '@fortawesome/free-solid-svg-icons';
     import type { Writable, AsyncWritable, Loadable } from '@square/svelte-store';
 
-    export let data: any = null;
-	export let displayGeocoder: boolean = variables.INPUT_GEOCODER;
-	export let displaySituation: boolean = variables.INPUT_SITUATION;
-	export let displayCommune: boolean = variables.INPUT_COMMUNE;
-	export let displayCategory: boolean = variables.INPUT_CATEGORY;
-	export let displayFacility: boolean = variables.INPUT_FACILITY;
-	export let displaySearch: boolean = variables.INPUT_SEARCH;
-	export let avatar: boolean = true;
-    export let communeOf;
-    export let categoryOf;
-    export let facilityOf;
-	export let types: string[]|null=null;
+    let {
+		data = null,
+		displayGeocoder = variables.INPUT_GEOCODER,
+		displaySituation = variables.INPUT_SITUATION,
+		displayCommune = variables.INPUT_COMMUNE,
+		displayCategory = variables.INPUT_CATEGORY,
+		displayFacility = variables.INPUT_FACILITY,
+		displaySearch = variables.INPUT_SEARCH,
+		avatar = true,
+		communeOf,
+		categoryOf,
+		facilityOf,
+		types = null
+	} : {
+		data: any;
+ 		displayGeocoder: boolean;
+		displaySituation: boolean;
+		displayCommune: boolean;
+		displayCategory: boolean;
+		displayFacility: boolean;
+		displaySearch: boolean;
+		avatar: boolean;
+    	communeOf: any;
+    	categoryOf: any;
+    	facilityOf: any;
+		types: string[]|null;
+	} = $props();
 
     const cCFE = getContext<Loadable<Map<any,any>>>('cardinalCategorizedFilteredEffectors');
     const selectSituation = getSelectSituation();
     let top: Element;
-	let countString = '';
 	let showOnPx = 500;
 	function contactCount(_categorizedFilteredEffectors: Map<string, any>) {
 		let count = 0;
@@ -41,7 +55,7 @@
 		}
 		return `${count} contact${count > 1 ? 's' : ''}`;
 	}
-	$: countString = contactCount($cCFE);
+	let countString = $derived(contactCount($cCFE));
 	const scrollToTop = () => {
 		top.scrollIntoView();
 	};
@@ -103,6 +117,7 @@
 					</div>
 				{/if}
 				<div class="my-4 space-y-4">
+					
 					{#await cCFE.load()}
 						{#if data && [...data]?.length}
 							<List {data} {avatar} loading={true}/>
@@ -121,7 +136,7 @@
 	</section>
 
 {#if $scrollY > showOnPx}
-	<button type="button" class="back-to-top btn-icon btn-lg variant-filled" on:click={scrollToTop}>
+	<button type="button" class="back-to-top btn-icon btn-lg variant-filled" onclick={scrollToTop}>
 		<Fa icon={faArrowsUpToLine} size="lg" /></button
 	>
 {/if}

@@ -2,7 +2,7 @@ import type { Phone } from '$lib/interfaces/phone.interface.js';
 import type { Writable } from '@square/svelte-store';
 import type { Facility } from '$lib/interfaces/facility.interface.ts';
 import type { Appointment } from '$lib/interfaces/appointment.interface.ts';
-import type { Convention, PaymentMethod, ThirdPartyPayer, SpokenLanguage } from '$lib/interfaces/fullEffector.interface.ts';
+import type { CarteVitale, Convention, PaymentMethod, ThirdPartyPayer, SpokenLanguage } from '$lib/interfaces/fullEffector.interface.ts';
 import type { Email } from '$lib/interfaces/email.interface.ts';
 import type { SocialNetwork } from '$lib/interfaces/socialnetwork.interface.js';
 import type { Website } from '$lib/interfaces/website.interface';
@@ -47,14 +47,18 @@ export interface Type {
     name: string,
     slug: string,
     synonyms: string[] | null,
-    uid: string
+    uid: string,
+    labels: string[]
 }
 
 export interface Entry {
     address: Address,
+    appointments: Appointment[],
     avatar: Avatar,
+    carte_vitale: CarteVitale | null,
     commune: Commune,
     effector_uid: string,
+    emails: Email[],
     facility: Facility,
     gender: string | null,
     label: string,
@@ -69,13 +73,11 @@ export interface Entry {
     updatedAt: number
 }
 
-export interface FullEffector {
+export interface EntryFull {
     address: Address,
-    adeli: string | null,
     appointments: Appointment[] | null,
     avatar: Avatar,
-    carte_vitale: boolean,
-    commune: Commune,
+    carte_vitale: CarteVitale,
     convention: Convention | null,
     effector_uid: string,
     emails: Email[],
@@ -84,11 +86,11 @@ export interface FullEffector {
     label: string,
     name: string,
     payment_methods: PaymentMethod[] | null,
-    organizations: string[] | null,
+    organizations: string[],
     phones: Phone[] | null,
     profile: any | null,
     resource_uri: string,
-    rpps: string | null,
+    rpps: number | null,
     slug: string,
     socialnetworks: SocialNetwork[] | null,
     spoken_languages: SpokenLanguage[] | null,

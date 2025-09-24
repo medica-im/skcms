@@ -3,11 +3,11 @@
     import { Avatar } from '@skeletonlabs/skeleton';
     import { faUser } from '@fortawesome/free-solid-svg-icons';
     import Fa from 'svelte-fa';
-    import type { FullEffector } from '$lib/store/directoryStoreInterface';
+    import type { Entry } from '$lib/store/directoryStoreInterface';
 
-    export let data: FullEffector;
+    export let data: Entry;
 
-    function entryUrl(entry: FullEffector) {
+    function entryUrl(entry: Entry) {
 		let typeSlug = entry.effector_type.slug;
 		let facilitySlug = entry.facility.slug;
 		let nameSlug = entry.slug;

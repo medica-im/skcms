@@ -26,7 +26,8 @@
 		getAddressFeature,
 		setSelCatVal,
 		setSelectSituationValue,
-		setInputAddress
+		setInputAddress,
+		setDistanceEffectors
 	} from './context';
 	import { variables } from '$lib/utils/constants.ts';
 	import { organizationStore, getFacilities } from '$lib/store/facilityStore.ts';
@@ -35,6 +36,7 @@
 		fullFilteredEffectorsF,
 		filteredEffectorsF,
 		categorizedFilteredEffectorsF,
+		categorizedFullFilteredEffectorsF,
 		cardinalCategorizedFilteredEffectorsF,
 		categoryOfF,
 		communeOfF,
@@ -85,18 +87,16 @@
 	let limitCategories = getLimitCategories();
 
 	const distanceEffectors = asyncDerived([addressFeature], async ([$addressFeature]) => {
-		if ($addressFeature) {
-		    return distanceEffectorsF($addressFeature);
-		}
-		return null;
+		    return await distanceEffectorsF($addressFeature);
 	});
 
+	setDistanceEffectors(distanceEffectors);
+
 	const fullFilteredEffectors = asyncDerived(
-		[term, selectSituation, distanceEffectors, currentOrg, organizationStore, limitCategories],
+		[term, selectSituation, currentOrg, organizationStore, limitCategories],
 		async ([
 			$term,
 			$selectSituation,
-			$distanceEffectors,
 			$currentOrg,
 			$organizationStore,
 			$limitCategories
@@ -104,7 +104,6 @@
 			return await fullFilteredEffectorsF(
 				$term,
 				$selectSituation,
-				$distanceEffectors,
 				$currentOrg,
 				$organizationStore,
 				$limitCategories
@@ -124,6 +123,8 @@
 		}
 	);
 
+	setContext('filteredEffectors', filteredEffectors);
+
 	const categorizedFilteredEffectors = asyncDerived(
 		[filteredEffectors, distanceEffectors, selectSituation],
 		async ([$filteredEffectors, $distanceEffectors, $selectSituation]) => {
@@ -136,6 +137,15 @@
 	);
 
 	setContext('categorizedFilteredEffectors', categorizedFilteredEffectors);
+
+	const categorizedFullFilteredEffectors = asyncDerived(
+	(fullFilteredEffectors),
+	async ($fullFilteredEffectors) => {
+		return categorizedFullFilteredEffectorsF($fullFilteredEffectors);
+	}
+	)
+
+	setContext('categorizedFullFilteredEffectors', categorizedFullFilteredEffectors);
 
 	const cardinalCategorizedFilteredEffectors = asyncDerived(
 		[categorizedFilteredEffectors, filteredEffectors],
@@ -154,20 +164,22 @@
 	);
 
 	const communeOf = asyncDerived(
-		[selectCategories, fullFilteredEffectors, selectFacility, currentOrg, limitCategories],
+		[selectCategories, fullFilteredEffectors, selectFacility, currentOrg, limitCategories, selectSituation],
 		async ([
 			$selectCategories,
 			$fullFilteredEffectors,
 			$selectFacility,
 			$currentOrg,
-			$limitCategories
+			$limitCategories,
+			$selectSituation
 		]) => {
 			return communeOfF(
 				$selectCategories,
 				$fullFilteredEffectors,
 				$selectFacility,
 				$currentOrg,
-				$limitCategories
+				$limitCategories,
+				$selectSituation
 			);
 		}
 	);
@@ -209,8 +221,8 @@
 </script>
 {#if typesView}
 <Types
-    {data}
 	{displayEntries}
+	{data}
 />
 {:else}
 <FullDirectory

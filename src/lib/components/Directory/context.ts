@@ -1,7 +1,32 @@
 import { getContext, setContext } from 'svelte';
 import { writable, derived, readable, get, asyncReadable, asyncDerived } from '@square/svelte-store';
-import type { Writable } from '@square/svelte-store';
-import type { LimitCategoriesStore, AddressFeature, CurrentOrgStore, CommunesValueStore, Type } from '$lib/store/directoryStoreInterface';
+import type { Writable, Loadable } from '@square/svelte-store';
+import type { LimitCategoriesStore, AddressFeature, CurrentOrgStore, CommunesValueStore, DistanceEffectors, Type } from '$lib/store/directoryStoreInterface';
+
+export function setEffectorUid(uid:string) {
+    setContext('effectorUid', uid)
+}
+
+export function getEffectorUid() {
+    return getContext<string>('effectorUid')
+}
+
+export function setEntryUid(uid:string) {
+    setContext('entryUid', uid)
+}
+
+export function getEntryUid() {
+    return getContext<string>('entryUid')
+}
+
+export function setEditMode() {
+    let editMode = writable<boolean>(false);
+    setContext('editMode', editMode)
+}
+
+export function getEditMode() {
+    return getContext<Writable<boolean>>('editMode')
+}
 
 export function setTerm() {
 	let term = writable<string>("");
@@ -126,4 +151,12 @@ export function setDirectoryRedirect() {
 
 export function getDirectoryRedirect(): Writable<boolean> {
     return getContext('directoryRedirect');
+}
+
+export function setDistanceEffectors(distanceEffectors: Loadable<DistanceEffectors|null>) {
+    setContext('distanceEffectors', distanceEffectors)
+}
+
+export function getDistanceEffectors(): Loadable<DistanceEffectors|null> {
+    return getContext('distanceEffectors')
 }

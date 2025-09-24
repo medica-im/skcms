@@ -1,36 +1,26 @@
 import { getFacilities } from '$lib/store/facilityStore';
-import { cardinalCategorizedFilteredEffectors, currentOrg, selectFacility } from '$lib/store/directoryStore.ts';
-import { PUBLIC_FACILITY_ENTRIES_TTL } from '$env/static/public';
-import { browser } from "$app/environment"
+import { categorizedFilteredEffectorsF, cardinalCategorizedFilteredEffectorsF, getEntries, selectFacility } from '$lib/store/directoryStore.ts';
+import { filterInPlace } from '$lib/utils/utils';
+import type { Entry } from '$lib/store/directoryStoreInterface';
 
-export const facilityEntries = async (uid:string) => {
-    if (browser) {
-    const cacheLife:number = parseInt(PUBLIC_FACILITY_ENTRIES_TTL);
-    const cacheKey:string = `facilityEntries_${uid}`;
-    const localStorageString = localStorage.getItem(cacheKey);
-        if (localStorageString !== null) {
-            const stored = JSON.parse(localStorageString);
-            let elapsed = Date.now() - stored.cachetime;
-            if (cacheLife < elapsed) {
-                return new Map(stored.data);
-            }
+
+export const facilityEntries = async (facility_uid: string|undefined) => {
+    const entries = await getEntries();
+    filterInPlace(entries, (e: Entry) => {
+        if (!selectFacility) {
+            return true
+        } else {
+            return facility_uid == e.facility.uid
         }
-    }
-    selectFacility.set(uid);
-    const _facilityEntries = await cardinalCategorizedFilteredEffectors.load();
-    if (browser) {
-        const toStore = {
-            cachetime: Date.now(),
-            data: Array.from(_facilityEntries.entries())
-        };
-        localStorage.setItem(
-            `facilityEntries_${uid}`,
-            JSON.stringify(toStore)
-        )
-    }
-    console.log(`sites.ts _facilitiesEntries:${JSON.stringify([..._facilityEntries])}`)
-    return _facilityEntries;
-};
+    });
+    const categorizedEntries = categorizedFilteredEffectorsF(entries);
+    const cardinalCategorizedEntries = await cardinalCategorizedFilteredEffectorsF(categorizedEntries);
+    console.log(`cardinalCategorizedEntries of facility ${facility_uid}:`);
+    for (let [key, value] of cardinalCategorizedEntries) {
+		console.log(key + ' = ' + JSON.stringify(value))
+	};
+    return cardinalCategorizedEntries;
+}
 
 export const allFacilityEntries = async (orgUid: string) =>  {
     const facilityEntriesMap = new Map();

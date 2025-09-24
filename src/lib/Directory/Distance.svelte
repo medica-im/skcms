@@ -1,10 +1,12 @@
 <script lang="ts">
-import { distanceEffectors } from '$lib/store/directoryStore';
+import { getDistanceEffectors } from '$lib/components/Directory/context.ts';
 import { PUBLIC_LOCALE } from '$env/static/public';
 
 export let uid: string;
 
 let locale = PUBLIC_LOCALE || 'en-US';
+
+let distanceEffectors = getDistanceEffectors();
 
 function humanize(d) {
 const result = {unit: 'km', smallUnit: 'm', factor: 1000, smallBorder: 0.900}
@@ -21,7 +23,8 @@ const result = {unit: 'km', smallUnit: 'm', factor: 1000, smallBorder: 0.900}
 }
 </script>
 
-{#await distanceEffectors.load() then}
+{#await distanceEffectors.load()}
+{:then}
 {#if $distanceEffectors?.hasOwnProperty(uid)}
 <!--li>{($distanceEffectors[uid]/1000).toFixed(3)} km</li-->
 {humanize($distanceEffectors[uid]/1000)}

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { getEditMode } from '$lib/components/Directory/context';
+
 	import * as m from "$msgs";	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import { language } from '$lib/store/languageStore';
 	import Fa from 'svelte-fa';
@@ -7,11 +9,11 @@
     import Website from '$lib/Website/Website.svelte';
     import type { Website as WebsiteType } from '$lib/interfaces/website.interface';
 
-	export let data: WebsiteType[];
-
+	let { data } : { data: WebsiteType[]} = $props();
+    let editMode = getEditMode();
 </script>
 <div class="">
 {#each data as website}
-<Website data={website}/>
+<Website data={website} editMode={$editMode}/>
 {/each}
 </div>

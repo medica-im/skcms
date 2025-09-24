@@ -8,7 +8,6 @@
 		getSelectCategories,
 		getSelCatVal,
 		getSelectSituation,
-		getSelectSituationValue,
 		getInputAddress,
 		getSelectFacility,
 		getSelectFacilityValue,
@@ -21,12 +20,11 @@
 	let term = getTerm();
 	let selectCommunesValue = getSelectCommunesValue();
 	let selCatVal = getSelCatVal();
-	let selectSituationValue = getSelectSituationValue();
+	let selectSituation = getSelectSituation();
 	let inputAddress = getInputAddress();
 	let selectFacilityValue = getSelectFacilityValue();
 	let directoryRedirect = getDirectoryRedirect();
 	let selectCategories = getSelectCategories();
-	let selectSituation = getSelectSituation();
 	let selectFacility = getSelectFacility();
 	let selectCommunes = getSelectCommunes();
 	let addressFeature = getAddressFeature();
@@ -37,7 +35,7 @@
 		$term ||
 		$selectCommunesValue ||
 		$selCatVal ||
-		$selectSituationValue ||
+		$selectSituation ||
 		$inputAddress ||
 		$selectFacilityValue
 	);
@@ -48,8 +46,7 @@
 		selectCommunesValue.set(null);
 		selectCategories.set([]);
 		selCatVal.set(null);
-		selectSituation.set('');
-		selectSituationValue.set(null);
+		selectSituation.set(null);
 		addressFeature.set(null);
 		inputAddress.set('');
 		selectFacility.set('');
@@ -70,7 +67,7 @@
 </script>
 
 <button class="btn variant-filled-error" type="reset" on:click={erase} disabled={isDisabled}
-	>page
+	>
 	<span><Fa icon={faEraser} size="lg" /></span>
 	<span>Tout effacer</span>
 </button>

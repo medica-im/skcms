@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
@@ -24,19 +25,17 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import User from '$lib/SkeletonAppBar/User.svelte';
 	// Types
-	import type { ModalSettings, ModalComponent } from '@skeletonlabs/skeleton';
+	import type { ModalSettings } from '@skeletonlabs/skeleton';
 	import type { DrawerSettings } from '@skeletonlabs/skeleton';
 	// Docs
 	import OutpatientClinicLogo from '$lib/Logos/OutpatientClinicLogo.svelte';
 	import AddressBookLogo from '$lib/Logos/AddressBookLogo.svelte';
 	import SkeletonIcon from '$lib/Icon/Icon.svelte';
 	import SocialNetworks from '../SoMed/SoMed.svelte';
-
 	// Components
 	import { AppBar } from '@skeletonlabs/skeleton';
 	import { LightSwitch } from '@skeletonlabs/skeleton';
 	import MenuNavLinks from '$lib/SkeletonAppBar/MenuNavLinks.svelte';
-
 	// Utilities
 	import { popup } from '@skeletonlabs/skeleton';
 	import { getModalStore } from '@skeletonlabs/skeleton';
@@ -44,17 +43,13 @@
 	// Stores
 	import { storeTheme } from '$lib/store/skeletonStores';
 	import { getDrawerStore } from '@skeletonlabs/skeleton';
-
 	import * as m from "$msgs";
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import { language } from '$lib/store/languageStore';
-	import { userData } from '$lib/store/userStore';
-	import { isObjectEmpty } from '$lib/utils/utils';
+	import type { Organization } from '$lib/interfaces/organization.ts';
 
 	const drawerStore = getDrawerStore();
 	const modalStore = getModalStore();
-
-	export let facility;
 
 	// Local
 	let isOsMac = false;
@@ -132,13 +127,11 @@
 			<a data-sveltekit-preload-data="off" href="/" title={m.NAVBAR_GO_HOME()}>
 				<div class="flex items-center">
 
-				<div class="w-8 h-8 mx-1 flex-none"><OutpatientClinicLogo /></div>
-				{#if isObjectEmpty($userData)}
-					<div class="2xl:hidden flex-none">MSP Gadagne</div>
+				<div class="hidden 2xl:inline-block w-8 h-8 mx-1 flex-none"><OutpatientClinicLogo /></div>
+					<div class="2xl:hidden flex-none">{capitalizeFirstLetter(page.data.organization.formatted_name_short||page.data.organization.formatted_name, $language)}</div>
 					<span class="hidden 2xl:inline-block"
-						><h3 class="h3">{capitalizeFirstLetter(facility.formatted_name, $language)}</h3></span
+						><h3 class="h3">{capitalizeFirstLetter(page.data.organization.formatted_name, $language)}</h3></span
 					>
-				{/if}
 				</div>
 				</a>
 	<svelte:fragment slot="trail">
@@ -159,13 +152,14 @@
 					use:popup={{ event: 'click', target: 'features' }}
 				>
 					<span>{m.NAVBAR_NAVIGATE()}</span>
-					<span class="opacity-50"><Fa icon={faCaretDown} /></span>
+					<span class="opacity-50"><Fa icon={faCaretDown} size="sm" /></span>
 				</button>
 				<!-- popup -->
 				<!-- prettier-ignore -->
 				<div class="card p-4 w-60 shadow-xl" data-popup="features">
 				<nav class="list-nav">
 					<ul>
+						{#if page.data?.organization?.category?.name == "msp"}
 						<li>
 							<a data-sveltekit-preload-data="off" href="/">
 								<span class="w-6 text-center"><Fa icon={faHouse} /></span>
@@ -184,7 +178,15 @@
 								<span>Sites</span>
 							</a>
 						</li>
-
+						{:else}
+						<li>
+							<a data-sveltekit-preload-data="tap" href="/">
+								<span class="w-6 text-center"><Fa icon={faAddressBook} /></span>
+								<span>{m.NAVBAR_ADDRESSBOOK()}</span>
+							</a>
+						</li>
+						{/if}
+						
 						<li>
 							<a href="/contact">
 								<span class="w-6 text-center"><Fa icon={faEnvelope} /></span>
@@ -209,21 +211,20 @@
 				<div class="card p-4 w-60 shadow-xl" data-popup="facility">
 				<nav class="list-nav">
 					<ul>
-						{#if variables.ORGANIZATION_CATEGORY == "msp"}
-
+						{#if page.data?.organization?.category?.name == "msp"}
 						<li>
-							<a href="/{ facility.category.slug }/a-propos">
+							<a href="/{ page.data.organization.category.slug }/a-propos">
 								<span class="w-6 text-center"><Fa icon={faInfo} /></span>
 								<span>{m.NAVBAR_ABOUT()}</span>
 							</a>
 							{#if variables.TIMELINE}
-							<a href="/{ facility.category.slug }/chronologie">
+							<a href="/{ page.data.organization.category.slug }/chronologie">
 								<span class="w-6 text-center"><Fa icon={faTimeline} /></span>
 								<span>{m.NAVBAR_TIMELINE()}</span>
 							</a>
 							{/if}
 							<!--hr class="my-4"-->
-							<a href="/{ facility.category.slug }/projet-de-sante">
+							<a href="/{page.data.organization.category.slug }/projet-de-sante">
 								<span class="w-6 text-center"><Fa icon={faBookMedical} /></span>
 								<span>{m.NAVBAR_HEALTH_PROJECT()}</span>
 							</a>
@@ -239,11 +240,11 @@
 
 			<!-- trigger-->
 			<button
-				class="btn hover:variant-soft-primary"
+				class="btn-sm lg:btn-md btn hover:variant-soft-primary"
 				use:popup={{ event: 'click', target: 'theme' }}
 			>
 				<span class="2xl:hidden">
-					<Fa icon={faPalette} />
+					<Fa icon={faPalette} size="sm" />
 				</span>
 				<span class="hidden 2xl:inline-block">{m.NAVBAR_THEME()}</span>
 				<span class="opacity-50"><Fa icon={faCaretDown} /></span>
@@ -280,8 +281,8 @@
 			<!-- Social -->
 			<!-- prettier-ignore -->
 			<div class="relative hidden xl:block">
-			{#if facility?.contact?.socialnetworks}
-            <SocialNetworks data={facility.contact.socialnetworks} appBar={true} />
+			{#if page.data.organization?.contact?.socialnetworks}
+            <SocialNetworks data={page.data.organization.contact.socialnetworks} appBar={true} />
 			{/if}
 			{#if variables.BLOG_URI}
 
@@ -291,10 +292,8 @@
 			</a>
 			{/if}
         </div>
-			<div>
-				<section class="space-x-1">
-					<User {facility} />
-				</section>
-			</div>
+			
+					<User />
+			
 	</svelte:fragment>
 </AppBar>

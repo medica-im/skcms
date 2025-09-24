@@ -8,7 +8,6 @@
 
 	const cCFE = getContext<Loadable<Map<any, any>>>('cardinalCategorizedFilteredEffectors');
 </script>
-
 {#await cCFE.load()}
 	{#if data && [...data]?.length}
 		<Buttons {data} {displayEntries} />

@@ -1,8 +1,9 @@
 <script lang="ts">
 	import Select from 'svelte-select';
 	import { onMount } from 'svelte';
-	import { getSelectSituation, getSelectSituationValue } from './context';
+	import { getSelectSituation } from './context';
 	import { situations } from '$lib/store/directoryStore';
+	import { page } from '$app/state';
 	import type { SelectType } from '$lib/interfaces/select';
 	import * as m from '$msgs';
 	const label = 'label';
@@ -12,7 +13,18 @@
 
 	let selected: SelectType | undefined = $state();
 
-	onMount(async () => {});
+	async function getSituationSelect(uid: string) {
+		const _situations = await situations();
+		const _situation = _situations.find((e) => e.value == uid);
+		return _situation;
+	}
+
+	onMount(async () => {
+		const situationUid = page.url.searchParams.get('situation');
+		if (!situationUid) return;
+		selected = await getSituationSelect(situationUid);
+		selectSituation.set(situationUid);
+	});
 
 	function handleClear(event: CustomEvent) {
 		if (event.detail) {
@@ -21,19 +33,12 @@
 	}
 
 	function handleChange(event: CustomEvent) {
-		//console.log(event);
 		if (event.detail) {
-			//console.log(event.detail);
-			//console.log(event.detail.value);
 			selectSituation.set(event.detail.value);
 		}
 	}
 </script>
 
-<!--
-$selectSituation: {$selectSituation}<br>
-value: {JSON.stringify(value)}
--->
 {#await situations()}
 	<div class="text-surface-700 theme">
 		<Select loading={true} placeholder={m.ADDRESSBOOK_SITUATIONS_PLACEHOLDER()} />

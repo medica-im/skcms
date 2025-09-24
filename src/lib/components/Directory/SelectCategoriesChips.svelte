@@ -10,10 +10,14 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import { variables } from '$lib/utils/constants';
 	import type { Loadable } from '@square/svelte-store';
-	import type { CategorizedEntries } from '$lib/store/directoryStoreInterface';
+	import type { CategorizedEntries, Type } from '$lib/store/directoryStoreInterface';
 
 	const categorizedFilteredEffectors = getContext<Loadable<CategorizedEntries>>(
 		'categorizedFilteredEffectors'
+	);
+
+	const categorizedFullFilteredEffectors = getContext<Loadable<CategorizedEntries>>(
+		'categorizedFullFilteredEffectors'
 	);
 
 	let selectCategories = getSelectCategories();
@@ -50,15 +54,17 @@
 		queryFn: () => downloadRecords()
 	});
 
-	function select(c: string, effectorTypes): void {
+	function select(c: string, effectorTypes: Type[]): void {
 		if (category == c || c == '') {
 			selectCategories.set([]);
 			category = '';
 		} else {
 			category = c;
 			let effectorType = effectorTypes.find((x) => x.name == c);
-			console.debug(`effectorType: ${JSON.stringify(effectorType)}`);
-			selectCategories.set([effectorType.uid]);
+			if (effectorType) {
+				console.debug(`effectorType: ${JSON.stringify(effectorType)}`);
+				selectCategories.set([effectorType.uid]);
+			}
 		}
 	}
 
@@ -105,7 +111,7 @@
 </script>
 
 <div class="text-surface-700 theme space-x-2 space-y-2">
-	{#await categorizedFilteredEffectors.load()}
+	{#await categorizedFullFilteredEffectors.load()}
 		<div class="placeholder"></div>
 	{:then}
 		{#if $query.status === 'pending'}
@@ -114,7 +120,7 @@
 			<p>Error: {$query.error.message}</p>
 		{:else}
 			{#key category}
-				{#each [...$categorizedFilteredEffectors] as [c, value], index}
+				{#each [...$categorizedFullFilteredEffectors] as [c, value], index}
 					<!-- prettier-ignore -->
 					<span
 					role="button"
@@ -129,10 +135,10 @@
 					<span>{$query.data.find(x=>x.name==c).label}</span>
 				</span>
 				{/each}
-				{#if $categorizedFilteredEffectors.size > 1}
+				{#if $categorizedFullFilteredEffectors.size > 1}
 					<span
 						role="button"
-						tabindex={$categorizedFilteredEffectors.size}
+						tabindex={$categorizedFullFilteredEffectors.size}
 						class="chip {category === '' ? 'variant-filled' : 'variant-soft'}"
 						on:click={() => {
 							select('', $query.data);

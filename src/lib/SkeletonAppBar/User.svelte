@@ -25,7 +25,7 @@
 		faUser,
 		faHexagonNodes
 	} from '@fortawesome/free-solid-svg-icons';
-	let { embedded = false, sideBar = false} : { embedded: boolean; sideBar: boolean } = $props();
+	let { embedded = false, sideBar = false} : { embedded?: boolean; sideBar?: boolean } = $props();
 	const drawerStore = getDrawerStore();
 
 	// ListItem Click Handler
@@ -51,13 +51,13 @@
 				<a
 					href="/dashboard"
 					class={classesActive("/dashboard")}
-					><span><Fa icon={faUser} size="lg" /></span>
+					><span class="hidden 2xl:inline-block"><Fa icon={faUser} size="lg" /></span><span class="2xl:hidden"><Fa icon={faUser} size="xs" /></span>
 					<span>{m.NAVBAR_HI()} {session.user.name}</span></a
 				>
 			</li>
 			<li class="nav-item">
 				<button type="button" onclick={async () => await logOutUser()}
-					><span><Fa icon={faRightFromBracket} size="lg" /></span>
+					><span class="hidden 2xl:inline-block"><Fa icon={faRightFromBracket} size="lg" /></span><span class="2xl:hidden"><Fa icon={faRightFromBracket} size="xs" /></span>
 					<span>{m.NAVBAR_LOGOUT()}</span></button
 				>
 				<!--a class="nav-link" href="#" on:click={async () => await logOutUser()}
@@ -83,12 +83,13 @@
 	</ul>
 {:else}
 	{#if session?.user}
+	<div class="flex flex-wrap gap-0">
 		<button
 		    use:popup={{ event: 'click', target: 'user' }}
 			title={session.user.name}
 			class="{classesActive('/dashboard'
-			)} btn hover:variant-soft-primary"
-			><span class="lg:inline-block align-text-bottom"><Fa icon={faUser} size="lg" /></span>
+			)} btn btn-sm hover:variant-soft-primary"
+			><span class="hidden lg:inline-block align-text-bottom"><Fa icon={faUser} size="lg" /></span><span class="lg:hidden"><Fa icon={faUser} size="sm" /></span>
 			<span class="hidden lg:inline-block">{session.user.name}</span>
 			<span class="opacity-50"><Fa icon={faCaretDown} /></span>
 			</button
@@ -96,10 +97,12 @@
         <SignOut className="">
           <div
             slot="submitButton"
-            class="btn hover:variant-soft-primary lg:inline-block"
+            class="btn btn-sm hover:variant-soft-primary lg:inline-block"
           >
-            <span class="lg:inline-block align-text-bottom"
+            <span class="hidden lg:inline-block align-text-bottom"
 				><Fa icon={faRightFromBracket} size="lg" /></span
+			><span class="lg:hidden align-text-bottom"
+				><Fa icon={faRightFromBracket} size="sm" /></span
 			>
 			<span class="hidden lg:inline-block">{m.NAVBAR_LOGOUT()}</span>
           </div>
@@ -132,13 +135,16 @@
 			</nav>
 		</div>
 		</div>
+		</div>
 	{:else}
 		<a
-			class="{classesActive(signin)} btn hover:variant-soft-primary lg:inline-block"
+			class="{classesActive(signin)} btn btn-sm lg:btn-md hover:variant-soft-primary lg:inline-block"
 			href={signin}
 			title={m.NAVBAR_LOGIN()}
-			><span class="lg:inline-block align-text-bottom"
+			><span class="hidden lg:inline-block align-text-bottom"
 				><Fa icon={faRightToBracket} size="lg" /></span
+			><span class="lg:hidden align-text-bottom"
+				><Fa icon={faRightToBracket} size="sm" /></span
 			>
 			<span class="hidden xl:inline-block">{m.NAVBAR_LOGIN()}</span></a
 		>

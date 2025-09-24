@@ -1,41 +1,55 @@
 <script lang="ts">
-	import * as m from "$msgs";	import Fa from 'svelte-fa';
+	import * as m from '$msgs';
+	import Fa from 'svelte-fa';
 	import { faInfo } from '@fortawesome/free-solid-svg-icons';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import Languages from './Languages.svelte';
-	export let data: any;
+	import { getEditMode } from '$lib/components/Directory/context';
+	import RPPSCreate from '$lib/Web/RPPS/Create.svelte';
+	import RPPSPatch from '$lib/Web/RPPS/Patch.svelte';
+	import RPPSDelete from '$lib/Web/RPPS/Delete.svelte';
+	import LanguagesPatch from '$lib/Web/Languages/Patch.svelte';
+	import LanguagesDelete from '$lib/Web/Languages/Delete.svelte';
+	import type { EntryFull } from '$lib/store/directoryStoreInterface';
+
+	let { data }: { data: EntryFull } = $props();
+
+	const editMode = getEditMode();
 </script>
 
-	<div class="flex items-center p-1">
-		<div class="w-9"><Fa icon={faInfo} /></div>
-		<div>
-			<h3 class="h3">
-				{capitalizeFirstLetter(m.ADDRESSBOOK_INFORMATIONS())}
-			</h3>
-		</div>
+<div class="flex items-center p-1">
+	<div class="w-9"><Fa icon={faInfo} /></div>
+	<div>
+		<h3 class="h3">
+			{capitalizeFirstLetter(m.ADDRESSBOOK_INFORMATIONS())}
+		</h3>
 	</div>
-	{#if data.spoken_languages && data?.spoken_languages.length}
-		<div class="flex p-1">
-			<div class="w-9"></div>
-			<div>
-				<Languages data={data.spoken_languages} />
-			</div>
-		</div>
-	{/if}
-	{#if data.rpps}
-		<div class="flex p-1">
-			<div class="w-9"></div>
-			<div>
-				N° RPPS: {data.rpps}
-			</div>
-		</div>
-	{/if}
-	{#if data.adeli}
-	<div class="flex">
+</div>
+{#if data.effector_type.labels.includes('HCW') && (data.spoken_languages || $editMode)}
+	<div class="flex p-1">
 		<div class="w-9"></div>
-		<div>
-			N° ADELI: {data.adeli}
+		<div class="flex gap-4">
+			<Languages data={data.spoken_languages} />
+			{#if $editMode}
+			<LanguagesPatch data={data.spoken_languages}/>
+			{#if data.spoken_languages !== null}
+			<LanguagesDelete data={data.spoken_languages}/>
+			{/if}
+			{/if}
 		</div>
 	</div>
 {/if}
-
+{#if data.effector_type.labels.includes('RPPS') && (data.rpps || $editMode)}
+	<div class="flex p-1">
+		<div class="w-9"></div>
+		<div class="flex gap-4">
+			N° RPPS: {data.rpps || '∅'}
+		
+		{#if $editMode && data.rpps == null}
+			<RPPSCreate/>
+			{:else if $editMode && data.rpps !== null}
+				<RPPSPatch {data}/><RPPSDelete {data}/>
+		{/if}
+		</div>
+	</div>
+{/if}

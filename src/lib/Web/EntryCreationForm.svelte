@@ -52,7 +52,7 @@
 	let effector: string = $derived(createdEffector.uid);
 	let effector_type: string = $derived(selectedEffectorType.value);
 	let facility: string = $derived(selectedFacility.value);
-	let organizations: string|null = $derived(memberOfOrg ? page.data.organization.uid : null);
+	let organizations: string|null = $derived(memberOfOrg ? page.data.organization.uid : null);// TODO: make this an array
 	let disabled: boolean = $derived(!Object.values(validateForm).every((v) => v === true));
 
 	function delay(ms: number) {

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Directory from '$lib/components/Directory/CtxDirectory.svelte';
-	import Map from '$lib/components/Map/Map.svelte';
+	import MapSvelte from '$lib/components/Map/Map.svelte';
 	import Address from '$lib/Address/Address.svelte';
 	import Navigation from '$lib/Navigation/Navigation.svelte';
 	import Email from '$lib/Email/Email.svelte';
@@ -11,11 +11,12 @@
 	import { createFacilitiesMapData } from '$lib/components/Map/mapData';
 	import { variables } from '$lib/utils/constants';
 	import { copy } from 'svelte-copy';
+	import { page } from '$app/state';
 	import type { Facility } from '$lib/interfaces/facility.interface.ts';
+	import type { Entry } from '$lib/store/directoryStoreInterface';
 
 	export let facility: Facility;
-	export let userData;
-	export let entries;
+	export let entries: Map<any, any>;
 
 	const createFacilityGeoData = (facility: Facility) => {
 		let address = facility?.address;
@@ -36,7 +37,6 @@
 		}
 	}
 </script>
-
 <div class="grid grid-cols-1 lg:grid-cols-{lgGridCols()} card variant-soft p-4 space-x-4 space-y-4 w-fit">
 	<div class="space-y-2 space-x-2 mx-0">
 		<div class="space-y-4">
@@ -68,13 +68,12 @@
 			</span>
 		</div>
 		{/if}
-		{#if userData && userData?.is_staff}
+		{#if page.data?.user?.role == 'superuser'}
 			<div>
 				{facility.uid}
 				<button use:copy={facility.uid}> Copy! </button>
 			</div>
 		{/if}
-		{#if entries && [...entries]?.length}
 		<div>
 			<Directory
 				data={entries}
@@ -83,7 +82,6 @@
 				displayEntries={true}
 			/>
 		</div>
-		{/if}
 	</div>
 	{#if facility?.avatar?.raw}
 		<div>
@@ -103,7 +101,7 @@
 	{/if}
 	{#if facility.address.longitude && facility.address.latitude}
 	<div class="h-64 w-64 lg:w-96 lg:h-96 z-0">
-		<Map data={createFacilitiesMapData([facility])} />
+		<MapSvelte data={createFacilitiesMapData([facility])} />
 	</div>
 	{/if}
 </div>
