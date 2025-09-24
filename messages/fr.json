@@ -124,5 +124,14 @@
   "SIGNIN": "S'identifier",
   "signout": "Se déconnecter",
   "with": "avec",
-  "from": "de"
+  "from": "de",
+  "CLOSE": "Fermer",
+  "APPOINTMENT": "Rendez-vous",
+  "WEB_ADDRESS": "adresse web",
+  "ROLE": {
+    "ADMINISTRATOR": "administrateur",
+    "SUPERUSER": "super-utilisateur",
+    "STAFF": "équipier",
+    "ANONYMOUS": "inconnu"
+  }
 }

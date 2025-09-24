@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"type": "module",
 	"private": true,
-	"packageManager": "pnpm@10.4.0",
+	"packageManager": "pnpm@10.14.0",
 	"scripts": {
 		"dev": "npm run sveltekit",
 		"sveltekit": "vite --port 3000",
@@ -23,7 +23,7 @@
 		"@skeletonlabs/tw-plugin": "^0.4.1",
 		"@square/svelte-store": "^1.0.18",
 		"@sveltejs/adapter-node": "^5.2.14",
-		"@sveltejs/kit": "^2.26.1",
+		"@sveltejs/kit": "^2.36.3",
 		"@tailwindcss/forms": "^0.5.3",
 		"@types/leaflet": "^1.9.4",
 		"@types/lodash.isempty": "^4.4.9",
@@ -41,7 +41,7 @@
 		"prettier": "^3.4.2",
 		"prettier-plugin-tailwindcss": "^0.6.11",
 		"schema-dts": "^1.1.2",
-		"svelte": "^5.36.17",
+		"svelte": "^5.38.6",
 		"svelte-carousel": "^1.0.25",
 		"svelte-check": "^4.3.0",
 		"svelte-copy": "^2.0.0",
@@ -53,7 +53,8 @@
 		"vite-plugin-devtools-json": "^0.4.1",
 		"vite-plugin-iso-import": "^1.1.0",
 		"vite-plugin-tailwind-purgecss": "^0.3.5",
-		"vitest": "^3.1.1"
+		"vitest": "^3.1.1",
+		"zod": "^4.0.17"
 	},
 	"dependencies": {
 		"@auth/sveltekit": "^1.10.0",

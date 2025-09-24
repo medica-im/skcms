@@ -12,5 +12,6 @@ export const load: PageLoad = async ({ parent }) => {
         //websiteSchema: await websiteSchema.load(),
         facilities: await getFacilities.load(),
         entries: await allFacilityEntries(organization.uid),
+        organization: organization
     };
 }

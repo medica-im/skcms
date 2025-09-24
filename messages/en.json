@@ -123,5 +123,13 @@
 	"CHARACTER_PLURAL": "characters",
 	"signout": "Sign out",
 	"with": "with",
-	"from": "from"
+	"from": "from",
+	"CLOSE": "Close",
+	"APPOINTMENT": "Appointment",
+	"WEB_ADDRESS": "web address",
+	"ROLE": {
+		"ADMINISTRATOR": "administrator",
+		"SUPERUSER": "superuser",
+		"STAFF": ""
+	}
 }

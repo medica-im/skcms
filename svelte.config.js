@@ -15,7 +15,7 @@ const config = {
 	],
 	kit: {
 		version: {
-            name: "2.0.0"
+            name: "3.0.0"
         },
 		adapter: adapter(),
 		alias: {
@@ -23,6 +23,14 @@ const config = {
 			$msgs: './src/paraglide/messages.js',
 			$prgld: './src/paraglide/',
 			$var: './src/var'
+		},
+		experimental: {
+			remoteFunctions: true
+		}
+	},
+	compilerOptions: {
+		experimental: {
+			async: true
 		}
 	}
 };

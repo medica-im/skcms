@@ -70,7 +70,7 @@
 		<div>
 			<span class="inline-block align-middle space-x-1">
 				<Website
-					website={{ website: 'https://www.mediatheque-chateauneufdegadagne.fr', type: 'W' }}
+					website={{ url: 'https://www.mediatheque-chateauneufdegadagne.fr'}}
 				/>
 			</span>
 		</div>

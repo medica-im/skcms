@@ -1,14 +1,23 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { organizationStore } from '$lib/store/facilityStore';
-	import * as m from "$msgs";
+	import * as m from '$msgs';
 	import OpenGraph from '$lib/components/OpenGraph/OpenGraph.svelte';
 	import { language } from '$lib/store/languageStore';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import type { PageData } from './$types';
+	import type { PageProps } from './$types';
 	//import LDTag from '$lib/Schema/LDTag.svelte';
 	import Directory from '$lib/components/Directory/CtxDirectory.svelte';
-	export let data: PageData;
+	let { data }: PageProps = $props();
+   
+	const log = (obj: Map<string,object>) => {
+		let _str = "";
+		_str+=(`${obj}:\n`);
+		for (let [key, value] of obj) {
+			_str+=(key + ' = ' + JSON.stringify(value)+ '\n');
+		}
+		return _str
+	};
 </script>
 
 <!--LDTag schema={data.websiteSchema} /-->
@@ -32,21 +41,22 @@
 	</header>
 	<div>
 		{#key [page.url]}
-		<Directory
-		data={data?.cardinal}
-		propCurrentOrg={true}
-		displayCommune={false}
-		displayGeocoder={false}
-		displayCategory={true}
-		displaySituation={false}
-		avatar={true} />
+			<Directory
+				data={data?.cardinal}
+				propCurrentOrg={true}
+				displayCommune={false}
+				displayGeocoder={false}
+				displayCategory={true}
+				displaySituation={false}
+				avatar={true}
+			/>
 		{/key}
 	</div>
 </div>
 
 <style lang="postcss">
 	.section-container {
-		@apply w-full max-w-7xl mx-auto p-4 py-8 md:py-10;
+		@apply mx-auto w-full max-w-7xl p-4 py-8 md:py-10;
 	}
 	/* Hero Gradient */
 	/* prettier-ignore */
