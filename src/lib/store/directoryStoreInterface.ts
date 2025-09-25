@@ -70,7 +70,8 @@ export interface Entry {
     slug: string,
     effector_type: Type,
     uid: string,
-    updatedAt: number
+    updatedAt: number,
+    careHome?: any
 }
 
 export interface EntryFull {
