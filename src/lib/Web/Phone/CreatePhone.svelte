@@ -81,8 +81,7 @@
 		<form
 			{...createPhone.enhance(async ({ form, data, submit }) => {
 				try {
-					//data = manipulateForm(data);
-					const dataString = JSON.stringify(Object.fromEntries(data));
+					const dataString = JSON.stringify(data);
 					console.log(dataString);
 					await submit();
 					result = createPhone.result;

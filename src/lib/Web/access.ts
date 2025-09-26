@@ -26,9 +26,10 @@ export const getAccess = (roles: string[]) => {
     return getByValue(accessMap, roles)
 }
 
-export const getSelectedAccess = (roles: string[]) => {
+export const getSelectedAccess = (roles: string[]|undefined) => {
+    if (!roles) return
     console.log(`roles:${roles} type: ${typeof(roles)}`);
-		const access = getAccess(roles);
+	const access = getAccess(roles);
         console.log(`access:${access}`);
 		const selectedAccess = accessSelectTypes.find(e=>e.value==access);
         console.log(`selectedAccess: ${selectedAccess}`);

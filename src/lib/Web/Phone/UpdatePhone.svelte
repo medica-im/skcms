@@ -13,14 +13,14 @@
 	import { dataTagErrorSymbol } from '@tanstack/svelte-query';
 
 	let {
-		phoneData
+		data
 	}: {
-		phoneData: Phone;
+		data: Phone;
 	} = $props();
 
-	let dialog: HTMLDialogElement;
+	let dialog: HTMLDialogElement|undefined = $state();
 
-	let roles: string[] = $derived(phoneData.roles.map(e=>e.name));
+	let roles: string[]|undefined = $derived(data.roles?.map(e=>e.name));
 
 	let result: FormResult | undefined = $state();
 
@@ -39,20 +39,20 @@
 		return items;
 	};
 	
-	let _id: number = $state(phoneData.id);
-	let _phone: string = $state(phoneData.phone);
+	let _id: number = data.id;
+	let _phone: string = $state(data.phone);
 	let selectedType: SelectType | undefined = $state({
-		label: types[phoneData.type],
-		value: phoneData.type
+		label: types[data.type],
+		value: data.type
 	});
 	let _type: string = $derived(selectedType.value);
-	let selectedAccess: SelectType|undefined = $state(getSelectedAccess(phoneData.roles.map(e=>e.name)));
+	let selectedAccess: SelectType|undefined = $state(getSelectedAccess(data.roles?.map(e=>e.name)));
 	let _roles: string[]|undefined = $derived(getRoles(selectedAccess?.value))
 	console.log(roles);
 	console.log(getSelectedAccess(roles))
 	console.log(`selectedAccess:${JSON.stringify(selectedAccess)}`)
 	let disabled: boolean = $derived(
-		selectedType.value == phoneData.type && _phone == phoneData.phone && ( selectedAccess?.value == getSelectedAccess(roles)?.value  )
+		selectedType.value == data.type && _phone == data.phone && ( selectedAccess?.value == getSelectedAccess(roles)?.value  )
 	);
 	function manipulateForm(data: FormData) {
 		data.append('id', _id.toString());
@@ -61,28 +61,29 @@
 		return data;
 	}
 	function resetForm() {
-		_phone=phoneData.phone;
-		_type=phoneData.type;
-		selectedType={label: types[phoneData.type],
-		value: phoneData.type};
-		selectedAccess=getSelectedAccess(phoneData.roles.map(e=>e.name));
+		_phone=data.phone;
+		_type=data.type;
+		selectedType={label: types[data.type],
+		value: data.type};
+		selectedAccess=getSelectedAccess(data.roles?.map(e=>e.name));
 		result=undefined;
 	}
 </script>
 
-<button onclick={() => {invalidate('entry:now'); dialog.showModal(); resetForm();}} title="Modifier"><Fa icon={faPenToSquare} /></button>
+<button onclick={() => {invalidate('entry:now'); dialog?.showModal(); resetForm();}} title="Modifier"><Fa icon={faPenToSquare} /></button>
 
 <Dialog bind:dialog={dialog}>
 	<div class="rounded-lg h-96 p-4 variant-ghost-secondary gap-2 items-center place-items-center">
 		<!--p>id: {_id} phone: {_phone} type: {_type} selectedAccess: {selectedAccess} roles: {roles}</p-->
 		<form
-			{...updatePhone.enhance(async ({ form, data, submit }) => {
+			{...updatePhone.for(data.id).enhance(async ({ form, data, submit }) => {
 				try {
-					//data = manipulateForm(data);
-					const dataString = JSON.stringify(Object.fromEntries(data));
+					const dataString = JSON.stringify(data);
 					console.log(dataString);
 					await submit();
-					result=updatePhone.result;
+					result=updatePhone.for(data.id).result;
+					console.log(`result: ${JSON.stringify(updatePhone.for(data.id))}`);
+					console.log(JSON.stringify(form));
 					invalidate('entry:now');
 				} catch (error) {
 					console.log(error);
@@ -91,13 +92,14 @@
 		>
 			<div class="p-2 space-y-4 justify-items-stretch gap-6">
 				<div class="p-2 space-y-2 w-full">
+
 						<input
 							oninput={() => {}}
 							class="input hidden"
 							name="id"
 							type="text"
 							placeholder=""
-							bind:value={_id}
+							value={_id}
 						/>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
 						<span>Téléphone:</span>
@@ -110,6 +112,11 @@
 							bind:value={_phone}
 						/>
 					</label>
+					{#if updatePhone.issues?.phone}
+					{#each updatePhone.issues.phone as issue}
+					<p class="issue">{issue.message}</p>
+					{/each}
+					{/if}
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
 						<span>Type:</span>
 						<input
@@ -122,6 +129,11 @@
 						/>
 						<Select items={getItems()} bind:value={selectedType} />
 					</label>
+					{#if updatePhone.issues?.type}
+					{#each updatePhone.issues.type as issue}
+					<p class="issue">{issue.message}</p>
+					{/each}
+					{/if}
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
 						<span>Accès:</span>
 						<input
@@ -134,14 +146,19 @@
 						/>
 						<Select items={accessSelectTypes} bind:value={selectedAccess} />
 					</label>
+					{#if updatePhone.issues?.roles}
+					{#each updatePhone.issues.roles as issue}
+					<p class="issue">{issue.message}</p>
+					{/each}
+					{/if}
 				</div>
 			</div>
 			<div class="flex gap-8">
 				<div class="flex gap-2 items-center">
-					{#if result?.success}
+					{#if updatePhone.for(data.id).result?.success}
 						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
-					{:else if result && !result?.success}
-						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span>{result.text}
+					{:else if updatePhone.for(data.id).result?.text}
+						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span>{updatePhone.for(data.id).result?.text}
 					{/if}
 				</div>
 				<div class="w-auto justify-center">
@@ -150,7 +167,7 @@
 					>
 				</div>
 				<div class="w-auto justify-center">
-					<button type="button" class="variant-filled-error btn w-min" onclick={()=>{dialog.close(); resetForm();}}
+					<button type="button" class="variant-filled-error btn w-min" onclick={()=>{dialog?.close(); resetForm();}}
 						>{#if result?.success || disabled}Fermer{:else}Annuler{/if}</button
 					>
 				</div>

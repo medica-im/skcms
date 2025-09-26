@@ -5,7 +5,7 @@
 	import Fa from 'svelte-fa';
 	import { faMobileScreen, faPhone, faFax, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 	import type { Phone } from '$lib/interfaces/phone.interface.ts';
-	let { phoneData, editMode }:{phoneData: Phone; editMode?: boolean} = $props();
+	let { data, editMode }:{data: Phone; editMode?: boolean} = $props();
 
 	const iconDict: object = {
 		M: faMobileScreen,
@@ -21,12 +21,12 @@
 
 <div class="flex content-start space-x-4 items-center">
 	<div class="flex-initial">
-		<span class="w-4"><Fa icon={getIcon(phoneData.type)} size="sm" /></span>
+		<span class="w-4"><Fa icon={getIcon(data.type)} size="sm" /></span>
 	</div>
-	<a class="unstyled underline underline-offset-4" href="tel:{phoneData.phone}">
-		<div class="flex-initial">{phoneData.phone}</div>
+	<a class="unstyled underline underline-offset-4" href="tel:{data.phone}">
+		<div class="flex-initial">{data.phone}</div>
 	</a>
 	{#if editMode}
-    <UpdatePhone {phoneData}/> <DeletePhone {phoneData} />
+    <UpdatePhone {data}/> <DeletePhone {data} />
 	{/if}
 </div>

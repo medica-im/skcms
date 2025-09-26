@@ -19,16 +19,16 @@
 	import type { Phone as PhoneType } from '$lib/interfaces/phone.interface.ts';
 
 	let {
-		phoneData
+		data
 	}: {
-		phoneData: PhoneType;
+		data: PhoneType;
 	} = $props();
 
 	let dialog: HTMLDialogElement;
 
 	let result: FormResult | undefined = $state();
 
-	let _id: number = $state(phoneData.id);
+	let _id: number = $state(data.id);
 </script>
 
 <button onclick={() => dialog.showModal()} title="Supprimer"><Fa icon={faTrashCanArrowUp} /></button
@@ -37,10 +37,10 @@
 <Dialog bind:dialog on:close={() => console.log('closed')}>
 	<div class="rounded-lg h-96 p-4 variant-ghost-secondary gap-4 items-center place-items-center">
 		<form
-			{...deletePhone.enhance(async ({ form, data, submit }) => {
+			{...deletePhone.for(data.id).enhance(async ({ form, data, submit }) => {
 				try {
 					//data = manipulateForm(data);
-					const dataString = JSON.stringify(Object.fromEntries(data));
+					const dataString = JSON.stringify(data);
 					console.log(dataString);
 					await submit();
 					result = deletePhone.result;
@@ -56,10 +56,10 @@
 				name="id"
 				type="text"
 				placeholder=""
-				value={phoneData.id}
+				value={data.id}
 			/>
 			<div class="p-2 space-y-4 justify-items-stretch gap-6">
-				<Phone {phoneData} editMode={false} />
+				<Phone {data} editMode={false} />
 				<div class="flex space-x-2 place-items-center">
 					<Fa icon={faTriangleExclamation} />
 					<p>Êtes-vous sûr de vouloir supprimer cet élément?</p>

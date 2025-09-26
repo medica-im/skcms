@@ -28,9 +28,6 @@
 		data: Appointment;
 	} = $props();
 
-
-	let res = $state();
-
 	const entryUid = getEntryUid();
 
 	type SelectPhoneUrlType = { label: string; value: 'url'|'phone' };
@@ -164,7 +161,7 @@
 									if (result?.success) {
 										disabled=true;
 									}
-									console.log(JSON.stringify(res));
+									console.log(JSON.stringify(result));
 									invalidate('entry:now');
 								} catch (error) {
 									console.error(error);
