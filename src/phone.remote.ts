@@ -4,36 +4,39 @@ import * as z from "zod";
 import { authReq } from '$lib/utils/request.ts';
 import { variables } from '$lib/utils/constants.ts';
 
-const RoleEnum = z.enum(['anonymous', 'staff', 'administrator' , 'superuser']);
+const RoleEnum = z.enum(['anonymous', 'staff', 'administrator', 'superuser']);
 
 
 const CreatePhone = z.object({
 	entry: z.string(),
 	type: z.enum(["M", "MW", "W", "F", "AS"]),
-	roles: z.array(RoleEnum),
+	roles: z.preprocess((val: string) => {
+		console.log(val);
+		return val.split(',');
+	}, z.array(RoleEnum)),
 	phone: z.string(),
 });
 
-export const createPhone = form(async (data) => {
-	console.log(`form data:${JSON.stringify(Object.fromEntries(data))}`);
-	const jsonString = JSON.stringify(Object.fromEntries(data));
-    let json = JSON.parse(jsonString);
+export const createPhone = form(CreatePhone, async (data) => {
+	console.log(`form data:${JSON.stringify(data)}`);
+	//const jsonString = JSON.stringify(Object.fromEntries(data));
+	/*let json = JSON.parse(jsonString);
 	console.log(`roles: ${json.roles}`);
-	console.log(`typeof(roles): ${typeof(json.roles)}`);
+	console.log(`typeof(roles): ${typeof (json.roles)}`);
 	const roles: string = json.roles;
 	const rolesArray: string[] = roles.split(',');
 	console.log(`rolesJson: ${JSON.stringify(rolesArray)}`);
-	console.log(`typeof(rolesArray): ${typeof(rolesArray)}`);
-	json.roles=rolesArray;
+	console.log(`typeof(rolesArray): ${typeof (rolesArray)}`);
+	json.roles = rolesArray;
 	const result = CreatePhone.safeParse(json);
 	if (!result.success) {
 		error(400, result.error);
 	}
 	const vData = result.data;
-	console.log(`vData: ${JSON.stringify(vData)}`);
+	console.log(`vData: ${JSON.stringify(vData)}`);*/
 	const { cookies } = getRequestEvent();
 	const url = `${variables.BASE_URI}/api/v2/phones/`;
-	const request = authReq(url, 'POST', cookies, JSON.stringify(vData));
+	const request = authReq(url, 'POST', cookies, JSON.stringify(data));
 	const response = await fetch(request);
 	if (response.ok == false) {
 		console.error(JSON.stringify(response))
@@ -60,27 +63,23 @@ const UpdatePhone = z.object({
 	id: z.string(),
 	type: z.enum(["M", "MW", "W", "F", "AS"]),
 	phone: z.string(),
-	roles: z.array(RoleEnum),
+	roles: z.preprocess((val: string) => {
+		console.log(val);
+		return val.split(',');
+	}, z.array(RoleEnum)),
 });
 
-export const updatePhone = form(async (data) => {
-	console.log(`form data:${JSON.stringify(Object.fromEntries(data))}`);
-	const dataObject = JSON.parse(JSON.stringify(Object.fromEntries(data)));
-	const roles = data.get('roles') as string;
-	console.log(`roles: ${roles}`);
-	const rolesArray: string[] = roles.split(',');
-	console.log(`rolesArray ${rolesArray}`);
-	dataObject.roles = rolesArray;
-	const result = UpdatePhone.safeParse(dataObject);
-
-	if (!result.success) {
-		error(400, result.error);
-	}
-	const vData = result.data;
-	console.log(`vData: ${JSON.stringify(vData)}`);
+export const updatePhone = form(UpdatePhone, async (data) => {
+	console.log(`form data:${JSON.stringify(data)}`);
+	//const dataObject = JSON.parse(JSON.stringify(Object.fromEntries(data)));
+	//const roles = data.roles as string[];
+	//console.log(`roles: ${roles}`);
+	//const rolesArray: string[] = roles.split(',');
+	//console.log(`rolesArray ${rolesArray}`);
+	//dataObject.roles = rolesArray;
 	const { cookies } = getRequestEvent();
-	const url = `${variables.BASE_URI}/api/v2/phones/${vData.id}`;
-	const request = authReq(url, 'PUT', cookies, JSON.stringify(vData));
+	const url = `${variables.BASE_URI}/api/v2/phones/${data.id}`;
+	const request = authReq(url, 'PUT', cookies, JSON.stringify(data));
 	const response = await fetch(request);
 	if (response.ok == false) {
 		console.error(JSON.stringify(response))
@@ -107,16 +106,10 @@ const DeletePhone = z.object({
 	id: z.string()
 });
 
-export const deletePhone = form(async (data) => {
-	console.log(`form data:${JSON.stringify(Object.fromEntries(data))}`);
-	const dataJson = Object.fromEntries(data);
-	const result = DeletePhone.safeParse(dataJson);
-	if (!result.success) {
-		error(400, result.error);
-	}
-	const vData = result.data;
+export const deletePhone = form(DeletePhone, async (data) => {
+	console.log(`form data:${JSON.stringify(data)}`);
 	const { cookies } = getRequestEvent();
-	const url = `${variables.BASE_URI}/api/v2/phones/${vData.id}`;
+	const url = `${variables.BASE_URI}/api/v2/phones/${data.id}`;
 	const request = authReq(url, 'DELETE', cookies);
 	const response = await fetch(request);
 	if (response.ok == false) {
