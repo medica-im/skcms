@@ -9,29 +9,18 @@ const RoleEnum = z.enum(['anonymous', 'staff', 'administrator' , 'superuser']);
 
 const CreateEmail = z.object({
 	entry: z.string(),
-	roles: z.array(RoleEnum),
+	roles: z.preprocess((val: string) => {
+			console.log(val);
+			return val.split(',');
+		}, z.array(RoleEnum)),
 	email: z.string(),
 });
 
-export const createEmail = form(async (data) => {
-	console.log(`form data:${JSON.stringify(Object.fromEntries(data))}`);
-	const jsonString = JSON.stringify(Object.fromEntries(data));
-    let json = JSON.parse(jsonString);
-	const roles: string = json.roles;
-	const rolesArray: string[] = roles.split(',');
-	console.log(`rolesJson: ${JSON.stringify(rolesArray)}`);
-	console.log(`typeof(rolesArray): ${typeof(rolesArray)}`);
-	json.roles=rolesArray;
-	const result = CreateEmail.safeParse(json);
-	if (!result.success) {
-		error(400, result.error);
-	}
-	const vData = result.data;
-	console.log(`vData: ${JSON.stringify(vData)}`);
-	const { cookies } = getRequestEvent();
+export const createEmail = form(CreateEmail, async (data) => {
+	console.log(`form data:${JSON.stringify(data)}`);
+    const { cookies } = getRequestEvent();
 	const url = `${variables.BASE_URI}/api/v2/emails/`;
-	console.log(url);
-	const request = authReq(url, 'POST', cookies, JSON.stringify(vData));
+	const request = authReq(url, 'POST', cookies, JSON.stringify(data));
 	const response = await fetch(request);
 	if (response.ok == false) {
 		console.error(JSON.stringify(response))
@@ -57,28 +46,17 @@ export const createEmail = form(async (data) => {
 const UpdateEmail = z.object({
 	id: z.string(),
 	email: z.string(),
-	roles: z.array(RoleEnum),
+	roles: z.preprocess((val: string) => {
+			console.log(val);
+			return val.split(',');
+		}, z.array(RoleEnum)),
 });
 
-export const updateEmail = form(async (data) => {
-	console.log(`form data:${JSON.stringify(Object.fromEntries(data))}`);
-	const jsonString = JSON.stringify(Object.fromEntries(data));
-    let json = JSON.parse(jsonString);
-	console.log(`roles: ${json.roles}`);
-	console.log(`typeof(roles): ${typeof(json.roles)}`);
-	const roles: string = json.roles;
-	const rolesArray: string[] = roles.split(',');
-	console.log(`rolesJson: ${JSON.stringify(rolesArray)}`);
-	console.log(`typeof(rolesArray): ${typeof(rolesArray)}`);
-	json.roles=rolesArray;
-	const result = UpdateEmail.safeParse(json);
-	if (!result.success) {
-		error(400, result.error);
-	}
-	const vData = result.data;
-	const { cookies } = getRequestEvent();
-	const url = `${variables.BASE_URI}/api/v2/emails/${vData.id}`;
-	const request = authReq(url, 'PUT', cookies, JSON.stringify(vData));
+export const updateEmail = form(UpdateEmail, async (data) => {
+	console.log(`form data:${JSON.stringify(data)}`);
+    const { cookies } = getRequestEvent();
+	const url = `${variables.BASE_URI}/api/v2/emails/${data.id}`;
+	const request = authReq(url, 'PUT', cookies, JSON.stringify(data));
 	const response = await fetch(request);
 	if (response.ok == false) {
 		return {
@@ -101,15 +79,9 @@ const Delete = z.object({
 	id: z.string()
 });
 
-export const deleteEmail = form(async (data) => {
-	const dataJson = Object.fromEntries(data);
-	const result = Delete.safeParse(dataJson);
-	if (!result.success) {
-		error(400, result.error);
-	}
-	const vData = result.data;
+export const deleteEmail = form(Delete, async (data) => {
 	const { cookies } = getRequestEvent();
-	const url = `${variables.BASE_URI}/api/v2/emails/${vData.id}`;
+	const url = `${variables.BASE_URI}/api/v2/emails/${data.id}`;
 	const request = authReq(url, 'DELETE', cookies);
 	const response = await fetch(request);
 	if (response.ok == false) {
@@ -119,7 +91,6 @@ export const deleteEmail = form(async (data) => {
 			text: response.statusText
 		}
 	} else {
-		//const json = await response.json()
 		return {
 			success: true,
 			status: response.status,

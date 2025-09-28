@@ -133,5 +133,7 @@
     "SUPERUSER": "super-utilisateur",
     "STAFF": "équipier",
     "ANONYMOUS": "inconnu"
-  }
+  },
+  "PHONE_NUMBER": "numéro de téléphone",
+  "FACILITY": "établissement"
 }

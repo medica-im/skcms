@@ -4,36 +4,23 @@ import * as z from "zod";
 import { authReq } from '$lib/utils/request.ts';
 import { variables } from '$lib/utils/constants.ts';
 
-const RoleEnum = z.enum(['anonymous', 'staff', 'administrator' , 'superuser']);
-
+const RoleEnum = z.enum(['anonymous', 'staff', 'administrator', 'superuser']);
 
 const Create = z.object({
 	entry: z.string(),
-	roles: z.array(RoleEnum),
+	roles: z.preprocess((val: string) => {
+		return val.split(',');
+	}, z.array(RoleEnum)),
 	url: z.string(),
 });
 
 const path = '/api/v2/websites/';
 
-export const create = form(async (data) => {
-	console.log(`form data:${JSON.stringify(Object.fromEntries(data))}`);
-	const jsonString = JSON.stringify(Object.fromEntries(data));
-    let json = JSON.parse(jsonString);
-	const roles: string = json.roles;
-	const rolesArray: string[] = roles.split(',');
-	console.log(`rolesJson: ${JSON.stringify(rolesArray)}`);
-	console.log(`typeof(rolesArray): ${typeof(rolesArray)}`);
-	json.roles=rolesArray;
-	const result = Create.safeParse(json);
-	if (!result.success) {
-		error(400, result.error);
-	}
-	const vData = result.data;
-	console.log(`vData: ${JSON.stringify(vData)}`);
+export const create = form(Create, async (data) => {
+	console.log(`form data:${JSON.stringify(data)}`);
 	const { cookies } = getRequestEvent();
 	const url = `${variables.BASE_URI}${path}`;
-	console.log(url);
-	const request = authReq(url, 'POST', cookies, JSON.stringify(vData));
+ 	const request = authReq(url, 'POST', cookies, JSON.stringify(data));
 	const response = await fetch(request);
 	if (response.ok == false) {
 		console.error(JSON.stringify(response))
@@ -56,28 +43,16 @@ export const create = form(async (data) => {
 const Update = z.object({
 	id: z.string(),
 	url: z.string(),
-	roles: z.array(RoleEnum),
+	roles: z.preprocess((val: string) => {
+		return val.split(',');
+	}, z.array(RoleEnum)),
 });
 
-export const update = form(async (data) => {
-	console.log(`form data:${JSON.stringify(Object.fromEntries(data))}`);
-	const jsonString = JSON.stringify(Object.fromEntries(data));
-    let json = JSON.parse(jsonString);
-	console.log(`roles: ${json.roles}`);
-	console.log(`typeof(roles): ${typeof(json.roles)}`);
-	const roles: string = json.roles;
-	const rolesArray: string[] = roles.split(',');
-	console.log(`rolesJson: ${JSON.stringify(rolesArray)}`);
-	console.log(`typeof(rolesArray): ${typeof(rolesArray)}`);
-	json.roles=rolesArray;
-	const result = Update.safeParse(json);
-	if (!result.success) {
-		error(400, result.error);
-	}
-	const vData = result.data;
+export const update = form(Update, async (data) => {
+	console.log(`form data:${JSON.stringify(data)}`);
 	const { cookies } = getRequestEvent();
-	const url = `${variables.BASE_URI}${path}${vData.id}`;
-	const request = authReq(url, 'PUT', cookies, JSON.stringify(vData));
+	const url = `${variables.BASE_URI}${path}${data.id}`;
+	const request = authReq(url, 'PUT', cookies, JSON.stringify(data));
 	const response = await fetch(request);
 	if (response.ok == false) {
 		return {
@@ -100,15 +75,9 @@ const Destroy = z.object({
 	id: z.string()
 });
 
-export const destroy = form(async (data) => {
-	const dataJson = Object.fromEntries(data);
-	const result = Destroy.safeParse(dataJson);
-	if (!result.success) {
-		error(400, result.error);
-	}
-	const vData = result.data;
+export const destroy = form(Destroy, async (data) => {
 	const { cookies } = getRequestEvent();
-	const url = `${variables.BASE_URI}${path}${vData.id}`;
+	const url = `${variables.BASE_URI}${path}${data.id}`;
 	const request = authReq(url, 'DELETE', cookies);
 	const response = await fetch(request);
 	if (response.ok == false) {

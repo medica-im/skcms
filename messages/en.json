@@ -114,6 +114,7 @@
 	"RESOURCES": "resources",
 	"LEGAL": "legal",
 	"PHONE": "phone",
+	"PHONE_NUMBER": "phone number",
 	"DIRECTION": "direction",
 	"YES": "yes",
 	"NO": "no",
@@ -131,5 +132,6 @@
 		"ADMINISTRATOR": "administrator",
 		"SUPERUSER": "superuser",
 		"STAFF": ""
-	}
+	},
+	"FACILITY": "facility"
 }
