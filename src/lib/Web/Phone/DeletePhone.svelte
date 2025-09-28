@@ -11,10 +11,8 @@
 		faTriangleExclamation
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import Select from 'svelte-select';
 	import Dialog from '../Dialog.svelte';
 	import Phone from '$lib/Directory/Phone.svelte';
-	import type { SelectType } from '$lib/interfaces/select.ts';
 	import type { FormResult } from '$lib/interfaces/v2/form';
 	import type { Phone as PhoneType } from '$lib/interfaces/phone.interface.ts';
 
@@ -25,10 +23,7 @@
 	} = $props();
 
 	let dialog: HTMLDialogElement;
-
-	let result: FormResult | undefined = $state();
-
-	let _id: number = $state(data.id);
+	let result = $derived(deletePhone.for(data.id).result);
 </script>
 
 <button onclick={() => dialog.showModal()} title="Supprimer"><Fa icon={faTrashCanArrowUp} /></button
@@ -39,7 +34,6 @@
 		<form
 			{...deletePhone.for(data.id).enhance(async ({ form, data, submit }) => {
 				try {
-					//data = manipulateForm(data);
 					const dataString = JSON.stringify(data);
 					console.log(dataString);
 					await submit();

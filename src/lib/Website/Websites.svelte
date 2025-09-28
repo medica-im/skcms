@@ -13,7 +13,7 @@
     let editMode = getEditMode();
 </script>
 <div class="">
-{#each data as website}
+{#each data as website (website.id)}
 <Website data={website} editMode={$editMode}/>
 {/each}
 </div>

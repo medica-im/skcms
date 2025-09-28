@@ -1,4 +1,3 @@
-import { version } from '$app/environment';
 import { writable, derived, readable, get, asyncReadable, asyncDerived } from '@square/svelte-store';
 import { variables } from '$lib/utils/constants.ts';
 import { browser } from "$app/environment"
@@ -191,14 +190,18 @@ function setLocalStorage(key: string, data: Array<Object>): void {
 		localStorage.setItem(key, JSON.stringify(json))
 	}
 }
+interface LocalStorage {
+	data: any,
+	cachetime: number
+}
 
-function getLocalStorage(key: string): any | null | undefined {
+function getLocalStorage(key: string): LocalStorage | null | undefined {
 	if (browser) {
 		const localStorageString = localStorage.getItem(key);
 		if (localStorageString === null) {
 			return null
 		}
-		let data = JSON.parse(localStorageString);
+		let data: LocalStorage = JSON.parse(localStorageString);
 		return data;
 	}
 }
@@ -249,59 +252,17 @@ async function processCachedEntries(changedObj: ChangedObj) {
 }
 
 export const getEntries = async (): Promise<Entry[]> => {
-	if (browser) {
-		let localVersion = localStorage.getItem("version");
-		console.log(`localVersion: ${localVersion}`);
-		console.log(`app version: ${version}`);
-		if (!localVersion) {
-			console.log("No local version: clearing localstorage...");
-			localStorage.clear();
-			localStorage.setItem("version", version);
-		}
-		else if (!(localVersion == version)) {
-			console.log(`Local version (${localVersion}) is different from the app version (${version}): clearing localstorage...`);
-			localStorage.clear();
-			localStorage.setItem("version", version);
-		} else {
-			console.log(`Local version (${localVersion}) is up to date with app version (${version}): all good!`);
-		}
-	}
-	let contacts = getLocalStorage("contacts")?.data;
-	const refreshContacts = (!import.meta.env.DEV && PUBLIC_CACHE_CONTACTS == "false" || contacts == null);
-	console.log(`refreshContacts: ${refreshContacts}`);
-	if (refreshContacts) {
-		contacts = await downloadElements("contacts",variables.ENTRIES_LIMIT);
-		setLocalStorage('contacts', contacts)
-	}
 	var ttl = variables.ENTRIES_TTL;
-	let empty: boolean = true;
 	const cachedEntriesObj = getLocalStorage('entries');
 	let expired: boolean = true;
-	let changedObj;
 	if (cachedEntriesObj) {
-		if ('data' in cachedEntriesObj) {
-			if (cachedEntriesObj.data?.length) {
-				empty = false;
-			}
-		}
 		expired = isExpired(ttl, cachedEntriesObj.cachetime);
 	}
-	if (empty) {
-		const allEntries = await downloadAllEntries();
-		return allEntries;
+	if (expired || !cachedEntriesObj) {
+		return await downloadAllEntries();
+	} else {
+		return cachedEntriesObj.data;
 	}
-	if (expired) {
-		contacts = await downloadElements("contacts");
-		setLocalStorage('contacts', contacts);
-		changedObj = changedContacts(contacts, cachedEntriesObj.data);
-		if (isUnchanged(changedObj)) {
-			return cachedEntriesObj.data;
-		} else {
-			const entries = await processCachedEntries(changedObj);
-			return entries;
-		}
-	}
-	return cachedEntriesObj.data;
 };
 
 export const getAvatars = asyncDerived(

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import * as m from '$msgs';
+	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import { createPhone } from '../../../phone.remote';
 	import { invalidate } from '$app/navigation';
 	import {
@@ -75,7 +76,7 @@
 >
 
 <Dialog bind:dialog>
-	<div class="rounded-lg h-96 p-4 variant-ghost-secondary gap-2 items-center place-items-center">
+	<div class="rounded-lg h-fit p-4 variant-ghost-secondary gap-4">
 		<!--p>phone: {_phone} type: {_type} roles: {_roles}</p-->
 
 		<form
@@ -91,9 +92,11 @@
 				}
 			})}
 		>
-			<div class="p-2 space-y-4 justify-items-stretch gap-6">
-				<div class="p-2 space-y-2 w-full">
-					<label class="flex label place-self-start place-items-center space-x-2 w-full">
+			<h3 class="h3">Téléphone</h3>
+
+			<div class="p-2 space-y-4 gap-6">
+					<label class="label">
+						<span></span>
 						<input
 							oninput={() => {}}
 							class="input hidden"
@@ -103,12 +106,12 @@
 							bind:value={entry}
 						/>
 					</label>
-					{#if isSuperUser}
+					<!--{#if isSuperUser}
 						Entry UID: {entry}
 						<button type="button" class="btn btn-sm variant-ghost" use:copy={entry}> Copy! </button>
-					{/if}
-					<label class="flex label place-self-start place-items-center space-x-2 w-full">
-						<span>Téléphone:</span>
+					{/if}-->
+					<label class="label">
+						<span>{capitalizeFirstLetter(m.PHONE_NUMBER())}</span>
 						<input
 							oninput={() => {}}
 							class="input"
@@ -118,8 +121,8 @@
 							bind:value={_phone}
 						/>
 					</label>
-					<label class="flex label place-self-start place-items-center space-x-2 w-full">
-						<span>Type:</span>
+					<label class="label">
+						<span>Type</span>
 						<input
 							oninput={() => {}}
 							class="input hidden"
@@ -130,8 +133,8 @@
 						/>
 						<Select items={getTypeItems()} bind:value={selectedType} />
 					</label>
-					<label class="flex label place-self-start place-items-center space-x-2 w-full">
-						<span>Accès:</span>
+					<label class="label">
+						<span>Accès</span>
 						<input
 							oninput={() => {}}
 							class="input hidden"
@@ -143,7 +146,6 @@
 						<Select items={accessSelectTypes} bind:value={selectedAccess} />
 					</label>
 				</div>
-			</div>
 			<div class="flex w-full items-center">
 				<div class="w-1/3">
 					{#if result?.success}

@@ -6,14 +6,10 @@
 	import {
 		faPlus,
 		faCheck,
-		faWindowClose,
-		faPenToSquare,
 		faExclamationCircle,
-		faTrashCanArrowUp
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	    import { JsonView } from '@zerodevx/svelte-json-view';
-	import type { Email } from '$lib/interfaces/email.interface.ts';
+	import { JsonView } from '@zerodevx/svelte-json-view';
 	import Select from 'svelte-select';
 	import Dialog from '../Dialog.svelte';
 	import { getEntryUid } from '$lib/components/Directory/context';
@@ -25,38 +21,37 @@
 
 	const uid = getEntryUid();
 
-	type SelectPhoneUrlType = { label: string; value: 'url'|'phone' };
-	type SelectLocationType = { label: string; value: 'office'|'house_call' };
-
+	type SelectPhoneUrlType = { label: string; value: 'url' | 'phone' };
+	type SelectLocationType = { label: string; value: 'office' | 'house_call' };
 
 	let dialog: HTMLDialogElement;
 
 	let payers: ThirdPartyPayer[] | undefined = $state();
 
 	let locationChoices: SelectLocationType[] = [
-		{ label: "Domicile", value: "house_call" },
-		{ label: "Cabinet", value: "office"}
-];
+		{ label: 'Domicile', value: 'house_call' },
+		{ label: 'Cabinet', value: 'office' }
+	];
 	let phoneUrlChoices: SelectPhoneUrlType[] = [
-		{ label: "Téléphone", value: "phone" },
-		{ label: "Site web / app", value: "url"}
-];
+		{ label: 'Téléphone', value: 'phone' },
+		{ label: 'Site web / app', value: 'url' }
+	];
 	let result: FormResult | undefined = $state();
 	let selectedLocation: SelectLocationType | undefined = $state();
 	let selectedPhoneUrl: SelectPhoneUrlType | undefined = $state();
-	let url: string|null = $state(null);
-	let phone: string|null = $state(null);
+	let url: string | null = $state(null);
+	let phone: string | null = $state(null);
 	let commandData = $derived({
-		'entry': uid,
-		'location': selectedLocation == undefined ? null : selectedLocation.value,
-		'url': url ? url : null,
-		'phone': phone ? phone : null
+		entry: uid,
+		location: selectedLocation == undefined ? null : selectedLocation.value,
+		url: url ? url : null,
+		phone: phone ? phone : null
 	});
 	let disabled: boolean = $derived(!url && !phone);
 
 	onMount(async () => {
-		url=null;
-		phone=null;
+		url = null;
+		phone = null;
 	});
 </script>
 
@@ -74,48 +69,47 @@
 >
 
 <Dialog bind:dialog on:close={() => console.log('closed')}>
-	<div class="rounded-lg h-96 w-96 p-4 variant-ghost-secondary items-center place-items-center">
+	<div class="rounded-lg h-min-96 w-96 p-4 variant-ghost-secondary items-center place-items-center">
 		<!--div class="text-wrap p-2">
 		<p class="text-sm">{JSON.stringify(selectedLocation?.value)}</p>
 		<div class="wrap">
 		<JsonView json={commandData} />
 		</div>
 		</div-->
-		<div class="grid grid-cols-1 item-center place-items-center gap-6 w-full">
+		<div class="grid grid-cols-1 gap-6 w-full">
 			<h3 class="h3">{m.APPOINTMENT()}</h3>
-			
-			<label class="flex label place-self-start place-items-center space-x-2 w-full">			
-			<span>Lieu</span>
-			<Select items={locationChoices} bind:value={selectedLocation} />
+			<label class="label">
+				<span>Lieu</span>
+				<Select items={locationChoices} bind:value={selectedLocation} />
 			</label>
-			<label class="flex label place-self-start place-items-center space-x-2 w-full">			
-			<span>Méthode</span>
-			<Select items={phoneUrlChoices} bind:value={selectedPhoneUrl} />
+			<label class="label">
+				<span>Méthode</span>
+				<Select items={phoneUrlChoices} bind:value={selectedPhoneUrl} />
 			</label>
 			{#if selectedPhoneUrl?.value == 'url'}
-						<label class="flex label place-self-start place-items-center space-x-2 w-full">
-						<span>{capitalizeFirstLetter(m.WEB_ADDRESS())}</span>
-						<input
-							oninput={() => {}}
-							class="input"
-							name="url"
-							type="url"
-							placeholder="https://"
-							bind:value={url}
-						/>
-					</label>
+				<label class="label">
+					<span>{capitalizeFirstLetter(m.WEB_ADDRESS())}</span>
+					<input
+						oninput={() => {}}
+						class="input"
+						name="url"
+						type="url"
+						placeholder="https://"
+						bind:value={url}
+					/>
+				</label>
 			{:else if selectedPhoneUrl?.value == 'phone'}
-			<label class="flex label place-self-start place-items-center space-x-2 w-full">
-						<span>{capitalizeFirstLetter(m.PHONE())}</span>
-						<input
-							oninput={() => {}}
-							class="input"
-							name="phone"
-							type="text"
-							placeholder=""
-							bind:value={phone}
-						/>
-					</label>
+				<label class="label">
+					<span>{capitalizeFirstLetter(m.PHONE())}</span>
+					<input
+						oninput={() => {}}
+						class="input"
+						name="phone"
+						type="text"
+						placeholder=""
+						bind:value={phone}
+					/>
+				</label>
 			{/if}
 			<div class="flex w-full items-center">
 				<div class="w-1/3">
@@ -133,7 +127,7 @@
 								try {
 									result = await createCommand(commandData);
 									if (result?.success) {
-										disabled=true;
+										disabled = true;
 										invalidate('entry:now');
 									}
 								} catch (error) {
@@ -158,12 +152,3 @@
 		</div>
 	</div>
 </Dialog>
-
-<style lang="postcss">
-  .wrap {
-    font-family: monospace;
-    font-size: 8px;
-    --jsonBorderLeft: 2px dashed red;
-    --jsonValColor: blue;
-  }
-</style>

@@ -25,14 +25,9 @@
 		data: PaymentMethod[] | null;
 	} = $props();
 
-	let res = $state();
-
 	const uid = getEntryUid();
-
 	type SelectType = { label: string; value: string };
-
 	let dialog: HTMLDialogElement;
-
 	let paymentMethods: PaymentMethod[] | undefined = $state();
 
 	const getPaymentItems = (paymentMethods: PaymentMethod[]) => {
@@ -98,7 +93,7 @@
 							onclick={async () => {
 								try {
 									result = await patchCommand(commandData);
-									console.log(JSON.stringify(res));
+									console.log(JSON.stringify(result));
 									invalidate('entry:now');
 								} catch (error) {
 									console.error(error);

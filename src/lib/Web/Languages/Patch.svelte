@@ -80,7 +80,7 @@
 >
 
 <Dialog bind:dialog on:close={() => console.log('closed')}>
-	<div class="rounded-lg h-48 min-w-96 p-8 variant-ghost-secondary gap-8 items-center place-items-center">
+	<div class="rounded-lg h-96 w-96 p-8 variant-ghost-secondary gap-8 items-center place-items-center">
 		<!--p>{JSON.stringify(data)}</p-->
 		<!--p>selectedItems: {JSON.stringify(selectedItems)}</p>
 		<p>commandData: {JSON.stringify(commandData)}</p-->

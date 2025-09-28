@@ -43,7 +43,7 @@
 	// Stores
 	import { storeTheme } from '$lib/store/skeletonStores';
 	import { getDrawerStore } from '@skeletonlabs/skeleton';
-	import * as m from "$msgs";
+	import * as m from '$msgs';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import { language } from '$lib/store/languageStore';
 	import type { Organization } from '$lib/interfaces/organization.ts';
@@ -118,25 +118,42 @@
 
 <AppBar shadow="shadow-lg">
 	<svelte:fragment slot="lead">
-			<!-- Hamburger Menu -->
-			<button on:click={drawerOpen} class="btn-icon xl:!hidden">
-				<Fa icon={faBars} />
-			</button>
-		</svelte:fragment>
-			<!-- Logo -->
-			<a data-sveltekit-preload-data="off" href="/" title={m.NAVBAR_GO_HOME()}>
-				<div class="flex items-center">
-
-				<div class="hidden 2xl:inline-block w-8 h-8 mx-1 flex-none"><OutpatientClinicLogo /></div>
-					<div class="2xl:hidden flex-none">{capitalizeFirstLetter(page.data.organization.formatted_name_short||page.data.organization.formatted_name, $language)}</div>
-					<span class="hidden 2xl:inline-block"
-						><h3 class="h3">{capitalizeFirstLetter(page.data.organization.formatted_name, $language)}</h3></span
-					>
-				</div>
-				</a>
+		<!-- Hamburger Menu -->
+		<button on:click={drawerOpen} class="btn-icon xl:!hidden">
+			<Fa icon={faBars} />
+		</button>
+	</svelte:fragment>
+	<!-- Logo -->
+	<a data-sveltekit-preload-data="off" href="/" title={m.NAVBAR_GO_HOME()}>
+		<div class="flex items-center gap-2">
+			<div class="lg:hidden flex-none">
+				{#if page.data?.organization?.category?.name == 'msp'}<OutpatientClinicLogo
+					/>{:else if page.data?.organization?.category?.name == 'cpts'}<Fa
+						icon={faAddressBook} size="sm"
+					/>{/if}
+			</div>
+			<div class="hidden lg:inline-block">
+				{#if page.data?.organization?.category?.name == 'msp'}<OutpatientClinicLogo
+					/>{:else if page.data?.organization?.category?.name == 'cpts'}<Fa
+						icon={faAddressBook} size="2x" class="align-middle"
+					/>{/if}
+			</div>
+			<div class="2xl:hidden flex-none">
+				{capitalizeFirstLetter(
+					page.data.organization.formatted_name_short || page.data.organization.formatted_name,
+					$language
+				)}
+			</div>
+			<span class="hidden 2xl:inline-block"
+				><h3 class="h3">
+					{capitalizeFirstLetter(page.data.organization.formatted_name, $language)}
+				</h3></span
+			>
+		</div>
+	</a>
 	<svelte:fragment slot="trail">
-			<!-- Search -->
-			<!--div class="md:inline md:ml-4">
+		<!-- Search -->
+		<!--div class="md:inline md:ml-4">
 			<button class="btn btn-sm variant-ghost-surface hidden lg:inline-block" on:click={triggerSearch}>
 				<i class="fa-solid fa-magnifying-glass" />
 				<span class="hidden lg:inline-block">Search</span>
@@ -144,19 +161,19 @@
 			</button>
 		</div-->
 
-			<!-- Navigate -->
-			<div class="relative hidden xl:block">
-				<!-- trigger -->
-				<button
-					class="btn hover:variant-soft-primary"
-					use:popup={{ event: 'click', target: 'features' }}
-				>
-					<span>{m.NAVBAR_NAVIGATE()}</span>
-					<span class="opacity-50"><Fa icon={faCaretDown} size="sm" /></span>
-				</button>
-				<!-- popup -->
-				<!-- prettier-ignore -->
-				<div class="card p-4 w-60 shadow-xl" data-popup="features">
+		<!-- Navigate -->
+		<div class="relative hidden xl:block">
+			<!-- trigger -->
+			<button
+				class="btn hover:variant-soft-primary"
+				use:popup={{ event: 'click', target: 'features' }}
+			>
+				<span>{m.NAVBAR_NAVIGATE()}</span>
+				<span class="opacity-50"><Fa icon={faCaretDown} size="sm" /></span>
+			</button>
+			<!-- popup -->
+			<!-- prettier-ignore -->
+			<div class="card p-4 w-60 shadow-xl" data-popup="features">
 				<nav class="list-nav">
 					<ul>
 						{#if page.data?.organization?.category?.name == "msp"}
@@ -196,19 +213,19 @@
 					</ul>
 				</nav>
 			</div>
-			</div>
-			<div class="hidden">
-				<!-- trigger -->
-				<button
-					class="btn hover:variant-soft-primary"
-					use:popup={{ event: 'click', target: 'facility' }}
-				>
-					<span>{m.OUTPATIENT_CLINIC()}</span>
-					<span class="opacity-50"><Fa icon={faCaretDown} /></span>
-				</button>
-				<!-- popup -->
-				<!-- prettier-ignore -->
-				<div class="card p-4 w-60 shadow-xl" data-popup="facility">
+		</div>
+		<div class="hidden">
+			<!-- trigger -->
+			<button
+				class="btn hover:variant-soft-primary"
+				use:popup={{ event: 'click', target: 'facility' }}
+			>
+				<span>{m.OUTPATIENT_CLINIC()}</span>
+				<span class="opacity-50"><Fa icon={faCaretDown} /></span>
+			</button>
+			<!-- popup -->
+			<!-- prettier-ignore -->
+			<div class="card p-4 w-60 shadow-xl" data-popup="facility">
 				<nav class="list-nav">
 					<ul>
 						{#if page.data?.organization?.category?.name == "msp"}
@@ -233,54 +250,54 @@
 					</ul>
 				</nav>
 			</div>
-			</div>
-			<div class="relative hidden xl:block">
-				<MenuNavLinks />
-			</div>
+		</div>
+		<div class="relative hidden xl:block">
+			<MenuNavLinks />
+		</div>
 
-			<!-- trigger-->
-			<button
-				class="btn-sm lg:btn-md btn hover:variant-soft-primary"
-				use:popup={{ event: 'click', target: 'theme' }}
-			>
-				<span class="2xl:hidden">
-					<Fa icon={faPalette} size="sm" />
-				</span>
-				<span class="hidden 2xl:inline-block">{m.NAVBAR_THEME()}</span>
-				<span class="opacity-50"><Fa icon={faCaretDown} /></span>
-			</button>
-			<!-- popup -->
-			<div class="card p-4 w-60 shadow-xl" data-popup="theme">
-				<section class="flex justify-between items-center">
-					<h6 class="h6">Mode</h6>
-					<LightSwitch />
-				</section>
-				<hr class="my-4" />
-					<nav class="list-nav p-4 -m-4 max-h-64 lg:max-h-[500px] overflow-y-auto">
-						<form action="/?/setTheme" method="POST" use:enhance={setTheme}>
-							<ul>
-								{#each themes as { icon, name, type }}
-									<li>
-										<button
-											class="option w-full h-full"
-											type="submit"
-											name="theme"
-											value={type}
-											class:bg-primary-active-token={$storeTheme === type}
-										>
-											<span>{icon}</span>
-											<span class="flex-auto text-left">{name}</span>
-										</button>
-									</li>
-								{/each}
-							</ul>
-						</form>
-					</nav>
-			</div>
+		<!-- trigger-->
+		<button
+			class="btn-sm lg:btn-md btn hover:variant-soft-primary"
+			use:popup={{ event: 'click', target: 'theme' }}
+		>
+			<span class="2xl:hidden">
+				<Fa icon={faPalette} size="sm" />
+			</span>
+			<span class="hidden 2xl:inline-block">{m.NAVBAR_THEME()}</span>
+			<span class="opacity-50"><Fa icon={faCaretDown} /></span>
+		</button>
+		<!-- popup -->
+		<div class="card p-4 w-60 shadow-xl" data-popup="theme">
+			<section class="flex justify-between items-center">
+				<h6 class="h6">Mode</h6>
+				<LightSwitch />
+			</section>
+			<hr class="my-4" />
+			<nav class="list-nav p-4 -m-4 max-h-64 lg:max-h-[500px] overflow-y-auto">
+				<form action="/?/setTheme" method="POST" use:enhance={setTheme}>
+					<ul>
+						{#each themes as { icon, name, type }}
+							<li>
+								<button
+									class="option w-full h-full"
+									type="submit"
+									name="theme"
+									value={type}
+									class:bg-primary-active-token={$storeTheme === type}
+								>
+									<span>{icon}</span>
+									<span class="flex-auto text-left">{name}</span>
+								</button>
+							</li>
+						{/each}
+					</ul>
+				</form>
+			</nav>
+		</div>
 
-			<!-- Social -->
-			<!-- prettier-ignore -->
-			<div class="relative hidden xl:block">
+		<!-- Social -->
+		<!-- prettier-ignore -->
+		<div class="relative hidden xl:block">
 			{#if page.data.organization?.contact?.socialnetworks}
             <SocialNetworks data={page.data.organization.contact.socialnetworks} appBar={true} />
 			{/if}
@@ -292,8 +309,7 @@
 			</a>
 			{/if}
         </div>
-			
-					<User />
-			
+
+		<User />
 	</svelte:fragment>
 </AppBar>

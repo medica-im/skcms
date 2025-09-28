@@ -12,7 +12,7 @@
 		faTrashCanArrowUp
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	    import { JsonView } from '@zerodevx/svelte-json-view';
+	import { JsonView } from '@zerodevx/svelte-json-view';
 	import type { Email } from '$lib/interfaces/email.interface.ts';
 	import Select from 'svelte-select';
 	import Dialog from '../Dialog.svelte';
@@ -107,19 +107,18 @@
 		<JsonView json={commandData} />
 		</div>
 		</div-->
-		<div class="grid grid-cols-1 item-center place-items-center gap-6 w-full">
+		<div class="grid grid-cols-1 gap-6 w-full">
 			<h3 class="h3">{m.APPOINTMENT()}</h3>
-			
-			<label class="flex label place-self-start place-items-center space-x-2 w-full">			
+			<label class="label">			
 			<span>Lieu</span>
 			<Select items={locationChoices} bind:value={selectedLocation} />
 			</label>
-			<label class="flex label place-self-start place-items-center space-x-2 w-full">			
+			<label class="label">			
 			<span>Méthode</span>
 			<Select items={phoneUrlChoices} bind:value={selectedPhoneUrl} on:change={handle} />
 			</label>
 			{#if selectedPhoneUrl?.value == 'url'}
-						<label class="flex label place-self-start place-items-center space-x-2 w-full">
+						<label class="label">
 						<span>{capitalizeFirstLetter(m.WEB_ADDRESS())}</span>
 						<input
 							oninput={() => {}}
@@ -131,7 +130,7 @@
 						/>
 					</label>
 			{:else if selectedPhoneUrl?.value == 'phone'}
-			<label class="flex label place-self-start place-items-center space-x-2 w-full">
+			<label class="label">
 						<span>{capitalizeFirstLetter(m.PHONE())}</span>
 						<input
 							oninput={() => {}}
@@ -185,12 +184,3 @@
 		</div>
 	</div>
 </Dialog>
-
-<style lang="postcss">
-  .wrap {
-    font-family: monospace;
-    font-size: 8px;
-    --jsonBorderLeft: 2px dashed red;
-    --jsonValColor: blue;
-  }
-</style>

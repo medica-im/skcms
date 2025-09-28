@@ -43,8 +43,9 @@
 		//_type=phoneData.type;
 		//selectedType={label: types[phoneData.type],
 		//value: phoneData.type};
-		result = undefined;
+		formResult = undefined;
 	}
+	let formResult = $derived(updateEmail.for(data.id).result);
 </script>
 
 <button
@@ -57,10 +58,10 @@
 <Dialog bind:dialog on:close={() => console.log('closed')}>
 	<div class="rounded-lg h-64 p-4 variant-ghost-secondary gap-2 items-center place-items-center">
 		<form
-			{...updateEmail.enhance(async ({ form, data, submit }) => {
+			{...updateEmail.for(data.id).enhance(async ({ form, data, submit }) => {
 				try {
 					//data = manipulateForm(data);
-					const dataString = JSON.stringify(Object.fromEntries(data));
+					const dataString = JSON.stringify(data);
 					console.log(dataString);
 					await submit();
 					result = updateEmail.result;
@@ -108,11 +109,10 @@
 			</div>
 			<div class="flex gap-8">
 				<div class="flex gap-2 items-center">
-					{#if result?.success}
+					{#if formResult?.success}
 						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
-					{:else if result && !result?.success}
-						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span
-						>{result.text}
+					{:else if formResult?.text}
+						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span>{formResult?.text}
 					{/if}
 				</div>
 				<div class="w-auto justify-center">
