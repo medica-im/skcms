@@ -8,7 +8,7 @@ const directory = async (fetch: any) => {
   try {
       response = await fetch(url)
   } catch (error)  {
-  console.log('There was an error', error);
+  console.log('directory fetch error', error);
   }
   if (response?.ok) {
     return await response.json();

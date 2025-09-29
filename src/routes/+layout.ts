@@ -6,6 +6,7 @@ import type { LayoutLoad } from './$types';
 
 export const load: LayoutLoad<{}> = async ({ fetch, parent, data }) => {
   checkVersion();
+  console.log(`data.directory: ${JSON.stringify(data.directory)}`);
   return {
     directory: data.directory,
     session: data.session,
