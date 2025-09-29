@@ -127,14 +127,14 @@
 	<a data-sveltekit-preload-data="off" href="/" title={m.NAVBAR_GO_HOME()}>
 		<div class="flex items-center gap-2">
 			<div class="lg:hidden flex-none">
-				{#if page.data?.organization?.category?.name == 'msp'}<OutpatientClinicLogo
-					/>{:else if page.data?.organization?.category?.name == 'cpts'}<Fa
+				{#if page.data?.organization?.category?.name == 'msp'}<div class="w-5 h-5"><OutpatientClinicLogo
+					/></div>{:else if page.data?.organization?.category?.name == 'cpts'}<Fa
 						icon={faAddressBook} size="sm"
 					/>{/if}
 			</div>
 			<div class="hidden lg:inline-block">
-				{#if page.data?.organization?.category?.name == 'msp'}<OutpatientClinicLogo
-					/>{:else if page.data?.organization?.category?.name == 'cpts'}<Fa
+				{#if page.data?.organization?.category?.name == 'msp'}<div class="w-6 h-6"><OutpatientClinicLogo
+					/></div>{:else if page.data?.organization?.category?.name == 'cpts'}<Fa
 						icon={faAddressBook} size="2x" class="align-middle"
 					/>{/if}
 			</div>
@@ -144,10 +144,10 @@
 					$language
 				)}
 			</div>
-			<span class="hidden 2xl:inline-block"
-				><h3 class="h3">
+			<span class="no-wrap hidden lg:inline-block"
+				><h4 class="h4">
 					{capitalizeFirstLetter(page.data.organization.formatted_name, $language)}
-				</h3></span
+				</h4></span
 			>
 		</div>
 	</a>

@@ -38,7 +38,6 @@
 		return items;
 	};
 	
-	let _id: number = data.id;
 	let _phone: string = $state(data.phone);
 	let selectedType: SelectType | undefined = $state({
 		label: types[data.type],
@@ -72,7 +71,7 @@
 
 <Dialog bind:dialog={dialog}>
 	<div class="rounded-lg h-96 p-4 variant-ghost-secondary gap-2 items-center place-items-center">
-		<!--p>id: {_id} phone: {_phone} type: {_type} selectedAccess: {selectedAccess} roles: {roles}</p-->
+		<!--p>id: {data.id} phone: {_phone} type: {_type} selectedAccess: {selectedAccess} roles: {roles}</p-->
 		<form
 			{...updatePhone.for(uuid).enhance(async ({ form, data, submit }) => {
 				try {
@@ -94,7 +93,7 @@
 							name="id"
 							type="text"
 							placeholder=""
-							value={_id}
+							value={data.id}
 						/>
 					<label class="label">
 						<span>{capitalizeFirstLetter(m.PHONE_NUMBER())}</span>
