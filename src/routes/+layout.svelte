@@ -24,6 +24,8 @@
     import SkeletonAppBar from '$lib/SkeletonAppBar/SkeletonAppBar.svelte';
     import Drawer from '$lib/Drawer/Drawer.svelte';
     import Footer from '$lib/Footer/Footer.svelte';
+	import AddressbookFooter from '$lib/Footer/AddressbookFooter.svelte';
+
     // Theme stylesheet is loaded from LayoutServerData
     import { QueryClientProvider, QueryClient } from '@tanstack/svelte-query'
     import type { ComponentProps } from 'svelte';
@@ -110,7 +112,13 @@
 		<QueryClientProvider client={queryClient}>
 			<slot></slot>
 		</QueryClientProvider>
-		<svelte:fragment slot="pageFooter"><Footer {programsNavLinks}/></svelte:fragment>
+		<svelte:fragment slot="pageFooter">
+			{#if page.data.organization.category.name=="msp"}
+				<Footer {programsNavLinks}/>
+			{:else if page.data.organization.category.name=="cpts"}
+				<AddressbookFooter/>
+			{/if}
+		</svelte:fragment>
 	</AppShell>
 	<div style="display:none">
 		{#each locales as locale}
