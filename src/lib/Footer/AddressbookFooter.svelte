@@ -9,8 +9,6 @@
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import { language } from '$lib/store/languageStore';
 	import OutpatientClinicLogo from '$lib/Logos/OutpatientClinicLogo.svelte';
-
-	export let programsNavLinks;
 </script>
 
 <footer class="page-footer text-xs md:text-base">
@@ -20,7 +18,7 @@
 			<div class="mb-6 md:mb-0">
 				<a data-sveltekit-preload-data="off" href="/" title={m.NAVBAR_GO_HOME()}>
 					<div class="flex space-x-2 lg:space-x-4">
-						<span class="flex w-8 h-8 lg:w-12 lg:h-12"><OutpatientClinicLogo /></span>
+						<span class="flex w-8 h-8 lg:w-12 lg:h-12"></span>
                         <div>
 						<h4 class="h4">
 							{capitalizeFirstLetter($organizationStore.formatted_name, getLocale())}
@@ -45,29 +43,14 @@
 						<li class="mb-4">
 							<a href="/">{m.ADDRESSBOOK_TITLE()}</a>
 						</li>
-						<li class="mb-4">
+						<!--li class="mb-4">
 							<a href="/sites"> Sites </a>
-						</li>
-
+						</li-->
 						<li class="mb-4">
 							<a href="/contact"> Contact </a>
 						</li>
 					</ul>
 				</div>
-				{#if page.data.organization.category.name=="msp"}
-				<div>
-					<h6 class="mb-6 text-sm font-semibold uppercase">
-						{m.OUTPATIENT_CLINIC_PROGRAMS()}
-					</h6>
-					<ul class="font-medium">
-						{#each Object.values(programsNavLinks) as navLink}
-							<li class="mb-4">
-								<a href={navLink.href} class="hover:underline ">{navLink.title[$language]}</a>
-							</li>
-						{/each}
-					</ul>
-				</div>
-				{/if}
 				<div>
 					<h6 class="mb-6 text-sm font-semibold uppercase">
 						{capitalizeFirstLetter(m.LEGAL(), $language)}

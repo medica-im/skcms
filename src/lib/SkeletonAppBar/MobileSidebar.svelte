@@ -12,6 +12,7 @@
 	import Fa from 'svelte-fa';
 	import { faBlog } from '@fortawesome/free-solid-svg-icons';
 
+	const siteCat = page.data.organization.category.name;
 	const widthSetting: { width: string } = $state(getContext('widthSetting'));
 	const drawerStore = getDrawerStore();
 
@@ -70,6 +71,7 @@
 >
 	<!-- App Rail -->
 	<AppRail background="!bg-transparent" border="border-r border-surface-500/30">
+		{#if ( siteCat == "msp" )}
 		<AppRailAnchor
 			data-sveltekit-preload-data="off"
 			href="/"
@@ -84,8 +86,9 @@
 			>
 			<span>{m.HOME_TITLE()}</span>
 		</AppRailAnchor>
+		{/if}
 		<AppRailAnchor
-			href="/annuaire"
+			href={siteCat == "msp" ? "/annuaire" : "/"}
 			selected={page.url.pathname.startsWith('/annuaire') && !currentRailCategory}
 			class="lg:hidden"
 			on:click={() => {
@@ -97,6 +100,7 @@
 			>
 			<span>{m.NAVBAR_ADDRESSBOOK()}</span>
 		</AppRailAnchor>
+		{#if ( siteCat == "msp" )}
 		<AppRailAnchor
 			href="/sites"
 			selected={page.url.pathname == '/sites' && !currentRailCategory}
@@ -110,6 +114,7 @@
 			>
 			<span>Sites</span>
 		</AppRailAnchor>
+		{/if}
 		{#if page.data.organization.category.name == 'msp'}
 			<AppRailTile bind:group={currentRailCategory} name="msp" value={'msp'}>
 				<svelte:fragment slot="lead"
