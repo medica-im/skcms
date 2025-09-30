@@ -65,7 +65,7 @@
 				return commune? e.properties.city == commune : true;
 			})
 			.filter((e: AddressFeature)=> {
-				return page.data.directory.postal_codes ? page.data.directory.postal_codes.includes(e.properties.postcode.substring(0,2)) : true
+				return page.data?.directory?.postal_codes.length ? page.data.directory.postal_codes.includes(e.properties.postcode.substring(0,2)) : true
 			})
 			.map((e: AddressFeature) => {
 				return { label: getLabel(e), value: e };
