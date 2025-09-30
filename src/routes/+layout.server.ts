@@ -8,13 +8,13 @@ const directory = async (fetch: any) => {
   try {
       response = await fetch(url)
   } catch (error)  {
-  console.log('directory fetch error', error);
+  console.log('directory fetch', error);
   }
   if (response?.ok) {
     return await response.json();
   //console.log(`Use the response here: ${JSON.stringify(user)}`);
 } else {
-  console.log(`HTTP Response Code: ${response?.status}`)
+  console.log(`directory fetch HTTP Response Code: ${response?.status}`)
 }
 }
 
