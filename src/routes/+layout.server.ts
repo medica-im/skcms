@@ -2,22 +2,6 @@ import { variables } from "$lib/utils/constants";
 import type { User } from "$lib/interfaces/user.interface";
 import type { LayoutServerLoad } from "./$types"
 
-const directory = async (fetch: any) => {
-  const url = `${variables.BASE_URI}/api/v1/directory/`;
-  let response;
-  try {
-      response = await fetch(url)
-  } catch (error)  {
-  console.log('directory fetch', error);
-  }
-  if (response?.ok) {
-    return await response.json();
-  //console.log(`Use the response here: ${JSON.stringify(user)}`);
-} else {
-  console.log(`directory fetch HTTP Response Code: ${response?.status}`)
-}
-}
-
 export const load: LayoutServerLoad = async ({locals, cookies, fetch}) => {
   const url = `${variables.BASE_URI}/api/v2/users/me`;
           let request = new Request(url,
@@ -45,11 +29,10 @@ export const load: LayoutServerLoad = async ({locals, cookies, fetch}) => {
     user = await response.json();
   //console.log(`Use the response here: ${JSON.stringify(user)}`);
 } else {
-  console.log(`HTTP Response Code: ${response?.status}`)
+  console.log(`/api/v2/users/me HTTP Response Code: ${response?.status}`)
 }
   return {
     session: await locals.auth(),
-    user: user,
-    directory: await directory(fetch)
+    user: user
   }
 }
