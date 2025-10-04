@@ -133,5 +133,7 @@
 		"SUPERUSER": "superuser",
 		"STAFF": ""
 	},
-	"FACILITY": "facility"
+	"FACILITY": "facility",
+	"CREATE": "create",
+	"EDIT": "edit"
 }

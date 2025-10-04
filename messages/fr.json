@@ -135,5 +135,7 @@
     "ANONYMOUS": "inconnu"
   },
   "PHONE_NUMBER": "numéro de téléphone",
-  "FACILITY": "établissement"
+  "FACILITY": "établissement",
+  "CREATE": "créer",
+  "EDIT": "modifier"
 }
