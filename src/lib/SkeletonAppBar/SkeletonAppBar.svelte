@@ -138,7 +138,7 @@
 						icon={faAddressBook} size="2x" class="align-middle"
 					/>{/if}
 			</div>
-			<div class="2xl:hidden flex-none">
+			<div class="lg:hidden flex-none">
 				{capitalizeFirstLetter(
 					page.data.organization.formatted_name_short || page.data.organization.formatted_name,
 					$language

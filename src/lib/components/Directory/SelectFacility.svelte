@@ -5,12 +5,20 @@
 	import Select from 'svelte-select';
 	import { onMount } from 'svelte';
 	import { getFacilities } from '$lib/store/facilityStore';
-	import { getSelectFacility, getSelectFacilityValue } from './context.ts';
+	import { getSelectFacility } from './context.ts';
 	import * as m from "$msgs";
-	export let facilityOf;
+	import type { Loadable } from '@square/svelte-store';
+
+	let { facilityOf } : { facilityOf: Loadable<string[]>} = $props();
 
 	let selectFacility = getSelectFacility();
-	let selectFacilityValue = getSelectFacilityValue();
+	let facilityChoice: {label: string, value: string}|undefined = $state();
+
+	$effect(() => {
+		if ($selectFacility == null) {
+			facilityChoice = undefined;
+		}
+	});
 
 	const label = 'label';
 	const itemId = 'value';
@@ -25,7 +33,7 @@
 			if (facilities) {
 			const value=getValue(facilityParam,facilities);
 			if (value) {
-			    selectFacilityValue.set(value);
+			    facilityChoice=value;
 			}
 			}
 		}
@@ -55,7 +63,7 @@
 
 	function handleClear(event: CustomEvent) {
 		if (event.detail) {
-			selectFacility.set('');
+			selectFacility.set(null);
 			page.url.searchParams.delete('facility');
 		    goto(page.url.pathname+"?"+page.url.searchParams);
 		}
@@ -88,7 +96,7 @@
 			on:change={handleChange}
 			on:clear={handleClear}
 			placeholder={m.ADDRESSBOOK_FACILITIES_PLACEHOLDER()}
-			bind:value={$selectFacilityValue}
+			bind:value={facilityChoice}
 		/>
 	</div>
 {/await}

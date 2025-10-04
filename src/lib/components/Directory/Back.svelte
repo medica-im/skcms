@@ -7,6 +7,8 @@
 	import { faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 	import type { URLSearchParams } from 'url';
 
+	const siteCat = page.data.organization.category.name;
+
 	function isSearchParamsEmpty(searchParams: URLSearchParams): boolean {
 		const params: string[] = ['term', 'situation', 'facility', 'types', 'communes'];
 		for (let param of params) {
@@ -16,18 +18,18 @@
 	}
 
 	function getLabel(searchParams: URLSearchParams) {
-		if (searchParams.get('origin') == '/') {
-			return capitalizeFirstLetter(m.HOME_TITLE());
-		}
 		if (searchParams.get('origin')?.indexOf('sites') == 1) {
 			return capitalizeFirstLetter(m.ADDRESSBOOK_GOTOSITE());
 		}
-		if (searchParams.get('origin')?.indexOf('annuaire') == 1) {
+		if (siteCat == "msp" && searchParams.get('origin')?.indexOf('annuaire') == 1 || siteCat == "cpts" && searchParams.get('origin') == '/') {
 			if (isSearchParamsEmpty(searchParams)) {
 				return capitalizeFirstLetter(m.NAVBAR_ADDRESSBOOK());
 			} else {
 				return capitalizeFirstLetter(m.ADDRESSBOOK_GOTOSEARCH());
 			}
+		}
+		if (searchParams.get('origin') == '/') {
+			return capitalizeFirstLetter(m.HOME_TITLE());
 		}
 		return capitalizeFirstLetter(m.ERROR404_BACK());
 	}

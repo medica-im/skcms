@@ -17,7 +17,6 @@
 		getSelectSituation,
 		setSelectFacility,
 		getSelectFacility,
-		setSelectFacilityValue,
 		setCurrentOrg,
 		getCurrentOrg,
 		setDirectoryRedirect,
@@ -27,6 +26,7 @@
 		setSelCatVal,
 		setSelectSituationValue,
 		setInputAddress,
+		setGeoInputAddress,
 		setDistanceEffectors
 	} from './context';
 	import { variables } from '$lib/utils/constants.ts';
@@ -55,7 +55,7 @@
 	export let propCurrentOrg: boolean | null = true;
 	export let setRedirect: boolean = true;
 	export let propLimitCategories: string[] = [];
-	export let propSelectFacility: string = "";
+	export let propSelectFacility: string|null = null;
 	export let avatar: boolean = true;
 	export let typesView: boolean = false;
 	export let displayEntries: boolean = false;
@@ -71,8 +71,8 @@
 	setSelectSituation();
 	setSelectSituationValue();
 	setAddressFeature();
-	setSelectFacility();
-	setSelectFacilityValue();
+	setGeoInputAddress();
+	setSelectFacility(propSelectFacility);
 	setSelCatVal();
 	setInputAddress();
 
@@ -148,8 +148,8 @@
 	setContext('categorizedFullFilteredEffectors', categorizedFullFilteredEffectors);
 
 	const cardinalCategorizedFilteredEffectors = asyncDerived(
-		[categorizedFilteredEffectors, filteredEffectors],
-		async ([$categorizedFilteredEffectors, $filteredEffectors]) => {
+		[categorizedFilteredEffectors, filteredEffectors, addressFeature],
+		async ([$categorizedFilteredEffectors, $filteredEffectors, $addressFeature]) => {
 			return cardinalCategorizedFilteredEffectorsF($categorizedFilteredEffectors);
 		}
 	);
@@ -191,7 +191,8 @@
 			selectCommunes,
 			currentOrg,
 			limitCategories,
-			getFacilities
+			getFacilities,
+			selectSituation,
 		],
 		async ([
 			$selectCategories,
@@ -199,7 +200,9 @@
 			$selectCommunes,
 			$currentOrg,
 			$limitCategories,
-			$getFacilities
+			$getFacilities,
+			$selectSituation
+
 		]) => {
 			return facilityOfF(
 				$selectCategories,
@@ -207,7 +210,8 @@
 				$selectCommunes,
 				$currentOrg,
 				$limitCategories,
-				$getFacilities
+				$getFacilities,
+				$selectSituation,
 			);
 		}
 	);
@@ -216,7 +220,6 @@
 		$currentOrg = propCurrentOrg;
 		$directoryRedirect = setRedirect;
 		$limitCategories = propLimitCategories;
-		$selectFacility = propSelectFacility;
 	}
 </script>
 {#if typesView}

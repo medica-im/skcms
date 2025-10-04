@@ -13,7 +13,13 @@
 
 	let selected: SelectType | undefined = $state();
 
-	async function getSituationSelect(uid: string) {
+	$effect(() => {
+		if ($selectSituation == null) {
+			selected = undefined;
+		}
+	});
+
+	async function getSituationSelect(uid: string | null) {
 		const _situations = await situations();
 		const _situation = _situations.find((e) => e.value == uid);
 		return _situation;

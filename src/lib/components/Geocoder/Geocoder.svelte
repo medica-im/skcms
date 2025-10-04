@@ -6,7 +6,7 @@
 	import Fa from 'svelte-fa';
 	import DocsIcon from '$lib/Icon/Icon.svelte';
 	import SelectAddress from '$lib/Web/SelectAddress.svelte';
-	import { getAddressFeature } from '../Directory/context';
+	import { getAddressFeature, getGeoInputAddress } from '../Directory/context';
 	import type { AddressFeature, FeatureCollection } from '$lib/store/directoryStoreInterface';
 
 	let {
@@ -19,10 +19,8 @@
 		inputClass?: string
 	} = $props();
 
-	let addressFeature = $state(getAddressFeature());
-	let visible: boolean = $state(false);
-	let inputDisabled: boolean = $derived(Boolean($addressFeature));
-	let disableFetch: boolean = $state(false);
+	let addressFeature = getAddressFeature();
+	let inputAddress = getGeoInputAddress();
 
 	type SelectOption = {value: AddressFeature, label: string};
 
@@ -36,15 +34,8 @@
 		includePosition: false,
 		feedbackEmail: null // Set to null to remove feedback box
 	};
-	//let CURRENT: Integer | null = null;
-	//let inputAddress: string = '';
-	//let CACHE = '';
-	//let RESULTS: Array<Object> = [];
-	let inputAddress: string | undefined = $state();
 
-	$effect(() => {
-		visible = !$addressFeature && !(inputAddress === undefined) && !(inputAddress==null) && inputAddress.length > options.minChar;
-	});
+	let visible = $derived(!$addressFeature && !($inputAddress==null) && $inputAddress.length > options.minChar);
 
 	const getLabel = (address: AddressFeature) => {
 		return `${address.properties.housenumber} ${address.properties.street}${commune ? '' : ' [' + address.properties.city +']'}`
@@ -88,7 +79,7 @@
 
 	function getParams() {
 		let params = {
-			q: `${inputAddress} ${commune ?? ''}`,
+			q: `${$inputAddress} ${commune ?? ''}`,
 			limit: options.limit,
 			lat: null,
 			lon: null
@@ -97,10 +88,10 @@
 	}
 
 	async function fetchGeojson() {
-		if ( disableFetch ) {
+		if ( $addressFeature ) {
 			return
 		}
-		if ( inputAddress && inputAddress?.length < options.minChar ) {
+		if ( $inputAddress && $inputAddress?.length < options.minChar ) {
 			return
 		}
 		let url = options.url + buildQueryString();
@@ -123,20 +114,22 @@
     $effect(()=>{
 		if ($addressFeature) {
 			if (commune) {
-				inputAddress = $addressFeature.properties.name
+				$inputAddress = $addressFeature.properties.name
 			} else {
 				const city = `[${$addressFeature.properties.city}]`;
-				inputAddress = `${$addressFeature.properties.name} ${city}`; 
+				$inputAddress = `${$addressFeature.properties.name} ${city}`; 
 			}
 		}
 	});
 
 	function handleClear() {
-		visible = false;
-		inputAddress = '';
+		$inputAddress = null;
 		$addressFeature = null;
 	}
 </script>
+<!--visible: {visible}<br>
+{JSON.stringify(addressOptions)}<br>
+$addressFeature: {JSON.stringify($addressFeature)}-->
 <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
 	<div class="input-group-shim"><Fa icon={faAddressCard} /></div>
 	<input
@@ -144,23 +137,23 @@
 		type="search"
 		name="geocoder"
 		autocomplete="off"
-		disabled={inputDisabled}
+		disabled={Boolean($addressFeature)}
 		placeholder={placeholder}
-		oninput={()=>{if (!inputDisabled) {fetchGeojson()}}}
-		bind:value={inputAddress}
+		oninput={()=>{fetchGeojson()}}
+		bind:value={$inputAddress}
 		aria-label={m.ADDRESSBOOK_GEOCODER_ARIA_LABEL()}
 	/>
 	<button
 		class="variant-filled-secondary"
 		onclick={handleClear}
 		aria-label={m.ADDRESSBOOK_CLEAR()}
-		disabled={!inputAddress}
+		disabled={!$inputAddress}
 	>
 		<DocsIcon name="clear" width="w-5" height="h-5" />
 	</button>
 </div>
 		{#if visible}
-		<SelectAddress {addressOptions} bind:visible bind:addressFeature={$addressFeature} bind:disableFetch  />
+		<SelectAddress {addressOptions} bind:visible bind:addressFeature={$addressFeature} />
 		{/if}
 
 <style>

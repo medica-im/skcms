@@ -23,15 +23,12 @@
 <div class="py-6 space-y-2 gap-2 {entryClass()}">
 	{#each [...data] as [key, value]}
 	<div>
-		<a href={getUrl(value)} class="btn variant-ghost-primary btn-sm"
-			><span class="">
-				{value.length}
-				{key}
-			</span></a
+		<a href={getUrl(value)} class="p-2 btn variant-ghost-primary btn-sm"
+			><span class="text-wrap">{value.length} {key}</span></a
 		>
-	</div>
 		{#if displayEntries}
 			<Entries data={value} />
 		{/if}
+	</div>
 	{/each}
 </div>

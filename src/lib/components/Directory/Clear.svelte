@@ -10,9 +10,10 @@
 		getSelectSituation,
 		getInputAddress,
 		getSelectFacility,
-		getSelectFacilityValue,
 		getDirectoryRedirect,
-		getAddressFeature
+		getAddressFeature,
+		getGeoInputAddress
+
 	} from './context.ts';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
@@ -22,12 +23,12 @@
 	let selCatVal = getSelCatVal();
 	let selectSituation = getSelectSituation();
 	let inputAddress = getInputAddress();
-	let selectFacilityValue = getSelectFacilityValue();
 	let directoryRedirect = getDirectoryRedirect();
 	let selectCategories = getSelectCategories();
 	let selectFacility = getSelectFacility();
 	let selectCommunes = getSelectCommunes();
 	let addressFeature = getAddressFeature();
+	let geoInputAddress = getGeoInputAddress();
 
 	let isDisabled = true;
 
@@ -37,7 +38,8 @@
 		$selCatVal ||
 		$selectSituation ||
 		$inputAddress ||
-		$selectFacilityValue
+		$selectFacility ||
+		$geoInputAddress
 	);
 
 	function resetDirectory() {
@@ -49,8 +51,9 @@
 		selectSituation.set(null);
 		addressFeature.set(null);
 		inputAddress.set('');
-		selectFacility.set('');
-		selectFacilityValue.set(null);
+		selectFacility.set(null);
+		geoInputAddress.set(null);
+		addressFeature.set(null);
 	}
 
 	function erase() {

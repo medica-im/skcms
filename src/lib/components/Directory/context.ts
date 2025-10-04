@@ -108,6 +108,15 @@ export function getAddressFeature() {
     return getContext<Writable<AddressFeature|null>>('addressFeature');
 }
 
+export function setGeoInputAddress() {
+    let geoInputAddress: Writable<string|null> = writable(null);
+    setContext('geoInputAddress', geoInputAddress);
+}
+
+export function getGeoInputAddress() {
+    return getContext<Writable<string|null>>('geoInputAddress');
+}
+
 export function setInputAddress() {
     let inputAddress: Writable<string> = writable("");
     setContext('inputAddress', inputAddress);
@@ -117,22 +126,13 @@ export function getInputAddress() {
     return getContext<Writable<string>>('inputAddress');
 }
 
-export function setSelectFacility() {
-    let selectFacility: Writable<string> = writable("");
+export function setSelectFacility(facility: string|null=null) {
+    let selectFacility: Writable<string|null> = writable(facility);
     setContext('selectFacility', selectFacility);
 }
 
 export function getSelectFacility() {
-    return getContext<Writable<string>>('selectFacility');
-}
-
-export function setSelectFacilityValue() {
-    let selectFacilityValue: Writable<string|null> = writable(null);
-    setContext('selectFacilityValue', selectFacilityValue);
-}
-
-export function getSelectFacilityValue() {
-    return getContext<Writable<{label: string, value: string}|null>>('selectFacilityValue');
+    return getContext<Writable<string|null>>('selectFacility');
 }
 
 export function setCurrentOrg() {

@@ -18,7 +18,7 @@ export const getOrganizations = async () => {
 }
 
 export const getFacilities = async () => {
-  const response = await fetch('/api/v2/facilities')
+  const response = await fetch('/api/v2/facilities/')
   const data = (await response.json()) as Array<FacilityV2>
   return data
 }

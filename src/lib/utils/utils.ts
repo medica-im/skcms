@@ -115,3 +115,11 @@ export function isExpired(ttl: number, cacheTime: number): boolean {
 	const elapsed = Date.now() - cacheTime;
 	return elapsed > ttl * 1000;
 }
+
+export function displayMap(map: Map<any, any>) {
+	const _arr = [];
+	for (const [key, value] of map) {
+        _arr.push(key + ' = ' + JSON.stringify(value))
+    };
+	return _arr.join('\n')
+}

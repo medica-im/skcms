@@ -40,7 +40,7 @@
 		avatar: boolean;
     	communeOf: any;
     	categoryOf: any;
-    	facilityOf: any;
+    	facilityOf: Loadable<string[]>;
 		types: string[]|null;
 	} = $props();
 

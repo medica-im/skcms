@@ -7,13 +7,14 @@ import { occupations, workforceDataCached, selectOccupations, workforceDict } fr
 import { selectFacilities } from '$lib/store/selectionStore';
 import { PUBLIC_FACILITIES_TTL } from '$env/static/public';
 import { shuffle } from '$lib/helpers/random';
+import { isExpired } from '$lib/utils/utils.ts';
 import type { Writable, AsyncWritable, Loadable } from '@square/svelte-store';
 import type { Organization } from '$lib/interfaces/organization.ts';
 
 export const getFacilities = asyncReadable(
 	{},
 	async () => {
-		var cachelife = parseInt(PUBLIC_FACILITIES_TTL);
+		const ttl = parseInt(PUBLIC_FACILITIES_TTL);
 		const cacheName = "facilities";
 		let cachedData;
 		let expired: boolean = true;
@@ -23,8 +24,7 @@ export const getFacilities = asyncReadable(
 		}
 		if (cachedData) {
 			cachedData = JSON.parse(cachedData);
-			let elapsed = Date.now() - cachedData.cachetime;
-			expired = elapsed > cachelife;
+			expired = isExpired(ttl, cachedData.cachetime);
 			if ('data' in cachedData) {
 				if (cachedData.data?.length) {
 					empty = false;
@@ -35,7 +35,7 @@ export const getFacilities = asyncReadable(
 			const facilities = cachedData.data;
 			return facilities;
 		} else {
-			const url = `${variables.BASE_API_URI}/facilities`;
+			const url = `${variables.BASE_API_URI}/facilities/`;
 			const [response, err] = await handleRequestsWithPermissions(fetch, url);
 			if (response) {
 				let data = response?.facilities;

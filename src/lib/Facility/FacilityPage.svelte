@@ -80,6 +80,7 @@
 				typesView={true}
 				propSelectFacility={facility.uid}
 				displayEntries={true}
+				propCurrentOrg={null}
 			/>
 		</div>
 	</div>

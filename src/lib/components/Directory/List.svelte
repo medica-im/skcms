@@ -9,7 +9,6 @@
 	import { getAddressFeature } from '$lib/components/Directory/context.ts';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
     import type { Loadable } from '@square/svelte-store';
-	import Map from '../Map/Map.svelte';
 
 	let {
 		data,

@@ -146,7 +146,7 @@
 		{#if databaseHtml}
 			<div class="card p-2 variant-filled-secondary" data-popup="popupHover">
 				<p>{cFL(m.EDIT())}</p>
-				<div class="arrow variant-filled-secondary" />
+				<div class="arrow variant-filled-secondary"></div>
 			</div>
 			<button
 				type="button"
