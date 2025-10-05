@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { autoModeWatcher } from '@skeletonlabs/skeleton';
 	import { initializeStores, Modal } from '@skeletonlabs/skeleton';
-    import { organizationStore } from '$lib/store/facilityStore';
     import '../app.postcss';
     import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
     import { storePopup } from '@skeletonlabs/skeleton';
@@ -113,9 +112,9 @@
 			<slot></slot>
 		</QueryClientProvider>
 		<svelte:fragment slot="pageFooter">
-			{#if page.data.organization.category.name=="msp"}
+			{#if page.data.organization?.category.name=="msp"}
 				<Footer {programsNavLinks}/>
-			{:else if page.data.organization.category.name=="cpts"}
+			{:else if page.data.organization?.category.name=="cpts"}
 				<AddressbookFooter/>
 			{/if}
 		</svelte:fragment>
