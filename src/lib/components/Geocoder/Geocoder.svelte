@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import * as m from '$msgs';
 	import { normalize } from '$lib/helpers/stringHelpers';
@@ -11,7 +12,7 @@
 
 	let {
 		commune = null,
-	    placeholder = '',
+	    placeholder = "Adresse de l’usager",
 		inputClass = ''
 	}: {
 		commune?: string|null,
@@ -126,6 +127,12 @@
 		$inputAddress = null;
 		$addressFeature = null;
 	}
+	onMount(async () => {
+		const addressParam: string | null = page.url.searchParams.get('address');
+		if (addressParam) {
+		    $addressFeature = JSON.parse(addressParam);
+		}
+	});
 </script>
 <!--visible: {visible}<br>
 {JSON.stringify(addressOptions)}<br>

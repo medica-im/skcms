@@ -3,38 +3,19 @@
 	import { FacilityLink } from '$lib';
 	import AvatarList from '$lib/components/Effector/Avatar/AvatarList.svelte';
 	import { page } from '$app/state';
-	import { getSelectFacility, getSelectCategories, getTerm, getSelectCommunes, getSelectSituation } from './context';
+	import { getSelectFacility, getSelectCategories, getTerm, getSelectCommunes, getSelectSituation, getAddressFeature } from './context';
 	import { goto } from '$app/navigation';
 	import CommunityAddress from '$lib/Address/CommunityAddress.svelte';
 	import { entryPageUrl } from '$lib/utils/utils';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 	let { entry, avatar }:{ entry: Entry; avatar: boolean;} = $props();
 
+	let addressFeature = getAddressFeature();
 	let selectSituation = getSelectSituation();
 	let selectFacility = getSelectFacility();
 	let selectCategories = getSelectCategories();
 	let selectCommunes = getSelectCommunes();
 	let term = getTerm();
-
-	function _entryPageUrl(
-		entry: Entry,
-		pathname: string,
-		facility: string,
-		types: string[],
-		term: string,
-		communes: string[]
-	) {
-		let typeSlug = entry.effector_type.slug;
-		let facilitySlug = entry.facility.slug;
-		let nameSlug = entry.slug;
-		let facilityParam = facility ? `&facility=${encodeURIComponent(facility)}` : '';
-		let typesParam = types.length ? `&types=${encodeURIComponent(JSON.stringify(types))}` : '';
-		let termParam = term ? `&term=${encodeURIComponent(term)}` : '';
-		let communesParam = communes.length
-			? `&communes=${encodeURIComponent(JSON.stringify(communes))}`
-			: '';
-		return `/${facilitySlug}/${typeSlug}/${nameSlug}?origin=${encodeURIComponent(pathname)}${facilityParam}${typesParam}${termParam}${communesParam}`;
-	}
 
 	const goTo = () => {
 		const url = entryPageUrl(
@@ -45,7 +26,8 @@
 			$selectCategories,
 			$term,
 			$selectCommunes,
-			$selectSituation
+			$selectSituation,
+			$addressFeature,
 		);
 		goto(url, { replaceState: false });
 	};

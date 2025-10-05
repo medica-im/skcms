@@ -54,9 +54,7 @@
 
 	function handleChange(event: CustomEvent) {
 		if (event.detail) {
-			console.log(JSON.stringify(event.detail));
 			const communeUids = event.detail.map((e: SelectType) => e.value);
-			console.log(communeUids);
 			$selectCommunes = communeUids;
 		}
 	}

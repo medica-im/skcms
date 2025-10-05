@@ -1,4 +1,6 @@
 import type { Entry } from '$lib/store/directoryStoreInterface.ts';
+import type { AddressFeature } from '$lib/store/directoryStoreInterface.ts';
+
 // Replaces the locale slug in a URL.
 //
 // If the `full` argument is set to `true`, the full URL is returned as a string.
@@ -74,7 +76,7 @@ export const getByValue = (map: Map<string, string[]>, searchValue: string[]) =>
 	}
 }
 
-export const entryPageUrl = (entry: Entry, org_category: string | null = null, pathname: string | null = null, facility: string | null = null, types: string[] | null = null, term: string | null = null, communes: string[] | null = null, situation: string | null = null) => {
+export const entryPageUrl = (entry: Entry, org_category: string | null = null, pathname: string | null = null, facility: string | null = null, types: string[] | null = null, term: string | null = null, communes: string[] | null = null, situation: string | null = null, addressFeature: AddressFeature|null=null) => {
 	const typeSlug = entry.effector_type.slug;
 	const communeSlug = entry.commune.slug;
 	const nameSlug = entry.slug;
@@ -87,13 +89,16 @@ export const entryPageUrl = (entry: Entry, org_category: string | null = null, p
 		? `${encodeURIComponent(JSON.stringify(communes))}`
 		: '';
 	const situationParam = situation ? `${encodeURIComponent(situation)}`: '';
+	const addressFeatureParam = addressFeature ? `${encodeURIComponent(JSON.stringify(addressFeature))}`: '';
+
 	const params: { [key: string]: string; }[] = [
 		{origin: originParam},
 		{facility: facilityParam},
 		{types: typesParam},
 		{term: termParam},
 		{communes: communesParam},
-		{situation:	situationParam}
+		{situation:	situationParam},
+		{address: addressFeatureParam},
 	]
 	const urlParams: string[] = [];
 	params.forEach((value, index)=>{
