@@ -11,7 +11,7 @@
 	import type { Commune, DepartmentOfFrance, FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
-	import { getCommunesByDpt, getDepartments, getFacilities, getEffectors } from './data';
+	import { getEffectors } from './data';
 
 	let {
 		effector = $bindable(),

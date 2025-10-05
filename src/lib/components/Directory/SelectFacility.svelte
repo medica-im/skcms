@@ -6,13 +6,13 @@
 	import { onMount } from 'svelte';
 	import { getFacilities } from '$lib/store/facilityStore';
 	import { getSelectFacility } from './context.ts';
-	import * as m from "$msgs";
+	import * as m from '$msgs';
 	import type { Loadable } from '@square/svelte-store';
 
-	let { facilityOf } : { facilityOf: Loadable<string[]>} = $props();
+	let { facilityOf }: { facilityOf: Loadable<string[]> } = $props();
 
 	let selectFacility = getSelectFacility();
-	let facilityChoice: {label: string, value: string}|undefined = $state();
+	let facilityChoice: { label: string; value: string } | undefined = $state();
 
 	$effect(() => {
 		if ($selectFacility == null) {
@@ -29,27 +29,28 @@
 		facilityParam = page.url.searchParams.get('facility');
 		if (facilityParam) {
 			selectFacility.set(facilityParam);
-			const facilities = await getFacilities.load();
+			const facilities = await getFacilities();
 			if (facilities) {
-			const value=getValue(facilityParam,facilities);
-			if (value) {
-			    facilityChoice=value;
-			}
+				const value = getValue(facilityParam, facilities);
+				if (value) {
+					facilityChoice = value;
+				}
 			}
 		}
 	});
 
 	function getValue(facilityUid: string, facilities: Facility[]) {
 		if (facilities != undefined) {
-		const facility = facilities.find(e=>e.uid==facilityUid)
-		if (facility) {
-		const label = facility.name;
-		return {label: label, value: facilityUid}
-		}
+			const facility = facilities.find((e) => e.uid == facilityUid);
+			if (facility) {
+				const label = facility.name;
+				return { label: label, value: facilityUid };
+			}
 		}
 	}
 
-	function getItems(_facilitiesOf: string[], facilities: Facility[]) {
+	async function getItems(_facilitiesOf: string[]) {
+		const facilities = await getFacilities();
 		return facilities
 			.filter((f) => _facilitiesOf.includes(f.uid))
 			.sort(function (a, b) {
@@ -64,8 +65,10 @@
 	function handleClear(event: CustomEvent) {
 		if (event.detail) {
 			selectFacility.set(null);
-			page.url.searchParams.delete('facility');
-		    goto(page.url.pathname+"?"+page.url.searchParams);
+			if (page.url.searchParams.get('facility')) {
+				page.url.searchParams.delete('facility');
+				goto(page.url.pathname + '?' + page.url.searchParams);
+			}
 		}
 	}
 
@@ -81,9 +84,9 @@
 		<Select loading={true} placeholder={m.ADDRESSBOOK_FACILITIES_PLACEHOLDER()} />
 	</div>
 {:then}
-<!--
+	<!--
+	facilityChoice: {JSON.stringify(facilityChoice)}<br>
 	selectFacility: {$selectFacility}<br />
-	selectFacilityValue: {JSON.stringify($selectFacilityValue)}<br />
 	facilities: {$getFacilities} ({$getFacilities.length})<br />
 	facilityOf: {$facilityOf} ({$facilityOf.length})
 -->
@@ -91,7 +94,7 @@
 		<Select
 			{label}
 			{itemId}
-			items={getItems($facilityOf, $getFacilities)}
+			items={await getItems($facilityOf)}
 			searchable={false}
 			on:change={handleChange}
 			on:clear={handleClear}

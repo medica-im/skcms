@@ -25,10 +25,18 @@ export const facilityEntries = async (facility_uid: string|undefined) => {
 
 export const allFacilityEntries = async (orgUid: string, currentOrg:boolean|null=null) =>  {
     const facilityEntriesMap = new Map();
-    const facilities = await getFacilities.load();
+    const facilities = await getFacilities();
     //console.log(facilities.slice(1))
     for (const facility of facilities ) {
-        if (currentOrg == null || currentOrg && facility.organizations.includes(orgUid) || !currentOrg && !facility.organizations.includes(orgUid)) {
+        /*console.log(`currentOrg: ${currentOrg}`);
+        console.log(`organizations: ${facility.organizations}`);
+        console.log(facility.organizations.includes(orgUid));
+        console.log((currentOrg == null) ||
+            (currentOrg == true && facility.organizations.includes(orgUid)) || (currentOrg == false && !facility.organizations.includes(orgUid)));*/
+        if (
+            (currentOrg == null) ||
+            (currentOrg == true && facility.organizations.includes(orgUid)) || (currentOrg == false && !facility.organizations.includes(orgUid))
+        ) {
         const entries = await facilityEntries(facility.uid);
         //console.log(`entries of facility ${facility.uid}: ${displayMap(entries)}`);
         facilityEntriesMap.set(facility.uid, entries);
@@ -36,3 +44,14 @@ export const allFacilityEntries = async (orgUid: string, currentOrg:boolean|null
     };
     return facilityEntriesMap;
 }
+
+export const allFacilities = async (orgUid: string, currentOrg:boolean|null=null) =>  {
+    const facilities = await getFacilities();
+    //console.log(facilities.slice(1))
+    const filteredFacilities = facilities.filter(f=>{
+            return (currentOrg == null) ||
+            (currentOrg == true && f.organizations.includes(orgUid)) || (currentOrg == false && !f.organizations.includes(orgUid))
+        }
+    );
+    return filteredFacilities
+};

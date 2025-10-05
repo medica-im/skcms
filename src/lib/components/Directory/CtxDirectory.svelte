@@ -30,7 +30,7 @@
 		setDistanceEffectors
 	} from './context';
 	import { variables } from '$lib/utils/constants.ts';
-	import { organizationStore, getFacilities } from '$lib/store/facilityStore.ts';
+	import { organizationStore } from '$lib/store/facilityStore.ts';
 	import {
 		distanceEffectorsF,
 		fullFilteredEffectorsF,
@@ -86,7 +86,9 @@
 	let currentOrg = getCurrentOrg();
 	let limitCategories = getLimitCategories();
 
-	const distanceEffectors = asyncDerived([addressFeature], async ([$addressFeature]) => {
+	const distanceEffectors = asyncDerived(
+		[addressFeature],
+		async ([$addressFeature]) => {
 		    return await distanceEffectorsF($addressFeature);
 	});
 
@@ -139,7 +141,7 @@
 	setContext('categorizedFilteredEffectors', categorizedFilteredEffectors);
 
 	const categorizedFullFilteredEffectors = asyncDerived(
-	(fullFilteredEffectors),
+	fullFilteredEffectors,
 	async ($fullFilteredEffectors) => {
 		return categorizedFullFilteredEffectorsF($fullFilteredEffectors);
 	}
@@ -191,7 +193,6 @@
 			selectCommunes,
 			currentOrg,
 			limitCategories,
-			getFacilities,
 			selectSituation,
 		],
 		async ([
@@ -200,9 +201,7 @@
 			$selectCommunes,
 			$currentOrg,
 			$limitCategories,
-			$getFacilities,
 			$selectSituation
-
 		]) => {
 			return facilityOfF(
 				$selectCategories,
@@ -210,7 +209,6 @@
 				$selectCommunes,
 				$currentOrg,
 				$limitCategories,
-				$getFacilities,
 				$selectSituation,
 			);
 		}

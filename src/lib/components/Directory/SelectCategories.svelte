@@ -79,8 +79,10 @@
 		if (event.detail) {
 			selectCategories.set([]);
 			selCatVal.set(null);
-			page.url.searchParams.delete('types');
-		    goto(page.url.pathname+"?"+page.url.searchParams);
+			if (page.url.searchParams.get('types')) {
+				page.url.searchParams.delete('types');
+		    	goto(page.url.pathname+"?"+page.url.searchParams);
+			}
 		    if (page.url.pathname != '/annuaire' && $directoryRedirect) {
 				let url = '/annuaire';
 				if ( $selectFacility ) {

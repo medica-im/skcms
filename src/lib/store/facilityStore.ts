@@ -1,6 +1,7 @@
+import { getLocalStorage, getEntries } from '$lib/store/directoryStore.ts';
 import type { Facility } from '$lib/interfaces/facility.interface.ts';
 import { variables } from '$lib/utils/constants';
-import { writable, derived, readable, get, asyncReadable, asyncDerived } from '@square/svelte-store';
+import { get, asyncReadable, asyncDerived } from '@square/svelte-store';
 import { browser } from "$app/environment";
 import { handleRequestsWithPermissions } from '$lib/utils/requestUtils';
 import { occupations, workforceDataCached, selectOccupations, workforceDict } from '$lib/store/workforceStore';
@@ -8,61 +9,9 @@ import { selectFacilities } from '$lib/store/selectionStore';
 import { PUBLIC_FACILITIES_TTL } from '$env/static/public';
 import { shuffle } from '$lib/helpers/random';
 import { isExpired } from '$lib/utils/utils.ts';
-import type { Writable, AsyncWritable, Loadable } from '@square/svelte-store';
+import { downloadElements } from '$lib/store/directoryStore.ts';
+import type { Writable, AsyncWritable, Readable, Loadable } from '@square/svelte-store';
 import type { Organization } from '$lib/interfaces/organization.ts';
-
-export const getFacilities = asyncReadable(
-	{},
-	async () => {
-		const ttl = parseInt(PUBLIC_FACILITIES_TTL);
-		const cacheName = "facilities";
-		let cachedData;
-		let expired: boolean = true;
-		let empty: boolean = true;
-		if (browser) {
-			cachedData = localStorage.getItem(`${cacheName}`);
-		}
-		if (cachedData) {
-			cachedData = JSON.parse(cachedData);
-			expired = isExpired(ttl, cachedData.cachetime);
-			if ('data' in cachedData) {
-				if (cachedData.data?.length) {
-					empty = false;
-				}
-			}
-		}
-		if (cachedData && !expired && !empty) {
-			const facilities = cachedData.data;
-			return facilities;
-		} else {
-			const url = `${variables.BASE_API_URI}/facilities/`;
-			const [response, err] = await handleRequestsWithPermissions(fetch, url);
-			if (response) {
-				let data = response?.facilities;
-				data = data.sort(function (a, b) {
-					return a.name.localeCompare(b.name);
-				})
-				if (browser) {
-					var json = { data: data, cachetime: Date.now() }
-					localStorage.setItem(`${cacheName}`, JSON.stringify(json));
-				}
-				return data;
-			} else if (err) {
-				console.error(err);
-				throw (err)
-			}
-		}
-	});
-
-export const facilitiesWithAvatar = asyncDerived(
-	(getFacilities),
-	($getFacilities) => {
-		let carousel = $getFacilities.filter(function (item: any) {
-			return item?.avatar?.raw
-		});
-		shuffle(carousel);
-		return carousel
-	});
 
 export const organizationStore = asyncReadable(
 	{},
@@ -78,7 +27,7 @@ export const organizationStore = asyncReadable(
 		}
 		if (cachedData) {
 			cachedData = JSON.parse(cachedData);
-			expired = Date.now() - cachedData.cachetime > cachelife;
+			expired = Date.now() - cachedData.cachetime > cachelife * 1000;
 			if ('data' in cachedData) {
 				if (cachedData.data) {
 					empty = false;
@@ -91,7 +40,7 @@ export const organizationStore = asyncReadable(
 			const apiUrl = `${variables.BASE_API_URI}/organization/${lang}/`;
 			console.log(apiUrl);
 			const [response, err] = await handleRequestsWithPermissions(fetch, apiUrl);
-			console.log([response,err]);
+			console.log([response, err]);
 			if (response) {
 				let data = response;
 				data?.facility.sort(function (a, b) {
@@ -107,8 +56,78 @@ export const organizationStore = asyncReadable(
 	}
 );
 
+export const getAvatars = asyncDerived(
+	organizationStore,
+	async ($organizationStore) => {
+		const cachedEffectorsObj = getLocalStorage('entries');
+		let cachedEffectors = cachedEffectorsObj?.data;
+		if (!cachedEffectors) {
+			cachedEffectors = await getEntries();
+		}
+		let carousel = cachedEffectors.filter(function (item: Entry) {
+			return (item?.avatar?.lt && (item?.organizations.includes($organizationStore.uid) || item?.employers.includes($organizationStore.uid)))
+		});
+		shuffle(carousel);
+		return carousel
+	});
+
+export const getFacilities = async (): Promise<Facility[]> => {
+	const ttl = parseInt(PUBLIC_FACILITIES_TTL);
+	const cacheName = "facilities";
+	let cachedData;
+	let expired: boolean = true;
+	let empty: boolean = true;
+	if (browser) {
+		cachedData = localStorage.getItem(`${cacheName}`);
+	}
+	if (cachedData) {
+		cachedData = JSON.parse(cachedData);
+		expired = isExpired(ttl, cachedData.cachetime);
+		if ('data' in cachedData) {
+			if (cachedData.data?.length) {
+				empty = false;
+			}
+		}
+	}
+	if (cachedData && !expired && !empty) {
+		const facilities = cachedData.data;
+		return facilities as Facility[];
+	} else {
+		const url = `${variables.BASE_API_URI}/facilities/`;
+		const facilities: Facility[] = await downloadElements("facilities");
+		//console.log(facilities.slice(2));
+		if (facilities.length) {
+			facilities.sort(function (a, b) {
+				return a.name.localeCompare(b.name);
+			})
+			if (browser) {
+				var json = { data: facilities, cachetime: Date.now() }
+				localStorage.setItem(`${cacheName}`, JSON.stringify(json));
+			}
+			return facilities as Facility[];
+		} else {
+			throw (Error())
+		}
+	}
+};
+
+export const facilitiesWithAvatar = async (): Promise<Facility[]> => {
+	let facilities: Facility[] = [];
+	try {
+		facilities = await getFacilities();
+	} catch (err) {
+		console.error(err);
+		throw (err)
+	}
+	let carousel = facilities.filter(function (item: any) {
+		return item?.avatar?.raw
+	});
+	shuffle(carousel);
+	return carousel
+};
+
 export const facilityWithOccupationStore = asyncDerived(
-	([organizationStore, workforceDataCached, selectOccupations]),
+	[organizationStore, workforceDataCached, selectOccupations],
 	async ([$organizationStore, $workforceDataCached, $selectOccupations]) => {
 		const okFacilities = new Set();
 		$workforceDataCached.forEach(
@@ -149,10 +168,10 @@ function workerCount(obj) {
 		total = total + count;
 	}
 	return total
-}
+};
 
 export const occupationOfOrganizationStore = asyncDerived(
-	([occupations, workforceDataCached, selectFacilities, workforceDict]),
+	[occupations, workforceDataCached, selectFacilities, workforceDict],
 	async ([$occupations, $workforceDataCached, $selectFacilities, $workforceDict]) => {
 		if (get(selectFacilities).length == 0) {
 			return get(occupations).map(
@@ -225,9 +244,9 @@ export const occupationOfOrganizationStore = asyncDerived(
 );
 
 export const siteCount = asyncDerived(
-	([organizationStore, getFacilities]),
-	async ([$organizationStore, $getFacilities]) => {
-		const facilities: Facility[] = $getFacilities;
+	organizationStore,
+	async ($organizationStore) => {
+		const facilities: Facility[] = await getFacilities();
 		return facilities.filter((facility) =>
 			facility.organizations.includes($organizationStore.uid)
 		).length;
@@ -235,7 +254,7 @@ export const siteCount = asyncDerived(
 );
 
 export const websiteSchema = asyncDerived(
-	(organizationStore),
+	organizationStore,
 	async ($organizationStore) => {
 		const someds = [];
 		for (let somed of $organizationStore.contact.socialnetworks) {
