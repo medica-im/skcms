@@ -1,0 +1,162 @@
+import { getContext, setContext } from 'svelte';
+import { writable, derived, readable, get, asyncReadable, asyncDerived } from '@square/svelte-store';
+import type { Writable, Loadable } from '@square/svelte-store';
+import type { LimitCategoriesStore, AddressFeature, CurrentOrgStore, CommunesValueStore, DistanceEffectors, Type } from '$lib/store/directoryStoreInterface';
+
+export function setEffectorUid(uid:string) {
+    setContext('effectorUid', uid)
+}
+
+export function getEffectorUid() {
+    return getContext<string>('effectorUid')
+}
+
+export function setEntryUid(uid:string) {
+    setContext('entryUid', uid)
+}
+
+export function getEntryUid() {
+    return getContext<string>('entryUid')
+}
+
+export function setEditMode() {
+    let editMode = writable<boolean>(false);
+    setContext('editMode', editMode)
+}
+
+export function getEditMode() {
+    return getContext<Writable<boolean>>('editMode')
+}
+
+export function setTerm() {
+	let term = writable<string>("");
+	setContext('term', term)
+}
+
+export function getTerm() {
+	return getContext<Writable<string>>('term')
+}
+
+export function setSelectCategories() {
+    let selectCategories: Writable<string[]> = writable([]);
+    setContext('selectCategories', selectCategories)
+}
+export function getSelectCategories() {
+    return getContext<Writable<string[]>>('selectCategories')
+}
+
+export function setLimitCategories() {
+    let limitCategories: LimitCategoriesStore = writable([]);
+    setContext('limitCategories', limitCategories);
+}
+
+export function getLimitCategories() {
+    return getContext<Writable<string[]>>('limitCategories');
+}
+
+export function setSelectCommunes() {
+    let selectCommunes: Writable<string[]> = writable([]);
+    setContext('selectCommunes', selectCommunes)
+}
+
+export function getSelectCommunes() {
+    return getContext<Writable<string[]>>('selectCommunes');
+}
+
+export function setSelectCommunesValue() {
+    let selectCommunesValue = writable(null);
+    setContext('selectCommunesValue', selectCommunesValue);
+}
+
+export function getSelectCommunesValue() {
+    return getContext<CommunesValueStore>('selectCommunesValue');
+}
+
+export function setSelCatVal() {
+    let selCatVal: Writable<string|null> = writable(null);
+    setContext('selCatVal', selCatVal);
+}
+
+export function getSelCatVal() {
+    return getContext<Writable<{label: string, value: string}|null>>('selCatVal');
+}
+
+export function setSelectSituation() {
+    let selectSituation: Writable<string|null> = writable(null);
+    setContext('selectSituation', selectSituation);
+}
+
+export function getSelectSituation() {
+    return getContext<Writable<string|null>>('selectSituation');
+}
+
+export function setSelectSituationValue() {
+    let selectSituationValue: Writable<string|null> = writable(null);
+    setContext('selectSituationValue', selectSituationValue);
+}
+
+export function getSelectSituationValue() {
+    return getContext<Writable<string|null>>('selectSituationValue');
+}
+
+export function setAddressFeature() {
+    let addressFeature: Writable<AddressFeature|null> = writable(null);
+    setContext('addressFeature', addressFeature);
+}
+
+export function getAddressFeature() {
+    return getContext<Writable<AddressFeature|null>>('addressFeature');
+}
+
+export function setGeoInputAddress() {
+    let geoInputAddress: Writable<string|null> = writable(null);
+    setContext('geoInputAddress', geoInputAddress);
+}
+
+export function getGeoInputAddress() {
+    return getContext<Writable<string|null>>('geoInputAddress');
+}
+
+export function setInputAddress() {
+    let inputAddress: Writable<string> = writable("");
+    setContext('inputAddress', inputAddress);
+}
+
+export function getInputAddress() {
+    return getContext<Writable<string>>('inputAddress');
+}
+
+export function setSelectFacility(facility: string|null=null) {
+    let selectFacility: Writable<string|null> = writable(facility);
+    setContext('selectFacility', selectFacility);
+}
+
+export function getSelectFacility() {
+    return getContext<Writable<string|null>>('selectFacility');
+}
+
+export function setCurrentOrg() {
+    let currentOrg: CurrentOrgStore = writable(true);
+    setContext('currentOrg', currentOrg);
+}
+
+export function getCurrentOrg(): CurrentOrgStore {
+    return getContext('currentOrg');
+}
+
+export function setDirectoryRedirect() {
+    let directoryRedirect: Writable<boolean> = writable(true);
+    setContext('directoryRedirect', directoryRedirect);
+}
+
+export function getDirectoryRedirect(): Writable<boolean> {
+    return getContext('directoryRedirect');
+}
+
+export function setDistanceEffectors(distanceEffectors: Loadable<DistanceEffectors|null>) {
+    setContext('distanceEffectors', distanceEffectors)
+}
+
+export function getDistanceEffectors(): Loadable<DistanceEffectors|null> {
+    return getContext('distanceEffectors')
+}

@@ -1,0 +1,34 @@
+<script lang="ts">
+	import { page } from '$app/state';
+	import Entries from './Entries.svelte';
+	export let data;
+	export let displayEntries;
+
+	const getUrl = (value: any[]) => {
+		const types = `["${value[0].effector_type.uid}"]`;
+		const encodedTypes = encodeURIComponent(JSON.stringify(types));
+		const encodedFacility = `${value[0].facility.uid}`;
+		const path = page.data.organization.category.name == "msp" ? "/annuaire" : "/";
+		return `${path}?types=${encodedTypes}&facility=${encodedFacility}`;
+	};
+	const entryClass = () => {
+		if (displayEntries) {
+			return 'flex flex-col';
+		} else {
+			return '';
+		}
+	};
+</script>
+
+<div class="py-6 space-y-2 gap-2 {entryClass()}">
+	{#each [...data] as [key, value]}
+	<div>
+		<a href={getUrl(value)} class="p-2 btn variant-ghost-primary btn-sm"
+			><span class="text-wrap">{value.length} {key}</span></a
+		>
+		{#if displayEntries}
+			<Entries data={value} />
+		{/if}
+	</div>
+	{/each}
+</div>

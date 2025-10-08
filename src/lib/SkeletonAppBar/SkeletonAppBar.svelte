@@ -1,0 +1,315 @@
+<script lang="ts">
+	import { page } from '$app/state';
+	import { browser } from '$app/environment';
+	import { enhance } from '$app/forms';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import { variables } from '$lib/utils/constants';
+	import Fa from 'svelte-fa';
+	import { faCaretSquareDown } from '@fortawesome/free-regular-svg-icons';
+	import {
+		faBars,
+		faCaretDown,
+		faInfo,
+		faTimeline,
+		faBookMedical,
+		faHouse,
+		faMapLocationDot,
+		faAddressBook,
+		faEnvelope,
+		faBlog,
+		faRightToBracket,
+		faRightFromBracket,
+		faUserPlus,
+		faUser,
+		faPalette
+	} from '@fortawesome/free-solid-svg-icons';
+	import User from '$lib/SkeletonAppBar/User.svelte';
+	// Types
+	import type { ModalSettings } from '@skeletonlabs/skeleton';
+	import type { DrawerSettings } from '@skeletonlabs/skeleton';
+	// Docs
+	import OutpatientClinicLogo from '$lib/Logos/OutpatientClinicLogo.svelte';
+	import AddressBookLogo from '$lib/Logos/AddressBookLogo.svelte';
+	import SkeletonIcon from '$lib/Icon/Icon.svelte';
+	import SocialNetworks from '../SoMed/SoMed.svelte';
+	// Components
+	import { AppBar } from '@skeletonlabs/skeleton';
+	import { LightSwitch } from '@skeletonlabs/skeleton';
+	import MenuNavLinks from '$lib/SkeletonAppBar/MenuNavLinks.svelte';
+	// Utilities
+	import { popup } from '@skeletonlabs/skeleton';
+	import { getModalStore } from '@skeletonlabs/skeleton';
+
+	// Stores
+	import { storeTheme } from '$lib/store/skeletonStores';
+	import { getDrawerStore } from '@skeletonlabs/skeleton';
+	import * as m from '$msgs';
+	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { language } from '$lib/store/languageStore';
+	import type { Organization } from '$lib/interfaces/organization.ts';
+
+	const drawerStore = getDrawerStore();
+	const modalStore = getModalStore();
+
+	// Local
+	let isOsMac = false;
+
+	// Set Search Shortkey Keys
+	if (browser) {
+		let os = navigator.userAgent;
+		isOsMac = os.search('Mac') !== -1;
+	}
+
+	// Drawer Handler
+	function drawerOpen(): void {
+		const s: DrawerSettings = {
+			id: 'mobile'
+		};
+		drawerStore.open(s);
+	}
+
+	// Search
+	function triggerSearch(): void {
+		const d: ModalSettings = {
+			type: 'component',
+			component: 'modalSearch',
+			position: 'item-start'
+		};
+		modalStore.trigger(d);
+	}
+
+	// Keyboard Shortcut (CTRL/⌘+K) to Focus Search
+	function onWindowKeydown(e: KeyboardEvent): void {
+		if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+			// Prevent default browser behavior of focusing URL bar
+			e.preventDefault();
+			// If modal currently open, close modal (allows to open/close search with CTRL/⌘+K)
+			$modalStore.length ? modalStore.close() : triggerSearch();
+		}
+	}
+
+	const themes = [
+		{ type: 'skeleton', name: 'Skeleton', icon: '💀' },
+		{ type: 'wintry', name: 'Wintry', icon: '🌨️' },
+		{ type: 'modern', name: 'Modern', icon: '🤖' },
+		{ type: 'rocket', name: 'Rocket', icon: '🚀' },
+		{ type: 'seafoam', name: 'Seafoam', icon: '🧜‍♀️' },
+		{ type: 'vintage', name: 'Vintage', icon: '📺' },
+		{ type: 'sahara', name: 'Sahara', icon: '🏜️' },
+		{ type: 'hamlindigo', name: 'Hamlindigo', icon: '👔' },
+		{ type: 'gold-nouveau', name: 'Gold Nouveau', icon: '💫' },
+		{ type: 'crimson', name: 'Crimson', icon: '⭕' }
+		// { type: 'seasonal', name: 'Seasonal', icon: '🎆' }
+		// { type: 'test', name: 'Test', icon: '🚧' },
+	];
+
+	const setTheme: SubmitFunction = ({ formData }) => {
+		const theme = formData.get('theme')?.toString();
+
+		if (theme) {
+			document.body.setAttribute('data-theme', theme);
+			$storeTheme = theme;
+		}
+	};
+</script>
+
+<!-- NOTE: using stopPropagation to override Chrome for Windows search shortcut -->
+<svelte:window on:keydown|stopPropagation={onWindowKeydown} />
+
+<AppBar shadow="shadow-lg">
+	<svelte:fragment slot="lead">
+		<!-- Hamburger Menu -->
+		<button on:click={drawerOpen} class="btn-icon xl:!hidden">
+			<Fa icon={faBars} />
+		</button>
+	</svelte:fragment>
+	<!-- Logo -->
+	<a data-sveltekit-preload-data="off" href="/" title={m.NAVBAR_GO_HOME()}>
+		<div class="flex items-center gap-2">
+			<div class="lg:hidden flex-none">
+				{#if page.data?.organization?.category?.name == 'msp'}<div class="w-5 h-5"><OutpatientClinicLogo
+					/></div>{:else if page.data?.organization?.category?.name == 'cpts'}<Fa
+						icon={faAddressBook} size="sm"
+					/>{/if}
+			</div>
+			<div class="hidden lg:inline-block">
+				{#if page.data?.organization?.category?.name == 'msp'}<div class="w-6 h-6"><OutpatientClinicLogo
+					/></div>{:else if page.data?.organization?.category?.name == 'cpts'}<Fa
+						icon={faAddressBook} size="2x" class="align-middle"
+					/>{/if}
+			</div>
+			<div class="lg:hidden flex-none">
+				{capitalizeFirstLetter(
+					page.data.organization.formatted_name_short || page.data.organization.formatted_name,
+					$language
+				)}
+			</div>
+			<span class="no-wrap hidden lg:inline-block"
+				><h4 class="h4">
+					{capitalizeFirstLetter(page.data.organization.formatted_name, $language)}
+				</h4></span
+			>
+		</div>
+	</a>
+	<svelte:fragment slot="trail">
+		<!-- Search -->
+		<!--div class="md:inline md:ml-4">
+			<button class="btn btn-sm variant-ghost-surface hidden lg:inline-block" on:click={triggerSearch}>
+				<i class="fa-solid fa-magnifying-glass" />
+				<span class="hidden lg:inline-block">Search</span>
+				<span class="hidden lg:inline-block text-[11px] font-bold opacity-60 pl-2">{isOsMac ? '⌘' : 'Ctrl'}+K</span>
+			</button>
+		</div-->
+
+		<!-- Navigate -->
+		<div class="relative hidden xl:block">
+			<!-- trigger -->
+			<button
+				class="btn hover:variant-soft-primary"
+				use:popup={{ event: 'click', target: 'features' }}
+			>
+				<span>{m.NAVBAR_NAVIGATE()}</span>
+				<span class="opacity-50"><Fa icon={faCaretDown} size="sm" /></span>
+			</button>
+			<!-- popup -->
+			<!-- prettier-ignore -->
+			<div class="card p-4 w-60 shadow-xl" data-popup="features">
+				<nav class="list-nav">
+					<ul>
+						{#if page.data?.organization?.category?.name == "msp"}
+						<li>
+							<a data-sveltekit-preload-data="off" href="/">
+								<span class="w-6 text-center"><Fa icon={faHouse} /></span>
+								<span>{m.HOME_TITLE()}</span>
+							</a>
+						</li>
+						<li>
+							<a data-sveltekit-preload-data="tap" href="/annuaire">
+								<span class="w-6 text-center"><Fa icon={faAddressBook} /></span>
+								<span>{m.NAVBAR_ADDRESSBOOK()}</span>
+							</a>
+						</li>
+						<li>
+							<a href="/sites">
+								<span class="w-6 text-center"><Fa icon={faMapLocationDot} /></span>
+								<span>Sites</span>
+							</a>
+						</li>
+						{:else}
+						<li>
+							<a data-sveltekit-preload-data="tap" href="/">
+								<span class="w-6 text-center"><Fa icon={faAddressBook} /></span>
+								<span>{m.NAVBAR_ADDRESSBOOK()}</span>
+							</a>
+						</li>
+						{/if}
+						
+						<li>
+							<a href="/contact">
+								<span class="w-6 text-center"><Fa icon={faEnvelope} /></span>
+								<span>Contact</span>
+							</a>
+						</li>
+					</ul>
+				</nav>
+			</div>
+		</div>
+		<div class="hidden">
+			<!-- trigger -->
+			<button
+				class="btn hover:variant-soft-primary"
+				use:popup={{ event: 'click', target: 'facility' }}
+			>
+				<span>{m.OUTPATIENT_CLINIC()}</span>
+				<span class="opacity-50"><Fa icon={faCaretDown} /></span>
+			</button>
+			<!-- popup -->
+			<!-- prettier-ignore -->
+			<div class="card p-4 w-60 shadow-xl" data-popup="facility">
+				<nav class="list-nav">
+					<ul>
+						{#if page.data?.organization?.category?.name == "msp"}
+						<li>
+							<a href="/{ page.data.organization.category.slug }/a-propos">
+								<span class="w-6 text-center"><Fa icon={faInfo} /></span>
+								<span>{m.NAVBAR_ABOUT()}</span>
+							</a>
+							{#if variables.TIMELINE}
+							<a href="/{ page.data.organization.category.slug }/chronologie">
+								<span class="w-6 text-center"><Fa icon={faTimeline} /></span>
+								<span>{m.NAVBAR_TIMELINE()}</span>
+							</a>
+							{/if}
+							<!--hr class="my-4"-->
+							<a href="/{page.data.organization.category.slug }/projet-de-sante">
+								<span class="w-6 text-center"><Fa icon={faBookMedical} /></span>
+								<span>{m.NAVBAR_HEALTH_PROJECT()}</span>
+							</a>
+						</li>
+					{/if}
+					</ul>
+				</nav>
+			</div>
+		</div>
+		<div class="relative hidden xl:block">
+			<MenuNavLinks />
+		</div>
+
+		<!-- trigger-->
+		<button
+			class="btn-sm lg:btn-md btn hover:variant-soft-primary"
+			use:popup={{ event: 'click', target: 'theme' }}
+		>
+			<span class="2xl:hidden">
+				<Fa icon={faPalette} size="sm" />
+			</span>
+			<span class="hidden 2xl:inline-block">{m.NAVBAR_THEME()}</span>
+			<span class="opacity-50"><Fa icon={faCaretDown} /></span>
+		</button>
+		<!-- popup -->
+		<div class="card p-4 w-60 shadow-xl" data-popup="theme">
+			<section class="flex justify-between items-center">
+				<h6 class="h6">Mode</h6>
+				<LightSwitch />
+			</section>
+			<hr class="my-4" />
+			<nav class="list-nav p-4 -m-4 max-h-64 lg:max-h-[500px] overflow-y-auto">
+				<form action="/?/setTheme" method="POST" use:enhance={setTheme}>
+					<ul>
+						{#each themes as { icon, name, type }}
+							<li>
+								<button
+									class="option w-full h-full"
+									type="submit"
+									name="theme"
+									value={type}
+									class:bg-primary-active-token={$storeTheme === type}
+								>
+									<span>{icon}</span>
+									<span class="flex-auto text-left">{name}</span>
+								</button>
+							</li>
+						{/each}
+					</ul>
+				</form>
+			</nav>
+		</div>
+
+		<!-- Social -->
+		<!-- prettier-ignore -->
+		<div class="relative hidden xl:block">
+			{#if page.data.organization?.contact?.socialnetworks}
+            <SocialNetworks data={page.data.organization.contact.socialnetworks} appBar={true} />
+			{/if}
+			{#if variables.BLOG_URI}
+
+			<a href={variables.BLOG_URI} title={'blog'} class="btn hover:variant-soft-primary" target="_blank" rel="noreferrer">
+				<span><Fa icon={faBlog} size="lg" /></span>
+				<span class="hidden 2xl:inline-block">Blog</span>
+			</a>
+			{/if}
+        </div>
+
+		<User />
+	</svelte:fragment>
+</AppBar>
