@@ -64,7 +64,7 @@ export async function fetchElements(path: string, next: string, limit: number | 
 	const limit_qs: string = limit ? `?limit=${limit}` : '';
 	const url = `${variables.BASE_API_URI}/${path}/${limit_qs}${next || ""}`;
 	const [data, err]: [Tastypie, CustomError] = await handleRequestsWithPermissions(skFetch || fetch, url);
-	const _next = data.meta.next;
+	const _next = data?.meta?.next;
 	const objects = data[path] as any[];
 	return [objects, _next]
 };
@@ -73,16 +73,16 @@ export async function downloadElements(path: string, skFetch: Fetch | null = nul
 	let hasMore = true;
 	let data: any[] = [];
 	let next = "";
-	let _limit: number | null = limit;
+	//let _limit: number | null = limit;
 	while (hasMore) {
-		const [_elements, _next] = await fetchElements(path, next, _limit, skFetch);
+		const [_elements, _next] = await fetchElements(path, next, limit, skFetch);
 		data = [...data, ..._elements];
-		if (_next === null) {
+		if (!_next) {
 			hasMore = false;
 		} else {
 			next = _next
 		}
-		_limit = null;
+		//_limit = null;
 	}
 	return data
 }
