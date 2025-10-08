@@ -63,6 +63,7 @@ export const effectorTypeLabels = async () => {
 export async function fetchElements(path: string, next: string, limit: number | null = null, skFetch: Fetch | null = null): Promise<[any[], string | null]> {
 	const limit_qs: string = limit ? `?limit=${limit}` : '';
 	const url = `${variables.BASE_API_URI}/${path}/${limit_qs}${next || ""}`;
+	console.log(url);
 	const [data, err]: [Tastypie, CustomError] = await handleRequestsWithPermissions(skFetch || fetch, url);
 	console.log(`err:${JSON.stringify(err)}`);
 	console.log(`data:${JSON.stringify(data)}`);
