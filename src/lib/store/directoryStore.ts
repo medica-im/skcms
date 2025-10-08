@@ -64,7 +64,9 @@ export async function fetchElements(path: string, next: string, limit: number | 
 	const limit_qs: string = limit ? `?limit=${limit}` : '';
 	const url = `${variables.BASE_API_URI}/${path}/${limit_qs}${next || ""}`;
 	const [data, err]: [Tastypie, CustomError] = await handleRequestsWithPermissions(skFetch || fetch, url);
+	console.log(`data:${JSON.stringify(data)}`);
 	const _next = data?.meta?.next;
+	console.log(`_next:${JSON.stringify(_next)}`);
 	const objects = data[path] as any[];
 	return [objects, _next]
 };
