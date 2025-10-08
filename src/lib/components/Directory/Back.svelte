@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import * as m from "$msgs";
+	import { browser } from '$app/environment';
+	import * as m from '$msgs';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import Fa from 'svelte-fa';
 	import { faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
@@ -20,7 +21,10 @@
 		if (searchParams.get('origin')?.indexOf('sites') == 1) {
 			return capitalizeFirstLetter(m.ADDRESSBOOK_GOTOSITE());
 		}
-		if (siteCat == "msp" && searchParams.get('origin')?.indexOf('annuaire') == 1 || siteCat == "cpts" && searchParams.get('origin') == '/') {
+		if (
+			(siteCat == 'msp' && searchParams.get('origin')?.indexOf('annuaire') == 1) ||
+			(siteCat == 'cpts' && searchParams.get('origin') == '/')
+		) {
 			if (isSearchParamsEmpty(searchParams)) {
 				return capitalizeFirstLetter(m.NAVBAR_ADDRESSBOOK());
 			} else {
@@ -67,9 +71,11 @@
 	}
 </script>
 
-{#if page.url.searchParams.get('origin')}
-	<a href={buildUrl(page.url.searchParams)} class="btn variant-ghost-primary">
-		<span class="badge variant-filled-primary"><Fa icon={faArrowLeft} /></span>
-		<span class="whitespace-normal text-left">{getLabel(page.url.searchParams)}</span>
-	</a>
+{#if browser}
+	{#if page.url.searchParams.get('origin')}
+		<a href={buildUrl(page.url.searchParams)} class="btn variant-ghost-primary">
+			<span class="badge variant-filled-primary"><Fa icon={faArrowLeft} /></span>
+			<span class="whitespace-normal text-left">{getLabel(page.url.searchParams)}</span>
+		</a>
+	{/if}
 {/if}
