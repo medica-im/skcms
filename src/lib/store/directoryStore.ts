@@ -60,33 +60,27 @@ export const effectorTypeLabels = async () => {
 	}
 };
 
-export async function fetchElements(path: string, next: string, limit: number | null = null, skFetch: Fetch | null = null): Promise<[any[], string | null]> {
+export async function fetchElements(path: string, next: string, limit: number | null = null): Promise<[any[], string | null]> {
 	const limit_qs: string = limit ? `?limit=${limit}` : '';
 	const url = `${variables.BASE_API_URI}/${path}/${limit_qs}${next || ""}`;
-	console.log(url);
-	const [data, err]: [Tastypie, CustomError] = await handleRequestsWithPermissions(skFetch || fetch, url);
-	console.log(`err:${JSON.stringify(err)}`);
-	console.log(`data:${JSON.stringify(data)}`);
+	const [data, err]: [Tastypie, CustomError] = await handleRequestsWithPermissions(fetch, url);
 	const _next = data?.meta?.next;
-	console.log(`_next:${JSON.stringify(_next)}`);
 	const objects = data[path] as any[];
 	return [objects, _next]
 };
 
-export async function downloadElements(path: string, skFetch: Fetch | null = null, limit: number = 100,) {
+export async function downloadElements(path: string, limit: number = 100,) {
 	let hasMore = true;
 	let data: any[] = [];
 	let next = "";
-	//let _limit: number | null = limit;
 	while (hasMore) {
-		const [_elements, _next] = await fetchElements(path, next, limit, skFetch);
+		const [_elements, _next] = await fetchElements(path, next, limit);
 		data = [...data, ..._elements];
 		if (!_next) {
 			hasMore = false;
 		} else {
 			next = _next
 		}
-		//_limit = null;
 	}
 	return data
 }

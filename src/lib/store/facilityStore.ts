@@ -94,7 +94,7 @@ export const getFacilities = async (skFetch: Fetch|null=null): Promise<Facility[
 		return facilities as Facility[];
 	} else {
 		const url = `${variables.BASE_API_URI}/facilities/`;
-		const facilities: Facility[] = await downloadElements("facilities",skFetch);
+		const facilities: Facility[] = await downloadElements("facilities");
 		//console.log(facilities.slice(2));
 		if (facilities.length) {
 			facilities.sort(function (a, b) {
