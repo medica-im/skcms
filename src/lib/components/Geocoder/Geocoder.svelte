@@ -96,7 +96,6 @@
 			return
 		}
 		let url = options.url + buildQueryString();
-		console.log(`geocoder: ${url}`);
 		const res = await fetch(url, {
 			method: 'GET',
 			mode: 'cors'
@@ -106,7 +105,6 @@
 			throw new Error(message);
 		} else {
 			const geojson = await res.json();
-			console.log(JSON.stringify(geojson));
 			//response = geojson;
 			addressOptions = getAddressOptions(geojson);
 		}

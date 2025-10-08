@@ -1,5 +1,4 @@
 <script lang="ts">
-	import isEmpty from 'lodash.isempty';
 	import { page } from '$app/state';
 	import * as m from "$msgs";
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';

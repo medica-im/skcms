@@ -1,10 +1,10 @@
-import { getLocalStorage, getEntries } from '$lib/store/directoryStore.ts';
+import { getEntries } from '$lib/store/directoryStore.ts';
+import { getLocalStorage } from '$lib/utils/storage';
 import type { Facility } from '$lib/interfaces/facility.interface.ts';
 import { variables } from '$lib/utils/constants';
 import { get, asyncReadable, asyncDerived } from '@square/svelte-store';
 import { browser } from "$app/environment";
 import { handleRequestsWithPermissions } from '$lib/utils/requestUtils';
-import { occupations, workforceDataCached, selectOccupations, workforceDict } from '$lib/store/workforceStore';
 import { selectFacilities } from '$lib/store/selectionStore';
 import { PUBLIC_FACILITIES_TTL } from '$env/static/public';
 import { shuffle } from '$lib/helpers/random';
@@ -12,6 +12,8 @@ import { isExpired } from '$lib/utils/utils.ts';
 import { downloadElements } from '$lib/store/directoryStore.ts';
 import type { Writable, AsyncWritable, Readable, Loadable } from '@square/svelte-store';
 import type { Organization } from '$lib/interfaces/organization.ts';
+import type { Fetch } from '$lib/interfaces/fetch';
+import type { Entry } from './directoryStoreInterface';
 
 export const organizationStore = asyncReadable(
 	{},
@@ -38,9 +40,7 @@ export const organizationStore = asyncReadable(
 			return cachedData.data;
 		} else {
 			const apiUrl = `${variables.BASE_API_URI}/organization/${lang}/`;
-			console.log(apiUrl);
 			const [response, err] = await handleRequestsWithPermissions(fetch, apiUrl);
-			console.log([response, err]);
 			if (response) {
 				let data = response;
 				data?.facility.sort(function (a, b) {
@@ -71,7 +71,7 @@ export const getAvatars = asyncDerived(
 		return carousel
 	});
 
-export const getFacilities = async (): Promise<Facility[]> => {
+export const getFacilities = async (skFetch: Fetch|null=null): Promise<Facility[]> => {
 	const ttl = parseInt(PUBLIC_FACILITIES_TTL);
 	const cacheName = "facilities";
 	let cachedData;
@@ -94,7 +94,7 @@ export const getFacilities = async (): Promise<Facility[]> => {
 		return facilities as Facility[];
 	} else {
 		const url = `${variables.BASE_API_URI}/facilities/`;
-		const facilities: Facility[] = await downloadElements("facilities");
+		const facilities: Facility[] = await downloadElements("facilities",skFetch);
 		//console.log(facilities.slice(2));
 		if (facilities.length) {
 			facilities.sort(function (a, b) {
@@ -125,133 +125,6 @@ export const facilitiesWithAvatar = async (): Promise<Facility[]> => {
 	shuffle(carousel);
 	return carousel
 };
-
-export const facilityWithOccupationStore = asyncDerived(
-	[organizationStore, workforceDataCached, selectOccupations],
-	async ([$organizationStore, $workforceDataCached, $selectOccupations]) => {
-		const okFacilities = new Set();
-		$workforceDataCached.forEach(
-			function (item) {
-				let occupations = item.occupations ?? [];
-				occupations.forEach(
-					function (occupation) {
-						if (!$selectOccupations.length || $selectOccupations.includes(occupation.name)) {
-							let facilities = occupation.facilities ?? occupation.specialty.facilities ?? [];
-							facilities.forEach(
-								function (facility) {
-									okFacilities.add(facility.facility__name);
-								}
-							);
-						}
-					}
-				)
-			}
-		);
-		let facilities = $organizationStore.facility.filter(
-			(x) => okFacilities.has(x.name)
-		).map(function (x) { return { 'value': x.name, 'label': x.contact.formatted_name } }).sort(function (a, b) {
-			return a.label.localeCompare(b.label);
-		});
-		return facilities;
-	}
-);
-
-function workerCount(obj) {
-	let total = 0;
-	for (const gender of ['M', 'F', 'N']) {
-		let count = 0;
-		if (obj.hasOwnProperty(gender)) {
-			count = obj[gender];
-		} else {
-			count = 0;
-		}
-		total = total + count;
-	}
-	return total
-};
-
-export const occupationOfOrganizationStore = asyncDerived(
-	[occupations, workforceDataCached, selectFacilities, workforceDict],
-	async ([$occupations, $workforceDataCached, $selectFacilities, $workforceDict]) => {
-		if (get(selectFacilities).length == 0) {
-			return get(occupations).map(
-				function (x) {
-					let dct = { value: x.name, label: x.label };
-					return dct
-				}
-			)
-		}
-		const dct: Object = {};
-		$workforceDataCached.forEach(
-			function (worker) {
-				let gender = worker.grammatical_gender.code || 'N';
-				let occupations = worker.occupations ?? [];
-				occupations.forEach(
-					function (occupation) {
-						let oName = occupation.name;
-						let facilities = occupation.facilities ?? occupation.specialty.facilities ?? [];
-						facilities.forEach(
-							function (facility) {
-								let fName = facility.facility__name;
-								if (!dct.hasOwnProperty(fName)) {
-									dct[fName] = {};
-								}
-								if (!dct[fName].hasOwnProperty(oName)) {
-									dct[fName][oName] = {};
-								}
-								if (!dct[fName][oName].hasOwnProperty(gender)) {
-									dct[fName][oName][gender] = 1;
-								} else {
-									dct[fName][oName][gender] = (dct[fName][oName][gender] ?? 0) + 1;
-								}
-							}
-						);
-					}
-				)
-			}
-		);
-		let res = {};
-		let fNames = Object.keys(dct);
-		for (const fName of fNames) {
-			let oNames = Object.keys(dct[fName]);
-			res[fName] = [];
-			for (const oName of oNames) {
-				let count = workerCount(dct[fName][oName]);
-				let label;
-				let fCount = dct[fName][oName]['F'] || 0;
-				let mCount = dct[fName][oName]['M'] || 0;
-				if (count > 1) {
-					if (fCount >= mCount) {
-						label = $workforceDict[oName]['P']['F'];
-					} else {
-						label = $workforceDict[oName]['P']['M'];
-					}
-				} else {
-					if (fCount) {
-						label = $workforceDict[oName]['S']['F'];
-					} else {
-						label = $workforceDict[oName]['S']['M'];
-					}
-				}
-				let _dct = { value: oName, label: label };
-				res[fName].push(_dct);
-			}
-		}
-		return res[get(selectFacilities)].sort(function (a, b) {
-			return a.label.localeCompare(b.label);
-		});
-	}
-);
-
-export const siteCount = asyncDerived(
-	organizationStore,
-	async ($organizationStore) => {
-		const facilities: Facility[] = await getFacilities();
-		return facilities.filter((facility) =>
-			facility.organizations.includes($organizationStore.uid)
-		).length;
-	}
-);
 
 export const websiteSchema = asyncDerived(
 	organizationStore,

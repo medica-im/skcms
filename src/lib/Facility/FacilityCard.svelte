@@ -20,7 +20,7 @@
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 
 	export let data: Facility;
-	export let entries;
+	export let entries=null;
 
 	const createFacilityGeoData = (facility: Facility) => {
 		let address = facility?.address;
@@ -83,7 +83,7 @@
 					{/if}
 				</span>
 			</div>
-
+            {#if entries}
 			<div>
 				<!--{displayMap(entries)}<br>
 				data.uid: {data.uid}-->
@@ -95,6 +95,7 @@
 					displayEntries={false}
 				/>
 			</div>
+			{/if}
 		</div>
 		<div class="mx-2 p-1 h-64 lg:w-full z-0">
 			<Map data={createFacilitiesMapData([data])} />

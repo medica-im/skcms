@@ -39,6 +39,6 @@ export interface Facility {
     avatar: Avatar,
     emails: Email[],
     phones: Phone[],
-    effectors: string[];
+    entries: string[];
 }
 

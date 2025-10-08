@@ -30,9 +30,7 @@
 	let addressFeature = getAddressFeature();
 	let geoInputAddress = getGeoInputAddress();
 
-	let isDisabled = true;
-
-	$: isDisabled = !(
+	let isDisabled = $derived(!(
 		$term ||
 		$selectCommunesValue ||
 		$selCatVal ||
@@ -40,7 +38,7 @@
 		$inputAddress ||
 		$selectFacility ||
 		$geoInputAddress
-	);
+	));
 
 	function resetDirectory() {
 		term.set('');
@@ -69,8 +67,8 @@
 	}
 </script>
 
-<button class="btn variant-filled-error" type="reset" on:click={erase} disabled={isDisabled}
+<button class="btn variant-filled-error p-2" type="reset" onclick={erase} disabled={isDisabled}
 	>
-	<span><Fa icon={faEraser} size="lg" /></span>
+	<span><Fa icon={faEraser} size="sm" /></span>
 	<span>Tout effacer</span>
 </button>

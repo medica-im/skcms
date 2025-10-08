@@ -28,14 +28,9 @@
 		return `${count} contact${count > 1 ? 's' : ''}`;
 	}
 </script>
-<div class="flex justify-between w-full">
-	<span class="badge variant-ghost-surface">{contactCount(data)}</span>
-	<div class="inline-flex items-center space-x-2 m-0 p-0">
-		{#if loading}
-			<Spinner w={3} h={3} />
-			<span>Mise à jour...</span>
-		{/if}
-	</div>
+<div class="flex justify-end lg:justify-between w-full gap-2">
+	<span class="badge variant-soft">
+		{contactCount(data)}</span>
 	<MapSelector bind:data={displayMap} />
 	<Clear />
 </div>
