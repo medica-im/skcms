@@ -53,6 +53,7 @@
 		const facilities = await getFacilities();
 		return facilities
 			.filter((f) => _facilitiesOf.includes(f.uid))
+			.filter(f=>f.name)
 			.sort(function (a, b) {
 				return a.name.localeCompare(b.name);
 			})

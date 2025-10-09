@@ -97,8 +97,11 @@ export const getFacilities = async (skFetch: Fetch|null=null): Promise<Facility[
 		const facilities: Facility[] = await downloadElements("facilities");
 		//console.log(facilities.slice(2));
 		if (facilities.length) {
-			facilities.sort(function (a, b) {
-				return a.name.localeCompare(b.name);
+			facilities.sort((a, b)=>{
+					if (!a.name && !b.name) return 0
+					else if (!a.name && b.name) return 1
+					else if (a.name && !b.name) return -1
+					else return a.name.localeCompare(b.name);
 			})
 			if (browser) {
 				var json = { data: facilities, cachetime: Date.now() }
