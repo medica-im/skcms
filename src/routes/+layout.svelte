@@ -72,7 +72,15 @@
 
     // Disable left sidebar on homepage
     $: slotSidebarLeft = matchList(page.url.pathname) ? 'bg-surface-50-900-token lg:w-auto z-auto' : 'w-0';
-	const queryClient = new QueryClient()
+	const queryClient = new QueryClient();
+	const dataDomain = () => {
+		const PREFIX = 'https://';
+		const baseURI = variables.BASE_URI;
+		if ( !baseURI.startsWith(PREFIX) ) {
+			throw new Error("Base URI must start with 'https://' !");
+		}
+		return baseURI.slice(PREFIX.length)
+	}
 </script>
 
 <svelte:head>
@@ -81,7 +89,7 @@
 	<link rel="mask-icon" href="{maskIcon}" color="#000000">
 	<link rel="apple-touch-icon" href="{appleTouchIcon}">
 	{#if PUBLIC_PLAUSIBLE_SCRIPT_SRC}
-	<script defer data-domain="sante-gadagne.fr" src={PUBLIC_PLAUSIBLE_SCRIPT_SRC}></script>
+	<script defer data-domain={dataDomain()} src={PUBLIC_PLAUSIBLE_SCRIPT_SRC}></script>
 	{/if}
 	<!--set .env variable VITE_NOINDEX to "true" to prevent all search engines that support the noindex rule (including Google) from indexing a page on your site--> 
 	{#if variables.NOINDEX==true}
