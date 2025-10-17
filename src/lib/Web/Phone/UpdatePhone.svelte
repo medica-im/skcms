@@ -1,17 +1,22 @@
 <script lang="ts">
 	import * as m from '$msgs';
+	import { phoneTypes } from '$lib/Directory/Phone/phone.ts';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import { updatePhone } from '../../../phone.remote';
 	import { invalidate } from '$app/navigation';
-	import { faCheck, faWindowClose, faPenToSquare, faExclamationCircle, faTrashCanArrowUp } from '@fortawesome/free-solid-svg-icons';
+	import {
+		faCheck,
+		faWindowClose,
+		faPenToSquare,
+		faExclamationCircle,
+		faTrashCanArrowUp
+	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import type { Phone } from '$lib/interfaces/phone.interface.ts';
 	import Select from 'svelte-select';
 	import Dialog from '../Dialog.svelte';
 	import { accessSelectTypes, getRoles, getSelectedAccess } from '$lib/Web/access.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
-	import type { FormResult } from '$lib/interfaces/v2/form';
-	import { dataTagErrorSymbol } from '@tanstack/svelte-query';
 
 	let {
 		data
@@ -19,61 +24,62 @@
 		data: Phone;
 	} = $props();
 
-	let dialog: HTMLDialogElement|undefined = $state();
+	let dialog: HTMLDialogElement | undefined = $state();
 
-	let roles: string[]|undefined = $derived(data.roles?.map(e=>e.name));
+	let roles: string[] | undefined = $derived(data.roles?.map((e) => e.name));
 
-	const types = {
-		M: 'Mobile',
-		MW: 'Mobile Work',
-		W: 'Work',
-		F: 'Fax',
-		AS: 'Answering service'
-	};
 	const getItems = () => {
 		const items = [];
-		for (const [key, value] of Object.entries(types)) {
+		for (const [key, value] of Object.entries(phoneTypes)) {
 			items.push({ label: value, value: key });
 		}
 		return items;
 	};
-	
 	let _phone: string = $state(data.phone);
 	let selectedType: SelectType | undefined = $state({
-		label: types[data.type],
+		label: phoneTypes[data.type],
 		value: data.type
 	});
 	let _type: string = $derived(selectedType.value);
-	let selectedAccess: SelectType|undefined = $state(getSelectedAccess(data.roles?.map(e=>e.name)));
-	let _roles: string[]|undefined = $derived(getRoles(selectedAccess?.value))
-	console.log(roles);
-	console.log(getSelectedAccess(roles))
-	console.log(`selectedAccess:${JSON.stringify(selectedAccess)}`)
-	let disabled: boolean = $derived(
-		selectedType.value == data.type && _phone == data.phone && ( selectedAccess?.value == getSelectedAccess(roles)?.value  )
+	let selectedAccess: SelectType | undefined = $state(
+		getSelectedAccess(data.roles?.map((e) => e.name))
 	);
+	let _roles: string[] | undefined = $derived(getRoles(selectedAccess?.value));
+	//console.log(roles);
+	//console.log(getSelectedAccess(roles));
+	//console.log(`selectedAccess:${JSON.stringify(selectedAccess)}`);
+	let disabled: boolean = $derived(
+		selectedType.value == data.type &&
+			_phone == data.phone &&
+			selectedAccess?.value == getSelectedAccess(roles)?.value
+	);
+	let result = $derived(updatePhone.for(data.id.toString()).result);
 	function resetForm() {
-		_phone=data.phone;
-		_type=data.type;
-		selectedType={label: types[data.type],
-		value: data.type};
-		selectedAccess=getSelectedAccess(data.roles?.map(e=>e.name));
-		result=undefined;
+		_phone = data.phone;
+		//_type=data.type;
+		selectedType = { label: phoneTypes[data.type], value: data.type };
+		selectedAccess = getSelectedAccess(data.roles?.map((e) => e.name));
+		result = undefined;
 	}
 	let uuid: string = $state(crypto.randomUUID());
-	let result = $derived(updatePhone.for(uuid).result);
 	function updateUuid() {
 		uuid = crypto.randomUUID();
 	}
 </script>
 
-<button onclick={() => {updateUuid(); dialog?.showModal()}} title="Modifier"><Fa icon={faPenToSquare} /></button>
+<button
+	onclick={() => {
+		resetForm();
+		dialog?.showModal();
+	}}
+	title="Modifier"><Fa icon={faPenToSquare} /></button
+>
 
-<Dialog bind:dialog={dialog}>
+<Dialog bind:dialog>
 	<div class="rounded-lg h-96 p-4 variant-ghost-secondary gap-2 items-center place-items-center">
 		<!--p>id: {data.id} phone: {_phone} type: {_type} selectedAccess: {selectedAccess} roles: {roles}</p-->
 		<form
-			{...updatePhone.for(uuid).enhance(async ({ form, data, submit }) => {
+			{...updatePhone.for(data.id.toString()).enhance(async ({ form, data, submit }) => {
 				try {
 					const dataString = JSON.stringify(data);
 					console.log(dataString);
@@ -86,15 +92,14 @@
 		>
 			<div class="p-2 space-y-4 justify-items-stretch gap-6">
 				<div class="p-2 space-y-2 w-full">
-
-						<input
-							oninput={() => {}}
-							class="input hidden"
-							name="id"
-							type="text"
-							placeholder=""
-							value={data.id}
-						/>
+					<input
+						oninput={() => {}}
+						class="input hidden"
+						name="id"
+						type="text"
+						placeholder=""
+						value={data.id}
+					/>
 					<label class="label">
 						<span>{capitalizeFirstLetter(m.PHONE_NUMBER())}</span>
 						<input
@@ -106,11 +111,9 @@
 							bind:value={_phone}
 						/>
 					</label>
-					{#if updatePhone.issues?.phone}
-					{#each updatePhone.issues.phone as issue}
-					<p class="issue">{issue.message}</p>
+					{#each updatePhone.fields.phone.issues() as issue}
+						<p class="issue">{issue.message}</p>
 					{/each}
-					{/if}
 					<label class="label">
 						<span>Type</span>
 						<input
@@ -123,11 +126,9 @@
 						/>
 						<Select items={getItems()} bind:value={selectedType} />
 					</label>
-					{#if updatePhone.issues?.type}
-					{#each updatePhone.issues.type as issue}
-					<p class="issue">{issue.message}</p>
+					{#each updatePhone.fields.type.issues() as issue}
+						<p class="issue">{issue.message}</p>
 					{/each}
-					{/if}
 					<label class="label">
 						<span>Accès</span>
 						<input
@@ -140,11 +141,9 @@
 						/>
 						<Select items={accessSelectTypes} bind:value={selectedAccess} />
 					</label>
-					{#if updatePhone.issues?.roles}
-					{#each updatePhone.issues.roles as issue}
-					<p class="issue">{issue.message}</p>
+					{#each updatePhone.fields.roles.issues() as issue}
+						<p class="issue">{issue.message}</p>
 					{/each}
-					{/if}
 				</div>
 			</div>
 			<div class="flex gap-8">
@@ -152,7 +151,8 @@
 					{#if result?.success}
 						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
 					{:else if result?.text}
-						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span>{result?.text}
+						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span
+						>{result?.text}
 					{/if}
 				</div>
 				<div class="w-auto justify-center">
@@ -161,7 +161,13 @@
 					>
 				</div>
 				<div class="w-auto justify-center">
-					<button type="button" class="variant-filled-error btn w-min" onclick={()=>{resetForm(); dialog?.close();}}
+					<button
+						type="button"
+						class="variant-filled-error btn w-min"
+						onclick={() => {
+							resetForm();
+							dialog?.close();
+						}}
 						>{#if result?.success || disabled}Fermer{:else}Annuler{/if}</button
 					>
 				</div>

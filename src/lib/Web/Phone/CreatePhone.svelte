@@ -1,5 +1,6 @@
 <script lang="ts">
 	import * as m from '$msgs';
+	import { phoneTypes } from '$lib/Directory/Phone/phone.ts';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import { createPhone } from '../../../phone.remote';
 	import { invalidate } from '$app/navigation';
@@ -34,17 +35,9 @@
 
 	let result: FormResult | undefined = $state();
 
-	const types = {
-		M: 'Mobile',
-		MW: 'Mobile Work',
-		W: 'Work',
-		F: 'Fax',
-		AS: 'Answering service'
-	};
-
 	const getTypeItems = () => {
 		const items = [];
-		for (const [key, value] of Object.entries(types)) {
+		for (const [key, value] of Object.entries(phoneTypes)) {
 			items.push({ label: value, value: key });
 		}
 		return items;
@@ -56,7 +49,7 @@
 	let _type: string | undefined = $derived(selectedType?.value);
 	let _roles: string[] | undefined = $derived(getRoles(selectedAccess?.value));
 	let disabled: boolean = $derived(
-		selectedType == undefined || _phone == undefined || selectedAccess == undefined
+		selectedType == undefined || _phone == undefined || selectedAccess == undefined || createPhone.result?.success==true
 	);
 	function resetForm() {
 		_phone = undefined;

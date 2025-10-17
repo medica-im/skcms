@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Phones from './Phones.svelte';
+	import Phones from '$lib/Directory/Phone/Phones.svelte';
 	import { FacilityLink } from '$lib';
 	import AvatarList from '$lib/components/Effector/Avatar/AvatarList.svelte';
 	import { page } from '$app/state';

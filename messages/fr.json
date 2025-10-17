@@ -137,5 +137,12 @@
   "PHONE_NUMBER": "numéro de téléphone",
   "FACILITY": "établissement",
   "CREATE": "créer",
-  "EDIT": "modifier"
+  "EDIT": "modifier",
+  "PHONE_TYPE": {
+    "M": "Mobile personnel",
+    "MW": "Mobile professionnel",
+    "W": "Téléphone fixe",
+    "F": "Fax",
+    "AS": "Secrétariat à distance"
+  }
 }

@@ -11,7 +11,8 @@
 	import type { Commune, DepartmentOfFrance, FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
-	import { getEffectors } from './data';
+	import { getEffectors } from '../../effector.remote.ts';
+	import { getEntries } from '$lib/store/directoryStore';
 
 	let {
 		effector = $bindable(),
@@ -33,6 +34,29 @@
 	let communes: CreateQueryResult<Commune[], Error> | undefined = $state();
 	let commune: any = $state();
 	let facilityCount: number = $state(0);
+	const entries = $derived(await getEntries());
+	const effectors = $derived(await getEffectors());
+    const filteredEffectors = $derived.by(() => {
+		if (effectors) {
+		    return effectors.filter((e) => {
+				if (!selectedEffectorType) {
+					return true
+				} else {
+					const _type = selectedEffectorType.value;
+					console.log(_type);
+					const effectorUids = entries.filter(e=>e.effector_type.uid==_type).map(e=>e.effector_uid);
+					return effectorUids.includes(e.uid)
+				}
+		})
+		} else {
+			return []
+		}
+	});
+
+    const effectorItems = $derived.by(async () => {
+		return filteredEffectors.map((e) => {return {label: e.name_fr, value: e.uid}})
+	}
+	);
 
 	interface InputClass {
 		effector: string;
@@ -53,21 +77,20 @@
 		memberOfOrg: ''
 	});
 
-	let disabled: boolean = $derived(!Object.values(validateForm).every((v) => v === true));
+	let disabled: boolean = $derived(memberOfOrg==undefined ||selectedEffector==undefined);
 
 	/**
 	 * Validate radio memberOfOrg input.
 	 */
 	$effect(() => {
-		if (memberOfOrg) {
-			validateForm.memberOfOrg = true;
-			inputClass.memberOfOrg = '';
-		} else {
+		if (memberOfOrg==undefined) {
 			inputClass.memberOfOrg = inputError;
 			validateForm.memberOfOrg = false;
+		} else {
+			validateForm.memberOfOrg = true;
+			inputClass.memberOfOrg = '';
 		}
 	});
-
 	/**
 	 * Validate effector select input.
 	 */
@@ -78,34 +101,6 @@
 		} else {
 			inputClass.effector = inputError;
 			validateForm.effector = false;
-		}
-	});
-
-	const effectors = createQuery<Effector[], Error>({
-		queryKey: ['effectorSelect'],
-		queryFn: () => getEffectors({ effector_type: selectedEffectorType?.value })
-	});
-
-	const effectorSelectStore = createQuery(
-		reactiveQueryArgs(() => ({
-			queryKey: ['effectorSelectStore', selectedEffectorType, department],
-			queryFn: () => getEffectors({ effector_type: selectedEffectorType?.value, department_of_france: department?.value })
-		}))
-	);
-
-	let { error, isLoading, isRefetching, data } = $derived($effectorSelectStore);
-	let effectorItems = $state();
-	$effect(() => {
-		if (data) {
-			effectorItems = data.map((e) => {
-				return { label: e.name_fr, value: e.uid };
-			});
-		}
-	});
-
-	$effect(() => {
-		if (data && selectedEffector && isConfirmed) {
-			effector = data.find((e) => e.uid == selectedEffector?.value);
 		}
 	});
 
@@ -138,29 +133,30 @@
 	const effectorLabel = (effectors: Effector[]) => {
 		return `Effecteur${effectors.length > 1 ? 's' : ''}: ${effectors.length}`;
 	};
+	const confirm = () => {
+		if (!(selectedEffector==undefined)) {
+			const uid = selectedEffector.value
+			effector = effectors.find((e) => e.uid==uid)
+		}
+	}
 </script>
 
 <div class="p-4">
 	<EffectorTypeSelect bind:selectedEffectorType />
-	<FacilitySelect bind:facility bind:department bind:commune bind:facilityCount />
+	<FacilitySelect bind:selectedFacility={facility} bind:department bind:commune bind:facilityCount />
 	<div class="grid grid-cols-1 gap-4 variant-ghost p-4">
-		{#if isLoading}
-			<span>{m.LOADING}</span>
-		{:else if error}
-			<span>{m.ERROR}: {error.message}</span>
-		{:else if data}
-			<p>{effectorLabel(data)}</p>
-			<Select items={effectorItems} bind:value={selectedEffector} />
-		{/if}
+			<p>{effectorLabel(filteredEffectors)}</p>
+			<Select items={await effectorItems} bind:value={selectedEffector} />
 	</div>
 	<OrganizationRadio bind:memberOfOrg inputClass={inputClass.memberOfOrg} />
 			<div class="flex gap-8">
+				memberOfOrg: {memberOfOrg} selectedEffector: {Boolean(selectedEffector)}
 			<div class="w-auto justify-center">
 				<button
 				    type="button"
 					class="variant-filled-secondary btn w-min"
 					{disabled}
-					onclick={()=>{ isConfirmed = true }}
+					onclick={confirm}
 					>Envoyer</button
 				>
 			</div>

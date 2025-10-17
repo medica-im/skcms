@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import { update } from '../../../website.remote';
+	import { updateForm } from '../../../website.remote';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import { invalidate } from '$app/navigation';
 	import {
@@ -25,7 +25,7 @@
 		data: Website;
 	} = $props();
 
-	let dialog: HTMLDialogElement;
+	let dialog: HTMLDialogElement|undefined = $state();
 
 	let roles: string[] = $derived(data.roles.map((e) => e.name));
 	let _url: string = $state(data.url);
@@ -37,7 +37,6 @@
 		selectedAccess?.value == getSelectedAccess(roles)?.value && _url == data.url
 	);
 	let uuid: string = $state(crypto.randomUUID());
-	let result = $derived(update.for(uuid).result);
 	function updateUuid() {
 		uuid = crypto.randomUUID();
 	}
@@ -47,14 +46,13 @@
 		//selectedType={label: types[phoneData.type],
 		//value: phoneData.type};
 		selectedAccess = getSelectedAccess(roles);
-		result = undefined;
 	}
 </script>
 
 <button
 	onclick={() => {
 		updateUuid();
-		dialog.showModal();
+		dialog?.showModal();
 	}}
 	title="Modifier"><Fa icon={faPenToSquare} /></button
 >
@@ -66,7 +64,7 @@
 			<h3 class="h3">{capitalizeFirstLetter(m.WEBSITE())}</h3>
 
 		<form
-			{...update.for(uuid).enhance(async ({ form, data, submit }) => {
+			{...updateForm.for(uuid).enhance(async ({ form, data, submit }) => {
 				try {
 					await submit();
 					invalidate('entry:now');
@@ -110,11 +108,11 @@
 
 				<div class="flex gap-8">
 					<div class="flex gap-2 items-center">
-						{#if result?.success}
+						{#if updateForm.for(uuid).result?.success}
 							<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
-						{:else if result && !result?.success}
+						{:else if updateForm.for(uuid).result?.success==false}
 							<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span
-							>{result.text}
+							>{updateForm.result?.text}
 						{/if}
 					</div>
 					<div class="w-auto justify-center">
@@ -127,10 +125,10 @@
 							type="button"
 							class="variant-filled-error btn w-min"
 							onclick={() => {
-								dialog.close();
+								dialog?.close();
 								resetForm();
 							}}
-							>{#if result?.success || disabled}Fermer{:else}Annuler{/if}</button
+							>{#if updateForm.for(uuid).result?.success}Fermer{:else}Annuler{/if}</button
 						>
 					</div>
 				</div>

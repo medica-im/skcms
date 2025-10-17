@@ -22,25 +22,22 @@
 		data: Email;
 	} = $props();
     
-	let dialog: HTMLDialogElement;
-
-	let result: FormResult | undefined = $state();
+	let dialog: HTMLDialogElement|undefined = $state();
 </script>
 
-<button onclick={() => dialog.showModal()} title="Supprimer"><Fa icon={faTrashCanArrowUp} /></button
+<button onclick={() => dialog?.showModal()} title="Supprimer"><Fa icon={faTrashCanArrowUp} /></button
 >
 
 <Dialog bind:dialog on:close={() => console.log('closed')}>
 	<div class="rounded-lg h-64 p-4 variant-ghost-secondary gap-4 items-center place-items-center">
 
 		<form
-			{...deleteEmail.enhance(async ({ form, data, submit }) => {
+			{...deleteEmail.for(data.id.toString()).enhance(async ({ form, data, submit }) => {
 				try {
 					//data = manipulateForm(data);
-					const dataString = JSON.stringify(Object.fromEntries(data));
+					const dataString = JSON.stringify(data);
 					console.log(dataString);
 					await submit();
-					result = deleteEmail.result;
 					invalidate('entry:now');
 				} catch (error) {
 					console.log(error);
@@ -68,21 +65,21 @@
 					<button type="submit" class="variant-filled-warning btn w-min">Confirmer</button>
 				</div>
 				<div class="flex gap-2 items-center">
-					{#if result?.success}
+					{#if deleteEmail.for(data.id.toString()).result?.success}
 						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
-					{:else if result && !result?.success}
+					{:else if deleteEmail.for(data.id.toString()).result?.success==false}
 						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span
-						>{result.text}
+						>{deleteEmail.for(data.id.toString()).result?.text}
 					{/if}
 				</div>
 				<div class="w-auto justify-center">
 					<button
 						type="button"
-						class="variant-filled-{result?.success ? 'success' : 'error'} btn w-min"
+						class="variant-filled-{deleteEmail.for(data.id.toString()).result?.success ? 'success' : 'error'} btn w-min"
 						onclick={() => {
-							dialog.close();
+							dialog?.close();
 						}}
-						>{#if result?.success}Fermer{:else}Annuler{/if}</button
+						>{#if deleteEmail.for(data.id.toString()).result?.success}Fermer{:else}Annuler{/if}</button
 					>
 				</div>
 			</div>

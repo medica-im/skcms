@@ -1,28 +1,15 @@
 <script lang="ts">
-	import Phones from './Phones.svelte';
+	import Phones from '$lib/Directory/Phone/Phones.svelte';
 	import { FacilityLink } from '$lib';
 	import AvatarList from '$lib/components/Effector/Avatar/AvatarList.svelte';
 	import { page } from '$app/state';
-	import { getSelectFacility, getSelectCategories, getTerm, getSelectCommunes } from './context';
 	import { goto } from '$app/navigation';
+	import { entryPageUrl } from '$lib/utils/utils.ts';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 	let { entry, avatar }: { entry: Entry; avatar: boolean } = $props();
 
-	let selectFacility = getSelectFacility();
-	let selectCategories = getSelectCategories();
-	let selectCommunes = getSelectCommunes();
-	let term = getTerm();
-
-	function entryPageUrl(pathname: string) {
-		let typeSlug = entry.effector_type.slug;
-		let facilitySlug = entry.facility.slug;
-		let nameSlug = entry.slug;
-		return `/${facilitySlug}/${typeSlug}/${nameSlug}?origin=${encodeURIComponent(pathname)}`;
-	}
-
-	
 	const goTo = () => {
-		const url = entryPageUrl(page.url.pathname);
+		const url = entryPageUrl(entry,page.data.organization.category.name,page.url.pathname).concat("&uid=",entry.uid);
 		goto(url, { replaceState: false });
 	};
 </script>

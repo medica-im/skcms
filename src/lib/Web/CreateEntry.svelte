@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { reactiveQueryArgs } from '$lib/utils/utils.svelte';
-	import { scale } from 'svelte/transition';
 	import { UpdateField } from '$lib/utils/requestUtils';
 	import { variables } from '$lib/utils/constants';
 	import { nodeBefore } from '$lib/helpers/whitespacesHelper';
@@ -15,28 +14,27 @@
 	import FacilityCreationForm from '$lib/Web/FacilityCreationForm.svelte';
 	import EffectorCreationForm from '$lib/Web/EffectorCreationForm.svelte';
 	import Effectors from '$lib/Web/Effectors.svelte';
+	import CreateFacilityModal from '$lib/Web/Facility/CreateFacilityModal.svelte';
+	import CreateEffectorModal from '$lib/Web/Effector/CreateEffectorModal.svelte';
 	import { getFacility } from '$lib/Web/data';
 	import { useQueryClient, createQuery } from '@tanstack/svelte-query';
 	import { copy } from 'svelte-copy';
 	import type { FacilityV2, Commune } from '$lib/interfaces/v2/facility.ts';
 	import type { CreateQueryResult } from '@tanstack/svelte-query';
 	import EntryCreationForm from '$lib/Web/EntryCreationForm.svelte';
-	import type { PageProps } from './$types';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
 
-	let { form }: { form: PageProps } = $props();
 	const defaultDpt: SelectType = {
 		label: page.data.organization.department.name,
 		value: page.data.organization.department.code
 	};
 	let memberOfOrg: boolean | undefined = $state();
 	let showCreateFacilityForm: boolean = $state(false);
-	let showCreateEffectorForm: boolean = $state(false);
 	let showSelectEffectorForm: boolean = $state(false);
 	let selectedOrganization: string | null = $state(null);
 	let selectedFacility: { label: string; value: string } | undefined = $state();
-	let createdFacility: { label: string; value: string } | undefined = $state();
+	//let createdFacility: { label: string; value: string } | undefined = $state();
 	let createdEffector: Effector | undefined = $state();
 	let selectedCommune: { label: string; value: string } | undefined = $state();
 
@@ -63,14 +61,17 @@
 		)
         return facility;
 		}});*/
-	$effect(() => {
+	/*$effect(() => {
 		if (createdFacility) {
 			selectedFacility = createdFacility;
 		}
-	});
+	});*/
 </script>
-
-{#if showEntryCreationForm && memberOfOrg && selectedFacility && selectedEffectorType}
+memberOfOrg: "{JSON.stringify(memberOfOrg)}"<br>
+selectedFacility: "{JSON.stringify(selectedFacility)}"<br>
+selectedEffectorType: "{JSON.stringify(selectedEffectorType)}"<br>
+createdEffector: "{JSON.stringify(createdEffector)}"<br>
+{#if createdEffector && memberOfOrg!==undefined && selectedFacility && selectedEffectorType}
 	<div class="grid grid-cols-1 gap-4 w-full variant-ringed p-2">
 		<h3 class="h3">Confirmer ou annuler la création de la nouvelle entrée</h3>
 		<EntryCreationForm
@@ -79,8 +80,6 @@
 			{selectedFacility}
 			{selectedEffectorType}
 			bind:showEntryCreationForm
-			bind:showCreateEffectorForm
-			{form}
 		/>
 	</div>
 {:else}
@@ -91,7 +90,7 @@
 				</div-->
 		<div class="grid grid-cols-1 gap-2 w-full variant-ringed p-2">
 			<FacilitySelect
-				bind:facility={selectedFacility}
+				bind:selectedFacility
 				bind:department
 				bind:commune={selectedCommune}
 				bind:facilityCount
@@ -112,15 +111,11 @@
 		</div>
 		<div class="grid grid-cols-1 place-items-center gap-4">
 			{#if !selectedFacility && !showCreateFacilityForm}
-				<button
-					type="button"
-					disabled={!selectedCommune}
-					class="btn variant-ghost w-min"
-					onclick={() => {
-						showCreateFacilityForm = true;
-					}}>Créer un nouvel établissement</button
-				>
-				{#if !selectedCommune}
+				{#if selectedCommune}
+				<CreateFacilityModal commune={selectedCommune}
+					org_cat={page.data.organization.category.name}
+					bind:selectedFacility  />
+				{:else}
 					<div class="card p-2 variant-ghost-warning">
 						Pour créer un nouvel établissement, vous devez sélectionner un département et une
 						commune.
@@ -128,17 +123,6 @@
 				{/if}
 			{/if}
 		</div>
-		{#if showCreateFacilityForm && selectedCommune && !selectedFacility}
-			<div>
-				<FacilityCreationForm
-					commune={selectedCommune}
-					org_cat={page.data.organization.category.name}
-					bind:createdFacility
-					{form}
-					bind:createFacility={showCreateFacilityForm}
-				/>
-			</div>
-		{/if}
 		{#if selectedFacility}
 			<h3 class="h3">Sélectionner ou créer une catégorie</h3>
 			<div class="grid grid-cols-1 gap-4 w-full variant-ringed p-2">
@@ -171,25 +155,11 @@
 						showSelectEffectorForm = true;
 					}}>Sélectionner une personne existante</button
 				>
-				<button
-					type="button"
-					class="btn variant-ghost w-min justify-self-center"
-					disabled={showCreateEffectorForm}
-					onclick={() => {
-						showCreateEffectorForm = true;
-					}}>Créer une nouvelle personne</button
-				>
-				{#if showCreateEffectorForm}
-					<EffectorCreationForm
-						bind:memberOfOrg
-						bind:createdEffector
-						bind:showCreateEffectorForm
-						{form}
-						org_cat={page.data.organization.category.name}
-						{selectedEffectorType}
-						{selectedFacility}
-					/>
-				{:else if showSelectEffectorForm}
+				<CreateEffectorModal
+				bind:memberOfOrg
+				bind:createdEffector
+				{selectedEffectorType} />
+				{#if showSelectEffectorForm}
 					<EffectorSelect bind:effector={createdEffector} bind:memberOfOrg bind:showSelectEffectorForm />
 				{/if}
 			</div>

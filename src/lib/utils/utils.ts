@@ -128,3 +128,9 @@ export function displayMap(map: Map<any, any>) {
     };
 	return _arr.join('\n')
 }
+
+export function getHostnameFromURL(str: string) {
+		const regexp = /(http[s]?:\/\/)?([^\/\s]+)(.*)/g
+  		const array = [...str.matchAll(regexp)];
+  		return array.map(m => m[2]);
+}

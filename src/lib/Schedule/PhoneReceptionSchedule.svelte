@@ -10,7 +10,7 @@
 		faMapLocationDot,
 		faLocationDot
 	} from '@fortawesome/free-solid-svg-icons';
-	import Phones from '$lib/Directory/Phones.svelte';
+	import Phones from '$lib/Directory/Phone/Phones.svelte';
 	import { isServiceAvailable } from '$lib/Schedule/available.ts';
 	import { publicHolidays } from '$lib/store/publicHolidaysStore.ts';
 	import { loadAll } from '@square/svelte-store';

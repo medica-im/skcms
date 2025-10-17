@@ -17,7 +17,6 @@
 	import { page } from '$app/state';
 	import { accessSelectTypes, getRoles } from '$lib/Web/access.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
-	import type { FormResult } from '$lib/interfaces/v2/form';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 
 	let {
@@ -31,8 +30,8 @@
 	let _url: string | undefined = $state();
 	let selectedAccess: SelectType | undefined = $state(accessSelectTypes[0]);
 	let _roles: string[] | undefined = $derived(getRoles(selectedAccess?.value));
-	let disabled: boolean = $derived(_url == undefined);
 	let result = $derived(create.result);
+	let disabled: boolean = $derived(_url == undefined || selectedAccess==undefined || result?.success==true);
 	function resetForm() {
 		_url = undefined;
 		result = undefined;
@@ -43,6 +42,7 @@
 <button
 	class="btn-icon btn-icon-sm variant-ghost-surface"
 	onclick={() => {
+		resetForm();
 		dialog.showModal();
 	}}
 	title="Ajouter"><Fa icon={faPlus} /></button
@@ -62,6 +62,9 @@
 			})}
 		>
 			<div class="grid grid-cols-1 p-4 gap-6">
+				{#each create.fields.entry.issues() as issue}
+							<p class="issue">{issue.message}</p>
+						{/each}
 					<input
 						oninput={() => {}}
 						class="hidden"
@@ -72,6 +75,9 @@
 					/>
 				<label class="label">
 					<span>Adresse web</span>
+					{#each create.fields.url.issues() as issue}
+							<p class="issue">{issue.message}</p>
+						{/each}
 					<input
 						oninput={() => {}}
 						class="input"
@@ -83,6 +89,9 @@
 				</label>
 				<label class="label">
 					<span>Accès</span>
+					{#each create.fields.roles.issues() as issue}
+							<p class="issue">{issue.message}</p>
+						{/each}
 					<input
 						oninput={() => {}}
 						class="hidden"
@@ -114,7 +123,7 @@
 							dialog.close();
 							resetForm();
 						}}
-						>{#if result?.success || disabled}Fermer{:else}Annuler{/if}</button
+						>{#if result?.success}Fermer{:else}Annuler{/if}</button
 					>
 				</div>
 			</div>

@@ -14,7 +14,7 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
 	import Emails from '$lib/Email/Emails.svelte';
-	import Phones from '$lib/Directory/Phones.svelte';
+	import Phones from '$lib/Directory/Phone/Phones.svelte';
 	import Address from '$lib/Directory/Address.svelte';
 	import Websites from '$lib/Website/Websites.svelte';
 	import { Map } from '$lib';

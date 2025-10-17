@@ -19,21 +19,6 @@ const CreatePhone = z.object({
 
 export const createPhone = form(CreatePhone, async (data) => {
 	console.log(`form data:${JSON.stringify(data)}`);
-	//const jsonString = JSON.stringify(Object.fromEntries(data));
-	/*let json = JSON.parse(jsonString);
-	console.log(`roles: ${json.roles}`);
-	console.log(`typeof(roles): ${typeof (json.roles)}`);
-	const roles: string = json.roles;
-	const rolesArray: string[] = roles.split(',');
-	console.log(`rolesJson: ${JSON.stringify(rolesArray)}`);
-	console.log(`typeof(rolesArray): ${typeof (rolesArray)}`);
-	json.roles = rolesArray;
-	const result = CreatePhone.safeParse(json);
-	if (!result.success) {
-		error(400, result.error);
-	}
-	const vData = result.data;
-	console.log(`vData: ${JSON.stringify(vData)}`);*/
 	const { cookies } = getRequestEvent();
 	const url = `${variables.BASE_URI}/api/v2/phones/`;
 	const request = authReq(url, 'POST', cookies, JSON.stringify(data));

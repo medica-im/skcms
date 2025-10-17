@@ -7,7 +7,8 @@
   import type { CreateQueryResult } from '@tanstack/svelte-query';
 	import type { Commune, DepartmentOfFrance, FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 	import { getCommunesByDpt, getDepartments, getFacilities } from './data';
-	let { facility = $bindable(), department = $bindable(), commune = $bindable(), facilityCount = $bindable(0) }: { facility: SelectType | undefined, department: SelectType | undefined; commune: SelectType | undefined; facilityCount: number } = $props();
+	
+	let { selectedFacility = $bindable(), department = $bindable(), commune = $bindable(), facilityCount = $bindable(0) }: { selectedFacility: SelectType | undefined, department: SelectType | undefined; commune: SelectType | undefined; facilityCount: number } = $props();
 	let departmentCode: string | undefined = $derived(department?.value);
 	let communes: CreateQueryResult<Commune[], Error> | undefined = $state();
     //let commune: any = $state();
@@ -137,7 +138,7 @@ const getCommuneItems = (communes: Commune[]|undefined) => {
 		<span>Error: {$facilities.error.message}</span>
 	{:else}
     <p>{facilityLabel($facilities.data)}</p>
-		<Select items={getFacilityItems($facilities.data, department, commune)} bind:value={facility} />
+		<Select items={getFacilityItems($facilities.data, department, commune)} bind:value={selectedFacility} />
 	{/if}
   </div>
 </div>

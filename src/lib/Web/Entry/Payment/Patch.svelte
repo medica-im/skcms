@@ -3,6 +3,7 @@
 	import * as m from '$msgs';
 	import { patchCommand, getPaymentMethods } from '../../../../entry.remote';
 	import { invalidate } from '$app/navigation';
+	import { areArraysEqualSets } from '$lib/utils/utils.ts';
 	import {
 		faPlus,
 		faCheck,
@@ -47,7 +48,10 @@
 		payment: selectedItems == undefined ? null : selectedItems.map((e) => e.value)
 	});
 
-	let disabled: boolean = $derived(selectedItems?.map((e) => e.value) == data?.map((e) => e.name));
+	let disabled: boolean = $derived.by(()=>{
+		return (selectedItems==undefined && data==null || areArraysEqualSets(selectedItems?.map((e) => e.value)||[], data?.map((e) => e.name)||[]))
+	}
+	);
 
 	onMount(async () => {
 		paymentMethods = await getPaymentMethods();

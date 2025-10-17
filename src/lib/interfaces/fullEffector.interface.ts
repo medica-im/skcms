@@ -25,4 +25,7 @@ export interface ThirdPartyPayer {
     uid: string
 }
 
-export type SpokenLanguage = string
+export interface SpokenLanguage {
+    tag: string,
+    name: string
+}

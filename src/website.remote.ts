@@ -48,7 +48,7 @@ const Update = z.object({
 	}, z.array(RoleEnum)),
 });
 
-export const update = form(Update, async (data) => {
+export const updateForm = form(Update, async (data) => {
 	console.log(`form data:${JSON.stringify(data)}`);
 	const { cookies } = getRequestEvent();
 	const url = `${variables.BASE_URI}${path}${data.id}`;

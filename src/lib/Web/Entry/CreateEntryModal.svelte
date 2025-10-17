@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { createEntry } from '../../entry.remote.ts';
 	import { invalidateAll } from '$app/navigation';
 	import Fa from 'svelte-fa';
 	import { faUser } from '@fortawesome/free-regular-svg-icons';
@@ -18,19 +17,7 @@
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import type { SelectType } from '$lib/interfaces/select.ts';
 
-	let {
-		memberOfOrg,
-		createdEffector,
-		showEntryCreationForm = $bindable(),
-		selectedFacility,
-		selectedEffectorType
-	}: {
-		memberOfOrg: boolean;
-		createdEffector: Effector;
-		showEntryCreationForm: boolean;
-		selectedFacility: SelectType;
-		selectedEffectorType: SelectType;
-	} = $props();
+	let { memberOfOrg, createdEffector, showEntryCreationForm = $bindable(), 	showCreateEffectorForm = $bindable(), selectedFacility, form, selectedEffectorType }: { memberOfOrg: boolean; createdEffector: Effector; showEntryCreationForm: boolean; showCreateEffectorForm: boolean; selectedFacility: SelectType; form: any; selectedEffectorType: SelectType; } = $props();
 
 	interface InputClass {
 		effector: string;
@@ -48,12 +35,13 @@
 	let triggered: boolean = $state(false);
 	const modalStore = getModalStore();
 	let visible: boolean = $state(true);
+	let success: boolean = $state(false);
 	let errorMsg: string = $state('');
 	const inputClass: InputClass = $state({
 		effector: '',
 		effector_type: '',
 		facility: '',
-		organization: ''
+		organization: '',
 	});
 	const validateForm: ValidateForm = $state({
 		effector: false,
@@ -64,7 +52,7 @@
 	let effector: string = $derived(createdEffector.uid);
 	let effector_type: string = $derived(selectedEffectorType.value);
 	let facility: string = $derived(selectedFacility.value);
-	let organizations: string | null = $derived(memberOfOrg ? page.data.organization.uid : null); // TODO: make this an array
+	let organizations: string|null = $derived(memberOfOrg ? page.data.organization.uid : null);// TODO: make this an array
 	let disabled: boolean = $derived(!Object.values(validateForm).every((v) => v === true));
 
 	function delay(ms: number) {
@@ -137,30 +125,41 @@
 	};
 	/** @param {FormData} data */
 	function manipulateForm(data: FormData) {
-		console.log(JSON.stringify(data));
-		return;
+		console.log(JSON.stringify(data))
+		return
 	}
 </script>
 
-{#if createEntry.result?.success}
-	<div
-		class="grid grid-cols-1 rounded-lg p-4 variant-ghost-secondary gap-4 items-center place-items-center"
-	>
-		<Fa icon={faUser} size={'2x'} />
-		<h3 class="h3 text-center">Entrée créé!</h3>
-		<DisplayEntry entryUid={createEntry.result.data} />
-		<button
-			type="button"
-			class="btn variant-filled"
-			onclick={() => {
-				showEntryCreationForm = false;
-				invalidateAll();
-			}}>Créer une nouvelle entrée</button
-		>
-	</div>
+{JSON.stringify(form)}<br>
+{form?.status}<br>
+{form?.data}
+
+{#if success}
+			<div class="grid grid-cols-1 rounded-lg p-4 variant-ghost-secondary gap-4 items-center place-items-center">
+
+			<Fa icon={faUser} size={'2x'} />
+			<h3 class="h3 text-center">Entrée créé!</h3>
+			{#if form?.data}
+			<DisplayEntry entryUid={form.data} />
+			{/if}
+			<button type="button" class="btn variant-filled" onclick={() => {console.log(JSON.stringify(form)); form=null; success=false; 	showCreateEffectorForm = true; showEntryCreationForm=false; invalidateAll(); }}>Créer une nouvelle entrée</button>
+			</div>
 {:else}
 	<div class="rounded-lg p-4 variant-ghost-secondary gap-2 items-center place-items-center">
-		<form {...createEntry}
+		<form
+			method="POST"
+			action="/web/entry/create"
+			use:enhance={({ formElement, formData, action, cancel }) => {
+				manipulateForm(formData);
+				return async ({ result, update }) => {
+					console.log(`result.type: ${result.type}`);
+					await applyAction(result);
+					console.log(`result:${JSON.stringify(result)}`);
+                    if (result.type==='success') {
+						success=true;
+					};
+				};
+			}}
 			class=""
 		>
 			<div class="p-2 space-y-4 justify-items-stretch gap-6">
@@ -216,18 +215,14 @@
 				</div>
 			</div>
 			<div class="flex gap-8">
-				<div class="w-auto justify-center">
+			<div class="w-auto justify-center">
 					<button type="submit" class="variant-filled-secondary btn w-min" {disabled}
 						>Confirmer</button
 					>
 				</div>
 				<div class="w-auto justify-center">
-					<button
-						type="button"
-						class="variant-filled-error btn w-min"
-						onclick={() => {
-							showEntryCreationForm = false;
-						}}>Annuler</button
+					<button type="button" class="variant-filled-error btn w-min" onclick={()=>{showEntryCreationForm=false}}
+						>Annuler</button
 					>
 				</div>
 			</div>

@@ -4,9 +4,11 @@
 	import { language } from '$lib/store/languageStore';
 	import Fa from 'svelte-fa';
 	import { faGlobe, faBlog } from '@fortawesome/free-solid-svg-icons';
+	import { getHostnameFromURL } from '$lib/utils/utils';
 
 	export let website;
-
+	
+	
 	function removeHttp(url: string) {
 		return url.replace(/^https?:\/\//, '');
 	}
@@ -19,5 +21,5 @@
 	rel="external"
 	class="btn variant-ghost-secondary"
 >
-	<span><Fa icon={faGlobe} /></span><span>{capitalizeFirstLetter(m.WEBSITE(), $language)}</span>
+	<span><Fa icon={faGlobe} /></span><span>{getHostnameFromURL(website.url)}</span>
 </a>

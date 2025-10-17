@@ -4,7 +4,7 @@
 	import Fa from 'svelte-fa';
 	import Address from '$lib/Address/Address.svelte';
 	import { createMapData } from '$lib/components/Map/mapData';
-	import Phones from '$lib/Directory/Phones.svelte';
+	import Phones from '$lib/Directory/Phone/Phones.svelte';
 	import Emails from '$lib/Email/Emails.svelte';
 	import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
 </script>

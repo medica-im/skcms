@@ -24,7 +24,7 @@
     
 	let dialog: HTMLDialogElement;
 
-	let result = $state(destroy.for(data.id).result);
+	let result = $state(destroy.for(data.id.toString()).result);
 </script>
 
 <button onclick={() => dialog.showModal()} title="Supprimer"><Fa icon={faTrashCanArrowUp} /></button
@@ -34,7 +34,7 @@
 	<div class="rounded-lg p-4 variant-ghost-secondary gap-4 items-center place-items-center">
 
 		<form
-			{...destroy.for(data.id).enhance(async ({ form, data, submit }) => {
+			{...destroy.for(data.id.toString()).enhance(async ({ form, data, submit }) => {
 				try {
 					await submit();
 					invalidate('entry:now');

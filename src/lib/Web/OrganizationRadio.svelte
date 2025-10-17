@@ -8,7 +8,13 @@
 	let orgRadio: string | undefined = $state();
 
 	$effect(() => {
-		memberOfOrg = orgRadio == 'yes';
+		if (orgRadio == 'yes') {
+			memberOfOrg = true;
+		} else if (orgRadio == 'no') {
+			memberOfOrg = false;
+		} else {
+			memberOfOrg = undefined;
+		}
 	});
 </script>
 
@@ -21,7 +27,6 @@
 			<input
 				class="radio {inputClass}"
 				type="radio"
-				name="radio-direct"
 				value="yes"
 				bind:group={orgRadio}
 			/>
@@ -31,7 +36,6 @@
 			<input
 				class="radio {inputClass}"
 				type="radio"
-				name="radio-direct"
 				value="no"
 				bind:group={orgRadio}
 			/>

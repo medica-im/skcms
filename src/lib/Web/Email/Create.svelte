@@ -19,7 +19,6 @@
 	import { page } from '$app/state';
 	import { accessSelectTypes, getRoles } from '$lib/Web/access.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
-	import type { FormResult } from '$lib/interfaces/v2/form';
 
 	let {
 		entry
@@ -31,24 +30,24 @@
 
 	let dialog: HTMLDialogElement;
 
-	let result: FormResult | undefined = $state();
-
-	
+	let formResult = $derived(createEmail.result);
 
 	let _email: string|undefined = $state();
-	let selectedAccess: SelectType = $state(accessSelectTypes[0]);
-	let _roles: string[]|undefined = $derived(getRoles(selectedAccess.value))
+	let selectedAccess: SelectType|undefined = $state();
+	let _roles: string[]|undefined = $derived(getRoles(selectedAccess?.value))
 	let disabled: boolean = $derived(
-		_email == undefined
+		(_email == undefined) || (selectedAccess == undefined) || formResult?.success==true
 	);
 	function resetForm() {
 		_email = undefined;
-		result = undefined;
+		selectedAccess = undefined;
+		formResult = undefined;
 	}
 </script>
 
 <button class="btn-icon btn-icon-sm variant-ghost-surface"
 	onclick={() => {
+		resetForm();
 		dialog.showModal();
 	}}
 	title="Ajouter"><Fa icon={faPlus} /></button
@@ -63,7 +62,6 @@
 					const dataString = JSON.stringify(data);
 					console.log(dataString);
 					await submit();
-					result = createEmail.result;
 					invalidate('entry:now');
 				} catch (error) {
 					console.log(error);
@@ -113,11 +111,11 @@
 			</div>
 			<div class="flex gap-8">
 				<div class="flex gap-2 items-center">
-					{#if result?.success}
+					{#if formResult?.success==true}
 						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
-					{:else if result && !result?.success}
+					{:else if formResult?.success==false}
 						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span
-						>{result.text}
+						>{formResult?.text}
 					{/if}
 				</div>
 				<div class="w-auto justify-center">
@@ -133,7 +131,7 @@
 							dialog.close();
 							resetForm();
 						}}
-						>{#if result?.success || disabled}Fermer{:else}Annuler{/if}</button
+						>{#if formResult?.success}Fermer{:else}Annuler{/if}</button
 					>
 				</div>
 			</div>
