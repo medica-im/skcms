@@ -46,7 +46,7 @@ export interface FacilityV2 {
     zoom: number|null
     building: string|null
     street: string
-    geographical_complement: string|number
+    geographical_complement: string|null
     zip: string|null
     effectors: string[]|null
     ban_id: string|null

@@ -21,6 +21,5 @@ let { error, isLoading, isRefetching, data } = $derived($facilityStore);
 {:else if error}
 <span>{m.ERROR}: {error.message}</span>
 {:else if data}
-{JSON.stringify(data)}
 <FacilityCard data={data} {showEffectors} />
 {/if}

@@ -3,17 +3,17 @@
 
 	let {
 		inputClass,
-		memberOfOrg = $bindable()
-	}: { inputClass: string; memberOfOrg: boolean | undefined } = $props();
+		data = $bindable()
+	}: { inputClass: string; data: boolean | undefined } = $props();
 	let orgRadio: string | undefined = $state();
 
 	$effect(() => {
 		if (orgRadio == 'yes') {
-			memberOfOrg = true;
+			data = true;
 		} else if (orgRadio == 'no') {
-			memberOfOrg = false;
+			data = false;
 		} else {
-			memberOfOrg = undefined;
+			data = undefined;
 		}
 	});
 </script>

@@ -55,7 +55,7 @@ export const createFacility = form(postFacility, async (data) => {
 	}
 });
 
-const patchFacility = z.object({
+const putFacility = z.object({
 	uid: z.string().optional(),
 	name: z.string(),
     label: z.string(),
@@ -74,16 +74,20 @@ const patchFacility = z.object({
     geographical_complement: z.string(),
     zip: z.string(),
     ban_id: z.string(),
-    ban_banId: z.string()
+    ban_banId: z.string(),
+	redirect: z.optional(z.coerce.boolean<boolean>())
 });
 
-export const updateFacility = form(patchFacility, async (data) => {
+export const updateFacility = form(putFacility, async (data) => {
 	console.log(`form data: ${JSON.stringify(data)}`);
 	const { cookies } = getRequestEvent();
 	const url = `${variables.BASE_URI}/api/v2/facilities/${data.uid}`;
 	console.log(url);
+	console.log(`redirect: ${data.redirect}`);
+	const doRedirect: boolean = data.redirect || false;
+	delete data.redirect;
 	delete data.uid;
-	const request = authReq(url, 'PATCH', cookies, JSON.stringify(data));
+	const request = authReq(url, 'PUT', cookies, JSON.stringify(data));
 	const response = await fetch(request);
 	if (response.ok == false) {
 		console.error(JSON.stringify(response))
@@ -98,6 +102,9 @@ export const updateFacility = form(patchFacility, async (data) => {
 		const json = await response.json()
 		console.log(`Success! Status: ${response.status} Status text: ${response.statusText}`);
 		console.log(json);
+		if (doRedirect) {
+			redirect(303, `/sites/${json.slug}?success=true`);
+		}
 		return {
 			success: true,
 			status: response.status,

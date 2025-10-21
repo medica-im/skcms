@@ -1,4 +1,16 @@
 <script lang="ts">
+	import {
+		faPlus,
+		faCheck,
+		faWindowClose,
+		faPenToSquare,
+		faExclamationCircle,
+		faTrashCanArrowUp,
+		faMagnifyingGlass
+	} from '@fortawesome/free-solid-svg-icons';
+	import Fa from 'svelte-fa';
+	import Dialog from '$lib/Web/Dialog.svelte';
+
 	import { page } from '$app/state';
 	import * as m from '$msgs';
 	import { reactiveQueryArgs } from '$lib/utils/utils.svelte';
@@ -17,14 +29,16 @@
 	let {
 		effector = $bindable(),
 		memberOfOrg = $bindable(),
-		showSelectEffectorForm = $bindable(),
 	}: {
 		effector: Effector | undefined;
-		memberOfOrg: boolean|undefined;
-		showSelectEffectorForm: boolean;
+		memberOfOrg: boolean | undefined;
 	} = $props();
 
-    const defaultDpt: SelectType = {label: page.data.organization.department.name, value: page.data.organization.department.code};
+	let isMember: boolean | undefined = $state();
+	const defaultDpt: SelectType = {
+		label: page.data.organization.department.name,
+		value: page.data.organization.department.code
+	};
 	let isConfirmed: boolean = $state(false);
 	let selectedEffector: SelectType | undefined = $state();
 	let selectedEffectorType: SelectType | undefined = $state();
@@ -36,59 +50,62 @@
 	let facilityCount: number = $state(0);
 	const entries = $derived(await getEntries());
 	const effectors = $derived(await getEffectors());
-    const filteredEffectors = $derived.by(() => {
+	const filteredEffectors = $derived.by(() => {
 		if (effectors) {
-		    return effectors.filter((e) => {
+			return effectors.filter((e) => {
 				if (!selectedEffectorType) {
-					return true
+					return true;
 				} else {
 					const _type = selectedEffectorType.value;
 					console.log(_type);
-					const effectorUids = entries.filter(e=>e.effector_type.uid==_type).map(e=>e.effector_uid);
-					return effectorUids.includes(e.uid)
+					const effectorUids = entries
+						.filter((e) => e.effector_type.uid == _type)
+						.map((e) => e.effector_uid);
+					return effectorUids.includes(e.uid);
 				}
-		})
+			});
 		} else {
-			return []
+			return [];
 		}
 	});
 
-    const effectorItems = $derived.by(async () => {
-		return filteredEffectors.map((e) => {return {label: e.name_fr, value: e.uid}})
-	}
-	);
+	const effectorItems = $derived.by(async () => {
+		return filteredEffectors.map((e) => {
+			return { label: e.name_fr, value: e.uid };
+		});
+	});
 
 	interface InputClass {
 		effector: string;
-		memberOfOrg: string;
+		isMember: string;
 	}
 	interface ValidateForm {
 		effector: boolean;
-		memberOfOrg: boolean;
+		isMember: boolean;
 	}
 	const inputError = 'input-error';
-    
+
 	const validateForm: ValidateForm = $state({
 		effector: false,
-		memberOfOrg: false
+		isMember: false
 	});
 	const inputClass: InputClass = $state({
 		effector: '',
-		memberOfOrg: ''
+		isMember: ''
 	});
 
-	let disabled: boolean = $derived(memberOfOrg==undefined ||selectedEffector==undefined);
-
+	let disabled: boolean = $derived(isMember == undefined || selectedEffector == undefined);
+	let dialog: HTMLDialogElement | undefined = $state();
 	/**
-	 * Validate radio memberOfOrg input.
+	 * Validate radio isMember input.
 	 */
 	$effect(() => {
-		if (memberOfOrg==undefined) {
-			inputClass.memberOfOrg = inputError;
-			validateForm.memberOfOrg = false;
+		if (isMember == undefined) {
+			inputClass.isMember = inputError;
+			validateForm.isMember = false;
 		} else {
-			validateForm.memberOfOrg = true;
-			inputClass.memberOfOrg = '';
+			validateForm.isMember = true;
+			inputClass.isMember = '';
 		}
 	});
 	/**
@@ -131,33 +148,51 @@
 	};
 
 	const effectorLabel = (effectors: Effector[]) => {
-		return `Effecteur${effectors.length > 1 ? 's' : ''}: ${effectors.length}`;
+		return `Personne${effectors.length > 1 ? 's' : ''}: ${effectors.length}`;
 	};
 	const confirm = () => {
-		if (!(selectedEffector==undefined)) {
-			const uid = selectedEffector.value
-			effector = effectors.find((e) => e.uid==uid)
+		if (!(selectedEffector == undefined)) {
+			const uid = selectedEffector.value;
+			effector = effectors.find((e) => e.uid == uid);
 		}
-	}
+		memberOfOrg = isMember;
+		dialog?.close();
+	};
 </script>
 
-<div class="p-4">
-	<EffectorTypeSelect bind:selectedEffectorType />
-	<FacilitySelect bind:selectedFacility={facility} bind:department bind:commune bind:facilityCount />
-	<div class="grid grid-cols-1 gap-4 variant-ghost p-4">
+<button
+	onclick={async () => {
+		dialog?.showModal();
+	}}
+	class="btn variant-ghost-surface"
+	title="Sélectionner une personne"><span><Fa icon={faMagnifyingGlass} /></span><span>Sélectionner une personne</span></button
+>
+
+<Dialog bind:dialog on:close={() => console.log('closed')}>
+	<div class="grid grid-cols-1 rounded-lg h-full w-fit p-4 variant-ghost-secondary items-center gap-4">
+		<div class="place-items-center">
+		<h3 class="h3">Sélectionner une personne</h3>
+		</div>
+		<EffectorTypeSelect bind:selectedEffectorType />
+		<FacilitySelect
+			bind:selectedFacility={facility}
+			bind:department
+			bind:commune
+			bind:facilityCount
+		/>
+		<div class="grid grid-cols-1 gap-4 variant-ghost p-4">
 			<p>{effectorLabel(filteredEffectors)}</p>
-			<Select items={await effectorItems} bind:value={selectedEffector} />
-	</div>
-	<OrganizationRadio bind:memberOfOrg inputClass={inputClass.memberOfOrg} />
-			<div class="flex gap-8">
-				memberOfOrg: {memberOfOrg} selectedEffector: {Boolean(selectedEffector)}
+			<Select items={await effectorItems} bind:value={selectedEffector} placeholder="Sélectionner une personne" />
+		</div>
+		<OrganizationRadio bind:data={isMember} inputClass={inputClass.isMember} />
+		<div class="flex gap-8">
+			<!--isMember: {isMember} selectedEffector: {Boolean(selectedEffector)}-->
 			<div class="w-auto justify-center">
 				<button
-				    type="button"
+					type="button"
 					class="variant-filled-secondary btn w-min"
 					{disabled}
-					onclick={confirm}
-					>Envoyer</button
+					onclick={confirm}>Confirmer</button
 				>
 			</div>
 			<div class="w-auto justify-center">
@@ -167,9 +202,10 @@
 					onclick={() => {
 						selectedEffector = undefined;
 						memberOfOrg = undefined;
-						showSelectEffectorForm = false;
+						dialog?.close()
 					}}>Annuler</button
 				>
 			</div>
 		</div>
-</div>
+	</div>
+</Dialog>

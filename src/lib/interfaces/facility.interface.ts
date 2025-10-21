@@ -9,9 +9,9 @@ export interface Address {
     country: string,
     facility_uid: string,
     geographical_complement: string|null
-    latitude: string|null,
-    longitude: string|null,
-    street: string|null
+    latitude: number|null,
+    longitude: number|null,
+    street: string,
     zip: string|null,
     zoom: number|null,
     tooltip_direction: string|null;
@@ -26,6 +26,7 @@ export interface Avatar {
 }
 
 export interface Facility {
+    uid: string,
     address: Address,
     commune: string,
     name: string,
@@ -33,7 +34,6 @@ export interface Facility {
     organizations: any[],
     resource_uri: string|null,
     slug: string,
-    uid: string,
     socialnetworks: SocialNetwork[]|null,
     websites: Website[]|null,
     avatar: Avatar,

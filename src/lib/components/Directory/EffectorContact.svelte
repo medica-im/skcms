@@ -31,6 +31,7 @@
 	import CreatePhone from '$lib/Web/Phone/CreatePhone.svelte';
 	import CreateEmail from '$lib/Web/Email/Create.svelte';
 	import CreateWebsite from '$lib/Web/Website/Create.svelte';
+	import UpdateEffector from '$lib/Web/Effector/UpdateEffectorModal.svelte';
 	import { copy } from 'svelte-copy';
 	import { setEditMode, getEditMode, setEntryUid, setEffectorUid } from './context';
 	import { hyphenateUuid } from '$lib/utils/utils';
@@ -72,7 +73,7 @@
 				<UuidHex data={data?.uid}/>
 				<UuidHyphen data={data?.uid}/>
 			{/if}
-			<h2 class="h2 flex-initial break-words overflow-hidden">{data.name}</h2>
+			<h2 class="h2 flex flex-initial break-words overflow-hidden place-items-center gap-4">{data.name}{#if $editMode}<UpdateEffector {data}/>{/if}</h2>
 			{#if isSuperUser}
 				effector {data?.effector_uid}
 				<UuidHex data={data?.effector_uid}/>

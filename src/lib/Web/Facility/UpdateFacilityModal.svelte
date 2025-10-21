@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import * as m from '$msgs';
 	import { slugify } from '$lib/helpers/stringHelpers.ts';
@@ -24,7 +25,6 @@
 	import type { Validation } from '$lib/Web/RPPS/validate.ts';
 	import type { LngLatLike } from 'svelte-maplibre';
 	import type { AddressFeature } from '$lib/store/directoryStoreInterface';
-	import type { LngLat } from 'maplibre-gl';
 	import AddMarkerMap from '$lib/MapLibre/AddMarkerMap.svelte';
 	import Geocoder from '$lib/components/Geocoder/Geocoder.svelte';
 	import {
@@ -35,7 +35,7 @@
 	import type { FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 
 	let {
-		facility
+		facility=$bindable()
 	}: {
 		facility: FacilityV2;
 	} = $props();
@@ -53,7 +53,6 @@
 		geographical_complement: string;
 		zip: string;
 		zoom: string;
-		commune: string;
 	}
 	interface ValidateForm {
 		name: boolean;
@@ -65,7 +64,6 @@
 		geographical_complement: boolean;
 		zip: boolean;
 		zoom: boolean;
-		commune: boolean;
 	}
 	const inputError = 'input-error';
 	let addressFeature = getAddressFeature();
@@ -81,7 +79,6 @@
 		geographical_complement: '',
 		zip: '',
 		zoom: '',
-		commune: ''
 	});
 	const validateForm: ValidateForm = $state({
 		name: org_cat == 'msp' ? false : true,
@@ -93,23 +90,34 @@
 		geographical_complement: true,
 		zip: false,
 		zoom: false,
-		commune: false
 	});
 	let name: string|null = $state(facility.name);
 	let label: string|null = $state(facility.label);
 	let slug: string|null = $state(facility.slug);
+	let redirect: boolean = $derived(!(slug==null && facility.slug==null) && slug!=facility.slug && !page.url.pathname.startsWith("/web"));
 	let building: string|null = $state(facility.building);
 	let street: string = $derived($addressFeature?.properties?.name || facility.street);
 	let geographical_complement: string = $state('');
-	let zip: string = $derived($addressFeature?.properties?.postcode || facility.zip);
+	let zip: string|null = $derived($addressFeature?.properties?.postcode || facility.zip);
 	let zoom: number = $state(18);
+	const getCurrentLongitude = ()=>{
+		const oldLongitudeNumber: number|undefined = facility.location?.longitude;
+		console.log(`type of oldLongitudeNumber: ${typeof(oldLongitudeNumber)}`);
+		if ( oldLongitudeNumber != undefined) {
+			const oldLongitudeString = oldLongitudeNumber.toString();
+			console.log(`oldLongitudeString: ${oldLongitudeString}`);
+			console.log(`type of oldLongitudeString: ${typeof(oldLongitudeString)}`);
+			return oldLongitudeString
+		}
+	}
+	let longitude: string|undefined = $state(getCurrentLongitude());
 	let lngLat: LngLatLike = $derived.by(() => {
 		if ($addressFeature?.geometry.coordinates) {
 			return {
-				lng: $addressFeature.geometry.coordinates[0],
+				lng: $addressFeature?.geometry.coordinates[0],
 				lat: $addressFeature?.geometry.coordinates[1]
 			}
-		} else if (facility.location) {
+		} else if (facility.location?.longitude && facility.location?.latitude) {
 			return {
 				lng: facility.location.longitude,
 				lat: facility.location.latitude
@@ -123,7 +131,9 @@
 	});
 	let formResult = $derived(updateFacility.for(facility.uid).result);
 	let disabled: boolean = $derived(
-		!Object.values(validateForm).every((v) => v === true) || formResult?.success == true
+		!Object.values(validateForm).every((v) => v === true) || formResult?.success == true || (
+name==facility.name && label==facility.label && slug==facility.slug && building==facility.building && street==facility.street && geographical_complement==facility.geographical_complement && ban_banId==facility.ban_banId && lngLat.lng==facility.location?.longitude && lngLat.lat==facility.location?.latitude
+		)
 	);
 
 	const uid = getEffectorUid();
@@ -151,16 +161,6 @@
 		return value >= 0 && value <= 20;
 	};
 
-	/**
-	 * Calculate slug
-	 */
-	$effect(() => {
-		if (name) {
-			slug = slugify(name);
-		} else if ($addressFeature) {
-			slug = slugify($addressFeature.properties.street);
-		}
-	});
 	/**
 	 * Validate name input.
 	 */
@@ -254,10 +254,13 @@
 			validateForm.street = true;
 		}
 	});
+	let slugSuccess: boolean = $derived(page.url.searchParams.get('success')=='true');
 </script>
 
 <button
 	onclick={async () => {
+		formResult=undefined;
+		slugSuccess=false;
 		dialog?.showModal();
 	}}
 	class="btn variant-ghost-surface"
@@ -268,8 +271,7 @@
 	<div class="rounded-lg w-full p-4 variant-ghost-secondary items-center place-items-center">
 		<div class="rounded-lg p-4 variant-ghost-secondary gap-2 items-center place-items-center">
 			<h3 class="h3 text-center">Modifier l'établissement</h3>
-			<form
-				{...updateFacility.for(facility.uid).enhance(async ({ form, data, submit }) => {
+			<form {...updateFacility.for(facility.uid).enhance(async ({ form, data, submit }) => {
 					console.log(data);
 					try {
 						await submit();
@@ -277,12 +279,28 @@
 					} catch (error) {
 						console.log(`Oh no! Something went wrong:${error}`);
 					}
-				})}
-				class=""
-			>
+				})}>
 				<div class="p-2 space-y-4 justify-items-stretch grid grid-cols-2 gap-6">
 					<div class="p-2 space-y-2 w-full">
 						<label class="flex label place-self-start place-items-center space-x-2 w-full">
+							{#each updateFacility.for(facility.uid).fields.uid.issues() as issue}
+							<p class="issue">{issue.message}</p>
+						{/each}
+						<input
+							class="input hidden"
+							name="uid"
+							type="text"
+							placeholder=""
+							bind:value={facility.uid}
+						/>
+						{redirect}
+						<input
+							class="hidden"
+							name="redirect"
+							type="checkbox"
+							placeholder=""
+							bind:checked={redirect}
+						/>
 							<span>Nom</span>
 							{#each updateFacility.for(facility.uid).fields.name.issues() as issue}
 								<p class="issue">{issue.message}</p>
@@ -412,7 +430,7 @@
 							<span>Commune</span>
 							<input
 								disabled
-								class="input {inputClass.commune} w-full"
+								class="input w-full"
 								type="text"
 								placeholder=""
 								value={facility.commune.name_fr}
@@ -437,19 +455,29 @@
 							/>
 						</label>
 						<AddMarkerMap bind:lngLat bind:zoom />
-						<input {...updateFacility.for(facility.uid).fields.latitude.as('text')} bind:value={lngLat.lat} />
+						<div>lngLat.lat: "{lngLat.lat}" type: "{typeof(lngLat.lat)}"</div>
+						<label class="flex label place-self-start place-items-center space-x-2">
+							<span>Latitude</span>
+						<input name="latitude" class="input" bind:value={lngLat.lat} />
 						{#each updateFacility.for(facility.uid).fields.latitude.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
-						<input {...updateFacility.for(facility.uid).fields.longitude.as('text')} bind:value={lngLat.lng} />
+						</label>
+						<div>longitude: "{longitude}" type: "{typeof(longitude)}"</div>
+						<div>lngLat.lng: "{lngLat.lng}" type: "{typeof(lngLat.lng)}"</div>
+						<label class="flex label place-self-start place-items-center space-x-2">
+							<span>Longitude</span>
+					
+						<input name="longitude" class="input" bind:value={lngLat.lng} />
 						{#each updateFacility.for(facility.uid).fields.longitude.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
+						</label>
 					</div>
 				</div>
 				<div class="flex gap-8">
 					<div class="flex gap-2 items-center">
-						{#if formResult?.success}
+						{#if formResult?.success || slugSuccess}
 							<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
 						{:else if formResult && !formResult.success}
 							<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span
@@ -467,7 +495,12 @@
 							class="variant-filled-error btn w-min"
 							onclick={() => {
 								dialog?.close();
-							}}>{formResult?.success ? 'Fermer' : 'Annuler'}</button
+								if (formResult?.success && page.url.pathname.startsWith("/web")) {
+									facility=formResult.data;
+								}
+								page.url.searchParams.set('success', 'false');
+								goto(`?${page.url.searchParams.toString()}`);
+							}}>{formResult?.success || slugSuccess ? 'Fermer' : 'Annuler'}</button
 						>
 					</div>
 				</div>

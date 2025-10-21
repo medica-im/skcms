@@ -3,6 +3,7 @@ import { getRequestEvent, query, form, command } from '$app/server';
 import * as z from "zod";
 import { authReq } from '$lib/utils/request.ts';
 import { variables } from '$lib/utils/constants.ts';
+import { slugify } from '$lib/helpers/stringHelpers';
 
 const RoleEnum = z.enum(['anonymous', 'staff', 'administrator', 'superuser']);
 
@@ -11,9 +12,14 @@ const postEntry = z.object({
 	effector_type: z.string(),
 	facility: z.string(),
 	organizations: z.preprocess((val: string) => {
-		return [val]
-	}, z.array(z.string())
-	)
+		if (val=="") {
+			return null
+		} else {
+		    return [val]
+		}
+	}, z.array(z.string()).nullable()
+	),
+	organization_category: z.string().optional(),
 }
 );
 
@@ -21,6 +27,8 @@ export const createEntry = form(postEntry, async (data) => {
 	console.log(`entry form data: ${JSON.stringify(data)}`);
 	const { cookies } = getRequestEvent();
 	const url = `${variables.BASE_URI}/api/v2/entries`;
+	const organization_category = data.organization_category;
+	delete data.organization_category;
 	const request = authReq(url, 'POST', cookies, JSON.stringify(data));
 	const response = await fetch(request);
 	if (response.ok == false) {
@@ -36,6 +44,13 @@ export const createEntry = form(postEntry, async (data) => {
 		const json = await response.json()
 		console.log(`Success! Status: ${response.status} Status text: ${response.statusText}`);
 		console.log(json);
+		let redirectURL;
+		if (organization_category=="cpts") {
+			redirectURL=`/${json.effector_type.slug}/${slugify(json.address.city)}/${json.slug}`;
+		} else {
+			redirectURL=`/${slugify(json.facility.slug)}/${json.effector_type.slug}/${json.slug}`;
+		}
+		redirect(303, redirectURL);
 		return {
 			success: true,
 			status: response.status,

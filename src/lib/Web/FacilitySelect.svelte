@@ -118,7 +118,7 @@ const getCommuneItems = (communes: Commune[]|undefined) => {
 		{:else if $departments.status === 'error'}
 			<span>Error: {$departments.error.message}</span>
 		{:else}
-			<Select items={getDepartmentItems($departments.data)} bind:value={department} />
+			<Select items={getDepartmentItems($departments.data)} bind:value={department} placeholder="Sélectionner un département" />
 		{/if}
 	</div>
   <div class="grid grid-cols-1 gap-4 variant-ghost p-4">
@@ -128,7 +128,7 @@ const getCommuneItems = (communes: Commune[]|undefined) => {
 		{:else if $communes?.status === 'error'}
 			<span>Error: {$communes?.error.message}</span>
 		{:else}
-			<Select items={getCommuneItems($communes?.data)} bind:value={commune} />
+			<Select items={getCommuneItems($communes?.data)} bind:value={commune} placeholder="Sélectionner une commune" />
 		{/if}
 	</div>
   <div class="grid grid-cols-1 gap-4 variant-ghost p-4">
@@ -138,7 +138,7 @@ const getCommuneItems = (communes: Commune[]|undefined) => {
 		<span>Error: {$facilities.error.message}</span>
 	{:else}
     <p>{facilityLabel($facilities.data)}</p>
-		<Select items={getFacilityItems($facilities.data, department, commune)} bind:value={selectedFacility} />
+		<Select items={getFacilityItems($facilities.data, department, commune)} bind:value={selectedFacility} placeholder="Sélectionner un établissement" />
 	{/if}
   </div>
 </div>

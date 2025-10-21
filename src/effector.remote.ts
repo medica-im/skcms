@@ -65,6 +65,41 @@ export const patchCommand = command(Patch, async (data) => {
     }
 });
 
+const effectorPatch = z.object({
+    effector: z.string().regex(/^[0-9a-fA-F]{32}$/).optional(),
+    name_fr: z.string(),
+    label_fr: z.string(),
+    slug_fr: z.string(),
+    gender: genderEnum
+});
+
+export const updateEffector = form(effectorPatch, async (data) => {
+    console.log(JSON.stringify(data));
+    const effector_uid = data.effector;
+    delete data.effector;
+    const { cookies } = getRequestEvent();
+    const url = `${variables.BASE_URI}/api/v2/effectors/${effector_uid}`;
+    const request = authReq(url, 'PATCH', cookies, JSON.stringify(data));
+    const response = await fetch(request);
+    if (response.ok == false) {
+        console.error(response.status)
+        console.error(response.statusText)
+        return {
+            success: false,
+            status: response.status,
+            text: response.statusText
+        }
+    } else {
+        const json = await response.json();
+        return {
+            success: true,
+            status: response.status,
+            text: response.statusText,
+            data: json
+        }
+    }
+});
+
 const effectorPost = z.object({
     name_fr: z.string(),
     label_fr: z.string(),
