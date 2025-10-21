@@ -79,6 +79,7 @@ export const updateEffector = form(effectorPatch, async (data) => {
     delete data.effector;
     const { cookies } = getRequestEvent();
     const url = `${variables.BASE_URI}/api/v2/effectors/${effector_uid}`;
+    console.log(url);
     const request = authReq(url, 'PATCH', cookies, JSON.stringify(data));
     const response = await fetch(request);
     if (response.ok == false) {

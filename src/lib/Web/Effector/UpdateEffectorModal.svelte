@@ -124,7 +124,7 @@
 			<h3 class="h3 text-center">Créer une nouvelle personne physique ou morale</h3>
 			<div class="p-4 space-y-2 justify-items-stretch grid grid-cols-1 gap-6">
 				<form
-					{...updateEffector.enhance(async ({ form, data, submit }) => {
+					{...updateEffector.for(data.effector_uid).enhance(async ({ form, data, submit }) => {
 						console.log(data);
 						try {
 							await submit();
@@ -135,9 +135,16 @@
 					})}
 					class=""
 				>
+				<input
+							class="hidden"
+							name="effector"
+							type="text"
+							placeholder=""
+							bind:value={data.effector_uid}
+						/>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
 						<span>Nom</span>
-						{#each updateEffector.fields.name_fr.issues() as issue}
+						{#each updateEffector.for(data.effector_uid).fields.name_fr.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<input
@@ -150,7 +157,7 @@
 					</label>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
 						<span>Label</span>
-						{#each updateEffector.fields.label_fr.issues() as issue}
+						{#each updateEffector.for(data.effector_uid).fields.label_fr.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<input
@@ -163,7 +170,7 @@
 					</label>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
 						<span>Slug</span>
-						{#each updateEffector.fields.slug_fr.issues() as issue}
+						{#each updateEffector.for(data.effector_uid).fields.slug_fr.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<input
@@ -184,7 +191,7 @@
 							placeholder=""
 							bind:value={gender}
 						/-->
-						{#each updateEffector.fields.gender.issues() as issue}
+						{#each updateEffector.for(data.effector_uid).fields.gender.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<select
