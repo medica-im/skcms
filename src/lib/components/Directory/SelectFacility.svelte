@@ -91,7 +91,7 @@
 	facilities: {$getFacilities} ({$getFacilities.length})<br />
 	facilityOf: {$facilityOf} ({$facilityOf.length})
 -->
-	<div class="text-surface-700 theme">
+	<div class="text-surface-700 z-auto theme">
 		<Select
 			{label}
 			{itemId}

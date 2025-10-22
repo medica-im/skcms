@@ -80,11 +80,11 @@
 		"haversine-distance": "^1.2.1",
 		"i": "^0.3.7",
 		"lodash.isempty": "^4.4.0",
-		"maplibre-gl": "^5.6.0",
+		"maplibre-gl": "^5.9.0",
 		"svelecte": "^5.2.0",
 		"svelte-fa": "^4.0.3",
 		"svelte-leafletjs": "^2.0.0",
-		"svelte-maplibre": "1.0.0-next.12",
+		"svelte-maplibre": "1.2.3",
 		"svelte-select": "^5.8.3",
 		"video.js": "^8.10.0"
 	},
