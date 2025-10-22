@@ -19,6 +19,15 @@ export function getEntryUid() {
     return getContext<string>('entryUid')
 }
 
+export function setDisplayMap() {
+    let displayMap = writable<boolean>(false);
+    setContext('displayMap', displayMap)
+}
+
+export function getDisplayMap() {
+    return getContext<Writable<boolean>>('displayMap')
+}
+
 export function setEditMode() {
     let editMode = writable<boolean>(false);
     setContext('editMode', editMode)

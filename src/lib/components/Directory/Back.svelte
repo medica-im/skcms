@@ -64,6 +64,10 @@
 		if (addressParam) {
 			params.push(`address=${encodeURIComponent(addressParam)}`);
 		}
+		const displayMapParam = searchParams.has('map');
+		if ( displayMapParam ) {
+			params.push('map');
+		}
 		const parameters = params.join('&');
 		let url = `${origin}`;
 		if (params.length) url += `?${parameters}`;

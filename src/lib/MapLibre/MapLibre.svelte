@@ -48,7 +48,7 @@
 	standardControls
 	style={openStreetMap}
 	attributionControl={false}
-	bind:bounds
+	{bounds}
 >
 	{#snippet children({ map })}
 		{#if data.length > 1}

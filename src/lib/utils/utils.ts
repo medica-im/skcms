@@ -76,7 +76,7 @@ export const getByValue = (map: Map<string, string[]>, searchValue: string[]) =>
 	}
 }
 
-export const entryPageUrl = (entry: Entry, org_category: string | null = null, pathname: string | null = null, facility: string | null = null, types: string[] | null = null, term: string | null = null, communes: string[] | null = null, situation: string | null = null, addressFeature: AddressFeature|null=null) => {
+export const entryPageUrl = (entry: Entry, org_category: string | null = null, pathname: string | null = null, facility: string | null = null, types: string[] | null = null, term: string | null = null, communes: string[] | null = null, situation: string | null = null, addressFeature: AddressFeature|null=null, displayMap: boolean = false) => {
 	const typeSlug = entry.effector_type.slug;
 	const communeSlug = entry.commune.slug;
 	const nameSlug = entry.slug;
@@ -90,8 +90,9 @@ export const entryPageUrl = (entry: Entry, org_category: string | null = null, p
 		: '';
 	const situationParam = situation ? `${encodeURIComponent(situation)}`: '';
 	const addressFeatureParam = addressFeature ? `${encodeURIComponent(JSON.stringify(addressFeature))}`: '';
+	const displayMapParam = displayMap;
 
-	const params: { [key: string]: string; }[] = [
+	const params: { [key: string]: string|boolean; }[] = [
 		{origin: originParam},
 		{facility: facilityParam},
 		{types: typesParam},
@@ -99,6 +100,7 @@ export const entryPageUrl = (entry: Entry, org_category: string | null = null, p
 		{communes: communesParam},
 		{situation:	situationParam},
 		{address: addressFeatureParam},
+		{map: displayMapParam},
 	]
 	const urlParams: string[] = [];
 	params.forEach((value, index)=>{
@@ -106,7 +108,7 @@ export const entryPageUrl = (entry: Entry, org_category: string | null = null, p
 		const param = value[key]
 		if (!param) return;
 		const p = index==0 ? '?':'&';
-		urlParams.push(`${p}${key}=${param}`);
+		urlParams.push(`${p}${key}${typeof param === 'string' ? '=':''}${typeof param === 'string' ? param:''}`);
 	});
 	const qs = urlParams.join('');
 	if (org_category == 'msp') {

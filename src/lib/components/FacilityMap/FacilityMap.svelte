@@ -3,7 +3,7 @@
 	import { createEntriesMapData } from '$lib/components/Map/mapData.ts';
 	import { page } from '$app/state';
 	import type { Entry } from '$lib/store/directoryStoreInterface.ts';
-	import { getSelectFacility, getSelectCategories, getTerm, getSelectCommunes, getSelectSituation, getAddressFeature } from '$lib/components/Directory/context.ts';
+	import { getSelectFacility, getSelectCategories, getTerm, getSelectCommunes, getSelectSituation, getAddressFeature, getDisplayMap } from '$lib/components/Directory/context.ts';
 
 	let { data } : { data: Entry[]; } = $props();
 
@@ -13,9 +13,10 @@
 	let selectFacility = getSelectFacility();
 	let selectCategories = getSelectCategories();
 	let selectCommunes = getSelectCommunes();
+	let displayMap = getDisplayMap();
 	let term = getTerm();
 
-	let mapData = $derived(createEntriesMapData(data, false, $addressFeature, org_category, page.url.pathname, $selectFacility, $selectCategories, $term, $selectCommunes, $selectSituation));
+	let mapData = $derived(createEntriesMapData(data, false, $addressFeature, org_category, page.url.pathname, $selectFacility, $selectCategories, $term, $selectCommunes, $selectSituation, $displayMap));
 </script>
 
 <Map data={mapData} showTooltip={false} />
