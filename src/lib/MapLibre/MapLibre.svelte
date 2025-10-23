@@ -25,7 +25,7 @@
 		data: MapData[];
 		showTooltip: boolean;
 	} = $props();
-
+	let zoom = $derived(data.length==1 ? data[0].zoom || 15 : undefined);
 	const padding = { top: 60, bottom: 45, left: 115, right: 70 };
 	let bounds: LngLatBoundsLike|undefined = $derived.by(() => {
 		const coordinates = data?.map((e) => [e.latLng[1], e.latLng[0]]);
@@ -42,21 +42,18 @@
 		return lngLat;
 	}
 </script>
-
 <MapLibre
 	class="h-full"
 	standardControls
 	style={openStreetMap}
 	attributionControl={false}
 	{bounds}
+	{zoom}
 >
 	{#snippet children({ map })}
-		{#if data.length > 1}
-			<!--Bound coordinates={coordinates} {padding}/-->
-		{/if}
 		<Control class="flex flex-col gap-y-2">
 			<ControlGroup>
-				{#if data.length > 1}
+				{#if data.length > 1 && bounds}
 					<ControlButton onclick={() => map.fitBounds(bounds, { padding: padding })}
 						><div class="variant-filled"><Fa size="lg" icon={faArrowsToCircle} /></div>
 					</ControlButton>
@@ -78,9 +75,11 @@
 		</Control>
 		{#each data as { latLng, tooltip, popup }}
 			<DefaultMarker lngLat={latLng.slice().reverse() as [number, number]}>
+				{#if popup}
 				<Popup offset={[0, -10]}>
-					<div class="font-bold">{@html popup?.text}</div>
+					<div class="p-1 m-0 font-bold">{@html popup?.text}</div>
 				</Popup>
+				{/if}
 			</DefaultMarker>
 			<!--Marker lngLat={latLng.slice().reverse() as [number, number]}>
 				<div class="relative inline-block">
@@ -114,4 +113,7 @@
 		top: 25px;
 		left: 0px;
 	}
+	:global(.maplibregl-popup-content) {
+    padding:0px;
+}
 </style>

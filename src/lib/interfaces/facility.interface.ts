@@ -9,8 +9,8 @@ export interface Address {
     country: string,
     facility_uid: string,
     geographical_complement: string|null
-    latitude: number|null,
-    longitude: number|null,
+    latitude: string|null,
+    longitude: string|null,
     street: string,
     zip: string|null,
     zoom: number|null,
