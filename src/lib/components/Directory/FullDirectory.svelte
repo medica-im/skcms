@@ -97,7 +97,7 @@
 					{:else}
 						<div class="row">
 							<div class="col">
-								<SelectCategories {categoryOf} {types} />
+								<SelectCategories {categoryOf} />
 							</div>
 						</div>
 					{/if}

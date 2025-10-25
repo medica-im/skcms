@@ -55,7 +55,7 @@
 			{label}
 			{itemId}
 			items={situations}
-			searchable={false}
+			searchable={true}
 			on:change={handleChange}
 			on:clear={handleClear}
 			placeholder={m.ADDRESSBOOK_SITUATIONS_PLACEHOLDER()}

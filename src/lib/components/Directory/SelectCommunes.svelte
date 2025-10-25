@@ -54,8 +54,11 @@
 
 	function handleChange(event: CustomEvent) {
 		if (event.detail) {
-			const communeUids = event.detail.map((e: SelectType) => e.value);
-			$selectCommunes = communeUids;
+			if (Array.isArray(event.detail)) {
+				$selectCommunes = event.detail.map((e: SelectType) => e.value);
+			} else {
+				$selectCommunes = [event.detail.value]
+			}
 		}
 	}
 </script>
@@ -70,11 +73,11 @@
 			{label}
 			{itemId}
 			items={getItems($communeOf)}
-			searchable={false}
+			searchable={true}
 			on:change={handleChange}
 			on:clear={handleClear}
 			placeholder={m.ADDRESSBOOK_COMMUNES_PLACEHOLDER()}
-			multiple={true}
+			multiple={false}
 			bind:value={$selectCommunesValue}
 		/>
 	</div>

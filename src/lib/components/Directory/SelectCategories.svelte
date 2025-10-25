@@ -2,7 +2,7 @@
 	import Select from 'svelte-select';
 	import { onMount } from 'svelte';
 	import { categories } from '$lib/store/directoryStore';
-	import * as m from "$msgs";	import { get } from '@square/svelte-store';
+	import * as m from "$msgs";
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import {
@@ -13,8 +13,7 @@
 	} from '$lib/components/Directory/context';
 	import type { Type } from '$lib/store/directoryStoreInterface';
 
-	export let categoryOf;
-	export let types: string[]|null;
+	let { categoryOf } = $props();
 
 	const label = 'label';
 	const itemId = 'value';
@@ -25,23 +24,15 @@
 	let directoryRedirect = getDirectoryRedirect();
 
 	onMount(async () => {
-		let _types: string[]|null = null;
-		if (types) {
-            _types = types;
-		} else {
-		    const typesParam: string | null = page.url.searchParams.get('types');
-			if (typesParam) {
-		        _types = JSON.parse(typesParam);
+		const typesParam: string |null = page.url.searchParams.get('types');
+		if (typesParam != null) {
+		    const types: string[] = JSON.parse(typesParam);
+			$selectCategories=types;
+			const _categories = await categoryOf.load();
+			const typesVal = getValue(types, _categories);
+			if (typesVal) {
+				$selCatVal=typesVal;
 			}
-		}
-		if (!_types) {
-			return;
-		}
-		selectCategories.set(_types);
-		const _categories = await categories();
-		const typesVal = getValue(_types, _categories);
-		if (typesVal) {
-			selCatVal.set(typesVal);
 		}
 	});
 
@@ -68,27 +59,20 @@
 		}
 	}
 
-	/*function buildUrl() {
-		//const searchParams = page.url.searchParams.get()
-        //const parameters = page.url.searchParams.join('&');
-		//let url = `${origin}`;
-		//if (params.length) url += `?${parameters}`;
-	};*/
-
-	function handleClear(event: CustomEvent) {
+	const handleClear = async (event: CustomEvent) => {
 		if (event.detail) {
-			selectCategories.set([]);
-			selCatVal.set(null);
-			if (page.url.searchParams.get('types')) {
+			$selectCategories=[];
+			$selCatVal=null;
+			if (page.url.searchParams.has('types')) {
 				page.url.searchParams.delete('types');
-		    	goto(page.url.pathname+"?"+page.url.searchParams);
+		    	await goto(page.url.pathname+"?"+page.url.searchParams);
 			}
 		    if (page.url.pathname != '/annuaire' && $directoryRedirect) {
 				let url = '/annuaire';
 				if ( $selectFacility ) {
 					url += `?facility=${$selectFacility}`
 				}
-			    goto(url);
+			    await goto(url);
 		    }
 		}
 	}
@@ -107,7 +91,6 @@
 		}
 	}
 </script>
-
 {#await categoryOf.load()}
 	<div class="text-surface-700 theme">
 		<Select loading={true} placeholder={m.ADDRESSBOOK_CATEGORIES_PLACEHOLDER()} />
@@ -122,7 +105,7 @@
 			{label}
 			{itemId}
 			items={getItems($categoryOf)}
-			searchable={false}
+			searchable={true}
 			on:change={handleChange}
 			on:clear={handleClear}
 			placeholder={m.ADDRESSBOOK_CATEGORIES_PLACEHOLDER()}

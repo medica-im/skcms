@@ -5,7 +5,7 @@
 	import { bbox } from '@turf/bbox';
 	import { lineString } from '@turf/helpers';
 	import { MapLibre, type Map } from 'svelte-maplibre';
-	import type { LngLatBoundsLike } from 'maplibre-gl';
+	import type { LngLatBoundsLike, FitBoundsOptions } from 'maplibre-gl';
 	import type { MapData } from '$lib/interfaces/mapData.interface.js';
 	import Bound from './Bound.svelte';
 	import {
@@ -26,6 +26,8 @@
 		showTooltip: boolean;
 	} = $props();
 	let zoom = $derived(data.length==1 ? data[0].zoom || 15 : undefined);
+	let center = $derived(data.length==1 ? data[0].latLng.slice().reverse() as [number, number] : undefined);
+
 	const padding = { top: 60, bottom: 45, left: 115, right: 70 };
 	let bounds: LngLatBoundsLike|undefined = $derived.by(() => {
 		const coordinates = data?.map((e) => [e.latLng[1], e.latLng[0]]);
@@ -42,6 +44,9 @@
 		return lngLat;
 	}
 </script>
+zoom: '{zoom}'<br>
+
+
 <MapLibre
 	class="h-full"
 	standardControls
@@ -49,6 +54,8 @@
 	attributionControl={false}
 	{bounds}
 	{zoom}
+	{center}
+	fitBoundsOptions={{padding: {top: 45, bottom: 15, left: 20, right: 20}}}
 >
 	{#snippet children({ map })}
 		<Control class="flex flex-col gap-y-2">

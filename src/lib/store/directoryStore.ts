@@ -1,6 +1,6 @@
 import { writable } from '@square/svelte-store';
 import { variables } from '$lib/utils/constants.ts';
-import { browser } from "$app/environment"
+import { browser } from "$app/environment";
 import { handleRequestsWithPermissions } from '$lib/utils/requestUtils.ts';
 import { PUBLIC_EFFECTOR_TYPE_LABELS_TTL, PUBLIC_ENTRIES_TTL, PUBLIC_SITUATIONS_TTL, PUBLIC_FACILITIES_TTL, PUBLIC_CACHE_CONTACTS } from '$env/static/public';
 import haversine from 'haversine-distance';
@@ -594,28 +594,20 @@ export const categoryOfF = (selectCommunes: string[], fullFilteredEffectors: Ent
 }
 
 export const communeOfF = async (selectCategories: string[], fullFilteredEffectors: Entry[], selectFacility: string | null, currentOrg: CurrentOrg, limitCategories: String[], selectSituation: string | null) => {
-	const _communes = await communes();
-	const situations = await getSituations();
 	if (!selectCategories?.length && !selectFacility && currentOrg == null && !limitCategories?.length && !selectSituation) {
-		return _communes
+		const allCommunes = fullFilteredEffectors.map(x => x.commune);
+		const mapFromCommunes = new Map(
+			allCommunes.map(c => [c.uid, c])
+		);
+		const uniqueCommunes = [...mapFromCommunes.values()];
+		return uniqueCommunes;
 	} else {
 		const communes = fullFilteredEffectors.filter(
 			x => {
 				return (!selectCategories?.length || selectCategories.includes(x.effector_type.uid)
 				) && (!selectFacility || x.facility.uid == selectFacility)
 			}
-		).filter(function (x) {
-			if (selectSituation == null) {
-				return true
-			} else {
-				let entries = situations.find(obj => { return obj.uid == selectSituation })?.entries;
-				if (entries) {
-					return entries.includes(x.uid);
-				} else {
-					return false
-				}
-			}
-		}).map(x => x.commune);
+		).map(x => x.commune);
 		const mapFromCommunes = new Map(
 			communes.map(c => [c.uid, c])
 		);
@@ -627,9 +619,9 @@ export const communeOfF = async (selectCategories: string[], fullFilteredEffecto
 export const facilityOfF = async (selectCategories: String[], fullFilteredEffectors: Entry[], selectCommunes: String[], currentOrg: boolean | null, limitCategories: String[], selectSituation: string | null) => {
 	const facilities = await getFacilities();
 	if (!selectCategories?.length && !selectCommunes?.length && currentOrg == null && !limitCategories?.length && !selectSituation) {
-		return facilities.map(x => x.uid)
+		const uids = fullFilteredEffectors.map(x => x.facility.uid);
+		return [...new Set(uids)];
 	} else {
-		const situations = await getSituations();
 		const uids = fullFilteredEffectors.filter(
 			(x) => {
 				return !selectCategories.length || selectCategories.includes(x.effector_type.uid)
@@ -645,18 +637,7 @@ export const facilityOfF = async (selectCategories: String[], fullFilteredEffect
 					return selectCommunes.includes(commune)
 				}
 			}
-		).filter(function (x) {
-			if (selectSituation == null) {
-				return true
-			} else {
-				let entries = situations.find(obj => { return obj.uid == selectSituation })?.entries;
-				if (entries) {
-					return entries.includes(x.uid);
-				} else {
-					return false
-				}
-			}
-		}).map(x => x.facility.uid)
+		).map(x => x.facility.uid)
 		return [...new Set(uids)];
 	}
 };

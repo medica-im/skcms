@@ -79,7 +79,6 @@
 		}
 	}
 </script>
-
 {#await facilityOf.load()}
 	<div class="text-surface-700 theme">
 		<Select loading={true} placeholder={m.ADDRESSBOOK_FACILITIES_PLACEHOLDER()} />
@@ -96,7 +95,7 @@
 			{label}
 			{itemId}
 			items={await getItems($facilityOf)}
-			searchable={false}
+			searchable={true}
 			on:change={handleChange}
 			on:clear={handleClear}
 			placeholder={m.ADDRESSBOOK_FACILITIES_PLACEHOLDER()}
