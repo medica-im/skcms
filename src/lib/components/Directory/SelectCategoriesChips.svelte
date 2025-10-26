@@ -110,7 +110,6 @@
 		}
 	}
 </script>
-{JSON.stringify($categoryOf)}
 <div class="text-surface-700 theme space-x-2 space-y-2">
 	{#await categorizedFullFilteredEffectors.load()}
 		<div class="placeholder"></div>
