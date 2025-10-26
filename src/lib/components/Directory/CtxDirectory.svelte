@@ -95,16 +95,14 @@
 	setDistanceEffectors(distanceEffectors);
 
 	const fullFilteredEffectors = asyncDerived(
-		[term, selectSituation, currentOrg, organizationStore, limitCategories],
+		[selectSituation, currentOrg, organizationStore, limitCategories],
 		async ([
-			$term,
 			$selectSituation,
 			$currentOrg,
 			$organizationStore,
 			$limitCategories
 		]) => {
 			return await fullFilteredEffectorsF(
-				$term,
 				$selectSituation,
 				$currentOrg,
 				$organizationStore,
@@ -114,13 +112,14 @@
 	);
 
 	const filteredEffectors = asyncDerived(
-		[fullFilteredEffectors, selectCategories, selectCommunes, selectFacility],
-		async ([$fullFilteredEffectors, $selectCategories, $selectCommunes, $selectFacility]) => {
+		[term, fullFilteredEffectors, selectCategories, selectCommunes, selectFacility],
+		async ([$term, $fullFilteredEffectors, $selectCategories, $selectCommunes, $selectFacility]) => {
 			return filteredEffectorsF(
 				$fullFilteredEffectors,
 				$selectCategories,
 				$selectCommunes,
-				$selectFacility
+				$selectFacility,
+				$term,
 			);
 		}
 	);

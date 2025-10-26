@@ -37,7 +37,7 @@ export const effectorTypeLabels = async () => {
 		let elapsed = Date.now() - cachedData.cachetime;
 		expired = elapsed > cachelife * 1000;
 		if ('data' in cachedData) {
-			if (cachedData.data?.length) {
+			if (cachedData.data) {
 				empty = false;
 			}
 		}
@@ -359,11 +359,10 @@ function compareEffectorDistance(a, b, distEffectors: DistanceEffectors) {
 	}
 }
 
-export const fullFilteredEffectorsF = async (term: string, selectSituation: string | null = null, currentOrg: Boolean | null = null, organizationStore: Organization | undefined, limitCategories: String[]): Promise<Entry[]> => {
+export const fullFilteredEffectorsF = async (selectSituation: string | null = null, currentOrg: Boolean | null = null, organizationStore: Organization | undefined, limitCategories: String[]): Promise<Entry[]> => {
 	const entries: Entry[] = await getEntries();
 	if (
 		selectSituation == null
-		&& term == ''
 		&& currentOrg == null
 		&& !limitCategories?.length
 	) {
@@ -386,12 +385,6 @@ export const fullFilteredEffectorsF = async (term: string, selectSituation: stri
 			}
 		}
 		).filter(function (x) {
-			if (term == '') {
-				return true
-			} else {
-				return normalize(x.name).includes(normalize(term))
-			}
-		}).filter(function (x) {
 			if (selectSituation == null) {
 				return true
 			} else {
@@ -406,8 +399,8 @@ export const fullFilteredEffectorsF = async (term: string, selectSituation: stri
 	}
 };
 
-export const filteredEffectorsF = (fullFilteredEffectors: Entry[], selectCategories: String[], selectCommunes: String[], selectFacility: string | null) => {
-	if (!selectCategories?.length && !selectCommunes?.length && selectFacility == null) {
+export const filteredEffectorsF = (fullFilteredEffectors: Entry[], selectCategories: String[], selectCommunes: String[], selectFacility: string | null, term: string) => {
+	if (!selectCategories?.length && !selectCommunes?.length && selectFacility == null && term == '') {
 		return fullFilteredEffectors
 	} else {
 		return fullFilteredEffectors.filter(function (x) {
@@ -427,6 +420,12 @@ export const filteredEffectorsF = (fullFilteredEffectors: Entry[], selectCategor
 				return true
 			} else {
 				return selectFacility == x.facility.uid
+			}
+		}).filter(function (x) {
+			if (term == '') {
+				return true
+			} else {
+				return normalize(x.name).includes(normalize(term))
 			}
 		})
 	}

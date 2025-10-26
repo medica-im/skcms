@@ -91,7 +91,7 @@
 					{#if $selectSituation}
 						<div class="row">
 							<div class="col">
-								<SelectCategoriesChips />
+								<SelectCategoriesChips {categoryOf} />
 							</div>
 						</div>
 					{:else}

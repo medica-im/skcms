@@ -12,6 +12,8 @@
 	import type { Loadable } from '@square/svelte-store';
 	import type { CategorizedEntries, Type } from '$lib/store/directoryStoreInterface';
 
+	let { categoryOf } = $props();
+
 	const categorizedFilteredEffectors = getContext<Loadable<CategorizedEntries>>(
 		'categorizedFilteredEffectors'
 	);
@@ -24,7 +26,7 @@
 
 	let value = null;
 
-	let category = '';
+	let category = $state('');
 
 	const baseUrl = `${variables.BASE_API_URI}/effector_types/`;
 
@@ -35,15 +37,15 @@
 		//const data = await res.json();
 		//console.log(`first ${data}`)
 		//records.push(...data.effector_types);
+		let initLimit = '?limit=100';
 		let next = '';
 		do {
-			const url = `${baseUrl}${next}`;
-			//console.log(url);
+			if ( next ) initLimit='';
+			const url = `${baseUrl}${initLimit}${next}`;
 			const res = await fetch(url);
 			const data = await res.json();
 			records.push(...data.effector_types);
 			next = data.meta.next;
-			//console.log(next);
 		} while (next);
 		//console.log(`effector_types: ${JSON.stringify(records)}`);
 		return records;
@@ -68,8 +70,8 @@
 		}
 	}
 
-	onMount(() => {
-		value = getValue();
+	onMount(async () => {
+		value = await getValue();
 	});
 
 	function getItems(elements) {
@@ -79,15 +81,14 @@
 		});
 	}
 
-	function getValue() {
+	async function getValue() {
 		let sElements = get(selectCategories);
 		if (!sElements?.length) {
 			return null;
 		} else {
-			let c = get(categories);
+			let c = await categories();
 			if (c) {
-				let val = c
-					.filter((x) => sElements.includes(x.uid))
+				let val = c.filter((x) => sElements.includes(x.uid))
 					.map(function (x) {
 						let dct = { value: x.uid, label: x.name };
 						return dct;
@@ -109,7 +110,7 @@
 		}
 	}
 </script>
-
+{JSON.stringify($categoryOf)}
 <div class="text-surface-700 theme space-x-2 space-y-2">
 	{#await categorizedFullFilteredEffectors.load()}
 		<div class="placeholder"></div>
@@ -126,10 +127,9 @@
 					role="button"
 					tabindex="{index}"
 					class="chip {category === c ? 'variant-filled' : 'variant-soft'}"
-					on:click={() => {
+					onclick={() => {
 						select(c, $query.data);
 					}}
-					on:keypress
 				>
 					{#if category === c}<span><Fa icon={faCheck} /></span>{/if}
 					<span>{$query.data.find(x=>x.name==c).label}</span>
@@ -140,10 +140,9 @@
 						role="button"
 						tabindex={$categorizedFullFilteredEffectors.size}
 						class="chip {category === '' ? 'variant-filled' : 'variant-soft'}"
-						on:click={() => {
+						onclick={() => {
 							select('', $query.data);
 						}}
-						on:keypress
 					>
 						{#if category === ''}<span><Fa icon={faCheck} /></span>{/if}
 						<span>{m.ADDRESSBOOK_CATEGORIES_ALL()}</span>
