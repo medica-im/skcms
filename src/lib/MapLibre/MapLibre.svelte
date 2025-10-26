@@ -25,28 +25,64 @@
 		data: MapData[];
 		showTooltip: boolean;
 	} = $props();
-	let zoom = $derived(data.length==1 ? data[0].zoom || 15 : undefined);
-	let center = $derived(data.length==1 ? data[0].latLng.slice().reverse() as [number, number] : undefined);
+	let zoom = $derived.by(()=>{
+		if ( data?.length==1 || bboxElements(bounds) < 4 ) {
+			return data[0].zoom || 15
+		}
+	});
+	const bboxElements = (b) => {
+		if ( b == undefined || b == null ) return 0
+		const obj = Object.values(b);
+		const set =  new Set(obj);
+		const size = set.size || 0;
+		return size
+	}
+	let center = $derived.by(()=>{
+		const c = data[0].latLng.slice().reverse() as [number, number];
+		if ( data?.length==1 ) {
+			return c
+		} else {
+			const size = bboxElements(bounds);
+			if ( size < 4 ) {
+				return c
+			}
+		}
+	});
 
 	const padding = { top: 60, bottom: 45, left: 115, right: 70 };
-	let bounds: LngLatBoundsLike|undefined = $derived.by(() => {
-		const coordinates = data?.map((e) => [e.latLng[1], e.latLng[0]]);
-		if (data?.length > 1) {
-			var line = lineString(coordinates);
-			return bbox(line) as [number, number, number, number];
-		} else {
-			return undefined;
-		}
+	let bounds: LngLatBoundsLike|undefined = $derived.by(
+		() => {
+			if ( !data ) return
+			if (data?.length > 1) {
+				const coordinates = data?.map((e) => [e.latLng[1], e.latLng[0]]);
+				if (!coordinates) return
+				const line = lineString(coordinates);
+				if ( line == undefined || line == null ) return;
+				const b = bbox(line) as [number, number, number, number];
+				const size = bboxElements(b);
+		    	if ( size > 2 ) {
+					return b;
+				} else {
+					return undefined
+				}
+			}
 	});
 	function getCenter() {
 		let latLng = data[0].latLng;
 		const lngLat = latLng.slice().reverse() as [number, number];
 		return lngLat;
 	}
+	function display(array) {
+		const b = new Set(array);
+		return b.size
+	}
 </script>
-zoom: '{zoom}'<br>
-
-
+<!--zoom: '{JSON.stringify(zoom)}'<br>
+bounds: '{JSON.stringify(bounds||{})}'<br>
+typeof bounds: '{typeof bounds}'<br>
+{Object.values(bounds||{}).length}<br>
+{display(Object.values(bounds||{}))}
+{bboxElements(bounds)}-->
 <MapLibre
 	class="h-full"
 	standardControls
