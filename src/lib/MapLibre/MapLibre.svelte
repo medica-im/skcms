@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import Fa from 'svelte-fa';
-	import { faLocationDot, faArrowsToCircle } from '@fortawesome/free-solid-svg-icons';
+	import Fa, { FaLayers } from 'svelte-fa';
+	import { faLocationDot, faArrowsToCircle, faHome } from '@fortawesome/free-solid-svg-icons';
 	import { bbox } from '@turf/bbox';
 	import { lineString } from '@turf/helpers';
 	import { MapLibre, type Map } from 'svelte-maplibre';
-	import type { LngLatBoundsLike, FitBoundsOptions } from 'maplibre-gl';
+	import type { LngLatBoundsLike, FitBoundsOptions, LngLatLike } from 'maplibre-gl';
 	import type { MapData } from '$lib/interfaces/mapData.interface.js';
+	import type { AddressFeature } from '$lib/store/directoryStoreInterface';
 	import Bound from './Bound.svelte';
 	import {
 		Control,
@@ -20,11 +21,15 @@
 	
 	let {
 		data,
-		showTooltip = false
+		showTooltip = false,
+		target = null,
 	}: {
 		data: MapData[];
 		showTooltip: boolean;
+		target: AddressFeature|null;
 	} = $props();
+
+	let targetLngLat: LngLatLike|undefined = $derived(target ? [target.geometry.coordinates[0], target.geometry.coordinates[1]] : undefined);
 	let zoom = $derived.by(()=>{
 		if ( data?.length==1 || bboxElements(bounds) < 4 ) {
 			return data[0].zoom || 15
@@ -55,6 +60,7 @@
 			if ( !data ) return
 			if (data?.length > 1) {
 				const coordinates = data?.map((e) => [e.latLng[1], e.latLng[0]]);
+				if ( targetLngLat ) coordinates.push(targetLngLat)
 				if (!coordinates) return
 				const line = lineString(coordinates);
 				if ( line == undefined || line == null ) return;
@@ -77,12 +83,20 @@
 		return b.size
 	}
 </script>
-<!--zoom: '{JSON.stringify(zoom)}'<br>
+<!--
+zoom: '{JSON.stringify(zoom)}'<br>
 bounds: '{JSON.stringify(bounds||{})}'<br>
 typeof bounds: '{typeof bounds}'<br>
 {Object.values(bounds||{}).length}<br>
 {display(Object.values(bounds||{}))}
-{bboxElements(bounds)}-->
+{bboxElements(bounds)}
+{JSON.stringify([target?.geometry.coordinates[0], target?.geometry.coordinates[1]])}<br>
+{target?.geometry?.coordinates}<br>
+{target?.geometry?.coordinates[0]}, {target?.geometry?.coordinates[1]}<br>
+{typeof target?.geometry?.coordinates[0]}<br>
+{typeof target?.geometry?.coordinates}<br>
+{Array.isArray(typeof target?.geometry?.coordinates)}
+-->
 <MapLibre
 	class="h-full"
 	standardControls
@@ -94,8 +108,16 @@ typeof bounds: '{typeof bounds}'<br>
 	fitBoundsOptions={{padding: {top: 45, bottom: 15, left: 20, right: 20}}}
 >
 	{#snippet children({ map })}
-		<Control class="flex flex-col gap-y-2">
+		<Control class="flex flex-col gap-y-3">
 			<ControlGroup>
+				{#if targetLngLat}
+					<ControlButton onclick={() => map.flyTo({
+								center: targetLngLat,
+								zoom: 15
+							})}
+						><div class="variant-filled"><Fa size="lg" icon={faHome} /></div>
+					</ControlButton>
+				{/if}
 				{#if data.length > 1 && bounds}
 					<ControlButton onclick={() => map.fitBounds(bounds, { padding: padding })}
 						><div class="variant-filled"><Fa size="lg" icon={faArrowsToCircle} /></div>
@@ -143,6 +165,15 @@ typeof bounds: '{typeof bounds}'<br>
     </Popup>
 		</Marker-->
 		{/each}
+		{#if target!=null}
+		<Marker lngLat={targetLngLat}
+		>
+		<FaLayers size="3x" style="background: none">
+  <Fa icon={faLocationDot} color="tomato" />
+  <Fa icon={faHome} scale={0.45} translateY={-0.08} color="white" />
+</FaLayers>
+		</Marker>
+		{/if}
 	{/snippet}
 </MapLibre>
 
