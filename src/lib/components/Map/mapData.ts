@@ -115,9 +115,5 @@ export const createEntriesMapData = (entries: Entry[], tooltip = false, target: 
             }
         });
     });
-    if (target?.geometry?.coordinates) {
-        let point = getTarget(target);
-        points.push(point);
-    }
     return points;
 };

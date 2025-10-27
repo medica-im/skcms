@@ -35,7 +35,7 @@
 			return data[0].zoom || 15
 		}
 	});
-	const bboxElements = (b) => {
+	const bboxElements = (b:LngLatBoundsLike|undefined) => {
 		if ( b == undefined || b == null ) return 0
 		const obj = Object.values(b);
 		const set =  new Set(obj);
@@ -77,10 +77,6 @@
 		let latLng = data[0].latLng;
 		const lngLat = latLng.slice().reverse() as [number, number];
 		return lngLat;
-	}
-	function display(array) {
-		const b = new Set(array);
-		return b.size
 	}
 </script>
 <!--
@@ -165,7 +161,7 @@ typeof bounds: '{typeof bounds}'<br>
     </Popup>
 		</Marker-->
 		{/each}
-		{#if target!=null}
+		{#if targetLngLat}
 		<Marker lngLat={targetLngLat}
 		>
 		<FaLayers size="3x" style="background: none">

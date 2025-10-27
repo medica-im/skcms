@@ -16,7 +16,7 @@
 	let displayMap = getDisplayMap();
 	let term = getTerm();
 
-	let mapData = $derived(createEntriesMapData(data, false, null, org_category, page.url.pathname, $selectFacility, $selectCategories, $term, $selectCommunes, $selectSituation, $displayMap));
+	let mapData = $derived(createEntriesMapData(data, false, $addressFeature, org_category, page.url.pathname, $selectFacility, $selectCategories, $term, $selectCommunes, $selectSituation, $displayMap));
 </script>
 
 <Map data={mapData} showTooltip={false} target={$addressFeature} />
