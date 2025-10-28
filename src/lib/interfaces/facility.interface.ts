@@ -42,3 +42,10 @@ export interface Facility {
     entries: string[];
 }
 
+export interface FacilityOf extends Address {
+    uid: string,
+    name: string,
+    label: string,
+    slug: string,
+}
+

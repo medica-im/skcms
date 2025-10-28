@@ -4,6 +4,7 @@
 	import { getSelectSituation } from './context';
 	import { situations } from '$lib/store/directoryStore';
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
 	import type { SelectType } from '$lib/interfaces/select';
 	import * as m from '$msgs';
 	const label = 'label';
@@ -35,6 +36,10 @@
 	function handleClear(event: CustomEvent) {
 		if (event.detail) {
 			selectSituation.set(null);
+			if (page.url.searchParams.get('situation')) {
+				page.url.searchParams.delete('situation');
+				goto(page.url.pathname + '?' + page.url.searchParams);
+			}
 		}
 	}
 

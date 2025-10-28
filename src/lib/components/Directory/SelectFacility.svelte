@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import type { Facility } from '$lib/interfaces/facility.interface.ts';
+	import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
 	import Select from 'svelte-select';
 	import { onMount } from 'svelte';
 	import { getFacilities } from '$lib/store/facilityStore';
@@ -9,7 +9,7 @@
 	import * as m from '$msgs';
 	import type { Loadable } from '@square/svelte-store';
 
-	let { facilityOf }: { facilityOf: Loadable<string[]> } = $props();
+	let { facilityOf }: { facilityOf: Loadable<FacilityOf[]> } = $props();
 
 	let selectFacility = getSelectFacility();
 	let facilityChoice: { label: string; value: string } | undefined = $state();
@@ -29,7 +29,7 @@
 		facilityParam = page.url.searchParams.get('facility');
 		if (facilityParam) {
 			selectFacility.set(facilityParam);
-			const facilities = await getFacilities();
+			const facilities = await facilityOf.load();
 			if (facilities) {
 				const value = getValue(facilityParam, facilities);
 				if (value) {
@@ -39,7 +39,7 @@
 		}
 	});
 
-	function getValue(facilityUid: string, facilities: Facility[]) {
+	function getValue(facilityUid: string, facilities: FacilityOf[]) {
 		if (facilities != undefined) {
 			const facility = facilities.find((e) => e.uid == facilityUid);
 			if (facility) {
@@ -49,18 +49,15 @@
 		}
 	}
 
-	async function getItems(_facilitiesOf: string[]) {
-		const facilities = await getFacilities();
-		return facilities
-			.filter((f) => _facilitiesOf.includes(f.uid))
-			.filter(f=>f.name)
-			.sort(function (a, b) {
-				return a.name.localeCompare(b.name);
-			})
-			.map(function (x) {
-				let dct = { value: x.uid, label: x.name };
+	async function getItems(facilities: FacilityOf[]) {
+		return facilities.map(function (x) {
+				const name = x.label || x.name || "Étbl.";
+				const label = `${name} | ${x.street} | ${x.city}`;
+				let dct = { value: x.uid, label: label, city: x.city };
 				return dct;
-			});
+			}).sort(function (a, b) {
+				return a.city.localeCompare(b.city) || a.label.localeCompare(b.label);
+			})
 	}
 
 	function handleClear(event: CustomEvent) {
@@ -79,6 +76,7 @@
 		}
 	}
 </script>
+<!--{JSON.stringify($facilityOf)}-->
 {#await facilityOf.load()}
 	<div class="text-surface-700 theme">
 		<Select loading={true} placeholder={m.ADDRESSBOOK_FACILITIES_PLACEHOLDER()} />

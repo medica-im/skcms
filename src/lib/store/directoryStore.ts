@@ -15,6 +15,7 @@ import type { Tastypie } from '$lib/interfaces/api.interface.ts';
 import type { CustomError } from '$lib/interfaces/error.interface.ts';
 import type { Organization } from '$lib/interfaces/organization.ts';
 import type { Fetch } from '$lib/interfaces/fetch.ts';
+import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
 
 export const term: Writable<string> = writable("");
 
@@ -608,35 +609,29 @@ export const communeOfF = async (selectCategories: string[], fullFilteredEffecto
 			}
 		).map(x => x.commune);
 		const mapFromCommunes = new Map(
-			communes.map(c => [c.uid, c])
+			communes.map(
+				(c) => {
+					return [c.uid, c]
+				}
+			)
 		);
 		const uniqueCommunes = [...mapFromCommunes.values()];
 		return uniqueCommunes;
 	}
 }
 
-export const facilityOfF = async (selectCategories: String[], fullFilteredEffectors: Entry[], selectCommunes: String[], currentOrg: boolean | null, limitCategories: String[], selectSituation: string | null) => {
-	const facilities = await getFacilities();
-	if (!selectCategories?.length && !selectCommunes?.length && currentOrg == null && !limitCategories?.length && !selectSituation) {
-		const uids = fullFilteredEffectors.map(x => x.facility.uid);
-		return [...new Set(uids)];
-	} else {
-		const uids = fullFilteredEffectors.filter(
-			(x) => {
-				return !selectCategories.length || selectCategories.includes(x.effector_type.uid)
-			}
-		).filter(
-			(x) => {
-				if (!selectCommunes?.length) {
-					return true
-				} else {
-					const facility = facilities.find(f => f.uid == x.facility.uid);
-					if (!facility) return true;
-					const commune = facility?.commune;
-					return selectCommunes.includes(commune)
-				}
-			}
-		).map(x => x.facility.uid)
-		return [...new Set(uids)];
-	}
+export const facilityOfF = async (fullFilteredEffectors: Entry[], selectCategories: String[], selectCommunes: String[]) => {
+	const facilities: FacilityOf[] = fullFilteredEffectors.filter(
+		x => {
+			return (!selectCategories?.length || selectCategories.includes(x.effector_type.uid)
+			) && (!selectCommunes?.length || selectCommunes.includes(x.commune.uid))
+		}
+	).map((x) => {
+		 return {...x.facility, ...x.address}
+		 });
+	const mapFromFacilities = new Map(
+		facilities.map(f => [f.uid, f])
+	);
+	const uniqueFacilities = [...mapFromFacilities.values()];
+	return uniqueFacilities
 };

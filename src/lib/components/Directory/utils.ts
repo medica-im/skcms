@@ -1,14 +1,14 @@
-import { getTerm, getSelectCommunes, getSelectCommunesValue, getSelectCategories, getSelCatVal, getSelectSituation, getSelectSituationValue, getInputAddress, getSelectFacility, getDirectoryRedirect, getAddressFeature } from './context.ts';
+import { getTerm, getSelectedCommunesUids, getSelectedCommunesChoices, getSelectCategories, getSelCatVal, getSelectSituation, getSelectSituationValue, getInputAddress, getSelectFacility, getDirectoryRedirect, getAddressFeature } from './context.ts';
 
 	let term = getTerm();
-	let selectCommunesValue = getSelectCommunesValue();
+	let selectCommunesValue = getSelectedCommunesChoices();
     let selectCategories = getSelectCategories();
 	let selCatVal = getSelCatVal();
     let selectSituation = getSelectSituation();
 	let selectSituationValue = getSelectSituationValue();
 	let inputAddress = getInputAddress();
     let selectFacility = getSelectFacility();
-    let selectCommunes = getSelectCommunes();
+    let selectCommunes = getSelectedCommunesUids();
     let addressFeature = getAddressFeature();
 	let directoryRedirect = getDirectoryRedirect();
 

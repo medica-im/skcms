@@ -10,9 +10,9 @@
 		getSelectCategories,
 		setLimitCategories,
 		getLimitCategories,
-		setSelectCommunes,
-		getSelectCommunes,
-		setSelectCommunesValue,
+		setSelectedCommunesUids,
+		getSelectedCommunesUids,
+		setSelectedCommunesChoices,
 		setSelectSituation,
 		getSelectSituation,
 		setSelectFacility,
@@ -66,8 +66,8 @@
 	setLimitCategories();
 	setCurrentOrg();
 	setDirectoryRedirect();
-	setSelectCommunes();
-	setSelectCommunesValue();
+	setSelectedCommunesUids();
+	setSelectedCommunesChoices();
 	setSelectSituation();
 	setSelectSituationValue();
 	setAddressFeature();
@@ -79,7 +79,7 @@
 	let term = getTerm();
 	let selectCategories = getSelectCategories();
 	let selectSituation = getSelectSituation();
-	let selectCommunes = getSelectCommunes();
+	let selectCommunes = getSelectedCommunesUids();
 	let addressFeature = getAddressFeature();
 	let selectFacility = getSelectFacility();
 	let directoryRedirect = getDirectoryRedirect();
@@ -187,28 +187,19 @@
 
 	const facilityOf = asyncDerived(
 		[
-			selectCategories,
 			fullFilteredEffectors,
+			selectCategories,
 			selectCommunes,
-			currentOrg,
-			limitCategories,
-			selectSituation,
 		],
 		async ([
-			$selectCategories,
 			$fullFilteredEffectors,
+			$selectCategories,
 			$selectCommunes,
-			$currentOrg,
-			$limitCategories,
-			$selectSituation
 		]) => {
 			return facilityOfF(
-				$selectCategories,
 				$fullFilteredEffectors,
+				$selectCategories,
 				$selectCommunes,
-				$currentOrg,
-				$limitCategories,
-				$selectSituation,
 			);
 		}
 	);

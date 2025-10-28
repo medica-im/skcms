@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import { getTerm } from '$lib/components/Directory/context';
 	import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
@@ -10,7 +11,7 @@
 	let termParam: string | null = null;
 
 	onMount(async () => {
-		termParam = $page.url.searchParams.get('term');
+		termParam = page.url.searchParams.get('term');
 		if (termParam) {
 			term.set(termParam);
 		}
@@ -30,6 +31,10 @@
 		class="variant-filled-secondary"
 		on:click={() => {
 			$term = '';
+			if (page.url.searchParams.has('term')) {
+				page.url.searchParams.delete('term');
+		    	goto(page.url.pathname+"?"+page.url.searchParams);
+			}
 		}}
 		aria-label={m.ADDRESSBOOK_CLEAR()}
 		disabled={!$term}

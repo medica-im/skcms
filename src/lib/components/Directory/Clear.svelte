@@ -3,8 +3,8 @@
 	import { faDeleteLeft, faEraser } from '@fortawesome/free-solid-svg-icons';
 	import {
 		getTerm,
-		getSelectCommunes,
-		getSelectCommunesValue,
+		getSelectedCommunesUids,
+		getSelectedCommunesChoices,
 		getSelectCategories,
 		getSelCatVal,
 		getSelectSituation,
@@ -19,20 +19,21 @@
 	import { page } from '$app/state';
 
 	let term = getTerm();
-	let selectCommunesValue = getSelectCommunesValue();
+	let selectedCommunesChoices = getSelectedCommunesChoices();
+	let selectedCommunesUids = getSelectedCommunesUids();
 	let selCatVal = getSelCatVal();
 	let selectSituation = getSelectSituation();
 	let inputAddress = getInputAddress();
 	let directoryRedirect = getDirectoryRedirect();
 	let selectCategories = getSelectCategories();
 	let selectFacility = getSelectFacility();
-	let selectCommunes = getSelectCommunes();
 	let addressFeature = getAddressFeature();
 	let geoInputAddress = getGeoInputAddress();
 
 	let isDisabled = $derived(!(
 		$term ||
-		$selectCommunesValue ||
+		$selectedCommunesUids.length ||
+		$selectedCommunesChoices ||
 		$selCatVal ||
 		$selectSituation ||
 		$inputAddress ||
@@ -42,8 +43,8 @@
 
 	function resetDirectory() {
 		term.set('');
-		selectCommunes.set([]);
-		selectCommunesValue.set(null);
+		selectedCommunesUids.set([]);
+		selectedCommunesChoices.set(null);
 		selectCategories.set([]);
 		selCatVal.set(null);
 		selectSituation.set(null);
