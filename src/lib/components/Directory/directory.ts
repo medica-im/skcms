@@ -20,8 +20,5 @@ export const cardCatEntries = async (currentOrg: boolean|null, orgUid: string, t
     }
     const categorizedEntries = categorizedFilteredEffectorsF(entries);
     const cardinalCategorizedEntries = await cardinalCategorizedFilteredEffectorsF(categorizedEntries);
-    /*for (let [key, value] of cardinalCategorizedEntries) {
-        console.log(key + ' = ' + JSON.stringify(value))
-    };*/
     return cardinalCategorizedEntries;
 }

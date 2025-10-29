@@ -94,7 +94,7 @@
 			<aside class="alert border-4" style="border-color:{riskColor(alert)}">
 				<!-- Icon -->
 				<div class="hidden lg:block">
-					<Fa icon={faTemperatureHigh} color='{riskColor(alert)}' size="3x" />
+					<Fa icon={faTemperatureHigh} color={riskColor(alert)} size="3x" />
 				</div>
 				<!-- Message -->
 				<div class="alert-message">

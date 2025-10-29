@@ -76,6 +76,15 @@ export const getByValue = (map: Map<string, string[]>, searchValue: string[]) =>
 	}
 }
 
+export const mapToString = (map: Map<string,object>, start?: number|undefined, stop?: number|undefined) => {
+	if ( map==undefined ) return "undefined"
+	const _array = [];
+	for (let [key, value] of map) {
+        _array.push(key + ' = ' + JSON.stringify(value));
+    };
+	return _array.slice(start, stop).join('\n')
+}
+
 export const entryPageUrl = (entry: Entry, org_category: string | null = null, pathname: string | null = null, facility: string | null = null, types: string[] | null = null, term: string | null = null, communes: string[] | null = null, situation: string | null = null, addressFeature: AddressFeature|null=null, displayMap: boolean = false) => {
 	const typeSlug = entry.effector_type.slug;
 	const communeSlug = entry.commune.slug;
