@@ -19,5 +19,5 @@
 {:else if $types.status === 'error'}
 <span>{m.ERROR}: {$types.error.message}</span>
 {:else}
-<Select items={$types.data.map(e=>{return {value: e.uid, label: e.name_fr}})} bind:value={selectedEffectorType} />
+<Select items={$types.data.map(e=>{return {value: e.uid, label: e.name_fr}})} bind:value={selectedEffectorType} placeholder="Sélectionner une catégorie" />
 {/if}

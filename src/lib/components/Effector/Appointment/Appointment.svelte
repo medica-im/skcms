@@ -6,14 +6,16 @@
 	import { faCalendarCheck } from '@fortawesome/free-regular-svg-icons';
 	import Put from '$lib/Web/Appointment/Put.svelte';
 	import Delete from '$lib/Web/Appointment/Delete.svelte';
+	import { getHostnameFromURL } from '$lib/utils/utils';
 	import type { Appointment } from '$lib/interfaces/appointment.interface.ts';
 
 	let { data, editMode }: { data: Appointment; editMode: boolean; } = $props();
+	
 </script>
 <div class="flex gap-4 items-center">
 {#if data.url}
 	<a href={data.url} rel="external" class="btn variant-ghost-secondary">
-		<span><Fa icon={faGlobe} size="sm" /></span><span>{m.WEBSITE()}</span></a
+		<span><Fa icon={faGlobe} size="sm" /></span><span>{getHostnameFromURL(data.url)}</span></a
 	>
 {:else if data.phone}
 	<a href="tel:{data.phone}" rel="external" class="btn variant-ghost-secondary">

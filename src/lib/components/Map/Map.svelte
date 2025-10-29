@@ -40,7 +40,7 @@
 
 <svelte:window bind:innerWidth />
 {#if browser}
-	<LeafletMap bind:this={leafletMap} options={getMapOptions()}>
+	<LeafletMap bind:this={leafletMap} options={getMapOptions()}  class="z-0">
 		<TileLayer url={DEFAULT_TILE_URL} options={DEFAULT_TILE_LAYER_OPTIONS} />
 		{#each data as point}
 			<Marker latLng={point.latLng}>

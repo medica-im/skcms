@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { page } from '$app/state';
+	import { onMount } from 'svelte';
 	import { getContext } from 'svelte';
 	import Spinner from '$lib/Spinner/Spinner.svelte';
 	import EntryComponent from '$lib/components/Directory/Entry.svelte';
@@ -6,7 +8,7 @@
 	import MapSelector from './MapSelector.svelte';
 	import FacilityMap from '../FacilityMap/FacilityMap.svelte';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers.ts';
-	import { getAddressFeature } from '$lib/components/Directory/context.ts';
+	import { getAddressFeature, setDisplayMap, getDisplayMap } from '$lib/components/Directory/context.ts';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
     import type { Loadable } from '@square/svelte-store';
 
@@ -15,10 +17,14 @@
 		avatar = true,
 		loading = true
 	}: { data: any; avatar: boolean; loading: boolean } = $props();
-
-	let displayMap: boolean = $state(false);
+	setDisplayMap();
+	const displayMap = getDisplayMap();
 	let addressFeature = getAddressFeature();
 	const filteredEffectors: Loadable<Entry[]> = getContext('filteredEffectors');
+
+	onMount(async () => {
+		$displayMap = page.url.searchParams.has('map');
+	});
 
 	function contactCount(_categorizedFilteredEffectors: any) {
 		let count = 0;
@@ -31,16 +37,16 @@
 <div class="flex justify-end lg:justify-between w-full gap-2">
 	<span class="badge variant-soft">
 		{contactCount(data)}</span>
-	<MapSelector bind:data={displayMap} />
+	<MapSelector bind:data={$displayMap} />
 	<Clear />
 </div>
 <div class="m-4 space-y-4">
-	{#if displayMap}
-		<div class="h-screen px-4 z-[-1]">
+	{#if $displayMap}
+		<div class="h-screen px-4 z-0">
             {#await filteredEffectors.load()}
 			<Spinner w={12} h={12} />
 			{:then}
-			<FacilityMap data={$filteredEffectors} addressFeature={$addressFeature} />
+			<FacilityMap data={$filteredEffectors} />
             {/await}
 		</div>
 	{:else}

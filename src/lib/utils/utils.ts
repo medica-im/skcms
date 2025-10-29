@@ -76,7 +76,16 @@ export const getByValue = (map: Map<string, string[]>, searchValue: string[]) =>
 	}
 }
 
-export const entryPageUrl = (entry: Entry, org_category: string | null = null, pathname: string | null = null, facility: string | null = null, types: string[] | null = null, term: string | null = null, communes: string[] | null = null, situation: string | null = null, addressFeature: AddressFeature|null=null) => {
+export const mapToString = (map: Map<string,object>, start?: number|undefined, stop?: number|undefined) => {
+	if ( map==undefined ) return "undefined"
+	const _array = [];
+	for (let [key, value] of map) {
+        _array.push(key + ' = ' + JSON.stringify(value));
+    };
+	return _array.slice(start, stop).join('\n')
+}
+
+export const entryPageUrl = (entry: Entry, org_category: string | null = null, pathname: string | null = null, facility: string | null = null, types: string[] | null = null, term: string | null = null, communes: string[] | null = null, situation: string | null = null, addressFeature: AddressFeature|null=null, displayMap: boolean = false) => {
 	const typeSlug = entry.effector_type.slug;
 	const communeSlug = entry.commune.slug;
 	const nameSlug = entry.slug;
@@ -90,8 +99,9 @@ export const entryPageUrl = (entry: Entry, org_category: string | null = null, p
 		: '';
 	const situationParam = situation ? `${encodeURIComponent(situation)}`: '';
 	const addressFeatureParam = addressFeature ? `${encodeURIComponent(JSON.stringify(addressFeature))}`: '';
+	const displayMapParam = displayMap;
 
-	const params: { [key: string]: string; }[] = [
+	const params: { [key: string]: string|boolean; }[] = [
 		{origin: originParam},
 		{facility: facilityParam},
 		{types: typesParam},
@@ -99,6 +109,7 @@ export const entryPageUrl = (entry: Entry, org_category: string | null = null, p
 		{communes: communesParam},
 		{situation:	situationParam},
 		{address: addressFeatureParam},
+		{map: displayMapParam},
 	]
 	const urlParams: string[] = [];
 	params.forEach((value, index)=>{
@@ -106,7 +117,7 @@ export const entryPageUrl = (entry: Entry, org_category: string | null = null, p
 		const param = value[key]
 		if (!param) return;
 		const p = index==0 ? '?':'&';
-		urlParams.push(`${p}${key}=${param}`);
+		urlParams.push(`${p}${key}${typeof param === 'string' ? '=':''}${typeof param === 'string' ? param:''}`);
 	});
 	const qs = urlParams.join('');
 	if (org_category == 'msp') {
@@ -127,4 +138,10 @@ export function displayMap(map: Map<any, any>) {
         _arr.push(key + ' = ' + JSON.stringify(value))
     };
 	return _arr.join('\n')
+}
+
+export function getHostnameFromURL(str: string) {
+		const regexp = /(http[s]?:\/\/)?([^\/\s]+)(.*)/g
+  		const array = [...str.matchAll(regexp)];
+  		return array.map(m => m[2]);
 }

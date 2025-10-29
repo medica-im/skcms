@@ -2,7 +2,7 @@
 	import { MapLibre, MapEvents, DefaultMarker, type LngLatLike } from 'svelte-maplibre';
 	import type { MapMouseEvent } from 'maplibre-gl';
 
-    let { lngLat = $bindable(), zoom = $bindable() }: { lngLat: LngLatLike  | undefined, zoom: number } = $props();
+    let { lngLat = $bindable(), zoom = $bindable() }: { lngLat: LngLatLike, zoom: number } = $props();
 
 	let markers: { lngLat: LngLatLike }[] = $state([]);
 	//let lngLat: LngLatLike | undefined = $state();
@@ -26,8 +26,6 @@
 >
 	<!-- MapEvents gives you access to map events even from other components inside the map, where you might not have access to the top-level `MapLibre` component. In this case it would also work to just use on:click on the MapLibre component itself. -->
 	<MapEvents onclick={recordLngLat} />
-	{#if lngLat}
 		<DefaultMarker {lngLat} />
-    {/if}
 </MapLibre>
 {/key}

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
 	import * as m from '$msgs';
 	import { normalize } from '$lib/helpers/stringHelpers';
 	import { faAddressCard } from '@fortawesome/free-regular-svg-icons';
@@ -124,6 +125,10 @@
 	function handleClear() {
 		$inputAddress = null;
 		$addressFeature = null;
+		if (page.url.searchParams.get('address')) {
+			page.url.searchParams.delete('address');
+			goto(page.url.pathname + '?' + page.url.searchParams);
+		}
 	}
 	onMount(async () => {
 		const addressParam: string | null = page.url.searchParams.get('address');

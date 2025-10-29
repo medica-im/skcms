@@ -26,6 +26,7 @@
 	let dialog: HTMLDialogElement;
 
 	let roles: string[] = $derived(data.roles.map((e) => e.name));
+	let formResult = $derived(updateEmail.for(data.id.toString()).result);
 
 	let result: FormResult | undefined = $state();
 	let _email: string = $state(data.email);
@@ -35,7 +36,7 @@
 	let _roles: string[] | undefined = $derived(getRoles(selectedAccess?.value));
 
 	let disabled: boolean = $derived(
-		selectedAccess?.value == getSelectedAccess(roles)?.value && _email == data.email
+		(selectedAccess?.value == getSelectedAccess(roles)?.value && _email == data.email) || formResult?.success==true
 	);
 
 	function resetForm() {
@@ -45,12 +46,12 @@
 		//value: phoneData.type};
 		formResult = undefined;
 	}
-	let formResult = $derived(updateEmail.for(data.id).result);
 </script>
 
 <button
 	onclick={() => {
 		dialog.showModal();
+		formResult==undefined;
 	}}
 	title="Modifier"><Fa icon={faPenToSquare} /></button
 >
@@ -58,7 +59,7 @@
 <Dialog bind:dialog on:close={() => console.log('closed')}>
 	<div class="rounded-lg h-64 p-4 variant-ghost-secondary gap-2 items-center place-items-center">
 		<form
-			{...updateEmail.for(data.id).enhance(async ({ form, data, submit }) => {
+			{...updateEmail.for(data.id.toString()).enhance(async ({ form, data, submit }) => {
 				try {
 					//data = manipulateForm(data);
 					const dataString = JSON.stringify(data);
@@ -128,7 +129,7 @@
 							dialog.close();
 							resetForm();
 						}}
-						>{#if result?.success || disabled}Fermer{:else}Annuler{/if}</button
+						>{#if formResult?.success}Fermer{:else}Annuler{/if}</button
 					>
 				</div>
 			</div>

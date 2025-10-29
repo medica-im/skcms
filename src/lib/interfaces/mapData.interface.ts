@@ -9,9 +9,9 @@ export interface MapData {
     latLng: [number, number];
     zoom?: number;
     tooltip?: Tooltip;
-    popup?: {
+    popup: {
         text: string;
-    },
+    }|null,
     iconUrl?: string,
     iconOptions?: {
         iconUrl: string,

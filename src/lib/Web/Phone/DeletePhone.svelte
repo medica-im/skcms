@@ -12,7 +12,7 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Dialog from '../Dialog.svelte';
-	import Phone from '$lib/Directory/Phone.svelte';
+	import Phone from '$lib/Directory/Phone/Phone.svelte';
 	import type { FormResult } from '$lib/interfaces/v2/form';
 	import type { Phone as PhoneType } from '$lib/interfaces/phone.interface.ts';
 
@@ -23,7 +23,7 @@
 	} = $props();
 
 	let dialog: HTMLDialogElement;
-	let result = $derived(deletePhone.for(data.id).result);
+	let result = $derived(deletePhone.for(data.id.toString()).result);
 </script>
 
 <button onclick={() => dialog.showModal()} title="Supprimer"><Fa icon={faTrashCanArrowUp} /></button
@@ -32,7 +32,7 @@
 <Dialog bind:dialog on:close={() => console.log('closed')}>
 	<div class="rounded-lg h-96 p-4 variant-ghost-secondary gap-4 items-center place-items-center">
 		<form
-			{...deletePhone.for(data.id).enhance(async ({ form, data, submit }) => {
+			{...deletePhone.for(data.id.toString()).enhance(async ({ form, data, submit }) => {
 				try {
 					const dataString = JSON.stringify(data);
 					console.log(dataString);

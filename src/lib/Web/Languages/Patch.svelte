@@ -40,7 +40,7 @@
 	}
 	const getItems = () => {
 		if (data==null) return undefined;
-		return items().filter((e) => data?.includes(e.label.toLocaleLowerCase()));
+		return items().filter((i) => data.map(e=>e.tag).includes(i.value));
 	};
 
 	const getLangData = () => {
@@ -59,10 +59,8 @@
 		() => {
 			if ( result?.success ) return true;
 			if ( data && selectedItems ) {
-				const select = selectedItems.map(e=>e.label.toLocaleLowerCase('fr'));
-				console.log(select);
 				console.log(data);
-				return areArraysEqualSets(select,data)
+				return areArraysEqualSets(selectedItems.map(e=>e.value),data.map(e=>e.tag))
 			} else {
 				return selectedItems == undefined
 			}

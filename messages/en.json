@@ -135,5 +135,12 @@
 	},
 	"FACILITY": "facility",
 	"CREATE": "create",
-	"EDIT": "edit"
+	"EDIT": "edit",
+	"PHONE_TYPE": {
+		"M": "Personal mobile phone",
+		"MW": "Work mobile phone",
+		"W": "Work landline",
+		"F": "Fax",
+		"AS": "Answering service"
+	}
 }

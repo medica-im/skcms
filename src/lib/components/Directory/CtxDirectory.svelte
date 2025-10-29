@@ -10,9 +10,9 @@
 		getSelectCategories,
 		setLimitCategories,
 		getLimitCategories,
-		setSelectCommunes,
-		getSelectCommunes,
-		setSelectCommunesValue,
+		setSelectedCommunesUids,
+		getSelectedCommunesUids,
+		setSelectedCommunesChoices,
 		setSelectSituation,
 		getSelectSituation,
 		setSelectFacility,
@@ -66,8 +66,8 @@
 	setLimitCategories();
 	setCurrentOrg();
 	setDirectoryRedirect();
-	setSelectCommunes();
-	setSelectCommunesValue();
+	setSelectedCommunesUids();
+	setSelectedCommunesChoices();
 	setSelectSituation();
 	setSelectSituationValue();
 	setAddressFeature();
@@ -79,7 +79,7 @@
 	let term = getTerm();
 	let selectCategories = getSelectCategories();
 	let selectSituation = getSelectSituation();
-	let selectCommunes = getSelectCommunes();
+	let selectCommunes = getSelectedCommunesUids();
 	let addressFeature = getAddressFeature();
 	let selectFacility = getSelectFacility();
 	let directoryRedirect = getDirectoryRedirect();
@@ -95,16 +95,14 @@
 	setDistanceEffectors(distanceEffectors);
 
 	const fullFilteredEffectors = asyncDerived(
-		[term, selectSituation, currentOrg, organizationStore, limitCategories],
+		[selectSituation, currentOrg, organizationStore, limitCategories],
 		async ([
-			$term,
 			$selectSituation,
 			$currentOrg,
 			$organizationStore,
 			$limitCategories
 		]) => {
 			return await fullFilteredEffectorsF(
-				$term,
 				$selectSituation,
 				$currentOrg,
 				$organizationStore,
@@ -114,13 +112,14 @@
 	);
 
 	const filteredEffectors = asyncDerived(
-		[fullFilteredEffectors, selectCategories, selectCommunes, selectFacility],
-		async ([$fullFilteredEffectors, $selectCategories, $selectCommunes, $selectFacility]) => {
+		[term, fullFilteredEffectors, selectCategories, selectCommunes, selectFacility],
+		async ([$term, $fullFilteredEffectors, $selectCategories, $selectCommunes, $selectFacility]) => {
 			return filteredEffectorsF(
 				$fullFilteredEffectors,
 				$selectCategories,
 				$selectCommunes,
-				$selectFacility
+				$selectFacility,
+				$term,
 			);
 		}
 	);
@@ -188,28 +187,19 @@
 
 	const facilityOf = asyncDerived(
 		[
-			selectCategories,
 			fullFilteredEffectors,
+			selectCategories,
 			selectCommunes,
-			currentOrg,
-			limitCategories,
-			selectSituation,
 		],
 		async ([
-			$selectCategories,
 			$fullFilteredEffectors,
+			$selectCategories,
 			$selectCommunes,
-			$currentOrg,
-			$limitCategories,
-			$selectSituation
 		]) => {
 			return facilityOfF(
-				$selectCategories,
 				$fullFilteredEffectors,
+				$selectCategories,
 				$selectCommunes,
-				$currentOrg,
-				$limitCategories,
-				$selectSituation,
 			);
 		}
 	);

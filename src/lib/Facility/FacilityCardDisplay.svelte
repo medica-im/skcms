@@ -9,12 +9,14 @@
 	import { browser } from '$app/environment';
 	import { isMobile } from '$lib/helpers/deviceDetector.ts';
 	import { createMapData2 } from '$lib/components/Map/mapData.ts';
+	import UpdateFacilityModal from '$lib/Web/Facility/UpdateFacilityModal.svelte';
 	import type { FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 	import type { Facility } from '$lib/interfaces/v2/facility.ts';
 
-	export let data: FacilityV2;
-	export let entries = null;
-	export let showEffectors = false;
+	let { data, entries, showEffectors } : {
+		data: FacilityV2;
+		entries?: any;
+		showEffectors: boolean } = $props();
 
 	const createFacilityGeoData = (facility: FacilityV2) => {
 		let facilityGeoData = {
@@ -54,6 +56,7 @@
 							>{data.name}</a
 						>
 					</h6>
+					<UpdateFacilityModal bind:facility={data} />
 				</div>
 				<!--div class="flex items-center space-x-2">
 					<span class="badge variant-filled">Label</span>
@@ -80,7 +83,7 @@
 				</div>
 				<div class="flex flex-wrap space-x-2">
 					<!--span class="badge variant-filled">Commune</span-->
-					<div>{data?.commune.name_fr || '∅'}</div>
+					<div>{data?.commune?.name_fr || '∅'}</div>
 				</div>
 				<div class="flex flex-wrap space-x-2">
 					<!--span class="badge variant-filled">Département</span-->

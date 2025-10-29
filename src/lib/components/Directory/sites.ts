@@ -41,7 +41,7 @@ export const allFacilityEntries = async (orgUid: string, currentOrg: boolean | n
     return facilityEntriesMap;
 }
 
-export const allFacilities = async (orgUid: string, currentOrg: boolean | null = null) => {
+export async function allFacilities(orgUid: string, currentOrg: boolean | null = null): Promise<Facility[]> {
     const facilities = await getFacilities();
     const filteredFacilities = facilities.filter(f => {
         return (currentOrg == null) ||
@@ -49,4 +49,9 @@ export const allFacilities = async (orgUid: string, currentOrg: boolean | null =
     }
     );
     return filteredFacilities
+};
+
+export const allFacilitiesCount = async (orgUid: string, currentOrg: boolean | null = null) => {
+    const _allFacilities = await allFacilities(orgUid, currentOrg);
+    return _allFacilities.length
 };

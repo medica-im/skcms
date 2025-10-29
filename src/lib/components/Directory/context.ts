@@ -19,6 +19,15 @@ export function getEntryUid() {
     return getContext<string>('entryUid')
 }
 
+export function setDisplayMap() {
+    let displayMap = writable<boolean>(false);
+    setContext('displayMap', displayMap)
+}
+
+export function getDisplayMap() {
+    return getContext<Writable<boolean>>('displayMap')
+}
+
 export function setEditMode() {
     let editMode = writable<boolean>(false);
     setContext('editMode', editMode)
@@ -54,22 +63,22 @@ export function getLimitCategories() {
     return getContext<Writable<string[]>>('limitCategories');
 }
 
-export function setSelectCommunes() {
+export function setSelectedCommunesUids() {
     let selectCommunes: Writable<string[]> = writable([]);
-    setContext('selectCommunes', selectCommunes)
+    setContext('selectedCommunesUids', selectCommunes)
 }
 
-export function getSelectCommunes() {
-    return getContext<Writable<string[]>>('selectCommunes');
+export function getSelectedCommunesUids() {
+    return getContext<Writable<string[]>>('selectedCommunesUids');
 }
 
-export function setSelectCommunesValue() {
-    let selectCommunesValue = writable(null);
-    setContext('selectCommunesValue', selectCommunesValue);
+export function setSelectedCommunesChoices() {
+    let selectedCommunesChoices = writable(null);
+    setContext('selectedCommunesChoices', selectedCommunesChoices);
 }
 
-export function getSelectCommunesValue() {
-    return getContext<CommunesValueStore>('selectCommunesValue');
+export function getSelectedCommunesChoices() {
+    return getContext<Writable<{label: string, value: string}[]|null>>('selectedCommunesChoices');
 }
 
 export function setSelCatVal() {

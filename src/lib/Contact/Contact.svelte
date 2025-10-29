@@ -1,12 +1,18 @@
 <script lang="ts">
-	import { MapLibre as Map } from '$lib';
+	import { MapLibre, DefaultMarker } from 'svelte-maplibre';
 	import { page } from '$app/state';
 	import Fa from 'svelte-fa';
 	import Address from '$lib/Address/Address.svelte';
-	import { createMapData } from '$lib/components/Map/mapData';
-	import Phones from '$lib/Directory/Phones.svelte';
+	import { createContactMapData } from '$lib/components/Map/mapData';
+	import Phones from '$lib/Directory/Phone/Phones.svelte';
 	import Emails from '$lib/Email/Emails.svelte';
 	import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
+	import * as openStreetMap from '$lib/MapLibre/style/openStreetMap.json';
+
+	const mapData = createContactMapData(
+				page.data.organization.contact.address,
+				page.data.organization.formatted_name
+			);
 </script>
 
 <div class="grid lg:grid-cols-2">
@@ -44,12 +50,21 @@
 			</div>
 		</div>
 	</div>
-	<div class="justify-stretch justify-items-stretch h-80 lg:h-full p-2">
-		<Map
-			data={createMapData(
-				page.data.organization.contact.address,
-				page.data.organization.formatted_name
-			)}
-		/>
+	<div class="h-80 lg:h-full p-2">
+		<MapLibre 
+  center={mapData.lngLat}
+  zoom={mapData.zoom}
+  class="h-full"
+  standardControls
+  style={openStreetMap}>
+  <DefaultMarker lngLat={mapData.lngLat}></DefaultMarker>
+</MapLibre>
+
 	</div>
 </div>
+
+<style>
+  :global(.map) {
+    height: 500px;
+  }
+</style>

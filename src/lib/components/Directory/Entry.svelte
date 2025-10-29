@@ -1,9 +1,9 @@
 <script lang="ts">
-	import Phones from './Phones.svelte';
+	import Phones from '$lib/Directory/Phone/Phones.svelte';
 	import { FacilityLink } from '$lib';
 	import AvatarList from '$lib/components/Effector/Avatar/AvatarList.svelte';
 	import { page } from '$app/state';
-	import { getSelectFacility, getSelectCategories, getTerm, getSelectCommunes, getSelectSituation, getAddressFeature } from './context';
+	import { getSelectFacility, getSelectCategories, getTerm, getSelectedCommunesUids, getSelectSituation, getAddressFeature } from './context';
 	import { goto } from '$app/navigation';
 	import CommunityAddress from '$lib/Address/CommunityAddress.svelte';
 	import { entryPageUrl } from '$lib/utils/utils';
@@ -14,7 +14,7 @@
 	let selectSituation = getSelectSituation();
 	let selectFacility = getSelectFacility();
 	let selectCategories = getSelectCategories();
-	let selectCommunes = getSelectCommunes();
+	let selectCommunes = getSelectedCommunesUids();
 	let term = getTerm();
 
 	const goTo = () => {

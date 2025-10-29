@@ -45,10 +45,12 @@ export interface FacilityV2 {
     location: Coordinate|null
     zoom: number|null
     building: string|null
-    street: string|null
-    geographical_complement: string|number
+    street: string
+    geographical_complement: string|null
     zip: string|null
     effectors: string[]|null
+    ban_id: string|null
+    ban_banId: string|null
 }
 
 export interface Effector {
@@ -57,9 +59,9 @@ export interface Effector {
     slug_fr: string|null,
     gender: string,
     uid: string,
-    name_en: string|null,
-    label_en: string|null,
-    slug_en: string|null,
+    name_en?: string|null,
+    label_en?: string|null,
+    slug_en?: string|null,
     updatedAt: number,
     createdAt: number
 }

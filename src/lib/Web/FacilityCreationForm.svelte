@@ -10,6 +10,7 @@
 	import Geocoder from '$lib/components/Geocoder/Geocoder.svelte';
 	import { slugify } from '$lib/helpers/stringHelpers.ts';
 	import * as m from '$msgs';
+	import { getAddressFeature, setAddressFeature } from '$lib/components/Directory/context';
 	import type { Commune } from '$lib/interfaces/v2/facility.ts';
 
 	import type { ModalSettings } from '@skeletonlabs/skeleton';
@@ -28,6 +29,8 @@
 	}
 	let { commune, org_cat, createdFacility = $bindable(), form, createFacility = $bindable() }: { commune: { label: string; value: string }; org_cat: string; createdFacility: { label: string; value: string } | undefined; form: any; createFacility: boolean; } =
 		$props();
+
+	setAddressFeature();
 
 	interface InputClass {
 		name: string;
@@ -54,11 +57,10 @@
 		commune: boolean;
 	}
 	const inputError = 'input-error';
-	let addressFeature: AddressFeature | undefined = $state();
-	let ban_id = $derived(addressFeature?.properties.id);
-	let ban_banId = $derived(addressFeature?.properties.banId);
+	let addressFeature = getAddressFeature();
+	let ban_id = $derived($addressFeature?.properties.id);
+	let ban_banId = $derived($addressFeature?.properties.banId);
 	let triggered: boolean = $state(false);
-	const modalStore = getModalStore();
 	let visible: boolean = $state(true);
 	let success: boolean = $state(false);
 	let errorMsg: string = $state('');
@@ -90,12 +92,12 @@
 	let label: string = $state('');
 	let slug: string = $state('');
 	let building: string = $state('');
-	let street: string | undefined = $derived(addressFeature?.properties?.name);
+	let street: string | undefined = $derived($addressFeature?.properties?.name);
 	let geographical_complement: string = $state('');
-	let zip: string = $derived(addressFeature?.properties?.postcode || '');
+	let zip: string = $derived($addressFeature?.properties?.postcode || '');
 	let zoom: number = $state(18);
 	let lngLat: LngLatLike = $derived.by(() => {
-		const lngLatArray: [number, number] | undefined = addressFeature?.geometry.coordinates;
+		const lngLatArray: [number, number] | undefined = $addressFeature?.geometry.coordinates;
 		if (lngLatArray) {
 			return { lng: lngLatArray[0], lat: lngLatArray[1] };
 		} else {
@@ -132,8 +134,8 @@
 	$effect(() => {
 		if (name) {
 			slug=slugify(name)
-		} else if (addressFeature) {
-			slug=slugify(addressFeature.properties.street)
+		} else if ($addressFeature) {
+			slug=slugify($addressFeature.properties.street)
 		}
 	});
 	/**
@@ -179,7 +181,7 @@
 	 * Validate geocoder input.
 	 */
 	$effect(() => {
-		if (addressFeature || street) {
+		if ($addressFeature || street) {
 			validateForm.geocoder = true;
 			inputClass.geocoder = '';
 			return;
@@ -341,7 +343,7 @@
 						/>
 					</label>
 					{#if commune}
-						<Geocoder bind:addressFeature commune={commune?.label} placeholder={"Entrer l'adresse"} inputClass={inputClass.geocoder} />
+						<Geocoder commune={commune?.label} placeholder={"Entrer l'adresse"} inputClass={inputClass.geocoder} />
 					{/if}
 					<input
 							oninput={() => {}}

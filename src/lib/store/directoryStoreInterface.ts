@@ -1,31 +1,16 @@
-import type { Phone } from '$lib/interfaces/phone.interface.js';
+import type { Phone } from '$lib/interfaces/phone.interface.ts';
 import type { Writable } from '@square/svelte-store';
 import type { Facility } from '$lib/interfaces/facility.interface.ts';
 import type { Appointment } from '$lib/interfaces/appointment.interface.ts';
 import type { CarteVitale, Convention, PaymentMethod, ThirdPartyPayer, SpokenLanguage } from '$lib/interfaces/fullEffector.interface.ts';
 import type { Email } from '$lib/interfaces/email.interface.ts';
-import type { SocialNetwork } from '$lib/interfaces/socialnetwork.interface.js';
-import type { Website } from '$lib/interfaces/website.interface';
+import type { SocialNetwork } from '$lib/interfaces/socialnetwork.interface.ts';
+import type { Website } from '$lib/interfaces/website.interface.ts';
+import type { Address } from '$lib/interfaces/facility.interface.ts';
 
 export interface Situation {
     value: string;
     label: string;
-}
-
-export interface Address {
-    building: string | null;
-    city: string;
-    country: string;
-    facility_uid: string;
-    geographical_complement: string | null;
-    latitude: string | null;
-    longitude: string | null;
-    street: string | null;
-    zip: string | null;
-    zoom: number | null;
-    tooltip_direction: string | null;
-    tooltip_permanent?: boolean | null;
-    tooltip_text?: string | null;
 }
 
 export interface Avatar {

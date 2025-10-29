@@ -51,7 +51,7 @@
                 <h1 class="px-2 text-sm">{data.user.email}</h1>
             </div>
             <div class="flex items-center mt-4 text-gray-700">
-                <h1 class="px-2 text-sm">Rôle: {role[page.data?.user.role as keyof object]}</h1>
+                <h1 class="px-2 text-sm">Rôle: {role[page.data?.user?.role as keyof object]}</h1>
             </div>
         </div>
     </div>

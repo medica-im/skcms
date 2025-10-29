@@ -3,12 +3,18 @@
 
 	let {
 		inputClass,
-		memberOfOrg = $bindable()
-	}: { inputClass: string; memberOfOrg: boolean | undefined } = $props();
+		data = $bindable()
+	}: { inputClass: string; data: boolean | undefined } = $props();
 	let orgRadio: string | undefined = $state();
 
 	$effect(() => {
-		memberOfOrg = orgRadio == 'yes';
+		if (orgRadio == 'yes') {
+			data = true;
+		} else if (orgRadio == 'no') {
+			data = false;
+		} else {
+			data = undefined;
+		}
 	});
 </script>
 
@@ -21,7 +27,6 @@
 			<input
 				class="radio {inputClass}"
 				type="radio"
-				name="radio-direct"
 				value="yes"
 				bind:group={orgRadio}
 			/>
@@ -31,7 +36,6 @@
 			<input
 				class="radio {inputClass}"
 				type="radio"
-				name="radio-direct"
 				value="no"
 				bind:group={orgRadio}
 			/>

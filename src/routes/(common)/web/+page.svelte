@@ -1,24 +1,19 @@
 <script lang="ts">
 	import CreateEntry from '$lib/Web/CreateEntry.svelte';
-	import type { PageProps } from './$types';
 	import { browser } from '$app/environment';
-	
-	let { data, form }: PageProps = $props();
 </script>
 
 <header id="hero" class="bg-surface-100-800-token hero-gradient">
 	<div class="mx-0 flex flex-col items-center justify-center p-4 py-6 space-y-2">
-		<h1 class="h1">Pluripro Web</h1>
+		<h2 class="h2">Pluripro Web</h2>
 		{#if browser}
-		<CreateEntry {form}/>
+			<CreateEntry />
 		{/if}
 	</div>
 </header>
 
 <section id="team" class="bg-surface-100-800-token team-gradient">
-	<div class="section-container">
-		
-	</div>
+	<div class="section-container"></div>
 </section>
 
 <style lang="postcss">

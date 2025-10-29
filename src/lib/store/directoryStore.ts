@@ -1,6 +1,6 @@
 import { writable } from '@square/svelte-store';
 import { variables } from '$lib/utils/constants.ts';
-import { browser } from "$app/environment"
+import { browser } from "$app/environment";
 import { handleRequestsWithPermissions } from '$lib/utils/requestUtils.ts';
 import { PUBLIC_EFFECTOR_TYPE_LABELS_TTL, PUBLIC_ENTRIES_TTL, PUBLIC_SITUATIONS_TTL, PUBLIC_FACILITIES_TTL, PUBLIC_CACHE_CONTACTS } from '$env/static/public';
 import haversine from 'haversine-distance';
@@ -15,6 +15,7 @@ import type { Tastypie } from '$lib/interfaces/api.interface.ts';
 import type { CustomError } from '$lib/interfaces/error.interface.ts';
 import type { Organization } from '$lib/interfaces/organization.ts';
 import type { Fetch } from '$lib/interfaces/fetch.ts';
+import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
 
 export const term: Writable<string> = writable("");
 
@@ -37,7 +38,7 @@ export const effectorTypeLabels = async () => {
 		let elapsed = Date.now() - cachedData.cachetime;
 		expired = elapsed > cachelife * 1000;
 		if ('data' in cachedData) {
-			if (cachedData.data?.length) {
+			if (cachedData.data) {
 				empty = false;
 			}
 		}
@@ -359,11 +360,10 @@ function compareEffectorDistance(a, b, distEffectors: DistanceEffectors) {
 	}
 }
 
-export const fullFilteredEffectorsF = async (term: string, selectSituation: string | null = null, currentOrg: Boolean | null = null, organizationStore: Organization | undefined, limitCategories: String[]): Promise<Entry[]> => {
+export const fullFilteredEffectorsF = async (selectSituation: string | null = null, currentOrg: Boolean | null = null, organizationStore: Organization | undefined, limitCategories: String[]): Promise<Entry[]> => {
 	const entries: Entry[] = await getEntries();
 	if (
 		selectSituation == null
-		&& term == ''
 		&& currentOrg == null
 		&& !limitCategories?.length
 	) {
@@ -386,12 +386,6 @@ export const fullFilteredEffectorsF = async (term: string, selectSituation: stri
 			}
 		}
 		).filter(function (x) {
-			if (term == '') {
-				return true
-			} else {
-				return normalize(x.name).includes(normalize(term))
-			}
-		}).filter(function (x) {
 			if (selectSituation == null) {
 				return true
 			} else {
@@ -406,8 +400,8 @@ export const fullFilteredEffectorsF = async (term: string, selectSituation: stri
 	}
 };
 
-export const filteredEffectorsF = (fullFilteredEffectors: Entry[], selectCategories: String[], selectCommunes: String[], selectFacility: string | null) => {
-	if (!selectCategories?.length && !selectCommunes?.length && selectFacility == null) {
+export const filteredEffectorsF = (fullFilteredEffectors: Entry[], selectCategories: String[], selectCommunes: String[], selectFacility: string | null, term: string) => {
+	if (!selectCategories?.length && !selectCommunes?.length && selectFacility == null && term == '') {
 		return fullFilteredEffectors
 	} else {
 		return fullFilteredEffectors.filter(function (x) {
@@ -427,6 +421,12 @@ export const filteredEffectorsF = (fullFilteredEffectors: Entry[], selectCategor
 				return true
 			} else {
 				return selectFacility == x.facility.uid
+			}
+		}).filter(function (x) {
+			if (term == '') {
+				return true
+			} else {
+				return normalize(x.name).includes(normalize(term))
 			}
 		})
 	}
@@ -594,69 +594,44 @@ export const categoryOfF = (selectCommunes: string[], fullFilteredEffectors: Ent
 }
 
 export const communeOfF = async (selectCategories: string[], fullFilteredEffectors: Entry[], selectFacility: string | null, currentOrg: CurrentOrg, limitCategories: String[], selectSituation: string | null) => {
-	const _communes = await communes();
-	const situations = await getSituations();
 	if (!selectCategories?.length && !selectFacility && currentOrg == null && !limitCategories?.length && !selectSituation) {
-		return _communes
+		const allCommunes = fullFilteredEffectors.map(x => x.commune);
+		const mapFromCommunes = new Map(
+			allCommunes.map(c => [c.uid, c])
+		);
+		const uniqueCommunes = [...mapFromCommunes.values()];
+		return uniqueCommunes;
 	} else {
 		const communes = fullFilteredEffectors.filter(
 			x => {
 				return (!selectCategories?.length || selectCategories.includes(x.effector_type.uid)
 				) && (!selectFacility || x.facility.uid == selectFacility)
 			}
-		).filter(function (x) {
-			if (selectSituation == null) {
-				return true
-			} else {
-				let entries = situations.find(obj => { return obj.uid == selectSituation })?.entries;
-				if (entries) {
-					return entries.includes(x.uid);
-				} else {
-					return false
-				}
-			}
-		}).map(x => x.commune);
+		).map(x => x.commune);
 		const mapFromCommunes = new Map(
-			communes.map(c => [c.uid, c])
+			communes.map(
+				(c) => {
+					return [c.uid, c]
+				}
+			)
 		);
 		const uniqueCommunes = [...mapFromCommunes.values()];
 		return uniqueCommunes;
 	}
 }
 
-export const facilityOfF = async (selectCategories: String[], fullFilteredEffectors: Entry[], selectCommunes: String[], currentOrg: boolean | null, limitCategories: String[], selectSituation: string | null) => {
-	const facilities = await getFacilities();
-	if (!selectCategories?.length && !selectCommunes?.length && currentOrg == null && !limitCategories?.length && !selectSituation) {
-		return facilities.map(x => x.uid)
-	} else {
-		const situations = await getSituations();
-		const uids = fullFilteredEffectors.filter(
-			(x) => {
-				return !selectCategories.length || selectCategories.includes(x.effector_type.uid)
-			}
-		).filter(
-			(x) => {
-				if (!selectCommunes?.length) {
-					return true
-				} else {
-					const facility = facilities.find(f => f.uid == x.facility.uid);
-					if (!facility) return true;
-					const commune = facility?.commune;
-					return selectCommunes.includes(commune)
-				}
-			}
-		).filter(function (x) {
-			if (selectSituation == null) {
-				return true
-			} else {
-				let entries = situations.find(obj => { return obj.uid == selectSituation })?.entries;
-				if (entries) {
-					return entries.includes(x.uid);
-				} else {
-					return false
-				}
-			}
-		}).map(x => x.facility.uid)
-		return [...new Set(uids)];
-	}
+export const facilityOfF = async (fullFilteredEffectors: Entry[], selectCategories: String[], selectCommunes: String[]) => {
+	const facilities: FacilityOf[] = fullFilteredEffectors.filter(
+		x => {
+			return (!selectCategories?.length || selectCategories.includes(x.effector_type.uid)
+			) && (!selectCommunes?.length || selectCommunes.includes(x.commune.uid))
+		}
+	).map((x) => {
+		 return {...x.facility, ...x.address}
+		 });
+	const mapFromFacilities = new Map(
+		facilities.map(f => [f.uid, f])
+	);
+	const uniqueFacilities = [...mapFromFacilities.values()];
+	return uniqueFacilities
 };

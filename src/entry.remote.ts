@@ -3,9 +3,62 @@ import { getRequestEvent, query, form, command } from '$app/server';
 import * as z from "zod";
 import { authReq } from '$lib/utils/request.ts';
 import { variables } from '$lib/utils/constants.ts';
-import { JoinedData } from 'svelte-maplibre';
+import { slugify } from '$lib/helpers/stringHelpers';
 
-const RoleEnum = z.enum(['anonymous', 'staff', 'administrator' , 'superuser']);
+const RoleEnum = z.enum(['anonymous', 'staff', 'administrator', 'superuser']);
+
+const postEntry = z.object({
+	effector: z.string(),
+	effector_type: z.string(),
+	facility: z.string(),
+	organizations: z.preprocess((val: string) => {
+		if (val=="") {
+			return null
+		} else {
+		    return [val]
+		}
+	}, z.array(z.string()).nullable()
+	),
+	organization_category: z.string().optional(),
+}
+);
+
+export const createEntry = form(postEntry, async (data) => {
+	console.log(`entry form data: ${JSON.stringify(data)}`);
+	const { cookies } = getRequestEvent();
+	const url = `${variables.BASE_URI}/api/v2/entries`;
+	const organization_category = data.organization_category;
+	delete data.organization_category;
+	const request = authReq(url, 'POST', cookies, JSON.stringify(data));
+	const response = await fetch(request);
+	if (response.ok == false) {
+		console.error(JSON.stringify(response))
+		console.error(response.status)
+		console.error(response.statusText)
+		return {
+			success: false,
+			status: response.status,
+			text: response.statusText
+		}
+	} else {
+		const json = await response.json()
+		console.log(`Success! Status: ${response.status} Status text: ${response.statusText}`);
+		console.log(json);
+		let redirectURL;
+		if (organization_category=="cpts") {
+			redirectURL=`/${json.effector_type.slug}/${slugify(json.address.city)}/${json.slug}`;
+		} else {
+			redirectURL=`/${slugify(json.facility.slug)}/${json.effector_type.slug}/${json.slug}`;
+		}
+		redirect(303, redirectURL);
+		return {
+			success: true,
+			status: response.status,
+			text: response.statusText,
+			data: json
+		}
+	}
+});
 
 const Patch = z.object({
 	entry: z.string().optional(),
@@ -59,45 +112,5 @@ export const getConventions = query(async () => {
 	const res = await fetch(`${variables.BASE_URI}/api/v2/conventions/`);
 	if (res.ok) {
 		return await res.json();
-	}
-});
-
-export const patchForm = form(async (data) => {
-	const entry_uid = data.get('entry');
-	data.delete('entry');
-	console.log(`form data:${JSON.stringify(Object.fromEntries(data))}`);
-	const jsonString = JSON.stringify(Object.fromEntries(data));
-    let json = JSON.parse(jsonString);
-	//const roles: string = json.roles;
-	//const rolesArray: string[] = roles.split(',');
-	const result = Patch.safeParse(json);
-	if (!result.success) {
-		error(400, result.error);
-	}
-	const vData = result.data;
-	console.log(`vData: ${JSON.stringify(vData)}`);
-	const { cookies } = getRequestEvent();
-	const url = `${variables.BASE_URI}/api/v2/entries/${entry_uid}`;
-	console.log(url);
-	const request = authReq(url, 'PATCH', cookies, JSON.stringify(vData));
-	const response = await fetch(request);
-	if (response.ok == false) {
-		console.error(JSON.stringify(response))
-		console.error(response.status)
-		console.error(response.statusText)
-		return {
-			success: false,
-			status: response.status,
-			text: response.statusText
-		}
-	} else {
-		const json = await response.json()
-		console.log(`Success! Status: ${response.status} Status text: ${response.statusText}`);
-		console.log(json);
-		return {
-			success: true,
-			status: response.status,
-			text: response.statusText
-		}
 	}
 });

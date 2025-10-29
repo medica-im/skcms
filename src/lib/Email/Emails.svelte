@@ -9,7 +9,7 @@
 	const mss: string = 'mssante';
 </script>
 
-{#each data as email}
+{#each data as email (email.id)}
 	{#if email.email.includes(mss)}
 		<Mssante data={email} editMode={editMode} />
 	{:else}

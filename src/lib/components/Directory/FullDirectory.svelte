@@ -15,6 +15,7 @@
 	import Fa from 'svelte-fa';
 	import { faArrowsUpToLine } from '@fortawesome/free-solid-svg-icons';
     import type { Writable, AsyncWritable, Loadable } from '@square/svelte-store';
+	import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
 
     let {
 		data = null,
@@ -40,7 +41,7 @@
 		avatar: boolean;
     	communeOf: any;
     	categoryOf: any;
-    	facilityOf: Loadable<string[]>;
+    	facilityOf: Loadable<FacilityOf[]>;
 		types: string[]|null;
 	} = $props();
 
@@ -91,13 +92,13 @@
 					{#if $selectSituation}
 						<div class="row">
 							<div class="col">
-								<SelectCategoriesChips />
+								<SelectCategoriesChips {categoryOf} />
 							</div>
 						</div>
 					{:else}
 						<div class="row">
 							<div class="col">
-								<SelectCategories {categoryOf} {types} />
+								<SelectCategories {categoryOf} />
 							</div>
 						</div>
 					{/if}
