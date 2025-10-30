@@ -9,12 +9,12 @@
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import type { OauthSession } from '$lib/interfaces/oidc';
 
-	let { data }: { data: OauthSession } = $props();
-
 	let visible: boolean = $state(true);
-	let session = $derived(data as OauthSession);
-	let provider = providers.find((e) => e.name == session.user.provider);
-	const profilePicture = data.user.image || defaultProfilePicture;
+	let session = $derived(page.data.session);
+	let provider = providers.find((e) => e.name == session?.user?.provider);
+	const profilePicture = page.data.user.image || defaultProfilePicture;
+
+	let user = $derived(page.data.user); 
 
 	const role = {
 		administrator: m['ROLE.ADMINISTRATOR'](),
@@ -23,20 +23,26 @@
 		anonymous: m['ROLE.ANONYMOUS']()
 	};
 </script>
+<!--session?.user {session?.user}<br>
+typeof session?.user {typeof session?.user}<br>
+JSON.stringify(session?.user) {JSON.stringify(session?.user)}<br>
+page.data?.user?.role {page.data?.user?.role}<br>
+JSON.stringify(page.data?.user) {JSON.stringify(page.data?.user)}<br>
+JSON.stringify(page.data?.session) {JSON.stringify(page.data?.session)}-->
 
 <section class="section-container">
 	<div class="grid grid-cols-1 gap-6 place-items-center">
-		{#if session?.user && !session?.user?.role}
+		{#if !page.data?.user?.role}
 			{#if visible}
 				<aside class="alert variant-ghost">
 					<!-- Icon -->
 					<div><Fa icon={faQuestion} size="3x" /></div>
 					<!-- Message -->
 					<div class="alert-message">
-						<h3 class="h3">Bonjour {data?.user?.name}!</h3>
+						<h3 class="h3">Bonjour {user?.name}!</h3>
 						<p>
 							Merci de votre visite. Votre email <q
-								>{data?.user?.email}</q
+								>{user?.email}</q
 							> ne figure pas dans la liste des utilisateurs connus de ce service. Peut-être avons-nous enregistré une autre adresse de courrier électronique au moment de votre inscription? Si vous pensez qu'il s'agit d'une erreur, merci de nous
 							<a href="/contact" class="anchor">contacter</a>.
 						</p>
@@ -63,7 +69,7 @@
 				</div>
 			{/if}
 			<div class="flex flex-wrap py-4 px-6 gap-4">
-				<h1 class="text-2xl font-semibold text-gray-800">{data.user.name}</h1>
+				<h1 class="text-2xl font-semibold text-gray-800">{page.data.user.name}</h1>
 				{#if import.meta.env.DEV}
 					<Accordion>
 						<AccordionItem>
@@ -83,7 +89,7 @@
 							d="M437.332 80H74.668C51.199 80 32 99.198 32 122.667v266.666C32 412.802 51.199 432 74.668 432h362.664C460.801 432 480 412.802 480 389.333V122.667C480 99.198 460.801 80 437.332 80zM432 170.667L256 288 80 170.667V128l176 117.333L432 128v42.667z"
 						/>
 					</svg>
-					<h1 class="px-2 text-sm">{data.user.email}</h1>
+					<h1 class="px-2 text-sm">{page.data.user.email}</h1>
 				</div>
 				<div class="flex items-center mt-4 text-gray-700">
 					<h1 class="px-2 text-sm">

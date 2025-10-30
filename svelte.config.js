@@ -26,7 +26,12 @@ const config = {
 		},
 		experimental: {
 			remoteFunctions: true
-		}
+		},
+		typescript: {
+	    	config: cfg => {
+        		cfg.include.push('./src/lib/auth.ts');
+      		},
+    	}
 	},
 	compilerOptions: {
 		experimental: {

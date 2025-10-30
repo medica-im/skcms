@@ -1,7 +1,9 @@
 interface User {
     name: string,
     email: string,
-    image: string
+    userId: string,
+    provider: string,
+    image?: string
 }
 
 export interface OauthSession {

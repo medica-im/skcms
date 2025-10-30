@@ -19,10 +19,6 @@ declare namespace App {
 
 	// interface Platform { }
 
-	interface Session {
-		locale: Locales
-	}
-
 	// interface Stuff { }
 }
 

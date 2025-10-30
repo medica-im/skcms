@@ -57,7 +57,7 @@
 		"zod": "^4.0.17"
 	},
 	"dependencies": {
-		"@auth/sveltekit": "^1.10.0",
+		"@auth/sveltekit": "^1.11.1",
 		"@floating-ui/dom": "^1.6.13",
 		"@fortawesome/fontawesome-svg-core": "^6.7.2",
 		"@fortawesome/free-brands-svg-icons": "^6.7.2",

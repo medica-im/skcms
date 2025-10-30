@@ -16,7 +16,7 @@ declare module "@auth/sveltekit" {
        * with the new ones defined above. To keep the default session user properties,
        * you need to add them back into the newly declared interface.
        */
-    } & DefaultSession["user"];
+    } & DefaultSession['user'];
   }
 }
 

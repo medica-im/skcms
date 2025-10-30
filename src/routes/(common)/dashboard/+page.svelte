@@ -8,7 +8,7 @@
 <div class="section-container">
 {#if session?.user}
 <div class="flex flex-wrap">
-    <UserCard data={session}/>
+    <UserCard />
     </div>
 {/if}
 </div>
