@@ -2,7 +2,6 @@
     import { page } from "$app/state";
     import UserCard from "$lib/Dashboard/UserCard.svelte";
     import type { OauthSession } from "$lib/interfaces/oidc";
-    console.log(`user:${JSON.stringify(page.data.user)}`);
     const session = $derived(page.data.session);
 </script>
 
