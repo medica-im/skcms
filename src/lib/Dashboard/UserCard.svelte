@@ -7,14 +7,13 @@
 	import { providers } from '$lib/Auth/data.ts';
 	import defaultProfilePicture from '$assets/images/profile/default_profile_picture.png';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
-	import type { OauthSession } from '$lib/interfaces/oidc';
 
 	let visible: boolean = $state(true);
 	let session = $derived(page.data.session);
 	let provider = providers.find((e) => e.name == session?.user?.provider);
 	const profilePicture = page.data.user.image || defaultProfilePicture;
 
-	let user = $derived(page.data.user); 
+	let user = $derived(page.data.user);
 
 	const role = {
 		administrator: m['ROLE.ADMINISTRATOR'](),
@@ -23,16 +22,18 @@
 		anonymous: m['ROLE.ANONYMOUS']()
 	};
 </script>
+
 <!--session?.user {session?.user}<br>
 typeof session?.user {typeof session?.user}<br>
 JSON.stringify(session?.user) {JSON.stringify(session?.user)}<br>
 page.data?.user?.role {page.data?.user?.role}<br>
 JSON.stringify(page.data?.user) {JSON.stringify(page.data?.user)}<br>
-JSON.stringify(page.data?.session) {JSON.stringify(page.data?.session)}-->
-
+JSON.stringify(page.data?.session) {JSON.stringify(page.data?.session)}<br>
+page.data?.user?.role {page.data?.user?.role}<br>
+!page.data?.user?.role {!page.data?.user?.role}-->
 <section class="section-container">
 	<div class="grid grid-cols-1 gap-6 place-items-center">
-		{#if !page.data?.user?.role}
+		{#if page.data?.user?.role === 'anonymous'}
 			{#if visible}
 				<aside class="alert variant-ghost">
 					<!-- Icon -->
@@ -41,9 +42,10 @@ JSON.stringify(page.data?.session) {JSON.stringify(page.data?.session)}-->
 					<div class="alert-message">
 						<h3 class="h3">Bonjour {user?.name}!</h3>
 						<p>
-							Merci de votre visite. Votre email <q
-								>{user?.email}</q
-							> ne figure pas dans la liste des utilisateurs connus de ce service. Peut-être avons-nous enregistré une autre adresse de courrier électronique au moment de votre inscription? Si vous pensez qu'il s'agit d'une erreur, merci de nous
+							Merci de votre visite. Votre email <q>{user?.email}</q> ne figure pas dans la liste
+							des utilisateurs connus de ce service. Peut-être avons-nous enregistré une autre
+							adresse de courrier électronique au moment de votre inscription? Si vous pensez qu'il
+							s'agit d'une erreur, merci de nous
 							<a href="/contact" class="anchor">contacter</a>.
 						</p>
 					</div>
