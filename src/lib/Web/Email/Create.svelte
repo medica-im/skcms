@@ -80,10 +80,6 @@
 							bind:value={entry}
 						/>
 					</label>
-					{#if isSuperUser}
-						Entry UID: {entry}
-						<button type="button" class="btn btn-sm variant-ghost" use:copy={entry}> Copy! </button>
-					{/if}
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
 						<span>Adresse électronique</span>
 						<input
