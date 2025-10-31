@@ -21,7 +21,6 @@
 	import { page } from '$app/state';
 	import { accessSelectTypes, getRoles } from '$lib/Web/access.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
-	import type { FormResult } from '$lib/interfaces/v2/form';
 
 	let {
 		entry
@@ -29,11 +28,9 @@
 		entry: string;
 	} = $props();
 
-	const isSuperUser = $derived(page.data?.user?.role == 'superuser');
-
 	let dialog: HTMLDialogElement;
 
-	let result: FormResult | undefined = $state();
+	let result = $derived(createPhone.result);
 
 	const getTypeItems = () => {
 		const items = [];
@@ -49,7 +46,7 @@
 	let _type: string | undefined = $derived(selectedType?.value);
 	let _roles: string[] | undefined = $derived(getRoles(selectedAccess?.value));
 	let disabled: boolean = $derived(
-		selectedType == undefined || _phone == undefined || selectedAccess == undefined || createPhone.result?.success==true
+		_type == undefined || _phone == undefined || _roles == undefined || result?.success===true
 	);
 	function resetForm() {
 		_phone = undefined;
@@ -63,6 +60,7 @@
 <button
 	class="btn-icon btn-icon-sm variant-ghost-surface"
 	onclick={() => {
+		resetForm();
 		dialog.showModal();
 	}}
 	title="Ajouter"><Fa icon={faPlus} /></button
@@ -70,15 +68,16 @@
 
 <Dialog bind:dialog>
 	<div class="rounded-lg h-fit p-4 variant-ghost-secondary gap-4">
-		<!--p>phone: {_phone} type: {_type} roles: {_roles}</p-->
-
+		<p>phone: {_phone} type: {_type} roles: {_roles}</p>
+		<p>selectedType {JSON.stringify(selectedType)} typeof selectedType {typeof selectedType}</p>
+		result: {JSON.stringify(result)}<br>
+		typeof result {typeof result}
 		<form
 			{...createPhone.enhance(async ({ form, data, submit }) => {
 				try {
 					const dataString = JSON.stringify(data);
 					console.log(dataString);
 					await submit();
-					result = createPhone.result;
 					invalidate('entry:now');
 				} catch (error) {
 					console.log(error);
