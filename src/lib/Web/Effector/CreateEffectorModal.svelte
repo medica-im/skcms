@@ -14,7 +14,7 @@
 	}: {
 		memberOfOrg: boolean | undefined;
 		createdEffector: Effector | undefined;
-		top: Element|undefined;
+		top: Element | undefined;
 	} = $props();
 
 	interface InputClass {
@@ -31,7 +31,7 @@
 		gender: boolean;
 		isMember: boolean;
 	}
-	let isMember: boolean|undefined = $state();
+	let isMember: boolean | undefined = $state();
 	let dialog: HTMLDialogElement | undefined = $state();
 	const inputError = 'input-error';
 	let triggered: boolean = $state(false);
@@ -112,7 +112,7 @@
 	 * Validate radio isMember input.
 	 */
 	$effect(() => {
-		if (isMember!=undefined) {
+		if (isMember != undefined) {
 			validateForm.isMember = true;
 			inputClass.isMember = '';
 		} else {
@@ -136,8 +136,7 @@
 		dialog?.showModal();
 	}}
 	class="btn variant-ghost-surface w-min justify-self-center"
-	title="Créer"
-	><span><Fa icon={faPlus} /></span><span>Créer une personne</span></button
+	title="Créer"><span><Fa icon={faPlus} /></span><span>Créer une personne</span></button
 >
 <Dialog bind:dialog classProp="w-full">
 	<div class="rounded-lg w-full p-4 variant-ghost-secondary items-center place-items-center">
@@ -219,7 +218,6 @@
 							<option value="N">Neutre</option>
 						</select>
 					</label>
-					<span>isMember: {isMember} type: {typeof(isMember)}</span>
 					<OrganizationRadio bind:data={isMember} inputClass={inputClass.isMember} />
 					<div class="flex gap-8">
 						<div class="flex gap-2 items-center">
@@ -232,11 +230,13 @@
 							{/if}
 						</div>
 						<div class="w-auto justify-center">
-							<button type="submit" class="variant-filled-secondary btn w-min" {disabled}
-							onclick={async ()=>{
-								await new Promise(resolve => setTimeout(resolve, 1000));
-							}}
-								>Envoyer</button
+							<button
+								type="submit"
+								class="variant-filled-secondary btn w-min"
+								{disabled}
+								onclick={async () => {
+									await new Promise((resolve) => setTimeout(resolve, 1000));
+								}}>Envoyer</button
 							>
 						</div>
 						<div class="w-auto justify-center">
@@ -244,8 +244,8 @@
 								type="button"
 								class="variant-filled-error btn w-min"
 								onclick={() => {
-									createdEffector=formResult?.data;
-									memberOfOrg=isMember;
+									createdEffector = formResult?.data;
+									memberOfOrg = isMember;
 									top?.scrollIntoView();
 									dialog?.close();
 								}}>{formResult?.success ? 'Fermer' : 'Annuler'}</button
