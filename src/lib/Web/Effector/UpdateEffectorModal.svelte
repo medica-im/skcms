@@ -45,8 +45,9 @@
 	let slug_fr: string = $state('');
 	let gender: string|null = $state('');
 	let formResult = $derived(updateEffector.for(data.effector_uid).result);
+	let isModified: boolean = $derived(name_fr != data.name || label_fr != data.label || slug_fr != data.slug || gender != data.gender);
 	let disabled: boolean = $derived(
-		!Object.values(validateForm).every((v) => v === true) || formResult?.success == true
+		!Object.values(validateForm).every((v) => v === true) || formResult?.success == true || !isModified
 	);
 
 	const nameIsValid = (value: string) => {
@@ -97,6 +98,7 @@
 			validateForm.slug_fr = false;
 		}
 	});
+
 </script>
 
 <!--
@@ -121,7 +123,7 @@
 <Dialog bind:dialog classProp="w-full">
 	<div class="rounded-lg w-full p-4 variant-ghost-secondary items-center place-items-center">
 		<div class="rounded-lg p-6 variant-ghost-secondary space-y-6 items-center place-items-center">
-			<h3 class="h3 text-center">Créer une nouvelle personne physique ou morale</h3>
+			<h3 class="h3 text-center">Modifier la personne physique ou morale</h3>
 			<div class="p-4 space-y-2 justify-items-stretch grid grid-cols-1 gap-6">
 				<form
 					{...updateEffector.for(data.effector_uid).enhance(async ({ form, data, submit }) => {
@@ -143,12 +145,12 @@
 							bind:value={data.effector_uid}
 						/>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
-						<span>Nom</span>
+						<span class="h4">Nom</span>
 						{#each updateEffector.for(data.effector_uid).fields.name_fr.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<input
-							class="input {inputClass.name_fr}"
+							class="text-base input {inputClass.name_fr}"
 							name="name_fr"
 							type="text"
 							placeholder=""
@@ -156,12 +158,12 @@
 						/>
 					</label>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
-						<span>Label</span>
+						<span class="h4">Label</span>
 						{#each updateEffector.for(data.effector_uid).fields.label_fr.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<input
-							class="input {inputClass.label_fr}"
+							class="text-base input {inputClass.label_fr}"
 							name="label_fr"
 							type="text"
 							placeholder=""
@@ -169,7 +171,7 @@
 						/>
 					</label>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
-						<span>Slug</span>
+						<span class="h4">Slug</span>
 						{#each updateEffector.for(data.effector_uid).fields.slug_fr.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
@@ -182,7 +184,7 @@
 						/>
 					</label>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
-						<span>Genre grammatical</span>
+						<span class="h4">Genre grammatical</span>
 						<!--input
 							oninput={() => {}}
 							class="input {inputClass.gender}"

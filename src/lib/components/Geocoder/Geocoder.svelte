@@ -14,11 +14,13 @@
 	let {
 		commune = null,
 	    placeholder = "Adresse de l’usager",
-		inputClass = ''
+		inputClass = '',
+		limitToZip = true,
 	}: {
-		commune?: string|null,
-		placeholder?: string,
-		inputClass?: string
+		commune?: string|null;
+		placeholder?: string;
+		inputClass?: string;
+		limitToZip?: boolean;
 	} = $props();
 
 	let addressFeature = getAddressFeature();
@@ -58,7 +60,11 @@
 				return commune? e.properties.city == commune : true;
 			})
 			.filter((e: AddressFeature)=> {
-				return page.data?.directory?.postal_codes.length ? page.data.directory.postal_codes.includes(e.properties.postcode.substring(0,2)) : true
+				if ( limitToZip === false ) {
+					return true
+				} else {
+					return page.data?.directory?.postal_codes.length ? page.data.directory.postal_codes.includes(e.properties.postcode.substring(0,2)) : true
+				}
 			})
 			.map((e: AddressFeature) => {
 				return { label: getLabel(e), value: e };

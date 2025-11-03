@@ -1,3 +1,5 @@
+import { getTimestamps } from '$lib/store/directoryStore';
+import type { Timestamps } from '$lib/store/directoryStore';
 import type { Entry } from '$lib/store/directoryStoreInterface.ts';
 import type { AddressFeature } from '$lib/store/directoryStoreInterface.ts';
 
@@ -130,6 +132,23 @@ export const entryPageUrl = (entry: Entry, org_category: string | null = null, p
 export function isExpired(ttl: number, cacheTime: number): boolean {
 	const elapsed = Date.now() - cacheTime;
 	return elapsed > ttl * 1000;
+}
+
+export async function doRefresh(endpoint: string, cachetime: number|undefined): Promise<boolean> {
+	const timestamps = await getTimestamps();
+	console.log(`timestamps: ${JSON.stringify(timestamps)}`);
+	console.log(`endpoint: ${endpoint}`);
+	console.log(`cachetime: ${cachetime}`);
+	if ( timestamps) {
+		console.log(`timestamp: ${timestamps[endpoint as keyof Timestamps]}`)
+	}
+	if ( timestamps === undefined ) {
+		return false
+	} else if ( cachetime === undefined ) {
+		return true
+	} else {
+		return cachetime < timestamps[endpoint as keyof Timestamps]
+	}
 }
 
 export function displayMap(map: Map<any, any>) {

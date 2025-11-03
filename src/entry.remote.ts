@@ -32,7 +32,8 @@ export const createEntry = form(postEntry, async (data) => {
 	const request = authReq(url, 'POST', cookies, JSON.stringify(data));
 	const response = await fetch(request);
 	if (response.ok == false) {
-		console.error(JSON.stringify(response))
+		const json = await response.json()
+		console.error(JSON.stringify(json))
 		console.error(response.status)
 		console.error(response.statusText)
 		return {

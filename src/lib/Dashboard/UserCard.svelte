@@ -11,7 +11,7 @@
 	let visible: boolean = $state(true);
 	let session = $derived(page.data.session);
 	let provider = providers.find((e) => e.name == session?.user?.provider);
-	const profilePicture = page.data.user.image || defaultProfilePicture;
+	const profilePicture = page.data.user?.image || defaultProfilePicture;
 
 	let user = $derived(page.data.user);
 

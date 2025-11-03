@@ -8,6 +8,7 @@ import { isExpired } from '$lib/utils/utils.ts';
 import { getLocalStorage, setLocalStorage } from '$lib/utils/storage.ts';
 import type { Situation } from '$lib/store/directoryStoreInterface.ts';
 import { getFacilities } from '$lib/store/facilityStore.ts';
+import { doRefresh } from '$lib/utils/utils.ts';
 import type { Writable } from '@square/svelte-store';
 import type { Contact, Entry, CurrentOrg, AddressFeature, DistanceEffectors, CategorizedEntries, Type } from './directoryStoreInterface.ts';
 import type { Facility } from '$lib/interfaces/facility.interface.ts';
@@ -91,7 +92,7 @@ async function fetchEntries(next: string) {
 	const [response, err] = await handleRequestsWithPermissions(fetch, url);
 	if (response) {
 		let data: any = response;
-		next = data.meta.next;
+		next = data.meta?.next;
 		return [data.entries, next]
 	}
 }
@@ -212,17 +213,34 @@ async function processCachedEntries(changedObj: ChangedObj) {
 	return entries;
 }
 
-export const getEntries = async (): Promise<Entry[]> => {
-	var ttl = variables.ENTRIES_TTL;
-	const cachedEntriesObj = getLocalStorage('entries');
-	let expired: boolean = true;
-	if (cachedEntriesObj) {
-		expired = isExpired(ttl, cachedEntriesObj.cachetime);
+export interface Timestamps {
+	 "v1:facilities": number,
+    "v1:effector_type_labels": number,
+	"v1:entries": number, 
+}
+
+export const getTimestamps = async (): Promise<Timestamps|undefined> => {
+	const url = `${variables.BASE_URI}/api/v1/directory/timestamps`;
+	try {
+		const res = await fetch(url);
+		if ( res.ok ) {
+			return await res.json()
+		} else {
+			console.log(res.status);
+		}
+	} catch (error) {
+		console.error(error);
 	}
-	if (expired || !cachedEntriesObj) {
+};
+
+export const getEntries = async (): Promise<Entry[]> => {
+	const cachedEntriesObj = getLocalStorage('entries');
+	const refresh: boolean = await doRefresh("v1:entries", cachedEntriesObj?.cachetime);
+	console.log(`doRefresh: ${refresh}`);
+	if ( refresh ) {
 		return await downloadAllEntries();
 	} else {
-		return cachedEntriesObj.data;
+		return cachedEntriesObj?.data;
 	}
 };
 
@@ -462,11 +480,13 @@ export const cardinalCategorizedFilteredEffectorsF = async (categorizedFilteredE
 	let cardinalMap = new Map();
 	for (const [key, value] of categorizedFilteredEffectors) {
 		let label = key;
+		console.log(label)
 		let countF: number = 0;
 		let countM: number = 0;
 		let countN: number = 0;
 		let countNone: number = 0;
 		let type: Type = value[0].effector_type;
+		console.log(type)
 		/*value.forEach(
 			(e) => {
 				type = e.types.find(e => e.name == key)
@@ -488,7 +508,7 @@ export const cardinalCategorizedFilteredEffectorsF = async (categorizedFilteredE
 				}
 			}
 		)
-		if (value.length == countNone) {
+		if (value.length == countNone || value.length == countN) {
 			if (value.length > 1) {
 				try {
 					label = eTL[type.uid]['P']['N']

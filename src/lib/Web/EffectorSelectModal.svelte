@@ -13,9 +13,7 @@
 
 	import { page } from '$app/state';
 	import * as m from '$msgs';
-	import { reactiveQueryArgs } from '$lib/utils/utils.svelte';
 	import Select from 'svelte-select';
-	import { useQueryClient, createQuery } from '@tanstack/svelte-query';
 	import EffectorTypeSelect from './EffectorTypeSelect.svelte';
 	import FacilitySelect from './FacilitySelect.svelte';
 	import OrganizationRadio from './OrganizationRadio.svelte';
@@ -46,10 +44,11 @@
 	let department: SelectType | undefined = $state(defaultDpt);
 	let departmentCode: string | undefined = $derived(department?.value);
 	let communes: CreateQueryResult<Commune[], Error> | undefined = $state();
-	let commune: any = $state();
+	let commune: SelectType | undefined = $state();
+	let communeUid: string | undefined = $derived(commune?.value);
 	let facilityCount: number = $state(0);
 	const entries = $derived(await getEntries());
-	const effectors = $derived(await getEffectors());
+	const effectors = $derived(await getEffectors(page.data.directory.name));
 	const filteredEffectors = $derived.by(() => {
 		if (effectors) {
 			return effectors.filter((e) => {
@@ -63,13 +62,31 @@
 						.map((e) => e.effector_uid);
 					return effectorUids.includes(e.uid);
 				}
+			}).filter((e) => {
+				if (!departmentCode) {
+					return true;
+				} else {
+					const effectorUids = entries
+						.filter((e) => e.department.code == departmentCode)
+						.map((e) => e.effector_uid);
+					return effectorUids.includes(e.uid);
+				}
+			}).filter((e) => {
+				if (!communeUid) {
+					return true;
+				} else {
+					const effectorUids = entries
+						.filter((e) => e.commune.uid == communeUid)
+						.map((e) => e.effector_uid);
+					return effectorUids.includes(e.uid);
+				}
 			});
 		} else {
 			return [];
 		}
 	});
 
-	const effectorItems = $derived.by(async () => {
+	const effectorItems = $derived.by(() => {
 		return filteredEffectors.map((e) => {
 			return { label: e.name_fr, value: e.uid };
 		});
@@ -170,6 +187,7 @@
 
 <Dialog bind:dialog on:close={() => console.log('closed')}>
 	<div class="grid grid-cols-1 rounded-lg h-full w-fit p-4 variant-ghost-secondary items-center gap-4">
+		effectors: {effectors}<br>
 		<div class="place-items-center">
 		<h3 class="h3">Sélectionner une personne</h3>
 		</div>
@@ -182,7 +200,7 @@
 		/>
 		<div class="grid grid-cols-1 gap-4 variant-ghost p-4">
 			<p>{effectorLabel(filteredEffectors)}</p>
-			<Select items={await effectorItems} bind:value={selectedEffector} placeholder="Sélectionner une personne" />
+			<Select items={effectorItems} bind:value={selectedEffector} placeholder="Sélectionner une personne" />
 		</div>
 		<OrganizationRadio bind:data={isMember} inputClass={inputClass.isMember} />
 		<div class="flex gap-8">

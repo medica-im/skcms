@@ -52,16 +52,3 @@ export interface FacilityV2 {
     ban_id: string|null
     ban_banId: string|null
 }
-
-export interface Effector {
-    name_fr: string,
-    label_fr: string|null,
-    slug_fr: string|null,
-    gender: string,
-    uid: string,
-    name_en?: string|null,
-    label_en?: string|null,
-    slug_en?: string|null,
-    updatedAt: number,
-    createdAt: number
-}

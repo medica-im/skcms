@@ -26,6 +26,10 @@ export interface Commune {
     wikidata: string
 }
 
+export interface Department {
+    code: string
+}
+
 export interface Type {
     definition: string | null,
     label: string | null,
@@ -42,6 +46,7 @@ export interface Entry {
     avatar: Avatar,
     carte_vitale: CarteVitale | null,
     commune: Commune,
+    department: Department,
     effector_uid: string,
     emails: Email[],
     facility: Facility,

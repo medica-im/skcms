@@ -15,5 +15,6 @@ export interface Effector {
     updatedAt: number,
     createdAt: number,
     gender: string,
-    rpps: string|null
+    rpps: string|null,
+    creator_directory: string|null,
 }

@@ -19,9 +19,11 @@ const effectorGet = z.object({
     updatedAt: z.int(),
 });
 
-export const getEffectors = query(async () => {
+export const getEffectors = query(z.string().nullable(), async (directory) => {
     const { cookies } = getRequestEvent();
-    const url = `${variables.BASE_URI}/api/v2/effectors`;
+    const params = directory ? `?directory=${encodeURIComponent(directory)}` : '';
+    const url = `${variables.BASE_URI}/api/v2/effectors${params}`;
+    console.log(url);
     const request = authReq(url, 'GET', cookies);
     const response = await fetch(request);
     if (response.ok == false) {

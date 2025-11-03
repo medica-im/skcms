@@ -352,6 +352,7 @@
 								commune={commune.label}
 								placeholder={"Entrer l'adresse"}
 								inputClass={inputClass.geocoder}
+								limitToZip={false}
 							/>
 						{#each createFacility.fields.ban_id.issues() as issue}
 			<p class="issue">{issue.message}</p>
