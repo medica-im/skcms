@@ -32,6 +32,7 @@
 	import CreateEmail from '$lib/Web/Email/Create.svelte';
 	import CreateWebsite from '$lib/Web/Website/Create.svelte';
 	import UpdateEffector from '$lib/Web/Effector/UpdateEffectorModal.svelte';
+	import InactivateEntry from '$lib/Web/Entry/InactivateEntry.svelte';
 	import { copy } from 'svelte-copy';
 	import { setEditMode, getEditMode, setEntryUid, setEffectorUid } from './context';
 	import { hyphenateUuid } from '$lib/utils/utils';
@@ -214,7 +215,11 @@
 			</div>
 		</div>
 	{/if}
-
+	{#if $editMode}
+	<div class="flex flex-row">
+	<InactivateEntry/>
+	</div>
+	{/if}
 	<div class="flex flex-row-reverse">
 		<Back />
 	</div>

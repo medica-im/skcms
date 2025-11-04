@@ -67,7 +67,8 @@ const Patch = z.object({
 	carte_vitale: z.nullable(z.boolean()).optional(),
 	payment: z.nullable(z.array(z.string())).optional(),
 	third_party_payer: z.nullable(z.array(z.string())).optional(),
-	convention: z.nullable(z.string()).optional()
+	convention: z.nullable(z.string()).optional(),
+	active: z.boolean().optional(),
 });
 
 export const patchCommand = command(Patch, async (data) => {
