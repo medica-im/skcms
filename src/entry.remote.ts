@@ -19,6 +19,7 @@ const postEntry = z.object({
 		}
 	}, z.array(z.string()).nullable()
 	),
+	directory: z.string().optional(),
 	organization_category: z.string().optional(),
 }
 );

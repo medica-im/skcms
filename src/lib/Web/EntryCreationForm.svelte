@@ -28,30 +28,36 @@
 		effector_type: string;
 		facility: string;
 		organization: string;
+		directory: string;
 	}
 	interface ValidateForm {
 		effector: boolean;
 		effector_type: boolean;
 		facility: boolean;
 		organization: boolean;
+		directory: boolean;
 	}
 	const inputError = 'input-error';
 	const inputClass: InputClass = $state({
 		effector: '',
 		effector_type: '',
 		facility: '',
-		organization: ''
+		organization: '',
+		directory: '',
 	});
 	const validateForm: ValidateForm = $state({
 		effector: false,
 		effector_type: true,
 		facility: true,
-		organization: true
+		organization: true,
+		directory: true,
 	});
+	const isSuperUser = $derived(page.data?.user?.role == 'superuser');
 	let effector: string|undefined = $derived(createdEffector?.uid);
 	let effector_type: string|undefined = $derived(selectedEffectorType?.value);
 	let facility: string|undefined = $derived(selectedFacility?.value);
 	let organizations: string | null = $derived(memberOfOrg ? page.data.organization.uid : null); // TODO: make this an array
+	let directory: string | undefined = $state();
 	let uid = $derived.by(()=>{
 		if (effector && effector_type && facility ) {
 			return effector.concat(effector_type,facility)
@@ -69,6 +75,9 @@
 		return true;
 	};
 	const facilityIsValid = (value: string) => {
+		return true;
+	};
+	const directoryIsValid = (value: string) => {
 		return true;
 	};
 	/**
@@ -107,12 +116,25 @@
 			validateForm.facility = false;
 		}
 	});
+		/**
+	 * Validate directory input.
+	 */
+	$effect(() => {
+		if (!directory || directory && directoryIsValid(directory)) {
+			inputClass.facility = '';
+			validateForm.facility = true;
+		} else {
+			inputClass.facility = inputError;
+			validateForm.facility = false;
+		}
+	});
 	const  clear = () => {
 		formResult = undefined;
 		memberOfOrg = undefined;
 		createdEffector = undefined;
 		selectedFacility = undefined;
 		selectedEffectorType = undefined;
+		directory = undefined;
 	}
 </script>
 <!--formResult?.success: {formResult?.success}<br>
@@ -181,6 +203,19 @@ selectedFacility: {JSON.stringify(selectedFacility)}-->
 							placeholder=""
 							value={page.data.organization.category.name}
 						/>
+						{#if isSuperUser}
+					<label class="flex label place-self-start place-items-center space-x-2 w-full">
+						<span>Annuaire</span>
+						<input
+							oninput={() => {}}
+							class="input {inputClass.directory}"
+							name="directory"
+							type="text"
+							placeholder=""
+							bind:value={directory}
+						/>
+					</label>
+					{/if}
 				</div>
 			</div>
 			<div class="flex gap-8">
