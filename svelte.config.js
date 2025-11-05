@@ -15,7 +15,7 @@ const config = {
 	],
 	kit: {
 		version: {
-            name: "4.0.0"
+            name: "5.0.0"
         },
 		adapter: adapter(),
 		alias: {
