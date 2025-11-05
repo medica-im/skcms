@@ -52,13 +52,13 @@
 	{:else}
 	{#if data}
 		{#each [...data] as [key, value]}
-			<div class="space-y-6 my-6 anchordiv" id={key}>
+			<div class="my-6 anchordiv" id={key}>
 				<div class="relative inline-block">
-					<span class="badge-icon variant-filled-primary absolute -top-2 -right-3 z-5">
+					<span class="badge-icon variant-filled-primary absolute -top-1 -right-2 z-5 p-0 m-0">
 						{value.length}
 					</span>
 
-					<span class="badge variant-filled"><h4 class="h4">{#if key}{capitalizeFirstLetter(key)}{/if}</h4></span>
+					<span class="flex badge variant-filled m-0 px-6 py-2 justify-center items-center"><h5 class="h5"><div class="text-wrap max-w-64 md:text-nowrap md:max-w-fit">{#if key}{capitalizeFirstLetter(key)}{/if}</div></h5></span>
 				</div>
 			</div>
 			<div class="grid grid-cols-1 lg:grid-cols-2 lg:gap-x-16 lg:gap-y-8 space-y-4">
