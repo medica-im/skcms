@@ -32,6 +32,7 @@
 		memberOfOrg: boolean | undefined;
 	} = $props();
 
+	let isSuperUser = $derived(page.data?.user?.role == 'superuser');
 	let isMember: boolean | undefined = $state();
 	const defaultDpt: SelectType = {
 		label: page.data.organization.department.name,
@@ -48,7 +49,8 @@
 	let communeUid: string | undefined = $derived(commune?.value);
 	let facilityCount: number = $state(0);
 	const entries = $derived(await getEntries());
-	const effectors = $derived(await getEffectors(page.data.directory.name));
+	let directory = $derived(isSuperUser ? null : page.data.directory.name);
+	const effectors = $derived(await getEffectors(directory));
 	const filteredEffectors = $derived.by(() => {
 		if (effectors) {
 			return effectors.filter((e) => {
@@ -184,10 +186,8 @@
 	class="btn variant-ghost-surface"
 	title="Sélectionner une personne"><span><Fa icon={faMagnifyingGlass} /></span><span>Sélectionner une personne</span></button
 >
-
 <Dialog bind:dialog on:close={() => console.log('closed')}>
 	<div class="grid grid-cols-1 rounded-lg h-full w-fit p-4 variant-ghost-secondary items-center gap-4">
-		effectors: {effectors}<br>
 		<div class="place-items-center">
 		<h3 class="h3">Sélectionner une personne</h3>
 		</div>
