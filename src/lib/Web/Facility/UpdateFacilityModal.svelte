@@ -455,7 +455,6 @@ name==facility.name && label==facility.label && slug==facility.slug && building=
 							/>
 						</label>
 						<AddMarkerMap bind:lngLat bind:zoom />
-						<div>lngLat.lat: "{lngLat.lat}" type: "{typeof(lngLat.lat)}"</div>
 						<label class="flex label place-self-start place-items-center space-x-2">
 							<span>Latitude</span>
 						<input name="latitude" class="input" bind:value={lngLat.lat} />
@@ -463,8 +462,6 @@ name==facility.name && label==facility.label && slug==facility.slug && building=
 							<p class="issue">{issue.message}</p>
 						{/each}
 						</label>
-						<div>longitude: "{longitude}" type: "{typeof(longitude)}"</div>
-						<div>lngLat.lng: "{lngLat.lng}" type: "{typeof(lngLat.lng)}"</div>
 						<label class="flex label place-self-start place-items-center space-x-2">
 							<span>Longitude</span>
 					

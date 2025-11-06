@@ -2,15 +2,12 @@ import { getEntries } from '$lib/store/directoryStore.ts';
 import { getLocalStorage } from '$lib/utils/storage';
 import type { Facility } from '$lib/interfaces/facility.interface.ts';
 import { variables } from '$lib/utils/constants';
-import { get, asyncReadable, asyncDerived } from '@square/svelte-store';
+import { asyncReadable, asyncDerived } from '@square/svelte-store';
 import { browser } from "$app/environment";
 import { handleRequestsWithPermissions } from '$lib/utils/requestUtils';
-import { selectFacilities } from '$lib/store/selectionStore';
-import { PUBLIC_FACILITIES_TTL } from '$env/static/public';
 import { shuffle } from '$lib/helpers/random';
-import { isExpired } from '$lib/utils/utils.ts';
 import { downloadElements } from '$lib/store/directoryStore.ts';
-import type { Writable, AsyncWritable, Readable, Loadable } from '@square/svelte-store';
+import { doRefresh } from '$lib/utils/utils.ts';
 import type { Organization } from '$lib/interfaces/organization.ts';
 import type { Fetch } from '$lib/interfaces/fetch';
 import type { Entry } from './directoryStoreInterface';
@@ -42,15 +39,12 @@ export const organizationStore = asyncReadable(
 			const apiUrl = `${variables.BASE_API_URI}/organization/${lang}/`;
 			const [response, err] = await handleRequestsWithPermissions(fetch, apiUrl);
 			if (response) {
-				let data = response;
-				data?.facility.sort(function (a, b) {
-					return a.contact.formatted_name.localeCompare(b.contact.formatted_name);
-				})
+				let data: Organization = response;
 				if (browser) {
 					var json = { data: data, cachetime: Date.now() }
 					localStorage.setItem(`${cacheName}_${lang}`, JSON.stringify(json));
 				}
-				return data as Organization;
+				return data;
 			}
 		}
 	}
@@ -72,30 +66,15 @@ export const getAvatars = asyncDerived(
 	});
 
 export const getFacilities = async (skFetch: Fetch|null=null): Promise<Facility[]> => {
-	const ttl = parseInt(PUBLIC_FACILITIES_TTL);
 	const cacheName = "facilities";
 	let cachedData;
-	let expired: boolean = true;
-	let empty: boolean = true;
 	if (browser) {
-		cachedData = localStorage.getItem(`${cacheName}`);
+		cachedData = getLocalStorage(`${cacheName}`);
 	}
-	if (cachedData) {
-		cachedData = JSON.parse(cachedData);
-		expired = isExpired(ttl, cachedData.cachetime);
-		if ('data' in cachedData) {
-			if (cachedData.data?.length) {
-				empty = false;
-			}
-		}
-	}
-	if (cachedData && !expired && !empty) {
-		const facilities = cachedData.data;
-		return facilities as Facility[];
-	} else {
-		const url = `${variables.BASE_API_URI}/facilities/`;
+	const refresh: boolean = await doRefresh("v1:entries", cachedData?.cachetime);
+	console.log(`getFacilities doRefresh=${refresh}`);
+	if ( refresh ) {
 		const facilities: Facility[] = await downloadElements("facilities");
-		//console.log(facilities.slice(2));
 		if (facilities.length) {
 			facilities.sort((a, b)=>{
 					if (!a.name && !b.name) return 0
@@ -111,6 +90,9 @@ export const getFacilities = async (skFetch: Fetch|null=null): Promise<Facility[
 		} else {
 			throw (Error())
 		}
+	} else {
+		const facilities = cachedData?.data;
+		return facilities as Facility[];
 	}
 };
 

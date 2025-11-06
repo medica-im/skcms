@@ -15,7 +15,6 @@
 		markers = [...markers, { lngLat: e.lngLat }];
 	}
 </script>
-{JSON.stringify(lngLat)}
 {#key lngLat}
 <MapLibre
 	style="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
