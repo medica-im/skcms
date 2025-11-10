@@ -121,9 +121,13 @@
 							<span class="w-6 text-center"><Fa icon={faUser} /></span>
 							<span>{session.user.name}</span>
 						</a>
+						<a href="/web/guide-utilisation">
+							<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
+							<span>Guide d'utilisation</span>
+						</a>
 						<a href="/web">
 							<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
-							<span>Pluripro Web</span>
+							<span>Créer une entrée</span>
 						</a>
 						<!--hr class="my-4"-->
 						<!--a href="/{ facility.category.slug }/projet-de-sante">

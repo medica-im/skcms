@@ -11,7 +11,7 @@
 		getDirectoryRedirect,
 		getSelectFacility,
 	} from '$lib/components/Directory/context';
-	import { normalize } from '$lib/helpers/stringHelpers.ts';
+	import { getItems } from '$lib/components/Directory/SelectCategory.ts';
 	import type { Type } from '$lib/store/directoryStoreInterface';
 	import type { SelectType } from '$lib/interfaces/select';
 
@@ -39,22 +39,7 @@
 		}
 	});
 
-	function getItems(elements) {
-		return elements.filter((e)=>{
-			if (filterText === "") {
-				return true
-			} else {
-				const name = normalize(e.name);
-				return name.includes(normalize(filterText));
-			}
-		}
-		).sort(function (a, b) {
-				return a.name.localeCompare(b.name);
-			}).map(function (x) {
-				let dct = { value: x.uid, label: x.name };
-				return dct;
-			});
-	};
+	
 
 	function getValue(selectCategories: string[], categories: Type[]) {
 		if (categories) {
@@ -123,7 +108,7 @@ filterText: {filterText}-->
 			{itemFilter}
 			{label}
 			{itemId}
-			items={getItems($categoryOf)}
+			items={getItems($categoryOf, filterText)}
 			searchable={true}
 			on:focus={handleFocus}
 			on:change={handleChange}
