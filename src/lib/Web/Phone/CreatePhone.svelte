@@ -68,10 +68,6 @@
 
 <Dialog bind:dialog>
 	<div class="rounded-lg h-fit p-4 variant-ghost-secondary gap-4">
-		<p>phone: {_phone} type: {_type} roles: {_roles}</p>
-		<p>selectedType {JSON.stringify(selectedType)} typeof selectedType {typeof selectedType}</p>
-		result: {JSON.stringify(result)}<br>
-		typeof result {typeof result}
 		<form
 			{...createPhone.enhance(async ({ form, data, submit }) => {
 				try {
