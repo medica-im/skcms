@@ -10,11 +10,11 @@
 	let {
 		memberOfOrg = $bindable(),
 		createdEffector = $bindable(),
-		//top = $bindable()
+		top = $bindable()
 	}: {
 		memberOfOrg: boolean | undefined;
 		createdEffector: Effector | undefined;
-		//top: Element | undefined;
+		top: Element | undefined;
 	} = $props();
 
 	interface InputClass {
@@ -131,12 +131,6 @@
 >
 <Dialog bind:dialog>
 	<div class="rounded-lg w-full p-4 variant-ghost-secondary items-center place-items-center">
-{typeof formResult}<br>
-{formResult}<br>
-{JSON.stringify(formResult)}<br>
-{createdEffector}<br />
-{isMember}
-
 		<div class="rounded-lg p-6 variant-ghost-secondary space-y-6 items-center place-items-center">
 			<h3 class="h3 text-center">Créer une nouvelle personne physique ou morale</h3>
 			<div class="p-4 space-y-2 justify-items-stretch grid grid-cols-1 gap-6">
@@ -241,7 +235,7 @@
 								onclick={() => {
 									createdEffector = formResult?.data;
 									memberOfOrg = isMember;
-									//top?.scrollIntoView();
+									top?.scrollIntoView();
 									dialog?.close();
 								}}>{formResult?.success ? 'Fermer' : 'Annuler'}</button
 							>
