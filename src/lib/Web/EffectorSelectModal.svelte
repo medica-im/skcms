@@ -1,11 +1,5 @@
 <script lang="ts">
 	import {
-		faPlus,
-		faCheck,
-		faWindowClose,
-		faPenToSquare,
-		faExclamationCircle,
-		faTrashCanArrowUp,
 		faMagnifyingGlass
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';

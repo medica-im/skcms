@@ -231,9 +231,7 @@
 								type="submit"
 								class="variant-filled-secondary btn w-min"
 								{disabled}
-								onclick={async () => {
-									await new Promise((resolve) => setTimeout(resolve, 1000));
-								}}>Envoyer</button
+								>Envoyer</button
 							>
 						</div>
 						<div class="w-auto justify-center">

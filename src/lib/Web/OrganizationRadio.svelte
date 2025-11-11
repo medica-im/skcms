@@ -5,6 +5,7 @@
 		inputClass,
 		data = $bindable()
 	}: { inputClass: string; data: boolean | undefined } = $props();
+	
 	let orgRadio: string | undefined = $state();
 
 	$effect(() => {
@@ -20,7 +21,7 @@
 
 <div class="py-2 space-y-2">
 	<div>
-		Cette personne est-elle membre de {page.data.organization.formatted_name_definite_article}?
+		Cette personne est-elle membre de {page.data.organization.formatted_name}?
 	</div>
 	<div class="flex items-center space-x-4">
 		<label class="flex items-center space-x-2">
