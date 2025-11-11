@@ -13,8 +13,6 @@
 	import EffectorSelect from './EffectorSelectModal.svelte';
 	import EffectorTypeSelect from '$lib/Web/EffectorTypeSelect.svelte';
 	import DisplayFacility from '$lib/Web/DisplayFacility.svelte';
-	import FacilityCreationForm from '$lib/Web/FacilityCreationForm.svelte';
-	import EffectorCreationForm from '$lib/Web/EffectorCreationForm.svelte';
 	import Effectors from '$lib/Web/Effectors.svelte';
 	import CreateFacilityModal from '$lib/Web/Facility/CreateFacilityModal.svelte';
 	import CreateEffectorModal from '$lib/Web/Effector/CreateEffectorModal.svelte';

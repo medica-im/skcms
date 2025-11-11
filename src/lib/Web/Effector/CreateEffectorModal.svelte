@@ -10,11 +10,11 @@
 	let {
 		memberOfOrg = $bindable(),
 		createdEffector = $bindable(),
-		top = $bindable()
+		//top = $bindable()
 	}: {
 		memberOfOrg: boolean | undefined;
 		createdEffector: Effector | undefined;
-		top: Element | undefined;
+		//top: Element | undefined;
 	} = $props();
 
 	interface InputClass {
@@ -126,7 +126,7 @@
 {form?.type}
 -->
 <button
-	onclick={() => {
+	onclick={async () => {
 		formResult = undefined;
 		createdEffector = undefined;
 		isMember = undefined;
@@ -243,7 +243,7 @@
 								onclick={() => {
 									createdEffector = formResult?.data;
 									memberOfOrg = isMember;
-									top?.scrollIntoView();
+									//top?.scrollIntoView();
 									dialog?.close();
 								}}>{formResult?.success ? 'Fermer' : 'Annuler'}</button
 							>
