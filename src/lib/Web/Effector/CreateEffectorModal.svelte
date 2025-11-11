@@ -34,9 +34,6 @@
 	let isMember: boolean | undefined = $state();
 	let dialog: HTMLDialogElement | undefined = $state();
 	const inputError = 'input-error';
-	let triggered: boolean = $state(false);
-	let success: boolean = $state(false);
-	let errorMsg: string = $state('');
 	const inputClass: InputClass = $state({
 		name_fr: '',
 		label_fr: '',
@@ -129,7 +126,7 @@
 {form?.type}
 -->
 <button
-	onclick={async () => {
+	onclick={() => {
 		formResult = undefined;
 		createdEffector = undefined;
 		isMember = undefined;
@@ -138,7 +135,7 @@
 	class="btn variant-ghost-surface w-min justify-self-center"
 	title="Créer"><span><Fa icon={faPlus} /></span><span>Créer une personne</span></button
 >
-<Dialog bind:dialog classProp="w-full">
+<Dialog bind:dialog>
 	<div class="rounded-lg w-full p-4 variant-ghost-secondary items-center place-items-center">
 		<div class="rounded-lg p-6 variant-ghost-secondary space-y-6 items-center place-items-center">
 			<h3 class="h3 text-center">Créer une nouvelle personne physique ou morale</h3>
