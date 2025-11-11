@@ -119,12 +119,6 @@
 	});
 </script>
 
-<!--
-{form}<br />
-{JSON.stringify(form)}<br />
-{form?.status}<br />
-{form?.type}
--->
 <button
 	onclick={async () => {
 		formResult = undefined;
@@ -132,11 +126,17 @@
 		isMember = undefined;
 		dialog?.showModal();
 	}}
-	class="btn variant-ghost-surface w-min justify-self-center"
+	class="btn variant-ghost-surface"
 	title="Créer"><span><Fa icon={faPlus} /></span><span>Créer une personne</span></button
 >
 <Dialog bind:dialog>
 	<div class="rounded-lg w-full p-4 variant-ghost-secondary items-center place-items-center">
+{typeof formResult}<br>
+{formResult}<br>
+{JSON.stringify(formResult)}<br>
+{createdEffector}<br />
+{isMember}
+
 		<div class="rounded-lg p-6 variant-ghost-secondary space-y-6 items-center place-items-center">
 			<h3 class="h3 text-center">Créer une nouvelle personne physique ou morale</h3>
 			<div class="p-4 space-y-2 justify-items-stretch grid grid-cols-1 gap-6">
