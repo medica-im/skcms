@@ -13,8 +13,9 @@
 			return variables.BASE_URI + data.avatar.lt;
 		} else if (data?.avatar && data?.avatar?.fb) {
 			return variables.BASE_URI + data.avatar.fb;
-		}
-         else {
+		} else if (data?.avatar && data?.avatar?.raw) {
+			return variables.BASE_URI + data.avatar.raw;
+		} else {
 			return `/media/profile_images/default_profile_picture.png`;
 		}
 	}
