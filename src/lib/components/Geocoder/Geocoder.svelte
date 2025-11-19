@@ -147,7 +147,7 @@
 {JSON.stringify(addressOptions)}<br>
 $addressFeature: {JSON.stringify($addressFeature)}-->
 <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
-	<div class="input-group-shim"><Fa icon={faAddressCard} /></div>
+	<div class="input-group-shim m-0"><Fa icon={faAddressCard} /></div>
 	<input
 		class="input {inputClass}"
 		type="search"

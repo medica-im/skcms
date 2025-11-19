@@ -108,27 +108,29 @@
 	let lngLat = $derived.by(() => {
 		const lngLatArray: [number, number] | undefined = $addressFeature?.geometry.coordinates;
 		if (lngLatArray) {
-			return { lon: lngLatArray[0], lat: lngLatArray[1] };
+			return { lng: lngLatArray[0], lat: lngLatArray[1] };
 		} else {
-			return { lon: 0, lat: 0 };
+			return { lng: 0, lat: 0 };
 		}
 	});
 	let formResult = $derived(createFacility.result);
-	let disabled: boolean = $derived(!Object.values(validateForm).every((v) => v === true) || formResult?.success==true);
+	let disabled: boolean = $derived(
+		!Object.values(validateForm).every((v) => v === true) || formResult?.success == true
+	);
 
 	const uid = getEffectorUid();
 	let dialog: HTMLDialogElement | undefined = $state();
 	let validation: Validation | undefined = $state();
 
 	const clear = () => {
-		name='';
-		label='';
-		slug='';
-		building='';
-		street='';
-		$addressFeature=null;
-		geographical_complement='';
-		zip='';
+		name = '';
+		label = '';
+		slug = '';
+		building = '';
+		street = '';
+		$addressFeature = null;
+		geographical_complement = '';
+		zip = '';
 		formResult = undefined;
 	};
 
@@ -291,202 +293,206 @@
 
 <Dialog bind:dialog classProp="w-full">
 	<div class="rounded-lg w-full p-4 variant-ghost-secondary items-center place-items-center">
-		<div class="rounded-lg p-4 variant-ghost-secondary gap-2 items-center place-items-center">
-			<h3 class="h3 text-center">Créer un établissement</h3>
-			<form {...createFacility.enhance(async ({ form, data, submit }) => {
-					console.log(data);
-					try {
-						await submit();
-						console.log('Successfully published!');
-					} catch (error) {
-						console.log(`Oh no! Something went wrong:${error}`);
-					}
-				})}
-				class=""
-			>
-				<div class="p-2 space-y-4 justify-items-stretch grid grid-cols-2 gap-6">
-					<div class="p-2 space-y-2 w-full">
-						<label class="flex label place-self-start place-items-center space-x-2 w-full">
-							<span>Nom</span>
-							{#each createFacility.fields.name.issues() as issue}
-			<p class="issue">{issue.message}</p>
-		{/each}
-							<input
-								oninput={() => {}}
-								class="input {inputClass.name}"
-								name="name"
-								type="text"
-								placeholder=""
-								bind:value={name}
-							/>
-						</label>
-						<label class="flex label place-self-start place-items-center space-x-2 w-full">
-							<span>Label</span>
-							{#each createFacility.fields.label.issues() as issue}
-			<p class="issue">{issue.message}</p>
-		{/each}
-							<input
-								oninput={() => {}}
-								class="input {inputClass.label}"
-								name="label"
-								type="text"
-								placeholder=""
-								bind:value={label}
-							/>
-						</label>
-						<label class="flex label place-self-start place-items-center space-x-2 w-full">
-							<span>Slug</span>
-							{#each createFacility.fields.slug.issues() as issue}
-			<p class="issue">{issue.message}</p>
-		{/each}
-							<input
-								oninput={() => {}}
-								class="input {inputClass.slug}"
-								name="slug"
-								type="text"
-								placeholder=""
-								bind:value={slug}
-							/>
-						</label>
-							<Geocoder
-								commune={commune.label}
-								placeholder={"Entrer l'adresse"}
-								inputClass={inputClass.geocoder}
-								limitToZip={false}
-							/>
-						{#each createFacility.fields.ban_id.issues() as issue}
-			<p class="issue">{issue.message}</p>
-		{/each}
+		<h3 class="h3 text-center">Créer un établissement</h3>
+		<form
+			{...createFacility.enhance(async ({ form, data, submit }) => {
+				console.log(data);
+				try {
+					await submit();
+					console.log('Successfully published!');
+				} catch (error) {
+					console.log(`Oh no! Something went wrong:${error}`);
+				}
+			})}
+			class=""
+		>
+			<div class="p-2 space-y-4 justify-items-stretch grid grid-cols-1 lg:grid-cols-2 lg:gap-6">
+				<div class="space-y-2 w-full">
+					<label class="flex label place-self-start place-items-center space-x-2 w-full">
+						<span>Nom</span>
+						{#each createFacility.fields.name.issues() as issue}
+							<p class="issue">{issue.message}</p>
+						{/each}
 						<input
 							oninput={() => {}}
-							class="input hidden"
-							name="ban_id"
+							class="input {inputClass.name}"
+							name="name"
 							type="text"
 							placeholder=""
-							bind:value={ban_id}
+							bind:value={name}
 						/>
-						{#each createFacility.fields.ban_banId.issues() as issue}
-			<p class="issue">{issue.message}</p>
-		{/each}
+					</label>
+					<label class="flex label place-self-start place-items-center space-x-2 w-full">
+						<span>Label</span>
+						{#each createFacility.fields.label.issues() as issue}
+							<p class="issue">{issue.message}</p>
+						{/each}
 						<input
 							oninput={() => {}}
-							class="input hidden"
-							name="ban_banId"
+							class="input {inputClass.label}"
+							name="label"
 							type="text"
 							placeholder=""
-							bind:value={ban_banId}
+							bind:value={label}
 						/>
-						<label class="flex label place-self-start place-items-center space-x-2 w-full">
-							<span>Bâtiment</span>
-							{#each createFacility.fields.building.issues() as issue}
-			<p class="issue">{issue.message}</p>
-		{/each}
-							<input
-								oninput={() => {}}
-								class="input {inputClass.building}"
-								name="building"
-								type="text"
-								placeholder=""
-								bind:value={building}
-							/>
-						</label>
-						<label class="flex label place-self-start place-items-center space-x-2 w-full">
-							<span>Rue</span>
-							{#each createFacility.fields.street.issues() as issue}
-			<p class="issue">{issue.message}</p>
-		{/each}
-							<input
-								oninput={() => {}}
-								class="input {inputClass.street}"
-								name="street"
-								type="text"
-								placeholder=""
-								bind:value={street}
-							/>
-						</label>
+					</label>
+					<label class="flex label place-self-start place-items-center space-x-2 w-full">
+						<span>Slug</span>
+						{#each createFacility.fields.slug.issues() as issue}
+							<p class="issue">{issue.message}</p>
+						{/each}
+						<input
+							oninput={() => {}}
+							class="input {inputClass.slug}"
+							name="slug"
+							type="text"
+							placeholder=""
+							bind:value={slug}
+						/>
+					</label>
+					<Geocoder
+						commune={commune.label}
+						placeholder={"Entrer l'adresse"}
+						inputClass={inputClass.geocoder}
+						limitToZip={false}
+					/>
+					{#each createFacility.fields.ban_id.issues() as issue}
+						<p class="issue">{issue.message}</p>
+					{/each}
+					<input
+						oninput={() => {}}
+						class="input hidden"
+						name="ban_id"
+						type="text"
+						placeholder=""
+						bind:value={ban_id}
+					/>
+					{#each createFacility.fields.ban_banId.issues() as issue}
+						<p class="issue">{issue.message}</p>
+					{/each}
+					<input
+						oninput={() => {}}
+						class="input hidden"
+						name="ban_banId"
+						type="text"
+						placeholder=""
+						bind:value={ban_banId}
+					/>
+					<label class="flex label place-self-start place-items-center space-x-2 w-full">
+						<span>Bâtiment</span>
+						{#each createFacility.fields.building.issues() as issue}
+							<p class="issue">{issue.message}</p>
+						{/each}
+						<input
+							oninput={() => {}}
+							class="input {inputClass.building}"
+							name="building"
+							type="text"
+							placeholder=""
+							bind:value={building}
+						/>
+					</label>
+					<label class="flex label place-self-start place-items-center space-x-2 w-full">
+						<span>Rue</span>
+						{#each createFacility.fields.street.issues() as issue}
+							<p class="issue">{issue.message}</p>
+						{/each}
+						<input
+							oninput={() => {}}
+							class="input {inputClass.street}"
+							name="street"
+							type="text"
+							placeholder=""
+							bind:value={street}
+						/>
+					</label>
 
-						<label class="flex label place-self-start place-items-center space-x-2 w-full">
-							<span>Complément géographique</span>
-							{#each createFacility.fields.geographical_complement.issues() as issue}
-			<p class="issue">{issue.message}</p>
-		{/each}
-							<input
-								oninput={() => {}}
-								class="input {inputClass.geographical_complement}"
-								name="geographical_complement"
-								type="text"
-								placeholder=""
-								bind:value={geographical_complement}
-							/>
-						</label>
-						<label class="flex label place-self-start place-items-center space-x-2">
-							<span>Code postal</span>
-							{#each createFacility.fields.zip.issues() as issue}
-			<p class="issue">{issue.message}</p>
-		{/each}
-							<input
-								oninput={() => {}}
-								class="input {inputClass.zip} w-min"
-								name="zip"
-								type="text"
-								placeholder=""
-								bind:value={zip}
-							/>
-						</label>
-						<label class="flex label place-self-start place-items-center space-x-2 w-full">
-							<span>Commune</span>
-							{#each createFacility.fields.commune.issues() as issue}
-			<p class="issue">{issue.message}</p>
-		{/each}
-		<input
-								disabled
-								class="input {inputClass.commune} w-full"
-								type="text"
-								placeholder=""
-								value={commune.label}
-							/>
-							<input {...createFacility.fields.commune.as("text")}
-							class="hidden"
-								value={commune.value}
-							/>
-						</label>
-					</div>
-					<div class="p-2 space-y-2 w-full h-full">
-						<label class="flex label place-self-start place-items-center space-x-2">
-							<span>Zoom</span>
-							{#each createFacility.fields.zoom.issues() as issue}
-			<p class="issue">{issue.message}</p>
-		{/each}
-							<input
-								oninput={() => {}}
-								class="input {inputClass.zoom}"
-								name="zoom"
-								type="number"
-								min="0"
-								max="20"
-								placeholder=""
-								bind:value={zoom}
-							/>
-						</label>
-						<AddMarkerMap bind:lngLat bind:zoom />
+					<label class="flex label place-self-start place-items-center space-x-2 w-full">
+						<span>Complément géographique</span>
+						{#each createFacility.fields.geographical_complement.issues() as issue}
+							<p class="issue">{issue.message}</p>
+						{/each}
 						<input
-						{...createFacility.fields.latitude.as("text")}
-								bind:value={lngLat.lat}
-							/>
-						{#each createFacility.fields.latitude.issues() as issue}
-			<p class="issue">{issue.message}</p>
-		{/each}
-		<input
-						{...createFacility.fields.longitude.as("text")}
-								bind:value={lngLat.lon}
-							/>
-		{#each createFacility.fields.longitude.issues() as issue}
-			<p class="issue">{issue.message}</p>
-		{/each}
-					</div>
+							oninput={() => {}}
+							class="input {inputClass.geographical_complement}"
+							name="geographical_complement"
+							type="text"
+							placeholder=""
+							bind:value={geographical_complement}
+						/>
+					</label>
+					<label class="flex label place-self-start place-items-center space-x-2">
+						<span>Code postal</span>
+						{#each createFacility.fields.zip.issues() as issue}
+							<p class="issue">{issue.message}</p>
+						{/each}
+						<input
+							oninput={() => {}}
+							class="input {inputClass.zip}"
+							name="zip"
+							type="text"
+							placeholder=""
+							bind:value={zip}
+						/>
+					</label>
+					<label class="flex label place-self-start place-items-center space-x-2 w-full">
+						<span>Commune</span>
+						{#each createFacility.fields.commune.issues() as issue}
+							<p class="issue">{issue.message}</p>
+						{/each}
+						<input
+							disabled
+							class="input {inputClass.commune} w-full"
+							type="text"
+							placeholder=""
+							value={commune.label}
+						/>
+						<input
+							{...createFacility.fields.commune.as('text')}
+							class="hidden"
+							value={commune.value}
+						/>
+					</label>
 				</div>
-				<div class="flex gap-8">
-					<div class="flex gap-2 items-center">
+				<div class="p-2 space-y-2 w-full h-full">
+					<label class="flex label place-self-start place-items-center space-x-2">
+						<span>Zoom</span>
+						{#each createFacility.fields.zoom.issues() as issue}
+							<p class="issue">{issue.message}</p>
+						{/each}
+						<input
+							oninput={() => {}}
+							class="input {inputClass.zoom}"
+							name="zoom"
+							type="number"
+							min="0"
+							max="20"
+							placeholder=""
+							bind:value={zoom}
+						/>
+					</label>
+					<AddMarkerMap bind:lngLat bind:zoom />
+					{JSON.stringify(lngLat)}
+					<label class="flex label place-self-start place-items-center space-x-2">
+						<span>Latitude</span>
+					
+					<input class="input" {...createFacility.fields.latitude.as('text')} bind:value={lngLat.lat} />
+					{#each createFacility.fields.latitude.issues() as issue}
+						<p class="issue">{issue.message}</p>
+					{/each}
+					</label>
+					<label class="flex label place-self-start place-items-center space-x-2">
+						<span>Longitude</span>
+					
+					<input class="input" {...createFacility.fields.longitude.as('text')} bind:value={lngLat.lng} />
+					{#each createFacility.fields.longitude.issues() as issue}
+						<p class="issue">{issue.message}</p>
+					{/each}
+					</label>
+				</div>
+			</div>
+			<div class="flex gap-8">
+				<div class="flex gap-2 items-center">
 					{#if formResult?.success}
 						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
 					{:else if formResult && !formResult.success}
@@ -494,24 +500,23 @@
 						>{formResult.text}
 					{/if}
 				</div>
-					<div class="w-auto justify-center">
-						<button type="submit" class="variant-filled-secondary btn w-min" {disabled}
-							>Envoyer</button
-						>
-					</div>
-					<div class="w-auto justify-center">
-						<button
-							type="button"
-							class="variant-filled-error btn w-min"
-							onclick={() => {
-								dialog?.close();
-								selectFacility();
-							}}>{formResult?.success ?'Fermer':'Annuler'}</button
-						>
-					</div>
+				<div class="w-auto justify-center">
+					<button type="submit" class="variant-filled-secondary btn w-min" {disabled}
+						>Envoyer</button
+					>
 				</div>
-			</form>
-		</div>
+				<div class="w-auto justify-center">
+					<button
+						type="button"
+						class="variant-filled-error btn w-min"
+						onclick={() => {
+							dialog?.close();
+							selectFacility();
+						}}>{formResult?.success ? 'Fermer' : 'Annuler'}</button
+					>
+				</div>
+			</div>
+		</form>
 	</div></Dialog
 >
 
