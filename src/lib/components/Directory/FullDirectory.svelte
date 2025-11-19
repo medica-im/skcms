@@ -14,7 +14,7 @@
 	import Geocoder from '$lib/components/Geocoder/Geocoder.svelte';
 	import Fa from 'svelte-fa';
 	import { faArrowsUpToLine } from '@fortawesome/free-solid-svg-icons';
-    import type { Writable, AsyncWritable, Loadable } from '@square/svelte-store';
+    import type { Loadable } from '@square/svelte-store';
 	import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
 
     let {
@@ -56,7 +56,6 @@
 		}
 		return `${count} contact${count > 1 ? 's' : ''}`;
 	}
-	let countString = $derived(contactCount($cCFE));
 	const scrollToTop = () => {
 		top.scrollIntoView();
 	};
@@ -137,7 +136,7 @@
 	</section>
 
 {#if $scrollY > showOnPx}
-	<button type="button" class="back-to-top btn-icon btn-lg variant-filled" onclick={scrollToTop}>
+	<button type="button" title="Revenir en haut de la page" aria-label="Revenir en haut de la page" class="back-to-top btn-icon btn-lg variant-ghost" onclick={scrollToTop}>
 		<Fa icon={faArrowsUpToLine} size="lg" /></button
 	>
 {/if}

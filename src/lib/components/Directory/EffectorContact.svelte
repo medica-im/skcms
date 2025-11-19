@@ -56,7 +56,7 @@
 		{data.name} - {capitalizeFirstLetter(page.data.organization.formatted_name, $language)}
 	</title>
 </svelte:head>
-<div class="grid grid-cols-1 justify-center space-y-4">
+<div class="grid grid-cols-1 space-y-4">
 	{#if page?.data?.session}
 		<div
 			id="sticky-banner"
@@ -69,26 +69,26 @@
 
 	<div class="flex flex-wrap p-2 gap-10">
 		<div class="space-y-2">
-			{#if isSuperUser}
+			{#if isSuperUser && $editMode}
 				entry {data?.uid}
 				<UuidHex data={data?.uid}/>
 				<UuidHyphen data={data?.uid}/>
 			{/if}
 			<h2 class="h2 flex flex-initial break-words overflow-hidden place-items-center gap-4">{data.name}{#if $editMode}<UpdateEffector {data}/>{/if}</h2>
-			{#if isSuperUser}
+			{#if isSuperUser && $editMode}
 				effector {data?.effector_uid}
 				<UuidHex data={data?.effector_uid}/>
 				<UuidHyphen data={data?.effector_uid}/>
 			{/if}
 			<h3 class="h3 italic">{data?.effector_type?.label}</h3>
-			{#if isSuperUser}
+			{#if isSuperUser && $editMode}
 				type {data?.effector_type?.uid}
 				<UuidHex data={data?.effector_type?.uid}/>
 				<UuidHyphen data={data?.effector_type?.uid}/>
 			{/if}
 
 			<FacilityLink data={data.facility} />
-			{#if isSuperUser}
+			{#if isSuperUser && $editMode}
 			facility {data?.facility?.uid}
 			<UuidHex data={data?.facility?.uid}/>
 			<UuidHyphen data={data?.facility?.uid}/>
