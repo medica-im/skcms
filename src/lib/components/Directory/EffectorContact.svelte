@@ -56,7 +56,7 @@
 		{data.name} - {capitalizeFirstLetter(page.data.organization.formatted_name, $language)}
 	</title>
 </svelte:head>
-<div class="grid grid-col-1 justify-center space-y-4">
+<div class="grid grid-cols-1 justify-center space-y-4">
 	{#if page?.data?.session}
 		<div
 			id="sticky-banner"
@@ -101,7 +101,7 @@
 			{/if}
 		</div>
 	</div>
-	<div class="grid grid-col-1 lg:grid-cols-1 p-2 gap-4">
+	<div class="grid grid-cols-1 lg:grid-cols-1 p-2 gap-4">
 		{#if data?.appointments?.length || $editMode}
 			<div class="d-flex justify-content-between align-items-start">
 				<Appointment data={data.appointments} />

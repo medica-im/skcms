@@ -1,5 +1,11 @@
 <script lang="ts">
-	import { faPlus, faCheck, faExclamationCircle, faXmark } from '@fortawesome/free-solid-svg-icons';
+	import {
+		faPlus,
+		faCheck,
+		faChevronRight,
+		faExclamationCircle,
+		faXmark
+	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import { page } from '$app/state';
 	import { reactiveQueryArgs } from '$lib/utils/utils.svelte';
@@ -16,12 +22,14 @@
 	import Effectors from '$lib/Web/Effectors.svelte';
 	import CreateFacilityModal from '$lib/Web/Facility/CreateFacilityModal.svelte';
 	import CreateEffectorModal from '$lib/Web/Effector/CreateEffectorModal.svelte';
+	import DisplayEffector from './DisplayEffector.svelte';
 	import { getFacility } from '$lib/Web/data';
 	import { useQueryClient, createQuery } from '@tanstack/svelte-query';
 	import { copy } from 'svelte-copy';
 	import type { FacilityV2, Commune } from '$lib/interfaces/v2/facility.ts';
 	import type { CreateQueryResult } from '@tanstack/svelte-query';
 	import EntryCreationForm from '$lib/Web/EntryCreationForm.svelte';
+	import SelectMembershipModal from './Membership/SelectMembershipModal.svelte';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
 
@@ -31,7 +39,8 @@
 		label: page.data.organization.department.name,
 		value: page.data.organization.department.code
 	};
-	let memberOfOrg: boolean | undefined = $state();
+	let memberships: SelectType[] = $state([]);
+	let membershipsDone: boolean = $state(false);
 	let showCreateFacilityForm: boolean = $state(false);
 	let showSelectEffectorForm: boolean = $state(false);
 	let selectedOrganization: string | null = $state(null);
@@ -77,32 +86,33 @@
 	};
 </script>
 
-<!--memberOfOrg: "{JSON.stringify(memberOfOrg)}"<br />
-selectedFacility: "{JSON.stringify(selectedFacility)}"<br />
+<!--selectedFacility: "{JSON.stringify(selectedFacility)}"<br />
 selectedEffectorType: "{JSON.stringify(selectedEffectorType)}"<br />
-createdEffector: "{JSON.stringify(createdEffector)}"<br /-->
-{#if createdEffector && memberOfOrg !== undefined && selectedFacility && selectedEffectorType}
+createdEffector: "{JSON.stringify(createdEffector)}"<br>
+memberships: "{JSON.stringify(memberships)}"<br>
+membershipsDone: {membershipsDone}-->
+{#if createdEffector && selectedFacility && selectedEffectorType && membershipsDone}
 	<div class="grid grid-cols-1 gap-4 w-full variant-ringed p-2 place-items-center" bind:this={top}>
 		<h3 class="h3">Confirmer ou annuler la création de la nouvelle entrée</h3>
 		<EntryCreationForm
-			bind:memberOfOrg
 			bind:createdEffector
 			bind:selectedFacility
 			bind:selectedEffectorType
+			{memberships}
 		/>
 	</div>
 {:else}
-	<div class="grid grid-cols-1 gap-4 w-full p-4">
+	<div class="grid grid-cols-1 gap-4 w-full p-4 place-items-center">
 		{#if !selectedFacility}
-		<div class="place-items-center">
-			<h3 class="h3">Sélectionner ou créer un établissement</h3>
-		</div>
+				<h3 class="h3">Sélectionner ou créer un établissement</h3>
+			<div class="w-full max-w-xl">
 			<FacilitySelect
 				bind:selectedFacility
 				bind:department
 				bind:commune={selectedCommune}
 				bind:facilityCount
 			/>
+			</div>
 
 			<div class="grid grid-cols-1 place-items-center gap-2 p-2">
 				<p>Aucun établissement sélectionné</p>
@@ -125,22 +135,34 @@ createdEffector: "{JSON.stringify(createdEffector)}"<br /-->
 				<div class="flex variant-ringed p-2 gap-4 items-center">
 					<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
 					<h3 class="h3">1 établissement sélectionné</h3>
-					<button class="btn btn-icon variant-filled-error" title="Supprimer la sélection" onclick={()=>{selectedFacility=undefined;}}><Fa icon={faXmark} /></button>
+					<button
+						class="btn btn-icon variant-filled-error"
+						title="Supprimer la sélection"
+						onclick={() => {
+							selectedFacility = undefined;
+						}}><Fa icon={faXmark} /></button
+					>
 				</div>
 				<DisplayFacility facilityUid={selectedFacility.value} showEffectors={true} />
 			</div>
 		{/if}
-		
+
 		{#if selectedFacility}
-		<div class="grid grid-cols-1 gap-4 w-full p-4 place-items-center">
-			{#if !selectedEffectorType}
+			<div class="grid grid-cols-1 gap-4 w-full max-w-xl p-4 place-items-center items-center">
+				{#if !selectedEffectorType}
 					<h3 class="h3">Sélectionner une catégorie</h3>
 					<EffectorTypeSelect bind:selectedEffectorType />
-					{:else}
+				{:else}
 					<div class="flex variant-ringed p-2 gap-4 items-center">
-					<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
-					<h3 class="h3">1 catégorie sélectionnée</h3>
-					<button class="btn btn-icon variant-filled-error" title="Supprimer la sélection" onclick={()=>{selectedEffectorType=undefined;}}><Fa icon={faXmark} /></button>
+						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
+						<h3 class="h3">1 catégorie sélectionnée</h3>
+						<button
+							class="btn btn-icon variant-filled-error"
+							title="Supprimer la sélection"
+							onclick={() => {
+								selectedEffectorType = undefined;
+							}}><Fa icon={faXmark} /></button
+						>
 					</div>
 					<div class="badge variant-filled"><h3 class="h3">{selectedEffectorType.label}</h3></div>
 					{#if page.data.user?.role.name == 'superuser'}
@@ -151,22 +173,49 @@ createdEffector: "{JSON.stringify(createdEffector)}"<br /-->
 							>
 						</p>
 					{/if}
-			{/if}
-		</div>
+				{/if}
+			</div>
 		{/if}
-		
 		{#if selectedFacility && selectedEffectorType}
 			<div class="grid grid-cols-1 gap-4 w-full place-items-center p-4">
-				<h3 class="h3">Sélectionner ou créer une personne physique ou morale</h3>
-				{#if effectorType}
-					<Effectors {effectorType} facility={selectedFacility.value} />
+				{#if createdEffector}
+					<div class="card variant-ringed p-2 items-center">
+						<div class="flex p-2 gap-4 items-center">
+							<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
+							<h3 class="h3">1 personne sélectionnée</h3>
+							<button
+								class="btn btn-icon variant-filled-error"
+								title="Supprimer la sélection"
+								onclick={() => {
+									createdEffector = undefined;
+								}}><Fa icon={faXmark} /></button
+							>
+						</div>
+												<div class="flex p-2 gap-4 items-center">
+													<DisplayEffector effectorUid={createdEffector.uid} />
+													</div>
+					</div>
+				{:else}
+					<h3 class="h3">Sélectionner ou créer une personne physique ou morale</h3>
+					{#if effectorType}
+						<Effectors {effectorType} facility={selectedFacility.value} />
+					{/if}
+					<EffectorSelect bind:effector={createdEffector} bind:memberships />
+					<CreateEffectorModal bind:memberships bind:createdEffector bind:top />
 				{/if}
-				<EffectorSelect
-						bind:effector={createdEffector}
-						bind:memberOfOrg
-					/>
-				<CreateEffectorModal bind:memberOfOrg bind:createdEffector bind:top />
-					
+			</div>
+		{/if}
+		{#if selectedFacility && selectedEffectorType && createdEffector}
+			<div class="grid grid-cols-1 gap-4 w-full place-items-center p-4">
+				<h3 class="h3">Affiliations</h3>
+				<p>
+					Ajoutez des affiliations à des organisations (CPTS, MSP, etc.) ou passer à l'étape
+					suivante.
+				</p>
+				<SelectMembershipModal bind:memberships bind:membershipsDone />
+				<button onclick={async () => {membershipsDone=true}} class="btn variant-ghost-surface" title="Passer"
+					><span><Fa icon={faChevronRight} /></span><span>Passer</span></button
+				>
 			</div>
 		{/if}
 	</div>

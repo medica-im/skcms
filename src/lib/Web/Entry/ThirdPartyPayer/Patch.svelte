@@ -16,6 +16,7 @@
 	import Select from 'svelte-select';
 	import Dialog from '../../Dialog.svelte';
 	import { getEntryUid } from '$lib/components/Directory/context';
+	import { areArraysEqualSets } from '$lib/utils/utils.ts';
 	import type { ThirdPartyPayer } from '$lib/interfaces/fullEffector.interface';
 	import type { FormResult } from '$lib/interfaces/v2/form';
 
@@ -52,7 +53,7 @@
 		third_party_payer: selectedItems !== undefined ? selectedItems?.map((e) => e.value) : null
 	});
 
-	let disabled: boolean = $derived(selectedItems?.map((e) => e.value) == data?.map((e) => e.name));
+	let disabled: boolean = $derived(areArraysEqualSets(selectedItems?.map((e) => e.value)||[], data?.map((e) => e.name)||[]) || result?.success==true);
 
 	onMount(async () => {
 		payers = await getThirdPartyPayers();

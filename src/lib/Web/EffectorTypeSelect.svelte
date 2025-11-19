@@ -7,8 +7,8 @@
 	import type { EffectorType } from '$lib/interfaces/v2/effector';
 
 	let {
-		selectedEffectorType = $bindable()
-	}: { selectedEffectorType: { label: string; value: string } | undefined } = $props();
+		selectedEffectorType = $bindable(),
+	}: { selectedEffectorType: { label: string; value: string } | undefined; } = $props();
 
 	let filterText: string = $state('');
 

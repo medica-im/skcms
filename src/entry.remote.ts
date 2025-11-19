@@ -12,11 +12,7 @@ const postEntry = z.object({
 	effector_type: z.string(),
 	facility: z.string(),
 	organizations: z.preprocess((val: string) => {
-		if (val=="") {
-			return null
-		} else {
-		    return [val]
-		}
+		return val.split(',');
 	}, z.array(z.string()).nullable()
 	),
 	directory: z.string().optional(),

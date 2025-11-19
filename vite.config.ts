@@ -34,9 +34,9 @@ export default defineConfig({
 	server: {
 		proxy: {
 			'/media/profile_images': 'https://dev.sante-gadagne.fr',
-			'/api/v2': 'https://dev.sante-gadagne.fr',
+			'/api/v2': 'https://dev.annuaire.medica.im',
 			'/api/v1': {
-				target: 'https://dev.sante-gadagne.fr',
+				target: 'https://dev.annuaire.medica.im',
 				changeOrigin: false
 			},
 			'/blog': 'https://sante-gadagne.fr'

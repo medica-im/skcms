@@ -30,7 +30,7 @@
 </script>
 
 <div id="{data.name}_anchor" class="card variant-soft p-4 space-y-4 lg:scroll-mt-12">
-	{#if (import.meta.env.VITE_DEV == 'true')}
+	<!--{#if (import.meta.env.VITE_DEV == 'true')}
 	<div class="card variant-ringed">
 		<Accordion>
 			<AccordionItem>
@@ -40,7 +40,7 @@
 			</AccordionItem>
 		</Accordion>
 	</div>
-	{/if}
+	{/if}-->
 	<div class="variant-ringed grid grid-cols-1 md:grid-cols-2 p-4">
 		<div class="overflow-hidden m-1 p-1">
 			<!-- Header -->

@@ -20,10 +20,10 @@
 
 	let {
 		effector = $bindable(),
-		memberOfOrg = $bindable(),
+		memberships = $bindable(),
 	}: {
 		effector: Effector | undefined;
-		memberOfOrg: boolean | undefined;
+		memberships: SelectType[];
 	} = $props();
 
 	let isSuperUser = $derived(page.data?.user?.role == 'superuser');
@@ -163,18 +163,27 @@
 	const effectorLabel = (effectors: Effector[]) => {
 		return `Personne${effectors.length > 1 ? 's' : ''}: ${effectors.length}`;
 	};
-	const confirm = () => {
-		if (!(selectedEffector == undefined)) {
+	function confirm() {
+		console.log("confirm()");
+		if (selectedEffector !== undefined) {
 			const uid = selectedEffector.value;
 			effector = effectors.find((e) => e.uid == uid);
 		}
-		memberOfOrg = isMember;
+		if ( isMember ) {
+			const orgItem = {
+				label: page.data.organization.formatted_name,
+				value: page.data.organization.uid
+			};
+			if (memberships.indexOf(orgItem) === -1) {
+				memberships.push(orgItem);
+			}
+		}
 		dialog?.close();
 	};
 </script>
 
 <button
-	onclick={async () => {
+	onclick={() => {
 		dialog?.showModal();
 	}}
 	class="btn variant-ghost-surface"
@@ -212,8 +221,7 @@
 					type="button"
 					class="variant-filled-error btn w-min"
 					onclick={() => {
-						selectedEffector = undefined;
-						memberOfOrg = undefined;
+						console.log("onclick cancel")
 						dialog?.close()
 					}}>Annuler</button
 				>

@@ -12,15 +12,15 @@
 	import type { SelectType } from '$lib/interfaces/select.ts';
 
 	let {
-		memberOfOrg = $bindable(),
 		createdEffector = $bindable(),
 		selectedFacility = $bindable(),
-		selectedEffectorType = $bindable()
+		selectedEffectorType = $bindable(),
+		memberships,
 	}: {
-		memberOfOrg: boolean|undefined;
 		createdEffector: Effector|undefined;
 		selectedFacility: SelectType|undefined;
 		selectedEffectorType: SelectType|undefined;
+		memberships: SelectType[];
 	} = $props();
 
 	interface InputClass {
@@ -56,7 +56,7 @@
 	let effector: string|undefined = $derived(createdEffector?.uid);
 	let effector_type: string|undefined = $derived(selectedEffectorType?.value);
 	let facility: string|undefined = $derived(selectedFacility?.value);
-	let organizations: string | null = $derived(memberOfOrg ? page.data.organization.uid : null); // TODO: make this an array
+	let organizations: string | null = $derived(memberships ? JSON.stringify(memberships) : null); // TODO: make this an array
 	let directory: string | undefined = $state();
 	let uid = $derived.by(()=>{
 		if (effector && effector_type && facility ) {
@@ -67,6 +67,7 @@
 	});
 	let formResult = $derived(createEntry.for(uid)?.result);
 	let disabled: boolean = $derived(!Object.values(validateForm).every((v) => v === true) || formResult?.success==true);
+	let hasBeenClicked = false;
 
 	const effectorIsValid = (value: string) => {
 		return true;
@@ -130,12 +131,21 @@
 	});
 	const  clear = () => {
 		formResult = undefined;
-		memberOfOrg = undefined;
 		createdEffector = undefined;
 		selectedFacility = undefined;
 		selectedEffectorType = undefined;
 		directory = undefined;
-	}
+	};
+	function handleClick() {
+        if (hasBeenClicked) return;
+        
+        hasBeenClicked = true;
+        setTimeout(() => {
+            hasBeenClicked = false;
+        }, 500);
+        
+        console.log('click');
+    };
 </script>
 <!--formResult?.success: {formResult?.success}<br>
 formResult?.data: {formResult?.data}<br>
@@ -192,9 +202,15 @@ selectedFacility: {JSON.stringify(selectedFacility)}-->
 							name="organizations"
 							type="text"
 							placeholder=""
-							value={organizations}
+							value={memberships ? memberships.map(e=>e.value) : []}
 						/>
-						<div class="badge variant-ghost-surface">{organizations ? page.data.organization.formatted_name : '∅'}</div>
+						{#if memberships.length}
+						{#each memberships as membership}
+						<div class="badge variant-ghost-surface">{membership.label}</div>
+						{/each}
+						{:else}
+						<div class="badge variant-ghost-surface">∅</div>
+						{/if}
 					</label>
 					<input
 							class="hidden"
@@ -220,7 +236,7 @@ selectedFacility: {JSON.stringify(selectedFacility)}-->
 			</div>
 			<div class="flex gap-8">
 				<div class="w-auto justify-center">
-					<button type="submit" class="variant-filled-secondary btn w-min" {disabled}
+					<button type="submit" class="variant-filled-secondary btn w-min" {disabled} onclick={handleClick}
 						>Confirmer</button
 					>
 				</div>

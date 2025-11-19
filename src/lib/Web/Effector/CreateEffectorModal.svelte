@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import Dialog from '$lib/Web/Dialog.svelte';
 	import { createEffector } from '../../../effector.remote.ts';
 	import Fa from 'svelte-fa';
@@ -6,14 +7,15 @@
 	import OrganizationRadio from './../OrganizationRadio.svelte';
 	import { slugify } from '$lib/helpers/stringHelpers';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
+	import type { SelectType } from '$lib/interfaces/select';
 
 	let {
-		memberOfOrg = $bindable(),
 		createdEffector = $bindable(),
+		memberships = $bindable(),
 		top = $bindable()
 	}: {
-		memberOfOrg: boolean | undefined;
 		createdEffector: Effector | undefined;
+		memberships: SelectType[];
 		top: Element | undefined;
 	} = $props();
 
@@ -117,6 +119,17 @@
 			validateForm.isMember = false;
 		}
 	});
+	function addOrgMembership() {
+		if ( isMember ) {
+			const orgItem = {
+				label: page.data.organization.name,
+				value: page.data.organization.uid
+			};
+			if (memberships.indexOf(orgItem) === -1) {
+				memberships.push(orgItem);
+			}
+		}
+	}
 </script>
 
 <button
@@ -234,7 +247,7 @@
 								class="variant-filled-error btn w-min"
 								onclick={() => {
 									createdEffector = formResult?.data;
-									memberOfOrg = isMember;
+									addOrgMembership();
 									top?.scrollIntoView();
 									dialog?.close();
 								}}>{formResult?.success ? 'Fermer' : 'Annuler'}</button
