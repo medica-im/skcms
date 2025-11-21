@@ -472,7 +472,6 @@
 						/>
 					</label>
 					<AddMarkerMap bind:lngLat bind:zoom />
-					{JSON.stringify(lngLat)}
 					<label class="flex label place-self-start place-items-center space-x-2">
 						<span>Latitude</span>
 					

@@ -100,18 +100,7 @@
 	let geographical_complement: string = $state('');
 	let zip: string|null = $derived($addressFeature?.properties?.postcode || facility.zip);
 	let zoom: number = $state(18);
-	const getCurrentLongitude = ()=>{
-		const oldLongitudeNumber: number|undefined = facility.location?.longitude;
-		console.log(`type of oldLongitudeNumber: ${typeof(oldLongitudeNumber)}`);
-		if ( oldLongitudeNumber != undefined) {
-			const oldLongitudeString = oldLongitudeNumber.toString();
-			console.log(`oldLongitudeString: ${oldLongitudeString}`);
-			console.log(`type of oldLongitudeString: ${typeof(oldLongitudeString)}`);
-			return oldLongitudeString
-		}
-	}
-	let longitude: string|undefined = $state(getCurrentLongitude());
-	let lngLat: LngLatLike = $derived.by(() => {
+	let lngLat = $derived.by(() => {
 		if ($addressFeature?.geometry.coordinates) {
 			return {
 				lng: $addressFeature?.geometry.coordinates[0],
@@ -269,7 +258,6 @@ name==facility.name && label==facility.label && slug==facility.slug && building=
 
 <Dialog bind:dialog classProp="w-full">
 	<div class="rounded-lg w-full p-4 variant-ghost-secondary items-center place-items-center">
-		<div class="rounded-lg p-4 variant-ghost-secondary gap-2 items-center place-items-center">
 			<h3 class="h3 text-center">Modifier l'établissement</h3>
 			<form {...updateFacility.for(facility.uid).enhance(async ({ form, data, submit }) => {
 					console.log(data);
@@ -280,10 +268,9 @@ name==facility.name && label==facility.label && slug==facility.slug && building=
 						console.log(`Oh no! Something went wrong:${error}`);
 					}
 				})}>
-				<div class="p-2 space-y-4 justify-items-stretch grid grid-cols-2 gap-6">
-					<div class="p-2 space-y-2 w-full">
-						<label class="flex label place-self-start place-items-center space-x-2 w-full">
-							{#each updateFacility.for(facility.uid).fields.uid.issues() as issue}
+				<div class="p-2 space-y-4 justify-items-stretch grid grid-cols-1 lg:grid-cols-2 lg:gap-6">
+					<div class="space-y-2 w-full">
+						{#each updateFacility.for(facility.uid).fields.uid.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<input
@@ -293,7 +280,6 @@ name==facility.name && label==facility.label && slug==facility.slug && building=
 							placeholder=""
 							bind:value={facility.uid}
 						/>
-						{redirect}
 						<input
 							class="hidden"
 							name="redirect"
@@ -301,6 +287,7 @@ name==facility.name && label==facility.label && slug==facility.slug && building=
 							placeholder=""
 							bind:checked={redirect}
 						/>
+						<label class="flex label place-self-start place-items-center space-x-2 w-full">
 							<span>Nom</span>
 							{#each updateFacility.for(facility.uid).fields.name.issues() as issue}
 								<p class="issue">{issue.message}</p>
@@ -419,7 +406,7 @@ name==facility.name && label==facility.label && slug==facility.slug && building=
 							{/each}
 							<input
 								oninput={() => {}}
-								class="input {inputClass.zip} w-min"
+								class="input {inputClass.zip}"
 								name="zip"
 								type="text"
 								placeholder=""
@@ -502,7 +489,6 @@ name==facility.name && label==facility.label && slug==facility.slug && building=
 					</div>
 				</div>
 			</form>
-		</div>
 	</div></Dialog
 >
 
