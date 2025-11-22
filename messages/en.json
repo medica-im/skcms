@@ -143,5 +143,17 @@
 		"F": "Fax",
 		"AS": "Answering service"
 	},
-	"USER_GUIDE": "user guide"
+	"USER_GUIDE": "user guide",
+	"ACCESS": {
+		"CHOICES": {
+			"PUBLIC": "Everyone",
+			"TEAM": "Team",
+			"ADMIN": "Administrator"
+		},
+		"SUMMARY": {
+			"PUBLIC": "Public access",
+			"TEAM": "Only members of the organization",
+			"ADMIN": "Only administrators of the organization"
+		}
+	}
 }

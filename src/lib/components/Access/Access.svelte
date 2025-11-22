@@ -1,9 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	import * as m from "$msgs";	import { handlePostRequestsWithPermissions } from '$lib/utils/requestUtils';
+	import * as m from '$msgs';
+	import { handlePostRequestsWithPermissions } from '$lib/utils/requestUtils';
 	import Fa from 'svelte-fa';
 	import { faMask, faPeopleGroup, faGlobe } from '@fortawesome/free-solid-svg-icons';
+	import type { IconDefinition } from "@fortawesome/free-solid-svg-icons";
+
 	export let roles: number[];
 	export let url: string;
 	export let noRecord: boolean;
@@ -41,11 +44,9 @@
 			return;
 		}
 		let roles = selected.split(',').map(Number);
-		console.log(roles);
-		console.log(url);
-const [data, error] = await handlePostRequestsWithPermissions(
+		const [data, error] = await handlePostRequestsWithPermissions(
 			fetch,
-					url,
+			url,
 			{
 				contact: contact_id,
 				roles: roles
@@ -84,7 +85,7 @@ const [data, error] = await handlePostRequestsWithPermissions(
 	</select>
 	{#if selected}
 		<div class="flex p-2 space-x-2">
-			<div><Fa icon={choices[selected].icon} /></div>
+			<div><Fa icon={choices[selected].icon as IconDefinition} /></div>
 			<div>{choices[selected].summary}</div>
 		</div>
 	{/if}

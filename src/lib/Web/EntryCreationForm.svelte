@@ -202,7 +202,7 @@ selectedFacility: {JSON.stringify(selectedFacility)}-->
 							name="organizations"
 							type="text"
 							placeholder=""
-							value={memberships ? memberships.map(e=>e.value) : []}
+							value={memberships.length ? memberships.map(e=>e.value) : []}
 						/>
 						{#if memberships.length}
 						{#each memberships as membership}

@@ -108,36 +108,12 @@
   "NO": "non",
   "AND": "et",
   "SKELETON_AUTOCOMPLETE_EMPTY_STATE": "Aucun résultat trouvé",
-  "CANCEL": "Annuler",
-  "ERROR": "Erreur",
-  "RESET": "Réinitialiser",
-  "RESET_PASSWORD": "Réinitialiser votre mot de passe",
-  "RESET_SUCCESSFUL": "L’email de réinitialisation du mot de passe a été envoyé.",
-  "CHANGE_PASSWORD": "Changer la phrase de passe",
-  "CONFIRM_PASSWORD": "Confirmer la phrase de passe",
-  "ENTER_PASSWORD": "Entrer la phrase de passe",
-  "SET_NEW_PASSWORD": "Définir la nouvelle phrase de passe",
-  "CHANGE_PASSWORD_SUCCESS": "Mot de passe changé avec succès!",
-  "PASSWORD_FORGOTTEN": "Mot de passe oublié?",
-  "CHARACTER_SINGULAR": "caractère",
-  "CHARACTER_PLURAL": "caractères",
-  "SIGNIN": "S'identifier",
-  "signout": "Se déconnecter",
-  "with": "avec",
-  "from": "de",
-  "CLOSE": "Fermer",
-  "APPOINTMENT": "Rendez-vous",
-  "WEB_ADDRESS": "adresse web",
   "ROLE": {
     "ADMINISTRATOR": "administrateur",
     "SUPERUSER": "super-utilisateur",
     "STAFF": "équipier",
     "ANONYMOUS": "inconnu"
   },
-  "PHONE_NUMBER": "numéro de téléphone",
-  "FACILITY": "établissement",
-  "CREATE": "créer",
-  "EDIT": "modifier",
   "PHONE_TYPE": {
     "M": "Mobile personnel",
     "MW": "Mobile professionnel",
@@ -145,5 +121,16 @@
     "F": "Fax",
     "AS": "Secrétariat à distance"
   },
-  "USER_GUIDE": "guide d'utilisation"
+  "ACCESS": {
+    "CHOICES": {
+      "PUBLIC": "Public",
+      "TEAM": "Équipe",
+      "ADMIN": "Administrateurs"
+    },
+    "SUMMARY": {
+      "PUBLIC": "Accès access",
+      "TEAM": "Uniquement les membres de l'organisation",
+      "ADMIN": "Uniquement les administrateurs de l'organisation"
+    }
+  }
 }

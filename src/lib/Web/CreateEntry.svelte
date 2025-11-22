@@ -86,11 +86,11 @@
 	};
 </script>
 
-<!--selectedFacility: "{JSON.stringify(selectedFacility)}"<br />
+selectedFacility: "{JSON.stringify(selectedFacility)}"<br />
 selectedEffectorType: "{JSON.stringify(selectedEffectorType)}"<br />
 createdEffector: "{JSON.stringify(createdEffector)}"<br>
 memberships: "{JSON.stringify(memberships)}"<br>
-membershipsDone: {membershipsDone}-->
+membershipsDone: {membershipsDone}
 {#if createdEffector && selectedFacility && selectedEffectorType && membershipsDone}
 	<div class="grid grid-cols-1 gap-4 w-full variant-ringed p-2 place-items-center" bind:this={top}>
 		<h3 class="h3">Confirmer ou annuler la création de la nouvelle entrée</h3>

@@ -10,7 +10,6 @@ const RoleEnum = z.enum(['anonymous', 'staff', 'administrator' , 'superuser']);
 const CreateEmail = z.object({
 	entry: z.string(),
 	roles: z.preprocess((val: string) => {
-			console.log(val);
 			return val.split(',');
 		}, z.array(RoleEnum)),
 	email: z.string(),
