@@ -10,6 +10,7 @@
 		faPhone,
 		faMapLocationDot,
 		faPenToSquare,
+		faPeopleGroup,
 		faCopy,
 	} from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
@@ -214,6 +215,26 @@
 				</div>
 			</div>
 		</div>
+	{/if}
+	{#if data.memberships || $editMode}
+	<div class="d-flex justify-content-between align-items-start">
+				<div class="flex items-center py-2">
+					<div class="w-9"><Fa icon={faPeopleGroup} size="sm" /></div>
+					<div>
+						<h3 class="h3 flex place-items-center gap-1">{capitalizeFirstLetter(m.MEMBERSHIP({count: 1}))}{#if $editMode}<CreateEmail entry={data.uid}/>{/if}</h3>
+					</div>
+				</div>
+				<div class="flex">
+					<div class="w-9"></div>
+					<div class="py-2">
+						<ul class="list">
+						{#each data.memberships as membership}
+						<li>{membership}</li>
+						{/each}
+						</ul>
+					</div>
+				</div>
+			</div>
 	{/if}
 	{#if $editMode}
 	<div class="flex flex-row">

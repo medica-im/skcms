@@ -154,6 +154,15 @@
 			"PUBLIC": "Public access",
 			"TEAM": "Only members of the organization",
 			"ADMIN": "Only administrators of the organization"
-		}
-	}
+		},
+		"ACCESS_CONTROL": "Access control"
+	},
+	"MEMBERSHIP": [{
+    	"declarations": ["input count", "local countPlural = count: plural"],
+    	"selectors": ["countPlural"],
+    	"match": {
+      		"countPlural=one": "membership",
+      		"countPlural=other": "memberships"
+    	}
+  	}]
 }

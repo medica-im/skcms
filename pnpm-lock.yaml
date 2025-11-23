@@ -100,8 +100,8 @@ importers:
         version: 8.22.0
     devDependencies:
       '@inlang/paraglide-js':
-        specifier: 2.2.0
-        version: 2.2.0
+        specifier: 2.5.0
+        version: 2.5.0
       '@playwright/test':
         specifier: ^1.50.1
         version: 1.51.1
@@ -495,8 +495,8 @@ packages:
     resolution: {integrity: sha512-xeO57FpIu4p1Ri3Jq/EXq4ClRm86dVF2z/+kvFnyqVYRavTZmaFaUBbWCOuuTh0o/g7DSsk6kc2vrS4Vl5oPOQ==}
     engines: {node: '>=18.18'}
 
-  '@inlang/paraglide-js@2.2.0':
-    resolution: {integrity: sha512-pkpXu1LanvpcAbvpVPf7PgF11Uq7DliSEBngrcUN36l4ZOOpzn3QBTvVr/tJxvks0O67WseQgiMHet8KH7Oz5A==}
+  '@inlang/paraglide-js@2.5.0':
+    resolution: {integrity: sha512-FnycOM6j0GYd/n97NCDyXJiHnyPYGPgufL640eZWs+rTIRrOgDVz/o77iWRYFZK84REOcmSDi0N6PbbY8NT8+A==}
     hasBin: true
 
   '@inlang/recommend-sherlock@0.2.1':
@@ -3178,7 +3178,7 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.2': {}
 
-  '@inlang/paraglide-js@2.2.0':
+  '@inlang/paraglide-js@2.5.0':
     dependencies:
       '@inlang/recommend-sherlock': 0.2.1
       '@inlang/sdk': 2.4.9

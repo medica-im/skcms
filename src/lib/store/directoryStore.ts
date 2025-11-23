@@ -93,7 +93,7 @@ async function fetchEntries(next: string) {
 	if (response) {
 		let data: any = response;
 		next = data.meta?.next;
-		return [data.entries, next]
+		return [data.entries as Entry[], next]
 	}
 }
 
@@ -236,7 +236,7 @@ export const getTimestamps = async (): Promise<Timestamps|undefined> => {
 export const getEntries = async (): Promise<Entry[]> => {
 	const cachedEntriesObj = getLocalStorage('entries');
 	const refresh: boolean = await doRefresh("v1:entries", cachedEntriesObj?.cachetime);
-	console.log(`doRefresh: ${refresh}`);
+	console.log(`doRefresh v1:entries: ${refresh}`);
 	if ( refresh ) {
 		return await downloadAllEntries();
 	} else {
@@ -480,13 +480,11 @@ export const cardinalCategorizedFilteredEffectorsF = async (categorizedFilteredE
 	let cardinalMap = new Map();
 	for (const [key, value] of categorizedFilteredEffectors) {
 		let label = key;
-		console.log(label)
 		let countF: number = 0;
 		let countM: number = 0;
 		let countN: number = 0;
 		let countNone: number = 0;
 		let type: Type = value[0].effector_type;
-		console.log(type)
 		/*value.forEach(
 			(e) => {
 				type = e.types.find(e => e.name == key)

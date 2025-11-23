@@ -20,7 +20,7 @@ const config = {
 		adapter: adapter(),
 		alias: {
 			$assets: './src/assets',
-			$msgs: './src/paraglide/messages.js',
+			$msgs: './src/paraglide/messages/_index.js',
 			$prgld: './src/paraglide/',
 			$var: './src/routes/(skvar)/(var)'
 		},

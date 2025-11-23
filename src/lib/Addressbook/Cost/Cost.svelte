@@ -26,7 +26,7 @@
 
 	{#if data.carte_vitale != null}
 		<div class="flex p-1">
-			<div class="w-9" />
+			<div class="w-9"></div>
 			<div>
 				Carte Vitale: {data.carte_vitale ? m.YES() : m.NO()}.
 			</div>
@@ -35,7 +35,7 @@
 
 	{#if data.third_party_payer.length}
 		<div class="flex p-1">
-			<div class="w-9" />
+			<div class="w-9"></div>
 			<div>
 				{m.ADDRESSBOOK_THIRD_PARTY_PAYER()}:
 				{#each data.third_party_payer as p, i}

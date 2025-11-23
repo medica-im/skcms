@@ -56,7 +56,6 @@
 	let effector: string|undefined = $derived(createdEffector?.uid);
 	let effector_type: string|undefined = $derived(selectedEffectorType?.value);
 	let facility: string|undefined = $derived(selectedFacility?.value);
-	let organizations: string | null = $derived(memberships ? JSON.stringify(memberships) : null); // TODO: make this an array
 	let directory: string | undefined = $state();
 	let uid = $derived.by(()=>{
 		if (effector && effector_type && facility ) {
@@ -202,7 +201,7 @@ selectedFacility: {JSON.stringify(selectedFacility)}-->
 							name="organizations"
 							type="text"
 							placeholder=""
-							value={memberships.length ? memberships.map(e=>e.value) : []}
+							value={memberships?.length ? memberships.map(e=>e.value) : ""}
 						/>
 						{#if memberships.length}
 						{#each memberships as membership}

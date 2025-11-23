@@ -1,5 +1,6 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
+  "CANCEL": "Annuler",
   "LOADING": "Chargement...",
   "HOME_TITLE": "Accueil",
   "HOME_WELCOME": "Bienvenue dans",
@@ -131,6 +132,15 @@
       "PUBLIC": "Accès access",
       "TEAM": "Uniquement les membres de l'organisation",
       "ADMIN": "Uniquement les administrateurs de l'organisation"
-    }
-  }
+    },
+    "ACCESS_CONTROL": "Contrôle d'accès"
+  },
+  "MEMBERSHIP": [{
+    	"declarations": ["input count", "local countPlural = count: plural"],
+    	"selectors": ["countPlural"],
+    	"match": {
+      		"countPlural=one": "affiliation",
+      		"countPlural=other": "affiliations"
+    	}
+  	}]
 }

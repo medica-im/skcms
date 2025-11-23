@@ -17,7 +17,7 @@ export default defineConfig({
 			{
 				project: './project.inlang',
 				outdir: './src/paraglide',
-				strategy: ['cookie', 'preferredLanguage', 'baseLocale'],
+				strategy: ['preferredLanguage', 'baseLocale'],
 			}
 		),
 		sveltekit(),
@@ -26,7 +26,7 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			'$': path.resolve(__dirname, 'src'),
-			'$msgs': path.resolve('./src/paraglide/messages.js'),
+			'$msgs': path.resolve('./src/paraglide/messages/_index.js'),
 			'$prgld': path.resolve('./src/paraglide/'),
 			'$var': path.resolve('./src/var')
 		}

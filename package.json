@@ -17,7 +17,7 @@
 		"format": "prettier --plugin-search-dir . --write ."
 	},
 	"devDependencies": {
-		"@inlang/paraglide-js": "2.2.0",
+		"@inlang/paraglide-js": "2.5.0",
 		"@playwright/test": "^1.50.1",
 		"@skeletonlabs/skeleton": "^2.11.0",
 		"@skeletonlabs/tw-plugin": "^0.4.1",

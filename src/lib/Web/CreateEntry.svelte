@@ -41,14 +41,10 @@
 	};
 	let memberships: SelectType[] = $state([]);
 	let membershipsDone: boolean = $state(false);
-	let showCreateFacilityForm: boolean = $state(false);
-	let showSelectEffectorForm: boolean = $state(false);
-	let selectedOrganization: string | null = $state(null);
 	let selectedFacility: { label: string; value: string } | undefined = $state();
 	//let createdFacility: { label: string; value: string } | undefined = $state();
 	let createdEffector: Effector | undefined = $state();
 	let selectedCommune: { label: string; value: string } | undefined = $state();
-	let selectedFacilityUid: string | undefined = $derived(selectedFacility?.value);
 	let facilityCount: number = $state(0);
 	let department: { label: string; value: string } | undefined = $state(defaultDpt);
 	let selectedEffectorType: { label: string; value: string } | undefined = $state();

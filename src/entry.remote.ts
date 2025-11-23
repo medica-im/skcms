@@ -17,7 +17,7 @@ const postEntry = z.object({
 		if (val) {
 			return val.split(',');
 		} else {
-			return []
+			return null
 		}
 	}, z.array(z.string()).nullable()
 	),

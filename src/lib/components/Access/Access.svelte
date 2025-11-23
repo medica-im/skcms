@@ -22,7 +22,7 @@
 			return;
 		}
 		let profile = await refresh();
-		let roles = profile.roles;
+		let roles: number[] = profile.roles;
 		if (roles.length) {
 			roles.sort((a, b) => a - b);
 			selected = roles.toString();
@@ -61,23 +61,23 @@
 		}
 	}
 
-	const choices: { [key: string]: { label: object; icon: object; summary: object } } = {
+	const choices: { [key: string]: { label: string; icon: object; summary: string } } = {
 		'1,2,3,4,5': {
-			label: m.ACCESS.CHOICES.PUBLIC(),
+			label: m["ACCESS.CHOICES.PUBLIC"](),
 			icon: faGlobe,
-			summary: m.ACCESS.SUMMARY.PUBLIC()
+			summary: m["ACCESS.SUMMARY.PUBLIC"]()
 		},
 		'3,4,5': {
-			label: m.ACCESS.CHOICES.TEAM(),
+			label: m["ACCESS.CHOICES.TEAM"](),
 			icon: faPeopleGroup,
-			summary: m.ACCESS.SUMMARY.TEAM()
+			summary: m["ACCESS.SUMMARY.TEAM"]()
 		},
-		'4,5': { label: m.ACCESS.CHOICES.ADMIN(), icon: faMask, summary: m.ACCESS.SUMMARY.ADMIN() }
+		'4,5': { label: m["ACCESS.CHOICES.ADMIN"](), icon: faMask, summary: m["ACCESS.SUMMARY.ADMIN"]() }
 	};
 </script>
 
 <div class="card variant-ghost p-2 space-y-2">
-	<h4 class="h4">{m.ACCESS.ACCESS_CONTROL()}</h4>
+	<h4 class="h4">{m["ACCESS.ACCESS_CONTROL"]()}</h4>
 	<select class="select" on:change={onChange} bind:value={selected}>
 		{#each Object.keys(choices) as k}
 			<option value={k}>{choices[k].label}</option>

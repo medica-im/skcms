@@ -89,7 +89,8 @@ export interface EntryFull {
     effector_type: Type,
     uid: string,
     updatedAt: number,
-    websites: Website[] | null
+    websites: Website[] | null,
+    memberships: string[]|null
 }
 
 export interface FeatureCollection {
