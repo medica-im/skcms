@@ -65,7 +65,7 @@
 			console.log(`memberships: ${JSON.stringify(memberships)}`);
 		}
 	}
-	function onDelete(event: CustomEvent) {
+	function onClear(event: CustomEvent) {
 		console.log(`concatenate: ${JSON.stringify(event.detail)}`);
 		if (event.detail) {
 			const e: SelectType = event.detail;
@@ -129,7 +129,7 @@
 					items={cptsItems}
 					bind:value={selectedCPTS}
 					on:change={onChange}
-					on:delete={onDelete}
+					on:clear={onClear}
 					searchable={true}
 				/>
 				<!--selectedCPTS: {JSON.stringify(selectedCPTS)}<br>
@@ -140,7 +140,7 @@
 					items={mspItems}
 					bind:value={selectedMSP}
 					on:change={onChange}
-					on:delete={onDelete}
+					on:clear={onClear}
 					searchable={true}
 				/>
 				<h4 class="h4">Autre</h4>
@@ -149,7 +149,7 @@
 					items={otherItems}
 					bind:value={selectedOther}
 					on:change={onChange}
-					on:delete={onDelete}
+					on:clear={onClear}
 					searchable={true}
 				/>
 
@@ -169,7 +169,6 @@
 							type="submit"
 							class="variant-filled-secondary btn w-min"
 							onclick={() => {
-								confirm();
 								membershipsDone = true;
 								dialog?.close();
 							}}>Confirmer</button

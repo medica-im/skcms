@@ -2,6 +2,7 @@ import { getTimestamps } from '$lib/store/directoryStore';
 import type { Timestamps } from '$lib/store/directoryStore';
 import type { Entry } from '$lib/store/directoryStoreInterface.ts';
 import type { AddressFeature } from '$lib/store/directoryStoreInterface.ts';
+import type { Page } from '@sveltejs/kit';
 
 // Replaces the locale slug in a URL.
 //
@@ -164,3 +165,16 @@ export function getHostnameFromURL(str: string) {
   		const array = [...str.matchAll(regexp)];
   		return array.map(m => m[2]);
 }
+
+export function entryUrl(entry: Entry, pathname: string, org: string, origin=false) {
+		let typeSlug = entry.effector_type.slug;
+		let facilitySlug = entry.facility.slug;
+		const communeSlug = entry.commune.slug;
+		let nameSlug = entry.slug;
+		const originURI = `?origin=${encodeURIComponent(pathname)}`;
+		if ( ["msp", "maison de santé pluriprofessionnelle"].includes(org) ) {
+			return `/${facilitySlug}/${typeSlug}/${nameSlug}${origin? originURI : ""}`;
+		} else if ( ["communauté professionnelle territoriale de santé", "cpts"].includes(org) ) {
+			return `/${typeSlug}/${communeSlug}/${nameSlug}${origin? originURI : ""}`;
+		}
+	}

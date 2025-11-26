@@ -69,7 +69,7 @@
   "ERROR404_BACK": "Revenir en arrière",
   "EMAILADDRESS": "Adresse e-mail",
   "TIMELINE_TITLE": "Chronologie",
-  "PASSWORD": "Mot de passe",
+  "PASSWORD": "Password",
   "USER_PROFILE": "Profil de {userName}",
   "USER_ROLE": "Rôle",
   "FIELD_UPDATE_SUCCESS": "{fieldName} a été modifié avec succès.",
@@ -135,12 +135,37 @@
     },
     "ACCESS_CONTROL": "Contrôle d'accès"
   },
-  "MEMBERSHIP": [{
-    	"declarations": ["input count", "local countPlural = count: plural"],
-    	"selectors": ["countPlural"],
-    	"match": {
-      		"countPlural=one": "affiliation",
-      		"countPlural=other": "affiliations"
-    	}
-  	}]
+  "MEMBERSHIP": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "affiliation",
+        "countPlural=other": "affiliations"
+      }
+    }
+  ],
+  "FACILITY": "établissement",
+  "CREATE": "créer",
+  "EDIT": "modifier",
+  "CHARACTER_SINGULAR": "caractère",
+  "CHARACTER_PLURAL": "caractères",
+  "signout": "Se déconnecter",
+  "with": "avec",
+  "from": "de",
+  "CLOSE": "Fermer",
+  "APPOINTMENT": "Rendez-vous",
+  "WEB_ADDRESS": "Adresse web",
+  "USER_GUIDE": "guide utilisateur",
+  "CHANGE_PASSWORD": "Changer le mot de passe",
+  "CONFIRM_PASSWORD": "Confirmer le mot de passe",
+  "ENTER_PASSWORD": "Entrer le mot de passe",
+  "SET_NEW_PASSWORD": "Créer un nouveau mot de passe",
+  "CHANGE_PASSWORD_SUCCESS": "Mot de passe changé avec succès!",
+  "PASSWORD_FORGOTTEN": "Avez-vous oublié votre mot de passe?"
 }

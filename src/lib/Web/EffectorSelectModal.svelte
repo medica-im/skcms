@@ -36,7 +36,7 @@
 	let selectedEffector: SelectType | undefined = $state();
 	let selectedEffectorType: SelectType | undefined = $state();
 	let facility: SelectType | undefined = $state();
-	let department: SelectType | undefined = $state(defaultDpt);
+	let department: SelectType | undefined = $state();
 	let departmentCode: string | undefined = $derived(department?.value);
 	let communes: CreateQueryResult<Commune[], Error> | undefined = $state();
 	let commune: SelectType | undefined = $state();
@@ -190,9 +190,10 @@
 	title="Sélectionner une personne"><span><Fa icon={faMagnifyingGlass} /></span><span>Sélectionner une personne</span></button
 >
 <Dialog bind:dialog on:close={() => console.log('closed')}>
-	<div class="grid grid-cols-1 rounded-lg h-full w-fit p-4 variant-ghost-secondary items-center gap-4">
+	<div class="grid grid-cols-1 rounded-lg h-full w-full p-4 variant-ghost-secondary items-center gap-4">
 		<div class="place-items-center">
 		<h3 class="h3">Sélectionner une personne</h3>
+		<p>Si la personne recherchée a déjà une entrée dans l'annuaire, vous pouvez affiner la recherche en sélectionnant sa catégorie, sa localisation ou son établissement.</p>
 		</div>
 		<EffectorTypeSelect bind:selectedEffectorType />
 		<FacilitySelect

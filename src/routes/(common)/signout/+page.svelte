@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
-	import { m } from "$msgs";
+	import * as m from "$msgs";
 	import { page } from '$app/state';
 	import Fa from 'svelte-fa';
 	import { providers } from '$lib/Auth/data.ts'; 

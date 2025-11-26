@@ -1,18 +1,19 @@
 import { categorizedFilteredEffectorsF, cardinalCategorizedFilteredEffectorsF, getEntries } from '$lib/store/directoryStore.ts';
 import { filterInPlace } from '$lib/utils/utils';
 import type { Entry } from '$lib/store/directoryStoreInterface';
+import type { Fetch } from '$lib/interfaces/fetch.ts';
 
-export const cardCatEntries = async (currentOrg: boolean|null, orgUid: string, types: string[]|null=null) => {
+export const cardCatEntries = async (currentOrg: boolean | null, orgUid: string, types: string[] | null = null) => {
     const entries = await getEntries();
     filterInPlace(entries, (e: Entry) => {
-            if (currentOrg == true) {
-				return e.organizations?.includes(orgUid) || e.employers?.includes(orgUid)
-			} else if (currentOrg == false) {
-				return !e.organizations?.includes(orgUid) && !e.employers?.includes(orgUid)
-			} else {
-				return true
-			}
-        });
+        if (currentOrg == true) {
+            return e.organizations?.includes(orgUid) || e.employers?.includes(orgUid)
+        } else if (currentOrg == false) {
+            return !e.organizations?.includes(orgUid) && !e.employers?.includes(orgUid)
+        } else {
+            return true
+        }
+    });
     if (types) {
         filterInPlace(entries, (e: Entry) => {
             return types.includes(e.effector_type.uid)
@@ -21,4 +22,12 @@ export const cardCatEntries = async (currentOrg: boolean|null, orgUid: string, t
     const categorizedEntries = categorizedFilteredEffectorsF(entries);
     const cardinalCategorizedEntries = await cardinalCategorizedFilteredEffectorsF(categorizedEntries);
     return cardinalCategorizedEntries;
-}
+};
+
+export const getMemberships = async (uids: string[]) => {
+    console.log(`uids: ${uids}`);
+    const entries = await getEntries();
+    filterInPlace(entries, (e: Entry) => { return uids.includes(e.uid) });
+    console.log(`entries: ${JSON.stringify(entries)}`);
+    return entries;
+};

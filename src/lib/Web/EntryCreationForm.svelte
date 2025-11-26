@@ -27,14 +27,14 @@
 		effector: string;
 		effector_type: string;
 		facility: string;
-		organization: string;
+		memberships: string;
 		directory: string;
 	}
 	interface ValidateForm {
 		effector: boolean;
 		effector_type: boolean;
 		facility: boolean;
-		organization: boolean;
+		memberships: boolean;
 		directory: boolean;
 	}
 	const inputError = 'input-error';
@@ -42,14 +42,14 @@
 		effector: '',
 		effector_type: '',
 		facility: '',
-		organization: '',
+		memberships: '',
 		directory: '',
 	});
 	const validateForm: ValidateForm = $state({
 		effector: false,
 		effector_type: true,
 		facility: true,
-		organization: true,
+		memberships: true,
 		directory: true,
 	});
 	const isSuperUser = $derived(page.data?.user?.role == 'superuser');
@@ -197,8 +197,8 @@ selectedFacility: {JSON.stringify(selectedFacility)}-->
 						<span>Organisation:</span>
 						<input
 							oninput={() => {}}
-							class="input hidden {inputClass.organization}"
-							name="organizations"
+							class="input hidden {inputClass.memberships}"
+							name="memberships"
 							type="text"
 							placeholder=""
 							value={memberships?.length ? memberships.map(e=>e.value) : ""}

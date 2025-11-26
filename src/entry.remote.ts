@@ -11,7 +11,7 @@ const postEntry = z.object({
 	effector: z.string(),
 	effector_type: z.string(),
 	facility: z.string(),
-	organizations: z.preprocess((val: string) => {
+	memberships: z.preprocess((val: string) => {
 		console.log(val);
 		console.log(typeof val);
 		if (val) {
@@ -72,10 +72,11 @@ const Patch = z.object({
 	third_party_payer: z.nullable(z.array(z.string())).optional(),
 	convention: z.nullable(z.string()).optional(),
 	active: z.boolean().optional(),
+	memberships: z.array(z.string()).optional()
 });
 
 export const patchCommand = command(Patch, async (data) => {
-	console.log(JSON.stringify(data));
+	console.log(`entry patch data: ${JSON.stringify(data)}`);
 	const entry_uid = data.entry;
 	delete data.entry;
 	const { cookies } = getRequestEvent();
