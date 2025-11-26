@@ -167,5 +167,6 @@
   "ENTER_PASSWORD": "Entrer le mot de passe",
   "SET_NEW_PASSWORD": "Créer un nouveau mot de passe",
   "CHANGE_PASSWORD_SUCCESS": "Mot de passe changé avec succès!",
-  "PASSWORD_FORGOTTEN": "Avez-vous oublié votre mot de passe?"
+  "PASSWORD_FORGOTTEN": "Avez-vous oublié votre mot de passe?",
+  "SIGNIN": "Se connecter"
 }
