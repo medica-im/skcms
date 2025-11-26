@@ -11,7 +11,7 @@
 		faMapLocationDot,
 		faPenToSquare,
 		faPeopleGroup,
-		faCopy,
+		faCopy
 	} from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
 	import Emails from '$lib/Email/Emails.svelte';
@@ -34,28 +34,19 @@
 	import CreateWebsite from '$lib/Web/Website/Create.svelte';
 	import UpdateEffector from '$lib/Web/Effector/UpdateEffectorModal.svelte';
 	import InactivateEntry from '$lib/Web/Entry/InactivateEntry.svelte';
-	import { copy } from 'svelte-copy';
 	import { setEditMode, getEditMode, setEntryUid, setEffectorUid } from './context';
-	import { hyphenateUuid } from '$lib/utils/utils';
 	import UuidHex from '$lib/Uuid/UuidHex.svelte';
 	import UuidHyphen from '$lib/Uuid/UuidHyphen.svelte';
 	import Membership from '$lib/Membership/Membership.svelte';
 	import PatchMembershipModal from '$lib/Web/Entry/Membership/PatchMembershipModal.svelte';
-	import type { EntryFull } from '$lib/store/directoryStoreInterface';
-	import type { Entry } from '$lib/store/directoryStoreInterface';
-
-	interface EntryComponent {
-		fullentry: EntryFull,
-		memberships: Entry[]
-	};
 
 	let { data } = $props();
 
-let fullentry = $derived(data.fullentry);
-let memberships = $derived(data.memberships);
+	let fullentry = $derived(data.fullentry);
+	let memberships = $derived(data.memberships);
 
-	setEntryUid(fullentry.uid);
-	setEffectorUid(fullentry.effector_uid);
+	setEntryUid(data.fullentry.uid);
+	setEffectorUid(data.fullentry.effector_uid);
 	setEditMode();
 	const editMode = getEditMode();
 
@@ -82,29 +73,30 @@ let memberships = $derived(data.memberships);
 		<div class="space-y-2">
 			{#if isSuperUser && $editMode}
 				entry {fullentry?.uid}
-				<UuidHex data={fullentry?.uid}/>
-				<UuidHyphen data={fullentry?.uid}/>
+				<UuidHex data={fullentry?.uid} />
+				<UuidHyphen data={fullentry?.uid} />
 			{/if}
-			<h2 class="h2 flex flex-initial break-words overflow-hidden place-items-center gap-4">{fullentry.name}{#if $editMode}<UpdateEffector data={fullentry}/>{/if}</h2>
+			<h2 class="h2 flex flex-initial break-words overflow-hidden place-items-center gap-4">
+				{fullentry.name}{#if $editMode}<UpdateEffector data={fullentry} />{/if}
+			</h2>
 			{#if isSuperUser && $editMode}
 				effector {fullentry?.effector_uid}
-				<UuidHex data={fullentry?.effector_uid}/>
-				<UuidHyphen data={fullentry?.effector_uid}/>
+				<UuidHex data={fullentry?.effector_uid} />
+				<UuidHyphen data={fullentry?.effector_uid} />
 			{/if}
 			<h3 class="h3 italic">{fullentry?.effector_type?.label}</h3>
 			{#if isSuperUser && $editMode}
 				type {fullentry?.effector_type?.uid}
-				<UuidHex data={fullentry?.effector_type?.uid}/>
-				<UuidHyphen data={fullentry?.effector_type?.uid}/>
+				<UuidHex data={fullentry?.effector_type?.uid} />
+				<UuidHyphen data={fullentry?.effector_type?.uid} />
 			{/if}
 
 			<FacilityLink data={fullentry.facility} />
 			{#if isSuperUser && $editMode}
-			facility {fullentry?.facility?.uid}
-			<UuidHex data={fullentry?.facility?.uid}/>
-			<UuidHyphen data={fullentry?.facility?.uid}/>
+				facility {fullentry?.facility?.uid}
+				<UuidHex data={fullentry?.facility?.uid} />
+				<UuidHyphen data={fullentry?.facility?.uid} />
 			{/if}
-			
 		</div>
 		<div class="flex-none">
 			{#if fullentry?.avatar}
@@ -123,8 +115,10 @@ let memberships = $derived(data.memberships);
 				<div class="flex items-center py-2">
 					<div class="w-9"><Fa icon={faPhone} size="sm" /></div>
 					<div>
-						<h3 class="h3 flex place-items-center gap-1">{capitalizeFirstLetter(m.PHONE())} {#if $editMode}<CreatePhone entry={fullentry.uid}/>{/if}</h3>
-						
+						<h3 class="h3 flex place-items-center gap-1">
+							{capitalizeFirstLetter(m.PHONE())}
+							{#if $editMode}<CreatePhone entry={fullentry.uid} />{/if}
+						</h3>
 					</div>
 				</div>
 				<div class="flex items-center p-1">
@@ -140,7 +134,9 @@ let memberships = $derived(data.memberships);
 				<div class="flex items-center py-2">
 					<div class="w-9"><Fa icon={faEnvelope} size="sm" /></div>
 					<div>
-						<h3 class="h3 flex place-items-center gap-1">Email{#if $editMode}<CreateEmail entry={fullentry.uid}/>{/if}</h3>
+						<h3 class="h3 flex place-items-center gap-1">
+							Email{#if $editMode}<CreateEmail entry={fullentry.uid} />{/if}
+						</h3>
 					</div>
 				</div>
 				<div class="flex">
@@ -157,26 +153,28 @@ let memberships = $derived(data.memberships);
 				<Cost data={fullentry} />
 			</div>
 		{/if}
-			{#if fullentry.payment_methods != null || $editMode}
-				<div class="d-flex justify-content-between align-items-start">
-					<Payment data={fullentry.payment_methods} editMode={$editMode} />
-				</div>
-			{/if}
+		{#if fullentry.payment_methods != null || $editMode}
+			<div class="d-flex justify-content-between align-items-start">
+				<Payment data={fullentry.payment_methods} editMode={$editMode} />
+			</div>
+		{/if}
 		{#if fullentry.websites?.length || $editMode}
 			<div class="d-flex justify-content-between align-items-start">
 				<div class="flex items-center p-1">
 					<div class="w-9"><Fa icon={faGlobe} size="sm" /></div>
 					<div>
-						<h3 class="h3 flex place-items-center gap-1">Web{#if $editMode}<CreateWebsite entry={fullentry.uid}/>{/if}</h3>
+						<h3 class="h3 flex place-items-center gap-1">
+							Web{#if $editMode}<CreateWebsite entry={fullentry.uid} />{/if}
+						</h3>
 					</div>
 				</div>
 				{#if fullentry.websites}
-				<div class="flex p-1">
-					<div class="w-9"></div>
-					<div class="p-1 space-x-2">
-						<Websites data={fullentry.websites} />
+					<div class="flex p-1">
+						<div class="w-9"></div>
+						<div class="p-1 space-x-2">
+							<Websites data={fullentry.websites} />
+						</div>
 					</div>
-				</div>
 				{/if}
 			</div>
 		{/if}
@@ -227,29 +225,33 @@ let memberships = $derived(data.memberships);
 		</div>
 	{/if}
 	{#if memberships || $editMode}
-	<div class="d-flex justify-content-between align-items-start">
-				<div class="flex items-center py-2">
-					<div class="w-9"><Fa icon={faPeopleGroup} size="sm" /></div>
-					<div>
-						<h3 class="h3 flex place-items-center gap-1">{capitalizeFirstLetter(m.MEMBERSHIP({count: 1}))}{#if $editMode}<PatchMembershipModal currentMemberships={memberships}/>{/if}</h3>
-					</div>
-				</div>
-				<div class="flex">
-					<div class="w-9"></div>
-					<div class="py-2">
-						{#if memberships}
-							<Membership data={memberships}/>
-						{:else}
-							Cette entrée n'est membre d'aucune organisation.
-						{/if}
-					</div>
+		<div class="d-flex justify-content-between align-items-start">
+			<div class="flex items-center py-2">
+				<div class="w-9"><Fa icon={faPeopleGroup} size="sm" /></div>
+				<div>
+					<h3 class="h3 flex place-items-center gap-1">
+						{capitalizeFirstLetter(m.MEMBERSHIP({ count: 1 }))}{#if $editMode}<PatchMembershipModal
+								currentMemberships={memberships}
+							/>{/if}
+					</h3>
 				</div>
 			</div>
+			<div class="flex">
+				<div class="w-9"></div>
+				<div class="py-2">
+					{#if memberships}
+						<Membership data={memberships} />
+					{:else}
+						Cette entrée n'est membre d'aucune organisation.
+					{/if}
+				</div>
+			</div>
+		</div>
 	{/if}
 	{#if $editMode}
-	<div class="flex flex-row">
-	<InactivateEntry/>
-	</div>
+		<div class="flex flex-row">
+			<InactivateEntry />
+		</div>
 	{/if}
 	<div class="flex flex-row-reverse">
 		<Back />
