@@ -97,12 +97,11 @@
 									result = await patchCommand(commandData);
 									if (result?.success) {
 										disabled = true;
-										console.log(JSON.stringify(result));
 										invalidate('entry:now');
 									}
 								} catch (error) {
 									console.error(`error:${error}`);
-									console.log(JSON.stringify(result));
+									console.error(JSON.stringify(result));
 								}
 							}}
 							type="submit"

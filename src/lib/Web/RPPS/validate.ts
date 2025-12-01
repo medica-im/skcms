@@ -1,5 +1,3 @@
-import { success } from "zod";
-
 export type Validation = { success: boolean, message: string|null};
 
 export const validate = (data: number) => {

@@ -28,7 +28,8 @@ export const createEmail = form(CreateEmail, async (data) => {
 		return {
 			success: false,
 			status: response.status,
-			text: response.statusText
+			text: response.statusText,
+			response: await response.json()
 		}
 	} else {
 		const json = await response.json()

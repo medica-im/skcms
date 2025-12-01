@@ -80,10 +80,8 @@
 	function handle(e) {
         console.log(e.detail);
 		if (e.detail.value == 'phone') {
-			console.log('phone selected: clear url')
 			url=null
 		} else if (e.detail.value == 'url') {
-			console.log('url selected: clear phone')
 			phone=null
 		}
     }

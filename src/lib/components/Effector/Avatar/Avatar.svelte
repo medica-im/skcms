@@ -1,12 +1,9 @@
 <script lang="ts">
 	import { variables } from '$lib/utils/constants';
-	import * as m from "$msgs";	import { workerTitleFormattedName } from '$lib/helpers/stringHelpers';
+	import * as m from '$msgs';
+	import type { EntryFull } from '$lib/store/directoryStoreInterface';
 
-	export let data;
-
-	/*if (import.meta.env.VITE_DEV == 'true') {
-		console.log(JSON.stringify(data));
-	}*/
+	export let data: EntryFull;
 
 	function getUrl(data) {
 		if (data?.avatar && data?.avatar?.lt) {
@@ -21,8 +18,8 @@
 	}
 </script>
 
-    <img
-        src={getUrl(data)}
-        alt="{m.ADDRESSBOOK_A11Y_PROFILE_PIC_OF()}  {workerTitleFormattedName(data)}"
-        class="w-44 h-44 rounded-lg"
-    />
+<img
+	src={getUrl(data)}
+	alt="{m.ADDRESSBOOK_A11Y_PROFILE_PIC_OF()}  {null}"
+	class="w-44 h-44 rounded-lg"
+/>

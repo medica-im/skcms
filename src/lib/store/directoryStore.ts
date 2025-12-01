@@ -226,7 +226,7 @@ export const getTimestamps = async (): Promise<Timestamps|undefined> => {
 		if ( res.ok ) {
 			return await res.json()
 		} else {
-			console.log(res.status);
+			console.error(res.status);
 		}
 	} catch (error) {
 		console.error(error);
@@ -236,7 +236,6 @@ export const getTimestamps = async (): Promise<Timestamps|undefined> => {
 export const getEntries = async (): Promise<Entry[]> => {
 	const cachedEntriesObj = getLocalStorage('entries');
 	const refresh: boolean = await doRefresh("v1:entries", cachedEntriesObj?.cachetime);
-	console.log(`doRefresh v1:entries: ${refresh}`);
 	if ( refresh ) {
 		return await downloadAllEntries();
 	} else {
@@ -396,9 +395,9 @@ export const fullFilteredEffectorsF = async (selectSituation: string | null = nu
 			}
 		}).filter(function (x) {
 			if (currentOrg == true && organizationStore) {
-				return x.organizations?.includes(organizationStore.uid) || x.employers?.includes(organizationStore.uid)
+				return x.memberships?.includes(organizationStore.uid) || x.employers?.includes(organizationStore.uid)
 			} else if (currentOrg == false && organizationStore) {
-				return !x.organizations?.includes(organizationStore.uid) && !x.employers?.includes(organizationStore.uid)
+				return !x.memberships?.includes(organizationStore.uid) && !x.employers?.includes(organizationStore.uid)
 			} else {
 				return true
 			}

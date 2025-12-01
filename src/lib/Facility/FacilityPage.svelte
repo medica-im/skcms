@@ -12,6 +12,8 @@
 	import { variables } from '$lib/utils/constants';
 	import { copy } from 'svelte-copy';
 	import { page } from '$app/state';
+	import UuidHex from '$lib/Uuid/UuidHex.svelte';
+	import UuidHyphen from '$lib/Uuid/UuidHyphen.svelte';
 	import type { Facility } from '$lib/interfaces/facility.interface.ts';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 
@@ -31,15 +33,15 @@
 
 	function lgGridCols() {
 		if (facility?.avatar?.raw) {
-			return "3"
-	    } else {
-			return "2"
+			return '3';
+		} else {
+			return '2';
 		}
 	}
 </script>
-<div class="grid grid-cols-1 lg:grid-cols-{lgGridCols()} card variant-soft p-4 space-x-4 space-y-4 w-fit">
-	<div class="space-y-2 space-x-2 mx-0">
-		<div class="space-y-4">
+
+<div class="grid grid-cols-1 md:flex md:flex-wrap lg:grid-cols-{lgGridCols()} gap-8 w-full mx-auto justify-items-center lg:justify-items-stretch self-items-center ">
+	<div class="space-y-4 mx-auto lg:w-{lgGridCols()=='2' ? '1/2' : '1/3'}">
 		<Address data={facility} />
 		{#if facility?.emails}
 			{#each facility?.emails as email}
@@ -47,15 +49,13 @@
 			{/each}
 		{/if}
 		{#if facility.address.longitude && facility.address.latitude}
-		{#if browser}
-			{#if isMobile(window)}
-				<Navigation geoData={createFacilityGeoData(facility)} />
+			{#if browser}
+				{#if isMobile(window)}
+					<Navigation geoData={createFacilityGeoData(facility)} />
+				{/if}
 			{/if}
 		{/if}
-		{/if}
-	    </div>
-		{#if facility?.websites || facility?.socialnetworks }
-		<div>
+		{#if facility?.websites || facility?.socialnetworks}
 			<span class="inline-block align-middle space-x-1">
 				{#if facility?.websites}
 					{#each facility.websites as website}
@@ -66,15 +66,15 @@
 					<SoMed data={facility.socialnetworks} appBar={false} />
 				{/if}
 			</span>
-		</div>
 		{/if}
 		{#if page.data?.user?.role == 'superuser'}
-			<div>
-				{facility.uid}
-				<button use:copy={facility.uid}> Copy! </button>
+			<div class="space-x-2">
+				<span>Facility {facility.uid}</span>
+				<UuidHex data={facility.uid}/>
+				<UuidHyphen data={facility.uid}/>
 			</div>
 		{/if}
-		<div>
+		<div class="lg:max-w-{lgGridCols()=='2' ? 'lg' : 'sm'}">
 			<Directory
 				data={entries}
 				typesView={true}
@@ -85,7 +85,7 @@
 		</div>
 	</div>
 	{#if facility?.avatar?.raw}
-		<div>
+		<div class="mx-auto lg:w-1/3">
 			<figure class="content-center shrink mx-auto w-64 lg:w-80">
 				<img
 					class="h-auto w-fit"
@@ -101,8 +101,8 @@
 		</div>
 	{/if}
 	{#if facility.address.longitude && facility.address.latitude}
-	<div class="h-64 w-64 lg:w-96 lg:h-96 z-0">
-		<MapSvelte data={createFacilitiesMapData([facility])} />
-	</div>
+		<div class="h-64 w-64 lg:w-96 lg:h-96 z-0 mx-auto lg:w-{lgGridCols()=='2' ? '1/2' : '1/3'}">
+			<MapSvelte data={createFacilitiesMapData([facility])} />
+		</div>
 	{/if}
 </div>

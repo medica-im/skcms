@@ -59,7 +59,7 @@ export const getAvatars = asyncDerived(
 			cachedEffectors = await getEntries();
 		}
 		let carousel = cachedEffectors.filter(function (item: Entry) {
-			return (item?.avatar?.lt && (item?.organizations.includes($organizationStore.uid) || item?.employers.includes($organizationStore.uid)))
+			return (item?.avatar?.lt && (item?.memberships.includes($organizationStore.uid) || item?.employers.includes($organizationStore.uid)))
 		});
 		shuffle(carousel);
 		return carousel
@@ -72,7 +72,6 @@ export const getFacilities = async (skFetch: Fetch|null=null): Promise<Facility[
 		cachedData = getLocalStorage(`${cacheName}`);
 	}
 	const refresh: boolean = await doRefresh("v1:entries", cachedData?.cachetime);
-	console.log(`getFacilities doRefresh=${refresh}`);
 	if ( refresh ) {
 		const facilities: Facility[] = await downloadElements("facilities");
 		if (facilities.length) {

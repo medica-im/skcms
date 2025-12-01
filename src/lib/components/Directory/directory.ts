@@ -7,9 +7,9 @@ export const cardCatEntries = async (currentOrg: boolean | null, orgUid: string,
     const entries = await getEntries();
     filterInPlace(entries, (e: Entry) => {
         if (currentOrg == true) {
-            return e.organizations?.includes(orgUid) || e.employers?.includes(orgUid)
+            return e.memberships?.includes(orgUid) || e.employers?.includes(orgUid)
         } else if (currentOrg == false) {
-            return !e.organizations?.includes(orgUid) && !e.employers?.includes(orgUid)
+            return !e.memberships?.includes(orgUid) && !e.employers?.includes(orgUid)
         } else {
             return true
         }

@@ -59,7 +59,6 @@
 		() => {
 			if ( result?.success ) return true;
 			if ( data && selectedItems ) {
-				console.log(data);
 				return areArraysEqualSets(selectedItems.map(e=>e.value),data.map(e=>e.tag))
 			} else {
 				return selectedItems == undefined
@@ -77,7 +76,7 @@
 	title={data ? 'Modifier' : 'Créer'}><Fa icon={data ? faPenToSquare : faPlus} /></button
 >
 
-<Dialog bind:dialog on:close={() => console.log('closed')}>
+<Dialog bind:dialog>
 	<div class="rounded-lg h-96 w-96 p-8 variant-ghost-secondary gap-8 items-center place-items-center">
 		<!--p>{JSON.stringify(data)}</p-->
 		<!--p>selectedItems: {JSON.stringify(selectedItems)}</p>
@@ -98,7 +97,6 @@
 					onclick={async () => {
 						try {
 							result = await patchCommand(commandData);
-							console.log(JSON.stringify(result));
 							if (result.success == true) {
 								invalidate('entry:now');
 								disabled=true;

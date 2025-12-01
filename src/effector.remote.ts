@@ -23,7 +23,6 @@ export const getEffectors = query(z.string().nullable(), async (directory) => {
     const { cookies } = getRequestEvent();
     const params = directory ? `?directory=${encodeURIComponent(directory)}` : '';
     const url = `${variables.BASE_URI}/api/v2/effectors${params}`;
-    console.log(url);
     const request = authReq(url, 'GET', cookies);
     const response = await fetch(request);
     if (response.ok == false) {
@@ -81,7 +80,6 @@ export const updateEffector = form(effectorPatch, async (data) => {
     delete data.effector;
     const { cookies } = getRequestEvent();
     const url = `${variables.BASE_URI}/api/v2/effectors/${effector_uid}`;
-    console.log(url);
     const request = authReq(url, 'PATCH', cookies, JSON.stringify(data));
     const response = await fetch(request);
     if (response.ok == false) {
@@ -118,8 +116,6 @@ export const createEffector = form(effectorPost, async (data) => {
     const response = await fetch(request);
     if (response.ok == false) {
         console.error(JSON.stringify(response))
-        console.error(response.status)
-        console.error(response.statusText)
         return {
             success: false,
             status: response.status,
@@ -127,8 +123,6 @@ export const createEffector = form(effectorPost, async (data) => {
         }
     } else {
         const json = await response.json()
-        console.log(`Success! Status: ${response.status} Status text: ${response.statusText}`);
-        console.log(json);
         return {
             success: true,
             status: response.status,

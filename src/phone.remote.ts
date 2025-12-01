@@ -30,7 +30,8 @@ export const createPhone = form(CreatePhone, async (data) => {
 		return {
 			success: false,
 			status: response.status,
-			text: response.statusText
+			text: response.statusText,
+			response: await response.json()
 		}
 	} else {
 		const json = await response.json()
@@ -56,12 +57,6 @@ const UpdatePhone = z.object({
 
 export const updatePhone = form(UpdatePhone, async (data) => {
 	console.log(`form data:${JSON.stringify(data)}`);
-	//const dataObject = JSON.parse(JSON.stringify(Object.fromEntries(data)));
-	//const roles = data.roles as string[];
-	//console.log(`roles: ${roles}`);
-	//const rolesArray: string[] = roles.split(',');
-	//console.log(`rolesArray ${rolesArray}`);
-	//dataObject.roles = rolesArray;
 	const { cookies } = getRequestEvent();
 	const url = `${variables.BASE_URI}/api/v2/phones/${data.id}`;
 	const request = authReq(url, 'PUT', cookies, JSON.stringify(data));
@@ -73,7 +68,8 @@ export const updatePhone = form(UpdatePhone, async (data) => {
 		return {
 			success: false,
 			status: response.status,
-			text: response.statusText
+			text: response.statusText,
+			response: await response.json()
 		}
 	} else {
 		const json = await response.json()

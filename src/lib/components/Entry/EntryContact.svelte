@@ -6,8 +6,8 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { entryPageUrl } from '$lib/utils/utils';
-	import type { Entry } from '$lib/store/directoryStoreInterface';
-	export let entry: Entry;
+	import type { EntryFull } from '$lib/store/directoryStoreInterface';
+	export let entry: EntryFull;
 	export let avatar: boolean;
 
 	const goTo = () => {

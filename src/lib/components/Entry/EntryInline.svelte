@@ -1,13 +1,13 @@
 <script lang="ts">
-    import { page } from '$app/state';
-    import { Avatar } from '@skeletonlabs/skeleton';
-    import { faUser } from '@fortawesome/free-solid-svg-icons';
-    import Fa from 'svelte-fa';
-    import type { Entry } from '$lib/store/directoryStoreInterface';
+	import { page } from '$app/state';
+	import { Avatar } from '@skeletonlabs/skeleton';
+	import { faUser } from '@fortawesome/free-solid-svg-icons';
+	import Fa from 'svelte-fa';
+	import type { Entry } from '$lib/store/directoryStoreInterface';
 
-    export let data: Entry;
+	export let data: Entry;
 
-    function entryUrl(entry: Entry) {
+	function entryUrl(entry: Entry) {
 		let typeSlug = entry.effector_type.slug;
 		let facilitySlug = entry.facility.slug;
 		let nameSlug = entry.slug;
@@ -15,11 +15,15 @@
 	}
 </script>
 
-<a href={entryUrl(data)} class="anchor">
-    <div class="flex flex-wrap gap-2 items-center">
-<Avatar src="{data.avatar.fb}" width="w-10">
-    <Fa icon={faUser} />
-</Avatar>
-<div>{data?.name}, {data?.effector_type.label}</div>
-</div>
-</a>
+{#if data}
+	<a href={entryUrl(data)} class="anchor">
+		<div class="flex flex-wrap gap-2 items-center">
+			<Avatar src={data.avatar.fb||data.avatar.raw} width="w-10">
+				<Fa icon={faUser} />
+			</Avatar>
+			<div>{data?.name}, {data?.effector_type.label}</div>
+		</div>
+	</a>
+{:else}
+	data: {JSON.stringify(data)}
+{/if}

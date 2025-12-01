@@ -2,6 +2,7 @@ import { organizationStore } from '$lib/store/facilityStore.ts';
 import { asyncDerived } from '@square/svelte-store';
 import publicHolidaysJson from '$lib/assets/json/metropole.json';
 
+
 export const publicHolidays = asyncDerived(
 	(organizationStore),
 	async ($organizationStore) => {

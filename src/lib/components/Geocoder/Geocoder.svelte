@@ -46,7 +46,6 @@
 	}
 
 	function getAddressOptions(res: FeatureCollection) {
-		console.log(res);
 		console.log(JSON.stringify(res));
 
 		if (!res || !res?.features?.length) {

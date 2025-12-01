@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Phones from '$lib/Directory/Phone/Phones.svelte';
 	import Fa from 'svelte-fa';
 	import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
 	import { faGlobe, faMobileScreen, faPhone } from '@fortawesome/free-solid-svg-icons';
@@ -12,7 +13,9 @@
 	{#if data?.address?.state}<br />
 		{data.address.state}
 	{/if}
-	{#if data?.phones}<br />
+	{#if data?.phones}
+	<Phones data={data.phones}/>
+	<!--br />{JSON.stringify(data.phones)}
 		<ul class="list">
 			{#each data.phones as phone}
 				<li>
@@ -24,6 +27,6 @@
 					<span class="flex-auto"><a href="tel:{phone.phone}">{phone.phone}</a></span>
 				</li>
 			{/each}
-		</ul>
+		</ul-->
 	{/if}
 </address>

@@ -164,7 +164,6 @@
 		return `Personne${effectors.length > 1 ? 's' : ''}: ${effectors.length}`;
 	};
 	function confirm() {
-		console.log("confirm()");
 		if (selectedEffector !== undefined) {
 			const uid = selectedEffector.value;
 			effector = effectors.find((e) => e.uid == uid);

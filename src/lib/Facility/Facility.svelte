@@ -5,17 +5,16 @@
 	import { scale } from 'svelte/transition';
 	import type { Facility } from '$lib/interfaces/facility.interface.js';
 
-	export let data: any;
+	let { data } = $props();
 
 	function filterFacilities(facilities: Facility[]) {
 		const f = facilities.filter((facility) =>
-			facility.organizations.includes(data.organization.uid)
+			facility.avatar !== null
 		);
 		return f;
 	}
 
-	const facilities = filterFacilities(data.facilities);
-	const carouselFacilities = filterFacilities(data.carousel);
+	const carouselFacilities = filterFacilities(data);
 
 	function title() {
 		const title = data?.facilities?.length > 1 ? 'Sites' : 'Site';
@@ -29,7 +28,7 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-10">
 	<div class="space-y-4 text-center">
 		<h2 class="h2">{title()}</h2>
-		{#each facilities.sort(compareFn) as facility}
+		{#each data.sort(compareFn) as facility}
 			<div>
 				<a
 					href="/sites/{facility.slug}"
@@ -40,11 +39,11 @@
 		{/each}
 	</div>
 	<div in:scale class="h-64 z-0">
-		<MapLeaflet data={createFacilitiesMapData(facilities, true)} />
+		<MapLeaflet data={createFacilitiesMapData(data, true)} />
 	</div>
 	{#if carouselFacilities.length}
 		<div class="place-items-center items-center justify-center content-center">
-			<FacilityCarousel data={carouselFacilities} />
+			<FacilityCarousel data={data.filter((f: Facility)=>{return f.avatar!==null})} />
 		</div>
 	{/if}
 </div>

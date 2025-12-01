@@ -149,12 +149,10 @@
 			<div class="p-4 space-y-2 justify-items-stretch grid grid-cols-1 gap-6">
 				<form
 					{...createEffector.enhance(async ({ form, data, submit }) => {
-						console.log(data);
 						try {
 							await submit();
-							console.log('Successfully published!');
 						} catch (error) {
-							console.log(`Oh no! Something went wrong:${error}`);
+							console.error(`Oh no! Something went wrong:${error}`);
 						}
 					})}
 					class=""

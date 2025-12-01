@@ -4,7 +4,6 @@
 	import type { Facility } from '$lib/interfaces/facility.interface';
 
 	export let data;
-
 	function compareFn(a:Facility, b:Facility) {
 		return b.entries.length - a.entries.length
 	}

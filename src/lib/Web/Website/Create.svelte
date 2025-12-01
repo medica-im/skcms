@@ -109,7 +109,7 @@
 						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
 					{:else if result && !result?.success}
 						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span
-						>{result.text}
+						><span class="text-base">{result?.response?.detail || result?.text}</span>
 					{/if}
 				</div>
 				<div class="w-auto justify-center">

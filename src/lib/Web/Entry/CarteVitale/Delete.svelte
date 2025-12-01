@@ -84,7 +84,6 @@
 					onclick={async () => {
 						try {
 							result = await patchCommand(commandData);
-							console.log(JSON.stringify(res));
 							invalidate('entry:now');
 						} catch (error) {
 							console.error(error);

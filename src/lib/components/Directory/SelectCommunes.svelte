@@ -66,7 +66,6 @@
 
 	function handleChange(event: CustomEvent) {
 		if (event.detail) {
-			console.log(event.detail);
 			if (Array.isArray(event.detail)) {
 				$selectedCommunesChoices = event.detail;
 				$selectedCommunes = event.detail.map((e) => e.value);

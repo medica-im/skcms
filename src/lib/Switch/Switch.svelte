@@ -10,8 +10,6 @@
 
 	const toggleEdit = (e) => {
 		const btnValue = e.target.value;
-		console.log($editMode);
-		console.log(JSON.stringify(e));
 		if (btnValue == 'on') {
 			$editMode = true;
 			onDisabled = true;

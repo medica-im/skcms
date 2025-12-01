@@ -72,11 +72,10 @@
 			{...createPhone.enhance(async ({ form, data, submit }) => {
 				try {
 					const dataString = JSON.stringify(data);
-					console.log(dataString);
 					await submit();
 					invalidate('entry:now');
 				} catch (error) {
-					console.log(error);
+					console.error(error);
 				}
 			})}
 		>
@@ -140,7 +139,7 @@
 						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
 					{:else if result && !result?.success}
 						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span
-						>{result.text}
+						><span class="text-base">{result?.response?.detail || result?.text}</span>
 					{/if}
 				</div>
 				<div class="w-2/3 flex gap-2">

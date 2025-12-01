@@ -2,7 +2,7 @@
 	import EntryInline from './EntryInline.svelte';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 
-	export let data: Entry[];
+	let { data } : { data: Entry[]} = $props();
 </script>
 
 <ul class="list">

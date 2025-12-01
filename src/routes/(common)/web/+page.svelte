@@ -1,11 +1,18 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import CreateEntry from '$lib/Web/CreateEntry.svelte';
 	import { browser } from '$app/environment';
+	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 </script>
+<svelte:head>
+	<title>
+		Créer une entrée - {capitalizeFirstLetter(page.data.organization.formatted_name)}
+	</title>
+</svelte:head>
 
 <header id="hero" class="bg-surface-100-800-token hero-gradient">
 	<div class="mx-0 flex flex-col items-center justify-center p-4 py-6 space-y-2">
-		<h2 class="h2">Pluripro Web</h2>
+		<h2 class="h2">Créer une entrée</h2>
 		{#if browser}
 			<CreateEntry />
 		{/if}

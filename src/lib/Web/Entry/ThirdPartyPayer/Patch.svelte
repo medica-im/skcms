@@ -57,7 +57,6 @@
 
 	onMount(async () => {
 		payers = await getThirdPartyPayers();
-		console.log(JSON.stringify(payers))
 		if (payers) {
 			choices = getItems(payers);
 		}
@@ -79,7 +78,7 @@
 	title={data==null ? "Créer":"Modifier"}><Fa icon={data ? faPenToSquare : faPlus} /></button
 >
 
-<Dialog bind:dialog on:close={() => console.log('closed')}>
+<Dialog bind:dialog>
 	<div class="rounded-lg h-96 w-96 p-4 variant-ghost-secondary items-center place-items-center">
 		<!--p class="text-sm">data: {JSON.stringify(data?.map(e=>e.name))}</p>
 		<p class="text-sm">selectedItems: {JSON.stringify(selectedItems?.map(e=>e.value))}</p>
@@ -102,7 +101,6 @@
 							onclick={async () => {
 								try {
 									result = await patchCommand(commandData);
-									console.log(JSON.stringify(res));
 									invalidate('entry:now');
 								} catch (error) {
 									console.error(error);

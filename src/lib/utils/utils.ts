@@ -137,12 +137,6 @@ export function isExpired(ttl: number, cacheTime: number): boolean {
 
 export async function doRefresh(endpoint: string, cachetime: number|undefined): Promise<boolean> {
 	const timestamps = await getTimestamps();
-	console.log(`timestamps: ${JSON.stringify(timestamps)}`);
-	console.log(`endpoint: ${endpoint}`);
-	console.log(`cachetime: ${cachetime}`);
-	if ( timestamps) {
-		console.log(`timestamp: ${timestamps[endpoint as keyof Timestamps]}`)
-	}
 	if ( timestamps === undefined ) {
 		return false
 	} else if ( cachetime === undefined ) {

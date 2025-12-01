@@ -38,11 +38,20 @@
 	let disabled: boolean = $derived(
 		(_email == undefined) || (selectedAccess == undefined) || formResult?.success==true
 	);
+	let hasBeenClicked = false;
 	function resetForm() {
 		_email = undefined;
 		selectedAccess = undefined;
 		formResult = undefined;
 	}
+	function handleClick() {
+        if (hasBeenClicked) return;
+        hasBeenClicked = true;
+        setTimeout(() => {
+            hasBeenClicked = false;
+        }, 500);
+        console.log('click');
+    };
 </script>
 
 <button class="btn-icon btn-icon-sm variant-ghost-surface"
@@ -58,13 +67,11 @@
 		<form
 			{...createEmail.enhance(async ({ form, data, submit }) => {
 				try {
-					//data = manipulateForm(data);
 					const dataString = JSON.stringify(data);
-					console.log(dataString);
 					await submit();
 					invalidate('entry:now');
 				} catch (error) {
-					console.log(error);
+					console.error(error);
 				}
 			})}
 		>
@@ -110,8 +117,8 @@
 					{#if formResult?.success==true}
 						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
 					{:else if formResult?.success==false}
-						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span
-						>{formResult?.text}
+						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span>
+						<span class="text-base">{formResult?.response?.detail || formResult?.text}</span>
 					{/if}
 				</div>
 				<div class="w-auto justify-center">

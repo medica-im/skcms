@@ -168,5 +168,17 @@
   "SET_NEW_PASSWORD": "Créer un nouveau mot de passe",
   "CHANGE_PASSWORD_SUCCESS": "Mot de passe changé avec succès!",
   "PASSWORD_FORGOTTEN": "Avez-vous oublié votre mot de passe?",
-  "SIGNIN": "Se connecter"
+  "SIGNIN": "Se connecter",
+  "ENTRIES": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [],
+      "match": [
+        ""
+      ]
+    }
+  ]
 }

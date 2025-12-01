@@ -171,5 +171,19 @@
 				"countPlural=other": "memberships"
 			}
 		}
+	],
+	"ENTRIES": [
+		{
+			"declarations": [
+				"input count",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": [
+				"countPlural"
+			]
+		}
 	]
 }

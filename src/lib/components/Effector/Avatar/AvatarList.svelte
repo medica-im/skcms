@@ -1,27 +1,21 @@
 <script lang="ts">
 	import { variables } from '$lib/utils/constants';
-	import * as m from "$msgs";	import { workerTitleFormattedName } from '$lib/helpers/stringHelpers';
+	import * as m from "$msgs";
+	import type { EntryFull } from '$lib/store/directoryStoreInterface';
 
-	export let data;
+	export let data: EntryFull;
 
 	/*if (import.meta.env.VITE_DEV == 'true') {
 		console.log(JSON.stringify(data));
 	}*/
 
-	function getUrl(data) {
-		if (data?.avatar && data?.avatar?.lt) {
-			return variables.BASE_URI + data.avatar.lt;
-		} else if (data?.avatar && data?.avatar?.fb) {
-			return variables.BASE_URI + data.avatar.fb;
-		}
-         else {
-			return `${variables.BASE_URI}/media/profile_images/default_profile_picture.png`;
-		}
+	function getUrl(data: EntryFull) {
+			return `${variables.BASE_URI}${data.avatar?.fb || data.avatar?.lt || data.avatar?.raw || "/media/profile_images/default_profile_picture.png"}`;
 	}
 </script>
 
     <img
         src={getUrl(data)}
-        alt="{m.ADDRESSBOOK_A11Y_PROFILE_PIC_OF()}  {workerTitleFormattedName(data)}"
+        alt="{m.ADDRESSBOOK_A11Y_PROFILE_PIC_OF()}  {data.name}"
         class="w-44 h-44 shrink-0 rounded-none lg:rounded-l-lg"
     />

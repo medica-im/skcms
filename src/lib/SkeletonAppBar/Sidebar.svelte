@@ -35,8 +35,6 @@
 	let classesActive = $derived((href: string) => {
 		return page.url.pathname == href ? 'variant-ringed-primary' : '';
 	});
-
-	$inspect(currentRailCategory, navLinks);
 </script>
 
 {#if navLinks}
@@ -46,20 +44,20 @@
 		>
 			<!-- App Rail -->
 			<AppRail background="!bg-transparent" border="border-r border-surface-500/30">
-				{#if page.data.organization.category.name == "cpts"}
-				<AppRailTile bind:group={currentRailCategory} name="cpts" value={'cpts'}>
-					<svelte:fragment slot="lead"
-						><DocsIcon name="outpatientClinic" width="w-6" height="h-6" /></svelte:fragment
-					>
-					<span>CPTS</span>
-				</AppRailTile>
-				{:else if page.data.organization.category.name == "msp"}
-				<AppRailTile bind:group={currentRailCategory} name="msp" value={'msp'}>
-					<svelte:fragment slot="lead"
-						><DocsIcon name="outpatientClinic" width="w-6" height="h-6" /></svelte:fragment
-					>
-					<span>Maison de santé</span>
-				</AppRailTile>
+				{#if page.data.organization.category.name == 'cpts'}
+					<AppRailTile bind:group={currentRailCategory} name="cpts" value={'cpts'}>
+						<svelte:fragment slot="lead"
+							><DocsIcon name="outpatientClinic" width="w-6" height="h-6" /></svelte:fragment
+						>
+						<span>CPTS</span>
+					</AppRailTile>
+				{:else if page.data.organization.category.name == 'msp'}
+					<AppRailTile bind:group={currentRailCategory} name="msp" value={'msp'}>
+						<svelte:fragment slot="lead"
+							><DocsIcon name="outpatientClinic" width="w-6" height="h-6" /></svelte:fragment
+						>
+						<span>Maison de santé</span>
+					</AppRailTile>
 				{/if}
 				<AppRailTile bind:group={currentRailCategory} name="education" value={'education'}>
 					<svelte:fragment slot="lead"

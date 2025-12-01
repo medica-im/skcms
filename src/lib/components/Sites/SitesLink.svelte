@@ -5,7 +5,7 @@
 	import { faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 </script>
 
-<a href="/sites" class="btn variant-filled">
+<a href="/sites" class="btn variant-filled w-fit">
 		<span class="badge variant-filled-primary"> <Fa icon={faArrowRight} /></span>
 		<span class="whitespace-normal text-left">
 			{m.SITES_ALL()}

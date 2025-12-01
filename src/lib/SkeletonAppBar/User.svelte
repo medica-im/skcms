@@ -129,6 +129,10 @@
 							<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
 							<span>Créer une entrée</span>
 						</a>
+						<a href="/web/entries">
+							<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
+							<span>Toutes les entrées</span>
+						</a>
 						<!--hr class="my-4"-->
 						<!--a href="/{ facility.category.slug }/projet-de-sante">
 							<span class="w-6 text-center"><Fa icon={faBookMedical} /></span>

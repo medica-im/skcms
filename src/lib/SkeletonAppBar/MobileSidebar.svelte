@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { organizationStore } from '$lib/store/facilityStore.ts';
 	import { getContext } from 'svelte';
 	import { language } from '$lib/store/languageStore.ts';
 	import * as m from '$msgs';
@@ -171,8 +170,8 @@
 				<span>Blog</span>
 			</AppRailAnchor>
 		{/if}
-		{#if $organizationStore && $organizationStore.contact?.socialnetworks}
-			<SoMed data={$organizationStore.contact.socialnetworks} appRail={true} />
+		{#if page.data.organization.contact?.socialnetworks}
+			<SoMed data={page.data.organization.contact.socialnetworks} appRail={true} />
 		{/if}
 	</AppRail>
 	{#if navLinks?.length}

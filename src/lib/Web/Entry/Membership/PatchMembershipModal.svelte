@@ -80,30 +80,22 @@
 	);
 
 	function onChange(event: CustomEvent) {
-		console.log(`concatenate: ${JSON.stringify(event.detail)}`);
 		if (event.detail) {
 			const e: SelectType[] = event.detail;
-			console.log(`value: ${JSON.stringify(e)}`);
 			for (var i = 0, len = e.length; i < len; i++) {
 				const element = e[i];
-				console.log($state.snapshot(element));
 				if (selectedMemberships.indexOf(element) === -1) {
 					selectedMemberships.push(element);
 				}
 			}
-			console.log(`selectedMemberships: ${JSON.stringify(selectedMemberships)}`);
 		}
 	}
 	function onClear(event: CustomEvent) {
-		console.log(`concatenate: ${JSON.stringify(event.detail)}`);
 		if (event.detail) {
 			const e: SelectType = event.detail;
-			console.log(`value: ${JSON.stringify(e)}`);
 			const to_delete: SelectType[] = Array.isArray(e) ? e : [e];
 			const to_delete_value: string[] = to_delete.map(e=>e.value);
-			console.log(`to_delete: ${JSON.stringify(to_delete)}`);
 			selectedMemberships = selectedMemberships.filter((item) => !to_delete_value.includes(item.value));
-			console.log(`selectedMemberships: ${JSON.stringify(selectedMemberships)}`);
 		}
 	}
 	function clear() {
@@ -205,7 +197,6 @@
 						onclick={async () => {
 							try {
 								result = await patchCommand(memberships);
-								//console.log(JSON.stringify(res));
 								invalidate('entry:now');
 							} catch (error) {
 								console.error(error);

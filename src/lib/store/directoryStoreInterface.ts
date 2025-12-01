@@ -53,7 +53,7 @@ export interface Entry {
     gender: string | null,
     label: string,
     name: string,
-    organizations: string[],
+    memberships: string[],
     employers: string[],
     phones: Phone[],
     resource_uri: string,

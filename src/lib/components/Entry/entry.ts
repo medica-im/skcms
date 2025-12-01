@@ -7,12 +7,11 @@ type Fetch = {
 
 export async function getEntry(entryUrl: string, fetch: Fetch) {
     try {
-        const response = await fetch(`${variables.BASE_API_URI}/fulleffector/${entryUrl}/`)
-
+        const [facility, type, effector] = entryUrl.split("/");
+        const response = await fetch(`${variables.BASE_URI}/api/v2/queryfullentries/?facility=${facility}&type=${type}&effector=${effector}`)
         if (response.status !== 200 && !response.ok) {
             throw new Error(`${response.status}: Unable to fetch resource`)
         }
-
         const json = await response.json()
         return json
     } catch (error) {
