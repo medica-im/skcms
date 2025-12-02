@@ -7,7 +7,7 @@ import type { CustomError } from '$lib/interfaces/error.interface';
 export const openGraphStore= asyncReadable(
 	{} as OpenGraph,
 	async () => {
-		const url = `${variables.BASE_API_URI}/opengraph/`;
+		const url = `${variables.BASE_URI}/api/v1/opengraph/`;
         try {
 		const [response, err]: [OpenGraph, CustomError] = await handleRequestsWithPermissions(fetch, url);
 			if (response) {
