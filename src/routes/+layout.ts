@@ -1,5 +1,6 @@
 import { variables } from "$lib/utils/constants";
 import { checkVersion } from '$lib/version';
+import type { Organization } from '$lib/interfaces/organization.ts';
 import type { LayoutLoad } from './$types';
 
 const directory = async (fetch: any) => {
@@ -19,16 +20,19 @@ const directory = async (fetch: any) => {
 
 const organization = async (fetch: any) => {
   const url = `${variables.BASE_URI}/api/v1/organization/`;
+  console.log(url);
   let response;
   try {
     response = await fetch(url)
   } catch (error) {
-    console.log('organization fetch', error);
+    console.error('organization fetch', error);
+    throw error
   }
-  if (response?.ok) {
-    return await response.json();
+  if (response.ok) {
+    return await response.json() as Organization;
   } else {
-    console.log(`organization fetch HTTP Response Code: ${response?.status}`)
+    console.error(`organization fetch HTTP Response Code: ${response?.status}`)
+    throw new Error(`organization fetch status: ${response.status}`)
   }
 }
 

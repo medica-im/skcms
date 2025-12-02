@@ -4,7 +4,6 @@ import type { Facility } from '$lib/interfaces/facility.interface.ts';
 import { variables } from '$lib/utils/constants';
 import { asyncReadable, asyncDerived } from '@square/svelte-store';
 import { browser } from "$app/environment";
-import { handleRequestsWithPermissions } from '$lib/utils/requestUtils';
 import { shuffle } from '$lib/helpers/random';
 import { downloadElements } from '$lib/store/directoryStore.ts';
 import { doRefresh } from '$lib/utils/utils.ts';
@@ -22,7 +21,7 @@ export const organizationStore = asyncReadable(
 		let empty: boolean = true;
 		let lang = variables.DEFAULT_LANGUAGE;
 		if (browser) {
-			cachedData = localStorage.getItem(`${cacheName}_${lang}`);
+			cachedData = localStorage.getItem(`${cacheName}`);
 		}
 		if (cachedData) {
 			cachedData = JSON.parse(cachedData);
@@ -36,15 +35,17 @@ export const organizationStore = asyncReadable(
 		if (cachedData && !expired && cachedData.data) {
 			return cachedData.data;
 		} else {
-			const apiUrl = `${variables.BASE_API_URI}/organization/${lang}/`;
-			const [response, err] = await handleRequestsWithPermissions(fetch, apiUrl);
-			if (response) {
-				let data: Organization = response;
+			const url = `${variables.BASE_API_URI}/organization/`;
+			const response = await fetch(url);
+			if (response.ok) {
+				const data: Organization = await response.json();
 				if (browser) {
 					var json = { data: data, cachetime: Date.now() }
-					localStorage.setItem(`${cacheName}_${lang}`, JSON.stringify(json));
+					localStorage.setItem(`${cacheName}`, JSON.stringify(json));
 				}
 				return data;
+			} else {
+				throw new Error(`fetch ${url} ${response.status}`);
 			}
 		}
 	}
@@ -65,21 +66,21 @@ export const getAvatars = asyncDerived(
 		return carousel
 	});
 
-export const getFacilities = async (skFetch: Fetch|null=null): Promise<Facility[]> => {
+export const getFacilities = async (skFetch: Fetch | null = null): Promise<Facility[]> => {
 	const cacheName = "facilities";
 	let cachedData;
 	if (browser) {
 		cachedData = getLocalStorage(`${cacheName}`);
 	}
 	const refresh: boolean = await doRefresh("v1:entries", cachedData?.cachetime);
-	if ( refresh ) {
+	if (refresh) {
 		const facilities: Facility[] = await downloadElements("facilities");
 		if (facilities.length) {
-			facilities.sort((a, b)=>{
-					if (!a.name && !b.name) return 0
-					else if (!a.name && b.name) return 1
-					else if (a.name && !b.name) return -1
-					else return a.name.localeCompare(b.name);
+			facilities.sort((a, b) => {
+				if (!a.name && !b.name) return 0
+				else if (!a.name && b.name) return 1
+				else if (a.name && !b.name) return -1
+				else return a.name.localeCompare(b.name);
 			})
 			if (browser) {
 				var json = { data: facilities, cachetime: Date.now() }
