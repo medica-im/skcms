@@ -31,20 +31,12 @@ export const load: LayoutServerLoad = async ({locals, cookies, fetch}) => {
 } else {
   console.log(`/api/v2/users/me HTTP Response Code: ${response?.status}`)
 }
-const url = `${variables.BASE_URI}/api/v1/organization/`;
-  console.log(url);
-  let organization
-  try {
-    response = await fetch(url)
-  } catch (error) {
-    console.error('organization fetch', error);
-    throw error
-  }
+  let organization;
+  response = await fetch(`${variables.BASE_URI}/api/v1/organization`)
   if (response.ok) {
     organization = await response.json() as Organization;
   } else {
     console.error(`organization fetch HTTP Response Code: ${response?.status}`)
-    throw new Error(`organization fetch status: ${response.status}`)
   }
 
   return {
