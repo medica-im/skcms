@@ -11,8 +11,7 @@ export default defineConfig(({ mode }) => {
 	const env = loadEnv(mode, process.cwd());
 
 	const API_URL = `${env.VITE_BASE_URI_DEV ?? 'http://localhost:3000'}`;
-	const PORT = `${env.VITE_PORT ?? '3000'}`;
-
+	console.log(API_URL);
 	return {
 		optimizeDeps: {
 			include: ['lodash.get', 'lodash.isequal', 'lodash.clonedeep'],

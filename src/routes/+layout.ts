@@ -18,10 +18,12 @@ const directory = async (fetch: any) => {
   }
 }
 
-const organization = async (fetch: any) => {
+export const load: LayoutLoad = async ({ fetch, parent, data }) => {
+  checkVersion();
   const url = `${variables.BASE_URI}/api/v1/organization/`;
   console.log(url);
   let response;
+  let organization
   try {
     response = await fetch(url)
   } catch (error) {
@@ -29,20 +31,17 @@ const organization = async (fetch: any) => {
     throw error
   }
   if (response.ok) {
-    return await response.json() as Organization;
+    organization = await response.json() as Organization;
   } else {
     console.error(`organization fetch HTTP Response Code: ${response?.status}`)
     throw new Error(`organization fetch status: ${response.status}`)
   }
-}
 
-export const load: LayoutLoad = async ({ fetch, parent, data }) => {
-  checkVersion();
   return {
     directory: await directory(fetch),
     session: data.session,
     user: data.user,
-    organization: await organization(fetch),
+    organization: organization,
     sections: [
       { slug: 'profile', title: 'Profile' },
       { slug: 'notifications', title: 'Notifications' }
