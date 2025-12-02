@@ -34,7 +34,6 @@ const organization = async (fetch: any) => {
 
 export const load: LayoutLoad = async ({ fetch, parent, data }) => {
   checkVersion();
-  //const organization = await organizationStore.load();
   return {
     directory: await directory(fetch),
     session: data.session,

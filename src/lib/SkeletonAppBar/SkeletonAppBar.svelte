@@ -30,7 +30,6 @@
 	// Docs
 	import OutpatientClinicLogo from '$lib/Logos/OutpatientClinicLogo.svelte';
 	import AddressBookLogo from '$lib/Logos/AddressBookLogo.svelte';
-	import SkeletonIcon from '$lib/Icon/Icon.svelte';
 	import SocialNetworks from '../SoMed/SoMed.svelte';
 	// Components
 	import { AppBar } from '@skeletonlabs/skeleton';
@@ -46,7 +45,6 @@
 	import * as m from '$msgs';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import { language } from '$lib/store/languageStore';
-	import type { Organization } from '$lib/interfaces/organization.ts';
 
 	const drawerStore = getDrawerStore();
 	const modalStore = getModalStore();
