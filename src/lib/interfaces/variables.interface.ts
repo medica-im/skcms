@@ -17,7 +17,6 @@ export interface Variables {
 	readonly INPUT_FACILITY: boolean;
 	readonly INPUT_SEARCH: boolean;
 	readonly ENTRIES_LIMIT: number;
-	readonly ENTRIES_TTL: number;
 	readonly SITUATIONS_TTL: number;
 }
 
