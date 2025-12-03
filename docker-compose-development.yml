@@ -5,7 +5,7 @@ services:
       - .env
     build:
       context: .
-    image: skcms_dev
+    image: "${DOCKER_IMAGE_NAME}"
     ports:
       - "${NODE_PORT_EXTERNAL_DEVELOPMENT}:3000"
     environment:

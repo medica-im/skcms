@@ -2,7 +2,7 @@ import { writable } from '@square/svelte-store';
 import { variables } from '$lib/utils/constants.ts';
 import { browser } from "$app/environment";
 import { handleRequestsWithPermissions } from '$lib/utils/requestUtils.ts';
-import { PUBLIC_EFFECTOR_TYPE_LABELS_TTL, PUBLIC_ENTRIES_TTL, PUBLIC_SITUATIONS_TTL, PUBLIC_FACILITIES_TTL, PUBLIC_CACHE_CONTACTS } from '$env/static/public';
+import { PUBLIC_EFFECTOR_TYPE_LABELS_TTL, PUBLIC_SITUATIONS_TTL, PUBLIC_CACHE_CONTACTS } from '$env/static/public';
 import haversine from 'haversine-distance';
 import { isExpired } from '$lib/utils/utils.ts';
 import { getLocalStorage, setLocalStorage } from '$lib/utils/storage.ts';

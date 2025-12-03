@@ -15,8 +15,6 @@ FROM node:22-slim
 
 WORKDIR /app
 ENV NODE_ENV=production
-ENV PROTOCOL_HEADER=x-forwarded-proto
-ENV HOST_HEADER=x-forwarded-host
 COPY --from=builder /app/node_modules node_modules/
 COPY --from=builder /app/build .
 COPY --from=builder /app/package.json .

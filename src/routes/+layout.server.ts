@@ -1,10 +1,10 @@
-import { variables } from "$lib/utils/constants";
+import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
 import type { User } from "$lib/interfaces/user.interface";
 import type { Organization } from '$lib/interfaces/organization.ts';
 import type { LayoutServerLoad } from "./$types"
 
 export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
-  let request = new Request(`${variables.BASE_URI}/api/v2/users/me`,
+  let request = new Request(`${ORIGIN}/api/v2/users/me`,
     {
       credentials: 'include',
       method: 'GET',
@@ -33,14 +33,14 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
     console.log(`/api/v2/users/me HTTP Response Code: ${response?.status}`)
   }
   let organization;
-  response = await fetch(`${variables.BASE_URI}/api/v1/organization`)
+  response = await fetch(`${ORIGIN}/api/v1/organization`)
   if (response.ok) {
     organization = await response.json() as Organization;
   } else {
     console.error(`organization fetch HTTP Response Code: ${response?.status}`)
   }
   let directory;
-  response = await fetch(`${variables.BASE_URI}/api/v1/directory`)
+  response = await fetch(`${ORIGIN}/api/v1/directory`)
   if (response.ok) {
     directory = await response.json();
   } else {
