@@ -31,7 +31,23 @@ const config = {
 	    	config: cfg => {
         		cfg.include.push('./src/lib/auth.ts');
       		},
-    	}
+    	},
+		prerender: {
+			handleHttpError: ({ status, path, referrer, referenceType, message }) => {
+				console.log("status", status);
+				console.log("path", path);
+				console.log("referer", referrer);
+				console.log("referenceType", referenceType);
+				console.log("message", message);
+				// ignore deliberate link to shiny 404 page
+				//if (path === '/not-found' && referrer === '/blog/how-we-built-our-404-page') {
+				//	return;
+				//}
+
+				// otherwise fail the build
+				//throw new Error(message);
+			}
+		}
 	},
 	compilerOptions: {
 		experimental: {

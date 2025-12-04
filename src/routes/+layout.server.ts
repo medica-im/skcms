@@ -33,7 +33,7 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
     console.log(`/api/v2/users/me HTTP Response Code: ${response?.status}`)
   }
   let organization;
-  const orgUrl = '/api/v2/organization';
+  const orgUrl = `${ORIGIN}/api/v2/organization`;
   console.log("orgUrl", orgUrl);
   try {
     response = await fetch(orgUrl, {

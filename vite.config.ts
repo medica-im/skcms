@@ -37,7 +37,7 @@ export default defineConfig(({ mode }) => {
 		},
 		server: {
 			proxy: {
-				'/media/profile_images': API_URL,
+				'/media/': API_URL,
 				'/api/v2': {
 					target: API_URL,
 					changeOrigin: true,
