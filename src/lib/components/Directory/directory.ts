@@ -25,9 +25,7 @@ export const cardCatEntries = async (currentOrg: boolean | null, orgUid: string,
 };
 
 export const getMemberships = async (uids: string[]) => {
-    console.log(`uids: ${uids}`);
     const entries = await getEntries();
     filterInPlace(entries, (e: Entry) => { return uids.includes(e.uid) });
-    console.log(`entries: ${JSON.stringify(entries)}`);
     return entries;
 };

@@ -60,9 +60,6 @@
 					><span class="hidden 2xl:inline-block"><Fa icon={faRightFromBracket} size="lg" /></span><span class="2xl:hidden"><Fa icon={faRightFromBracket} size="xs" /></span>
 					<span>{m.NAVBAR_LOGOUT()}</span></button
 				>
-				<!--a class="nav-link" href="#" on:click={async () => await logOutUser()}
-				>{m.NAVBAR_LOGOUT()}</a
-            -->
 			</li>
 		{:else}
 			<li class="nav-item">

@@ -35,7 +35,7 @@ export const organizationStore = asyncReadable(
 		if (cachedData && !expired && cachedData.data) {
 			return cachedData.data;
 		} else {
-			const url = `${variables.BASE_URI}/api/v1/organization/`;
+			const url = `${variables.BASE_URI}/api/v2/organization`;
 			const response = await fetch(url);
 			if (response.ok) {
 				const data: Organization = await response.json();

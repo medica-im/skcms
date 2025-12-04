@@ -28,7 +28,7 @@
 
 	let category = $state('');
 
-	const baseUrl = `${variables.BASE_API_URI}/effector_types/`;
+	const baseUrl = '/api/v1/effector_types/';
 
 	async function downloadRecords() {
 		let records = [];

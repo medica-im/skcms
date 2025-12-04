@@ -33,14 +33,29 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
     console.log(`/api/v2/users/me HTTP Response Code: ${response?.status}`)
   }
   let organization;
-  response = await fetch(`${ORIGIN}/api/v1/organization`)
-  if (response.ok) {
+  const orgUrl = '/api/v2/organization';
+  console.log("orgUrl", orgUrl);
+  try {
+    response = await fetch(orgUrl, {
+      credentials: 'include',
+      method: 'GET',
+      headers: { "content-type": "application/json" },
+    })
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
     organization = await response.json() as Organization;
-  } else {
-    console.error(`organization fetch HTTP Response Code: ${response?.status}`)
+  } catch (error: any) {
+    console.error(error.message);
   }
   let directory;
-  response = await fetch(`${ORIGIN}/api/v1/directory`)
+  const dirUrl = `${ORIGIN}/api/v1/directory/`;
+  console.log("dirUrl", dirUrl);
+  response = await fetch(dirUrl, {
+    credentials: 'include',
+    method: 'GET',
+    headers: { "content-type": "application/json" },
+  })
   if (response.ok) {
     directory = await response.json();
   } else {

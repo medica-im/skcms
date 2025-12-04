@@ -1,10 +1,6 @@
 import type { Variables } from '$lib/interfaces/variables.interface.ts';
 import { PUBLIC_INPUT_GEOCODER, PUBLIC_INPUT_CATEGORY, PUBLIC_INPUT_COMMUNE, PUBLIC_INPUT_FACILITY, PUBLIC_INPUT_SEARCH, PUBLIC_INPUT_SITUATION, PUBLIC_BLOG_URI, PUBLIC_VITE_TIMELINE, PUBLIC_ENTRIES_LIMIT, PUBLIC_SITUATIONS_TTL} from '$env/static/public';
 
-const BASE_API_URI: string = (import.meta.env.VITE_DEV == "true")
-	? import.meta.env.VITE_BASE_API_URI_DEV
-	: import.meta.env.VITE_BASE_API_URI_PROD;
-
 const BASE_CMS_API_URI: string = (import.meta.env.VITE_DEV == "true")
 	? import.meta.env.VITE_BASE_CMS_API_URI_DEV
 	: import.meta.env.VITE_BASE_CMS_API_URI_PROD;
@@ -43,7 +39,6 @@ const ENTRIES_LIMIT: number = parseInt(PUBLIC_ENTRIES_LIMIT);
 const SITUATIONS_TTL: number = parseInt(PUBLIC_SITUATIONS_TTL);
 
 export const variables: Variables = {
-	BASE_API_URI: BASE_API_URI,
 	BASE_CMS_API_URI: BASE_CMS_API_URI,
 	BASE_URI: BASE_URI,
 	BLOG_URI: BLOG_URI,

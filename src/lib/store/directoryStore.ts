@@ -2,7 +2,7 @@ import { writable } from '@square/svelte-store';
 import { variables } from '$lib/utils/constants.ts';
 import { browser } from "$app/environment";
 import { handleRequestsWithPermissions } from '$lib/utils/requestUtils.ts';
-import { PUBLIC_EFFECTOR_TYPE_LABELS_TTL, PUBLIC_SITUATIONS_TTL, PUBLIC_CACHE_CONTACTS } from '$env/static/public';
+import { PUBLIC_EFFECTOR_TYPE_LABELS_TTL, PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
 import haversine from 'haversine-distance';
 import { isExpired } from '$lib/utils/utils.ts';
 import { getLocalStorage, setLocalStorage } from '$lib/utils/storage.ts';
@@ -27,7 +27,6 @@ function normalize(x: string) {
 export const effectorTypeLabels = async () => {
 	var cachelife = parseInt(PUBLIC_EFFECTOR_TYPE_LABELS_TTL);
 	const cacheName = "effector_type_labels";
-	const apiPath = "/directory/effector_type_labels/";
 	let cachedData;
 	let expired: boolean = true;
 	let empty: boolean = true;
@@ -47,24 +46,27 @@ export const effectorTypeLabels = async () => {
 	if (cachedData && !expired && !empty) {
 		return cachedData.data;
 	} else {
-		const url = `${variables.BASE_API_URI}${apiPath}`;
-		const [response, err] = await handleRequestsWithPermissions(fetch, url);
-		if (response) {
-			let data = response;
+		const url = `${ORIGIN}/api/v1/directory/effector_type_labels/`;
+		const response = await fetch(url);
+		try {
+			if (!response.ok) {
+				throw new Error(`Response status: ${response.status}`);
+			}
+			let data = await response.json();
 			if (browser) {
-				var json = { data: data, cachetime: Date.now() }
+				let json = { data: data, cachetime: Date.now() }
 				localStorage.setItem(`${cacheName}`, JSON.stringify(json));
 			}
 			return data;
-		} else if (err) {
-			console.error(err);
+		} catch (error: any) {
+			console.error(error.message);
 		}
 	}
 };
 
 export async function fetchElements(path: string, next: string, limit: number | null = null): Promise<[any[], string | null]> {
 	const limit_qs: string = limit ? `?limit=${limit}` : '';
-	const url = `${variables.BASE_API_URI}/${path}/${limit_qs}${next || ""}`;
+	const url = `${ORIGIN}/api/v1/${path}/${limit_qs}${next || ""}`;
 	const [data, err]: [Tastypie, CustomError] = await handleRequestsWithPermissions(fetch, url);
 	const _next = data?.meta?.next;
 	const objects = data[path] as any[];
@@ -88,7 +90,7 @@ export async function downloadElements(path: string, limit: number = 100,) {
 }
 
 async function fetchEntries(next: string) {
-	const url = `${variables.BASE_API_URI}/entries/?limit=${variables.ENTRIES_LIMIT}${next || ""}`;
+	const url = `${ORIGIN}/api/v1/entries/?limit=${variables.ENTRIES_LIMIT}${next || ""}`;
 	const [response, err] = await handleRequestsWithPermissions(fetch, url);
 	if (response) {
 		let data: any = response;
@@ -98,7 +100,7 @@ async function fetchEntries(next: string) {
 }
 
 async function fetchEntry(uid: string) {
-	const entriesUrl = `${variables.BASE_API_URI}/entries/${uid}`;
+	const entriesUrl = `${ORIGIN}/api/v1/entries/${uid}`;
 	const [response, err] = await handleRequestsWithPermissions(fetch, entriesUrl);
 	if (err) {
 		console.error(JSON.stringify(err));
@@ -214,16 +216,16 @@ async function processCachedEntries(changedObj: ChangedObj) {
 }
 
 export interface Timestamps {
-	 "v1:facilities": number,
-    "v1:effector_type_labels": number,
-	"v1:entries": number, 
+	"v1:facilities": number,
+	"v1:effector_type_labels": number,
+	"v1:entries": number,
 }
 
-export const getTimestamps = async (): Promise<Timestamps|undefined> => {
-	const url = `${variables.BASE_URI}/api/v1/directory/timestamps`;
+export const getTimestamps = async (): Promise<Timestamps | undefined> => {
+	const url = `${ORIGIN}/api/v1/directory/timestamps`;
 	try {
 		const res = await fetch(url);
-		if ( res.ok ) {
+		if (res.ok) {
 			return await res.json()
 		} else {
 			console.error(res.status);
@@ -236,7 +238,7 @@ export const getTimestamps = async (): Promise<Timestamps|undefined> => {
 export const getEntries = async (): Promise<Entry[]> => {
 	const cachedEntriesObj = getLocalStorage('entries');
 	const refresh: boolean = await doRefresh("v1:entries", cachedEntriesObj?.cachetime);
-	if ( refresh ) {
+	if (refresh) {
 		return await downloadAllEntries();
 	} else {
 		return cachedEntriesObj?.data;
@@ -315,7 +317,7 @@ export const getSituations = async (): Promise<Situation[]> => {
 	if (cachedData && !expired && !empty) {
 		situations = cachedData.data;
 	} else {
-		const url = `${variables.BASE_API_URI}/situations/`;
+		const url = `${ORIGIN}/api/v1/situations/`;
 		const [response, err] = await handleRequestsWithPermissions(fetch, url);
 		if (response) {
 			situations = response?.situations;
@@ -644,8 +646,8 @@ export const facilityOfF = async (fullFilteredEffectors: Entry[], selectCategori
 			) && (!selectCommunes?.length || selectCommunes.includes(x.commune.uid))
 		}
 	).map((x) => {
-		 return {...x.facility, ...x.address}
-		 });
+		return { ...x.facility, ...x.address }
+	});
 	const mapFromFacilities = new Map(
 		facilities.map(f => [f.uid, f])
 	);

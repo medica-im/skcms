@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { variables } from '$lib/utils/constants';
+	import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
 	import Fa from 'svelte-fa';
 	import { faArrowRight, faXmark, faTemperatureHigh } from '@fortawesome/free-solid-svg-icons';
 
@@ -16,7 +16,7 @@
 
 	async function getHeatwaveAlert() {
 		const department = page.data.organization.department.code;
-		const url = `${variables.BASE_API_URI}/heatwave/warning/${department}/`;
+		const url = `${ORIGIN}/api/v1/heatwave/warning/${department}/`;
 		if (import.meta.env.DEV) {
 			console.log(url);
 		}

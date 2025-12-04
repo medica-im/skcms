@@ -9,9 +9,8 @@ import * as path from 'path';
 
 export default defineConfig(({ mode }) => {
 	const env = loadEnv(mode, process.cwd());
-
 	const API_URL = `${env.VITE_BASE_URI_DEV ?? 'http://localhost:3000'}`;
-	console.log(API_URL);
+	console.log("API_URL", API_URL);
 	return {
 		optimizeDeps: {
 			include: ['lodash.get', 'lodash.isequal', 'lodash.clonedeep'],
@@ -39,8 +38,38 @@ export default defineConfig(({ mode }) => {
 		server: {
 			proxy: {
 				'/media/profile_images': API_URL,
-				'/api/v2': API_URL,
-				'/api/v1': API_URL,
+				'/api/v2': {
+					target: API_URL,
+					changeOrigin: true,
+					secure: true,
+					configure: (proxy, _options) => {
+						proxy.on('error', (err, _req, _res) => {
+							console.log('proxy error', err);
+						});
+						proxy.on('proxyReq', (proxyReq, req, _res) => {
+							console.log('Sending Request to the Target:', req.method, req.url);
+						});
+						proxy.on('proxyRes', (proxyRes, req, _res) => {
+							console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+						});
+					},
+				},
+				'/api/v1': {
+					target: API_URL,
+					changeOrigin: true,
+					secure: true,
+					configure: (proxy, _options) => {
+						proxy.on('error', (err, _req, _res) => {
+							console.log('proxy error', err);
+						});
+						proxy.on('proxyReq', (proxyReq, req, _res) => {
+							console.log('Sending Request to the Target:', req.method, req.url);
+						});
+						proxy.on('proxyRes', (proxyRes, req, _res) => {
+							console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+						});
+					},
+				},
 				'/blog': API_URL
 			}
 		}

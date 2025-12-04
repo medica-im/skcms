@@ -1,8 +1,4 @@
 interface ImportMetaEnv {
-    readonly VITE_BASE_API_URI_PROD: string,
-    readonly VITE_BASE_API_URI_DEV: string,
-	readonly VITE_BASE_CMS_API_URI_DEV: string,
-	readonly VITE_BASE_CMS_API_URI_PROD: string,
 	readonly VITE_GHOST_API_KEY: string,
 	readonly VITE_TIMELINE: boolean
 }

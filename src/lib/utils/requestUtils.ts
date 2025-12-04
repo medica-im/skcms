@@ -1,16 +1,11 @@
 import { browser } from '$app/environment';
-import { goto } from '$app/navigation';
 import type { Token, User, UserResponse } from '$lib/interfaces/user.interface';
 import type { CustomError } from '$lib/interfaces/error.interface';
 import { notificationData } from '$lib/store/notificationStore';
 import { userData } from '$lib/store/userStore';
-import { variables } from '$lib/utils/constants';
-import { formatText } from '$lib/formats/formatString';
-import { get } from 'svelte/store';
 import * as m from "$msgs"; import { isAuth } from '$lib/store/authStore';
-import { dev } from '$app/environment';
 
-const refreshUrl = `${variables.BASE_API_URI}/accounts/token/refresh/`;
+const refreshUrl = '/api/v1/accounts/token/refresh/';
 
 export const browserGet = (key: string): string | undefined => {
 	if (browser) {
@@ -92,7 +87,7 @@ export async function getCurrentUser(fetch): Promise<[User, CustomError[]]>;
 export async function getCurrentUser(fetch, mode: "optional"): Promise<[User | undefined, CustomError[]]>;
 export async function getCurrentUser(fetch, mode?: "optional") {
 	const _accessRefresh = await accessRefresh();
-	const url = `${variables.BASE_API_URI}/accounts/user/`;
+	const url = '/api/v1/accounts/user/';
 	if (_accessRefresh.access) {
 		const res = await fetch(url, {
 			headers: {
@@ -127,7 +122,7 @@ function removeRefreshToken() {
 
 export const logOutUser = async (): Promise<void> => {
 	const _accessRefresh = await accessRefresh();
-	const jres = await fetch(`${variables.BASE_API_URI}/accounts/logout/`, {
+	const jres = await fetch('/api/v1/accounts/logout/', {
 		method: 'POST',
 		mode: 'cors',
 		headers: {

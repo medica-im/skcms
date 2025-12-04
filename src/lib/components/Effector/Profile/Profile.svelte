@@ -73,7 +73,7 @@
 		if (roles?.length) {
 			Object.assign(body, { roles: roles });
 		}
-		const url = `${variables.BASE_API_URI}/addressbook/profile/`;
+		const url = `/api/v1/addressbook/profile/`;
 		const [res, error] = await handlePostRequestsWithPermissions(fetch, url, body);
 		if (error.length) {
 			console.error(JSON.stringify(error));
@@ -85,7 +85,7 @@
 	}
 
 	async function restUpdate() {
-		const url = `${variables.BASE_API_URI}/addressbook/profile/${data.id}`;
+		const url = `/api/v1/addressbook/profile/${data.id}`;
 		const [res, error] = await handlePostRequestsWithPermissions(
 			fetch,
 			url,
@@ -106,7 +106,7 @@
 	}
 
 	async function restDelete() {
-		const url = `${variables.BASE_API_URI}/addressbook/profile/${data.id}`;
+		const url = `/api/v1/addressbook/profile/${data.id}`;
 		const [res, error] = await handlePostRequestsWithPermissions(fetch, url, null, 'DELETE');
 		if (error.length) {
 			console.error(JSON.stringify(error));
@@ -169,7 +169,7 @@
 					bind:noRecord
 					bind:roles
 					contact_id={data.contact}
-					url={`${variables.BASE_API_URI}/addressbook/profile/${data.id}`}
+					url={`/api/v1/addressbook/profile/${data.id}`}
 				/>
 			{/if}
 			<div class="card p-2 space-y-2">

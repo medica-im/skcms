@@ -1,22 +1,20 @@
 import { asyncReadable } from '@square/svelte-store';
 import { variables } from '$lib/utils/constants';
-import { handleRequestsWithPermissions } from '$lib/utils/requestUtils';
 import type { OpenGraph } from '$lib/interfaces/openGraph.interface';
-import type { CustomError } from '$lib/interfaces/error.interface';
 
-export const openGraphStore= asyncReadable(
+export const openGraphStore = asyncReadable(
 	{} as OpenGraph,
 	async () => {
 		const url = `${variables.BASE_URI}/api/v1/opengraph/`;
-        try {
-		const [response, err]: [OpenGraph, CustomError] = await handleRequestsWithPermissions(fetch, url);
-			if (response) {
-				return response;
-			} else if (err) {
-				console.error(JSON.stringify(err));
+		try {
+			const response = await fetch(url);
+			if (!response.ok) {
+				throw new Error(`Response status: ${response.status}`);
 			}
-		} catch(err) {
-            console.error(JSON.stringify(err));
-        }
-    }
+			const jsn = await response.json();
+			return jsn as OpenGraph
+		} catch (error: any) {
+			console.error(error.message);
+		}
+	}
 );
