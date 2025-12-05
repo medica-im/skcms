@@ -18,60 +18,61 @@
 		Popup
 	} from 'svelte-maplibre';
 	import * as openStreetMap from '$lib/MapLibre/style/openStreetMap.json';
-	
+
 	let {
 		data,
 		showTooltip = false,
-		target = null,
+		target = null
 	}: {
 		data: MapData[];
 		showTooltip: boolean;
-		target: AddressFeature|null;
+		target: AddressFeature | null;
 	} = $props();
 
-	let targetLngLat: LngLatLike|undefined = $derived(target ? [target.geometry.coordinates[0], target.geometry.coordinates[1]] : undefined);
-	let zoom = $derived.by(()=>{
-		if ( data?.length==1 || bboxElements(bounds) < 4 ) {
-			return data[0].zoom || 15
+	let targetLngLat: LngLatLike | undefined = $derived(
+		target ? [target.geometry.coordinates[0], target.geometry.coordinates[1]] : undefined
+	);
+	let zoom = $derived.by(() => {
+		if (data?.length == 1 || bboxElements(bounds) < 4) {
+			return data[0].zoom || 15;
 		}
 	});
-	const bboxElements = (b:LngLatBoundsLike|undefined) => {
-		if ( b == undefined || b == null ) return 0
+	const bboxElements = (b: LngLatBoundsLike | undefined) => {
+		if (b == undefined || b == null) return 0;
 		const obj = Object.values(b);
-		const set =  new Set(obj);
+		const set = new Set(obj);
 		const size = set.size || 0;
-		return size
-	}
-	let center = $derived.by(()=>{
+		return size;
+	};
+	let center = $derived.by(() => {
 		const c = data[0].latLng.slice().reverse() as [number, number];
-		if ( data?.length==1 ) {
-			return c
+		if (data?.length == 1) {
+			return c;
 		} else {
 			const size = bboxElements(bounds);
-			if ( size < 4 ) {
-				return c
+			if (size < 4) {
+				return c;
 			}
 		}
 	});
 
 	const padding = { top: 60, bottom: 45, left: 115, right: 70 };
-	let bounds: LngLatBoundsLike|undefined = $derived.by(
-		() => {
-			if ( !data ) return
-			if (data?.length > 1) {
-				const coordinates = data?.map((e) => [e.latLng[1], e.latLng[0]]);
-				if ( targetLngLat ) coordinates.push(targetLngLat)
-				if (!coordinates) return
-				const line = lineString(coordinates);
-				if ( line == undefined || line == null ) return;
-				const b = bbox(line) as [number, number, number, number];
-				const size = bboxElements(b);
-		    	if ( size > 2 ) {
-					return b;
-				} else {
-					return undefined
-				}
+	let bounds: LngLatBoundsLike | undefined = $derived.by(() => {
+		if (!data) return;
+		if (data?.length > 1) {
+			const coordinates = data?.map((e) => [e.latLng[1], e.latLng[0]]);
+			if (targetLngLat) coordinates.push(targetLngLat);
+			if (!coordinates) return;
+			const line = lineString(coordinates);
+			if (line == undefined || line == null) return;
+			const b = bbox(line) as [number, number, number, number];
+			const size = bboxElements(b);
+			if (size > 2) {
+				return b;
+			} else {
+				return undefined;
 			}
+		}
 	});
 	function getCenter() {
 		let latLng = data[0].latLng;
@@ -79,6 +80,7 @@
 		return lngLat;
 	}
 </script>
+
 <!--
 zoom: '{JSON.stringify(zoom)}'<br>
 bounds: '{JSON.stringify(bounds||{})}'<br>
@@ -101,13 +103,15 @@ typeof bounds: '{typeof bounds}'<br>
 	{bounds}
 	{zoom}
 	{center}
-	fitBoundsOptions={{padding: {top: 45, bottom: 15, left: 20, right: 20}}}
+	fitBoundsOptions={{ padding: { top: 45, bottom: 15, left: 20, right: 20 } }}
 >
 	{#snippet children({ map })}
 		<Control class="flex flex-col gap-y-3">
 			<ControlGroup>
 				{#if targetLngLat}
-					<ControlButton onclick={() => map.flyTo({
+					<ControlButton
+						onclick={() =>
+							map.flyTo({
 								center: targetLngLat,
 								zoom: 15
 							})}
@@ -137,9 +141,9 @@ typeof bounds: '{typeof bounds}'<br>
 		{#each data as { latLng, tooltip, popup }}
 			<DefaultMarker lngLat={latLng.slice().reverse() as [number, number]}>
 				{#if popup}
-				<Popup offset={[0, -10]}>
-					<div class="p-1 m-0 font-bold">{@html popup?.text}</div>
-				</Popup>
+					<Popup offset={[0, -10]}>
+						<div class="p-1 m-0 font-bold">{@html popup?.text}</div>
+					</Popup>
 				{/if}
 			</DefaultMarker>
 			<!--Marker lngLat={latLng.slice().reverse() as [number, number]}>
@@ -162,13 +166,12 @@ typeof bounds: '{typeof bounds}'<br>
 		</Marker-->
 		{/each}
 		{#if targetLngLat}
-		<Marker lngLat={targetLngLat}
-		>
-		<FaLayers size="3x" style="background: none">
-  <Fa icon={faLocationDot} color="tomato" />
-  <Fa icon={faHome} scale={0.45} translateY={-0.08} color="white" />
-</FaLayers>
-		</Marker>
+			<Marker lngLat={targetLngLat}>
+				<FaLayers size="3x" style="background: none">
+					<Fa icon={faLocationDot} color="tomato" />
+					<Fa icon={faHome} scale={0.45} translateY={-0.08} color="white" />
+				</FaLayers>
+			</Marker>
 		{/if}
 	{/snippet}
 </MapLibre>
@@ -184,6 +187,6 @@ typeof bounds: '{typeof bounds}'<br>
 		left: 0px;
 	}
 	:global(.maplibregl-popup-content) {
-    padding:0px;
-}
+		padding: 0px;
+	}
 </style>
