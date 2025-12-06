@@ -10,6 +10,7 @@
 		getSelectSituation,
 		getInputAddress,
 		getSelectFacility,
+		getFacilityChoice,
 		getDirectoryRedirect,
 		getAddressFeature,
 		getGeoInputAddress
@@ -27,6 +28,7 @@
 	let directoryRedirect = getDirectoryRedirect();
 	let selectCategories = getSelectCategories();
 	let selectFacility = getSelectFacility();
+	let facilityChoice = getFacilityChoice();
 	let addressFeature = getAddressFeature();
 	let geoInputAddress = getGeoInputAddress();
 
@@ -50,6 +52,7 @@
 		selectSituation.set(null);
 		addressFeature.set(null);
 		inputAddress.set('');
+		facilityChoice.set(undefined);
 		selectFacility.set(null);
 		geoInputAddress.set(null);
 		addressFeature.set(null);

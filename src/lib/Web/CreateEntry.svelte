@@ -49,22 +49,6 @@
 	let department: { label: string; value: string } | undefined = $state(defaultDpt);
 	let selectedEffectorType: { label: string; value: string } | undefined = $state();
 	let effectorType = $derived(selectedEffectorType?.value);
-
-	/*let facility = $derived.by(() => {
-		if (selectedFacilityUid) {
-		let facility = createQuery<FacilityV2, Error>(
-			{
-				queryKey: ['facilities', selectedFacilityUid],
-				queryFn: () => getFacility(selectedFacilityUid)
-		    }
-		)
-        return facility;
-		}});*/
-	/*$effect(() => {
-		if (createdFacility) {
-			selectedFacility = createdFacility;
-		}
-	});*/
 	const facilityLabel = () => {
 		let label;
 		if (facilityCount == 0) {

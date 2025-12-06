@@ -132,12 +132,6 @@ name==facility.name && label==facility.label && slug==facility.slug && building=
 	onMount(async () => {
 	});
 
-	const nameIsValid = (value: string) => {
-		return true;
-	};
-	const labelIsValid = (value: string) => {
-		return true;
-	};
 	const slugIsValid = (value: string) => {
 		const regexpSlug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 		return regexpSlug.test(value);
@@ -154,7 +148,7 @@ name==facility.name && label==facility.label && slug==facility.slug && building=
 	 * Validate name input.
 	 */
 	$effect(() => {
-		if (name && nameIsValid(name)) {
+		if ( name ) {
 			validateForm.name = true;
 			inputClass.name = '';
 		} else {
@@ -166,10 +160,10 @@ name==facility.name && label==facility.label && slug==facility.slug && building=
 	 * Validate label input.
 	 */
 	$effect(() => {
-		if (label && labelIsValid(label)) {
+		if ( label ) {
 			inputClass.label = '';
 			validateForm.label = true;
-		} else if (label && !labelIsValid(label)) {
+		} else {
 			inputClass.label = inputError;
 			validateForm.label = false;
 		}

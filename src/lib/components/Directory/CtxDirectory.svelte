@@ -17,6 +17,7 @@
 		getSelectSituation,
 		setSelectFacility,
 		getSelectFacility,
+		setFacilityChoice,
 		setCurrentOrg,
 		getCurrentOrg,
 		setDirectoryRedirect,
@@ -27,7 +28,7 @@
 		setSelectSituationValue,
 		setInputAddress,
 		setGeoInputAddress,
-		setDistanceEffectors
+		setDistanceEffectors,
 	} from './context';
 	import { variables } from '$lib/utils/constants.ts';
 	import { organizationStore } from '$lib/store/facilityStore.ts';
@@ -72,6 +73,7 @@
 	setSelectSituationValue();
 	setAddressFeature();
 	setGeoInputAddress();
+	setFacilityChoice();
 	setSelectFacility(propSelectFacility);
 	setSelCatVal();
 	setInputAddress();

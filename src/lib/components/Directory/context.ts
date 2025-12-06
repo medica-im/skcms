@@ -144,6 +144,15 @@ export function getSelectFacility() {
     return getContext<Writable<string|null>>('selectFacility');
 }
 
+export function setFacilityChoice() {
+    let facilityChoice: Writable<{label: string; value: string}|undefined> = writable();
+    setContext('facilityChoice', facilityChoice);
+}
+
+export function getFacilityChoice() {
+    return getContext<Writable<{label: string; value: string}|undefined>>('facilityChoice');
+}
+
 export function setCurrentOrg() {
     let currentOrg: CurrentOrgStore = writable(true);
     setContext('currentOrg', currentOrg);

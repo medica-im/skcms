@@ -49,13 +49,6 @@
 	let disabled: boolean = $derived(
 		!Object.values(validateForm).every((v) => v === true) || formResult?.success == true || !isModified
 	);
-
-	const nameIsValid = (value: string) => {
-		return true;
-	};
-	const labelIsValid = (value: string) => {
-		return true;
-	};
 	const slugIsValid = (value: string) => {
 		const regexpSlug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 		return regexpSlug.test(value);
@@ -64,7 +57,7 @@
 	 * Validate name input.
 	 */
 	$effect(() => {
-		if (name_fr && nameIsValid(name_fr)) {
+		if ( name_fr ) {
 			validateForm.name_fr = true;
 			inputClass.name_fr = '';
 		} else {
@@ -76,9 +69,7 @@
 	 * Validate label input.
 	 */
 	$effect(() => {
-		if (!label_fr) {
-			return;
-		} else if (label_fr && labelIsValid(label_fr)) {
+		if ( label_fr ) {
 			inputClass.label_fr = '';
 			validateForm.label_fr = true;
 		} else {

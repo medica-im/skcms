@@ -5,20 +5,14 @@
 	import Select from 'svelte-select';
 	import { onMount } from 'svelte';
 	import { getFacilities } from '$lib/store/facilityStore';
-	import { getSelectFacility } from './context.ts';
+	import { getSelectFacility, getFacilityChoice } from './context.ts';
 	import * as m from '$msgs';
 	import type { Loadable } from '@square/svelte-store';
 
 	let { facilityOf }: { facilityOf: Loadable<FacilityOf[]> } = $props();
 
 	let selectFacility = getSelectFacility();
-	let facilityChoice: { label: string; value: string } | undefined = $state();
-
-	$effect(() => {
-		if ($selectFacility == null) {
-			facilityChoice = undefined;
-		}
-	});
+	let facilityChoice = getFacilityChoice();
 
 	const label = 'label';
 	const itemId = 'value';
@@ -33,7 +27,7 @@
 			if (facilities) {
 				const value = getValue(facilityParam, facilities);
 				if (value) {
-					facilityChoice = value;
+					$facilityChoice = value;
 				}
 			}
 		}
@@ -50,14 +44,16 @@
 	}
 
 	async function getItems(facilities: FacilityOf[]) {
-		return facilities.map(function (x) {
-				const name = x.label || x.name || "Étbl.";
+		return facilities
+			.map(function (x) {
+				const name = x.label || x.name || 'Étbl.';
 				const label = `${name} | ${x.street} | ${x.city}`;
 				let dct = { value: x.uid, label: label, city: x.city };
 				return dct;
-			}).sort(function (a, b) {
-				return a.city.localeCompare(b.city) || a.label.localeCompare(b.label);
 			})
+			.sort(function (a, b) {
+				return a.city.localeCompare(b.city) || a.label.localeCompare(b.label);
+			});
 	}
 
 	function handleClear(event: CustomEvent) {
@@ -76,7 +72,7 @@
 		}
 	}
 </script>
-<!--{JSON.stringify($facilityOf)}-->
+
 {#await facilityOf.load()}
 	<div class="text-surface-700 theme">
 		<Select loading={true} placeholder={m.ADDRESSBOOK_FACILITIES_PLACEHOLDER()} />
@@ -97,7 +93,7 @@
 			on:change={handleChange}
 			on:clear={handleClear}
 			placeholder={m.ADDRESSBOOK_FACILITIES_PLACEHOLDER()}
-			bind:value={facilityChoice}
+			bind:value={$facilityChoice}
 		/>
 	</div>
 {/await}
