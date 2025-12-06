@@ -71,7 +71,7 @@ page.data?.user?.role {page.data?.user?.role}<br>
 				</div>
 			{/if}
 			<div class="flex flex-wrap py-4 px-6 gap-4">
-				<h1 class="text-2xl font-semibold text-gray-800">{page.data.user.name}</h1>
+				<h1 class="text-2xl font-semibold text-gray-800">{page.data.user?.name||session?.user?.name}</h1>
 				{#if import.meta.env.DEV}
 					<Accordion>
 						<AccordionItem>
