@@ -8,7 +8,7 @@
 
 <svelte:head>
 	<title>
-		{page.data.user.name} - {capitalizeFirstLetter(page.data.organization.formatted_name)}
+		{page.data.user?.name||session?.user?.name} - {capitalizeFirstLetter(page.data.organization.formatted_name)}
 	</title>
 </svelte:head>
 
