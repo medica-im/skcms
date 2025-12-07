@@ -1,24 +1,12 @@
 import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
+import { authReq } from '$lib/utils/request.ts';
 import type { User } from "$lib/interfaces/user.interface";
 import type { Organization } from '$lib/interfaces/organization.ts';
 import type { LayoutServerLoad } from "./$types"
 
 export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
-  let request = new Request(`${ORIGIN}/api/v2/users/me`,
-    {
-      credentials: 'include',
-      method: 'GET',
-      headers: { "content-type": "application/json" },
-    }
-  );
-  request.headers.set(
-    'cookie',
-    cookies
-      .getAll()
-      .filter(({ value }) => value !== '')
-      .map(({ name, value }) => `${name}=${encodeURIComponent(value)}`)
-      .join('; ')
-  );
+  const url = `${ORIGIN}/api/v2/users/me`;
+  const request = authReq(url, 'GET', cookies);
   let response;
   let user: User | undefined;
   try {

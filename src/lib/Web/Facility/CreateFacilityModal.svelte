@@ -169,30 +169,6 @@
 		}
 	});
 	/**
-	 * Validate name input.
-	 */
-	$effect(() => {
-		if ( name ) {
-			validateForm.name = true;
-			inputClass.name = '';
-		} else {
-			inputClass.name = inputError;
-			validateForm.name = false;
-		}
-	});
-	/**
-	 * Validate label input.
-	 */
-	$effect(() => {
-		if ( label ) {
-			inputClass.label = '';
-			validateForm.label = true;
-		} else {
-			inputClass.label = inputError;
-			validateForm.label = false;
-		}
-	});
-	/**
 	 * Validate slug input.
 	 */
 	$effect(() => {

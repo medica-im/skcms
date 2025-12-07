@@ -1,8 +1,9 @@
 <script lang="ts">
+	import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
 	import type { Effector } from '$lib/interfaces/v2/effector';
 	let { effectorUid }: { effectorUid: string | undefined } = $props();
 	async function fetchEffector(): Promise<Effector | number> {
-		const response = await fetch(`/api/v2/effectors/${effectorUid}`);
+		const response = await fetch(`${ORIGIN}/api/v2/effectors/${effectorUid}`);
 		if (response.ok) {
 			return await response.json();
 		} else {
