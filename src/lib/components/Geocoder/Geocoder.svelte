@@ -3,7 +3,6 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import * as m from '$msgs';
-	import { normalize } from '$lib/helpers/stringHelpers';
 	import { faAddressCard } from '@fortawesome/free-regular-svg-icons';
 	import Fa from 'svelte-fa';
 	import DocsIcon from '$lib/Icon/Icon.svelte';
@@ -13,11 +12,11 @@
 
 	let {
 		commune = null,
-	    placeholder = "Adresse de l’usager",
+		placeholder = 'Adresse de l’usager',
 		inputClass = '',
-		limitToZip = true,
+		limitToZip = true
 	}: {
-		commune?: string|null;
+		commune?: string | null;
 		placeholder?: string;
 		inputClass?: string;
 		limitToZip?: boolean;
@@ -26,7 +25,7 @@
 	let addressFeature = getAddressFeature();
 	let inputAddress = getGeoInputAddress();
 
-	type SelectOption = {value: AddressFeature, label: string};
+	type SelectOption = { value: AddressFeature; label: string };
 
 	let addressOptions: SelectOption[] = $state([]);
 
@@ -39,11 +38,13 @@
 		feedbackEmail: null // Set to null to remove feedback box
 	};
 
-	let visible = $derived(!$addressFeature && !($inputAddress==null) && $inputAddress.length > options.minChar);
+	let visible = $derived(
+		!$addressFeature && !($inputAddress == null) && $inputAddress.length > options.minChar
+	);
 
 	const getLabel = (address: AddressFeature) => {
-		return `${address.properties.housenumber} ${address.properties.street}${commune ? '' : ' [' + address.properties.city +']'}`
-	}
+		return `${address.properties.housenumber} ${address.properties.street}${commune ? '' : ' [' + address.properties.city + ']'}`;
+	};
 
 	function getAddressOptions(res: FeatureCollection) {
 		console.log(JSON.stringify(res));
@@ -52,17 +53,19 @@
 			return [];
 		}
 		let _addressOptions = res.features
-		.filter((e: AddressFeature) => {
-			return e.properties.housenumber
-		})
 			.filter((e: AddressFeature) => {
-				return commune? e.properties.city == commune : true;
+				return e.properties.housenumber;
 			})
-			.filter((e: AddressFeature)=> {
-				if ( limitToZip === false ) {
-					return true
+			.filter((e: AddressFeature) => {
+				return commune ? e.properties.city == commune : true;
+			})
+			.filter((e: AddressFeature) => {
+				if (limitToZip === false) {
+					return true;
 				} else {
-					return page.data?.directory?.postal_codes.length ? page.data.directory.postal_codes.includes(e.properties.postcode.substring(0,2)) : true
+					return page.data?.directory?.postal_codes.length
+						? page.data.directory.postal_codes.includes(e.properties.postcode.substring(0, 2))
+						: true;
 				}
 			})
 			.map((e: AddressFeature) => {
@@ -95,11 +98,11 @@
 	}
 
 	async function fetchGeojson() {
-		if ( $addressFeature ) {
-			return
+		if ($addressFeature) {
+			return;
 		}
-		if ( $inputAddress && $inputAddress?.length < options.minChar ) {
-			return
+		if ($inputAddress && $inputAddress?.length < options.minChar) {
+			return;
 		}
 		let url = options.url + buildQueryString();
 		const res = await fetch(url, {
@@ -115,18 +118,6 @@
 			addressOptions = getAddressOptions(geojson);
 		}
 	}
-
-    $effect(()=>{
-		if ($addressFeature) {
-			if (commune) {
-				$inputAddress = $addressFeature.properties.name
-			} else {
-				const city = `[${$addressFeature.properties.city}]`;
-				$inputAddress = `${$addressFeature.properties.name} ${city}`; 
-			}
-		}
-	});
-
 	function handleClear() {
 		$inputAddress = null;
 		$addressFeature = null;
@@ -138,10 +129,11 @@
 	onMount(async () => {
 		const addressParam: string | null = page.url.searchParams.get('address');
 		if (addressParam) {
-		    $addressFeature = JSON.parse(addressParam);
+			$addressFeature = JSON.parse(addressParam);
 		}
 	});
 </script>
+
 <!--visible: {visible}<br>
 {JSON.stringify(addressOptions)}<br>
 $addressFeature: {JSON.stringify($addressFeature)}-->
@@ -153,8 +145,10 @@ $addressFeature: {JSON.stringify($addressFeature)}-->
 		name="geocoder"
 		autocomplete="off"
 		disabled={Boolean($addressFeature)}
-		placeholder={placeholder}
-		oninput={()=>{fetchGeojson()}}
+		{placeholder}
+		oninput={() => {
+			fetchGeojson();
+		}}
 		bind:value={$inputAddress}
 		aria-label={m.ADDRESSBOOK_GEOCODER_ARIA_LABEL()}
 	/>
@@ -167,9 +161,9 @@ $addressFeature: {JSON.stringify($addressFeature)}-->
 		<DocsIcon name="clear" width="w-5" height="h-5" />
 	</button>
 </div>
-		{#if visible}
-		<SelectAddress {addressOptions} bind:visible bind:addressFeature={$addressFeature} />
-		{/if}
+{#if visible}
+	<SelectAddress {commune} {addressOptions} bind:addressFeature={$addressFeature} />
+{/if}
 
 <style>
 	/* clears the ‘X’ from Internet Explorer */
