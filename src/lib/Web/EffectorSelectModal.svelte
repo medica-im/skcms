@@ -43,7 +43,7 @@
 	let communeUid: string | undefined = $derived(commune?.value);
 	let facilityCount: number = $state(0);
 	const entries = $derived(await getEntries());
-	let directory = $derived(isSuperUser ? null : page.data.directory.name);
+	let directory = $derived(isSuperUser ? null : page.data.directory?.name);
 	const effectors = $derived(await getEffectors(directory));
 	const filteredEffectors = $derived.by(() => {
 		if (effectors) {
@@ -134,17 +134,6 @@
 		}
 	});
 
-	const getName = (facility: FacilityV2) => {
-		if (facility.name) {
-			return facility.name;
-		} else if (facility.effectors) {
-			const count = facility.effectors.length;
-			const effectors = `${facility.effectors.join(', ')}`;
-			return `${count} effecteur${count > 1 ? 's' : ''}: ${effectors}`;
-		} else {
-			return facility.uid;
-		}
-	};
 	const getLabel = (effector: Effector) => {
 		return `${effector.name_fr}`;
 	};
@@ -183,6 +172,10 @@
 
 <button
 	onclick={() => {
+		selectedEffectorType=undefined;
+		facility=undefined;
+		department=undefined;
+		commune=undefined;
 		dialog?.showModal();
 	}}
 	class="btn variant-ghost-surface"

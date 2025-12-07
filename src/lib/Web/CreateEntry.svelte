@@ -146,7 +146,7 @@ membershipsDone: {membershipsDone}
 						>
 					</div>
 					<div class="badge variant-filled"><h3 class="h3">{selectedEffectorType.label}</h3></div>
-					{#if page.data.user?.role.name == 'superuser'}
+					{#if page.data.user?.role == 'superuser'}
 						<p class="text-sm">
 							{selectedEffectorType.value}
 							<button use:copy={selectedEffectorType.value} class="btn btn-sm variant-ghost"

@@ -11,16 +11,15 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
   let user: User | undefined;
   try {
     response = await fetch(request)
-  } catch (error) {
-    console.log('There was an error', error);
-  }
-  if (response?.ok) {
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
     user = await response.json();
-    //console.log(`Use the response here: ${JSON.stringify(user)}`);
-  } else {
-    console.log(`/api/v2/users/me HTTP Response Code: ${response?.status}`)
+    console.log("user", user);
+  } catch (error:any) {
+    console.error('There was an error while retrieving user', error.message);
   }
-  let organization;
+ let organization;
   const orgUrl = `${ORIGIN}/api/v2/organization`;
   console.log("orgUrl", orgUrl);
   try {
@@ -33,21 +32,26 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
       throw new Error(`Response status: ${response.status}`);
     }
     organization = await response.json() as Organization;
+    console.log("organization", organization);
   } catch (error: any) {
-    console.error(error.message);
+    console.error(`organization ${error.message}`);
   }
   let directory;
   const dirUrl = `${ORIGIN}/api/v1/directory/`;
   console.log("dirUrl", dirUrl);
-  response = await fetch(dirUrl, {
-    credentials: 'include',
-    method: 'GET',
-    headers: { "content-type": "application/json" },
-  })
-  if (response.ok) {
-    directory = await response.json();
-  } else {
-    console.error(`directory fetch HTTP Response Code: ${response?.status}`)
+  try {
+    response = await fetch(dirUrl, {
+      credentials: 'include',
+      method: 'GET',
+      headers: { "content-type": "application/json" },
+    })
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+      directory = await response.json();
+      console.log("directory", directory);
+  } catch (error: any) {
+    console.error(`directory ${error.message}`);
   }
 
   return {

@@ -76,10 +76,19 @@ page.data?.user?.role {page.data?.user?.role}<br>
 					<Accordion>
 						<AccordionItem>
 							<svelte:fragment slot="lead"><Fa icon={faInfo} /></svelte:fragment>
-							<svelte:fragment slot="summary">User details</svelte:fragment>
+							<svelte:fragment slot="summary">Session details</svelte:fragment>
 							<svelte:fragment slot="content"
 								><div class="p-2 text-lg text-gray-700">
 									<JsonView json={session} />
+								</div></svelte:fragment
+							>
+						</AccordionItem>
+						<AccordionItem>
+							<svelte:fragment slot="lead"><Fa icon={faInfo} /></svelte:fragment>
+							<svelte:fragment slot="summary">User details</svelte:fragment>
+							<svelte:fragment slot="content"
+								><div class="p-2 text-lg text-gray-700">
+									<JsonView json={user} />
 								</div></svelte:fragment
 							>
 						</AccordionItem>
