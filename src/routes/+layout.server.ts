@@ -16,10 +16,10 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
     }
     user = await response.json();
     console.log("user", user);
-  } catch (error:any) {
+  } catch (error: any) {
     console.error('There was an error while retrieving user', error.message);
   }
- let organization;
+  let organization;
   const orgUrl = `${ORIGIN}/api/v2/organization`;
   console.log("orgUrl", orgUrl);
   try {
@@ -36,28 +36,9 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
   } catch (error: any) {
     console.error(`organization ${error.message}`);
   }
-  let directory;
-  const dirUrl = `${ORIGIN}/api/v1/directory/`;
-  console.log("dirUrl", dirUrl);
-  try {
-    response = await fetch(dirUrl, {
-      credentials: 'include',
-      method: 'GET',
-      headers: { "content-type": "application/json" },
-    })
-    if (!response.ok) {
-      throw new Error(`Response status: ${response.status}`);
-    }
-      directory = await response.json();
-      console.log("directory", directory);
-  } catch (error: any) {
-    console.error(`directory ${error.message}`);
-  }
-
   return {
     session: await locals.auth(),
     user: user,
     organization: organization,
-    directory: directory
   }
 }
