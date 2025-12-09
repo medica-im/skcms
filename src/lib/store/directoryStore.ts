@@ -17,6 +17,7 @@ import type { CustomError } from '$lib/interfaces/error.interface.ts';
 import type { Organization } from '$lib/interfaces/organization.ts';
 import type { Fetch } from '$lib/interfaces/fetch.ts';
 import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
+import type { SelectType } from '$lib/interfaces/select';
 
 export const term: Writable<string> = writable("");
 
@@ -379,11 +380,11 @@ function compareEffectorDistance(a, b, distEffectors: DistanceEffectors) {
 	}
 }
 
-export const fullFilteredEffectorsF = async (selectSituation: string | null = null, currentOrg: Boolean | null = null, organizationStore: Organization | undefined, limitCategories: String[]): Promise<Entry[]> => {
+export const fullFilteredEffectorsF = async (selectSituation: SelectType|null| undefined = undefined, currentOrg: Boolean | null = null, organizationStore: Organization | undefined, limitCategories: String[]): Promise<Entry[]> => {
 	const entries: Entry[] = await getEntries();
 	if (
-		selectSituation == null
-		&& currentOrg == null
+		!selectSituation
+		&& currentOrg === null
 		&& !limitCategories?.length
 	) {
 		return entries
@@ -405,10 +406,10 @@ export const fullFilteredEffectorsF = async (selectSituation: string | null = nu
 			}
 		}
 		).filter(function (x) {
-			if (selectSituation == null) {
+			if (selectSituation === undefined) {
 				return true
 			} else {
-				let entries = situations.find(obj => { return obj.uid == selectSituation })?.entries;
+				let entries = situations.find(obj => { return obj.uid === selectSituation?.value })?.entries;
 				if (entries) {
 					return entries.includes(x.uid);
 				} else {
@@ -451,7 +452,7 @@ export const filteredEffectorsF = (fullFilteredEffectors: Entry[], selectCategor
 	}
 }
 
-export const categorizedFilteredEffectorsF = (filteredEffectors: Entry[], distanceEffectors: DistanceEffectors | null = null, selectSituation: string | null = null) => {
+export const categorizedFilteredEffectorsF = (filteredEffectors: Entry[], distanceEffectors: DistanceEffectors | null = null, selectSituation: SelectType|null|undefined = undefined) => {
 	let categorySet: Set<string> = new Set();
 	for (let effector of filteredEffectors) {
 		categorySet.add(effector.effector_type.name)
@@ -612,7 +613,7 @@ export const categoryOfF = (selectCommunes: string[], fullFilteredEffectors: Ent
 	}
 }
 
-export const communeOfF = async (selectCategories: string[], fullFilteredEffectors: Entry[], selectFacility: string | null, currentOrg: CurrentOrg, limitCategories: String[], selectSituation: string | null) => {
+export const communeOfF = async (selectCategories: string[], fullFilteredEffectors: Entry[], selectFacility: string | null, currentOrg: CurrentOrg, limitCategories: String[], selectSituation: SelectType|null|undefined) => {
 	if (!selectCategories?.length && !selectFacility && currentOrg == null && !limitCategories?.length && !selectSituation) {
 		const allCommunes = fullFilteredEffectors.map(x => x.commune);
 		const mapFromCommunes = new Map(

@@ -49,7 +49,7 @@
 		selectedCommunesChoices.set(null);
 		selectCategories.set([]);
 		selCatVal.set(null);
-		selectSituation.set(null);
+		selectSituation.set(undefined);
 		addressFeature.set(null);
 		inputAddress.set('');
 		facilityChoice.set(undefined);

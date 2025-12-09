@@ -87,7 +87,7 @@ function getTarget(addressFeature: AddressFeature) {
     } as MapData
 }
 
-export const createEntriesMapData = (entries: Entry[], tooltip = false, target: AddressFeature | null, org_category: string | null = null, pathname: string, facility: string | null = null, types: string[] | null = null, term: string | null = null, communes: string[] | null = null, situation: string | null = null, displayMap: boolean = false) => {
+export const createEntriesMapData = (entries: Entry[], tooltip = false, target: AddressFeature | null, org_category: string | null = null, pathname: string, facility: string | null = null, types: string[] | null = null, term: string | null = null, communes: string[] | null = null, situation: string | undefined, displayMap: boolean = false) => {
     const points: MapData[] = [];
     entries.forEach((entry: Entry) => {
         let tooltipHtml = `

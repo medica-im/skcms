@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { setContext } from 'svelte';
-	import {
-		asyncDerived
-	} from '@square/svelte-store';
+	import { asyncDerived } from '@square/svelte-store';
 	import {
 		setTerm,
 		getTerm,
@@ -25,10 +23,9 @@
 		setAddressFeature,
 		getAddressFeature,
 		setSelCatVal,
-		setSelectSituationValue,
 		setInputAddress,
 		setGeoInputAddress,
-		setDistanceEffectors,
+		setDistanceEffectors
 	} from './context';
 	import { variables } from '$lib/utils/constants.ts';
 	import { organizationStore } from '$lib/store/facilityStore.ts';
@@ -45,22 +42,39 @@
 	} from '$lib/store/directoryStore.ts';
 	import FullDirectory from './FullDirectory.svelte';
 	import Types from './Types.svelte';
-
-	export let data: any = null;
-	export let displayGeocoder: boolean = variables.INPUT_GEOCODER;
-	export let displaySituation: boolean = variables.INPUT_SITUATION;
-	export let displayCommune: boolean = variables.INPUT_COMMUNE;
-	export let displayCategory: boolean = variables.INPUT_CATEGORY;
-	export let displayFacility: boolean = variables.INPUT_FACILITY;
-	export let displaySearch: boolean = variables.INPUT_SEARCH;
-	export let propCurrentOrg: boolean | null = true;
-	export let setRedirect: boolean = true;
-	export let propLimitCategories: string[] = [];
-	export let propSelectFacility: string|null = null;
-	export let avatar: boolean = true;
-	export let typesView: boolean = false;
-	export let displayEntries: boolean = false;
-	export let types: string[]|null=null;
+	let {
+		data = null,
+		displayGeocoder = variables.INPUT_GEOCODER,
+		displaySituation = variables.INPUT_SITUATION,
+		displayCommune = variables.INPUT_COMMUNE,
+		displayCategory = variables.INPUT_CATEGORY,
+		displayFacility = variables.INPUT_FACILITY,
+		displaySearch = variables.INPUT_SEARCH,
+		propCurrentOrg = true,
+		setRedirect = true,
+		propLimitCategories = [],
+		propSelectFacility = null,
+		avatar = true,
+		typesView = false,
+		displayEntries = false,
+		types = null
+	}: {
+		data: any;
+		displayGeocoder: boolean;
+		displaySituation: boolean;
+		displayCommune: boolean;
+		displayCategory: boolean;
+		displayFacility: boolean;
+		displaySearch: boolean;
+		propCurrentOrg: boolean | null;
+		setRedirect: boolean;
+		propLimitCategories: string[];
+		propSelectFacility: string | null;
+		avatar: boolean;
+		typesView: boolean;
+		displayEntries: boolean;
+		types: string[] | null;
+	} = $props();
 
 	setTerm();
 	setSelectCategories();
@@ -70,7 +84,6 @@
 	setSelectedCommunesUids();
 	setSelectedCommunesChoices();
 	setSelectSituation();
-	setSelectSituationValue();
 	setAddressFeature();
 	setGeoInputAddress();
 	setFacilityChoice();
@@ -88,22 +101,19 @@
 	let currentOrg = getCurrentOrg();
 	let limitCategories = getLimitCategories();
 
-	const distanceEffectors = asyncDerived(
-		[addressFeature],
-		async ([$addressFeature]) => {
-		    return await distanceEffectorsF($addressFeature);
+	$currentOrg = propCurrentOrg;
+	$directoryRedirect = setRedirect;
+	$limitCategories = propLimitCategories;
+
+	const distanceEffectors = asyncDerived([addressFeature], async ([$addressFeature]) => {
+		return await distanceEffectorsF($addressFeature);
 	});
 
 	setDistanceEffectors(distanceEffectors);
 
 	const fullFilteredEffectors = asyncDerived(
 		[selectSituation, currentOrg, organizationStore, limitCategories],
-		async ([
-			$selectSituation,
-			$currentOrg,
-			$organizationStore,
-			$limitCategories
-		]) => {
+		async ([$selectSituation, $currentOrg, $organizationStore, $limitCategories]) => {
 			return await fullFilteredEffectorsF(
 				$selectSituation,
 				$currentOrg,
@@ -115,13 +125,19 @@
 
 	const filteredEffectors = asyncDerived(
 		[term, fullFilteredEffectors, selectCategories, selectCommunes, selectFacility],
-		async ([$term, $fullFilteredEffectors, $selectCategories, $selectCommunes, $selectFacility]) => {
+		async ([
+			$term,
+			$fullFilteredEffectors,
+			$selectCategories,
+			$selectCommunes,
+			$selectFacility
+		]) => {
 			return filteredEffectorsF(
 				$fullFilteredEffectors,
 				$selectCategories,
 				$selectCommunes,
 				$selectFacility,
-				$term,
+				$term
 			);
 		}
 	);
@@ -142,11 +158,11 @@
 	setContext('categorizedFilteredEffectors', categorizedFilteredEffectors);
 
 	const categorizedFullFilteredEffectors = asyncDerived(
-	fullFilteredEffectors,
-	async ($fullFilteredEffectors) => {
-		return categorizedFullFilteredEffectorsF($fullFilteredEffectors);
-	}
-	)
+		fullFilteredEffectors,
+		async ($fullFilteredEffectors) => {
+			return categorizedFullFilteredEffectorsF($fullFilteredEffectors);
+		}
+	);
 
 	setContext('categorizedFullFilteredEffectors', categorizedFullFilteredEffectors);
 
@@ -167,7 +183,14 @@
 	);
 
 	const communeOf = asyncDerived(
-		[selectCategories, fullFilteredEffectors, selectFacility, currentOrg, limitCategories, selectSituation],
+		[
+			selectCategories,
+			fullFilteredEffectors,
+			selectFacility,
+			currentOrg,
+			limitCategories,
+			selectSituation
+		],
 		async ([
 			$selectCategories,
 			$fullFilteredEffectors,
@@ -188,48 +211,28 @@
 	);
 
 	const facilityOf = asyncDerived(
-		[
-			fullFilteredEffectors,
-			selectCategories,
-			selectCommunes,
-		],
-		async ([
-			$fullFilteredEffectors,
-			$selectCategories,
-			$selectCommunes,
-		]) => {
-			return facilityOfF(
-				$fullFilteredEffectors,
-				$selectCategories,
-				$selectCommunes,
-			);
+		[fullFilteredEffectors, selectCategories, selectCommunes],
+		async ([$fullFilteredEffectors, $selectCategories, $selectCommunes]) => {
+			return facilityOfF($fullFilteredEffectors, $selectCategories, $selectCommunes);
 		}
 	);
-
-	$: {
-		$currentOrg = propCurrentOrg;
-		$directoryRedirect = setRedirect;
-		$limitCategories = propLimitCategories;
-	}
 </script>
+
 {#if typesView}
-<Types
-	{displayEntries}
-	{data}
-/>
+	<Types {displayEntries} {data} />
 {:else}
-<FullDirectory
-    {data}
-	{displayGeocoder}
-	{displaySituation}
-	{displayCategory}
-	{displayCommune}
-	{displayFacility}
-	{displaySearch}
-	{avatar}
-	{communeOf}
-	{categoryOf}
-	{facilityOf}
-	{types}
-/>
+	<FullDirectory
+		{data}
+		{displayGeocoder}
+		{displaySituation}
+		{displayCategory}
+		{displayCommune}
+		{displayFacility}
+		{displaySearch}
+		{avatar}
+		{communeOf}
+		{categoryOf}
+		{facilityOf}
+		{types}
+	/>
 {/if}

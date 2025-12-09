@@ -2,6 +2,7 @@ import { getContext, setContext } from 'svelte';
 import { writable, derived, readable, get, asyncReadable, asyncDerived } from '@square/svelte-store';
 import type { Writable, Loadable } from '@square/svelte-store';
 import type { LimitCategoriesStore, AddressFeature, CurrentOrgStore, CommunesValueStore, DistanceEffectors, Type } from '$lib/store/directoryStoreInterface';
+import type { SelectType } from '$lib/interfaces/select';
 
 export function setEffectorUid(uid:string) {
     setContext('effectorUid', uid)
@@ -91,21 +92,12 @@ export function getSelCatVal() {
 }
 
 export function setSelectSituation() {
-    let selectSituation: Writable<string|null> = writable(null);
+    let selectSituation: Writable<SelectType|null|undefined> = writable();
     setContext('selectSituation', selectSituation);
 }
 
 export function getSelectSituation() {
-    return getContext<Writable<string|null>>('selectSituation');
-}
-
-export function setSelectSituationValue() {
-    let selectSituationValue: Writable<string|null> = writable(null);
-    setContext('selectSituationValue', selectSituationValue);
-}
-
-export function getSelectSituationValue() {
-    return getContext<Writable<string|null>>('selectSituationValue');
+    return getContext<Writable<SelectType|undefined|null>>('selectSituation');
 }
 
 export function setAddressFeature() {

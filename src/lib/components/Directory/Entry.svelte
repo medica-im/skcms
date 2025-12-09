@@ -26,7 +26,7 @@
 			$selectCategories,
 			$term,
 			$selectCommunes,
-			$selectSituation,
+			$selectSituation?.value,
 			$addressFeature,
 		);
 		goto(url, { replaceState: false });

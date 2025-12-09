@@ -88,7 +88,7 @@ export const mapToString = (map: Map<string,object>, start?: number|undefined, s
 	return _array.slice(start, stop).join('\n')
 }
 
-export const entryPageUrl = (entry: Entry, org_category: string | null = null, pathname: string | null = null, facility: string | null = null, types: string[] | null = null, term: string | null = null, communes: string[] | null = null, situation: string | null = null, addressFeature: AddressFeature|null=null, displayMap: boolean = false) => {
+export const entryPageUrl = (entry: Entry, org_category: string | null = null, pathname: string | null = null, facility: string | null = null, types: string[] | null = null, term: string | null = null, communes: string[] | null = null, situation: string | undefined = undefined, addressFeature: AddressFeature|null=null, displayMap: boolean = false) => {
 	const typeSlug = entry.effector_type.slug;
 	const communeSlug = entry.commune.slug;
 	const nameSlug = entry.slug;

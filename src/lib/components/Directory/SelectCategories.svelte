@@ -13,7 +13,6 @@
 	} from '$lib/components/Directory/context';
 	import { getItems } from '$lib/components/Directory/SelectCategory.ts';
 	import type { Type } from '$lib/store/directoryStoreInterface';
-	import type { SelectType } from '$lib/interfaces/select';
 
 	let { categoryOf } = $props();
 
