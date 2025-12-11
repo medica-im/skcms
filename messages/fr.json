@@ -175,10 +175,11 @@
         "input count",
         "local countPlural = count: plural"
       ],
-      "selectors": [],
-      "match": [
-        ""
-      ]
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "entrée",
+        "countPlural=other": "entrées"
+      }
     }
   ],
   "ERROR": "Erreur"
