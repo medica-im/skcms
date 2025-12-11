@@ -1,6 +1,8 @@
 import { getContext, setContext } from 'svelte';
-import { writable, derived, readable, get, asyncReadable, asyncDerived } from '@square/svelte-store';
-import type { Writable, Loadable } from '@square/svelte-store';
+import { writable } from 'svelte/store';
+import type { Loadable } from '@square/svelte-store';
+import type { Writable } from 'svelte/store';
+
 import type { LimitCategoriesStore, AddressFeature, CurrentOrgStore, CommunesValueStore, DistanceEffectors, Type } from '$lib/store/directoryStoreInterface';
 import type { SelectType } from '$lib/interfaces/select';
 

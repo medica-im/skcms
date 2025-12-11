@@ -3,9 +3,9 @@ import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({parent}) => {
     const { organization } = await parent();
-    const currentOrg: boolean = true;
-    const orgUid = organization.uid;
+    const orgUid = organization?.uid;
+    console.log("orgUid", orgUid);
     return {
-        cardinal: await cardCatEntries(currentOrg, orgUid)
+        cardinal: await cardCatEntries()
     };
 }

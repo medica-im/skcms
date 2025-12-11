@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { setLocale } from "../paraglide/runtime.js";
 	import { autoModeWatcher } from '@skeletonlabs/skeleton';
 	import { initializeStores, Modal } from '@skeletonlabs/skeleton';
     import '../app.postcss';
@@ -32,7 +33,7 @@
 	import { locales, localizeHref } from '$prgld/runtime.js';
 	import { programsNavLinks } from '$var/variables.ts';
 	import { PUBLIC_PLAUSIBLE_SCRIPT_SRC } from '$env/static/public';
-
+	setLocale('fr');
 	initializeStores();
 
     function scrollHandler(event: ComponentProps<AppShell>['scroll']) {

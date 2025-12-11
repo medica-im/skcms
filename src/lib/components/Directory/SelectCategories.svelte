@@ -101,13 +101,13 @@ filterText: {filterText}-->
 	<div class="text-surface-700 theme">
 		<Select loading={true} placeholder={m.ADDRESSBOOK_CATEGORIES_PLACEHOLDER()} />
 	</div>
-{:then}
+{:then cOf}
 	<div class="text-surface-700 z-auto theme">
 		<Select
 			{itemFilter}
 			{label}
 			{itemId}
-			items={getItems($categoryOf, filterText)}
+			items={getItems(cOf, filterText)}
 			searchable={true}
 			on:focus={handleFocus}
 			on:change={handleChange}

@@ -18,6 +18,7 @@ import type { Organization } from '$lib/interfaces/organization.ts';
 import type { Fetch } from '$lib/interfaces/fetch.ts';
 import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
 import type { SelectType } from '$lib/interfaces/select';
+import { faUnlockKeyhole } from '@fortawesome/free-solid-svg-icons';
 
 export const term: Writable<string> = writable("");
 
@@ -613,8 +614,9 @@ export const categoryOfF = (selectCommunes: string[], fullFilteredEffectors: Ent
 	}
 }
 
-export const communeOfF = async (selectCategories: string[], fullFilteredEffectors: Entry[], selectFacility: string | null, currentOrg: CurrentOrg, limitCategories: String[], selectSituation: SelectType|null|undefined) => {
-	if (!selectCategories?.length && !selectFacility && currentOrg == null && !limitCategories?.length && !selectSituation) {
+export const communeOfF = (selectCategories: string[], fullFilteredEffectors: Entry[], selectFacility: string | null) => {
+	if (!fullFilteredEffectors) return
+	if (!selectCategories?.length && !selectFacility) {
 		const allCommunes = fullFilteredEffectors.map(x => x.commune);
 		const mapFromCommunes = new Map(
 			allCommunes.map(c => [c.uid, c])
@@ -640,7 +642,7 @@ export const communeOfF = async (selectCategories: string[], fullFilteredEffecto
 	}
 }
 
-export const facilityOfF = async (fullFilteredEffectors: Entry[], selectCategories: String[], selectCommunes: String[]) => {
+export const facilityOfF = (fullFilteredEffectors: Entry[], selectCategories: String[], selectCommunes: String[]) => {
 	const facilities: FacilityOf[] = fullFilteredEffectors.filter(
 		x => {
 			return (!selectCategories?.length || selectCategories.includes(x.effector_type.uid)

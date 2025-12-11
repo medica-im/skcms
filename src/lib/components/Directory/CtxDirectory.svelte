@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { setContext } from 'svelte';
 	import { asyncDerived } from '@square/svelte-store';
 	import {
@@ -27,8 +28,6 @@
 		setGeoInputAddress,
 		setDistanceEffectors
 	} from './context';
-	import { variables } from '$lib/utils/constants.ts';
-	import { organizationStore } from '$lib/store/facilityStore.ts';
 	import {
 		distanceEffectorsF,
 		fullFilteredEffectorsF,
@@ -38,18 +37,20 @@
 		cardinalCategorizedFilteredEffectorsF,
 		categoryOfF,
 		communeOfF,
-		facilityOfF
+		facilityOfF,
 	} from '$lib/store/directoryStore.ts';
 	import FullDirectory from './FullDirectory.svelte';
 	import Types from './Types.svelte';
+	import type { SelectType } from '$lib/interfaces/select';
+
 	let {
 		data = null,
-		displayGeocoder = variables.INPUT_GEOCODER,
-		displaySituation = variables.INPUT_SITUATION,
-		displayCommune = variables.INPUT_COMMUNE,
-		displayCategory = variables.INPUT_CATEGORY,
-		displayFacility = variables.INPUT_FACILITY,
-		displaySearch = variables.INPUT_SEARCH,
+		displayGeocoder = false,
+		displaySituation = false,
+		displayCommune = true,
+		displayCategory = true,
+		displayFacility = true,
+		displaySearch = true,
 		propCurrentOrg = true,
 		setRedirect = true,
 		propLimitCategories = [],
@@ -59,22 +60,24 @@
 		displayEntries = false,
 		types = null
 	}: {
-		data: any;
+		data?: any;
 		displayGeocoder: boolean;
 		displaySituation: boolean;
-		displayCommune: boolean;
+		displayCommune?: boolean;
 		displayCategory: boolean;
-		displayFacility: boolean;
-		displaySearch: boolean;
-		propCurrentOrg: boolean | null;
-		setRedirect: boolean;
-		propLimitCategories: string[];
-		propSelectFacility: string | null;
+		displayFacility?: boolean;
+		displaySearch?: boolean;
+		propCurrentOrg?: boolean | null;
+		setRedirect?: boolean;
+		propLimitCategories?: string[];
+		propSelectFacility?: string | null;
 		avatar: boolean;
-		typesView: boolean;
-		displayEntries: boolean;
-		types: string[] | null;
+		typesView?: boolean;
+		displayEntries?: boolean;
+		types?: string[] | null;
 	} = $props();
+
+	const organization = page.data.organization;
 
 	setTerm();
 	setSelectCategories();
@@ -100,11 +103,11 @@
 	let directoryRedirect = getDirectoryRedirect();
 	let currentOrg = getCurrentOrg();
 	let limitCategories = getLimitCategories();
-
 	$currentOrg = propCurrentOrg;
 	$directoryRedirect = setRedirect;
 	$limitCategories = propLimitCategories;
-
+	
+	
 	const distanceEffectors = asyncDerived([addressFeature], async ([$addressFeature]) => {
 		return await distanceEffectorsF($addressFeature);
 	});
@@ -112,12 +115,12 @@
 	setDistanceEffectors(distanceEffectors);
 
 	const fullFilteredEffectors = asyncDerived(
-		[selectSituation, currentOrg, organizationStore, limitCategories],
-		async ([$selectSituation, $currentOrg, $organizationStore, $limitCategories]) => {
+		[selectSituation, currentOrg, limitCategories],
+		async ([$selectSituation, $currentOrg, $limitCategories]) => {
 			return await fullFilteredEffectorsF(
 				$selectSituation,
 				$currentOrg,
-				$organizationStore,
+				organization,
 				$limitCategories
 			);
 		}
@@ -141,8 +144,8 @@
 			);
 		}
 	);
-
 	setContext('filteredEffectors', filteredEffectors);
+
 
 	const categorizedFilteredEffectors = asyncDerived(
 		[filteredEffectors, distanceEffectors, selectSituation],
@@ -175,47 +178,36 @@
 
 	setContext('cardinalCategorizedFilteredEffectors', cardinalCategorizedFilteredEffectors);
 
-	const categoryOf = asyncDerived(
-		[selectCommunes, fullFilteredEffectors, selectFacility],
-		async ([$selectCommunes, $fullFilteredEffectors, $selectFacility]) => {
-			return categoryOfF($selectCommunes, $fullFilteredEffectors, $selectFacility);
-		}
-	);
+	//runes
+	let rSelectSituation: SelectType|null|undefined = $state($selectSituation);
+	let rCurrentOrg = $derived(propCurrentOrg);
+	let rDirectoryRedirect = $derived(setRedirect);
+	let rLimitCategories = $derived(propLimitCategories);
 
-	const communeOf = asyncDerived(
-		[
-			selectCategories,
-			fullFilteredEffectors,
-			selectFacility,
-			currentOrg,
-			limitCategories,
-			selectSituation
-		],
-		async ([
-			$selectCategories,
-			$fullFilteredEffectors,
-			$selectFacility,
-			$currentOrg,
-			$limitCategories,
-			$selectSituation
-		]) => {
-			return communeOfF(
+	const rFullFilteredEntries = $derived(
+		await fullFilteredEffectorsF(
+				rSelectSituation,
+				rCurrentOrg,
+				organization,
+				rLimitCategories
+			)
+		);
+	$inspect(rFullFilteredEntries);
+
+	let rFilteredEntries = $derived(
+		filteredEffectorsF(
+				rFullFilteredEntries,
 				$selectCategories,
-				$fullFilteredEffectors,
+				$selectCommunes,
 				$selectFacility,
-				$currentOrg,
-				$limitCategories,
-				$selectSituation
-			);
-		}
+				$term
+			)
 	);
+	$inspect(rFilteredEntries);
 
-	const facilityOf = asyncDerived(
-		[fullFilteredEffectors, selectCategories, selectCommunes],
-		async ([$fullFilteredEffectors, $selectCategories, $selectCommunes]) => {
-			return facilityOfF($fullFilteredEffectors, $selectCategories, $selectCommunes);
-		}
-	);
+	let communeOf = $derived(communeOfF($selectCategories, rFullFilteredEntries, $selectFacility));
+	const facilityOf = $derived(facilityOfF(rFullFilteredEntries, $selectCategories, $selectCommunes));
+	const categoryOf = $derived(categoryOfF($selectCommunes,rFullFilteredEntries, $selectFacility));
 </script>
 
 {#if typesView}
@@ -233,6 +225,5 @@
 		{communeOf}
 		{categoryOf}
 		{facilityOf}
-		{types}
 	/>
 {/if}

@@ -84,12 +84,12 @@ $selectedCommunesChoices: {JSON.stringify($selectedCommunesChoices)}-->
 	<div class="text-surface-700 theme">
 		<Select loading={true} placeholder={m.ADDRESSBOOK_COMMUNES_PLACEHOLDER()} />
 	</div>
-{:then}
+{:then cOf}
 	<div class="text-surface-700 theme">
 		<Select
 			{label}
 			{itemId}
-			items={getItems($communeOf)}
+			items={getItems(cOf)}
 			searchable={true}
 			on:change={handleChange}
 			on:clear={handleClear}

@@ -14,7 +14,6 @@
 	import { nodeBefore } from '$lib/helpers/whitespacesHelper';
 	import type { User, UserResponse } from '$lib/interfaces/user.interface';
 	import * as m from '$msgs';
-	import OrganizationSelect from '$lib/Web/OrganizationSelect.svelte';
 	import FacilitySelect from '$lib/Web/FacilitySelect.svelte';
 	import EffectorSelect from './EffectorSelectModal.svelte';
 	import EffectorTypeSelect from '$lib/Web/EffectorTypeSelect.svelte';

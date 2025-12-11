@@ -17,6 +17,7 @@ export default defineConfig(({ mode }) => {
 		},
 		plugins: [
 			devtoolsJson(),
+			sveltekit(),
 			paraglideVitePlugin(
 				{
 					project: './project.inlang',
@@ -24,7 +25,6 @@ export default defineConfig(({ mode }) => {
 					strategy: ['preferredLanguage', 'baseLocale'],
 				}
 			),
-			sveltekit(),
 			isoImport() /*, purgeCss()*/
 		],
 		resolve: {

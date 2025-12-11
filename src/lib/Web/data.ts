@@ -12,12 +12,6 @@ export const getEffectorTypes = async () => {
   return data
 }
 
-export const getOrganizations = async () => {
-  const response = await fetch(`${ORIGIN}/api/v2/organizations`)
-  const data = (await response.json()) as Array<Organization>
-  return data
-}
-
 export const getFacilities = async () => {
   const response = await fetch(`${ORIGIN}/api/v2/facilities`)
   const data = (await response.json()) as Array<FacilityV2>

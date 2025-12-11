@@ -182,7 +182,7 @@
 				"countPlural"
 			],
 			"match": [
-				"countPlural"
+				"countPlural=one"
 			]
 		}
 	]

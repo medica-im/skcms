@@ -11,6 +11,7 @@
 
 	let { facilityOf }: { facilityOf: Loadable<FacilityOf[]> } = $props();
 
+
 	let selectFacility = getSelectFacility();
 	let facilityChoice = getFacilityChoice();
 
@@ -43,7 +44,7 @@
 		}
 	}
 
-	async function getItems(facilities: FacilityOf[]) {
+	function getItems(facilities: FacilityOf[]) {
 		return facilities
 			.map(function (x) {
 				const name = x.label || x.name || 'Étbl.';
@@ -77,18 +78,15 @@
 	<div class="text-surface-700 theme">
 		<Select loading={true} placeholder={m.ADDRESSBOOK_FACILITIES_PLACEHOLDER()} />
 	</div>
-{:then}
-	<!--
-	facilityChoice: {JSON.stringify(facilityChoice)}<br>
+{:then fOf}
+	<!--facilityChoice: {JSON.stringify(facilityChoice)}<br>
 	selectFacility: {$selectFacility}<br />
-	facilities: {$getFacilities} ({$getFacilities.length})<br />
-	facilityOf: {$facilityOf} ({$facilityOf.length})
--->
+	facilityOf: {$facilityOf} ({$facilityOf.length})-->
 	<div class="text-surface-700 z-auto theme">
 		<Select
 			{label}
 			{itemId}
-			items={await getItems($facilityOf)}
+			items={getItems(fOf)}
 			searchable={true}
 			on:change={handleChange}
 			on:clear={handleClear}

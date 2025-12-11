@@ -5,6 +5,7 @@
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import type { PageProps } from './$types';
 	import Directory from '$lib/components/Directory/CtxDirectory.svelte';
+	
 	let { data }: PageProps = $props();
    
 	const log = (obj: Map<string,object>) => {
@@ -33,7 +34,6 @@
 		</div>
 	</header>
 	<div>
-		{#key [page.url]}
 			<Directory
 				data={data?.cardinal}
 				propCurrentOrg={null}
@@ -41,10 +41,9 @@
 				displayGeocoder={false}
 				displayCategory={true}
 				displaySituation={false}
-				avatar={true}
+				avatar={false}
 				setRedirect={false}
 			/>
-		{/key}
 	</div>
 </div>
 

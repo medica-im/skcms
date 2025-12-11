@@ -3,12 +3,12 @@ import { filterInPlace } from '$lib/utils/utils';
 import type { Entry } from '$lib/store/directoryStoreInterface';
 import type { Fetch } from '$lib/interfaces/fetch.ts';
 
-export const cardCatEntries = async (currentOrg: boolean | null, orgUid: string, types: string[] | null = null) => {
+export const cardCatEntries = async (currentOrg: boolean | null=null, orgUid: string|null=null, types: string[]|null = null) => {
     const entries = await getEntries();
     filterInPlace(entries, (e: Entry) => {
-        if (currentOrg == true) {
+        if (currentOrg == true && orgUid) {
             return e.memberships?.includes(orgUid) || e.employers?.includes(orgUid)
-        } else if (currentOrg == false) {
+        } else if (currentOrg == false && orgUid) {
             return !e.memberships?.includes(orgUid) && !e.employers?.includes(orgUid)
         } else {
             return true
