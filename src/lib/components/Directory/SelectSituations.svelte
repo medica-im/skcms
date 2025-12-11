@@ -2,14 +2,39 @@
 	import Select from 'svelte-select';
 	import { onMount } from 'svelte';
 	import { getSelectSituation } from './context';
-	import { situations } from '$lib/store/directoryStore';
+	import { getSituations } from '$lib/store/directoryStore.ts';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import * as m from '$msgs';
+	import type { Situation } from '$lib/store/directoryStoreInterface.ts';
+
 	const label = 'label';
 	const itemId = 'value';
 
 	let selectSituation = getSelectSituation();
+
+	type SituationItem = { value: string; label: string };
+
+	const situations = async () => {
+		const unsortedSituations: Situation[] = await getSituations();
+		let situationItems: SituationItem[] = [];
+		try {
+			situationItems = unsortedSituations
+				.sort(function (a, b) {
+					return a.name.localeCompare(b.name);
+				})
+				.map(function (e) {
+					const situation = {
+						value: e.uid,
+						label: e.name
+					};
+					return situation;
+				});
+		} catch (e) {
+			console.error(e);
+		}
+		return situationItems;
+	};
 
 	async function getSituationSelect(uid: string | null) {
 		const _situations = await situations();
@@ -35,12 +60,11 @@
 		}
 	}
 </script>
-{#await situations()}
-	<div class="text-surface-700 theme">
+
+<div class="text-surface-700 theme">
+	{#await situations()}
 		<Select loading={true} placeholder={m.ADDRESSBOOK_SITUATIONS_PLACEHOLDER()} />
-	</div>
-{:then situations}
-	<div class="text-surface-700 theme">
+	{:then situations}
 		<Select
 			{label}
 			{itemId}
@@ -50,8 +74,8 @@
 			placeholder={m.ADDRESSBOOK_SITUATIONS_PLACEHOLDER()}
 			bind:value={$selectSituation}
 		/>
-	</div>
-{/await}
+	{/await}
+</div>
 
 <style>
 	/*

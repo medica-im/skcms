@@ -18,7 +18,6 @@ import type { Organization } from '$lib/interfaces/organization.ts';
 import type { Fetch } from '$lib/interfaces/fetch.ts';
 import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
 import type { SelectType } from '$lib/interfaces/select';
-import { faUnlockKeyhole } from '@fortawesome/free-solid-svg-icons';
 
 export const term: Writable<string> = writable("");
 
@@ -247,13 +246,12 @@ export const getEntries = async (): Promise<Entry[]> => {
 	}
 };
 
-export const distanceEffectorsF = async (addressFeature: AddressFeature | null) => {
+export const distanceEffectorsF = (entries: Entry[], addressFeature: AddressFeature | null) => {
 	const targetGeoJSON = addressFeature?.geometry?.coordinates;
 	if (!targetGeoJSON) {
 		return {};
 	}
 	const distanceOfEffector: DistanceEffectors = {};
-	const entries = await getEntries();
 	for (const entry of entries) {
 		let longitude = entry.address.longitude;
 		let latitude = entry.address.latitude;
@@ -265,7 +263,7 @@ export const distanceEffectorsF = async (addressFeature: AddressFeature | null) 
 		distanceOfEffector[entry.address.facility_uid] = dist;
 	}
 	return distanceOfEffector;
-}
+};
 
 function uniq(a) {
 	var seen = {};
@@ -334,29 +332,6 @@ export const getSituations = async (): Promise<Situation[]> => {
 	return situations;
 };
 
-type SituationItem = { value: string, label: string }
-
-export const situations = async () => {
-	const unsortedSituations: Situation[] = await getSituations();
-	let situationItems: SituationItem[] = [];
-	try {
-		situationItems = (
-			unsortedSituations.sort(function (a, b) {
-				return a.name.localeCompare(b.name);
-			}).map(function (e) {
-				const situation = {
-					value: e.uid,
-					label: e.name
-				}
-				return situation
-			}
-			)
-		);
-	} catch (e) {
-		console.error(e);
-	}
-	return situationItems;
-};
 
 function distanceOfEffector(entry: Entry, distEffectors: DistanceEffectors) {
 	let uid = entry.address?.facility_uid;
@@ -381,7 +356,7 @@ function compareEffectorDistance(a, b, distEffectors: DistanceEffectors) {
 	}
 }
 
-export const fullFilteredEntriesF = (situations: Situation[], entries: Entry[], selectSituation: SelectType|null| undefined = undefined, currentOrg: Boolean | null = null, organizationStore: Organization | undefined, limitCategories: String[]): Entry[] => {
+export const fullFilteredEntriesF = (situations: Situation[], entries: Entry[], selectSituation: SelectType | null | undefined = undefined, currentOrg: Boolean | null = null, organizationStore: Organization | undefined, limitCategories: String[]): Entry[] => {
 	if (
 		!selectSituation
 		&& currentOrg === null
@@ -451,7 +426,7 @@ export const filteredEffectorsF = (fullFilteredEffectors: Entry[], selectCategor
 	}
 }
 
-export const categorizedFilteredEffectorsF = (filteredEffectors: Entry[], distanceEffectors: DistanceEffectors | null = null, selectSituation: SelectType|null|undefined = undefined) => {
+export const categorizedFilteredEffectorsF = (filteredEffectors: Entry[], distanceEffectors: DistanceEffectors | null = null, selectSituation: SelectType | null | undefined = undefined) => {
 	let categorySet: Set<string> = new Set();
 	for (let effector of filteredEffectors) {
 		categorySet.add(effector.effector_type.name)
@@ -612,7 +587,7 @@ export const categoryOfF = (fullFilteredEntries: Entry[], selectCommunes: string
 	}
 }
 
-export const communeOfF = (fullFilteredEntries: Entry[], selectFacility: string | null, selectCategories: string[], ) => {
+export const communeOfF = (fullFilteredEntries: Entry[], selectFacility: string | null, selectCategories: string[],) => {
 	if (!selectCategories?.length && !selectFacility) {
 		const allCommunes = fullFilteredEntries.map(x => x.commune);
 		const mapFromCommunes = new Map(

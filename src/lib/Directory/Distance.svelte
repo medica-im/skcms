@@ -23,10 +23,6 @@ const result = {unit: 'km', smallUnit: 'm', factor: 1000, smallBorder: 0.900}
 }
 </script>
 
-{#await distanceEffectors.load()}
-{:then}
-{#if $distanceEffectors?.hasOwnProperty(uid)}
-<!--li>{($distanceEffectors[uid]/1000).toFixed(3)} km</li-->
-{humanize($distanceEffectors[uid]/1000)}
+{#if distanceEffectors?.hasOwnProperty(uid)}
+{humanize(distanceEffectors[uid]/1000)}
 {/if}
-{/await}

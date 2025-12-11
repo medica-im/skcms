@@ -165,10 +165,10 @@ export function getDirectoryRedirect(): Writable<boolean> {
     return getContext('directoryRedirect');
 }
 
-export function setDistanceEffectors(distanceEffectors: Loadable<DistanceEffectors|null>) {
+export function setDistanceEffectors(distanceEffectors: DistanceEffectors|null=null) {
     setContext('distanceEffectors', distanceEffectors)
 }
 
-export function getDistanceEffectors(): Loadable<DistanceEffectors|null> {
+export function getDistanceEffectors(): DistanceEffectors|null {
     return getContext('distanceEffectors')
 }

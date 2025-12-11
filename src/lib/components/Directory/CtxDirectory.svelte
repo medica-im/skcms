@@ -26,7 +26,10 @@
 		setSelCatVal,
 		setInputAddress,
 		setGeoInputAddress,
-		setDistanceEffectors
+		setDistanceEffectors,
+
+		getDistanceEffectors
+
 	} from './context';
 	import {
 		distanceEffectorsF,
@@ -77,9 +80,7 @@
 		displayEntries?: boolean;
 		types?: string[] | null;
 	} = $props();
-
-	const organization = page.data.organization;
-
+	
 	setTerm();
 	setSelectCategories();
 	setLimitCategories();
@@ -104,22 +105,22 @@
 	let directoryRedirect = getDirectoryRedirect();
 	let currentOrg = getCurrentOrg();
 	let limitCategories = getLimitCategories();
+
 	$currentOrg = propCurrentOrg;
 	$directoryRedirect = setRedirect;
 	$limitCategories = propLimitCategories;
-	
-	
-	const distanceEffectors = asyncDerived([addressFeature], async ([$addressFeature]) => {
-		return await distanceEffectorsF($addressFeature);
-	});
 
+	const situations = $derived(page.data.situations);
+	const organization = $derived(page.data.organization);
+	const entries = $derived(page.data.entries);
+	
+	let distanceEffectors = $derived(distanceEffectorsF(entries, $addressFeature));
 	setDistanceEffectors(distanceEffectors);
+
 
 	const fullFilteredEffectors = asyncDerived(
 		[selectSituation, currentOrg, limitCategories],
 		async ([$selectSituation, $currentOrg, $limitCategories]) => {
-			const entries = await getEntries();
-			const situations = await getSituations();
 			return fullFilteredEntriesF(
 				situations,
 				entries,
@@ -152,11 +153,11 @@
 	setContext('filteredEffectors', filteredEffectors);
 
 	const categorizedFilteredEffectors = asyncDerived(
-		[filteredEffectors, distanceEffectors, selectSituation],
-		async ([$filteredEffectors, $distanceEffectors, $selectSituation]) => {
+		[filteredEffectors, selectSituation],
+		async ([$filteredEffectors, $selectSituation]) => {
 			return categorizedFilteredEffectorsF(
 				$filteredEffectors,
-				$distanceEffectors,
+				distanceEffectors,
 				$selectSituation
 			);
 		}
@@ -185,13 +186,9 @@
 	let rCurrentOrg = $derived(propCurrentOrg);
 	let rDirectoryRedirect = $derived(setRedirect);
 	let rLimitCategories = $derived(propLimitCategories);
-	const entries = await getEntries();
-	const situations = await getSituations();
-
 	const rFullFilteredEntries = $derived.by(() => {
-		return fullFilteredEntriesF(situations, entries, rSelectSituation, rCurrentOrg, organization,rLimitCategories)
+		return fullFilteredEntriesF(situations, entries, rSelectSituation, rCurrentOrg, organization, rLimitCategories)
 	});
-
 	let rFilteredEntries = $derived.by(() => {
 		return filteredEffectorsF(
 				rFullFilteredEntries,
@@ -202,7 +199,6 @@
 			)
 	}
 	);
-
 	const communeOf = $derived.by(() => {
 		return communeOfF(rFullFilteredEntries, $selectFacility, $selectCategories)}
 	);
