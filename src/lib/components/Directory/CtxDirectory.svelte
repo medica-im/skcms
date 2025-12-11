@@ -30,7 +30,7 @@
 	} from './context';
 	import {
 		distanceEffectorsF,
-		fullFilteredEffectorsF,
+		fullFilteredEntriesF,
 		filteredEffectorsF,
 		categorizedFilteredEffectorsF,
 		categorizedFullFilteredEffectorsF,
@@ -41,6 +41,7 @@
 	} from '$lib/store/directoryStore.ts';
 	import FullDirectory from './FullDirectory.svelte';
 	import Types from './Types.svelte';
+	import { getEntries, getSituations } from '$lib/store/directoryStore.ts';
 	import type { SelectType } from '$lib/interfaces/select';
 
 	let {
@@ -117,7 +118,11 @@
 	const fullFilteredEffectors = asyncDerived(
 		[selectSituation, currentOrg, limitCategories],
 		async ([$selectSituation, $currentOrg, $limitCategories]) => {
-			return await fullFilteredEffectorsF(
+			const entries = await getEntries();
+			const situations = await getSituations();
+			return fullFilteredEntriesF(
+				situations,
+				entries,
 				$selectSituation,
 				$currentOrg,
 				organization,
@@ -146,7 +151,6 @@
 	);
 	setContext('filteredEffectors', filteredEffectors);
 
-
 	const categorizedFilteredEffectors = asyncDerived(
 		[filteredEffectors, distanceEffectors, selectSituation],
 		async ([$filteredEffectors, $distanceEffectors, $selectSituation]) => {
@@ -166,7 +170,6 @@
 			return categorizedFullFilteredEffectorsF($fullFilteredEffectors);
 		}
 	);
-
 	setContext('categorizedFullFilteredEffectors', categorizedFullFilteredEffectors);
 
 	const cardinalCategorizedFilteredEffectors = asyncDerived(
@@ -182,23 +185,32 @@
 	let rCurrentOrg = $derived(propCurrentOrg);
 	let rDirectoryRedirect = $derived(setRedirect);
 	let rLimitCategories = $derived(propLimitCategories);
+	const entries = await getEntries();
+	const situations = await getSituations();
 
-	const rFullFilteredEntries = $derived(await fullFilteredEffectorsF(rSelectSituation, rCurrentOrg, organization,rLimitCategories));
+	const rFullFilteredEntries = $derived.by(() => {
+		return fullFilteredEntriesF(situations, entries, rSelectSituation, rCurrentOrg, organization,rLimitCategories)
+	});
 
-	let rFilteredEntries = $derived(
-		filteredEffectorsF(
+	let rFilteredEntries = $derived.by(() => {
+		return filteredEffectorsF(
 				rFullFilteredEntries,
 				$selectCategories,
 				$selectCommunes,
 				$selectFacility,
 				$term
 			)
+	}
 	);
-	$inspect(rFilteredEntries);
 
-	const communeOf = $derived(communeOfF($selectCategories, rFullFilteredEntries, $selectFacility));
-	const facilityOf = $derived(facilityOfF(rFullFilteredEntries, $selectCategories, $selectCommunes));
-	const categoryOf = $derived(categoryOfF($selectCommunes,rFullFilteredEntries, $selectFacility));
+	const communeOf = $derived.by(() => {
+		return communeOfF(rFullFilteredEntries, $selectFacility, $selectCategories)}
+	);
+	const facilityOf = $derived.by(() => {
+		return facilityOfF(rFullFilteredEntries, $selectCategories, $selectCommunes)
+	});
+	const categoryOf = $derived.by(() => {
+		return categoryOfF(rFullFilteredEntries, $selectCommunes, $selectFacility)});
 </script>
 
 {#if typesView}

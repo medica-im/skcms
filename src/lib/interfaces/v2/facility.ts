@@ -21,7 +21,7 @@ export interface Commune {
 
 export interface Facility {
     uid: string
-    commune: Commune
+    commune: string
     updated: number
     name: string|null
     label: string|null

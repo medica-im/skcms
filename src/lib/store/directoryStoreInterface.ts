@@ -7,6 +7,7 @@ import type { Email } from '$lib/interfaces/email.interface.ts';
 import type { SocialNetwork } from '$lib/interfaces/socialnetwork.interface.ts';
 import type { Website } from '$lib/interfaces/website.interface.ts';
 import type { Address } from '$lib/interfaces/facility.interface.ts';
+import type { Commune } from '$lib/interfaces/geography.interface.ts';
 
 export interface Situation {
     value: string;
@@ -17,13 +18,6 @@ export interface Avatar {
     fb: string,
     lt: string,
     raw: string
-}
-
-export interface Commune {
-    name: string,
-    slug: string,
-    uid: string,
-    wikidata: string
 }
 
 export interface Department {

@@ -381,8 +381,7 @@ function compareEffectorDistance(a, b, distEffectors: DistanceEffectors) {
 	}
 }
 
-export const fullFilteredEffectorsF = async (selectSituation: SelectType|null| undefined = undefined, currentOrg: Boolean | null = null, organizationStore: Organization | undefined, limitCategories: String[]): Promise<Entry[]> => {
-	const entries: Entry[] = await getEntries();
+export const fullFilteredEntriesF = (situations: Situation[], entries: Entry[], selectSituation: SelectType|null| undefined = undefined, currentOrg: Boolean | null = null, organizationStore: Organization | undefined, limitCategories: String[]): Entry[] => {
 	if (
 		!selectSituation
 		&& currentOrg === null
@@ -390,7 +389,6 @@ export const fullFilteredEffectorsF = async (selectSituation: SelectType|null| u
 	) {
 		return entries
 	} else {
-		const situations = await getSituations();
 		return entries.filter(function (x) {
 			if (!limitCategories?.length) {
 				return true
@@ -585,13 +583,13 @@ export const categorizedFullFilteredEffectorsF = (fullFilteredEffectors: Entry[]
 	return effectorsMap as CategorizedEntries;
 }
 
-export const categoryOfF = (selectCommunes: string[], fullFilteredEffectors: Entry[], selectFacility: string | null): Type[] => {
-	if (!Array.isArray(fullFilteredEffectors)) {
+export const categoryOfF = (fullFilteredEntries: Entry[], selectCommunes: string[], selectFacility: string | null): Type[] => {
+	if (!Array.isArray(fullFilteredEntries)) {
 		return []
 	}
 	if (!selectCommunes.length && selectFacility == null) {
 		return uniq(
-			fullFilteredEffectors.map(
+			fullFilteredEntries.map(
 				function (x) {
 					return x.effector_type
 				}
@@ -599,7 +597,7 @@ export const categoryOfF = (selectCommunes: string[], fullFilteredEffectors: Ent
 		)
 	} else {
 		return uniq(
-			fullFilteredEffectors.filter(
+			fullFilteredEntries.filter(
 				function (x) {
 					return (
 						(!(selectCommunes.length) || selectCommunes.includes(x.commune.uid)) && (!selectFacility || selectFacility == x.facility.uid)
@@ -614,17 +612,16 @@ export const categoryOfF = (selectCommunes: string[], fullFilteredEffectors: Ent
 	}
 }
 
-export const communeOfF = (selectCategories: string[], fullFilteredEffectors: Entry[], selectFacility: string | null) => {
-	if (!fullFilteredEffectors) return
+export const communeOfF = (fullFilteredEntries: Entry[], selectFacility: string | null, selectCategories: string[], ) => {
 	if (!selectCategories?.length && !selectFacility) {
-		const allCommunes = fullFilteredEffectors.map(x => x.commune);
+		const allCommunes = fullFilteredEntries.map(x => x.commune);
 		const mapFromCommunes = new Map(
 			allCommunes.map(c => [c.uid, c])
 		);
 		const uniqueCommunes = [...mapFromCommunes.values()];
 		return uniqueCommunes;
 	} else {
-		const communes = fullFilteredEffectors.filter(
+		const communes = fullFilteredEntries.filter(
 			x => {
 				return (!selectCategories?.length || selectCategories.includes(x.effector_type.uid)
 				) && (!selectFacility || x.facility.uid == selectFacility)
@@ -642,8 +639,8 @@ export const communeOfF = (selectCategories: string[], fullFilteredEffectors: En
 	}
 }
 
-export const facilityOfF = (fullFilteredEffectors: Entry[], selectCategories: String[], selectCommunes: String[]) => {
-	const facilities: FacilityOf[] = fullFilteredEffectors.filter(
+export const facilityOfF = (fullFilteredEntries: Entry[], selectCategories: String[], selectCommunes: String[]) => {
+	const facilities: FacilityOf[] = fullFilteredEntries.filter(
 		x => {
 			return (!selectCategories?.length || selectCategories.includes(x.effector_type.uid)
 			) && (!selectCommunes?.length || selectCommunes.includes(x.commune.uid))

@@ -25,8 +25,6 @@
 	import { getFacility } from '$lib/Web/data';
 	import { useQueryClient, createQuery } from '@tanstack/svelte-query';
 	import { copy } from 'svelte-copy';
-	import type { FacilityV2, Commune } from '$lib/interfaces/v2/facility.ts';
-	import type { CreateQueryResult } from '@tanstack/svelte-query';
 	import EntryCreationForm from '$lib/Web/EntryCreationForm.svelte';
 	import SelectMembershipModal from './Membership/SelectMembershipModal.svelte';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';

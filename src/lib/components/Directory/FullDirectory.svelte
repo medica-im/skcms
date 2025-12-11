@@ -17,6 +17,7 @@
 	import type { Loadable } from '@square/svelte-store';
 	import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
 	import type { Type } from '$lib/store/directoryStoreInterface.ts';
+	import type { Commune } from '$lib/interfaces/geography.interface.ts';
 	let {
 		data,
 		displayGeocoder,
@@ -38,9 +39,9 @@
 		displayFacility: boolean;
 		displaySearch: boolean;
 		avatar: boolean;
-		communeOf: any;
-		categoryOf: Type[];
-		facilityOf: FacilityOf[];
+		communeOf: Promise<Commune[]>;
+		categoryOf: Promise<Type[]>;
+		facilityOf: Promise<FacilityOf[]>;
 	} = $props();
 	const cCFE = getContext<Loadable<Map<any, any>>>('cardinalCategorizedFilteredEffectors');
 	const selectSituation = getSelectSituation();
