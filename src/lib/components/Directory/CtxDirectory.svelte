@@ -175,8 +175,7 @@
 			return cardinalCategorizedFilteredEffectorsF($categorizedFilteredEffectors);
 		}
 	);
-
-	setContext('cardinalCategorizedFilteredEffectors', cardinalCategorizedFilteredEffectors);
+	setContext('cardinalCategorizedFilteredEffectors',cardinalCategorizedFilteredEffectors);
 
 	//runes
 	let rSelectSituation: SelectType|null|undefined = $state($selectSituation);
@@ -184,15 +183,7 @@
 	let rDirectoryRedirect = $derived(setRedirect);
 	let rLimitCategories = $derived(propLimitCategories);
 
-	const rFullFilteredEntries = $derived(
-		await fullFilteredEffectorsF(
-				rSelectSituation,
-				rCurrentOrg,
-				organization,
-				rLimitCategories
-			)
-		);
-	$inspect(rFullFilteredEntries);
+	const rFullFilteredEntries = $derived(await fullFilteredEffectorsF(rSelectSituation, rCurrentOrg, organization,rLimitCategories));
 
 	let rFilteredEntries = $derived(
 		filteredEffectorsF(
@@ -205,7 +196,7 @@
 	);
 	$inspect(rFilteredEntries);
 
-	let communeOf = $derived(communeOfF($selectCategories, rFullFilteredEntries, $selectFacility));
+	const communeOf = $derived(communeOfF($selectCategories, rFullFilteredEntries, $selectFacility));
 	const facilityOf = $derived(facilityOfF(rFullFilteredEntries, $selectCategories, $selectCommunes));
 	const categoryOf = $derived(categoryOfF($selectCommunes,rFullFilteredEntries, $selectFacility));
 </script>
