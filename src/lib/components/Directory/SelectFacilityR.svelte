@@ -7,9 +7,8 @@
 	import { getFacilities } from '$lib/store/facilityStore';
 	import { getSelectFacility, getFacilityChoice } from './context.ts';
 	import * as m from '$msgs';
-	import type { Loadable } from '@square/svelte-store';
 
-	let { facilityOf }: { facilityOf: Promise<FacilityOf[]> } = $props();
+	let { facilityOf }: { facilityOf: FacilityOf[] } = $props();
 
 
 	let selectFacility = getSelectFacility();
@@ -24,13 +23,10 @@
 		facilityParam = page.url.searchParams.get('facility');
 		if (facilityParam) {
 			selectFacility.set(facilityParam);
-			const _facilityOf = await facilityOf;
-			if (_facilityOf) {
-				const value = getValue(facilityParam, _facilityOf);
+				const value = getValue(facilityParam, facilityOf);
 				if (value) {
 					$facilityChoice = value;
 				}
-			}
 		}
 	});
 
@@ -75,11 +71,6 @@
 	}
 </script>
 
-{#await facilityOf}
-	<div class="text-surface-700 theme">
-		<Select loading={true} placeholder={m.ADDRESSBOOK_FACILITIES_PLACEHOLDER()} />
-	</div>
-{:then _facilityOf}
 	<!--facilityChoice: {JSON.stringify(facilityChoice)}<br>
 	selectFacility: {$selectFacility}<br />
 	facilityOf: {$facilityOf} ({$facilityOf.length})-->
@@ -87,7 +78,7 @@
 		<Select
 			{label}
 			{itemId}
-			items={getItems(_facilityOf)}
+			items={getItems(facilityOf)}
 			searchable={true}
 			on:change={handleChange}
 			on:clear={handleClear}
@@ -95,7 +86,6 @@
 			bind:value={$facilityChoice}
 		/>
 	</div>
-{/await}
 
 <style>
 	/*

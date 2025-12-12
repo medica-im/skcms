@@ -8,7 +8,7 @@
 		faLocationDot
 	} from '@fortawesome/free-solid-svg-icons';
 	import Distance from '$lib/Directory/Distance.svelte';
-	export let data;
+	let { data } = $props();
 </script>
 
 <ul class="list">

@@ -19,14 +19,12 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
       throw new Error(`Response status: ${response.status}`);
     }
     user = await response.json();
-    console.log("user", user);
   } catch (error: any) {
     console.error('There was an error while retrieving user from layout.ts', error.message);
   }
 
   let directory;
   const dirUrl = `${ORIGIN}/api/v1/directory/`;
-  console.log("dirUrl", dirUrl);
   try {
     response = await fetch(dirUrl, {
       //credentials: 'include',
@@ -37,7 +35,6 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
       throw new Error(`Response status: ${response.status}`);
     }
     directory = await response.json();
-    console.log("directory", directory);
   } catch (error: any) {
     console.error(`directory ${error.message}`);
   }

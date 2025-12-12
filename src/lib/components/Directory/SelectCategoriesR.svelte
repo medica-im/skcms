@@ -13,7 +13,7 @@
 	import { getItems } from '$lib/components/Directory/SelectCategory.ts';
 	import type { Type } from '$lib/store/directoryStoreInterface';
 
-	let { categoryOf }:{ categoryOf: Promise<Type[]>} = $props();
+	let { categoryOf }:{ categoryOf: Type[]} = $props();
 
 	const label = 'label';
 	const itemId = 'value';
@@ -31,25 +31,12 @@
 		if (typesParam != null) {
 		    const types: string[] = JSON.parse(typesParam);
 			$selectCategories=types;
-			const _categoryOf = await categoryOf;
-			const effector_type = _categoryOf.find(e=>types.includes(e.uid));
+			const effector_type = categoryOf.find(e=>types.includes(e.uid));
 			if ( effector_type ) {
 				$selCatVal = {value: effector_type.uid, label: effector_type.label||effector_type.name};
 			}
 		}
 	});
-
-	function getValue(selectCategories: string[], categories: Type[]) {
-		if (categories) {
-			let val = categories
-				.filter((x) => selectCategories.includes(x.uid))
-				.map(function (x) {
-					let dct = { value: x.uid, label: x.name };
-					return dct;
-				})[0];
-			return val;
-		}
-	};
 
 	function handleFocus(e: CustomEvent) {
 		srcElement=e.detail.srcElement;
@@ -95,18 +82,18 @@
 $selectCategories: {JSON.stringify($selectCategories)}<br>
 $selCatVal: {JSON.stringify($selCatVal)}<br>
 categoryOf: {$categoryOf} ({$categoryOf.length})<br />
-filterText: {filterText}-->
+filterText: {filterText}
 {#await categoryOf}
 	<div class="text-surface-700 theme">
 		<Select loading={true} placeholder={m.ADDRESSBOOK_CATEGORIES_PLACEHOLDER()} />
 	</div>
-{:then _categoryOf}
+{:then _categoryOf}-->
 	<div class="text-surface-700 z-auto theme">
 		<Select
 			{itemFilter}
 			{label}
 			{itemId}
-			items={getItems(_categoryOf, filterText)}
+			items={getItems(categoryOf, filterText)}
 			searchable={true}
 			on:focus={handleFocus}
 			on:change={handleChange}
@@ -116,7 +103,7 @@ filterText: {filterText}-->
 			placeholder={m.ADDRESSBOOK_CATEGORIES_PLACEHOLDER()}
 		/>
 	</div>
-{/await}
+<!--{/await}-->
 
 <style>
 	/*

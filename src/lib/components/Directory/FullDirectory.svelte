@@ -39,9 +39,9 @@
 		displayFacility: boolean;
 		displaySearch: boolean;
 		avatar: boolean;
-		communeOf: Promise<Commune[]>;
-		categoryOf: Promise<Type[]>;
-		facilityOf: Promise<FacilityOf[]>;
+		communeOf: Commune[];
+		categoryOf: Type[];
+		facilityOf: FacilityOf[];
 	} = $props();
 	const cCFE = getContext<Loadable<Map<any, any>>>('cardinalCategorizedFilteredEffectors');
 	const selectSituation = getSelectSituation();

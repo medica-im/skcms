@@ -8,7 +8,7 @@
 	import type { Commune } from '$lib/interfaces/geography.interface.ts';
 	import type { SelectType } from '$lib/interfaces/select';
 
-	let { communeOf }: { communeOf: Promise<Commune[]> } = $props();
+	let { communeOf }: { communeOf: Commune[] } = $props();
 
 	let multiple: boolean = $state(false);
 	const label = 'label';
@@ -31,8 +31,7 @@
 		if (!communesParam) return;
 		const communeUids: string[] = JSON.parse(communesParam);
 		selectedCommunes.set(communeUids);
-		const cOf = await communeOf;
-		$selectedCommunesChoices = getChoices(communeUids, cOf);
+		$selectedCommunesChoices = getChoices(communeUids, communeOf);
 	});
 
 	function getItems(communes: Commune[]) {
@@ -83,13 +82,11 @@ typeof $selectedCommunes: {typeof $selectedCommunes}<br />
 $selectedCommunesChoices: {JSON.stringify($selectedCommunesChoices)}
 -->
 <div class="text-surface-700 theme max-h-12">
-	{#await communeOf}
-		<Select loading={true} placeholder={m.ADDRESSBOOK_COMMUNES_PLACEHOLDER()} />
-	{:then cOf}
+
 		<Select
 			{label}
 			{itemId}
-			items={getItems(cOf)}
+			items={getItems(communeOf)}
 			searchable={true}
 			on:change={handleChange}
 			on:clear={handleClear}
@@ -97,7 +94,6 @@ $selectedCommunesChoices: {JSON.stringify($selectedCommunesChoices)}
 			{multiple}
 			bind:value
 		/>
-	{/await}
 </div>
 
 <style>

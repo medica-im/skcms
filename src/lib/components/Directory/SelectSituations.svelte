@@ -2,7 +2,6 @@
 	import Select from 'svelte-select';
 	import { onMount } from 'svelte';
 	import { getSelectSituation } from './context';
-	import { getSituations } from '$lib/store/directoryStore.ts';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import * as m from '$msgs';
@@ -15,37 +14,31 @@
 
 	type SituationItem = { value: string; label: string };
 
-	const situations = async () => {
-		const unsortedSituations: Situation[] = await getSituations();
-		let situationItems: SituationItem[] = [];
-		try {
-			situationItems = unsortedSituations
-				.sort(function (a, b) {
-					return a.name.localeCompare(b.name);
-				})
-				.map(function (e) {
-					const situation = {
-						value: e.uid,
-						label: e.name
-					};
-					return situation;
-				});
-		} catch (e) {
-			console.error(e);
-		}
+	const situations = $derived.by(() => {
+		const unsortedSituations: Situation[] = page.data.situations;
+		let situationItems: SituationItem[] = unsortedSituations
+			.sort(function (a, b) {
+				return a.name.localeCompare(b.name);
+			})
+			.map(function (e) {
+				const situation = {
+					value: e.uid,
+					label: e.name
+				};
+				return situation;
+			});
 		return situationItems;
-	};
+	});
 
-	async function getSituationSelect(uid: string | null) {
-		const _situations = await situations();
-		const _situation = _situations.find((e) => e.value == uid);
+	function getSituationSelect(uid: string | null) {
+		const _situation = page.data.situations.find((e) => e.value == uid);
 		return _situation;
 	}
 
-	onMount(async () => {
+	onMount(() => {
 		const situationUid = page.url.searchParams.get('situation');
 		if (!situationUid) return;
-		const situation = await getSituationSelect(situationUid);
+		const situation = getSituationSelect(situationUid);
 		if (situation) {
 			selectSituation.set(situation);
 		}
@@ -62,9 +55,9 @@
 </script>
 
 <div class="text-surface-700 theme">
-	{#await situations()}
+	{#if !situations && !situations.length}
 		<Select loading={true} placeholder={m.ADDRESSBOOK_SITUATIONS_PLACEHOLDER()} />
-	{:then situations}
+	{:else}
 		<Select
 			{label}
 			{itemId}
@@ -74,7 +67,7 @@
 			placeholder={m.ADDRESSBOOK_SITUATIONS_PLACEHOLDER()}
 			bind:value={$selectSituation}
 		/>
-	{/await}
+	{/if}
 </div>
 
 <style>

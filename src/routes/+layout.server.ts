@@ -15,13 +15,11 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
         throw new Error(`Response status: ${response.status}`);
       }
       user = await response.json();
-      console.log("user", user);
     } catch (error: any) {
       console.error('There was an error while retrieving user from layout.server.ts', error.message);
     }
   let organization;
   const orgUrl = `${ORIGIN}/api/v2/organization`;
-  console.log("orgUrl", orgUrl);
   try {
     response = await fetch(orgUrl, {
       credentials: 'include',
@@ -32,7 +30,6 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
       throw new Error(`Response status: ${response.status}`);
     }
     organization = await response.json() as Organization;
-    console.log("organization", organization);
   } catch (error: any) {
     console.error(`organization ${error.message}`);
   }

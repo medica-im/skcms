@@ -47,8 +47,6 @@
 	};
 
 	function getAddressOptions(res: FeatureCollection) {
-		console.log(JSON.stringify(res));
-
 		if (!res || !res?.features?.length) {
 			return [];
 		}
@@ -89,10 +87,10 @@
 
 	function getParams() {
 		let params = {
-			q: `${$inputAddress} ${commune ?? ''}`,
-			limit: options.limit,
-			lat: null,
-			lon: null
+			'q': `${$inputAddress} ${commune ?? ''}`,
+			'limit': options.limit,
+			'lat': null,
+			'lon': null
 		};
 		return params;
 	}
@@ -133,8 +131,8 @@
 		}
 	});
 </script>
-
-<!--visible: {visible}<br>
+<!--inputAddress:{$inputAddress}<br>
+visible: {visible}<br>
 {JSON.stringify(addressOptions)}<br>
 $addressFeature: {JSON.stringify($addressFeature)}-->
 <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">

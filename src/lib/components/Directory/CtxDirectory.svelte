@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { setContext } from 'svelte';
-	import { asyncDerived } from '@square/svelte-store';
+	import { asyncDerived, derived as syncDerived } from '@square/svelte-store';
+	import haversine from 'haversine-distance';
 	import {
 		setTerm,
 		getTerm,
@@ -27,12 +28,10 @@
 		setInputAddress,
 		setGeoInputAddress,
 		setDistanceEffectors,
-
 		getDistanceEffectors
-
 	} from './context';
 	import {
-		distanceEffectorsF,
+		//distanceEffectorsF,
 		fullFilteredEntriesF,
 		filteredEffectorsF,
 		categorizedFilteredEffectorsF,
@@ -40,12 +39,21 @@
 		cardinalCategorizedFilteredEffectorsF,
 		categoryOfF,
 		communeOfF,
-		facilityOfF,
+		facilityOfF
 	} from '$lib/store/directoryStore.ts';
 	import FullDirectory from './FullDirectory.svelte';
 	import Types from './Types.svelte';
 	import { getEntries, getSituations } from '$lib/store/directoryStore.ts';
 	import type { SelectType } from '$lib/interfaces/select';
+	import type {
+		Contact,
+		Entry,
+		CurrentOrg,
+		AddressFeature,
+		DistanceEffectors,
+		CategorizedEntries,
+		Type
+	} from '$lib/store/directoryStoreInterface.ts';
 
 	let {
 		data = null,
@@ -80,7 +88,7 @@
 		displayEntries?: boolean;
 		types?: string[] | null;
 	} = $props();
-	
+
 	setTerm();
 	setSelectCategories();
 	setLimitCategories();
@@ -113,10 +121,29 @@
 	const situations = $derived(page.data.situations);
 	const organization = $derived(page.data.organization);
 	const entries = $derived(page.data.entries);
-	
-	let distanceEffectors = $derived(distanceEffectorsF(entries, $addressFeature));
-	setDistanceEffectors(distanceEffectors);
 
+	const distanceEffectorsF = (entries: Entry[], addressFeature: AddressFeature | null) => {
+		const targetGeoJSON = addressFeature?.geometry?.coordinates;
+		if (!targetGeoJSON) {
+			return {};
+		}
+		const distanceOfEffector: DistanceEffectors = {};
+		for (const entry of entries) {
+			let longitude = entry.address.longitude;
+			let latitude = entry.address.latitude;
+			if (!longitude || !latitude) {
+				continue;
+			}
+			const effectorGeoJSON = [parseFloat(longitude), parseFloat(latitude)] as any;
+			const dist = haversine(targetGeoJSON, effectorGeoJSON);
+			distanceOfEffector[entry.address.facility_uid] = dist;
+		}
+		return distanceOfEffector;
+	};
+	const distanceEffectors = syncDerived(addressFeature, ($addressFeature) => {
+		return distanceEffectorsF(entries, $addressFeature);
+	});
+	setDistanceEffectors(distanceEffectors);
 
 	const fullFilteredEffectors = asyncDerived(
 		[selectSituation, currentOrg, limitCategories],
@@ -155,11 +182,7 @@
 	const categorizedFilteredEffectors = asyncDerived(
 		[filteredEffectors, selectSituation],
 		async ([$filteredEffectors, $selectSituation]) => {
-			return categorizedFilteredEffectorsF(
-				$filteredEffectors,
-				distanceEffectors,
-				$selectSituation
-			);
+			return categorizedFilteredEffectorsF($filteredEffectors, $distanceEffectors, $selectSituation);
 		}
 	);
 
@@ -179,34 +202,41 @@
 			return cardinalCategorizedFilteredEffectorsF($categorizedFilteredEffectors);
 		}
 	);
-	setContext('cardinalCategorizedFilteredEffectors',cardinalCategorizedFilteredEffectors);
+	setContext('cardinalCategorizedFilteredEffectors', cardinalCategorizedFilteredEffectors);
 
 	//runes
-	let rSelectSituation: SelectType|null|undefined = $state($selectSituation);
+	let rSelectSituation: SelectType | null | undefined = $state($selectSituation);
 	let rCurrentOrg = $derived(propCurrentOrg);
 	let rDirectoryRedirect = $derived(setRedirect);
 	let rLimitCategories = $derived(propLimitCategories);
 	const rFullFilteredEntries = $derived.by(() => {
-		return fullFilteredEntriesF(situations, entries, rSelectSituation, rCurrentOrg, organization, rLimitCategories)
+		return fullFilteredEntriesF(
+			situations,
+			entries,
+			rSelectSituation,
+			rCurrentOrg,
+			organization,
+			rLimitCategories
+		);
 	});
 	let rFilteredEntries = $derived.by(() => {
 		return filteredEffectorsF(
-				rFullFilteredEntries,
-				$selectCategories,
-				$selectCommunes,
-				$selectFacility,
-				$term
-			)
-	}
-	);
+			rFullFilteredEntries,
+			$selectCategories,
+			$selectCommunes,
+			$selectFacility,
+			$term
+		);
+	});
 	const communeOf = $derived.by(() => {
-		return communeOfF(rFullFilteredEntries, $selectFacility, $selectCategories)}
-	);
+		return communeOfF(rFullFilteredEntries, $selectFacility, $selectCategories);
+	});
 	const facilityOf = $derived.by(() => {
-		return facilityOfF(rFullFilteredEntries, $selectCategories, $selectCommunes)
+		return facilityOfF(rFullFilteredEntries, $selectCategories, $selectCommunes);
 	});
 	const categoryOf = $derived.by(() => {
-		return categoryOfF(rFullFilteredEntries, $selectCommunes, $selectFacility)});
+		return categoryOfF(rFullFilteredEntries, $selectCommunes, $selectFacility);
+	});
 </script>
 
 {#if typesView}

@@ -64,7 +64,6 @@
 			category = c;
 			let effectorType = effectorTypes.find((x) => x.name == c);
 			if (effectorType) {
-				console.debug(`effectorType: ${JSON.stringify(effectorType)}`);
 				selectCategories.set([effectorType.uid]);
 			}
 		}
