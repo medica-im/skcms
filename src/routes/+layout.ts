@@ -6,28 +6,28 @@ import type { LayoutLoad } from './$types';
 
 export const load: LayoutLoad = async ({ fetch, data }) => {
   checkVersion();
-  let response;
-  const userUrl = `${ORIGIN}/api/v2/users/me`;
   let user: User | undefined;
-  try {
-    response = await fetch(userUrl, {
-      credentials: 'include',
-      method: 'GET',
-      headers: { "content-type": "application/json" },
-    })
-    if (!response.ok) {
-      throw new Error(`Response status: ${response.status}`);
+  if (import.meta.env.PROD) {
+    let response;
+    const userUrl = `${ORIGIN}/api/v2/users/me`;
+    try {
+      response = await fetch(userUrl, {
+        credentials: 'include',
+        method: 'GET',
+        headers: { "content-type": "application/json" },
+      })
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+      user = await response.json();
+    } catch (error: any) {
+      console.error('There was an error while retrieving user from layout.ts', error.message);
     }
-    user = await response.json();
-  } catch (error: any) {
-    console.error('There was an error while retrieving user from layout.ts', error.message);
   }
-
-  
   return {
     directory: data.directory,
     session: data.session,
-    user: data.user||user,
+    user: data.user || user,
     organization: data.organization,
     entries: await getEntries(),
     situations: await getSituations(),
