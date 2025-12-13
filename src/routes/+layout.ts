@@ -23,24 +23,9 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
     console.error('There was an error while retrieving user from layout.ts', error.message);
   }
 
-  let directory;
-  const dirUrl = `${ORIGIN}/api/v1/directory/`;
-  try {
-    response = await fetch(dirUrl, {
-      //credentials: 'include',
-      method: 'GET',
-      headers: { "content-type": "application/json" },
-    })
-    if (!response.ok) {
-      throw new Error(`Response status: ${response.status}`);
-    }
-    directory = await response.json();
-  } catch (error: any) {
-    console.error(`directory ${error.message}`);
-  }
-
+  
   return {
-    directory: directory,
+    directory: data.directory,
     session: data.session,
     user: data.user||user,
     organization: data.organization,
