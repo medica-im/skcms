@@ -7,7 +7,7 @@ import type { LayoutLoad } from './$types';
 export const load: LayoutLoad = async ({ fetch, data }) => {
   checkVersion();
   let user: User | undefined;
-  if (import.meta.env.PROD) {
+  if (import.meta.env.PROD && !import.meta.env.SSR) {
     let response;
     const userUrl = `${ORIGIN}/api/v2/users/me`;
     try {
