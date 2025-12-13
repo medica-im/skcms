@@ -26,7 +26,7 @@
 		}
 	});
 
-	onMount(async () => {
+	onMount(() => {
 		communesParam = page.url.searchParams.get('communes');
 		if (!communesParam) return;
 		const communeUids: string[] = JSON.parse(communesParam);
@@ -74,6 +74,7 @@
 		}
 	}
 </script>
+
 <!--
 {communeOf ? JSON.stringify(communeOf.slice(0, 2)) : communeOf}<br />
 {communeOf ? communeOf?.length : 0} commune(s)<br />
@@ -82,7 +83,9 @@ typeof $selectedCommunes: {typeof $selectedCommunes}<br />
 $selectedCommunesChoices: {JSON.stringify($selectedCommunesChoices)}
 -->
 <div class="text-surface-700 theme max-h-12">
-
+	{#if !communeOf}
+		<Select loading={true} placeholder={m.ADDRESSBOOK_COMMUNES_PLACEHOLDER()} />
+	{:else}
 		<Select
 			{label}
 			{itemId}
@@ -94,6 +97,7 @@ $selectedCommunesChoices: {JSON.stringify($selectedCommunesChoices)}
 			{multiple}
 			bind:value
 		/>
+	{/if}
 </div>
 
 <style>

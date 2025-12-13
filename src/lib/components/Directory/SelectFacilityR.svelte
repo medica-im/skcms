@@ -75,6 +75,9 @@
 	selectFacility: {$selectFacility}<br />
 	facilityOf: {$facilityOf} ({$facilityOf.length})-->
 	<div class="text-surface-700 z-auto theme">
+		{#if !facilityOf}
+		<Select loading={true} placeholder={m.ADDRESSBOOK_FACILITIES_PLACEHOLDER()} />
+		{:else}
 		<Select
 			{label}
 			{itemId}
@@ -85,6 +88,7 @@
 			placeholder={m.ADDRESSBOOK_FACILITIES_PLACEHOLDER()}
 			bind:value={$facilityChoice}
 		/>
+		{/if}
 	</div>
 
 <style>

@@ -9,11 +9,6 @@ import type { Website } from '$lib/interfaces/website.interface.ts';
 import type { Address } from '$lib/interfaces/facility.interface.ts';
 import type { Commune } from '$lib/interfaces/geography.interface.ts';
 
-export interface Situation {
-    value: string;
-    label: string;
-}
-
 export interface Avatar {
     fb: string,
     lt: string,

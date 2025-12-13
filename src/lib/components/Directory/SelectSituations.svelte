@@ -6,6 +6,7 @@
 	import { goto } from '$app/navigation';
 	import * as m from '$msgs';
 	import type { Situation } from '$lib/store/directoryStoreInterface.ts';
+	import type { SelectType } from '$lib/interfaces/select';
 
 	const label = 'label';
 	const itemId = 'value';
@@ -31,8 +32,12 @@
 	});
 
 	function getSituationSelect(uid: string | null) {
-		const _situation = page.data.situations.find((e) => e.value == uid);
-		return _situation;
+		const _situation = page.data.situations.find((e: Situation) => e.uid == uid);
+		const _situationSelect: SelectType = {
+			label: _situation.name,
+			value: _situation.uid
+		};
+		return _situationSelect;
 	}
 
 	onMount(() => {
@@ -55,7 +60,7 @@
 </script>
 
 <div class="text-surface-700 theme">
-	{#if !situations && !situations.length}
+	{#if !situations || !situations.length}
 		<Select loading={true} placeholder={m.ADDRESSBOOK_SITUATIONS_PLACEHOLDER()} />
 	{:else}
 		<Select
