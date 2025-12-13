@@ -16,7 +16,6 @@
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
 	import { getEffectors } from '../../effector.remote.ts';
-	import { getEntries } from '$lib/store/directoryStore';
 
 	let {
 		effector = $bindable(),
@@ -42,7 +41,7 @@
 	let commune: SelectType | undefined = $state();
 	let communeUid: string | undefined = $derived(commune?.value);
 	let facilityCount: number = $state(0);
-	const entries = $derived(await getEntries());
+	const entries = $derived(page.data.entries);
 	let directory = $derived(isSuperUser ? null : page.data.directory?.name);
 	const effectors = $derived(await getEffectors(directory));
 	const filteredEffectors = $derived.by(() => {
@@ -214,7 +213,6 @@
 					type="button"
 					class="variant-filled-error btn w-min"
 					onclick={() => {
-						console.log("onclick cancel")
 						dialog?.close()
 					}}>Annuler</button
 				>
