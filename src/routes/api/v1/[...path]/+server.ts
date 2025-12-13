@@ -2,7 +2,9 @@ import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = ({ params, url }) => {
-	const fetchUrl = `${ORIGIN}/api/v1/${params.path + url.search}`;
+	const fetchUrl = `${ORIGIN}/api/v1/${params.path}${url.search}`;
     console.log("fetchUrl", fetchUrl);
     return fetch(fetchUrl);
 };
+
+export const trailingSlash = 'ignore';
