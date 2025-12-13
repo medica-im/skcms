@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { beforeNavigate } from '$app/navigation';
+	import { updated } from '$app/state';
 	import { setLocale } from "../paraglide/runtime.js";
 	import { autoModeWatcher } from '@skeletonlabs/skeleton';
 	import { initializeStores, Modal } from '@skeletonlabs/skeleton';
@@ -33,6 +35,13 @@
 	import { locales, localizeHref } from '$prgld/runtime.js';
 	import { programsNavLinks } from '$var/variables.ts';
 	import { PUBLIC_PLAUSIBLE_SCRIPT_SRC } from '$env/static/public';
+
+	beforeNavigate(({ willUnload, to }) => {
+		if (updated.current && !willUnload && to?.url) {
+			location.href = to.url.href;
+		}
+	});
+
 	setLocale('fr');
 	initializeStores();
 

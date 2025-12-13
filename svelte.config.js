@@ -15,7 +15,8 @@ const config = {
 	],
 	kit: {
 		version: {
-            name: "5.0.0"
+            name: "6.0.0",
+			pollInterval: 5000
         },
 		adapter: adapter(),
 		alias: {
