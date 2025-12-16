@@ -169,6 +169,9 @@
   "CHANGE_PASSWORD_SUCCESS": "Mot de passe changé avec succès!",
   "PASSWORD_FORGOTTEN": "Avez-vous oublié votre mot de passe?",
   "SIGNIN": "Se connecter",
+  "ERROR": "Erreur",
+  "line_endings": "unix",
+  "cancel": "Annuler",
   "ENTRIES": [
     {
       "declarations": [
@@ -178,12 +181,10 @@
       "selectors": [
         "countPlural"
       ],
-      "match": [
-        ""
-      ]
+      "match": {
+        "countPlural=one": "entrée",
+        "countPlural=other": "entrées"
+      }
     }
-  ],
-  "ERROR": "Erreur",
-  "line_endings": "unix",
-  "cancel": "Annuler"
+  ]
 }

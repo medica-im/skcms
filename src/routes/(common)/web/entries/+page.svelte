@@ -24,10 +24,9 @@
 		Entrées - {capitalizeFirstLetter(page.data.organization.formatted_name, $language)}
 	</title>
 </svelte:head>
-<div>
 	<!-- hero -->
-	<header id="hero" class="bg-surface-100-800-token hero-gradient">
-		<div class="section-container">
+	<header id="hero" class="hero-gradient">
+		<div class="flex flex-col items-center p-4 py-6 space-y-2">
 			<h2 class="h2">
 				{capitalizeFirstLetter(m.ENTRIES( {count: 2} ))}
 			</h2>
@@ -45,7 +44,6 @@
 				setRedirect={false}
 			/>
 	</div>
-</div>
 
 <style lang="postcss">
 	.section-container {

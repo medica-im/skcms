@@ -10,15 +10,21 @@
 	import { getAddressFeature, getGeoInputAddress } from '../Directory/context';
 	import type { AddressFeature, FeatureCollection } from '$lib/store/directoryStoreInterface';
 
+	interface IsValid {
+		geocoder: boolean
+	}
+
 	let {
 		commune = null,
 		placeholder = 'Adresse de l’usager',
-		inputClass = '',
+		inputClass = $bindable(''),
+		isValid = $bindable({geocoder: false}),
 		limitToZip = true
 	}: {
 		commune?: string | null;
 		placeholder?: string;
 		inputClass?: string;
+		isValid?: IsValid;
 		limitToZip?: boolean;
 	} = $props();
 
@@ -160,7 +166,7 @@ $addressFeature: {JSON.stringify($addressFeature)}-->
 	</button>
 </div>
 {#if visible}
-	<SelectAddress {commune} {addressOptions} bind:addressFeature={$addressFeature} />
+	<SelectAddress {commune} {addressOptions} bind:addressFeature={$addressFeature} bind:inputClass bind:isValid />
 {/if}
 
 <style>

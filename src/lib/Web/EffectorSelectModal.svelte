@@ -11,11 +11,12 @@
 	import EffectorTypeSelect from './EffectorTypeSelect.svelte';
 	import FacilitySelect from './FacilitySelect.svelte';
 	import OrganizationRadio from './OrganizationRadio.svelte';
+	import { getEffectors } from '../../effector.remote.ts';
 	import type { CreateQueryResult } from '@tanstack/svelte-query';
 	import type { Commune, DepartmentOfFrance, FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
-	import { getEffectors } from '../../effector.remote.ts';
+	import type { Entry } from '$lib/store/directoryStoreInterface.ts';
 
 	let {
 		effector = $bindable(),
@@ -41,7 +42,7 @@
 	let commune: SelectType | undefined = $state();
 	let communeUid: string | undefined = $derived(commune?.value);
 	let facilityCount: number = $state(0);
-	const entries = $derived(page.data.entries);
+	const entries: Entry[] = $derived(page.data.entries);
 	let directory = $derived(isSuperUser ? null : page.data.directory?.name);
 	const effectors = $derived(await getEffectors(directory));
 	const filteredEffectors = $derived.by(() => {
@@ -195,7 +196,7 @@
 		/>
 		<div class="grid grid-cols-1 gap-4 variant-ghost p-4">
 			<p>{effectorLabel(filteredEffectors)}</p>
-			<Select items={effectorItems} bind:value={selectedEffector} placeholder="Sélectionner une personne" />
+			<Select items={effectorItems} hasError={selectedEffector ? false: true} bind:value={selectedEffector} placeholder="Sélectionner une personne" />
 		</div>
 		<OrganizationRadio bind:data={isMember} inputClass={inputClass.isMember} />
 		<div class="flex gap-8">

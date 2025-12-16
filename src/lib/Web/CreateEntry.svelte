@@ -62,6 +62,7 @@
 		return label;
 	};
 </script>
+
 <!--
 selectedFacility: "{JSON.stringify(selectedFacility)}"<br />
 selectedEffectorType: "{JSON.stringify(selectedEffectorType)}"<br />
@@ -82,14 +83,14 @@ membershipsDone: {membershipsDone}
 {:else}
 	<div class="grid grid-cols-1 gap-4 w-full p-4 place-items-center">
 		{#if !selectedFacility}
-				<h3 class="h3">Sélectionner ou créer un établissement</h3>
+			<h3 class="h3">Sélectionner ou créer un établissement</h3>
 			<div class="w-full max-w-xl">
-			<FacilitySelect
-				bind:selectedFacility
-				bind:department
-				bind:commune={selectedCommune}
-				bind:facilityCount
-			/>
+				<FacilitySelect
+					bind:selectedFacility
+					bind:department
+					bind:commune={selectedCommune}
+					bind:facilityCount
+				/>
 			</div>
 
 			<div class="grid grid-cols-1 place-items-center gap-2 p-2">
@@ -98,7 +99,6 @@ membershipsDone: {membershipsDone}
 				{#if !selectedFacility && selectedCommune}
 					<CreateFacilityModal
 						commune={selectedCommune}
-						org_cat={page.data.organization.category.name}
 						bind:selectedFacility
 					/>
 				{:else}
@@ -169,17 +169,18 @@ membershipsDone: {membershipsDone}
 								}}><Fa icon={faXmark} /></button
 							>
 						</div>
-												<div class="flex p-2 gap-4 items-center">
-													<DisplayEffector effectorUid={createdEffector.uid} />
-													</div>
 					</div>
+						<div class="flex p-2 gap-4 items-center">
+							<DisplayEffector effectorUid={createdEffector.uid} />
+						</div>
+				
 				{:else}
 					<h3 class="h3">Sélectionner ou créer une personne physique ou morale</h3>
 					{#if effectorType}
 						<Effectors {effectorType} facility={selectedFacility.value} />
 					{/if}
 					<EffectorSelect bind:effector={createdEffector} bind:memberships />
-					<CreateEffectorModal bind:memberships bind:createdEffector bind:top />
+					<CreateEffectorModal bind:memberships bind:createdEffector />
 				{/if}
 			</div>
 		{/if}
@@ -191,8 +192,12 @@ membershipsDone: {membershipsDone}
 					suivante.
 				</p>
 				<SelectMembershipModal bind:memberships bind:membershipsDone />
-				<button onclick={async () => {membershipsDone=true}} class="btn variant-ghost-surface" title="Passer"
-					><span><Fa icon={faChevronRight} /></span><span>Passer</span></button
+				<button
+					onclick={async () => {
+						membershipsDone = true;
+					}}
+					class="btn variant-ghost-surface"
+					title="Passer"><span><Fa icon={faChevronRight} /></span><span>Passer</span></button
 				>
 			</div>
 		{/if}

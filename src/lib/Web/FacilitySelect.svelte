@@ -1,6 +1,7 @@
 <script lang="ts">
 	import * as m from '$msgs';
 	import { page } from '$app/state';
+	import { onMount } from 'svelte';
 	import { reactiveQueryArgs } from '$lib/utils/utils.svelte';
 	import Select from 'svelte-select';
 	import type { SelectType } from '$lib/interfaces/select.ts';
@@ -13,13 +14,14 @@
 		selectedFacility = $bindable(),
 		department = $bindable(),
 		commune = $bindable(),
-		facilityCount = $bindable(0)
+		facilityCount = $bindable()
 	}: {
 		selectedFacility: SelectType | undefined;
 		department: SelectType | undefined;
 		commune: SelectType | undefined;
 		facilityCount: number;
 	} = $props();
+	let allFacilities: FacilityV2[] | undefined = $state();
 	let departmentCode: string | undefined = $derived(department?.value);
 	let communes: CreateQueryResult<Commune[], Error> | undefined = $state();
 	//let commune: any = $state();
@@ -38,12 +40,39 @@
 
 	let { error, isLoading, isRefetching, data } = $derived($facilityStore);
 
-	$effect(() => {
-		if (data) {
-			facilityCount = data
+	const onDepartmentChange = () => {
+		updateFacilityCount();
+		commune = undefined;
+	};
+
+	const onDepartmentClear = () => {
+		department = undefined;
+		updateFacilityCount();
+	};
+
+	const onCommuneChange = () => {
+		updateFacilityCount();
+	};
+
+	const onCommuneClear = () => {
+		commune = undefined;
+		updateFacilityCount();
+	};
+
+	const updateFacilityCount = () => {
+		console.log('updateFacilityCount');
+		if (allFacilities) {
+			facilityCount = allFacilities
 				.filter((e) => (department ? e.commune.department.code == department.value : true))
 				.filter((e) => (commune ? e.commune.uid == commune.value : true)).length;
+			return facilityCount;
 		}
+		return 0;
+	};
+
+	onMount(async () => {
+		allFacilities = await getFacilities();
+		updateFacilityCount();
 	});
 
 	$effect(() => {
@@ -119,6 +148,21 @@
 			return { value: e.uid, label: e.name_fr };
 		});
 	};
+	const facilitySummary = () => {
+		let label;
+		if (facilityCount == 0) {
+			label = "Il n'existe aucun établissement.";
+		} else {
+			label = `Il existe ${facilityCount} établissement${facilityCount > 1 ? 's' : ''}`;
+			if (commune == undefined && department != undefined) {
+				label += ' dans ce département';
+			} else if (commune != undefined && department != undefined) {
+				label += ' dans cette commune';
+			}
+			label += '.';
+		}
+		return label;
+	};
 </script>
 
 <div class="p-4">
@@ -128,26 +172,40 @@
 			{#snippet pending()}
 				<span>{m.LOADING()}</span>
 			{/snippet}
-			{#snippet failed(error, reset)}
+			{#snippet failed(error: any, reset)}
 				<span>{m.ERROR()}: {error.message}</span>
 			{/snippet}
 			<Select
 				items={getDepartmentItems(await getDepartments())}
 				bind:value={department}
+				on:clear={onDepartmentClear}
+				on:change={onDepartmentChange}
 				placeholder="Sélectionner un département"
 			/>
 		</svelte:boundary>
 	</div>
 	<div class="grid grid-cols-1 gap-4 variant-ghost p-4">
 		<p>Commune</p>
-		{#if !departmentCode || $communes?.status === 'pending'}
-			<span>Loading...</span>
+		{#if !departmentCode}
+		<Select
+			disabled={true}
+				items={null}
+				placeholder="Sélectionner d'abord un département"
+			/>
+		{:else if $communes?.status === 'pending'}
+			<Select
+			loading={true}
+				items={null}
+				placeholder="Sélectionner d'abord un département"
+			/>
 		{:else if $communes?.status === 'error'}
 			<span>Error: {$communes?.error.message}</span>
 		{:else}
 			<Select
 				items={getCommuneItems($communes?.data)}
 				bind:value={commune}
+				on:clear={onCommuneClear}
+				on:change={onCommuneChange}
 				placeholder="Sélectionner une commune"
 			/>
 		{/if}

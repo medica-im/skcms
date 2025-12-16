@@ -28,49 +28,38 @@
 	import Geocoder from '$lib/components/Geocoder/Geocoder.svelte';
 	import {
 		getAddressFeature,
+		getGeoInputAddress,
 		setAddressFeature,
 		setGeoInputAddress
 	} from '$lib/components/Directory/context';
+	import { page } from '$app/state';
+	import { MSP } from '$lib/constants.ts';
+	import {
+		validateName,
+		validateLabel,
+		validateSlug,
+		validateGeocoder,
+		validateZoom,
+		validateStreet,
+		validateZip
+	} from './validate.ts';
+	import type { InputClass, IsRequired, ValidateForm } from './validate.ts';
 
 	let {
 		commune,
-		org_cat,
 		selectedFacility = $bindable()
 	}: {
 		commune: { label: string; value: string };
-		org_cat: string;
 		selectedFacility: { label: string; value: string } | undefined;
 	} = $props();
+
+	const isMSP: boolean = page.data.organization.category.name === MSP;
 
 	setAddressFeature();
 	setGeoInputAddress();
 
-	interface InputClass {
-		name: string;
-		label: string;
-		slug: string;
-		geocoder: string;
-		building: string;
-		street: string;
-		geographical_complement: string;
-		zip: string;
-		zoom: string;
-		commune: string;
-	}
-	interface ValidateForm {
-		name: boolean;
-		label: boolean;
-		slug: boolean;
-		geocoder: boolean;
-		building: boolean;
-		street: boolean;
-		geographical_complement: boolean;
-		zip: boolean;
-		zoom: boolean;
-		commune: boolean;
-	}
-	const inputError = 'input-error';
 	let addressFeature = getAddressFeature();
+	let geoInputAddress = getGeoInputAddress();
 	let ban_id = $derived($addressFeature?.properties.id);
 	let ban_banId = $derived($addressFeature?.properties.banId);
 	const inputClass: InputClass = $state({
@@ -83,25 +72,42 @@
 		geographical_complement: '',
 		zip: '',
 		zoom: '',
-		commune: ''
 	});
-	const validateForm: ValidateForm = $state({
-		name: org_cat == 'msp' ? false : true,
-		label: true,
-		slug: org_cat == 'msp' ? false : true,
-		geocoder: false,
-		building: true,
+	const isRequired: IsRequired = {
+		name: isMSP ? true : false,
+		label: false,
+		slug: isMSP ? true : false,
+		geocoder: true,
+		building: false,
 		street: false,
-		geographical_complement: true,
+		geographical_complement: false,
 		zip: false,
 		zoom: false,
-		commune: false
+	};
+	let street: string | null = $derived($addressFeature?.properties?.name || null);
+	let validateForm: ValidateForm = $state({
+		name: !isRequired.name,
+		label: !isRequired.label,
+		slug: !isRequired.slug,
+		geocoder: !isRequired.geocoder,
+		building: !isRequired.building,
+		street: !isRequired.street,
+		geographical_complement: !isRequired.geographical_complement,
+		zip: !isRequired.zip,
+		zoom: !isRequired.zoom,
 	});
 	let name: string = $state('');
 	let label: string = $state('');
-	let slug: string = $state('');
+	let slug: string = $derived.by(() => {
+		if (name) {
+			return slugify(name);
+		} else if ($addressFeature) {
+			return slugify($addressFeature.properties.street);
+		} else {
+			return '';
+		}
+	});
 	let building: string = $state('');
-	let street: string | undefined = $derived($addressFeature?.properties?.name);
 	let geographical_complement: string = $state('');
 	let zip: string = $derived($addressFeature?.properties?.postcode || '');
 	let zoom: number = $state(18);
@@ -118,9 +124,7 @@
 		!Object.values(validateForm).every((v) => v === true) || formResult?.success == true
 	);
 
-	const uid = getEffectorUid();
 	let dialog: HTMLDialogElement | undefined = $state();
-	let validation: Validation | undefined = $state();
 
 	const clear = () => {
 		name = '';
@@ -128,15 +132,12 @@
 		slug = '';
 		building = '';
 		street = '';
+		$geoInputAddress = null;
 		$addressFeature = null;
 		geographical_complement = '';
 		zip = '';
 		formResult = undefined;
 	};
-
-	onMount(async () => {
-		clear();
-	});
 
 	const selectFacility = () => {
 		if (formResult?.success) {
@@ -146,109 +147,17 @@
 			};
 		}
 	};
-	const slugIsValid = (value: string) => {
-		const regexpSlug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-		return regexpSlug.test(value);
-	};
-	const zipIsValid = (value: string) => {
-		const regexpFiveDigits = /^\d{5}$/;
-		return regexpFiveDigits.test(value);
-	};
-	const zoomIsValid = (value: number) => {
-		return value >= 0 && value <= 20;
-	};
+	
 
-	/**
-	 * Calculate slug
-	 */
-	$effect(() => {
-		if (name) {
-			slug = slugify(name);
-		} else if ($addressFeature) {
-			slug = slugify($addressFeature.properties.street);
-		}
-	});
-	/**
-	 * Validate slug input.
-	 */
-	$effect(() => {
-		if (!slug) {
-			validateForm.slug = false;
-			inputClass.slug = inputError;
-		} else if (slug && slugIsValid(slug)) {
-			inputClass.slug = '';
-			validateForm.slug = true;
-		} else {
-			inputClass.slug = inputError;
-			validateForm.slug = false;
-		}
-	});
-	/**
-	 * Validate geocoder input.
-	 */
-	$effect(() => {
-		if ($addressFeature || street) {
-			validateForm.geocoder = true;
-			inputClass.geocoder = '';
-			return;
-		} else {
-			inputClass.geocoder = inputError;
-			validateForm.geocoder = false;
-		}
-	});
-	/**
-	 * Validate zip input.
-	 */
-	$effect(() => {
-		if (!zip) {
-			validateForm.zip = true;
-			return;
-		} else if (zip && zipIsValid(zip)) {
-			inputClass.zip = '';
-			validateForm.zip = true;
-		} else {
-			inputClass.zip = inputError;
-			validateForm.zip = false;
-		}
-	});
-	/**
-	 * Validate commune input.
-	 */
-	$effect(() => {
-		if (commune === undefined) {
-			inputClass.commune = inputError;
-			validateForm.commune = false;
-			return;
-		} else {
-			inputClass.commune = '';
-			validateForm.commune = true;
-		}
-	});
-
-	/**
-	 * Validate zoom input.
-	 */
-	$effect(() => {
-		if (!zoom) {
-			validateForm.zoom = true;
-			return;
-		} else if (zoom && zoomIsValid(zoom)) {
-			validateForm.zoom = true;
-			inputClass.zoom = '';
-		} else {
-			inputClass.zoom = inputError;
-			validateForm.zoom = false;
-		}
-	});
-
-	$effect(() => {
-		if (!street) {
-			inputClass.street = inputError;
-			validateForm.street = false;
-		} else {
-			inputClass.street = '';
-			validateForm.street = true;
-		}
+	onMount(() => {
+		clear();
+		validateName(name, inputClass, isRequired, validateForm);
+		validateLabel(label, inputClass, isRequired, validateForm);
+		validateStreet(street, inputClass, isRequired, validateForm);
+		validateZoom(zoom, inputClass, isRequired, validateForm);
+		validateSlug(slug, inputClass, isRequired, validateForm);
+		validateZip(zip, inputClass, isRequired, validateForm);
+		validateGeocoder($addressFeature, inputClass, isRequired, validateForm);
 	});
 </script>
 
@@ -290,6 +199,9 @@
 							type="text"
 							placeholder=""
 							bind:value={name}
+							onchange={() => {
+								validateName(name, inputClass, isRequired, validateForm);
+							}}
 						/>
 					</label>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
@@ -304,6 +216,9 @@
 							type="text"
 							placeholder=""
 							bind:value={label}
+							onchange={() => {
+								validateLabel(label, inputClass, isRequired, validateForm);
+							}}
 						/>
 					</label>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
@@ -320,10 +235,12 @@
 							bind:value={slug}
 						/>
 					</label>
+					validateForm.geocoder: "{validateForm.geocoder}"
 					<Geocoder
 						commune={commune.label}
 						placeholder={"Entrer l'adresse"}
-						inputClass={inputClass.geocoder}
+						bind:inputClass={inputClass.geocoder}
+						bind:isValid={validateForm}
 						limitToZip={false}
 					/>
 					{#each createFacility.fields.ban_id.issues() as issue}
@@ -368,12 +285,14 @@
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<input
-							oninput={() => {}}
 							class="input {inputClass.street}"
 							name="street"
 							type="text"
 							placeholder=""
 							bind:value={street}
+							oninput={() => {
+								validateStreet(street, inputClass, isRequired, validateForm);
+							}}
 						/>
 					</label>
 
@@ -403,6 +322,9 @@
 							type="text"
 							placeholder=""
 							bind:value={zip}
+							onchange={() => {
+								validateZip(zip, inputClass, isRequired, validateForm);
+							}}
 						/>
 					</label>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
@@ -412,7 +334,7 @@
 						{/each}
 						<input
 							disabled
-							class="input {inputClass.commune} w-full"
+							class="input w-full"
 							type="text"
 							placeholder=""
 							value={commune.label}
@@ -444,19 +366,27 @@
 					<AddMarkerMap bind:lngLat bind:zoom />
 					<label class="flex label place-self-start place-items-center space-x-2">
 						<span>Latitude</span>
-					
-					<input class="input" {...createFacility.fields.latitude.as('text')} bind:value={lngLat.lat} />
-					{#each createFacility.fields.latitude.issues() as issue}
-						<p class="issue">{issue.message}</p>
-					{/each}
+
+						<input
+							class="input"
+							{...createFacility.fields.latitude.as('text')}
+							bind:value={lngLat.lat}
+						/>
+						{#each createFacility.fields.latitude.issues() as issue}
+							<p class="issue">{issue.message}</p>
+						{/each}
 					</label>
 					<label class="flex label place-self-start place-items-center space-x-2">
 						<span>Longitude</span>
-					
-					<input class="input" {...createFacility.fields.longitude.as('text')} bind:value={lngLat.lng} />
-					{#each createFacility.fields.longitude.issues() as issue}
-						<p class="issue">{issue.message}</p>
-					{/each}
+
+						<input
+							class="input"
+							{...createFacility.fields.longitude.as('text')}
+							bind:value={lngLat.lng}
+						/>
+						{#each createFacility.fields.longitude.issues() as issue}
+							<p class="issue">{issue.message}</p>
+						{/each}
 					</label>
 				</div>
 			</div>

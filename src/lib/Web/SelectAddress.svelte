@@ -4,14 +4,21 @@
 	import type { AddressFeature } from '$lib/store/directoryStoreInterface';
 
 	type SelectOption = { value: AddressFeature; label: string };
+	interface IsValid {
+		geocoder: boolean
+	};
 
 	let {
 		addressFeature = $bindable(),
 		addressOptions = $bindable(),
+		inputClass = $bindable(),
+		isValid = $bindable({geocoder: false}),
 		commune = null
 	}: {
 		addressFeature: AddressFeature | null;
 		addressOptions: SelectOption[];
+		inputClass?: string|null;
+		isValid: IsValid;
 		commune?: string | null;
 	} = $props();
 
@@ -20,6 +27,8 @@
 	function onClick(addressOption: SelectOption) {
 		addressFeature = addressOption.value;
 		if (addressFeature) {
+			inputClass='';
+			isValid.geocoder=true;
 			if (commune) {
 				$inputAddress = addressFeature.properties.name;
 			} else {
