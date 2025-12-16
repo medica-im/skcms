@@ -147,7 +147,6 @@
 			};
 		}
 	};
-	
 
 	onMount(() => {
 		clear();
@@ -235,7 +234,6 @@
 							bind:value={slug}
 						/>
 					</label>
-					validateForm.geocoder: "{validateForm.geocoder}"
 					<Geocoder
 						commune={commune.label}
 						placeholder={"Entrer l'adresse"}
