@@ -15,7 +15,6 @@
 	import Fa from 'svelte-fa';
 	import { JsonView } from '@zerodevx/svelte-json-view';
 	import type { Email } from '$lib/interfaces/email.interface.ts';
-	import Select from 'svelte-select';
 	import Dialog from '$lib/Web/Dialog.svelte';
 	import { getEffectorUid } from '$lib/components/Directory/context';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
@@ -161,7 +160,7 @@
 </script>
 
 <button
-	onclick={async () => {
+	onclick={() => {
 		clear();
 		dialog?.showModal();
 	}}

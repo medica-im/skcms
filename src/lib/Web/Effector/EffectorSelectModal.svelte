@@ -8,15 +8,16 @@
 	import { page } from '$app/state';
 	import * as m from '$msgs';
 	import Select from 'svelte-select';
-	import EffectorTypeSelect from './EffectorTypeSelect.svelte';
-	import FacilitySelect from './FacilitySelect.svelte';
-	import OrganizationRadio from './OrganizationRadio.svelte';
-	import { getEffectors } from '../../effector.remote.ts';
+	import EffectorTypeSelect from '../EffectorTypeSelect.svelte';
+	import FacilitySelect from '../FacilitySelect.svelte';
+	import OrganizationRadio from '../OrganizationRadio.svelte';
+	import { getEffectors } from '../../../effector.remote.ts';
 	import type { CreateQueryResult } from '@tanstack/svelte-query';
 	import type { Commune, DepartmentOfFrance, FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
 	import type { Entry } from '$lib/store/directoryStoreInterface.ts';
+	import { validateIsMember } from './validate.ts';
 
 	let {
 		effector = $bindable(),
@@ -96,44 +97,28 @@
 		effector: boolean;
 		isMember: boolean;
 	}
+	interface IsRequired {
+		effector: boolean;
+		isMember: boolean;
+	}
 	const inputError = 'input-error';
 
-	const validateForm: ValidateForm = $state({
+	const isRequired: IsRequired = $state({
+		effector: true,
+		isMember: true,
+	});
+	let validateForm: ValidateForm = $state({
 		effector: false,
 		isMember: false
 	});
-	const inputClass: InputClass = $state({
+	let inputClass: InputClass = $state({
 		effector: '',
 		isMember: ''
 	});
 
 	let disabled: boolean = $derived(isMember == undefined || selectedEffector == undefined);
 	let dialog: HTMLDialogElement | undefined = $state();
-	/**
-	 * Validate radio isMember input.
-	 */
-	$effect(() => {
-		if (isMember == undefined) {
-			inputClass.isMember = inputError;
-			validateForm.isMember = false;
-		} else {
-			validateForm.isMember = true;
-			inputClass.isMember = '';
-		}
-	});
-	/**
-	 * Validate effector select input.
-	 */
-	$effect(() => {
-		if (selectedEffector) {
-			validateForm.effector = true;
-			inputClass.effector = '';
-		} else {
-			inputClass.effector = inputError;
-			validateForm.effector = false;
-		}
-	});
-
+	
 	const getLabel = (effector: Effector) => {
 		return `${effector.name_fr}`;
 	};
@@ -168,6 +153,9 @@
 		}
 		dialog?.close();
 	};
+	const validateAll = () => {
+		validateIsMember(isMember, inputClass,isRequired, validateForm);
+	};
 </script>
 
 <button
@@ -176,6 +164,8 @@
 		facility=undefined;
 		department=undefined;
 		commune=undefined;
+		isMember=undefined;
+		validateAll();
 		dialog?.showModal();
 	}}
 	class="btn variant-ghost-surface"
@@ -198,7 +188,7 @@
 			<p>{effectorLabel(filteredEffectors)}</p>
 			<Select items={effectorItems} hasError={selectedEffector ? false: true} bind:value={selectedEffector} placeholder="Sélectionner une personne" />
 		</div>
-		<OrganizationRadio bind:data={isMember} inputClass={inputClass.isMember} />
+		<OrganizationRadio bind:isMember bind:inputClass bind:validateForm {isRequired} />
 		<div class="flex gap-8">
 			<!--isMember: {isMember} selectedEffector: {Boolean(selectedEffector)}-->
 			<div class="w-auto justify-center">

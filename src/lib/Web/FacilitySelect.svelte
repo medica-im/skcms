@@ -2,11 +2,8 @@
 	import * as m from '$msgs';
 	import { page } from '$app/state';
 	import { onMount } from 'svelte';
-	import { reactiveQueryArgs } from '$lib/utils/utils.svelte';
 	import Select from 'svelte-select';
 	import type { SelectType } from '$lib/interfaces/select.ts';
-	import { createQuery } from '@tanstack/svelte-query';
-	import type { CreateQueryResult } from '@tanstack/svelte-query';
 	import type { Commune, DepartmentOfFrance, FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 	import { getCommunesByDpt, getDepartments, getFacilities } from './data';
 
@@ -23,26 +20,26 @@
 	} = $props();
 	let allFacilities: FacilityV2[] | undefined = $state();
 	let departmentCode: string | undefined = $derived(department?.value);
-	let communes: CreateQueryResult<Commune[], Error> | undefined = $state();
-	//let commune: any = $state();
 
-	const facilities = createQuery<FacilityV2[], Error>({
-		queryKey: ['facilities'],
-		queryFn: () => getFacilities()
+	let communes: Commune[]|undefined = $state();
+	const communeItems = $derived.by(() => {
+		if ( !communes ) {
+			return;
+		}
+		const sortedCommunes = communes.toSorted(compareFnCommune);
+		return sortedCommunes.map((e) => {
+			return { value: e.uid, label: e.name_fr };
+		});
 	});
 
-	const facilityStore = createQuery(
-		reactiveQueryArgs(() => ({
-			queryKey: ['facilityStore'],
-			queryFn: () => getFacilities()
-		}))
-	);
-
-	let { error, isLoading, isRefetching, data } = $derived($facilityStore);
-
-	const onDepartmentChange = () => {
-		updateFacilityCount();
+	const onDepartmentChange = async () => {
 		commune = undefined;
+		if ( department ) {
+			communes = await getCommunesByDpt(department.value);
+		} else {
+			communes = undefined;
+		}
+		updateFacilityCount();
 	};
 
 	const onDepartmentClear = () => {
@@ -72,16 +69,12 @@
 
 	onMount(async () => {
 		allFacilities = await getFacilities();
-		updateFacilityCount();
-	});
-
-	$effect(() => {
-		if (departmentCode) {
-			communes = createQuery<Commune[]>({
-				queryKey: ['post', departmentCode],
-				queryFn: () => getCommunesByDpt(departmentCode)
-			});
+		if ( department ) {
+			communes = await getCommunesByDpt(department.value);
+		} else {
+			communes = undefined;
 		}
+		updateFacilityCount();
 	});
 
 	const getName = (facility: FacilityV2) => {
@@ -121,9 +114,9 @@
 		});
 	};
 
-	const getFacilityItems = (facilities: FacilityV2[], department: any, commune: any) => {
-		facilities.sort(compareFnFacility);
-		return facilities
+	const getFacilityItems = (facilities: FacilityV2[]) => {
+		const sortedFacilities = facilities.toSorted(compareFnFacility);
+		return sortedFacilities
 			.filter((e) => (department ? e.commune.department.code == department.value : true))
 			.filter((e) => (commune ? e.commune.uid == commune.value : true))
 			.map((e) => {
@@ -132,36 +125,11 @@
 	};
 
 	const getFacilityCount = (facilities: FacilityV2[]) => {
-		return facilities ? getFacilityItems(facilities, department, commune).length : 0;
+		return facilities ? getFacilityItems(facilities).length : 0;
 	};
 
 	const facilityLabel = (facilities: FacilityV2[]) => {
 		return `Établissement${getFacilityCount(facilities) > 1 ? 's' : ''}: ${getFacilityCount(facilities)}`;
-	};
-
-	const getCommuneItems = (communes: Commune[] | undefined) => {
-		if (!communes) {
-			return;
-		}
-		communes.sort(compareFnCommune);
-		return communes.map((e) => {
-			return { value: e.uid, label: e.name_fr };
-		});
-	};
-	const facilitySummary = () => {
-		let label;
-		if (facilityCount == 0) {
-			label = "Il n'existe aucun établissement.";
-		} else {
-			label = `Il existe ${facilityCount} établissement${facilityCount > 1 ? 's' : ''}`;
-			if (commune == undefined && department != undefined) {
-				label += ' dans ce département';
-			} else if (commune != undefined && department != undefined) {
-				label += ' dans cette commune';
-			}
-			label += '.';
-		}
-		return label;
 	};
 </script>
 
@@ -192,17 +160,9 @@
 				items={null}
 				placeholder="Sélectionner d'abord un département"
 			/>
-		{:else if $communes?.status === 'pending'}
-			<Select
-			loading={true}
-				items={null}
-				placeholder="Sélectionner d'abord un département"
-			/>
-		{:else if $communes?.status === 'error'}
-			<span>Error: {$communes?.error.message}</span>
 		{:else}
 			<Select
-				items={getCommuneItems($communes?.data)}
+				items={communeItems}
 				bind:value={commune}
 				on:clear={onCommuneClear}
 				on:change={onCommuneChange}
@@ -211,16 +171,18 @@
 		{/if}
 	</div>
 	<div class="grid grid-cols-1 gap-4 variant-ghost p-4">
-		{#if $facilities.status === 'pending'}
-			<span>Loading...</span>
-		{:else if $facilities.status === 'error'}
-			<span>Error: {$facilities.error.message}</span>
-		{:else}
-			<p>{facilityLabel($facilities.data)}</p>
+		{#if allFacilities}
+			<p>{facilityLabel(allFacilities)}</p>
 			<Select
-				items={getFacilityItems($facilities.data, department, commune)}
+				items={getFacilityItems(allFacilities)}
 				bind:value={selectedFacility}
 				placeholder="Sélectionner un établissement"
+			/>
+		{:else}
+		<Select
+			loading={true}
+				items={null}
+				placeholder={m.LOADING()}
 			/>
 		{/if}
 	</div>

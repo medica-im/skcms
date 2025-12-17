@@ -19,10 +19,6 @@
 	</div>
 </header>
 
-<section id="team" class="bg-surface-100-800-token team-gradient">
-	<div class="section-container"></div>
-</section>
-
 <style lang="postcss">
 	.section-container {
 		@apply mx-auto flex w-full max-w-7xl items-center justify-center p-4 py-8;

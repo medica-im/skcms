@@ -1,11 +1,20 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { onMount } from 'svelte';
 	import Dialog from '$lib/Web/Dialog.svelte';
 	import { createEffector } from '../../../effector.remote.ts';
 	import Fa from 'svelte-fa';
 	import { faPlus, faCheck, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 	import OrganizationRadio from './../OrganizationRadio.svelte';
 	import { slugify } from '$lib/helpers/stringHelpers';
+	import {
+		validateName,
+		validateLabel,
+		validateSlug,
+		validateGender,
+		validateIsMember,
+	} from './validate.ts';
+	import type { InputClass, IsRequired, ValidateForm } from './validate.ts';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
 	import type { SelectType } from '$lib/interfaces/select';
 
@@ -17,106 +26,40 @@
 		memberships: SelectType[];
 	} = $props();
 
-	interface InputClass {
-		name_fr: string;
-		label_fr: string;
-		slug_fr: string;
-		gender: string;
-		isMember: string;
-	}
-	interface ValidateForm {
-		name_fr: boolean;
-		label_fr: boolean;
-		slug_fr: boolean;
-		gender: boolean;
-		isMember: boolean;
-	}
 	let isMember: boolean | undefined = $state();
 	let dialog: HTMLDialogElement | undefined = $state();
-	const inputError = 'input-error';
-	const inputClass: InputClass = $state({
+	let inputClass: InputClass = $state({
 		name_fr: '',
 		label_fr: '',
 		slug_fr: '',
 		gender: '',
 		isMember: ''
 	});
-	const validateForm: ValidateForm = $state({
-		name_fr: false,
-		label_fr: true,
+	const isRequired: IsRequired = {
+		name_fr: true,
+		label_fr: false,
 		slug_fr: true,
 		gender: true,
-		isMember: false
+		isMember: true,
+	};
+	let validateForm: ValidateForm = $state({
+		name_fr: !isRequired.name_fr,
+		label_fr: !isRequired.name_fr,
+		slug_fr: !isRequired.slug_fr,
+		gender: !isRequired.gender,
+		isMember: !isRequired.isMember
 	});
 	let name_fr: string = $state('');
 	let label_fr: string = $state('');
-	let slug_fr: string = $derived(slugify(name_fr));
-	let gender: string = $state('');
+	let slug_fr: string = $derived.by(()=>{
+		return slugify(name_fr)
+	});
+	let gender: string|undefined = $state();
 	let formResult = $derived(createEffector.result);
 	let disabled: boolean = $derived(
 		!Object.values(validateForm).every((v) => v === true) || formResult?.success == true
 	);
 
-	const nameIsValid = (value: string) => {
-		return true;
-	};
-	const labelIsValid = (value: string) => {
-		return true;
-	};
-	const slugIsValid = (value: string) => {
-		const regexpSlug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-		return regexpSlug.test(value);
-	};
-	/**
-	 * Validate name input.
-	 */
-	$effect(() => {
-		if (name_fr && nameIsValid(name_fr)) {
-			validateForm.name_fr = true;
-			inputClass.name_fr = '';
-		} else {
-			inputClass.name_fr = inputError;
-			validateForm.name_fr = false;
-		}
-	});
-	/**
-	 * Validate label input.
-	 */
-	$effect(() => {
-		if (!label_fr) {
-			return;
-		} else if (label_fr && labelIsValid(label_fr)) {
-			inputClass.label_fr = '';
-			validateForm.label_fr = true;
-		} else {
-			inputClass.label_fr = inputError;
-			validateForm.label_fr = false;
-		}
-	});
-	/**
-	 * Validate slug input.
-	 */
-	$effect(() => {
-		if (slug_fr && slugIsValid(slug_fr)) {
-			inputClass.slug_fr = '';
-			validateForm.slug_fr = true;
-		} else {
-			inputClass.slug_fr = inputError;
-			validateForm.slug_fr = false;
-		}
-	});
-	/**
-	 * Validate radio isMember input.
-	 */
-	$effect(() => {
-		if (isMember != undefined) {
-			validateForm.isMember = true;
-			inputClass.isMember = '';
-		} else {
-			inputClass.isMember = inputError;
-			validateForm.isMember = false;
-		}
-	});
 	function addOrgMembership() {
 		if ( isMember ) {
 			const orgItem = {
@@ -128,13 +71,30 @@
 			}
 		}
 	}
+	const validateAll = () => {
+		validateName(name_fr, inputClass, isRequired, validateForm);
+		validateLabel(label_fr, inputClass, isRequired, validateForm);
+		validateSlug(slug_fr, inputClass, isRequired, validateForm);
+		validateGender(gender, inputClass, isRequired, validateForm);
+		validateIsMember(isMember, inputClass, isRequired, validateForm);
+	}
+	onMount(() => {
+		validateAll();
+	});
+	const clear = () => {
+		formResult = undefined;
+		createdEffector = undefined;
+		isMember = undefined;
+		name_fr = "";
+		label_fr = "";
+		gender = undefined;
+		validateAll();
+	};
 </script>
 
 <button
 	onclick={() => {
-		formResult = undefined;
-		createdEffector = undefined;
-		isMember = undefined;
+		clear();
 		dialog?.showModal();
 	}}
 	class="btn variant-ghost-surface"
@@ -146,13 +106,7 @@
 			<h3 class="h3 text-center">Créer une nouvelle personne physique ou morale</h3>
 			<div class="p-4 space-y-2 justify-items-stretch grid grid-cols-1 gap-6">
 				<form
-					{...createEffector.enhance(async ({ form, data, submit }) => {
-						try {
-							await submit();
-						} catch (error) {
-							console.error(`Oh no! Something went wrong:${error}`);
-						}
-					})}
+					{...createEffector}
 					class=""
 				>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
@@ -166,6 +120,10 @@
 							type="text"
 							placeholder=""
 							bind:value={name_fr}
+							oninput={() => {
+								validateName(name_fr, inputClass, isRequired, validateForm);
+								validateSlug(slug_fr, inputClass, isRequired, validateForm);
+							}}
 						/>
 					</label>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
@@ -179,6 +137,9 @@
 							type="text"
 							placeholder=""
 							bind:value={label_fr}
+							onchange={() => {
+								validateLabel(label_fr, inputClass, isRequired, validateForm);
+							}}
 						/>
 					</label>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
@@ -192,6 +153,10 @@
 							type="text"
 							placeholder=""
 							bind:value={slug_fr}
+							onchange={() => {
+								console.log("slug oninput");
+								validateSlug(slug_fr, inputClass, isRequired, validateForm);
+							}}
 						/>
 					</label>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
@@ -212,13 +177,16 @@
 							name="gender"
 							size="3"
 							bind:value={gender}
+							onchange={() => {
+								validateGender(gender, inputClass, isRequired, validateForm);
+							}}
 						>
 							<option value="F">Féminin</option>
 							<option value="M">Masculin</option>
 							<option value="N">Neutre</option>
 						</select>
 					</label>
-					<OrganizationRadio bind:data={isMember} inputClass={inputClass.isMember} />
+					<OrganizationRadio bind:isMember bind:inputClass bind:validateForm {isRequired} />
 					<div class="flex gap-8">
 						<div class="flex gap-2 items-center">
 							{#if formResult?.success}

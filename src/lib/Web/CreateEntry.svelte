@@ -15,7 +15,7 @@
 	import type { User, UserResponse } from '$lib/interfaces/user.interface';
 	import * as m from '$msgs';
 	import FacilitySelect from '$lib/Web/FacilitySelect.svelte';
-	import EffectorSelect from './EffectorSelectModal.svelte';
+	import EffectorSelect from './Effector/EffectorSelectModal.svelte';
 	import EffectorTypeSelect from '$lib/Web/EffectorTypeSelect.svelte';
 	import DisplayFacility from '$lib/Web/DisplayFacility.svelte';
 	import Effectors from '$lib/Web/Effectors.svelte';
