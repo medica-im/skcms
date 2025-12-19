@@ -94,7 +94,7 @@
 					value: entry.uid
 				};
 				const cat = entry.effector_type.name;
-				if (cat === 'Communauté Professionnelle Territoriale de Santé') {
+				if (cat === 'communauté professionnelle territoriale de santé') {
 					selectedCPTS?.push(membership);
 				} else if (cat === 'maison de santé pluriprofessionnelle') {
 					selectedMSP?.push(membership);

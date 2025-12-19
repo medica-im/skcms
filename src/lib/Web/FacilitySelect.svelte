@@ -133,7 +133,7 @@
 	};
 </script>
 
-<div class="p-4">
+<div class="p-4 theme">
 	<div class="grid grid-cols-1 gap-4 variant-ghost p-4">
 		<p>Département</p>
 		<svelte:boundary>
@@ -187,3 +187,20 @@
 		{/if}
 	</div>
 </div>
+
+<style>
+	/*
+			CSS variables can be used to control theming.
+			https://github.com/rob-balfre/svelte-select/blob/master/docs/theming_variables.md
+	*/
+	.theme {
+		--border-radius: var(--theme-rounded-container);
+		--border-color: rgb(var(--color-secondary-500));
+		--border-focused: 1px solid rgb(var(--color-secondary-500));
+		--border-hover: 1px solid rgb(var(--color-secondary-500));
+		--item-active-outline: 1px solid rgb(var(--color-secondary-500));
+		--item-outline: 1px solid rgb(var(--color-secondary-500));
+		--clear-select-focus-outline: 1px solid rgb(var(--color-secondary-500));
+		--height: 3rem;
+	}
+</style>

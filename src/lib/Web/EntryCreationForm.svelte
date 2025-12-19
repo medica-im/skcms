@@ -7,7 +7,6 @@
 	import { goto } from '$app/navigation';
 	import * as m from '$msgs';
 	import DisplayFacility from '$lib/Web/DisplayFacility.svelte';
-	import DisplayEntry from '$lib/Web/DisplayEntry.svelte';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
 

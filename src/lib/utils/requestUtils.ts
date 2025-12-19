@@ -247,26 +247,3 @@ export const handleRequestsWithPermissions = async (
 		return [{}, error as CustomError]
 	}
 };
-
-export const UpdateField = async (
-	fieldName: string,
-	fieldValue: string,
-	url: string
-): Promise<[object, Array<CustomError>]> => {
-	const userObject: UserResponse = { user: {} };
-	let formData: UserResponse | any;
-	if (url.includes('/user/')) {
-		formData = userObject;
-		formData['user'][`${fieldName}`] = fieldValue;
-	} else {
-		formData[`${fieldName}`] = fieldValue;
-	}
-
-	const [response, err] = await handlePostRequestsWithPermissions(fetch, url, formData, 'PATCH');
-	if (err.length > 0) {
-		console.error(err);
-		return [{}, err];
-	}
-	notificationData.update(() => m.FIELD_UPDATE_SUCCESS({ fieldName: fieldName }));
-	return [response, []];
-};

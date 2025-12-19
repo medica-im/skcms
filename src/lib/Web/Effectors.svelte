@@ -1,29 +1,18 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import { reactiveQueryArgs } from '$lib/utils/utils.svelte';
-	import { useQueryClient, createQuery } from '@tanstack/svelte-query';
 	import { getEffectors } from './data';
 	import { Avatar } from '@skeletonlabs/skeleton';
 	import { faUser } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import type { Effector } from '$lib/interfaces/v2/effector';
 
 	let { effectorType, facility }: { effectorType: string; facility: string } = $props();
 
-	const effectorStore = createQuery(
-		reactiveQueryArgs(() => ({
-			queryKey: ['effectors', effectorType, facility],
-			queryFn: () => getEffectors({effector_type: effectorType, facility: facility})
-		}))
-	);
-	let { error, isLoading, isRefetching, data } = $derived($effectorStore);
+	let effectorsPromise = $derived(getEffectors({ effectorType: effectorType, facility: facility }));
 </script>
 
-{#if isLoading}
+{#await effectorsPromise}
 	<span>{m.LOADING}</span>
-{:else if error}
-	<span>{m.ERROR}: {error.message}</span>
-{:else if data}
+{:then data}
 	{@const count = data.length}
 	{#if count}
 		<div class="grid grid-cols-1 gap-4 w-full variant-ringed p-4">
@@ -42,4 +31,6 @@
 			</div>
 		</div>
 	{/if}
-{/if}
+{:catch error}
+	<span>{m.ERROR}: {error.message}</span>
+{/await}

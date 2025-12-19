@@ -19,12 +19,30 @@ export interface ValidateForm {
     gender?: boolean;
     isMember: boolean;
 }
+export interface IsRequiredUpdate {
+    name_fr?: boolean;
+    label_fr?: boolean;
+    slug_fr?: boolean;
+    gender?: boolean;
+}
+export interface InputClassUpdate {
+    name_fr?: string;
+    label_fr?: string;
+    slug_fr?: string;
+    gender?: string;
+}
+export interface ValidateFormUpdate {
+    name_fr?: boolean;
+    label_fr?: boolean;
+    slug_fr?: boolean;
+    gender?: boolean;
+}
 export const inputError = 'input-error';
 const slugIsValid = (value: string) => {
     const regexpSlug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
     return regexpSlug.test(value);
 };
-export const validateName = (name: string | null, inputClass: InputClass, isRequired: IsRequired, validateForm: ValidateForm) => {
+export const validateName = (name: string | null, inputClass: InputClass|InputClassUpdate, isRequired: IsRequired|IsRequiredUpdate, validateForm: ValidateForm|ValidateFormUpdate) => {
     if ((isRequired.name_fr && name) || (!isRequired.name_fr)) {
         inputClass.name_fr = '';
         validateForm.name_fr = true;
@@ -33,7 +51,7 @@ export const validateName = (name: string | null, inputClass: InputClass, isRequ
         validateForm.name_fr = false;
     }
 };
-export const validateLabel = (label: string | null, inputClass: InputClass, isRequired: IsRequired, validateForm: ValidateForm) => {
+export const validateLabel = (label: string | null, inputClass: InputClass|InputClassUpdate, isRequired: IsRequired|IsRequiredUpdate, validateForm: ValidateForm|ValidateFormUpdate) => {
     if ((isRequired.label_fr && label) || (!isRequired.label_fr)) {
         inputClass.label_fr = '';
         validateForm.label_fr = true;
@@ -42,7 +60,7 @@ export const validateLabel = (label: string | null, inputClass: InputClass, isRe
         validateForm.label_fr = false;
     }
 };
-export const validateSlug = (slug: string | null, inputClass: InputClass, isRequired: IsRequired, validateForm: ValidateForm) => {
+export const validateSlug = (slug: string | null, inputClass: InputClass|InputClassUpdate, isRequired: IsRequired|IsRequiredUpdate, validateForm: ValidateForm|ValidateFormUpdate) => {
     if (!isRequired.slug_fr || slug && slugIsValid(slug)) {
         inputClass.slug_fr = '';
         validateForm.slug_fr = true;
@@ -51,7 +69,7 @@ export const validateSlug = (slug: string | null, inputClass: InputClass, isRequ
         validateForm.slug_fr = false;
     }
 };
-export const validateGender = (gender: string|undefined, inputClass: InputClass, isRequired: IsRequired, validateForm: ValidateForm) => {
+export const validateGender = (gender: string|null|undefined, inputClass: InputClass|InputClassUpdate, isRequired: IsRequired|IsRequiredUpdate, validateForm: ValidateForm|ValidateFormUpdate) => {
     if ((isRequired.gender && gender) || (!isRequired.gender)) {
         inputClass.gender = '';
         validateForm.gender = true;

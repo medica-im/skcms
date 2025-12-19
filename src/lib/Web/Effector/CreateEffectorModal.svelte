@@ -137,7 +137,7 @@
 							type="text"
 							placeholder=""
 							bind:value={label_fr}
-							onchange={() => {
+							oninput={() => {
 								validateLabel(label_fr, inputClass, isRequired, validateForm);
 							}}
 						/>
@@ -153,8 +153,7 @@
 							type="text"
 							placeholder=""
 							bind:value={slug_fr}
-							onchange={() => {
-								console.log("slug oninput");
+							oninput={() => {
 								validateSlug(slug_fr, inputClass, isRequired, validateForm);
 							}}
 						/>
@@ -177,7 +176,7 @@
 							name="gender"
 							size="3"
 							bind:value={gender}
-							onchange={() => {
+							oninput={() => {
 								validateGender(gender, inputClass, isRequired, validateForm);
 							}}
 						>

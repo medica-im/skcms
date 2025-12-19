@@ -1,4 +1,5 @@
 import { getTimestamps } from '$lib/store/directoryStore';
+import { cptsPostgres, mspPostgres } from '$lib/constants';
 import type { Timestamps } from '$lib/store/directoryStore';
 import type { Entry } from '$lib/store/directoryStoreInterface.ts';
 import type { AddressFeature } from '$lib/store/directoryStoreInterface.ts';
@@ -166,9 +167,9 @@ export function entryUrl(entry: Entry, pathname: string, org: string, origin=fal
 		const communeSlug = entry.commune.slug;
 		let nameSlug = entry.slug;
 		const originURI = `?origin=${encodeURIComponent(pathname)}`;
-		if ( ["msp", "maison de santé pluriprofessionnelle"].includes(org) ) {
+		if ( mspPostgres === org ) {
 			return `/${facilitySlug}/${typeSlug}/${nameSlug}${origin? originURI : ""}`;
-		} else if ( ["communauté professionnelle territoriale de santé", "cpts"].includes(org) ) {
+		} else if ( cptsPostgres === org ) {
 			return `/${typeSlug}/${communeSlug}/${nameSlug}${origin? originURI : ""}`;
 		}
 	}

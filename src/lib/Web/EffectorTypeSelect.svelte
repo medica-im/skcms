@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as m from '$msgs';
 	import Select from 'svelte-select';
-	import { useQueryClient, createQuery } from '@tanstack/svelte-query';
+	import { createQuery } from '@tanstack/svelte-query';
 	import { getEffectorTypes } from './data';
 	import { getTypeItems } from '$lib/components/Directory/SelectCategory.ts';
 	import type { EffectorType } from '$lib/interfaces/v2/effector';

@@ -32,7 +32,7 @@
 		setGeoInputAddress
 	} from '$lib/components/Directory/context';
 	import { page } from '$app/state';
-	import { MSP } from '$lib/constants.ts';
+	import { mspPostgres } from '$lib/constants.ts';
 	import {
 		validateName,
 		validateLabel,
@@ -52,7 +52,7 @@
 		selectedFacility: { label: string; value: string } | undefined;
 	} = $props();
 
-	const isMSP: boolean = page.data.organization.category.name === MSP;
+	const isMSP: boolean = page.data.organization.category.name === mspPostgres;
 
 	setAddressFeature();
 	setGeoInputAddress();
@@ -110,7 +110,7 @@
 	let geographical_complement: string = $state('');
 	let zip: string = $derived($addressFeature?.properties?.postcode || '');
 	let zoom: number = $state(18);
-	let lngLat = $derived.by(() => {
+	let { lng, lat } = $derived.by(() => {
 		const lngLatArray: [number, number] | undefined = $addressFeature?.geometry.coordinates;
 		if (lngLatArray) {
 			return { lng: lngLatArray[0], lat: lngLatArray[1] };
@@ -360,14 +360,14 @@
 							bind:value={zoom}
 						/>
 					</label>
-					<AddMarkerMap bind:lngLat bind:zoom />
+					<AddMarkerMap bind:lng bind:lat bind:zoom />
 					<label class="flex label place-self-start place-items-center space-x-2">
 						<span>Latitude</span>
 
 						<input
 							class="input"
 							{...createFacility.fields.latitude.as('text')}
-							bind:value={lngLat.lat}
+							bind:value={lat}
 						/>
 						{#each createFacility.fields.latitude.issues() as issue}
 							<p class="issue">{issue.message}</p>
@@ -379,7 +379,7 @@
 						<input
 							class="input"
 							{...createFacility.fields.longitude.as('text')}
-							bind:value={lngLat.lng}
+							bind:value={lng}
 						/>
 						{#each createFacility.fields.longitude.issues() as issue}
 							<p class="issue">{issue.message}</p>

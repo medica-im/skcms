@@ -23,7 +23,7 @@
 		setAddressFeature,
 		setGeoInputAddress
 	} from '$lib/components/Directory/context';
-	import { MSP } from '$lib/constants.ts';
+	import { mspPostgres } from '$lib/constants.ts';
 	import {
 		validateName,
 		validateLabel,
@@ -42,7 +42,9 @@
 		facility: FacilityV2;
 	} = $props();
 
-	const isMSP: boolean = page.data.organization.category.name === MSP;
+	let uid = $derived(facility.uid);
+
+	const isMSP: boolean = page.data.organization.category.name === mspPostgres;
 	setAddressFeature();
 	setGeoInputAddress();
 
@@ -95,7 +97,7 @@
 	let geographical_complement: string = $state('');
 	let zip: string | null = $derived($addressFeature?.properties?.postcode || facility.zip);
 	let zoom: number = $state(18);
-	let lngLat = $derived.by(() => {
+	let { lng, lat } = $derived.by(() => {
 		if ($addressFeature?.geometry.coordinates) {
 			return {
 				lng: $addressFeature?.geometry.coordinates[0],
@@ -113,7 +115,7 @@
 			};
 		}
 	});
-	let formResult = $derived(updateFacility.for(facility.uid).result);
+	let formResult = $derived(updateFacility.for(uid).result);
 	let disabled: boolean = $derived(
 		!Object.values(validateForm).every((v) => v === true) ||
 			formResult?.success == true ||
@@ -124,8 +126,8 @@
 				street == facility.street &&
 				geographical_complement == facility.geographical_complement &&
 				ban_banId == facility.ban_banId &&
-				lngLat.lng == facility.location?.longitude &&
-				lngLat.lat == facility.location?.latitude)
+				lng == facility.location?.longitude &&
+				lat == facility.location?.latitude)
 	);
 
 	let dialog: HTMLDialogElement | undefined = $state();
@@ -157,7 +159,7 @@
 	<div class="rounded-lg w-full p-4 variant-ghost-secondary items-center place-items-center">
 		<h3 class="h3 text-center">Modifier l'établissement</h3>
 		<form
-			{...updateFacility.for(facility.uid).enhance(async ({ form, data, submit }) => {
+			{...updateFacility.for(uid).enhance(async ({ form, data, submit }) => {
 				console.log(data);
 				try {
 					await submit();
@@ -169,7 +171,7 @@
 		>
 			<div class="p-2 space-y-4 justify-items-stretch grid grid-cols-1 lg:grid-cols-2 lg:gap-6">
 				<div class="space-y-2 w-full">
-					{#each updateFacility.for(facility.uid).fields.uid.issues() as issue}
+					{#each updateFacility.for(uid).fields.uid.issues() as issue}
 						<p class="issue">{issue.message}</p>
 					{/each}
 					<input
@@ -177,7 +179,7 @@
 						name="uid"
 						type="text"
 						placeholder=""
-						bind:value={facility.uid}
+						bind:value={uid}
 					/>
 					<input
 						class="hidden"
@@ -188,7 +190,7 @@
 					/>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
 						<span>Nom</span>
-						{#each updateFacility.for(facility.uid).fields.name.issues() as issue}
+						{#each updateFacility.for(uid).fields.name.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<input
@@ -205,7 +207,7 @@
 					</label>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
 						<span>Label</span>
-						{#each updateFacility.for(facility.uid).fields.label.issues() as issue}
+						{#each updateFacility.for(uid).fields.label.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<input
@@ -222,7 +224,7 @@
 					</label>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
 						<span>Slug</span>
-						{#each updateFacility.for(facility.uid).fields.slug.issues() as issue}
+						{#each updateFacility.for(uid).fields.slug.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<input
@@ -240,7 +242,7 @@
 						inputClass={inputClass.geocoder}
 						bind:isValid={validateForm}
 					/>
-					{#each updateFacility.for(facility.uid).fields.ban_id.issues() as issue}
+					{#each updateFacility.for(uid).fields.ban_id.issues() as issue}
 						<p class="issue">{issue.message}</p>
 					{/each}
 					<input
@@ -251,7 +253,7 @@
 						placeholder=""
 						bind:value={ban_id}
 					/>
-					{#each updateFacility.for(facility.uid).fields.ban_banId.issues() as issue}
+					{#each updateFacility.for(uid).fields.ban_banId.issues() as issue}
 						<p class="issue">{issue.message}</p>
 					{/each}
 					<input
@@ -264,7 +266,7 @@
 					/>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
 						<span>Bâtiment</span>
-						{#each updateFacility.for(facility.uid).fields.building.issues() as issue}
+						{#each updateFacility.for(uid).fields.building.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<input
@@ -278,7 +280,7 @@
 					</label>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
 						<span>Rue</span>
-						{#each updateFacility.for(facility.uid).fields.street.issues() as issue}
+						{#each updateFacility.for(uid).fields.street.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<input
@@ -297,7 +299,7 @@
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
 						<span>Complément géographique</span>
 						{#each updateFacility
-							.for(facility.uid)
+							.for(uid)
 							.fields.geographical_complement.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
@@ -312,7 +314,7 @@
 					</label>
 					<label class="flex label place-self-start place-items-center space-x-2">
 						<span>Code postal</span>
-						{#each updateFacility.for(facility.uid).fields.zip.issues() as issue}
+						{#each updateFacility.for(uid).fields.zip.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<input
@@ -341,7 +343,7 @@
 				<div class="p-2 space-y-2 w-full h-full">
 					<label class="flex label place-self-start place-items-center space-x-2">
 						<span>Zoom</span>
-						{#each updateFacility.for(facility.uid).fields.zoom.issues() as issue}
+						{#each updateFacility.for(uid).fields.zoom.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<input
@@ -358,19 +360,19 @@
 							}}
 						/>
 					</label>
-					<AddMarkerMap bind:lngLat bind:zoom />
+					<AddMarkerMap bind:lng bind:lat bind:zoom />
 					<label class="flex label place-self-start place-items-center space-x-2">
 						<span>Latitude</span>
-						<input name="latitude" class="input" bind:value={lngLat.lat} />
-						{#each updateFacility.for(facility.uid).fields.latitude.issues() as issue}
+						<input name="latitude" class="input" bind:value={lat} />
+						{#each updateFacility.for(uid).fields.latitude.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 					</label>
 					<label class="flex label place-self-start place-items-center space-x-2">
 						<span>Longitude</span>
 
-						<input name="longitude" class="input" bind:value={lngLat.lng} />
-						{#each updateFacility.for(facility.uid).fields.longitude.issues() as issue}
+						<input name="longitude" class="input" bind:value={lng} />
+						{#each updateFacility.for(uid).fields.longitude.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 					</label>

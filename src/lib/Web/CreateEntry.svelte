@@ -1,15 +1,11 @@
 <script lang="ts">
 	import {
-		faPlus,
 		faCheck,
 		faChevronRight,
-		faExclamationCircle,
 		faXmark
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import { page } from '$app/state';
-	import { reactiveQueryArgs } from '$lib/utils/utils.svelte';
-	import { UpdateField } from '$lib/utils/requestUtils';
 	import { variables } from '$lib/utils/constants';
 	import { nodeBefore } from '$lib/helpers/whitespacesHelper';
 	import type { User, UserResponse } from '$lib/interfaces/user.interface';
@@ -22,8 +18,6 @@
 	import CreateFacilityModal from '$lib/Web/Facility/CreateFacilityModal.svelte';
 	import CreateEffectorModal from '$lib/Web/Effector/CreateEffectorModal.svelte';
 	import DisplayEffector from './DisplayEffector.svelte';
-	import { getFacility } from '$lib/Web/data';
-	import { useQueryClient, createQuery } from '@tanstack/svelte-query';
 	import { copy } from 'svelte-copy';
 	import EntryCreationForm from '$lib/Web/EntryCreationForm.svelte';
 	import SelectMembershipModal from './Membership/SelectMembershipModal.svelte';

@@ -45,10 +45,10 @@ export const getCommunesByDpt = async (code: string): Promise<Commune[]> => {
 }
 
 export async function getEffectors(
-  {effector_type = null, department_of_france = null, commune  = null, facility = null} : { effector_type?: string|null, department_of_france?: string|null, commune?: string|null, facility?: string|null} = {}): Promise<Effector[]> {
+  {effectorType = null, department_of_france = null, commune  = null, facility = null} : { effectorType?: string|null, department_of_france?: string|null, commune?: string|null, facility?: string|null} = {}): Promise<Effector[]> {
   const params: string[] = [];
-  if (effector_type) {
-    params.push(`effector_type=${effector_type}`)
+  if (effectorType) {
+    params.push(`effector_type=${effectorType}`)
   }
   if (department_of_france) {
     params.push(`department_of_france=${department_of_france}`)

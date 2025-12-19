@@ -1,12 +1,16 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import Dialog from '$lib/Web/Dialog.svelte';
 	import { updateEffector } from '../../../effector.remote.ts';
 	import Fa from 'svelte-fa';
-	import { faPlus, faCheck, faExclamationCircle, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
-	import OrganizationRadio from '../OrganizationRadio.svelte';
-	import { slugify } from '$lib/helpers/stringHelpers';
-	import type { Effector } from '$lib/interfaces/v2/effector.ts';
+	import { faCheck, faExclamationCircle, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+	import { validateName, validateLabel, validateSlug, validateGender } from './validate.ts';
 	import type { EntryFull } from '$lib/store/directoryStoreInterface.ts';
+	import type {
+		InputClassUpdate as InputClass,
+		IsRequiredUpdate as IsRequired,
+		ValidateFormUpdate as ValidateForm
+	} from './validate.ts';
 
 	let {
 		data
@@ -14,84 +18,48 @@
 		data: EntryFull;
 	} = $props();
 
-	interface InputClass {
-		name_fr: string;
-		label_fr: string;
-		slug_fr: string;
-		gender: string;
-	}
-	interface ValidateForm {
-		name_fr: boolean;
-		label_fr: boolean;
-		slug_fr: boolean;
-		gender: boolean;
-	}
 	let dialog: HTMLDialogElement | undefined = $state();
-	const inputError = 'input-error';
 	const inputClass: InputClass = $state({
 		name_fr: '',
 		label_fr: '',
 		slug_fr: '',
-		gender: '',
+		gender: ''
 	});
-	const validateForm: ValidateForm = $state({
-		name_fr: false,
-		label_fr: true,
+	const isRequired: IsRequired = {
+		name_fr: true,
+		label_fr: false,
 		slug_fr: true,
-		gender: true,
-	});
-	let name_fr: string = $state('');
-	let label_fr: string = $state('');
-	let slug_fr: string = $state('');
-	let gender: string|null = $state('');
-	let formResult = $derived(updateEffector.for(data.effector_uid).result);
-	let isModified: boolean = $derived(name_fr != data.name || label_fr != data.label || slug_fr != data.slug || gender != data.gender);
-	let disabled: boolean = $derived(
-		!Object.values(validateForm).every((v) => v === true) || formResult?.success == true || !isModified
-	);
-	const slugIsValid = (value: string) => {
-		const regexpSlug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-		return regexpSlug.test(value);
+		gender: true
 	};
-	/**
-	 * Validate name input.
-	 */
-	$effect(() => {
-		if ( name_fr ) {
-			validateForm.name_fr = true;
-			inputClass.name_fr = '';
-		} else {
-			inputClass.name_fr = inputError;
-			validateForm.name_fr = false;
-		}
+	const validateForm: ValidateForm = $state({
+		name_fr: !isRequired.name_fr,
+		label_fr: !isRequired.label_fr,
+		slug_fr: !isRequired.slug_fr,
+		gender: !isRequired.gender
 	});
-	/**
-	 * Validate label input.
-	 */
-	$effect(() => {
-		if ( label_fr ) {
-			inputClass.label_fr = '';
-			validateForm.label_fr = true;
-		} else {
-			inputClass.label_fr = inputError;
-			validateForm.label_fr = false;
-		}
+	let name_fr: string = $state(data.name);
+	let label_fr: string = $state(data.label);
+	let slug_fr: string = $state(data.slug);
+	let gender: string | null = $state(data.gender);
+	let formResult = $derived(updateEffector.for(data.effector_uid).result);
+	let isModified: boolean = $derived(
+		name_fr != data.name || label_fr != data.label || slug_fr != data.slug || gender != data.gender
+	);
+	let disabled: boolean = $derived(
+		!Object.values(validateForm).every((v) => v === true) ||
+			formResult?.success == true ||
+			!isModified
+	);
+	const validateAll = () => {
+		validateName(name_fr, inputClass, isRequired, validateForm);
+		validateLabel(label_fr, inputClass, isRequired, validateForm);
+		validateSlug(slug_fr, inputClass, isRequired, validateForm);
+		validateGender(gender, inputClass, isRequired, validateForm);
+	};
+	onMount(() => {
+		validateAll();
 	});
-	/**
-	 * Validate slug input.
-	 */
-	$effect(() => {
-		if (slug_fr && slugIsValid(slug_fr)) {
-			inputClass.slug_fr = '';
-			validateForm.slug_fr = true;
-		} else {
-			inputClass.slug_fr = inputError;
-			validateForm.slug_fr = false;
-		}
-	});
-
 </script>
-
 <!--
 {form}<br />
 {JSON.stringify(form)}<br />
@@ -101,10 +69,6 @@
 <button
 	onclick={async () => {
 		formResult = undefined;
-		name_fr = data.name;
-		label_fr = data.label;
-		slug_fr = data.slug;
-		gender = data.gender;
 		dialog?.showModal();
 	}}
 	class="btn-icon"
@@ -128,13 +92,13 @@
 					})}
 					class=""
 				>
-				<input
-							class="hidden"
-							name="effector"
-							type="text"
-							placeholder=""
-							bind:value={data.effector_uid}
-						/>
+					<input
+						class="hidden"
+						name="effector"
+						type="text"
+						placeholder=""
+						bind:value={data.effector_uid}
+					/>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
 						<span class="h4">Nom</span>
 						{#each updateEffector.for(data.effector_uid).fields.name_fr.issues() as issue}
@@ -146,6 +110,9 @@
 							type="text"
 							placeholder=""
 							bind:value={name_fr}
+							oninput={() => {
+								validateName(name_fr, inputClass, isRequired, validateForm);
+							}}
 						/>
 					</label>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
@@ -159,6 +126,9 @@
 							type="text"
 							placeholder=""
 							bind:value={label_fr}
+							oninput={() => {
+								validateLabel(label_fr, inputClass, isRequired, validateForm);
+							}}
 						/>
 					</label>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
@@ -172,6 +142,9 @@
 							type="text"
 							placeholder=""
 							bind:value={slug_fr}
+							oninput={() => {
+								validateSlug(slug_fr, inputClass, isRequired, validateForm);
+							}}
 						/>
 					</label>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
@@ -192,6 +165,9 @@
 							name="gender"
 							size="3"
 							bind:value={gender}
+							onchange={() => {
+								validateGender(gender, inputClass, isRequired, validateForm);
+							}}
 						>
 							<option value="F">Féminin</option>
 							<option value="M">Masculin</option>
@@ -209,11 +185,13 @@
 							{/if}
 						</div>
 						<div class="w-auto justify-center">
-							<button type="submit" class="variant-filled-secondary btn w-min" {disabled}
-							onclick={async ()=>{
-								await new Promise(resolve => setTimeout(resolve, 1000));
-							}}
-								>Envoyer</button
+							<button
+								type="submit"
+								class="variant-filled-secondary btn w-min"
+								{disabled}
+								onclick={async () => {
+									await new Promise((resolve) => setTimeout(resolve, 1000));
+								}}>Envoyer</button
 							>
 						</div>
 						<div class="w-auto justify-center">
