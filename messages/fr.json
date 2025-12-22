@@ -170,30 +170,6 @@
   "PASSWORD_FORGOTTEN": "Avez-vous oublié votre mot de passe?",
   "SIGNIN": "Se connecter",
   "ERROR": "Erreur",
-  "ENTRIES": [
-    {
-      "declarations": [
-        "input count",
-        "local countPlural = count: plural"
-      ],
-      "selectors": [
-        "countPlural"
-      ],
-<<<<<<< HEAD
-      "match": [
-        ""
-      ]
-=======
-      "match": {
-        "0": "",
-        "countPlural=one": "entrée",
-        "countPlural=other": "entrées"
-      }
->>>>>>> dev
-    }
-  ],
-  "line_endings": "unix",
-  "cancel": "Annuler",
   "mention_ipa": [
     {
       "declarations": [
@@ -206,6 +182,21 @@
       "match": {
         "countPlural=one": "mention",
         "countPlural=other": "mentions"
+      }
+    }
+  ],
+  "ENTRIES": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "ent",
+        "countPlural=other": "entrées"
       }
     }
   ]
