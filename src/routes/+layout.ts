@@ -2,6 +2,7 @@ import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
 import { checkVersion } from '$lib/version';
 import { getEntries, getSituations } from '$lib/store/directoryStore';
 import type { User } from "$lib/interfaces/user.interface";
+import type { Entry } from '$lib/store/directoryStoreInterface';
 import type { LayoutLoad } from './$types';
 
 export const load: LayoutLoad = async ({ fetch, data }) => {
@@ -29,7 +30,7 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
     session: data.session,
     user: data.user || user,
     organization: data.organization,
-    entries: await getEntries(),
+    entries: await getEntries() as Entry[],
     situations: await getSituations(),
     sections: [
       { slug: 'profile', title: 'Profile' },

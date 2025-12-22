@@ -1,4 +1,5 @@
 import { variables } from '$lib/utils/constants';
+import type { EntryFull } from '$lib/store/directoryStoreInterface';
 
 type Fetch = {
     (input: RequestInfo | URL, init?: RequestInit): Promise<Response>;
@@ -13,7 +14,7 @@ export async function getEntry(entryUrl: string, fetch: Fetch) {
             throw new Error(`${response.status}: Unable to fetch resource`)
         }
         const json = await response.json()
-        return json
+        return json as EntryFull
     } catch (error) {
         if (error instanceof Error) {
             console.error('[request failed]', error.message)

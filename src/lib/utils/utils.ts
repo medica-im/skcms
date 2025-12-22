@@ -91,9 +91,9 @@ export const mapToString = (map: Map<string,object>, start?: number|undefined, s
 
 export const entryPageUrl = (entry: Entry, org_category: string | null = null, pathname: string | null = null, facility: string | null = null, types: string[] | null = null, term: string | null = null, communes: string[] | null = null, situation: string | undefined = undefined, addressFeature: AddressFeature|null=null, displayMap: boolean = false) => {
 	const typeSlug = entry.effector_type.slug;
-	const communeSlug = entry.commune.slug;
+	const communeSlug = entry.commune?.slug;
 	const nameSlug = entry.slug;
-	const facilitySlug = entry.facility.slug;
+	const facilitySlug = entry.facility?.slug;
 	const originParam = pathname ? `${encodeURIComponent(pathname)}` : '';
 	const facilityParam = facility ? `${encodeURIComponent(facility)}` : '';
 	const typesParam = types?.length ? `${encodeURIComponent(JSON.stringify(types))}` : '';

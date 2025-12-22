@@ -170,8 +170,6 @@
   "PASSWORD_FORGOTTEN": "Avez-vous oublié votre mot de passe?",
   "SIGNIN": "Se connecter",
   "ERROR": "Erreur",
-  "line_endings": "unix",
-  "cancel": "Annuler",
   "ENTRIES": [
     {
       "declarations": [
@@ -182,11 +180,14 @@
         "countPlural"
       ],
       "match": {
+        "0": "",
         "countPlural=one": "entrée",
         "countPlural=other": "entrées"
       }
     }
   ],
+  "line_endings": "unix",
+  "cancel": "Annuler",
   "mention_ipa": [
     {
       "declarations": [
