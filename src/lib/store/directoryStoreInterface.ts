@@ -29,6 +29,21 @@ export interface Type {
     labels: string[]
 }
 
+export interface TagCategory {
+        name: string;
+        label: string;
+        labelShort: string;
+}
+
+export interface Tag {
+    uid: string;
+    name: string;
+    label: string;
+    labelShort: string;
+    category: TagCategory;
+    effector_types: string[];
+}
+
 export interface Entry {
     address: Address,
     appointments: Appointment[],
@@ -50,7 +65,8 @@ export interface Entry {
     effector_type: Type,
     uid: string,
     updatedAt: number,
-    careHome?: any
+    careHome?: any,
+    tags: Tag|null;
 }
 
 export interface EntryFull {

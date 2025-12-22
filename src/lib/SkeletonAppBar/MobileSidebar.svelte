@@ -1,18 +1,23 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
 	import { language } from '$lib/store/languageStore.ts';
 	import * as m from '$msgs';
 	import { page } from '$app/state';
 	import { variables } from '$lib/utils/constants.ts';
 	import DocsIcon from '$lib/Icon/Icon.svelte';
-	import { menuNavLinks, menuNavCats } from '$var/variables.ts';
 	import { AppRail, AppRailTile, AppRailAnchor, getDrawerStore } from '@skeletonlabs/skeleton';
 	import SoMed from '$lib/SoMed/SoMed.svelte';
 	import Fa from 'svelte-fa';
 	import { faBlog } from '@fortawesome/free-solid-svg-icons';
 
+	let {
+		currentRailCategory=$bindable(),
+		navLinks
+	}: {
+		currentRailCategory: string | undefined;
+		navLinks: any[] | undefined;
+	} = $props();
+
 	const siteCat = page.data.organization.category.name;
-	const widthSetting: { width: string } = $state(getContext('widthSetting'));
 	const drawerStore = getDrawerStore();
 
 	function onClickAnchor(): void {
@@ -23,46 +28,9 @@
 		drawerStore.close();
 	}
 
-	let basePath: string = $derived(page.url.pathname.split('/')[1]);
-	let currentRailCategory: string | undefined = $derived(
-		menuNavCats.find((e) => e.list.includes(basePath))?.id
-	);
-
-	const getMenuNavLinks = (): any[] | undefined => {
-		if (!currentRailCategory) {
-			return;
-		}
-		const cat = menuNavCats.find((cat) => cat.id == currentRailCategory);
-		const list = cat?.list;
-		if (!list) {
-			return;
-		}
-		let _filteredMenuNavLinks: any[] = Object.values(menuNavLinks).filter((linkSet: any) => {
-			return list.some((e: any) => e == linkSet.id);
-		});
-		if (_filteredMenuNavLinks.length) {
-			return _filteredMenuNavLinks;
-		} else {
-			return;
-		}
-	};
-	let navLinks = $derived(getMenuNavLinks());
-
-	let classesActive = $derived((href: string) => {
+	const classesActive = (href: string) => {
 		return page.url.pathname == href ? 'variant-ringed-primary' : '';
-	});
-	// Set the width of the Drawer component to hide empty space.
-	$effect(() => {
-		if (widthSetting) {
-			if (navLinks?.length) {
-				widthSetting.width = '';
-			} else {
-				widthSetting.width = 'w-[80]';
-			}
-		}
-	});
-
-	$inspect(currentRailCategory, navLinks, widthSetting);
+	};
 </script>
 
 <div
@@ -70,24 +38,24 @@
 >
 	<!-- App Rail -->
 	<AppRail background="!bg-transparent" border="border-r border-surface-500/30">
-		{#if ( siteCat == "msp" )}
-		<AppRailAnchor
-			data-sveltekit-preload-data="off"
-			href="/"
-			selected={page.url.pathname == '/' && !currentRailCategory}
-			class="lg:hidden"
-			on:click={() => {
-				onClickAnchor();
-			}}
-		>
-			<svelte:fragment slot="lead"
-				><DocsIcon name="home" width="w-6" height="h-6" /></svelte:fragment
+		{#if siteCat == 'msp'}
+			<AppRailAnchor
+				data-sveltekit-preload-data="off"
+				href="/"
+				selected={page.url.pathname == '/' && !currentRailCategory}
+				class="lg:hidden"
+				on:click={() => {
+					onClickAnchor();
+				}}
 			>
-			<span>{m.HOME_TITLE()}</span>
-		</AppRailAnchor>
+				<svelte:fragment slot="lead"
+					><DocsIcon name="home" width="w-6" height="h-6" /></svelte:fragment
+				>
+				<span>{m.HOME_TITLE()}</span>
+			</AppRailAnchor>
 		{/if}
 		<AppRailAnchor
-			href={siteCat == "msp" ? "/annuaire" : "/"}
+			href={siteCat == 'msp' ? '/annuaire' : '/'}
 			selected={page.url.pathname.startsWith('/annuaire') && !currentRailCategory}
 			class="lg:hidden"
 			on:click={() => {
@@ -99,20 +67,20 @@
 			>
 			<span>{m.NAVBAR_ADDRESSBOOK()}</span>
 		</AppRailAnchor>
-		{#if ( siteCat == "msp" )}
-		<AppRailAnchor
-			href="/sites"
-			selected={page.url.pathname == '/sites' && !currentRailCategory}
-			class="lg:hidden"
-			on:click={() => {
-				onClickAnchor();
-			}}
-		>
-			<svelte:fragment slot="lead"
-				><DocsIcon name="mapLocationDot" width="w-6" height="h-6" /></svelte:fragment
+		{#if siteCat == 'msp'}
+			<AppRailAnchor
+				href="/sites"
+				selected={page.url.pathname == '/sites' && !currentRailCategory}
+				class="lg:hidden"
+				on:click={() => {
+					onClickAnchor();
+				}}
 			>
-			<span>Sites</span>
-		</AppRailAnchor>
+				<svelte:fragment slot="lead"
+					><DocsIcon name="mapLocationDot" width="w-6" height="h-6" /></svelte:fragment
+				>
+				<span>Sites</span>
+			</AppRailAnchor>
 		{/if}
 		{#if page.data.organization.category.name == 'msp'}
 			<AppRailTile bind:group={currentRailCategory} name="msp" value={'msp'}>
@@ -178,7 +146,7 @@
 		<!-- Nav Links -->
 		<section class="p-4 pb-20 space-y-4 overflow-y-auto w-[360px]">
 			{#each navLinks as { id, title, href, list }, i}
-				{#if list.filter((e) => e.active != false).length > 0}
+				{#if list.filter((e: any) => e.active != false).length > 0}
 					<!-- Title -->
 					<div {id} class="text-primary-700 dark:text-primary-500 font-bold uppercase px-4">
 						{title[$language]}
@@ -186,7 +154,7 @@
 					<!-- Navigation List -->
 					<nav class="list-nav">
 						<ul>
-							{#each list.filter((e) => e.active != false) as { href, label, badge }}
+							{#each list.filter((e: any) => e.active != false) as { href, label, badge }}
 								<li>
 									<a
 										{href}

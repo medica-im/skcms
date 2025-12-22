@@ -34,6 +34,7 @@
 	import CreateWebsite from '$lib/Web/Website/Create.svelte';
 	import UpdateEffector from '$lib/Web/Effector/UpdateEffectorModal.svelte';
 	import InactivateEntry from '$lib/Web/Entry/InactivateEntry.svelte';
+	import Tag from '$lib/Tag/Tag.svelte';
 	import { setEditMode, getEditMode, setEntryUid, setEffectorUid } from './context';
 	import UuidHex from '$lib/Uuid/UuidHex.svelte';
 	import UuidHyphen from '$lib/Uuid/UuidHyphen.svelte';
@@ -90,7 +91,7 @@
 				<UuidHex data={fullentry?.effector_type?.uid} />
 				<UuidHyphen data={fullentry?.effector_type?.uid} />
 			{/if}
-
+			<Tag data={fullentry?.tags}/>
 			<FacilityLink data={fullentry.facility} />
 			{#if isSuperUser && $editMode}
 				facility {fullentry?.facility?.uid}
