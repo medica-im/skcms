@@ -7,11 +7,13 @@
 	import { goto } from '$app/navigation';
 	import { entryPageUrl } from '$lib/utils/utils';
 	import type { EntryFull } from '$lib/store/directoryStoreInterface';
+	import type { Entry } from '$lib/store/directoryStoreInterface';
 	export let entry: EntryFull;
 	export let avatar: boolean;
 
 	const goTo = () => {
-		const url = entryPageUrl(entry, page.data.organization.category.name, page.url.pathname);
+		const _entry: Entry = page.data.entries.find((e: Entry)=>e.uid==entry.uid);
+		const url = entryPageUrl(_entry, page.data.organization.category.name, page.url.pathname);
 		goto(url, { replaceState: false });
 	};
 </script>

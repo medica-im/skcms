@@ -179,9 +179,17 @@
       "selectors": [
         "countPlural"
       ],
+<<<<<<< HEAD
       "match": [
         ""
       ]
+=======
+      "match": {
+        "0": "",
+        "countPlural=one": "entrée",
+        "countPlural=other": "entrées"
+      }
+>>>>>>> dev
     }
   ],
   "line_endings": "unix",
