@@ -194,10 +194,23 @@
       "selectors": [
         "countPlural"
       ],
-      "match": {
-        "countPlural=one": "ent",
-        "countPlural=other": "entrées"
-      }
+      "match": [
+        ""
+      ]
+    }
+  ],
+  "tag": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": [
+        ""
+      ]
     }
   ]
 }
