@@ -25,15 +25,16 @@
 
 	const uid = getEntryUid();
 
-	let tagCategories = $derived(await getTagCategories());
-	let tagCategoryChoices = $derived.by(() => {
+	let categoryChoices: SelectType[]|undefined = $state();
+
+	const getCategoryChoices = async () => {
+		const tagCategories = await getTagCategories();
 		if (tagCategories) {
 			return tagCategories.map((e) => {
 				return { value: e.name, label: e.label };
 			});
 		}
-	});
-	$inspect(tagCategoryChoices);
+	};
 	let tagChoices: SelectType[] | undefined = $state();
 	let dialog: HTMLDialogElement | undefined = $state();
 	let result: FormResult | undefined = $state();
@@ -137,6 +138,7 @@
 <button
 	onclick={async () => {
 		result = undefined;
+		categoryChoices = await getCategoryChoices();
 		dialog?.showModal();
 	}}
 	class="btn btn-sm variant-ghost-surface"
@@ -173,9 +175,9 @@
 		<div class="grid grid-cols-1 gap-6 w-full">
 			<h3 class="h3">{capitalizeFirstLetter(m.tag({ count: 2 }))}</h3>
 			<label class="label">
-				<span>{capitalizeFirstLetter(m.category({ count: tagCategories?.length || 1 }))}</span>
+				<span>{capitalizeFirstLetter(m.category({ count: 1 }))}</span>
 				<Select
-					items={tagCategoryChoices}
+					items={categoryChoices}
 					bind:value={selectedCategory}
 					on:change={onCategoryChange}
 					on:clear={onCategoryClear}
