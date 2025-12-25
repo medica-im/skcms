@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => {
 				{
 					project: './project.inlang',
 					outdir: './src/paraglide',
-					strategy: ['preferredLanguage', 'baseLocale'],
+					strategy: ['baseLocale'],
 				}
 			),
 			isoImport() /*, purgeCss()*/

@@ -216,5 +216,20 @@
 				"countPlural=other": "tags"
 			}
 		}
+	],
+	"category": [
+		{
+			"declarations": [
+				"input count",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "category",
+				"countPlural=other": "categories"
+			}
+		}
 	]
 }

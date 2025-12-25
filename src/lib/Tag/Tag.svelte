@@ -7,10 +7,10 @@
     import { popup } from '@skeletonlabs/skeleton';
     import type { Tag, TagCategory } from "$lib/store/directoryStoreInterface";
     import type { PopupSettings } from '@skeletonlabs/skeleton';
-    let { data } : { data: Tag[]; } = $props();
+    let { data } : { data: Tag[]|null; } = $props();
     const tagMap = $derived.by(()=>{
         const tagMap: Map<string, Tag[]> = new Map();
-        data.forEach(
+        data?.forEach(
             (t)=>{
                 const tags = tagMap.get(t.category.name);
                 if ( tags ) {

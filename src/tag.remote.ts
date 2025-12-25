@@ -1,36 +1,19 @@
-import { getRequestEvent, query, form, command } from '$app/server';
+import { getRequestEvent, query, command } from '$app/server';
 import * as z from "zod";
 import { authReq } from '$lib/utils/request.ts';
 import { variables } from '$lib/utils/constants.ts';
+import type { Tag, TagCategory } from '$lib/store/directoryStoreInterface';
 
 const RoleEnum = z.enum(['anonymous', 'staff', 'administrator', 'superuser']);
 
 const EntryTag = z.object({
 	entry: z.string(),
-	addTags: z.preprocess((val: string) => {
-		console.log(val);
-		console.log(typeof val);
-		if (val) {
-			return val.split(',');
-		} else {
-			return null
-		}
-	}, z.array(z.string()).nullable()
-	),
-	removeTags: z.preprocess((val: string) => {
-		console.log(val);
-		console.log(typeof val);
-		if (val) {
-			return val.split(',');
-		} else {
-			return null
-		}
-	}, z.array(z.string()).nullable()
-	),
+	addTags: z.array(z.string()).nullable(),
+	removeTags: z.array(z.string()).nullable()
 }
 );
 
-export const postEntryTag = form(EntryTag, async (data) => {
+export const postEntryTag = command(EntryTag, async (data) => {
 	console.log(`entry_tag form data: ${JSON.stringify(data)}`);
 	const { cookies } = getRequestEvent();
 	const url = `${variables.BASE_URI}/api/v2/entry/tag`;
@@ -62,6 +45,6 @@ export const postEntryTag = form(EntryTag, async (data) => {
 export const getTagCategories = query(async () => {
 	const res = await fetch(`${variables.BASE_URI}/api/v2/tag_categories`);
 	if (res.ok) {
-		return await res.json();
+		return await res.json() as TagCategory[];
 	}
 });

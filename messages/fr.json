@@ -194,9 +194,11 @@
       "selectors": [
         "countPlural"
       ],
-      "match": [
-        ""
-      ]
+      "match": {
+        "0": "",
+        "countPlural=one": "entrée",
+        "countPlural=other": "entrées"
+      }
     }
   ],
   "tag": [
@@ -208,9 +210,25 @@
       "selectors": [
         "countPlural"
       ],
-      "match": [
-        ""
-      ]
+      "match": {
+        "countPlural=one": "étiquette",
+        "countPlural=other": "étiquettes"
+      }
+    }
+  ],
+  "category": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "catégorie",
+        "countPlural=other": "catégories"
+      }
     }
   ]
 }

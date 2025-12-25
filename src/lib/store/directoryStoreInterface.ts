@@ -30,6 +30,7 @@ export interface Type {
 }
 
 export interface TagCategory {
+        uid: string;
         name: string;
         label: string;
         labelShort: string;

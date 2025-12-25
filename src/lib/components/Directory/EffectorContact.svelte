@@ -40,7 +40,7 @@
 	import UuidHyphen from '$lib/Uuid/UuidHyphen.svelte';
 	import Membership from '$lib/Membership/Membership.svelte';
 	import PatchMembershipModal from '$lib/Web/Entry/Membership/PatchMembershipModal.svelte';
-
+	import TagModal from '$lib/Web/Tag/TagModal.svelte';
 	let { data } = $props();
 
 	let fullentry = $derived(data.fullentry);
@@ -92,6 +92,7 @@
 				<UuidHyphen data={fullentry?.effector_type?.uid} />
 			{/if}
 			<Tag data={fullentry?.tags}/>
+			{#if $editMode}<TagModal tags={fullentry.tags} />{/if}
 			<FacilityLink data={fullentry.facility} />
 			{#if isSuperUser && $editMode}
 				facility {fullentry?.facility?.uid}
