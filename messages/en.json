@@ -231,5 +231,6 @@
 				"countPlural=other": "categories"
 			}
 		}
-	]
+	],
+	"ADDRESSBOOK_DEPARTMENTS_PLACEHOLDER": "Select by department..."
 }

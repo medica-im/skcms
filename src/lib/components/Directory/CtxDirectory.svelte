@@ -10,6 +10,8 @@
 		getSelectCategories,
 		setLimitCategories,
 		getLimitCategories,
+		getSelectedDepartments,
+		setSelectedDepartments,
 		setSelectedCommunesUids,
 		getSelectedCommunesUids,
 		setSelectedCommunesChoices,
@@ -33,13 +35,14 @@
 	import {
 		//distanceEffectorsF,
 		fullFilteredEntriesF,
-		filteredEffectorsF,
+		filteredEntriesF,
 		categorizedFilteredEffectorsF,
 		categorizedFullFilteredEffectorsF,
 		cardinalCategorizedFilteredEffectorsF,
 		categoryOfF,
 		communeOfF,
-		facilityOfF
+		facilityOfF,
+		departmentOfF
 	} from '$lib/store/directoryStore.ts';
 	import FullDirectory from './FullDirectory.svelte';
 	import Types from './Types.svelte';
@@ -57,12 +60,14 @@
 
 	let {
 		data = null,
-		displayGeocoder = false,
-		displaySituation = false,
-		displayCommune = true,
-		displayCategory = true,
-		displayFacility = true,
-		displaySearch = true,
+		displayCategory = page.data.directory.inputField.category,
+		displayCommune = page.data.directory.inputField.commune,
+		displayDepartment = page.data.directory.inputField.department,
+		displayFacility = page.data.directory.inputField.facility,
+		displayGeocoder = page.data.directory.inputField.geocoder,
+		displayOrganization = page.data.directory.inputField.geocoder,
+		displaySearch = page.data.directory.inputField.search,
+		displaySituation = page.data.directory.inputField.situation,
 		propCurrentOrg = true,
 		setRedirect = true,
 		propLimitCategories = [],
@@ -76,8 +81,10 @@
 		displayGeocoder: boolean;
 		displaySituation: boolean;
 		displayCommune?: boolean;
+		displayDepartment?: boolean;
 		displayCategory: boolean;
 		displayFacility?: boolean;
+		displayOrganization?: boolean;
 		displaySearch?: boolean;
 		propCurrentOrg?: boolean | null;
 		setRedirect?: boolean;
@@ -94,6 +101,7 @@
 	setLimitCategories();
 	setCurrentOrg();
 	setDirectoryRedirect();
+	setSelectedDepartments();
 	setSelectedCommunesUids();
 	setSelectedCommunesChoices();
 	setSelectSituation();
@@ -108,6 +116,7 @@
 	let selectCategories = getSelectCategories();
 	let selectSituation = getSelectSituation();
 	let selectCommunes = getSelectedCommunesUids();
+	let selectDepartments = getSelectedDepartments();
 	let addressFeature = getAddressFeature();
 	let selectFacility = getSelectFacility();
 	let directoryRedirect = getDirectoryRedirect();
@@ -160,17 +169,19 @@
 	);
 
 	const filteredEffectors = asyncDerived(
-		[term, fullFilteredEffectors, selectCategories, selectCommunes, selectFacility],
+		[term, fullFilteredEffectors, selectCategories, selectDepartments, selectCommunes, selectFacility],
 		async ([
 			$term,
 			$fullFilteredEffectors,
 			$selectCategories,
+			$selectDepartments,
 			$selectCommunes,
 			$selectFacility
 		]) => {
-			return filteredEffectorsF(
+			return filteredEntriesF(
 				$fullFilteredEffectors,
 				$selectCategories,
+				$selectDepartments,
 				$selectCommunes,
 				$selectFacility,
 				$term
@@ -219,23 +230,17 @@
 			rLimitCategories
 		);
 	});
-	let rFilteredEntries = $derived.by(() => {
-		return filteredEffectorsF(
-			rFullFilteredEntries,
-			$selectCategories,
-			$selectCommunes,
-			$selectFacility,
-			$term
-		);
-	});
 	const communeOf = $derived.by(() => {
-		return communeOfF(rFullFilteredEntries, $selectFacility, $selectCategories);
+		return communeOfF(rFullFilteredEntries, $selectCategories, $selectDepartments, $selectFacility);
+	});
+	const departmentOf = $derived.by(() => {
+		return departmentOfF(rFullFilteredEntries, $selectFacility, $selectCategories, $selectCommunes);
 	});
 	const facilityOf = $derived.by(() => {
-		return facilityOfF(rFullFilteredEntries, $selectCategories, $selectCommunes);
+		return facilityOfF(rFullFilteredEntries, $selectCategories, $selectCommunes, $selectDepartments);
 	});
 	const categoryOf = $derived.by(() => {
-		return categoryOfF(rFullFilteredEntries, $selectCommunes, $selectFacility);
+		return categoryOfF(rFullFilteredEntries, $selectCommunes, $selectDepartments, $selectFacility);
 	});
 </script>
 
@@ -244,14 +249,17 @@
 {:else}
 	<FullDirectory
 		{data}
-		{displayGeocoder}
-		{displaySituation}
 		{displayCategory}
 		{displayCommune}
+		{displayDepartment}
 		{displayFacility}
+		{displayGeocoder}
+		{displayOrganization}
 		{displaySearch}
+		{displaySituation}
 		{avatar}
 		{communeOf}
+		{departmentOf}
 		{categoryOf}
 		{facilityOf}
 	/>

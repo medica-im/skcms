@@ -194,11 +194,9 @@
       "selectors": [
         "countPlural"
       ],
-      "match": {
-        "0": "",
-        "countPlural=one": "entrée",
-        "countPlural=other": "entrées"
-      }
+      "match": [
+        ""
+      ]
     }
   ],
   "tag": [
@@ -230,5 +228,6 @@
         "countPlural=other": "catégories"
       }
     }
-  ]
+  ],
+  "ADDRESSBOOK_DEPARTMENTS_PLACEHOLDER": "Sélectionner par département..."
 }

@@ -5,6 +5,7 @@
 		getTerm,
 		getSelectedCommunesUids,
 		getSelectedCommunesChoices,
+		getSelectedDepartments,
 		getSelectCategories,
 		getSelCatVal,
 		getSelectSituation,
@@ -14,7 +15,6 @@
 		getDirectoryRedirect,
 		getAddressFeature,
 		getGeoInputAddress
-
 	} from './context.ts';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
@@ -22,6 +22,7 @@
 	let term = getTerm();
 	let selectedCommunesChoices = getSelectedCommunesChoices();
 	let selectedCommunesUids = getSelectedCommunesUids();
+	let selectDepartments = getSelectedDepartments();
 	let selCatVal = getSelCatVal();
 	let selectSituation = getSelectSituation();
 	let inputAddress = getInputAddress();
@@ -36,6 +37,7 @@
 		$term ||
 		$selectedCommunesUids.length ||
 		$selectedCommunesChoices ||
+		$selectDepartments ||
 		$selCatVal ||
 		$selectSituation ||
 		$inputAddress ||
@@ -47,6 +49,7 @@
 		term.set('');
 		selectedCommunesUids.set([]);
 		selectedCommunesChoices.set(null);
+		selectDepartments.set(null);
 		selectCategories.set([]);
 		selCatVal.set(null);
 		selectSituation.set(undefined);

@@ -52,6 +52,10 @@
 		if (communesParam) {
 			params.push(`communes=${encodeURIComponent(communesParam)}`);
 		}
+		const dptsParam = searchParams.get('departments');
+		if (dptsParam) {
+			params.push(`departments=${encodeURIComponent(dptsParam)}`);
+		}
 		const typesParam = searchParams.get('types');
 		if (typesParam) {
 			params.push(`types=${encodeURIComponent(typesParam)}`);

@@ -66,6 +66,15 @@ export function getLimitCategories() {
     return getContext<Writable<string[]>>('limitCategories');
 }
 
+export function setSelectedDepartments() {
+    let selectDepartments: Writable<string[]|null> = writable(null);
+    setContext('selectedDepartments', selectDepartments)
+}
+
+export function getSelectedDepartments() {
+    return getContext<Writable<string[]|null>>('selectedDepartments');
+}
+
 export function setSelectedCommunesUids() {
     let selectCommunes: Writable<string[]> = writable([]);
     setContext('selectedCommunesUids', selectCommunes)

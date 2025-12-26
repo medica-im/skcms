@@ -265,6 +265,7 @@
 			<span class="opacity-50"><Fa icon={faCaretDown} /></span>
 		</button>
 		<!-- popup -->
+		 {#if browser}
 		<div class="card p-4 w-60 shadow-xl" data-popup="theme">
 			<section class="flex justify-between items-center">
 				<h6 class="h6">Mode</h6>
@@ -292,6 +293,7 @@
 				</form>
 			</nav>
 		</div>
+		{/if}
 
 		<!-- Social -->
 		<!-- prettier-ignore -->

@@ -7,6 +7,7 @@
 	import SearchDirectory from '$lib/components/Directory/SearchDirectory.svelte';
 	import SelectCommunes from '$lib/components/Directory/SelectCommunesR.svelte';
 	import SelectCategories from '$lib/components/Directory/SelectCategoriesR.svelte';
+	import SelectDepartments from '$lib/components/Directory/SelectDepartmentsR.svelte';
 	import SelectCategoriesChips from '$lib/components/Directory/SelectCategoriesChips.svelte';
 	import SelectSituations from '$lib/components/Directory/SelectSituations.svelte';
 	import SelectFacility from '$lib/components/Directory/SelectFacilityR.svelte';
@@ -20,26 +21,32 @@
 	import type { Commune } from '$lib/interfaces/geography.interface.ts';
 	let {
 		data,
-		displayGeocoder,
-		displaySituation,
 		displayCommune,
+		displayDepartment,
 		displayCategory,
 		displayFacility,
+		displayGeocoder,
+		displayOrganization,
 		displaySearch,
+		displaySituation,
 		avatar = true,
 		communeOf,
+		departmentOf,
 		categoryOf,
 		facilityOf
 	}: {
 		data: any;
-		displayGeocoder: boolean;
-		displaySituation: boolean;
-		displayCommune: boolean;
 		displayCategory: boolean;
+		displayCommune: boolean;
+		displayDepartment: boolean;
 		displayFacility: boolean;
+		displayGeocoder: boolean;
+		displayOrganization: boolean;
 		displaySearch: boolean;
+		displaySituation: boolean;
 		avatar: boolean;
 		communeOf: Commune[];
+		departmentOf: string[];
 		categoryOf: Type[];
 		facilityOf: FacilityOf[];
 	} = $props();
@@ -62,6 +69,9 @@
 			{/if}
 			{#if displaySituation}
 				<SelectSituations />
+			{/if}
+			{#if displayDepartment}
+				<SelectDepartments {departmentOf} />
 			{/if}
 			{#if displayCommune}
 				<SelectCommunes {communeOf} />
