@@ -90,6 +90,11 @@
 		gender = undefined;
 		validateAll();
 	};
+	function onGenderChange(event: Event) {
+		const target = event.target as HTMLSelectElement;
+		const _gender = target.value;
+		validateGender(_gender, inputClass, isRequired, validateForm);
+	}
 </script>
 
 <button
@@ -176,8 +181,8 @@
 							name="gender"
 							size="3"
 							bind:value={gender}
-							oninput={() => {
-								validateGender(gender, inputClass, isRequired, validateForm);
+							onchange={(event: Event)=>{
+								onGenderChange(event)
 							}}
 						>
 							<option value="F">Féminin</option>
