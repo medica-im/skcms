@@ -11,7 +11,7 @@
 
 	let { departmentOf }: { departmentOf: string[] } = $props();
 
-	let departments: DepartmentOfFrance[] | undefined = $derived(await getDepartments());
+	const departments: DepartmentOfFrance[] | undefined = $derived(await getDepartments());
 	let items = $derived.by(() => {
 		return departments
 			.filter((d) => departmentOf.includes(d.code))
@@ -46,13 +46,14 @@
 		}
 	});*/
 	function getValue(dptsCodes: string[]) {
-		return departments
-			?.filter((d) => {
+		if ( departments ) {
+		return departments.filter((d) => {
 				return dptsCodes.includes(d.code);
 			})
 			.map((d) => {
 				return { label: d.name, value: d.code };
 			});
+		}
 	}
 
 	onMount(() => {

@@ -9,6 +9,7 @@
 		getSelectCategories,
 		getSelCatVal,
 		getSelectSituation,
+		getSelectedTags,
 		getInputAddress,
 		getSelectFacility,
 		getFacilityChoice,
@@ -32,6 +33,7 @@
 	let facilityChoice = getFacilityChoice();
 	let addressFeature = getAddressFeature();
 	let geoInputAddress = getGeoInputAddress();
+	let selectTags = getSelectedTags();
 
 	let isDisabled = $derived(!(
 		$term ||
@@ -42,7 +44,8 @@
 		$selectSituation ||
 		$inputAddress ||
 		$selectFacility ||
-		$geoInputAddress
+		$geoInputAddress ||
+		$selectTags
 	));
 
 	function resetDirectory() {
@@ -59,6 +62,7 @@
 		selectFacility.set(null);
 		geoInputAddress.set(null);
 		addressFeature.set(null);
+		selectTags.set(null);
 	}
 
 	function erase() {

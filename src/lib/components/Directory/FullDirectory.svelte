@@ -10,6 +10,7 @@
 	import SelectDepartments from '$lib/components/Directory/SelectDepartmentsR.svelte';
 	import SelectCategoriesChips from '$lib/components/Directory/SelectCategoriesChips.svelte';
 	import SelectSituations from '$lib/components/Directory/SelectSituations.svelte';
+	import SelectTags from '$lib/components/Directory/SelectTagsR.svelte';
 	import SelectFacility from '$lib/components/Directory/SelectFacilityR.svelte';
 	import List from '$lib/components/Directory/List.svelte';
 	import Geocoder from '$lib/components/Geocoder/Geocoder.svelte';
@@ -17,7 +18,7 @@
 	import { faArrowsUpToLine } from '@fortawesome/free-solid-svg-icons';
 	import type { Loadable } from '@square/svelte-store';
 	import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
-	import type { Type } from '$lib/store/directoryStoreInterface.ts';
+	import type { Type, Tag } from '$lib/store/directoryStoreInterface.ts';
 	import type { Commune } from '$lib/interfaces/geography.interface.ts';
 	let {
 		data,
@@ -29,11 +30,13 @@
 		displayOrganization,
 		displaySearch,
 		displaySituation,
+		displayTag,
 		avatar = true,
 		communeOf,
 		departmentOf,
 		categoryOf,
-		facilityOf
+		facilityOf,
+		tagOf,
 	}: {
 		data: any;
 		displayCategory: boolean;
@@ -44,11 +47,13 @@
 		displayOrganization: boolean;
 		displaySearch: boolean;
 		displaySituation: boolean;
+		displayTag: boolean;
 		avatar: boolean;
 		communeOf: Commune[];
 		departmentOf: string[];
 		categoryOf: Type[];
 		facilityOf: FacilityOf[];
+		tagOf: Tag[];
 	} = $props();
 	const cCFE = getContext<Loadable<Map<any, any>>>('cardinalCategorizedFilteredEffectors');
 	const selectSituation = getSelectSituation();
@@ -82,6 +87,9 @@
 				{:else}
 					<SelectCategories {categoryOf} />
 				{/if}
+			{/if}
+			{#if displayTag}
+				<SelectTags {tagOf} />
 			{/if}
 			{#if displayFacility}
 				<SelectFacility {facilityOf} />

@@ -30,7 +30,8 @@
 		setInputAddress,
 		setGeoInputAddress,
 		setDistanceEffectors,
-		getDistanceEffectors
+		setSelectedTags,
+		getSelectedTags
 	} from './context';
 	import {
 		//distanceEffectorsF,
@@ -42,7 +43,8 @@
 		categoryOfF,
 		communeOfF,
 		facilityOfF,
-		departmentOfF
+		departmentOfF,
+		tagOfF,
 	} from '$lib/store/directoryStore.ts';
 	import FullDirectory from './FullDirectory.svelte';
 	import Types from './Types.svelte';
@@ -68,6 +70,7 @@
 		displayOrganization = page.data.directory.inputField.geocoder,
 		displaySearch = page.data.directory.inputField.search,
 		displaySituation = page.data.directory.inputField.situation,
+		displayTag = page.data.directory.inputField.tag,
 		propCurrentOrg = true,
 		setRedirect = true,
 		propLimitCategories = [],
@@ -78,14 +81,15 @@
 		types = null
 	}: {
 		data?: any;
-		displayGeocoder: boolean;
-		displaySituation: boolean;
+		displayGeocoder?: boolean;
+		displaySituation?: boolean;
 		displayCommune?: boolean;
 		displayDepartment?: boolean;
 		displayCategory: boolean;
 		displayFacility?: boolean;
 		displayOrganization?: boolean;
 		displaySearch?: boolean;
+		displayTag?: boolean;
 		propCurrentOrg?: boolean | null;
 		setRedirect?: boolean;
 		propLimitCategories?: string[];
@@ -111,12 +115,14 @@
 	setSelectFacility(propSelectFacility);
 	setSelCatVal();
 	setInputAddress();
+	setSelectedTags();
 
 	let term = getTerm();
 	let selectCategories = getSelectCategories();
 	let selectSituation = getSelectSituation();
 	let selectCommunes = getSelectedCommunesUids();
 	let selectDepartments = getSelectedDepartments();
+	let selectTags = getSelectedTags();
 	let addressFeature = getAddressFeature();
 	let selectFacility = getSelectFacility();
 	let directoryRedirect = getDirectoryRedirect();
@@ -169,14 +175,15 @@
 	);
 
 	const filteredEffectors = asyncDerived(
-		[term, fullFilteredEffectors, selectCategories, selectDepartments, selectCommunes, selectFacility],
+		[term, fullFilteredEffectors, selectCategories, selectDepartments, selectCommunes, selectFacility, selectTags],
 		async ([
 			$term,
 			$fullFilteredEffectors,
 			$selectCategories,
 			$selectDepartments,
 			$selectCommunes,
-			$selectFacility
+			$selectFacility,
+			$selectTags
 		]) => {
 			return filteredEntriesF(
 				$fullFilteredEffectors,
@@ -184,7 +191,8 @@
 				$selectDepartments,
 				$selectCommunes,
 				$selectFacility,
-				$term
+				$term,
+				$selectTags
 			);
 		}
 	);
@@ -242,6 +250,9 @@
 	const categoryOf = $derived.by(() => {
 		return categoryOfF(rFullFilteredEntries, $selectCommunes, $selectDepartments, $selectFacility);
 	});
+	const tagOf = $derived.by(() => {
+		return tagOfF(rFullFilteredEntries, $selectFacility, $selectCategories, $selectCommunes, $selectDepartments, );
+	});
 </script>
 
 {#if typesView}
@@ -257,10 +268,12 @@
 		{displayOrganization}
 		{displaySearch}
 		{displaySituation}
+		{displayTag}
 		{avatar}
 		{communeOf}
 		{departmentOf}
 		{categoryOf}
 		{facilityOf}
+		{tagOf}
 	/>
 {/if}

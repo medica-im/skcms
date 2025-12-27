@@ -2,6 +2,7 @@ import { getContext, setContext } from 'svelte';
 import { writable } from 'svelte/store';
 import type { Loadable } from '@square/svelte-store';
 import type { Writable } from 'svelte/store';
+import type { Tag } from '$lib/store/directoryStoreInterface';
 
 import type { LimitCategoriesStore, AddressFeature, CurrentOrgStore, CommunesValueStore, DistanceEffectors, Type } from '$lib/store/directoryStoreInterface';
 import type { SelectType } from '$lib/interfaces/select';
@@ -73,6 +74,15 @@ export function setSelectedDepartments() {
 
 export function getSelectedDepartments() {
     return getContext<Writable<string[]|null>>('selectedDepartments');
+}
+
+export function setSelectedTags() {
+    let selectedTags: Writable<Tag[]|null> = writable(null);
+    setContext('selectedTags', selectedTags)
+}
+
+export function getSelectedTags() {
+    return getContext<Writable<Tag[]|null>>('selectedTags');
 }
 
 export function setSelectedCommunesUids() {

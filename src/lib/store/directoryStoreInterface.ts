@@ -67,7 +67,7 @@ export interface Entry {
     uid: string,
     updatedAt: number,
     careHome?: any,
-    tags: Tag|null;
+    tags: Tag[]|null;
 }
 
 export interface EntryFull {

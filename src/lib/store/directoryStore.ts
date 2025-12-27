@@ -18,6 +18,7 @@ import type { Organization } from '$lib/interfaces/organization.ts';
 import type { Fetch } from '$lib/interfaces/fetch.ts';
 import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
 import type { SelectType } from '$lib/interfaces/select';
+import type { Tag } from '$lib/store/directoryStoreInterface.ts';
 
 export const term: Writable<string> = writable("");
 
@@ -394,8 +395,8 @@ export const fullFilteredEntriesF = (situations: Situation[], entries: Entry[], 
 	}
 };
 
-export const filteredEntriesF = (fullFilteredEffectors: Entry[], selectCategories: String[], selectDepartments: string[], selectCommunes: string[], selectFacility: string | null, term: string) => {
-	if (!selectCategories?.length && !selectDepartments && !selectCommunes?.length && selectFacility == null && term == '') {
+export const filteredEntriesF = (fullFilteredEffectors: Entry[], selectCategories: String[], selectDepartments: string[]|null, selectCommunes: string[], selectFacility: string | null, term: string, selectTags: Tag[]|null) => {
+	if (!selectCategories?.length && !selectDepartments && !selectCommunes?.length && selectFacility == null && term == '' && selectTags === null) {
 		return fullFilteredEffectors
 	} else {
 		return fullFilteredEffectors.filter(function (x) {
@@ -427,6 +428,12 @@ export const filteredEntriesF = (fullFilteredEffectors: Entry[], selectCategorie
 				return true
 			} else {
 				return normalize(x.name).includes(normalize(term))
+			}
+		}).filter(function (x) {
+			if (selectTags === null) {
+				return true
+			} else {
+				return selectTags.map(t=>t.uid).every((e)=>(x.tags?.map(t=>t.uid).includes(e)))
 			}
 		})
 	}
@@ -564,7 +571,17 @@ export const categorizedFullFilteredEffectorsF = (fullFilteredEffectors: Entry[]
 	return effectorsMap as CategorizedEntries;
 }
 
-export const categoryOfF = (fullFilteredEntries: Entry[], selectCommunes: string[], selectDepartments: string[], selectFacility: string | null): Type[] => {
+const uniqueArray = (objects: any, uniqueBy: string[], keepFirst = true) => {
+    return Array.from(
+        objects.reduce((map: Map<any,any>, e:any) => {
+            let key = uniqueBy.map(key => [e[key], typeof e[key]]).flat().join('-')
+            if (keepFirst && map.has(key)) return map
+            return map.set(key, e)
+        }, new Map()).values()
+    )
+}
+
+export const categoryOfF = (fullFilteredEntries: Entry[], selectCommunes: string[], selectDepartments: string[]|null, selectFacility: string | null): Type[] => {
 	if (!Array.isArray(fullFilteredEntries)) {
 		return []
 	}
@@ -610,7 +627,7 @@ export const departmentOfF = (fullFilteredEntries: Entry[], selectFacility: stri
 	}
 }
 
-export const communeOfF = (fullFilteredEntries: Entry[], selectCategories: string[], selectDepartments: string[], selectFacility: string | null) => {
+export const communeOfF = (fullFilteredEntries: Entry[], selectCategories: string[], selectDepartments: string[]|null, selectFacility: string | null) => {
 	if (!selectCategories?.length && !selectDepartments && !selectFacility) {
 		const allCommunes = fullFilteredEntries.map(x => x.commune);
 		const mapFromCommunes = new Map(
@@ -637,7 +654,7 @@ export const communeOfF = (fullFilteredEntries: Entry[], selectCategories: strin
 	}
 }
 
-export const facilityOfF = (fullFilteredEntries: Entry[], selectCategories: string[], selectCommunes: string[], selectDepartments: string[]) => {
+export const facilityOfF = (fullFilteredEntries: Entry[], selectCategories: string[], selectCommunes: string[], selectDepartments: string[]|null) => {
 	const facilities: FacilityOf[] = fullFilteredEntries.filter(
 		x => {
 			return (!selectCategories?.length || selectCategories.includes(x.effector_type.uid)
@@ -652,3 +669,20 @@ export const facilityOfF = (fullFilteredEntries: Entry[], selectCategories: stri
 	const uniqueFacilities = [...mapFromFacilities.values()];
 	return uniqueFacilities
 };
+
+export const tagOfF = (fullFilteredEntries: Entry[], selectFacility: string | null, selectCategories: string[], selectCommunes: String[], selectDepartments: string[]|null): Tag[] => {
+	if (!selectCategories?.length && !selectFacility && !selectCommunes.length && !selectDepartments) {
+		const allTags = fullFilteredEntries.filter((x)=>x.tags!==null).map(x => x.tags).flat();
+		const uniqueTags = uniqueArray(allTags, ["uid"]);
+		return uniqueTags as Tag[];
+	} else {
+		const tags = fullFilteredEntries.filter(
+			x => {
+				return (!selectCategories?.length || selectCategories.includes(x.effector_type.uid)
+				) && (!selectFacility || x.facility.uid == selectFacility) && (!selectCommunes.length || selectCommunes.includes(x.commune.uid)) && (!selectDepartments || selectDepartments.includes(x.department.code))
+			}
+		).map(x => x.tags).flat();
+		const uniqueTags = uniqueArray(tags, ["uid"]);
+		return uniqueTags as Tag[];
+	}
+}
