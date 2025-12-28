@@ -4,19 +4,38 @@
 	import Select from 'svelte-select';
 	import { onMount } from 'svelte';
 	import * as m from '$msgs';
-	import { getSelectedTags } from './context';
+	import { getSelectedTags, getSelectCategories } from './context';
 	import { arrayFilterUnique } from '$lib/utils/utils.ts';
-	import type { Tag } from '$lib/store/directoryStoreInterface';
+	import type { Tag, TagCategory } from '$lib/store/directoryStoreInterface';
 	import type { SelectType } from '$lib/interfaces/select';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 
 	let { tagOf }: { tagOf: Tag[] } = $props();
 
-	let items = $derived.by(() => {
-		return tagOf.map((t) => {
+	const selectCategories = getSelectCategories();
+	const activeTagCategories = (): TagCategory[] => {
+		const aTC: TagCategory[] = [];
+		page.data.entries
+			.filter((e: Entry) => $selectCategories.includes(e.effector_type.uid))
+			.forEach((e: Entry) => {
+				if (e.tags) {
+					const tags = e.tags.filter((t) => t.effector_types.includes(e.effector_type.uid));
+					tags.forEach((t) => aTC.push(t.category));
+				}
+			});
+		const uniqueActiveTagCategories = aTC.filter(arrayFilterUnique((t: TagCategory) => t.uid));
+		console.log(uniqueActiveTagCategories);
+		return uniqueActiveTagCategories;
+	};
+	const getItems = (category: TagCategory) => {
+		const items = tagOf
+			.filter((t) => {return t.category.name == category.name})
+			.map((t) => {
 				return { label: t.labelShort, value: t.uid };
 			});
-	});
+
+		return items;
+	};
 	let selectedTags = getSelectedTags();
 	let value: SelectType | SelectType[] | undefined = $derived.by(() => {
 		if ($selectedTags === null) {
@@ -37,8 +56,8 @@
 
 	function getValue(tags: Tag[]) {
 		return tags.map((t) => {
-				return { label: t.labelShort, value: t.uid };
-			});
+			return { label: t.labelShort, value: t.uid };
+		});
 	}
 
 	onMount(() => {
@@ -46,7 +65,13 @@
 		console.log('tags', tagsParam);
 		if (!tagsParam) return;
 		const tagUids: string[] = JSON.parse(tagsParam);
-		const tags = page.data.entries.map((e: Entry) => e.tags).flat().filter(arrayFilterUnique((t: Tag)=>t.uid)).filter((t: Tag)=>{return tagUids.includes(t.uid)});
+		const tags = page.data.entries
+			.map((e: Entry) => e.tags)
+			.flat()
+			.filter(arrayFilterUnique((t: Tag) => t.uid))
+			.filter((t: Tag) => {
+				return tagUids.includes(t.uid);
+			});
 		selectedTags.set(tags);
 	});
 
@@ -62,39 +87,38 @@
 
 	function handleChange(event: CustomEvent) {
 		if (event.detail) {
-			console.log(event.detail);
 			if (Array.isArray(event.detail)) {
-				//$selectedCommunesChoices = event.detail;
 				$selectedTags = event.detail.map((e) => e.value);
 			} else {
-				console.log(event.detail.value);
-				//$selectedCommunesChoices = [event.detail];
-				const tag = page.data.entries.map((e: Entry) => e.tags).flat().find((t: Tag)=>t.uid=event.detail.value);
+				const tag = page.data.entries
+					.map((e: Entry) => e.tags)
+					.flat()
+					.find((t: Tag) => {return t.uid == event.detail.value});
 				selectedTags.set([tag]);
-				console.log($selectedTags);
 			}
 		}
 	}
 </script>
-<!--
-{JSON.stringify($selectedTags)}
--->
-<div class="text-surface-700 theme max-h-12">
-	{#if !tagOf}
-		<Select loading={true} placeholder={"Sélectionner une étiquette"} />
-	{:else}
-		<Select
-			{label}
-			{itemId}
-			{items}
-			searchable={true}
-			on:change={handleChange}
-			on:clear={handleClear}
-			placeholder={"Sélectionner une étiquette"}
-			bind:value
-		/>
-	{/if}
-</div>
+
+<!--{JSON.stringify($selectedTags)}-->
+{#each activeTagCategories() as aTC}
+	<div class="text-surface-700 theme max-h-12">
+		{#if !tagOf}
+			<Select loading={true} placeholder={aTC.labelShort} />
+		{:else}
+			<Select
+				{label}
+				{itemId}
+				items={getItems(aTC)}
+				searchable={true}
+				on:change={handleChange}
+				on:clear={handleClear}
+				placeholder={aTC.labelShort}
+				bind:value
+			/>
+		{/if}
+	</div>
+{/each}
 
 <style>
 	/*

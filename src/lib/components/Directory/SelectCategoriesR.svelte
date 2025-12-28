@@ -10,21 +10,34 @@
 		getDirectoryRedirect,
 		getSelectFacility
 	} from '$lib/components/Directory/context';
-	import { getItems } from '$lib/components/Directory/SelectCategory.ts';
+	import { normalize } from '$lib/helpers/stringHelpers.ts';
 	import type { Type } from '$lib/store/directoryStoreInterface';
 
 	let { categoryOf }: { categoryOf: Type[] } = $props();
 
+	const itemFilter = (label: any, filterText: any, option: any) => {
+		const normalizedFilterText = normalize(filterText);
+		const name = normalize(option.name);
+		const synonyms = option.synonyms?.map((s: string) => normalize(s));
+		return (
+			name.includes(normalizedFilterText) || synonyms?.some((s: string) => s.includes(normalizedFilterText))
+		);
+	};
+	let items = $derived.by(() => {
+		return categoryOf.sort(function (a, b) {
+			return a.name.localeCompare(b.name);
+		});
+	});
 	const label = 'label';
-	const itemId = 'value';
+	const itemId = 'uid';
+	let focused = $state(false);
+	let listOpen = $state(false);
 	let srcElement = $state();
 
 	let selCatVal = getSelCatVal();
 	let selectCategories = getSelectCategories();
 	let selectFacility = getSelectFacility();
 	let directoryRedirect = getDirectoryRedirect();
-	let filterText: string = $state('');
-	const itemFilter = () => true; // turn off internal filter
 
 	onMount(() => {
 		const typesParam: string | null = page.url.searchParams.get('types');
@@ -33,23 +46,26 @@
 			$selectCategories = types;
 			const effector_type = categoryOf.find((e) => types.includes(e.uid));
 			if (effector_type) {
-				$selCatVal = { value: effector_type.uid, label: effector_type.label || effector_type.name };
+				$selCatVal = effector_type;
 			}
 		}
 	});
 
 	function handleFocus(e: CustomEvent) {
+		focused = true;
+		listOpen = true;
 		srcElement = e.detail.srcElement;
 	}
 
 	const handleClear = async (event: CustomEvent) => {
 		if (event.detail) {
-			if (srcElement) srcElement.blur();
+			//if (srcElement) srcElement.blur();
 			$selectCategories = [];
 			if (page.url.searchParams.has('types')) {
 				page.url.searchParams.delete('types');
 				await goto(page.url.pathname + '?' + page.url.searchParams);
 			}
+			if (srcElement) srcElement.blur();
 			if (page.url.pathname != '/annuaire' && $directoryRedirect) {
 				let url = '/annuaire';
 				if ($selectFacility) {
@@ -57,20 +73,22 @@
 				}
 				await goto(url);
 			}
+		} else {
+			if (srcElement) srcElement.blur();
 		}
-		if (srcElement) srcElement.blur();
 	};
 
 	function handleChange(event: CustomEvent) {
-		if (event.detail && event.detail.value) {
-			selectCategories.set([event.detail.value]);
+		if (event.detail) {
+			console.log("event.detail", event.detail);
+			selectCategories.set([event.detail.uid]);
 			if (srcElement) srcElement.blur();
-			const typesParam = JSON.stringify(`[${event.detail.value}]`);
-			let urlParams = `?types=${typesParam}`;
-			if ($selectFacility) {
-				urlParams += `&facility=${$selectFacility}`;
-			}
 			if (page.url.pathname != '/annuaire' && $directoryRedirect) {
+				const typesParam = JSON.stringify(`[${event.detail.uid}]`);
+				let urlParams = `?types=${typesParam}`;
+				if ($selectFacility) {
+					urlParams += `&facility=${$selectFacility}`;
+				}
 				goto(`/annuaire${urlParams}`);
 			}
 		} else {
@@ -78,13 +96,13 @@
 		}
 	}
 </script>
-
-<!--srcElement: {srcElement}<br>
+<!--
+srcElement: {srcElement}<br>
 $selectCategories: {JSON.stringify($selectCategories)}<br>
 $selCatVal: {JSON.stringify($selCatVal)}<br>
-categoryOf: {$categoryOf} ({$categoryOf.length})<br />
-filterText: {filterText}-->
-{#if !categoryOf}
+categoryOf: {categoryOf} ({categoryOf.length})<br />
+-->
+{#if !categoryOf && !items && !$selCatVal}
 	<div class="text-surface-700 theme">
 		<Select loading={true} placeholder={m.ADDRESSBOOK_CATEGORIES_PLACEHOLDER()} />
 	</div>
@@ -94,13 +112,14 @@ filterText: {filterText}-->
 			{itemFilter}
 			{label}
 			{itemId}
-			items={getItems(categoryOf, filterText)}
+			{items}
+			{focused}
+			{listOpen}
 			searchable={true}
 			on:focus={handleFocus}
 			on:change={handleChange}
 			on:clear={handleClear}
 			bind:value={$selCatVal}
-			bind:filterText
 			placeholder={m.ADDRESSBOOK_CATEGORIES_PLACEHOLDER()}
 		/>
 	</div>

@@ -104,12 +104,12 @@ export function getSelectedCommunesChoices() {
 }
 
 export function setSelCatVal() {
-    let selCatVal: Writable<string|null> = writable(null);
+    let selCatVal: Writable<Type|null> = writable(null);
     setContext('selCatVal', selCatVal);
 }
 
 export function getSelCatVal() {
-    return getContext<Writable<{label: string, value: string}|null>>('selCatVal');
+    return getContext<Writable<Type|null>>('selCatVal');
 }
 
 export function setSelectSituation() {

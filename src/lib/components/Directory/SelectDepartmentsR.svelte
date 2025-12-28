@@ -13,11 +13,13 @@
 
 	const departments: DepartmentOfFrance[] | undefined = $derived(await getDepartments());
 	let items = $derived.by(() => {
-		return departments
-			.filter((d) => departmentOf.includes(d.code))
-			.map((d) => {
-				return { label: d.name, value: d.code };
-			});
+		if ( departments && departments?.length ) {
+			return departments
+				.filter((d) => departmentOf.includes(d.code))
+				.map((d) => {
+					return { label: d.name, value: d.code };
+				})
+		}
 	});
 	let selectDepartments = getSelectedDepartments();
 	let value: SelectType | SelectType[] | undefined = $derived.by(() => {
@@ -46,7 +48,7 @@
 		}
 	});*/
 	function getValue(dptsCodes: string[]) {
-		if ( departments ) {
+		if ( departments && departments?.length ) {
 		return departments.filter((d) => {
 				return dptsCodes.includes(d.code);
 			})
