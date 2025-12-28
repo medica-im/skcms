@@ -3,7 +3,7 @@
 	import { FacilityLink } from '$lib';
 	import AvatarList from '$lib/components/Effector/Avatar/AvatarList.svelte';
 	import { page } from '$app/state';
-	import { getSelectFacility, getSelectCategories, getTerm, getSelectedCommunesUids, getSelectedDepartments, getSelectSituation, getAddressFeature } from './context';
+	import { getSelectFacility, getSelectCategories, getTerm, getSelectedCommunesUids, getSelectedDepartments, getSelectSituation, getSelectedTags, getAddressFeature } from './context';
 	import { goto } from '$app/navigation';
 	import CommunityAddress from '$lib/Address/CommunityAddress.svelte';
 	import { entryPageUrl } from '$lib/utils/utils';
@@ -16,6 +16,7 @@
 	let selectCategories = getSelectCategories();
 	let selectCommunes = getSelectedCommunesUids();
 	let selectDepartments = getSelectedDepartments();
+	let tags =  getSelectedTags();
 	let term = getTerm();
 
 	const goTo = () => {
@@ -25,6 +26,7 @@
 			page.url.pathname,
 			$selectFacility,
 			$selectCategories,
+			$tags?.map(t=>t.uid),
 			$term,
 			$selectCommunes,
 			$selectDepartments,

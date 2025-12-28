@@ -60,6 +60,10 @@
 		if (typesParam) {
 			params.push(`types=${encodeURIComponent(typesParam)}`);
 		}
+		const tagsParam = searchParams.get('tags');
+		if (tagsParam) {
+			params.push(`tags=${encodeURIComponent(tagsParam)}`);
+		}
 		const termParam = searchParams.get('term');
 		if (termParam) {
 			params.push(`term=${encodeURIComponent(termParam)}`);
