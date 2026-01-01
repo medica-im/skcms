@@ -8,7 +8,6 @@
 	import type { LngLatBoundsLike, FitBoundsOptions, LngLatLike } from 'maplibre-gl';
 	import type { MapData } from '$lib/interfaces/mapData.interface.js';
 	import type { AddressFeature } from '$lib/store/directoryStoreInterface';
-	import Bound from './Bound.svelte';
 	import {
 		Control,
 		ControlGroup,
