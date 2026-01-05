@@ -23,6 +23,10 @@
 		<div class="section-container">
 			<div class="grid cols-1 gap-6">
 					<SignOut
+						onclick={()=>{
+							console.log("signOut");
+							localStorage.removeItem("entries");
+							}}
 						options={{
 							redirectTo: page.data.redirectTo
 								? `/${decodeURIComponent(page.data.redirectTo).slice(1)}`

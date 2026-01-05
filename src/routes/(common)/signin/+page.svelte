@@ -21,6 +21,10 @@
 			<div class="grid cols-1 gap-6">
 				{#each providers as provider}
 					<SignIn
+						onclick={()=>{
+							console.log("signIn");
+							localStorage.removeItem("entries");
+							}}
 						options={{
 							redirectTo: page.data.redirectTo
 								? `/api/v2/auth?redirect=${decodeURIComponent(page.data.redirectTo).slice(1)}`

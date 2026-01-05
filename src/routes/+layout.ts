@@ -30,6 +30,7 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
     session: data.session,
     user: data.user || user,
     organization: data.organization,
+    //entries: data.entries,
     entries: await getEntries() as Entry[],
     situations: await getSituations(),
     sections: [

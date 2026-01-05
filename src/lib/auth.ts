@@ -4,6 +4,7 @@ import type { DefaultSession } from "@auth/sveltekit";
 import { AUTH_PROVIDER_ID, AUTH_PROVIDER_NAME, AUTH_PROVIDER_ISSUER, AUTH_PROVIDER_CLIENT_ID, AUTH_PROVIDER_CLIENT_SECRET, AUTH_DEBUG } from '$env/static/private';
 import GitHub from "@auth/sveltekit/providers/github"
 import Google from "@auth/sveltekit/providers/google"
+import { browser } from "$app/environment"
 
 declare module "@auth/sveltekit" {
   interface Session {
@@ -52,6 +53,6 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
       session.user.userId = token.id as string
       session.user.provider = token.provider as string;
       return session
-    },
+    }
   }
 })

@@ -91,7 +91,10 @@
 			<span class="opacity-50"><Fa icon={faCaretDown} /></span>
 			</button
 		>
-        <SignOut className="">
+        <SignOut onclick={()=>{
+							console.log("signOut");
+							localStorage.removeItem("entries");
+							}} className="">
           <div
             slot="submitButton"
             class="btn btn-sm hover:variant-soft-primary lg:inline-block"

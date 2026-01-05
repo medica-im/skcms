@@ -46,28 +46,25 @@ export interface Tag {
 }
 
 export interface Entry {
-    address: Address,
-    appointments: Appointment[],
-    avatar: Avatar,
-    carte_vitale: CarteVitale | null,
-    commune: Commune,
-    department: Department,
-    effector_uid: string,
-    emails: Email[],
-    facility: Facility,
-    gender: string | null,
-    label: string,
-    name: string,
-    memberships: string[],
-    employers: string[],
-    phones: Phone[],
-    resource_uri: string,
-    slug: string,
-    effector_type: Type,
-    uid: string,
-    updatedAt: number,
-    careHome?: any,
+    active: Boolean|null;
+    address: Address;
+    avatar: Avatar;
+    commune: Commune;
+    department: Department;
+    effector_uid: string;
+    effector_type: Type;
+    employers: string[];
+    facility: Facility;
+    gender: string | null;
+    label: string;
+    memberships: string[];
+    name: string;
+    phones: Phone[];
+    resource_uri: string;
+    slug: string;
     tags: Tag[]|null;
+    uid: string;
+    updatedAt: number;
 }
 
 export interface EntryFull {

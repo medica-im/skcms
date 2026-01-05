@@ -1,8 +1,10 @@
 import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
 import { authReq } from '$lib/utils/request';
+import { getEntries } from '$lib/store/directoryStore';
 import type { Organization } from '$lib/interfaces/organization.ts';
 import type { LayoutServerLoad } from "./$types"
 import type { User } from "$lib/interfaces/user.interface";
+import type { Entry } from '$lib/store/directoryStoreInterface';
 
 export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
   let response;
@@ -54,6 +56,7 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
     user: user,
     session: await locals.auth(),
     organization: organization,
-    directory: directory
+    directory: directory,
+    //entries: await getEntries() as Entry[],
   }
 }

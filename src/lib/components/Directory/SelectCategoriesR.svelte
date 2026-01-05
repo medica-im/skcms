@@ -102,7 +102,7 @@ $selectCategories: {JSON.stringify($selectCategories)}<br>
 $selCatVal: {JSON.stringify($selCatVal)}<br>
 categoryOf: {categoryOf} ({categoryOf.length})<br />
 -->
-{#if !categoryOf && !items && !$selCatVal}
+{#if !categoryOf || !items || selCatVal == undefined}
 	<div class="text-surface-700 theme">
 		<Select loading={true} placeholder={m.ADDRESSBOOK_CATEGORIES_PLACEHOLDER()} />
 	</div>

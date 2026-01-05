@@ -154,7 +154,7 @@ function changedContacts(contacts: Contact[], entries: Entry[]): ChangedObj {
 	return changedObj
 }
 
-async function downloadAllEntries() {
+/*async function downloadAllEntries() {
 	let hasMore = true
 	let next = "";
 	let entries: Entry[] = [];
@@ -169,8 +169,14 @@ async function downloadAllEntries() {
 	}
 	setLocalStorage('entries', entries);
 	return entries;
+}*/
+async function downloadAllEntries() {
+	const url = `${ORIGIN}/api/v2/entries`;
+	let res = await fetch(url);
+	const entries = await res.json();
+	setLocalStorage('entries', entries);
+	return entries;
 }
-
 
 async function processCachedEntries(changedObj: ChangedObj) {
 	let entries: Entry[] = getLocalStorage('entries')?.data;
