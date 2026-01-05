@@ -207,3 +207,10 @@ export function arrayFilterUnique<T>(
 		return isNew;
 	};
 }
+
+export function uniq(a) {
+	var seen = {};
+	return a.filter(function (item) {
+		return seen.hasOwnProperty(item.uid) ? false : (seen[item.uid] = true);
+	});
+}

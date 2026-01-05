@@ -8,7 +8,7 @@ import { isExpired } from '$lib/utils/utils.ts';
 import { getLocalStorage, setLocalStorage } from '$lib/utils/storage.ts';
 import type { Situation } from '$lib/store/directoryStoreInterface.ts';
 import { getFacilities } from '$lib/store/facilityStore.ts';
-import { doRefresh } from '$lib/utils/utils.ts';
+import { doRefresh, uniq } from '$lib/utils/utils.ts';
 import type { Writable } from '@square/svelte-store';
 import type { Contact, Entry, CurrentOrg, AddressFeature, DistanceEffectors, CategorizedEntries, Type } from './directoryStoreInterface.ts';
 import type { Facility } from '$lib/interfaces/facility.interface.ts';
@@ -272,12 +272,6 @@ export const distanceEffectorsF = (entries: Entry[], addressFeature: AddressFeat
 	return distanceOfEffector;
 };
 
-function uniq(a) {
-	var seen = {};
-	return a.filter(function (item) {
-		return seen.hasOwnProperty(item.uid) ? false : (seen[item.uid] = true);
-	});
-}
 
 export const communes = async () => {
 	const effectors = await getEntries();

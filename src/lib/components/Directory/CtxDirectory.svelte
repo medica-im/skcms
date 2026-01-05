@@ -48,7 +48,6 @@
 	} from '$lib/store/directoryStore.ts';
 	import FullDirectory from './FullDirectory.svelte';
 	import Types from './Types.svelte';
-	import { getEntries, getSituations } from '$lib/store/directoryStore.ts';
 	import type { SelectType } from '$lib/interfaces/select';
 	import type {
 		Contact,

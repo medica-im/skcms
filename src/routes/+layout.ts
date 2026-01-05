@@ -1,6 +1,6 @@
 import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
 import { checkVersion } from '$lib/version';
-import { getEntries, getSituations } from '$lib/store/directoryStore';
+import { getSituations } from '$lib/store/directoryStore';
 import type { User } from "$lib/interfaces/user.interface";
 import type { Entry } from '$lib/store/directoryStoreInterface';
 import type { LayoutLoad } from './$types';
@@ -21,6 +21,7 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
         throw new Error(`Response status: ${response.status}`);
       }
       user = await response.json();
+      console.log("user layout.ts", user);
     } catch (error: any) {
       console.error('There was an error while retrieving user from layout.ts', error.message);
     }
@@ -30,8 +31,7 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
     session: data.session,
     user: data.user || user,
     organization: data.organization,
-    //entries: data.entries,
-    entries: await getEntries() as Entry[],
+    entries: data.entries,
     situations: await getSituations(),
     sections: [
       { slug: 'profile', title: 'Profile' },
