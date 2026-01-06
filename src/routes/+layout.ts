@@ -6,8 +6,9 @@ import type { Entry } from '$lib/store/directoryStoreInterface';
 import type { LayoutLoad } from './$types';
 
 export const load: LayoutLoad = async ({ fetch, data }) => {
-  checkVersion();  
+  checkVersion();
   let user: User | undefined;
+  let entries: Entry[] | undefined;
   if (import.meta.env.PROD && !import.meta.env.SSR) {
     let response;
     const userUrl = `${ORIGIN}/api/v2/users/me`;
@@ -25,13 +26,28 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
     } catch (error: any) {
       console.error('There was an error while retrieving user from layout.ts', error.message);
     }
+    try {
+      response = await fetch(`${ORIGIN}/api/v2/entries`, {
+        credentials: 'include',
+        method: 'GET',
+        headers: { "content-type": "application/json" },
+      });
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+      entries = await response.json();
+    } catch (error: any) {
+      console.error('There was an error while retrieving entries from layout.server.ts', error.message);
+      throw new Error(error.message)
+    }
   }
+
   return {
     directory: data.directory,
     session: data.session,
     user: data.user || user,
     organization: data.organization,
-    entries: data.entries,
+    entries: entries || data.entries,
     situations: await getSituations(),
     sections: [
       { slug: 'profile', title: 'Profile' },
