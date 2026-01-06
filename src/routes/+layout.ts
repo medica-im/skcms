@@ -6,7 +6,7 @@ import type { Entry } from '$lib/store/directoryStoreInterface';
 import type { LayoutLoad } from './$types';
 
 export const load: LayoutLoad = async ({ fetch, data }) => {
-  checkVersion();
+  checkVersion();  
   let user: User | undefined;
   if (import.meta.env.PROD && !import.meta.env.SSR) {
     let response;

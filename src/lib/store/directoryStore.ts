@@ -5,17 +5,14 @@ import { handleRequestsWithPermissions } from '$lib/utils/requestUtils.ts';
 import { PUBLIC_EFFECTOR_TYPE_LABELS_TTL, PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
 import haversine from 'haversine-distance';
 import { isExpired } from '$lib/utils/utils.ts';
-import { getLocalStorage, setLocalStorage } from '$lib/utils/storage.ts';
+import { setLocalStorage } from '$lib/utils/storage.ts';
 import type { Situation } from '$lib/store/directoryStoreInterface.ts';
-import { getFacilities } from '$lib/store/facilityStore.ts';
-import { doRefresh, uniq } from '$lib/utils/utils.ts';
+import { uniq } from '$lib/utils/utils.ts';
 import type { Writable } from '@square/svelte-store';
-import type { Contact, Entry, CurrentOrg, AddressFeature, DistanceEffectors, CategorizedEntries, Type } from './directoryStoreInterface.ts';
-import type { Facility } from '$lib/interfaces/facility.interface.ts';
+import type { Entry, AddressFeature, DistanceEffectors, CategorizedEntries, Type } from './directoryStoreInterface.ts';
 import type { Tastypie } from '$lib/interfaces/api.interface.ts';
 import type { CustomError } from '$lib/interfaces/error.interface.ts';
 import type { Organization } from '$lib/interfaces/organization.ts';
-import type { Fetch } from '$lib/interfaces/fetch.ts';
 import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
 import type { SelectType } from '$lib/interfaces/select';
 import type { Tag } from '$lib/store/directoryStoreInterface.ts';
@@ -91,138 +88,6 @@ export async function downloadElements(path: string, limit: number = 100,) {
 	return data
 }
 
-async function fetchEntries(next: string) {
-	const url = `${ORIGIN}/api/v1/entries/?limit=${variables.ENTRIES_LIMIT}${next || ""}`;
-	const [response, err] = await handleRequestsWithPermissions(fetch, url);
-	if (response) {
-		let data: any = response;
-		next = data.meta?.next;
-		return [data.entries as Entry[], next]
-	}
-}
-
-async function fetchEntry(uid: string) {
-	const entriesUrl = `${ORIGIN}/api/v1/entries/${uid}`;
-	const [response, err] = await handleRequestsWithPermissions(fetch, entriesUrl);
-	if (err) {
-		console.error(JSON.stringify(err));
-	}
-	if (response) {
-		let data: any = response;
-		return data;
-	}
-}
-
-type ChangedObj = {
-	toAdd: string[];
-	toDelete: string[];
-	toUpdate: string[];
-};
-
-function isUnchanged(changedObj: ChangedObj) {
-	return (changedObj.toAdd?.length == 0
-		&& changedObj.toDelete?.length == 0
-		&& changedObj.toUpdate?.length == 0)
-}
-
-function changedContacts(contacts: Contact[], entries: Entry[]): ChangedObj {
-	const changedObj: ChangedObj = {
-		toAdd: [],
-		toDelete: [],
-		toUpdate: [],
-	};
-	contacts.forEach(
-		(contact, index, array) => {
-			let entryIndex = entries.findIndex(
-				(e) => e.uid == contact.uid);
-			if (entryIndex == -1) {
-				changedObj.toAdd.push(contact.uid)
-			} else if ((entries[entryIndex]?.updatedAt ?? 0) < contact.timestamp) {
-				changedObj.toUpdate.push(contact.uid)
-			}
-		}
-	)
-	entries.forEach(
-		(entry, index, array) => {
-			let contact = contacts.find(
-				(e) => e.uid == entry.uid);
-			if (contact === undefined) {
-				changedObj.toDelete.push(entry.uid)
-			}
-		}
-	)
-	return changedObj
-}
-
-/*async function downloadAllEntries() {
-	let hasMore = true
-	let next = "";
-	let entries: Entry[] = [];
-	while (hasMore) {
-		const [_entries, _next] = await fetchEntries(next);
-		entries = [...entries, ..._entries];
-		if (_next === null) {
-			hasMore = false;
-		} else {
-			next = _next
-		}
-	}
-	setLocalStorage('entries', entries);
-	return entries;
-}*/
-async function downloadAllEntries() {
-	const url = `${ORIGIN}/api/v2/entries`;
-	let res = await fetch(url);
-	const entries = await res.json();
-	setLocalStorage('entries', entries);
-	return entries;
-}
-
-async function processCachedEntries(changedObj: ChangedObj) {
-	let entries: Entry[] = getLocalStorage('entries')?.data;
-	if (changedObj.toDelete.length) {
-		entries.filter(
-			(e, index, arr) => {
-				let idx = changedObj.toDelete.indexOf(e.uid);
-				if (idx > -1) {
-					arr.splice(index, 1);
-					return true;
-				}
-				return false;
-			}
-		)
-		setLocalStorage('entries', entries);
-	}
-	if (changedObj.toAdd.length) {
-		changedObj.toAdd.forEach(
-			async (uid, idx, arr) => {
-				const newEntry = await fetchEntry(uid);
-				let count = entries.push(newEntry);
-				setLocalStorage('entries', entries);
-			}
-		)
-	}
-	if (changedObj.toUpdate.length) {
-		changedObj.toUpdate.forEach(
-			async (uid, idx, arr) => {
-				entries.filter(
-					(element, index, array) => {
-						if (element.uid == uid) {
-							array.splice(index, 1);
-							return true;
-						}
-						return false;
-					}
-				)
-				const updatedEntry = await fetchEntry(uid);
-				let count = entries.push(updatedEntry);
-				setLocalStorage('entries', entries);
-			}
-		)
-	}
-	return entries;
-}
-
 export interface Timestamps {
 	"v1:facilities": number,
 	"v1:effector_type_labels": number,
@@ -243,16 +108,6 @@ export const getTimestamps = async (): Promise<Timestamps | undefined> => {
 	}
 };
 
-export const getEntries = async (): Promise<Entry[]> => {
-	const cachedEntriesObj = getLocalStorage('entries');
-	const refresh: boolean = await doRefresh("v1:entries", cachedEntriesObj?.cachetime);
-	if (refresh) {
-		return await downloadAllEntries();
-	} else {
-		return cachedEntriesObj?.data;
-	}
-};
-
 export const distanceEffectorsF = (entries: Entry[], addressFeature: AddressFeature | null) => {
 	const targetGeoJSON = addressFeature?.geometry?.coordinates;
 	if (!targetGeoJSON) {
@@ -270,30 +125,6 @@ export const distanceEffectorsF = (entries: Entry[], addressFeature: AddressFeat
 		distanceOfEffector[entry.address.facility_uid] = dist;
 	}
 	return distanceOfEffector;
-};
-
-
-export const communes = async () => {
-	const effectors = await getEntries();
-	let communes = (
-		uniq(effectors.map(function (currentElement) {
-			return currentElement.commune
-		}
-		).flat()).sort(function (a, b) {
-			return a.name.localeCompare(b.name);
-		})
-	);
-	return communes
-};
-
-export const categories = async () => {
-	const effectors: Entry[] = await getEntries();
-	let categories = (
-		uniq(effectors.map(e => e.effector_type).flat()).sort(function (a, b) {
-			return a.uid.localeCompare(b.uid);
-		})
-	);
-	return categories
 };
 
 export const getSituations = async (): Promise<Situation[]> => {
@@ -357,7 +188,7 @@ function compareEffectorDistance(a, b, distEffectors: DistanceEffectors) {
 	}
 }
 
-export const fullFilteredEntriesF = (situations: Situation[], entries: Entry[], selectSituation: SelectType | null | undefined = undefined, currentOrg: Boolean | null = null, organizationStore: Organization | undefined, limitCategories: String[]): Entry[] => {
+export const fullFilteredEntriesF = (situations: Situation[], entries: Entry[], selectSituation: SelectType | null | undefined = undefined, currentOrg: Boolean | null = null, organization: Organization | undefined, limitCategories: String[]): Entry[] => {
 	if (
 		!selectSituation
 		&& currentOrg === null
@@ -372,10 +203,10 @@ export const fullFilteredEntriesF = (situations: Situation[], entries: Entry[], 
 				return limitCategories.includes(x.effector_type.slug)
 			}
 		}).filter(function (x) {
-			if (currentOrg == true && organizationStore) {
-				return x.memberships?.includes(organizationStore.uid) || x.employers?.includes(organizationStore.uid)
-			} else if (currentOrg == false && organizationStore) {
-				return !x.memberships?.includes(organizationStore.uid) && !x.employers?.includes(organizationStore.uid)
+			if (currentOrg == true && organization) {
+				return x.memberships?.includes(organization.uid) || x.employers?.includes(organization.uid)
+			} else if (currentOrg == false && organization) {
+				return !x.memberships?.includes(organization.uid) && !x.employers?.includes(organization.uid)
 			} else {
 				return true
 			}

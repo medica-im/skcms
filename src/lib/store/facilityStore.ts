@@ -1,4 +1,3 @@
-import { getEntries } from '$lib/store/directoryStore.ts';
 import { getLocalStorage } from '$lib/utils/storage';
 import type { Facility } from '$lib/interfaces/facility.interface.ts';
 import { variables } from '$lib/utils/constants';
@@ -9,7 +8,6 @@ import { downloadElements } from '$lib/store/directoryStore.ts';
 import { doRefresh } from '$lib/utils/utils.ts';
 import type { Organization } from '$lib/interfaces/organization.ts';
 import type { Fetch } from '$lib/interfaces/fetch';
-import type { Entry } from './directoryStoreInterface';
 
 export const organizationStore = asyncReadable(
 	{},
@@ -51,20 +49,6 @@ export const organizationStore = asyncReadable(
 	}
 );
 
-export const getAvatars = asyncDerived(
-	organizationStore,
-	async ($organizationStore) => {
-		const cachedEffectorsObj = getLocalStorage('entries');
-		let cachedEffectors = cachedEffectorsObj?.data;
-		if (!cachedEffectors) {
-			cachedEffectors = await getEntries();
-		}
-		let carousel = cachedEffectors.filter(function (item: Entry) {
-			return (item?.avatar?.lt && (item?.memberships.includes($organizationStore.uid) || item?.employers.includes($organizationStore.uid)))
-		});
-		shuffle(carousel);
-		return carousel
-	});
 
 export const getFacilities = async (skFetch: Fetch | null = null): Promise<Facility[]> => {
 	const cacheName = "facilities";

@@ -93,7 +93,7 @@
 		setRedirect?: boolean;
 		propLimitCategories?: string[];
 		propSelectFacility?: string | null;
-		avatar: boolean;
+		avatar?: boolean;
 		typesView?: boolean;
 		displayEntries?: boolean;
 		types?: string[] | null;

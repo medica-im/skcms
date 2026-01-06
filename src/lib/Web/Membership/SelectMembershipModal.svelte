@@ -4,7 +4,6 @@
 	import { page } from '$app/state';
 	import { SvelteSet } from 'svelte/reactivity';
 	import Dialog from '$lib/Web/Dialog.svelte';
-	import { getEntries } from '$lib/store/directoryStore.ts';
 	import Fa from 'svelte-fa';
 	import { faPlus, faCheck, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 	import Select from 'svelte-select';
@@ -28,8 +27,7 @@
 	let selectedMSP: SelectType[] = $state([]);
 	let selectedCPTS: SelectType[] = $state([]);
 
-	let entriesPromise = $derived(getEntries());
-	let entries = $derived(await entriesPromise);
+	const entries = page.data.entries;
 	let cptsItems = $derived(
 		entries
 			.filter((e) => e.effector_type.slug == 'cpts')

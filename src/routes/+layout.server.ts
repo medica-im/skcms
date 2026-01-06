@@ -33,6 +33,7 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
       entries = await response.json();
     } catch (error: any) {
       console.error('There was an error while retrieving entries from layout.server.ts', error.message);
+      throw new Error(error.message)
     }
   }
   let organization;

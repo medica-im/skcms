@@ -16,7 +16,7 @@
 <div class="flex flex-wrap gap-2 p-2">
 	{#each data as entry}
 		<a href={entryUrl(entry, pathname, org, true)} class="btn btn-sm variant-ghost gap-1 p-1">
-			<Avatar src={entry?.avatar?.fb} width="w-10 lg:w-12">
+			<Avatar src={entry?.avatar?.lt||entry?.avatar?.fb||entry?.avatar?.raw} width="w-10 lg:w-12">
 				<Fa icon={faUser} />
 			</Avatar>
 			{entry?.name}

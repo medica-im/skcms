@@ -1,19 +1,14 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { dateTime } from '$lib/store/dateTimeStore.ts';
 	import Fa from 'svelte-fa';
 	import {
 		faSync,
     faHeadset,
-		faMobileScreen,
-		faPhone,
-		faFax,
-		faMapLocationDot,
-		faLocationDot
 	} from '@fortawesome/free-solid-svg-icons';
 	import Phones from '$lib/Directory/Phone/Phones.svelte';
 	import { isServiceAvailable } from '$lib/Schedule/available.ts';
 	import { publicHolidays } from '$lib/store/publicHolidaysStore.ts';
-	import { loadAll } from '@square/svelte-store';
 
 	export let data;
 </script>
@@ -27,11 +22,11 @@
 			<p>
 				L'accueil téléphonique du secrétariat est&nbsp;
 				<span class="inline-flex items-baseline">
-					{#await loadAll([dateTime, publicHolidays])}
+					{#await publicHolidays(page.data.organization)}
 						<Fa icon={faSync} size="3x" spin />
-					{:then}
+					{:then holidays}
 						<span>
-							{isServiceAvailable('phoneAppointment', $dateTime, $publicHolidays)
+							{isServiceAvailable('phoneAppointment', $dateTime, holidays)
 								? 'ouvert'
 								: 'fermé'}
 						</span>
