@@ -36,6 +36,7 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
         throw new Error(`Response status: ${response.status}`);
       }
       entries = await response.json();
+      if (entries) console.log('entries layout.ts', entries[0]);
     } catch (error: any) {
       console.error('There was an error while retrieving entries from layout.server.ts', error.message);
       throw new Error(error.message)

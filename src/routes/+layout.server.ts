@@ -8,7 +8,6 @@ import type { Entry } from '$lib/store/directoryStoreInterface';
 export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
   let response;
   let user: User|undefined;
-  let entries: Entry[]|undefined;
   if (import.meta.env.DEV) {
     const userUrl = `${ORIGIN}/api/v2/users/me`;
     const request = authReq(userUrl, "GET", cookies);
@@ -22,7 +21,8 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
     } catch (error: any) {
       console.error('There was an error while retrieving user from layout.server.ts', error.message);
     }
-    // entries
+  }
+    let entries: Entry[]|undefined;
     const entriesUrl = `${ORIGIN}/api/v2/entries`;
     const entriesRequest = authReq(entriesUrl, "GET", cookies);
     try {
@@ -31,11 +31,11 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
         throw new Error(`Response status: ${response.status}`);
       }
       entries = await response.json();
+      if (entries) console.log('entries layout.server.ts', entries[0]);
     } catch (error: any) {
       console.error('There was an error while retrieving entries from layout.server.ts', error.message);
       throw new Error(error.message)
     }
-  }
   let organization;
   const orgUrl = `${ORIGIN}/api/v2/organization`;
   try {
