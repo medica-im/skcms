@@ -8,7 +8,6 @@ import type { LayoutLoad } from './$types';
 export const load: LayoutLoad = async ({ fetch, data }) => {
   checkVersion();
 
-  /*
   let response;
   let user: User | undefined;
   let entries: Entry[] | undefined;
@@ -28,9 +27,9 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
     } catch (error: any) {
       console.error('There was an error while retrieving user from layout.ts', error.message);
     }
-  }*/
+  }
 
-  /*if (import.meta.env.PROD) {
+  if (import.meta.env.PROD) {
     try {
       response = await fetch(`${ORIGIN}/api/v2/entries`, {
         credentials: 'include',
@@ -43,16 +42,16 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
       entries = await response.json();
       if (entries) console.log('entries layout.ts', entries[0]);
     } catch (error: any) {
-      console.error('There was an error while retrieving entries from layout.server.ts', error.message);
+      console.error('There was an error while retrieving entries from layout.ts', error.message);
     }
-  }*/
+  }
 
   return {
     situations: await getSituations(fetch),
     directory: data.directory,
     session: data.session,
-    user: data.user,
+    user: user || data.user,
     organization: data.organization,
-    entries: data.entries,
+    entries: entries || data.entries,
   };
 }
