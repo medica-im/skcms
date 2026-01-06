@@ -16,6 +16,7 @@ import type { Organization } from '$lib/interfaces/organization.ts';
 import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
 import type { SelectType } from '$lib/interfaces/select';
 import type { Tag } from '$lib/store/directoryStoreInterface.ts';
+import type { Fetch } from '$lib/interfaces/fetch.ts';
 
 export const term: Writable<string> = writable("");
 
@@ -127,7 +128,7 @@ export const distanceEffectorsF = (entries: Entry[], addressFeature: AddressFeat
 	return distanceOfEffector;
 };
 
-export const getSituations = async (): Promise<Situation[]> => {
+export const getSituations = async (fetch: Fetch): Promise<Situation[]> => {
 	let situations: Situation[] = [];
 	const ttl = variables.SITUATIONS_TTL;
 	const cacheName = "situations";
