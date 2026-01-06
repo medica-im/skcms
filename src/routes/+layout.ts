@@ -28,7 +28,7 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
       console.error('There was an error while retrieving user from layout.ts', error.message);
     }
   }
-
+/*
   if (import.meta.env.PROD) {
     try {
       response = await fetch(`${ORIGIN}/api/v2/entries`, {
@@ -45,13 +45,13 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
       console.error('There was an error while retrieving entries from layout.ts', error.message);
     }
   }
-
+*/
   return {
     situations: await getSituations(fetch),
     directory: data.directory,
     session: data.session,
     user: user || data.user,
     organization: data.organization,
-    entries: entries || data.entries,
+    entries: data.entries,
   };
 }

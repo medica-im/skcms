@@ -24,7 +24,6 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
   }
   // here retrieving entries with auth works with http://localhost and pnpm run dev
   let entries: Entry[] | undefined;
-  if ( import.meta.env.DEV || import.meta.env.SSR ) {
     const entriesUrl = `${ORIGIN}/api/v2/entries`;
     const entriesRequest = authReq(entriesUrl, "GET", cookies);
     try {
@@ -37,7 +36,6 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
     } catch (error: any) {
       console.error('There was an error while retrieving entries from layout.server.ts', error.message);
     };
-  }
   let organization;
   const orgUrl = `${ORIGIN}/api/v2/organization`;
   try {
