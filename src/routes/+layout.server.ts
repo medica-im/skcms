@@ -22,7 +22,10 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
       console.error('There was an error while retrieving user from layout.server.ts', error.message);
     }
   }
+  // here retrieving entries with auth works with http://localhost and pnpm run dev
     let entries: Entry[]|undefined;
+      if (import.meta.env.DEV) {
+
     const entriesUrl = `${ORIGIN}/api/v2/entries`;
     const entriesRequest = authReq(entriesUrl, "GET", cookies);
     try {
@@ -34,8 +37,8 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
       if (entries) console.log('entries layout.server.ts', entries[0]);
     } catch (error: any) {
       console.error('There was an error while retrieving entries from layout.server.ts', error.message);
-      throw new Error(error.message)
     }
+  };
   let organization;
   const orgUrl = `${ORIGIN}/api/v2/organization`;
   try {
@@ -49,7 +52,7 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
     }
     organization = await response.json() as Organization;
   } catch (error: any) {
-    console.error(`organization ${error.message}`);
+    console.error(`organization from layout.server.ts ${error.message}`);
   }
   let directory;
   const dirUrl = `${ORIGIN}/api/v1/directory/`;
@@ -64,7 +67,7 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
     }
     directory = await response.json();
   } catch (error: any) {
-    console.error(`directory ${error.message}`);
+    console.error(`directory from layout.server.ts ${error.message}`);
   }
   return {
     user: user,
