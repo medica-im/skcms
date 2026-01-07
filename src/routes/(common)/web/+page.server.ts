@@ -4,7 +4,7 @@ import type { PageServerLoad } from "./$types"
 export const load: PageServerLoad = async (event) => {
  const session = await event.locals.auth();
  if (!session) {
-    redirect(303, `/signin?redirectTo=${event.url.pathname}`);
+    redirect(303, `/signin?redirect=${event.url.pathname}`);
  }
  return {
   session

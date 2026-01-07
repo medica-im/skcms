@@ -4,13 +4,12 @@ import { getSituations } from '$lib/store/directoryStore';
 import type { User } from "$lib/interfaces/user.interface";
 import type { Entry } from '$lib/store/directoryStoreInterface';
 import type { LayoutLoad } from './$types';
+import { browser } from "$app/environment"
 
 export const load: LayoutLoad = async ({ fetch, data }) => {
   checkVersion();
-
   let response;
   let user: User | undefined;
-  let entries: Entry[] | undefined;
   if (import.meta.env.PROD) {
     const userUrl = `${ORIGIN}/api/v2/users/me`;
     try {
@@ -28,30 +27,27 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
       console.error('There was an error while retrieving user from layout.ts', error.message);
     }
   }
-/*
-  if (import.meta.env.PROD) {
+  let entries;
+  if ( browser && import.meta.env.PROD ) {
     try {
-      response = await fetch(`${ORIGIN}/api/v2/entries`, {
-        credentials: 'include',
-        method: 'GET',
-        headers: { "content-type": "application/json" },
-      });
+      response = await fetch(`${ORIGIN}/api/v2/entries`);
       if (!response.ok) {
         throw new Error(`Response status: ${response.status}`);
       }
       entries = await response.json();
-      if (entries) console.log('entries layout.ts', entries[0]);
+      if (entries) console.log('entries layout.ts', entries[0].name);
     } catch (error: any) {
       console.error('There was an error while retrieving entries from layout.ts', error.message);
     }
   }
-*/
+
   return {
     situations: await getSituations(fetch),
     directory: data.directory,
     session: data.session,
     user: user || data.user,
     organization: data.organization,
-    entries: data.entries,
+    entries: entries || data.entries,
+    labels: data.labels,
   };
 }

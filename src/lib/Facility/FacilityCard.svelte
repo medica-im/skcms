@@ -15,7 +15,6 @@
 	import { browser } from '$app/environment';
 	import { isMobile } from '$lib/helpers/deviceDetector.ts';
 	import { createFacilitiesMapData } from '$lib/components/Map/mapData.ts';
-	import { displayMap } from '$lib/utils/utils';
 	import type { Facility } from '$lib/interfaces/facility.interface.ts';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 
@@ -85,8 +84,6 @@
 			</div>
             {#if entries}
 			<div>
-				<!--{displayMap(entries)}<br>
-				data.uid: {data.uid}-->
 				<Directory
 					data={entries}
 					typesView={true}

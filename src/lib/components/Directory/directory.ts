@@ -3,8 +3,9 @@ import { filterInPlace } from '$lib/utils/utils';
 import { shuffle } from '$lib/helpers/random';
 import type { Entry } from '$lib/store/directoryStoreInterface';
 import type { Fetch } from '$lib/interfaces/fetch.ts';
+import type { Labels } from '$lib/interfaces/label.interace.ts';
 
-export const cardCatEntries = async (entries: Entry[], currentOrg: boolean | null=null, orgUid: string|null=null, types: string[]|null = null) => {
+export const cardCatEntries = (entries: Entry[], labels: Labels, currentOrg: boolean | null=null, orgUid: string|null=null, types: string[]|null = null) => {
     if (!entries) return null
     const filteredEntries = entries.filter((e: Entry) => {
         if (currentOrg == true && orgUid) {
@@ -21,7 +22,7 @@ export const cardCatEntries = async (entries: Entry[], currentOrg: boolean | nul
         });
     }
     const categorizedEntries = categorizedFilteredEffectorsF(filteredEntries);
-    const cardinalCategorizedEntries = await cardinalCategorizedFilteredEffectorsF(categorizedEntries);
+    const cardinalCategorizedEntries = cardinalCategorizedFilteredEffectorsF(categorizedEntries, labels);
     return cardinalCategorizedEntries;
 };
 

@@ -17,6 +17,7 @@ import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
 import type { SelectType } from '$lib/interfaces/select';
 import type { Tag } from '$lib/store/directoryStoreInterface.ts';
 import type { Fetch } from '$lib/interfaces/fetch.ts';
+import type { Labels } from '$lib/interfaces/label.interace.ts';
 
 export const term: Writable<string> = writable("");
 
@@ -296,24 +297,15 @@ export const categorizedFilteredEffectorsF = (filteredEffectors: Entry[], distan
 	return effectorsMap as CategorizedEntries;
 };
 
-export const cardinalCategorizedFilteredEffectorsF = async (categorizedFilteredEffectors: CategorizedEntries) => {
-	const eTL = await effectorTypeLabels();
+export const cardinalCategorizedFilteredEffectorsF = (categorizedFilteredEffectors: CategorizedEntries, eTL: Labels) => {
 	let cardinalMap = new Map();
 	for (const [key, value] of categorizedFilteredEffectors) {
-		let label = key;
+		let label: string|null = key;
 		let countF: number = 0;
 		let countM: number = 0;
 		let countN: number = 0;
 		let countNone: number = 0;
 		let type: Type = value[0].effector_type;
-		/*value.forEach(
-			(e) => {
-				type = e.types.find(e => e.name == key)
-			}
-		);
-		if (type === undefined) {
-			throw new Error('Type not found');
-		}*/
 		value.forEach(
 			(e) => {
 				if (e.gender == 'F') {
@@ -379,9 +371,7 @@ export const cardinalCategorizedFilteredEffectorsF = async (categorizedFilteredE
 			}
 		}
 		cardinalMap.set(label, value)
-
 	}
-
 	return cardinalMap;
 };
 

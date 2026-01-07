@@ -16,6 +16,7 @@
 	import Geocoder from '$lib/components/Geocoder/Geocoder.svelte';
 	import Fa from 'svelte-fa';
 	import { faArrowsUpToLine } from '@fortawesome/free-solid-svg-icons';
+	import { logMap } from '$lib/utils/utils.ts';
 	import type { Loadable } from '@square/svelte-store';
 	import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
 	import type { Type, Tag } from '$lib/store/directoryStoreInterface.ts';
@@ -37,6 +38,7 @@
 		categoryOf,
 		facilityOf,
 		tagOf,
+		rCCFE,
 	}: {
 		data: any;
 		displayCategory: boolean;
@@ -54,6 +56,7 @@
 		categoryOf: Type[];
 		facilityOf: FacilityOf[];
 		tagOf: Tag[];
+		rCCFE: Map<any,any[]>;
 	} = $props();
 	const cCFE = getContext<Loadable<Map<any, any>>>('cardinalCategorizedFilteredEffectors');
 	const selectSituation = getSelectSituation();
@@ -98,7 +101,7 @@
 				<SearchDirectory />
 			{/if}
 			<div class="my-4 space-y-4">
-				{#await cCFE.load()}
+				<!--{#await cCFE.load()}
 					{#if data && [...data]?.length}
 						<List {data} {avatar} loading={true} />
 					{:else}
@@ -107,9 +110,9 @@
 							<p>Chargement...</p>
 						</div>
 					{/if}
-				{:then}
-					<List data={$cCFE} {avatar} loading={false} />
-				{/await}
+				{:then}-->
+					<List data={rCCFE} {avatar} loading={false} />
+				<!--{/await}-->
 			</div>
 		</div>
 	</div>

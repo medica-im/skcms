@@ -11,7 +11,7 @@
 		faMapLocationDot,
 		faPenToSquare,
 		faPeopleGroup,
-		faCopy
+		faInfo
 	} from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
 	import Emails from '$lib/Email/Emails.svelte';
@@ -41,6 +41,8 @@
 	import Membership from '$lib/Membership/Membership.svelte';
 	import PatchMembershipModal from '$lib/Web/Entry/Membership/PatchMembershipModal.svelte';
 	import TagModal from '$lib/Web/Tag/TagModal.svelte';
+	import { JsonView } from '@zerodevx/svelte-json-view';
+	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	let { data } = $props();
 
 	let fullentry = $derived(data.fullentry);
@@ -91,7 +93,7 @@
 				<UuidHex data={fullentry?.effector_type?.uid} />
 				<UuidHyphen data={fullentry?.effector_type?.uid} />
 			{/if}
-			<Tag data={fullentry?.tags}/>
+			<Tag data={fullentry?.tags} />
 			{#if $editMode}<TagModal tags={fullentry.tags} />{/if}
 			<FacilityLink data={fullentry.facility} />
 			{#if isSuperUser && $editMode}
@@ -258,4 +260,18 @@
 	<div class="flex flex-row-reverse">
 		<Back />
 	</div>
+	{#if import.meta.env.DEV}
+		<div>
+		<JsonView json={data} depth={1} />
+		</div>
+	{/if}
 </div>
+<style>
+  .wrap {
+    font-family: monospace;
+    font-size: 14px;
+    --jsonBorderLeft: 4px dashed;
+    --jsonValColor: blue;
+	--jsonPaddingLeft: 10rem;
+  }
+</style>

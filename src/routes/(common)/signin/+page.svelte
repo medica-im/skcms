@@ -5,6 +5,12 @@
 	import Fa from 'svelte-fa';
 	import { providers } from '$lib/Auth/data.ts'; 
 	import { SignIn } from '@auth/sveltekit/components';
+	const redirectParam = page.url.searchParams.get('redirect');
+	console.log(redirectParam);
+	const redirect = redirectParam ? redirectParam : '/dashboard';
+	console.log(redirect);
+	const redirectTo = encodeURI(`${redirect}`);
+	console.log(redirectTo);
 </script>
 	<header>
 		<div class="section-container">
@@ -21,14 +27,9 @@
 			<div class="grid cols-1 gap-6">
 				{#each providers as provider}
 					<SignIn
-						onclick={()=>{
-							console.log("signIn");
-							localStorage.removeItem("entries");
-							}}
 						options={{
-							redirectTo: page.data.redirectTo
-								? `/api/v2/auth?redirect=${decodeURIComponent(page.data.redirectTo).slice(1)}`
-								: `/api/v2/auth?redirect=dashboard`
+							redirect: true,
+							redirectTo: redirectTo
 						}}
 						provider={provider.name}
 						signInPage="signin"
@@ -38,6 +39,7 @@
 							<Fa icon={provider.icon} />
 							{m.SIGNIN()}
 							{m.with()} {provider.label}
+							<input type="hidden" name="redirectTo" value={redirectTo} />
 						</div>
 					</SignIn>
 				{/each}
