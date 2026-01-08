@@ -34,6 +34,6 @@ export const getAvatars = (entries: Entry[], uid: string) => {
     return carousel
 };
 
-export const getMemberships = async (entries: Entry[], uids: string[]) => {
+export const getMemberships = (entries: Entry[], uids: string[]) => {
     return entries.filter((e: Entry) => { return uids.includes(e.uid) });
 };

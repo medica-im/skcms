@@ -52,7 +52,6 @@
 					return true;
 				} else {
 					const _type = selectedEffectorType.value;
-					console.log(_type);
 					const effectorUids = entries
 						.filter((e) => e.effector_type.uid == _type)
 						.map((e) => e.effector_uid);

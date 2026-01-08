@@ -6,11 +6,8 @@
 	import { providers } from '$lib/Auth/data.ts'; 
 	import { SignIn } from '@auth/sveltekit/components';
 	const redirectParam = page.url.searchParams.get('redirect');
-	console.log(redirectParam);
 	const redirect = redirectParam ? redirectParam : '/dashboard';
-	console.log(redirect);
 	const redirectTo = encodeURI(`${redirect}`);
-	console.log(redirectTo);
 </script>
 	<header>
 		<div class="section-container">

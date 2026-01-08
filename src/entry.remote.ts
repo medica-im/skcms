@@ -12,8 +12,6 @@ const postEntry = z.object({
 	effector_type: z.string(),
 	facility: z.string(),
 	memberships: z.preprocess((val: string) => {
-		console.log(val);
-		console.log(typeof val);
 		if (val) {
 			return val.split(',');
 		} else {

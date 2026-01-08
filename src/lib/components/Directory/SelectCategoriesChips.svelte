@@ -40,7 +40,6 @@
 
 		//const res = await fetch(url);
 		//const data = await res.json();
-		//console.log(`first ${data}`)
 		//records.push(...data.effector_types);
 		let initLimit = '?limit=100';
 		let next = '';
@@ -52,7 +51,6 @@
 			records.push(...data.effector_types);
 			next = data.meta.next;
 		} while (next);
-		//console.log(`effector_types: ${JSON.stringify(records)}`);
 		return records;
 	}
 

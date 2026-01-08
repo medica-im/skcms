@@ -5,7 +5,6 @@ export const ssr = false;
 
 export const load: PageServerLoad = async (event) => {
    const session = await event.locals.auth();
-   console.log(`session:${JSON.stringify(session)}`);
    if (!session) {
       redirect(303, `/signin?redirectTo=${event.url.pathname}`);
    }

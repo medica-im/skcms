@@ -206,7 +206,7 @@ export const fullFilteredEntriesF = (situations: Situation[], entries: Entry[], 
 			}
 		}).filter(function (x) {
 			if (currentOrg == true && organization) {
-				return x.memberships?.includes(organization.uid) || x.employers?.includes(organization.uid)
+				return x.memberships?.includes(organization.uid) || x.employers?.includes(organization.uid) || x.uid === organization.uid
 			} else if (currentOrg == false && organization) {
 				return !x.memberships?.includes(organization.uid) && !x.employers?.includes(organization.uid)
 			} else {

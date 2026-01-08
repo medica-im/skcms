@@ -69,7 +69,7 @@
 					await submit();
 					invalidate('entry:now');
 				} catch (error) {
-					console.log(error);
+					console.error(error);
 				}
 			})}
 		>

@@ -3,7 +3,6 @@ import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = ({ params, url }) => {
 	const fetchUrl = `${ORIGIN}/api/v2/${params.path}${url.search}`;
-    console.log("fetchUrl", fetchUrl);
     return fetch(fetchUrl);
 };
 
