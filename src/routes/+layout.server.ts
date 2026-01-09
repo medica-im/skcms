@@ -5,6 +5,7 @@ import type { LayoutServerLoad } from "./$types"
 import type { User } from "$lib/interfaces/user.interface";
 import type { Entry } from '$lib/store/directoryStoreInterface';
 import type { Labels } from '$lib/interfaces/label.interace.ts';
+import type { Directory } from '$lib/interfaces/directory.interface.ts';
 
 export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
   let response;
@@ -63,7 +64,7 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
     if (!response.ok) {
       throw new Error(`Response status: ${response.status}`);
     }
-    directory = await response.json();
+    directory = await response.json() as Directory;
   } catch (error: any) {
     console.error(`directory from layout.server.ts ${error.message}`);
   }

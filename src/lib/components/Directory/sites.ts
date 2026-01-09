@@ -11,7 +11,7 @@ export const facilityEntries = (entries: Entry[], facilityUid: string | undefine
     return cardinalCategorizedEntries;
 }
 
-export const allFacilityEntries = (facilities: Facility[], entries: Entry[], orgUid: string, eTL: Labels, currentOrg: boolean | null = null) => {
+export const allFacilityEntries = (facilities: Facility[], entries: Entry[], orgUid: string, eTL: Labels, currentOrg: boolean | null = null): Map<string,Entry[]> => {
     const facilityEntriesMap = new Map();
     for (const facility of facilities) {
         if (

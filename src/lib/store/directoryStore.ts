@@ -297,7 +297,7 @@ export const categorizedFilteredEffectorsF = (filteredEffectors: Entry[], distan
 	return effectorsMap as CategorizedEntries;
 };
 
-export const cardinalCategorizedFilteredEffectorsF = (categorizedFilteredEffectors: CategorizedEntries, eTL: Labels) => {
+export const cardinalCategorizedFilteredEffectorsF = (categorizedFilteredEffectors: CategorizedEntries, eTL: Labels): Map<string,Entry[]> => {
 	let cardinalMap = new Map();
 	for (const [key, value] of categorizedFilteredEffectors) {
 		let label: string|null = key;
@@ -477,12 +477,19 @@ export const communeOfF = (fullFilteredEntries: Entry[], selectCategories: strin
 }
 
 export const facilityOfF = (fullFilteredEntries: Entry[], selectCategories: string[], selectCommunes: string[], selectDepartments: string[]|null) => {
-	const facilities: FacilityOf[] = fullFilteredEntries.filter(
-		x => {
-			return (!selectCategories?.length || selectCategories.includes(x.effector_type.uid)
+	let entries: Entry[];
+	let facilities: FacilityOf[];
+	if ( !selectCategories?.length && !selectCommunes?.length && !selectDepartments ) {
+		entries = fullFilteredEntries;
+	} else {
+		entries = fullFilteredEntries.filter(
+			x => {
+				 (!selectCategories?.length || selectCategories.includes(x.effector_type.uid)
 			) && (!selectCommunes?.length || selectCommunes.includes(x.commune.uid)) && (!selectDepartments || selectDepartments.includes(x.department.code))
-		}
-	).map((x) => {
+			}
+		)
+	}
+	facilities = entries.map((x) => {
 		return { ...x.facility, ...x.address }
 	});
 	const mapFromFacilities = new Map(
