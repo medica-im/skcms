@@ -5,6 +5,7 @@
 	import SitesLink from '$lib/components/Sites/SitesLink.svelte';
 	import { page } from '$app/state';
 	import UpdateFacilityModal from '$lib/Web/Facility/UpdateFacilityModal.svelte';
+	import Back from '$lib/components/Directory/Back.svelte';
 	import type { FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 	import type { Facility } from '$lib/interfaces/facility.interface';
 	import type { PageProps } from './$types';
@@ -78,6 +79,7 @@
 	<div class="grid grid-cols-1 w-full gap-4 mx-auto justify-items-center">
 		<FacilityPage facility={data.facility} entries={data.entryMap} />
 		<SitesLink />
+		<Back />
 	</div>
 </div>
 

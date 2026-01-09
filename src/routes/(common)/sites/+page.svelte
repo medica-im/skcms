@@ -3,7 +3,6 @@
 	import { language } from '$lib/store/languageStore';
 	import { page } from '$app/state';
 	import FacilityCard from '$lib/Facility/FacilityCard.svelte';
-	import type { Facility } from '$lib/interfaces/facility.interface.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
