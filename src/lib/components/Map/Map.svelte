@@ -6,11 +6,11 @@
 	import type { MapOptions } from 'leaflet';
 	import type { MapData } from '$lib/interfaces/mapData.interface.ts';
 	import { onMount } from 'svelte';
-	export let data: MapData[];
+	let { data } : { data: MapData[]; } = $props();
 
-	let leafletMap: LeafletMap;
-	let innerWidth = 0;
-    $: isMobile = innerWidth <= 430;
+	let leafletMap: LeafletMap = $state();
+	let innerWidth = $state(0);
+    const isMobile = $derived(innerWidth <= 430);
 
 	const getPoints = () => {
 		return data.map((x) => x.latLng);
