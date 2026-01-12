@@ -64,7 +64,6 @@ export async function getEffectors(
   if (params.length) {
     paramStr = `?${params.join("&")}`; 
   }
-  console.log(paramStr);
   const response = await fetch(
     `${ORIGIN}/api/v2/effectors${paramStr ?? ''}`,
   )

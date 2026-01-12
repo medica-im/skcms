@@ -1,12 +1,13 @@
 <script lang="ts">
-	import * as m from "$msgs";
+	import * as m from '$msgs';
 	import { page } from '$app/state';
-	import { SignOut } from "@auth/sveltekit/components"
+	import { SignOut } from '@auth/sveltekit/components';
 	import { logOutUser } from '$lib/utils/requestUtils';
 	import { getDrawerStore } from '@skeletonlabs/skeleton';
 	import { popup } from '@skeletonlabs/skeleton';
 	import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
-    import type { OauthSession } from "$lib/interfaces/oidc";
+	import { invalidateAll } from '$app/navigation';
+
 
 	import Fa from 'svelte-fa';
 	import {
@@ -25,7 +26,7 @@
 		faUser,
 		faHexagonNodes
 	} from '@fortawesome/free-solid-svg-icons';
-	let { embedded = false, sideBar = false} : { embedded?: boolean; sideBar?: boolean } = $props();
+	let { embedded = false, sideBar = false }: { embedded?: boolean; sideBar?: boolean } = $props();
 	const drawerStore = getDrawerStore();
 
 	// ListItem Click Handler
@@ -34,9 +35,9 @@
 		if (!embedded) return;
 		drawerStore.close();
 	}
-    let session = $derived(page.data.session);
+	let session = $derived(page.data.session);
 
-	let signin = "/signin";
+	let signin = $derived(encodeURI(`/signin?redirect=${page.url.pathname}`));
 	let classesActive = $derived((href: string) => {
 		return page.url.pathname == href ? '!bg-primary-500' : '';
 	});
@@ -48,16 +49,17 @@
 	<ul class="navbar-nav">
 		{#if session}
 			<li class="nav-item">
-				<a
-					href="/dashboard"
-					class={classesActive("/dashboard")}
-					><span class="hidden 2xl:inline-block"><Fa icon={faUser} size="lg" /></span><span class="2xl:hidden"><Fa icon={faUser} size="xs" /></span>
+				<a href="/dashboard" class={classesActive('/dashboard')}
+					><span class="hidden 2xl:inline-block"><Fa icon={faUser} size="lg" /></span><span
+						class="2xl:hidden"><Fa icon={faUser} size="xs" /></span
+					>
 					<span>{m.NAVBAR_HI()} {session.user.name}</span></a
 				>
 			</li>
 			<li class="nav-item">
 				<button type="button" onclick={async () => await logOutUser()}
-					><span class="hidden 2xl:inline-block"><Fa icon={faRightFromBracket} size="lg" /></span><span class="2xl:hidden"><Fa icon={faRightFromBracket} size="xs" /></span>
+					><span class="hidden 2xl:inline-block"><Fa icon={faRightFromBracket} size="lg" /></span
+					><span class="2xl:hidden"><Fa icon={faRightFromBracket} size="xs" /></span>
 					<span>{m.NAVBAR_LOGOUT()}</span></button
 				>
 			</li>
@@ -68,42 +70,34 @@
 					<span>{m.NAVBAR_LOGIN()}</span></a
 				>
 			</li>
-			{#if page.data.facility.registration === true}
-				<li>
-					<a
-						class={page.url.pathname === '/accounts/register' ? 'active aria-current="page"' : ''}
-						href="/accounts/register">{m.NAVBAR_REGISTER()}</a
-					>
-				</li>
-			{/if}
 		{/if}
 	</ul>
-{:else}
-	{#if session?.user}
+{:else if session?.user}
 	<div class="flex flex-wrap gap-0">
 		<button
-		    use:popup={{ event: 'click', target: 'user' }}
+			use:popup={{ event: 'click', target: 'user' }}
 			title={session.user.name}
-			class="{classesActive('/dashboard'
-			)} btn btn-sm hover:variant-soft-primary"
-			><span class="hidden lg:inline-block align-text-bottom"><Fa icon={faUser} size="lg" /></span><span class="lg:hidden"><Fa icon={faUser} size="sm" /></span>
+			class="{classesActive('/dashboard')} btn btn-sm hover:variant-soft-primary"
+			><span class="hidden lg:inline-block align-text-bottom"><Fa icon={faUser} size="lg" /></span
+			><span class="lg:hidden"><Fa icon={faUser} size="sm" /></span>
 			<span class="hidden lg:inline-block">{session.user.name}</span>
 			<span class="opacity-50"><Fa icon={faCaretDown} /></span>
-			</button
+		</button>
+		<SignOut
+			options={{
+				redirect: true,
+				redirectTo: decodeURIComponent(page.url.pathname)
+			}}
+			className=""
 		>
-        <SignOut className="">
-          <div
-            slot="submitButton"
-            class="btn btn-sm hover:variant-soft-primary lg:inline-block"
-          >
-            <span class="hidden lg:inline-block align-text-bottom"
-				><Fa icon={faRightFromBracket} size="lg" /></span
-			><span class="lg:hidden align-text-bottom"
-				><Fa icon={faRightFromBracket} size="sm" /></span
-			>
-			<span class="hidden lg:inline-block">{m.NAVBAR_LOGOUT()}</span>
-          </div>
-        </SignOut>
+			<div slot="submitButton" class="btn btn-sm hover:variant-soft-primary lg:inline-block">
+				<span class="hidden lg:inline-block align-text-bottom"
+					><Fa icon={faRightFromBracket} size="lg" /></span
+				><span class="lg:hidden align-text-bottom"><Fa icon={faRightFromBracket} size="sm" /></span>
+				<span class="hidden lg:inline-block">{m.NAVBAR_LOGOUT()}</span>
+                <input type="hidden" name="redirectTo" value={decodeURIComponent(page.url.pathname)} />
+			</div>
+		</SignOut>
 		<div class="">
 			<!-- popup -->
 			<!-- prettier-ignore -->
@@ -140,18 +134,15 @@
 			</nav>
 		</div>
 		</div>
-		</div>
-	{:else}
-		<a
-			class="{classesActive(signin)} btn btn-sm lg:btn-md hover:variant-soft-primary lg:inline-block"
-			href={signin}
-			title={m.NAVBAR_LOGIN()}
-			><span class="hidden lg:inline-block align-text-bottom"
-				><Fa icon={faRightToBracket} size="lg" /></span
-			><span class="lg:hidden align-text-bottom"
-				><Fa icon={faRightToBracket} size="sm" /></span
-			>
-			<span class="hidden xl:inline-block">{m.NAVBAR_LOGIN()}</span></a
-		>
-	{/if}
+	</div>
+{:else}
+	<a
+		class="{classesActive(signin)} btn btn-sm lg:btn-md hover:variant-soft-primary lg:inline-block"
+		href={signin}
+		title={m.NAVBAR_LOGIN()}
+		><span class="hidden lg:inline-block align-text-bottom"
+			><Fa icon={faRightToBracket} size="lg" /></span
+		><span class="lg:hidden align-text-bottom"><Fa icon={faRightToBracket} size="sm" /></span>
+		<span class="hidden xl:inline-block">{m.NAVBAR_LOGIN()}</span></a
+	>
 {/if}

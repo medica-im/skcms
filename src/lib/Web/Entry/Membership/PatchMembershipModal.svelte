@@ -1,13 +1,12 @@
 <script lang="ts">
 	import { getEntryUid } from '$lib/components/Directory/context';
 	import { onMount } from 'svelte';
-	import { invalidate } from '$app/navigation';
+	import { invalidateAll } from '$app/navigation';
 	import { patchCommand } from '../../../../entry.remote';
 	import { variables } from '$lib/utils/constants.ts';
 	import { page } from '$app/state';
 	import { SvelteSet } from 'svelte/reactivity';
 	import Dialog from '$lib/Web/Dialog.svelte';
-	import { getEntries } from '$lib/store/directoryStore.ts';
 	import Fa from 'svelte-fa';
 	import {
 		faPlus,
@@ -17,6 +16,7 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import Select from 'svelte-select';
 	import { areArraysEqualSets } from '$lib/utils/utils.ts';
+	import { mspNeo4j, cptsNeo4j } from '$lib/constants.ts';
 	import type { SelectType } from '$lib/interfaces/select';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 	import type { FormResult } from '$lib/interfaces/v2/form';
@@ -53,18 +53,18 @@
 	let selectedMSP: SelectType[] = $state([]);
 	let selectedCPTS: SelectType[] = $state([]);
 
-	let entriesPromise = $derived(getEntries());
-	let entries = $derived(await entriesPromise);
-	let cptsItems = $derived(
-		entries
-			.filter((e) => e.effector_type.slug == 'cpts')
+	const entries: Entry[] = $derived(page.data.entries);
+	const cptsItems = $derived.by(()=>{
+		const items = entries
+			.filter((e) => e.effector_type.name == cptsNeo4j)
 			.map((e) => {
 				return { label: e.name, value: e.uid };
 			})
+		return items
+		}
 	);
 	let mspItems = $derived(
-		entries
-			.filter((e) => e.effector_type.name == 'maison de santé pluriprofessionnelle')
+		entries.filter((e: Entry) => e.effector_type.name == mspNeo4j)
 			.map((e) => {
 				return { label: e.name, value: e.uid };
 			})
@@ -72,8 +72,8 @@
 	let otherItems = $derived(
 		entries.filter(
 			(e) =>
-				e.effector_type.name !== 'maison de santé pluriprofessionnelle' &&
-				e.effector_type.slug !== 'cpts'
+				e.effector_type.name !== mspNeo4j &&
+				e.effector_type.name !== cptsNeo4j
 		).map((e) => {
 				return { label: e.name, value: e.uid };
 			})
@@ -82,6 +82,7 @@
 	function onChange(event: CustomEvent) {
 		if (event.detail) {
 			const e: SelectType[] = event.detail;
+			console.log(JSON.stringify(e));
 			for (var i = 0, len = e.length; i < len; i++) {
 				const element = e[i];
 				if (selectedMemberships.indexOf(element) === -1) {
@@ -111,9 +112,9 @@
 				value: m.uid
 			};
 			const cat = m.effector_type.name;
-			if (cat === 'Communauté Professionnelle Territoriale de Santé') {
+			if (cat === cptsNeo4j) {
 				selectedCPTS?.push(membership);
-			} else if (cat === 'maison de santé pluriprofessionnelle') {
+			} else if (cat === mspNeo4j) {
 				selectedMSP?.push(membership);
 			} else {
 				selectedOther?.push(membership);
@@ -156,12 +157,18 @@
 				<h4 class="h4">MSP</h4>
 				<Select
 					multiple
+					label={"label"}
+					itemId={"value"}
 					items={mspItems}
 					bind:value={selectedMSP}
 					on:change={onChange}
 					on:clear={onClear}
 					searchable={true}
 				/>
+				<!--mspItems: {JSON.stringify(mspItems)}<br>
+				selectedMSP: {JSON.stringify(selectedMSP)}<br>
+				memberships: {JSON.stringify(memberships)}<br>
+				currentmemberships: {JSON.stringify(currentMemberships)}-->
 				<h4 class="h4">Autre</h4>
 				<Select
 					multiple
@@ -197,7 +204,7 @@
 						onclick={async () => {
 							try {
 								result = await patchCommand(memberships);
-								invalidate('entry:now');
+								invalidateAll();
 							} catch (error) {
 								console.error(error);
 							}

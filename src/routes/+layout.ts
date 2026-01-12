@@ -1,15 +1,16 @@
 import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
 import { checkVersion } from '$lib/version';
-import { getEntries, getSituations } from '$lib/store/directoryStore';
+import { getSituations } from '$lib/store/directoryStore';
 import type { User } from "$lib/interfaces/user.interface";
 import type { Entry } from '$lib/store/directoryStoreInterface';
 import type { LayoutLoad } from './$types';
+import { browser } from "$app/environment"
 
 export const load: LayoutLoad = async ({ fetch, data }) => {
   checkVersion();
+  let response;
   let user: User | undefined;
-  if (import.meta.env.PROD && !import.meta.env.SSR) {
-    let response;
+  if (import.meta.env.PROD) {
     const userUrl = `${ORIGIN}/api/v2/users/me`;
     try {
       response = await fetch(userUrl, {
@@ -21,20 +22,32 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
         throw new Error(`Response status: ${response.status}`);
       }
       user = await response.json();
+      console.log("user layout.ts", user);
     } catch (error: any) {
       console.error('There was an error while retrieving user from layout.ts', error.message);
     }
   }
+  let entries;
+  if ( browser && import.meta.env.PROD ) {
+    try {
+      response = await fetch(`${ORIGIN}/api/v2/entries`);
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+      entries = await response.json() as Entry[];
+      if (entries) console.log('entries layout.ts', entries[0].name);
+    } catch (error: any) {
+      console.error('There was an error while retrieving entries from layout.ts', error.message);
+    }
+  }
+
   return {
+    situations: await getSituations(fetch),
     directory: data.directory,
     session: data.session,
-    user: data.user || user,
+    user: user || data.user,
     organization: data.organization,
-    entries: await getEntries() as Entry[],
-    situations: await getSituations(),
-    sections: [
-      { slug: 'profile', title: 'Profile' },
-      { slug: 'notifications', title: 'Notifications' }
-    ]
+    entries: entries || data.entries,
+    labels: data.labels,
   };
 }

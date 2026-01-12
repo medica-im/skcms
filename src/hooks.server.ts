@@ -1,7 +1,6 @@
 import type { Handle } from '@sveltejs/kit';
 import { paraglideMiddleware } from '$prgld/server';
 import { sequence } from '@sveltejs/kit/hooks';
-
 import { handle as handleAuth } from "$lib/auth.ts"
 
 const cookie: Handle = async ({ event, resolve }) => {
@@ -14,7 +13,7 @@ const cookie: Handle = async ({ event, resolve }) => {
 		theme = 'wintry';
 	}
 	return await resolve(event, {
-		transformPageChunk: ({ html }) => 
+		transformPageChunk: ({ html }) =>
 			html.replace('data-theme=""', `data-theme="${theme}"`)
 	});
 };
@@ -29,4 +28,8 @@ const paraglideHandle: Handle = ({ event, resolve }) =>
 		});
 	});
 
-export const handle = sequence(handleAuth, cookie, paraglideHandle);
+export const handle = sequence(
+	handleAuth,
+	paraglideHandle,
+	cookie
+);

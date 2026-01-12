@@ -5,6 +5,9 @@
 	import Fa from 'svelte-fa';
 	import { providers } from '$lib/Auth/data.ts'; 
 	import { SignIn } from '@auth/sveltekit/components';
+	const redirectParam = page.url.searchParams.get('redirect');
+	const redirect = redirectParam ? redirectParam : '/dashboard';
+	const redirectTo = encodeURI(`${redirect}`);
 </script>
 	<header>
 		<div class="section-container">
@@ -22,9 +25,8 @@
 				{#each providers as provider}
 					<SignIn
 						options={{
-							redirectTo: page.data.redirectTo
-								? `/api/v2/auth?redirect=${decodeURIComponent(page.data.redirectTo).slice(1)}`
-								: `/api/v2/auth?redirect=dashboard`
+							redirect: true,
+							redirectTo: redirectTo
 						}}
 						provider={provider.name}
 						signInPage="signin"
@@ -34,6 +36,7 @@
 							<Fa icon={provider.icon} />
 							{m.SIGNIN()}
 							{m.with()} {provider.label}
+							<input type="hidden" name="redirectTo" value={redirectTo} />
 						</div>
 					</SignIn>
 				{/each}

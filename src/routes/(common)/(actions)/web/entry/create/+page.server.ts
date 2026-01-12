@@ -12,7 +12,6 @@ export const actions = {
     let organization: string = json.organizations;
     let organizations: string[] = [organization];
     json.organizations=organizations;
-    console.log(`data:${JSON.stringify(json)}`);
     const url = `${variables.BASE_URI}/api/v2/entries`;
     const body = JSON.stringify(json);
     const request = authReq(url, 'POST', event.cookies, body) 

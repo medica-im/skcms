@@ -30,7 +30,7 @@
 						<a href={getLink(entry, page.url.pathname)} class="flex m-2">
 							<img
 								class="h-auto w-fit"
-								src="{entry.avatar.lt}"
+								src="{entry.avatar.lt||entry.avatar.fb||entry.avatar.raw}"
 								alt={entry.name}
 							/>
 						</a>
@@ -52,7 +52,7 @@
 		{@const entry = data[0]}
 		<figure class="content-center shrink mx-auto w-64">
 			<a href={getLink(entry, page.url.pathname)} class="flex m-2">
-				<img class="h-auto w-fit" src="{entry.avatar.lt}" alt={entry.name} />
+				<img class="h-auto w-fit" src="{entry.avatar.lt||entry.avatar.fb||entry.avatar.raw}" alt={entry.name} />
 			</a>
 			<figcaption class="text-center w-64">
 				<a href={getLink(entry, page.url.pathname)} class="anchor"

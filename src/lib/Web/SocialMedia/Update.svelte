@@ -1,6 +1,8 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { getSomedTypes } from './fetch.ts';
 	import * as m from '$msgs';
-	import { updateForm } from '../../../website.remote';
+	import { updateForm } from '../../../socialmedia.remote';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import { invalidate } from '$app/navigation';
 	import {
@@ -18,23 +20,26 @@
 	import type { SelectType } from '$lib/interfaces/select.ts';
 	import type { FormResult } from '$lib/interfaces/v2/form';
 	import WebsiteComponent from '$lib/Website/Website.svelte';
+	import type { SocialNetwork } from '$lib/interfaces/socialnetwork.interface.js';
 
 	let {
 		data
 	}: {
-		data: Website;
+		data: SocialNetwork;
 	} = $props();
 
 	let dialog: HTMLDialogElement|undefined = $state();
-
+	let somedTypesItems: SelectType[]|undefined = $state();
 	let roles: string[] = $derived(data.roles.map((e) => e.name));
 	let _url: string = $state(data.url);
+	let selectedType: SelectType | undefined = $state({value: data.type, label: data.type_display});
+	let _type: string = $derived(selectedType.value);
 	let selectedAccess: SelectType | undefined = $derived(
 		getSelectedAccess(data.roles.map((e) => e.name))
 	);
 	let _roles: string[] | undefined = $derived(getRoles(selectedAccess?.value));
 	let disabled: boolean = $derived(
-		selectedAccess?.value == getSelectedAccess(roles)?.value && _url == data.url
+		selectedAccess?.value == getSelectedAccess(roles)?.value && _url == data.url && _type == data.type
 	);
 	let uuid: string = $state(crypto.randomUUID());
 	function updateUuid() {
@@ -47,6 +52,9 @@
 		//value: phoneData.type};
 		selectedAccess = getSelectedAccess(roles);
 	}
+	onMount(async () => {
+		somedTypesItems = await getSomedTypes();
+	});
 </script>
 
 <button
@@ -92,6 +100,20 @@
 						placeholder=""
 						bind:value={_url}
 					/>
+				</label>
+				<label class="label">
+					<span>Réseau social</span>
+					{#each updateForm.fields.type.issues() as issue}
+							<p class="issue">{issue.message}</p>
+						{/each}
+					<input
+						oninput={() => {}}
+						class="hidden"
+						name="type"
+						type="text"
+						bind:value={_type}
+					/>
+					<Select items={somedTypesItems} bind:value={selectedType} />
 				</label>
 				<label class="label">
 					<span>Accès</span>

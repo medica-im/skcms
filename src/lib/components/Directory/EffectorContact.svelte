@@ -11,7 +11,7 @@
 		faMapLocationDot,
 		faPenToSquare,
 		faPeopleGroup,
-		faCopy
+		faInfo
 	} from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
 	import Emails from '$lib/Email/Emails.svelte';
@@ -32,6 +32,7 @@
 	import CreatePhone from '$lib/Web/Phone/CreatePhone.svelte';
 	import CreateEmail from '$lib/Web/Email/Create.svelte';
 	import CreateWebsite from '$lib/Web/Website/Create.svelte';
+	import CreateSoMed from '$lib/Web/SocialMedia/Create.svelte';
 	import UpdateEffector from '$lib/Web/Effector/UpdateEffectorModal.svelte';
 	import InactivateEntry from '$lib/Web/Entry/InactivateEntry.svelte';
 	import Tag from '$lib/Tag/Tag.svelte';
@@ -41,6 +42,8 @@
 	import Membership from '$lib/Membership/Membership.svelte';
 	import PatchMembershipModal from '$lib/Web/Entry/Membership/PatchMembershipModal.svelte';
 	import TagModal from '$lib/Web/Tag/TagModal.svelte';
+	import { JsonView } from '@zerodevx/svelte-json-view';
+	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	let { data } = $props();
 
 	let fullentry = $derived(data.fullentry);
@@ -91,7 +94,7 @@
 				<UuidHex data={fullentry?.effector_type?.uid} />
 				<UuidHyphen data={fullentry?.effector_type?.uid} />
 			{/if}
-			<Tag data={fullentry?.tags}/>
+			<Tag data={fullentry?.tags} />
 			{#if $editMode}<TagModal tags={fullentry.tags} />{/if}
 			<FacilityLink data={fullentry.facility} />
 			{#if isSuperUser && $editMode}
@@ -180,18 +183,18 @@
 				{/if}
 			</div>
 		{/if}
-		{#if fullentry.socialnetworks?.length}
+		{#if fullentry.socialnetworks?.length  || $editMode}
 			<div class="d-flex justify-content-between align-items-start">
 				<div class="flex items-center p-1">
 					<div class="w-9"><Fa icon={faCircleNodes} /></div>
 					<div>
-						<h3 class="h3">{m.ADDRESSBOOK_SOMED()}</h3>
+						<h3 class="h3 flex items-center gap-1">{m.ADDRESSBOOK_SOMED()}{#if $editMode}<CreateSoMed entry={fullentry.uid} />{/if}</h3>
 					</div>
 				</div>
 				<div class="flex p-1">
 					<div class="w-9"></div>
 					<div class="p-1 space-x-2">
-						<SoMed data={fullentry.socialnetworks} appBar={false} />
+						<SoMed data={fullentry.socialnetworks} editMode={$editMode} appBar={false} />
 					</div>
 				</div>
 			</div>
@@ -258,4 +261,18 @@
 	<div class="flex flex-row-reverse">
 		<Back />
 	</div>
+	{#if import.meta.env.DEV}
+		<div>
+		<JsonView json={data} depth={1} />
+		</div>
+	{/if}
 </div>
+<style>
+  .wrap {
+    font-family: monospace;
+    font-size: 14px;
+    --jsonBorderLeft: 4px dashed;
+    --jsonValColor: blue;
+	--jsonPaddingLeft: 10rem;
+  }
+</style>

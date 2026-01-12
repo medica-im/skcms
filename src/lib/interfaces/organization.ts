@@ -4,7 +4,7 @@ import type { Website } from '$lib/interfaces/website.interface.ts';
 import type { Email } from '$lib/interfaces/email.interface.ts';
 import type { SocialNetwork } from '$lib/interfaces/socialnetwork.interface.ts';
 
-export type Organization = {
+export interface Organization {
     id: number
     uid: string
     name: string

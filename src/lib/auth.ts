@@ -1,9 +1,9 @@
 
 import { SvelteKitAuth } from "@auth/sveltekit";
 import type { DefaultSession } from "@auth/sveltekit";
-import { AUTH_PROVIDER_ID, AUTH_PROVIDER_NAME, AUTH_PROVIDER_ISSUER, AUTH_PROVIDER_CLIENT_ID, AUTH_PROVIDER_CLIENT_SECRET, AUTH_DEBUG } from '$env/static/private';
-import GitHub from "@auth/sveltekit/providers/github"
-import Google from "@auth/sveltekit/providers/google"
+import { AUTH_DEBUG } from '$env/static/private';
+import GitHub from "@auth/sveltekit/providers/github";
+import Google from "@auth/sveltekit/providers/google";
 
 declare module "@auth/sveltekit" {
   interface Session {
@@ -20,18 +20,9 @@ declare module "@auth/sveltekit" {
   }
 }
 
-const provider = {
-  id: AUTH_PROVIDER_ID, // signIn("my-provider") and will be part of the callback URL
-  name: AUTH_PROVIDER_NAME, // optional, used on the default login page as the button text.
-  type: "oidc", // or "oauth" for OAuth 2 providers
-  issuer: AUTH_PROVIDER_ISSUER, // to infer the .well-known/openid-configuration URL
-  clientId: AUTH_PROVIDER_CLIENT_ID, // from the provider's dashboard
-  clientSecret: AUTH_PROVIDER_CLIENT_SECRET // from the provider's dashboard
-};
-
 export const { handle, signIn, signOut } = SvelteKitAuth({
-  trustHost:true,
-  debug: AUTH_DEBUG=='true' ? true : false,
+  trustHost: true,
+  debug: AUTH_DEBUG == 'true' ? true : false,
   providers: [Google, GitHub],
   callbacks: {
     jwt({ token, user, account }) {
@@ -48,10 +39,28 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
       return token
     },
     session({ session, token }) {
-      //console.log(`token: ${JSON.stringify(token)}`);
       session.user.userId = token.id as string
       session.user.provider = token.provider as string;
       return session
     },
+    async signIn({ user, account, profile, email, credentials }) {
+      return true
+    },
+    async redirect({ url, baseUrl }) {
+    // Allows relative callback URLs
+    if (url.startsWith("/")) return `${baseUrl}${url}`
+    // Allows callback URLs on the same origin
+    if (new URL(url).origin === baseUrl) return url
+    return baseUrl
+    }
+  },
+  events: {
+    async signOut(message) {
+    },
+    async signIn({ account, user, isNewUser, profile }) {
+    }/*,
+    async session({ session, token }) {
+      console.log("hooks.server.ts session", session);
+    }*/
   }
 })

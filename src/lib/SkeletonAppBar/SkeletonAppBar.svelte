@@ -131,22 +131,24 @@
 					/>{/if}
 			</div>
 			<div class="hidden lg:inline-block">
-				{#if page.data?.organization?.category?.name == 'msp'}<div class="w-6 h-6"><OutpatientClinicLogo
-					/></div>{:else if page.data?.organization?.category?.name == 'cpts'}<Fa
-						icon={faAddressBook} size="2x" class="align-middle"
-					/>{/if}
+				{#if page.data?.organization?.category?.name == 'msp'}
+				<div class="w-6 h-6"><OutpatientClinicLogo
+					/></div>
+				{:else if page.data?.organization?.category?.name == 'cpts'}
+				<Fa	icon={faAddressBook} size="2x" class="align-middle"/>
+				{/if}
 			</div>
-			<div class="lg:hidden flex-none">
+			<div class="block lg:hidden">
 				{capitalizeFirstLetter(
-					page.data.organization?.formatted_name_short || page.data.organization.formatted_name,
+					page.data.organization?.formatted_name_short || page.data.organization?.formatted_name,
 					$language
 				)}
 			</div>
-			<span class="no-wrap hidden lg:inline-block"
+			<span class="max-lg:hidden"
 				><h4 class="h4">
 					{capitalizeFirstLetter(page.data.organization.formatted_name, $language)}
-				</h4></span
-			>
+				</h4>
+			</span>
 		</div>
 	</a>
 	<svelte:fragment slot="trail">

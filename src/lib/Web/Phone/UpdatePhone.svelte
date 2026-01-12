@@ -45,9 +45,6 @@
 		getSelectedAccess(data.roles?.map((e) => e.name))
 	);
 	let _roles: string[] | undefined = $derived(getRoles(selectedAccess?.value));
-	//console.log(roles);
-	//console.log(getSelectedAccess(roles));
-	//console.log(`selectedAccess:${JSON.stringify(selectedAccess)}`);
 	let disabled: boolean = $derived(
 		selectedType.value == data.type &&
 			_phone == data.phone &&

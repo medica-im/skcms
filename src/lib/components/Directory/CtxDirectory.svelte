@@ -34,7 +34,6 @@
 		getSelectedTags
 	} from './context';
 	import {
-		//distanceEffectorsF,
 		fullFilteredEntriesF,
 		filteredEntriesF,
 		categorizedFilteredEffectorsF,
@@ -48,7 +47,6 @@
 	} from '$lib/store/directoryStore.ts';
 	import FullDirectory from './FullDirectory.svelte';
 	import Types from './Types.svelte';
-	import { getEntries, getSituations } from '$lib/store/directoryStore.ts';
 	import type { SelectType } from '$lib/interfaces/select';
 	import type {
 		Contact,
@@ -85,7 +83,7 @@
 		displaySituation?: boolean;
 		displayCommune?: boolean;
 		displayDepartment?: boolean;
-		displayCategory: boolean;
+		displayCategory?: boolean;
 		displayFacility?: boolean;
 		displayOrganization?: boolean;
 		displaySearch?: boolean;
@@ -94,7 +92,7 @@
 		setRedirect?: boolean;
 		propLimitCategories?: string[];
 		propSelectFacility?: string | null;
-		avatar: boolean;
+		avatar?: boolean;
 		typesView?: boolean;
 		displayEntries?: boolean;
 		types?: string[] | null;
@@ -136,6 +134,7 @@
 	const situations = $derived(page.data.situations);
 	const organization = $derived(page.data.organization);
 	const entries = $derived(page.data.entries);
+	const effectorTypeLabels = $derived(page.data.labels);
 
 	const distanceEffectorsF = (entries: Entry[], addressFeature: AddressFeature | null) => {
 		const targetGeoJSON = addressFeature?.geometry?.coordinates;
@@ -218,7 +217,7 @@
 	const cardinalCategorizedFilteredEffectors = asyncDerived(
 		[categorizedFilteredEffectors, filteredEffectors, addressFeature],
 		async ([$categorizedFilteredEffectors, $filteredEffectors, $addressFeature]) => {
-			return cardinalCategorizedFilteredEffectorsF($categorizedFilteredEffectors);
+			return cardinalCategorizedFilteredEffectorsF($categorizedFilteredEffectors, effectorTypeLabels);
 		}
 	);
 	setContext('cardinalCategorizedFilteredEffectors', cardinalCategorizedFilteredEffectors);
@@ -238,6 +237,44 @@
 			rLimitCategories
 		);
 	});
+
+	const rFilteredEntries = $derived.by(()=>{
+		return filteredEntriesF(
+				rFullFilteredEntries,
+				$selectCategories,
+				$selectDepartments,
+				$selectCommunes,
+				$selectFacility,
+				$term,
+				$selectTags
+			);
+		}
+	);
+	//$inspect("rFullFilteredEntries", rFullFilteredEntries);
+	//$inspect("rFilteredEntries", rFilteredEntries);
+
+	const rCategorizedFullFilteredEntries = $derived.by(()=>{
+			return categorizedFullFilteredEffectorsF(rFullFilteredEntries);
+		}
+	);
+	//$inspect("rCategorizedFullFilteredEntries", rCategorizedFullFilteredEntries);
+
+	const rCategorizedFilteredEntries = $derived.by(()=>{
+		/*[categorizedFilteredEffectors, filteredEffectors, addressFeature],
+		async ([$categorizedFilteredEffectors, $filteredEffectors, $addressFeature]) => {*/
+			return categorizedFilteredEffectorsF(rFilteredEntries,$distanceEffectors, $selectSituation);
+		}
+	);
+	//$inspect("rCategorizedFilteredEntries", rCategorizedFilteredEntries);
+
+	const rCardinalCategorizedFilteredEntries = $derived.by(()=>{
+		/*[categorizedFilteredEffectors, filteredEffectors, addressFeature],
+		async ([$categorizedFilteredEffectors, $filteredEffectors, $addressFeature]) => {*/
+			return cardinalCategorizedFilteredEffectorsF( rCategorizedFilteredEntries, effectorTypeLabels);
+		}
+	);
+	//$inspect("rCardinalCategorizedFilteredEntries", rCardinalCategorizedFilteredEntries);
+
 	const communeOf = $derived.by(() => {
 		return communeOfF(rFullFilteredEntries, $selectCategories, $selectDepartments, $selectFacility);
 	});
@@ -275,5 +312,6 @@
 		{categoryOf}
 		{facilityOf}
 		{tagOf}
+		rCCFE={rCardinalCategorizedFilteredEntries}
 	/>
 {/if}

@@ -154,7 +154,7 @@ export async function doRefresh(endpoint: string, cachetime: number|undefined): 
 	}
 }
 
-export function displayMap(map: Map<any, any>) {
+export function logMap(map: Map<any, any>) {
 	const _arr = [];
 	for (const [key, value] of map) {
         _arr.push(key + ' = ' + JSON.stringify(value))
@@ -206,4 +206,11 @@ export function arrayFilterUnique<T>(
 		seen[toBeSearched] = true;
 		return isNew;
 	};
+}
+
+export function uniq(a) {
+	var seen = {};
+	return a.filter(function (item) {
+		return seen.hasOwnProperty(item.uid) ? false : (seen[item.uid] = true);
+	});
 }

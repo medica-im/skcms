@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { language } from '$lib/store/languageStore.ts';
-    import { popup } from '@skeletonlabs/skeleton';
+	import { popup } from '@skeletonlabs/skeleton';
 	import Fa from 'svelte-fa';
 	import { page } from '$app/state';
 	import {
@@ -22,16 +22,12 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import { menuNavLinks, menuNavCats } from '$var/variables.ts';
 
-    function getNavGroups(id: string) {
-        let cat = menuNavCats.find(obj => {
-            return obj.id === id
-        })
-    const navGroup = Object.values(menuNavLinks).filter(x => cat.list.includes(x.id));
-    return navGroup
-    }
-	// Reactive
-	$: classesActive = (href: string) => {
-		return page.url.pathname === href ? 'variant-ringed-primary' : '';
+	function getNavGroups(id: string) {
+		let cat = menuNavCats.find((obj) => {
+			return obj.id === id;
+		});
+		const navGroup = Object.values(menuNavLinks).filter((x) => cat.list.includes(x.id));
+		return navGroup;
 	}
 </script>
 
@@ -54,7 +50,7 @@
 				{/if}
                 {#each navGroup.list.filter(e=>e.active != false) as { href, label, icon, preload }}
                 <li>
-                    <a data-sveltekit-preload-data={preload ? preload:"hover"} {href} class="{classesActive(href)}">
+                    <a data-sveltekit-preload-data={preload ? preload:"hover"} {href} class={page.url.pathname === href ? 'variant-ringed-primary' : ''}>
                         <span class="w-6 text-center">
 							{#if icon}
 							<Fa icon={icon} />

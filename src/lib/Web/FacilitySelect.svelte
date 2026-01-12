@@ -107,10 +107,10 @@
 
 	const getDepartmentItems = (departments: DepartmentOfFrance[]) => {
 		departments.sort((a: DepartmentOfFrance, b: DepartmentOfFrance) =>
-			a.name.localeCompare(b.name)
+			a.code.localeCompare(b.code)
 		);
 		return departments.map((e) => {
-			return { value: e.code, label: e.name };
+			return { value: e.code, label: `${e.code} - ${e.name}` };
 		});
 	};
 

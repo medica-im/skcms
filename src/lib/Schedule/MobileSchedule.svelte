@@ -1,18 +1,13 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { dateTime } from '$lib/store/dateTimeStore.ts';
 	import Fa from 'svelte-fa';
 	import {
 		faSync,
-		faMobileScreen,
-		faPhone,
 		faSms,
-		faFax,
-		faMapLocationDot,
-		faLocationDot
 	} from '@fortawesome/free-solid-svg-icons';
 	import { isServiceAvailable } from '$lib/Schedule/available.ts';
 	import { publicHolidays } from '$lib/store/publicHolidaysStore.ts';
-	import { loadAll } from '@square/svelte-store';
 </script>
 
 <div class="card h-full">
@@ -24,11 +19,11 @@
 			<p>
 				La prise de rendez-vous par SMS est&nbsp;
 			<span class="inline-flex items-baseline">
-			{#await loadAll([dateTime, publicHolidays])}
+			{#await publicHolidays(page.data.organization)}
 			<Fa icon={faSync} size="3x" spin />
-			{:then}
+			{:then holidays}
 			<span>
-				{isServiceAvailable('phoneAppointment', $dateTime, $publicHolidays)
+				{isServiceAvailable('phoneAppointment', $dateTime, holidays)
 						? 'ouverte'
 						: 'fermée'}
 			</span>

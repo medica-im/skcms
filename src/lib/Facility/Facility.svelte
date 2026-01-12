@@ -14,7 +14,7 @@
 		return f;
 	}
 
-	const carouselFacilities = filterFacilities(data);
+	const carouselFacilities = $derived(filterFacilities(data));
 
 	function title() {
 		const title = data?.facilities?.length > 1 ? 'Sites' : 'Site';

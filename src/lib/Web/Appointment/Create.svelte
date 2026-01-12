@@ -9,7 +9,6 @@
 		faExclamationCircle,
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import { JsonView } from '@zerodevx/svelte-json-view';
 	import Select from 'svelte-select';
 	import Dialog from '../Dialog.svelte';
 	import { getEntryUid } from '$lib/components/Directory/context';

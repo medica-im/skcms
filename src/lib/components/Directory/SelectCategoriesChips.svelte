@@ -1,18 +1,23 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { getContext } from 'svelte';
 	import { onMount } from 'svelte';
-	import { categories } from '$lib/store/directoryStore';
 	import { getSelectCategories } from './context';
 	import * as m from '$msgs';
 	import { get } from '@square/svelte-store';
 	import Fa from 'svelte-fa';
 	import { faCheck } from '@fortawesome/free-solid-svg-icons';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { variables } from '$lib/utils/constants';
+	import { uniq } from '$lib/utils/utils.ts';
 	import type { Loadable } from '@square/svelte-store';
-	import type { CategorizedEntries, Type } from '$lib/store/directoryStoreInterface';
+	import type { Entry, CategorizedEntries, Type } from '$lib/store/directoryStoreInterface';
+	import type { EffectorType } from '$lib/interfaces/v2/effector';
 
 	let { categoryOf } = $props();
+
+	const categories: EffectorType[] = uniq(page.data.entries.map((e: Entry) => e.effector_type)).sort(function (a, b) {
+			return a.uid.localeCompare(b.uid);
+		});
 
 	const categorizedFilteredEffectors = getContext<Loadable<CategorizedEntries>>(
 		'categorizedFilteredEffectors'
@@ -35,7 +40,6 @@
 
 		//const res = await fetch(url);
 		//const data = await res.json();
-		//console.log(`first ${data}`)
 		//records.push(...data.effector_types);
 		let initLimit = '?limit=100';
 		let next = '';
@@ -47,7 +51,6 @@
 			records.push(...data.effector_types);
 			next = data.meta.next;
 		} while (next);
-		//console.log(`effector_types: ${JSON.stringify(records)}`);
 		return records;
 	}
 
@@ -85,9 +88,8 @@
 		if (!sElements?.length) {
 			return null;
 		} else {
-			let c = await categories();
-			if (c) {
-				let val = c.filter((x) => sElements.includes(x.uid))
+			if (categories) {
+				let val = categories.filter((x) => sElements.includes(x.uid))
 					.map(function (x) {
 						let dct = { value: x.uid, label: x.name };
 						return dct;
@@ -109,7 +111,7 @@
 		}
 	}
 </script>
-<div class="text-surface-700 theme space-x-2 space-y-2">
+<div class="flex flex-wrap gap-2 items-center text-surface-700">
 	{#await categorizedFullFilteredEffectors.load()}
 		<div class="placeholder"></div>
 	{:then}
@@ -121,30 +123,32 @@
 			{#key category}
 				{#each [...$categorizedFullFilteredEffectors] as [c, value], index}
 					<!-- prettier-ignore -->
+					 <button onclick={() => {
+						select(c, $query.data);
+					}} tabindex={index+1}>
 					<span
 					role="button"
-					tabindex="{index}"
 					class="chip {category === c ? 'variant-filled' : 'variant-soft'}"
-					onclick={() => {
-						select(c, $query.data);
-					}}
+					
 				>
 					{#if category === c}<span><Fa icon={faCheck} /></span>{/if}
 					<span>{$query.data.find(x=>x.name==c).label}</span>
 				</span>
+				</button>
 				{/each}
 				{#if $categorizedFullFilteredEffectors.size > 1}
+				<button onclick={() => {
+							select('', $query.data);
+						}} tabindex={$categorizedFullFilteredEffectors.size}>
 					<span
 						role="button"
-						tabindex={$categorizedFullFilteredEffectors.size}
 						class="chip {category === '' ? 'variant-filled' : 'variant-soft'}"
-						onclick={() => {
-							select('', $query.data);
-						}}
+						
 					>
 						{#if category === ''}<span><Fa icon={faCheck} /></span>{/if}
 						<span>{m.ADDRESSBOOK_CATEGORIES_ALL()}</span>
 					</span>
+					</button>
 				{/if}
 			{/key}
 		{/if}
