@@ -32,6 +32,7 @@
 	import CreatePhone from '$lib/Web/Phone/CreatePhone.svelte';
 	import CreateEmail from '$lib/Web/Email/Create.svelte';
 	import CreateWebsite from '$lib/Web/Website/Create.svelte';
+	import CreateSoMed from '$lib/Web/SocialMedia/Create.svelte';
 	import UpdateEffector from '$lib/Web/Effector/UpdateEffectorModal.svelte';
 	import InactivateEntry from '$lib/Web/Entry/InactivateEntry.svelte';
 	import Tag from '$lib/Tag/Tag.svelte';
@@ -182,18 +183,18 @@
 				{/if}
 			</div>
 		{/if}
-		{#if fullentry.socialnetworks?.length}
+		{#if fullentry.socialnetworks?.length  || $editMode}
 			<div class="d-flex justify-content-between align-items-start">
 				<div class="flex items-center p-1">
 					<div class="w-9"><Fa icon={faCircleNodes} /></div>
 					<div>
-						<h3 class="h3">{m.ADDRESSBOOK_SOMED()}</h3>
+						<h3 class="h3 flex items-center gap-1">{m.ADDRESSBOOK_SOMED()}{#if $editMode}<CreateSoMed entry={fullentry.uid} />{/if}</h3>
 					</div>
 				</div>
 				<div class="flex p-1">
 					<div class="w-9"></div>
 					<div class="p-1 space-x-2">
-						<SoMed data={fullentry.socialnetworks} appBar={false} />
+						<SoMed data={fullentry.socialnetworks} editMode={$editMode} appBar={false} />
 					</div>
 				</div>
 			</div>

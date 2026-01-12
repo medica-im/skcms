@@ -10,12 +10,24 @@
 		faSkype
 	} from '@fortawesome/free-brands-svg-icons';
 	import { getDrawerStore } from '@skeletonlabs/skeleton';
+	import Update from '$lib/Web/SocialMedia/Update.svelte';
+	import Delete from '$lib/Web/SocialMedia/Delete.svelte';
 	import type { SocialNetwork } from '$lib/interfaces/socialnetwork.interface';
-	export let embedded = false;
-	export let data: SocialNetwork[];
-	export let appBar = false;
-	export let sideBar = false;
-	export let appRail = false;
+	let {
+		embedded = false,
+		data,
+		appBar = false,
+		sideBar = false,
+		appRail = false,
+		editMode = false,
+	} : {
+		embedded?: boolean;
+		data: SocialNetwork[];
+		appBar?: boolean;
+		sideBar?: boolean;
+		appRail?: boolean;
+		editMode?: boolean;
+	} = $props();
 
 	const drawerStore = getDrawerStore();
 
@@ -114,7 +126,7 @@
             target="_blank"
             rel="external">
 			<span><Fa icon={getIcon(somed)} size="lg" /></span>
-		</a>
+		</a>{#if editMode}<Update data={somed} /><Delete data={somed}/>{/if}
 	{/each}
 </span>
 {/if}
