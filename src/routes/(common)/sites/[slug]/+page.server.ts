@@ -17,7 +17,7 @@ export const entries: EntryGenerator = async () => {
     const facilities_json: any = await response.json();
     const facilities: Facility[] = facilities_json?.facilities;
     const slugArr: { slug: string }[] = []
-    const slugs: string[] = facilities.map(e => e.slug);
+    const slugs: string[] = facilities.map((e) => { return e.slug || e.uid });
     slugs.forEach((e) => {
         const slug = { slug: e };
         slugArr.push(slug);
