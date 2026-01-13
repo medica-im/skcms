@@ -25,4 +25,4 @@ export const entries: EntryGenerator = async () => {
     return slugArr
 };
 
-export const prerender = true;
+export const prerender = false;
