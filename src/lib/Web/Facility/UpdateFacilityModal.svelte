@@ -66,11 +66,11 @@
 		name: isMSP ? true : false,
 		label: false,
 		slug: isMSP ? true : false,
-		geocoder: true,
+		geocoder: false,
 		building: false,
 		street: false,
 		geographical_complement: false,
-		zip: true,
+		zip: false,
 		zoom: false,
 	};
 	let validateForm: ValidateForm = $state({
