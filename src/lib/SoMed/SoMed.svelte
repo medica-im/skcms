@@ -2,7 +2,7 @@
 	import { AppRailAnchor } from '@skeletonlabs/skeleton';
 	import Fa from 'svelte-fa';
 	import {
-		faTwitter,
+		faXTwitter,
 		faFacebook,
 		faLinkedin,
 		faInstagram,
@@ -71,7 +71,7 @@
 	function getIcon(somed: SocialNetwork) {
 		let type: string = somed.type;
 		const icons = {
-			T: faTwitter,
+			T: faXTwitter,
 			F: faFacebook,
 			LI: faLinkedin,
 			I: faInstagram,

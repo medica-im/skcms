@@ -1,7 +1,6 @@
 import {
 		faGithub,
 		faGoogle,
-		faTwitter,
 		faFacebook,
 		faLinkedin,
 		faInstagram,
