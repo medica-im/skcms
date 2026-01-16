@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
 	import { language } from '$lib/store/languageStore.ts';
 	import * as m from '$msgs';
 	import { page } from '$app/state';
@@ -6,6 +7,7 @@
 	import DocsIcon from '$lib/Icon/Icon.svelte';
 	import { AppRail, AppRailTile, AppRailAnchor, getDrawerStore } from '@skeletonlabs/skeleton';
 	import SoMed from '$lib/SoMed/SoMed.svelte';
+	import Website from '$lib/components/Website/Website.svelte';
 	import Fa from 'svelte-fa';
 	import { faBlog } from '@fortawesome/free-solid-svg-icons';
 
@@ -140,6 +142,13 @@
 		{/if}
 		{#if page.data.organization.contact?.socialnetworks}
 			<SoMed data={page.data.organization.contact.socialnetworks} appRail={true} />
+		{/if}
+		{#if page.data.organization.contact?.websites}
+			{#each page.data.organization.contact?.websites as website }
+			{#if website.url!==ORIGIN}
+			<Website {website} appRail={true} />
+			{/if}
+			{/each}
 		{/if}
 	</AppRail>
 	{#if navLinks?.length}

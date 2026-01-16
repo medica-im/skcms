@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
 	import { MapLibre, DefaultMarker } from 'svelte-maplibre';
 	import { page } from '$app/state';
 	import Fa from 'svelte-fa';
@@ -8,13 +9,18 @@
 	import Emails from '$lib/Email/Emails.svelte';
 	import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
 	import * as openStreetMap from '$lib/MapLibre/style/openStreetMap.json';
+	import Websites from '$lib/Website/Websites.svelte';
+	import type { EntryFull } from '$lib/store/directoryStoreInterface';
+
+	let { data }: { data: EntryFull|undefined } = $props();
+
+	const showWebsite: boolean = Boolean(!data?.websites?.some(e=>e.url===ORIGIN));
 
 	const mapData = createContactMapData(
 				page.data.organization.contact.address,
 				page.data.organization.formatted_name
 			);
 </script>
-
 <div class="grid lg:grid-cols-2">
 	<div class="grow-0 basis-auto lg:w-6/12 xl:w-8/12">
 		<div class="flex flex-wrap pt-12 lg:pt-0">
@@ -37,6 +43,9 @@
 						{/if}
 						{#if page.data.organization.contact.emails}
 							<Emails data={page.data.organization.contact.emails} />
+						{/if}
+						{#if showWebsite}
+						<Websites data={data?.websites!!!} />
 						{/if}
 						{#if page.data.organization.logo}
 							<img

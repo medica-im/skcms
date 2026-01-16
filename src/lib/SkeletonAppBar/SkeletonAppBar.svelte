@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
 	import { page } from '$app/state';
 	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
@@ -31,6 +32,7 @@
 	import OutpatientClinicLogo from '$lib/Logos/OutpatientClinicLogo.svelte';
 	import AddressBookLogo from '$lib/Logos/AddressBookLogo.svelte';
 	import SocialNetworks from '../SoMed/SoMed.svelte';
+	import Website from '$lib/components/Website/Website.svelte';
 	// Components
 	import { AppBar } from '@skeletonlabs/skeleton';
 	import { LightSwitch } from '@skeletonlabs/skeleton';
@@ -125,17 +127,18 @@
 	<a data-sveltekit-preload-data="off" href="/" title={m.NAVBAR_GO_HOME()}>
 		<div class="flex items-center gap-2">
 			<div class="lg:hidden flex-none">
-				{#if page.data?.organization?.category?.name == 'msp'}<div class="w-5 h-5"><OutpatientClinicLogo
-					/></div>{:else if page.data?.organization?.category?.name == 'cpts'}<Fa
-						icon={faAddressBook} size="sm"
+				{#if page.data?.organization?.category?.name == 'msp'}<div class="w-5 h-5">
+						<OutpatientClinicLogo />
+					</div>{:else if page.data?.organization?.category?.name == 'cpts'}<Fa
+						icon={faAddressBook}
+						size="sm"
 					/>{/if}
 			</div>
 			<div class="hidden lg:inline-block">
 				{#if page.data?.organization?.category?.name == 'msp'}
-				<div class="w-6 h-6"><OutpatientClinicLogo
-					/></div>
+					<div class="w-6 h-6"><OutpatientClinicLogo /></div>
 				{:else if page.data?.organization?.category?.name == 'cpts'}
-				<Fa	icon={faAddressBook} size="2x" class="align-middle"/>
+					<Fa icon={faAddressBook} size="2x" class="align-middle" />
 				{/if}
 			</div>
 			<div class="block lg:hidden">
@@ -267,34 +270,34 @@
 			<span class="opacity-50"><Fa icon={faCaretDown} /></span>
 		</button>
 		<!-- popup -->
-		 {#if browser}
-		<div class="card p-4 w-60 shadow-xl" data-popup="theme">
-			<section class="flex justify-between items-center">
-				<h6 class="h6">Mode</h6>
-				<LightSwitch />
-			</section>
-			<hr class="my-4" />
-			<nav class="list-nav p-4 -m-4 max-h-64 lg:max-h-[500px] overflow-y-auto">
-				<form action="/?/setTheme" method="POST" use:enhance={setTheme}>
-					<ul>
-						{#each themes as { icon, name, type }}
-							<li>
-								<button
-									class="option w-full h-full"
-									type="submit"
-									name="theme"
-									value={type}
-									class:bg-primary-active-token={$storeTheme === type}
-								>
-									<span>{icon}</span>
-									<span class="flex-auto text-left">{name}</span>
-								</button>
-							</li>
-						{/each}
-					</ul>
-				</form>
-			</nav>
-		</div>
+		{#if browser}
+			<div class="card p-4 w-60 shadow-xl" data-popup="theme">
+				<section class="flex justify-between items-center">
+					<h6 class="h6">Mode</h6>
+					<LightSwitch />
+				</section>
+				<hr class="my-4" />
+				<nav class="list-nav p-4 -m-4 max-h-64 lg:max-h-[500px] overflow-y-auto">
+					<form action="/?/setTheme" method="POST" use:enhance={setTheme}>
+						<ul>
+							{#each themes as { icon, name, type }}
+								<li>
+									<button
+										class="option w-full h-full"
+										type="submit"
+										name="theme"
+										value={type}
+										class:bg-primary-active-token={$storeTheme === type}
+									>
+										<span>{icon}</span>
+										<span class="flex-auto text-left">{name}</span>
+									</button>
+								</li>
+							{/each}
+						</ul>
+					</form>
+				</nav>
+			</div>
 		{/if}
 
 		<!-- Social -->
@@ -304,12 +307,19 @@
             <SocialNetworks data={page.data.organization.contact.socialnetworks} appBar={true} />
 			{/if}
 			{#if variables.BLOG_URI}
-
 			<a href={variables.BLOG_URI} title={'blog'} class="btn hover:variant-soft-primary" target="_blank" rel="noreferrer">
 				<span><Fa icon={faBlog} size="lg" /></span>
 				<span class="hidden 2xl:inline-block">Blog</span>
 			</a>
 			{/if}
+			{#if page.data.organization?.contact?.websites}
+			{#each page.data.organization?.contact?.websites as website}
+			{#if website.url!==ORIGIN}
+			<Website {website} appBar={true} />
+			{/if}
+			{/each}
+			{/if}
+
         </div>
 
 		<User />

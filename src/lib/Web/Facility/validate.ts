@@ -73,7 +73,7 @@ export const validateSlug = (slug: string | null, inputClass: InputClass, isRequ
     }
 };
 export const validateGeocoder = (addressFeature: AddressFeature|null, inputClass: InputClass, isRequired: IsRequired, validateForm: ValidateForm) => {
-		if (addressFeature) {
+		if (addressFeature || !isRequired.geocoder) {
 			validateForm.geocoder = true;
 			inputClass.geocoder = '';
 			return;

@@ -4,6 +4,8 @@
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import * as m from '$msgs';
 	import Contact from '$lib/Contact/Contact.svelte';
+    import type { PageProps } from './$types';
+	let { data }: PageProps = $props();
 </script>
 
 <svelte:head>
@@ -15,7 +17,7 @@
 <!-- programs -->
 <section id="programs" class="bg-surface-100-800-token programs-gradient">
 	<div class="section-container">
-		<Contact />
+		<Contact data={data.fullentry} />
 	</div>
 </section>
 

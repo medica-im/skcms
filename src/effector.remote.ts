@@ -23,6 +23,7 @@ export const getEffectors = query(z.string().nullable(), async (directory) => {
     const { cookies } = getRequestEvent();
     const params = directory ? `?directory=${encodeURIComponent(directory)}` : '';
     const url = `${variables.BASE_URI}/api/v2/effectors${params}`;
+    console.log("getEffectors url", url);
     const request = authReq(url, 'GET', cookies);
     const response = await fetch(request);
     if (response.ok == false) {
