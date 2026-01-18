@@ -90,26 +90,29 @@ export const updateFacility = form(putFacility, async (data) => {
 	const request = authReq(url, 'PUT', cookies, JSON.stringify(data));
 	const response = await fetch(request);
 	if (response.ok == false) {
+		const json = await response.json()
 		console.error(JSON.stringify(response))
 		console.error(response.status)
 		console.error(response.statusText)
 		return {
 			success: false,
 			status: response.status,
-			text: response.statusText
+			text: response.statusText,
+			data: json
 		}
 	} else {
 		const json = await response.json()
 		console.log(`Success! Status: ${response.status} Status text: ${response.statusText}`);
 		console.log(json);
-		if (doRedirect) {
-			redirect(303, `/sites/${json.slug}?success=true`);
+		if ( !doRedirect ) {
+			return {
+				success: true,
+				status: response.status,
+				text: response.statusText,
+				data: json
+			}
 		}
-		return {
-			success: true,
-			status: response.status,
-			text: response.statusText,
-			data: json
-		}
+		const redirectUrl: string = `/sites/${json.slug}?success=true`;
+		redirect(303, redirectUrl );
 	}
 });

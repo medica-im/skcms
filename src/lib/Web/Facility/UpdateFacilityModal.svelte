@@ -4,7 +4,6 @@
 	import { onMount } from 'svelte';
 	import * as m from '$msgs';
 	import { updateFacility } from '../../../facility.remote.ts';
-	import { invalidate } from '$app/navigation';
 	import {
 		faCheck,
 		faPenToSquare,
@@ -163,9 +162,8 @@
 				console.log(data);
 				try {
 					await submit();
-					console.log('Successfully published!');
 				} catch (error) {
-					console.log(`Oh no! Something went wrong:${error}`);
+					console.error(`Oh no! Something went wrong:${error}`);
 				}
 			})}
 		>
