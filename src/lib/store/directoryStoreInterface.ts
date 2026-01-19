@@ -68,32 +68,33 @@ export interface Entry {
 }
 
 export interface EntryFull {
-    address: Address,
-    appointments: Appointment[] | null,
-    avatar: Avatar,
-    carte_vitale: CarteVitale,
-    convention: Convention | null,
-    effector_uid: string,
-    emails: Email[],
-    facility: Facility,
-    gender: string | null,
-    label: string,
-    name: string,
-    payment_methods: PaymentMethod[] | null,
-    organizations: string[],
-    phones: Phone[] | null,
-    profile: any | null,
-    resource_uri: string,
-    rpps: number | null,
-    slug: string,
-    socialnetworks: SocialNetwork[] | null,
-    spoken_languages: SpokenLanguage[] | null,
-    third_party_payers: ThirdPartyPayer[] | null,
-    effector_type: Type,
-    uid: string,
-    updatedAt: number,
-    websites: Website[] | null,
-    memberships: string[]|null
+    address: Address;
+    appointments: Appointment[] | null;
+    avatar: Avatar;
+    carte_vitale: CarteVitale;
+    convention: Convention | null;
+    effector_uid: string;
+    emails: Email[];
+    facility: Facility;
+    gender: string | null;
+    label: string;
+    name: string;
+    payment_methods: PaymentMethod[] | null;
+    organizations: string[];
+    phones: Phone[] | null;
+    profile: any | null;
+    resource_uri: string;
+    rpps: number | null;
+    slug: string;
+    socialnetworks: SocialNetwork[] | null;
+    spoken_languages: SpokenLanguage[] | null;
+    third_party_payers: ThirdPartyPayer[] | null;
+    effector_type: Type;
+    uid: string;
+    updatedAt: number;
+    websites: Website[] | null;
+    memberships: string[]|null;
+    tags: Tag[]|null;
 }
 
 export interface FeatureCollection {

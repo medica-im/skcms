@@ -24,12 +24,6 @@ export const getFacility = async (uid: string) => {
   return data
 }
 
-export const getEntry = async (uid: string) => {
-  const response = await fetch(`${ORIGIN}/api/v1/entries/${uid}`)
-  const data = (await response.json()) as Entry
-  return data
-}
-
 export const getDepartments = async () => {
   const response = await fetch(`${ORIGIN}/api/v2/departments`)
   const data = (await response.json()) as Array<DepartmentOfFrance>

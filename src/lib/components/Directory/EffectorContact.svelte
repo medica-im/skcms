@@ -43,11 +43,12 @@
 	import PatchMembershipModal from '$lib/Web/Entry/Membership/PatchMembershipModal.svelte';
 	import TagModal from '$lib/Web/Tag/TagModal.svelte';
 	import { JsonView } from '@zerodevx/svelte-json-view';
-	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
+	import type { Entry } from '$lib/store/directoryStoreInterface';
+	import type { EntryFull } from '$lib/store/directoryStoreInterface';
 	let { data } = $props();
 
-	let fullentry = $derived(data.fullentry);
-	let memberships = $derived(data.memberships);
+	let fullentry: EntryFull = $derived(data.fullentry);
+	let memberships: Entry[] | null = $derived(data.memberships);
 
 	setEntryUid(data.fullentry.uid);
 	setEffectorUid(data.fullentry.effector_uid);
@@ -183,20 +184,24 @@
 				{/if}
 			</div>
 		{/if}
-		{#if fullentry.socialnetworks?.length  || $editMode}
+		{#if fullentry.socialnetworks?.length || $editMode}
 			<div class="d-flex justify-content-between align-items-start">
 				<div class="flex items-center p-1">
 					<div class="w-9"><Fa icon={faCircleNodes} /></div>
 					<div>
-						<h3 class="h3 flex items-center gap-1">{m.ADDRESSBOOK_SOMED()}{#if $editMode}<CreateSoMed entry={fullentry.uid} />{/if}</h3>
+						<h3 class="h3 flex items-center gap-1">
+							{m.ADDRESSBOOK_SOMED()}{#if $editMode}<CreateSoMed entry={fullentry.uid} />{/if}
+						</h3>
 					</div>
 				</div>
+				{#if fullentry.socialnetworks}
 				<div class="flex p-1">
 					<div class="w-9"></div>
 					<div class="p-1 space-x-2">
 						<SoMed data={fullentry.socialnetworks} editMode={$editMode} appBar={false} />
 					</div>
 				</div>
+				{/if}
 			</div>
 		{/if}
 		{#if fullentry?.spoken_languages || fullentry?.rpps || $editMode}
@@ -235,9 +240,9 @@
 				<div class="w-9"><Fa icon={faPeopleGroup} size="sm" /></div>
 				<div>
 					<h3 class="h3 flex place-items-center gap-1">
-						{capitalizeFirstLetter(m.MEMBERSHIP({ count: 1 }))}{#if $editMode}<PatchMembershipModal
-								currentMemberships={memberships}
-							/>{/if}
+						{capitalizeFirstLetter(
+							m.MEMBERSHIP({ count: memberships?.length||0 })
+						)}{#if $editMode}<PatchMembershipModal currentMemberships={memberships} />{/if}
 					</h3>
 				</div>
 			</div>
@@ -263,16 +268,17 @@
 	</div>
 	{#if import.meta.env.DEV}
 		<div>
-		<JsonView json={data} depth={1} />
+			<JsonView json={data} depth={1} />
 		</div>
 	{/if}
 </div>
+
 <style>
-  .wrap {
-    font-family: monospace;
-    font-size: 14px;
-    --jsonBorderLeft: 4px dashed;
-    --jsonValColor: blue;
-	--jsonPaddingLeft: 10rem;
-  }
+	.wrap {
+		font-family: monospace;
+		font-size: 14px;
+		--jsonBorderLeft: 4px dashed;
+		--jsonValColor: blue;
+		--jsonPaddingLeft: 10rem;
+	}
 </style>
