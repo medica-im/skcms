@@ -56,7 +56,7 @@
 		return slugify(name_fr)
 	});
 	let gender: string|undefined = $state();
-	let disabled: boolean = $derived(createEffector.for(uuid).result?.success === true || !Object.values(validateForm).every((v) => v === true));
+	let disabled: boolean = $derived(!Object.values(validateForm).every((v) => v === true));
 
 	function addOrgMembership() {
 		if ( isMember ) {
@@ -109,7 +109,17 @@
 			<h3 class="h3 text-center">Créer une nouvelle personne physique ou morale</h3>
 			<div class="p-4 space-y-2 justify-items-stretch grid grid-cols-1 gap-6">
 				<form
-					{...createEffector.for(uuid)}
+					{...createEffector.for(uuid).enhance(async ({ form, data, submit }) => {
+				try {
+					//data = manipulateForm(data);
+					const dataString = JSON.stringify(data);
+					console.log(dataString);
+					disabled=true;
+					await submit();
+				} catch (error) {
+					console.log(error);
+				}
+			})}
 					class=""
 				>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
