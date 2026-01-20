@@ -115,15 +115,16 @@ export const createEffector = form(effectorPost, async (data) => {
     const url = `${variables.BASE_URI}/api/v2/effectors`;
     const request = authReq(url, 'POST', cookies, JSON.stringify(data));
     const response = await fetch(request);
+    const json = await response.json()
     if (response.ok == false) {
-        console.error(JSON.stringify(response))
+        console.error(JSON.stringify(json))
         return {
             success: false,
             status: response.status,
-            text: response.statusText
+            text: response.statusText,
+            data: json
         }
     } else {
-        const json = await response.json()
         return {
             success: true,
             status: response.status,

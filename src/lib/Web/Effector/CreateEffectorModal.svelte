@@ -26,6 +26,7 @@
 		memberships: SelectType[];
 	} = $props();
 
+	let uuid = $state(self.crypto.randomUUID());
 	let isMember: boolean | undefined = $state();
 	let dialog: HTMLDialogElement | undefined = $state();
 	let inputClass: InputClass = $state({
@@ -55,10 +56,7 @@
 		return slugify(name_fr)
 	});
 	let gender: string|undefined = $state();
-	let formResult = $derived(createEffector.result);
-	let disabled: boolean = $derived(
-		!Object.values(validateForm).every((v) => v === true) || formResult?.success == true
-	);
+	let disabled: boolean = $derived(createEffector.for(uuid).result?.success === true || !Object.values(validateForm).every((v) => v === true));
 
 	function addOrgMembership() {
 		if ( isMember ) {
@@ -82,7 +80,6 @@
 		validateAll();
 	});
 	const clear = () => {
-		formResult = undefined;
 		createdEffector = undefined;
 		isMember = undefined;
 		name_fr = "";
@@ -99,6 +96,7 @@
 
 <button
 	onclick={() => {
+		uuid = self.crypto.randomUUID();
 		clear();
 		dialog?.showModal();
 	}}
@@ -111,7 +109,7 @@
 			<h3 class="h3 text-center">Créer une nouvelle personne physique ou morale</h3>
 			<div class="p-4 space-y-2 justify-items-stretch grid grid-cols-1 gap-6">
 				<form
-					{...createEffector}
+					{...createEffector.for(uuid)}
 					class=""
 				>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
@@ -193,12 +191,12 @@
 					<OrganizationRadio bind:isMember bind:inputClass bind:validateForm {isRequired} />
 					<div class="flex gap-8">
 						<div class="flex gap-2 items-center">
-							{#if formResult?.success}
+							{#if createEffector.for(uuid).result?.success}
 								<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
-							{:else if formResult && formResult.success == false}
+							{:else if createEffector.for(uuid).result?.success === false}
 								<span class="badge-icon variant-filled-error"
 									><Fa icon={faExclamationCircle} /></span
-								>{formResult.text}
+								>{createEffector.for(uuid).result?.data}
 							{/if}
 						</div>
 						<div class="w-auto justify-center">
@@ -214,10 +212,10 @@
 								type="button"
 								class="variant-filled-error btn w-min"
 								onclick={() => {
-									createdEffector = formResult?.data;
+									createdEffector = createEffector.for(uuid).result?.data;
 									addOrgMembership();
 									dialog?.close();
-								}}>{formResult?.success ? 'Fermer' : 'Annuler'}</button
+								}}>{createEffector.for(uuid).result?.success ? 'Fermer' : 'Annuler'}</button
 							>
 						</div>
 					</div>

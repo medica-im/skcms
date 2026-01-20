@@ -1,11 +1,9 @@
 <script lang="ts">
 	import { createEntry } from '../../entry.remote.ts';
-	import { invalidateAll } from '$app/navigation';
 	import Fa from 'svelte-fa';
 	import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 	import { faUser } from '@fortawesome/free-regular-svg-icons';
 	import { page } from '$app/state';
-	import { goto } from '$app/navigation';
 	import * as m from '$msgs';
 	import DisplayFacility from '$lib/Web/DisplayFacility.svelte';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
