@@ -40,7 +40,8 @@ export const createEntry = form(postEntry, async (data) => {
 		return {
 			success: false,
 			status: response.status,
-			text: response.statusText
+			text: response.statusText,
+			data: json,
 		}
 	} else {
 		const json = await response.json()
@@ -53,12 +54,6 @@ export const createEntry = form(postEntry, async (data) => {
 			redirectURL=`/${slugify(json.facility.slug)}/${json.effector_type.slug}/${json.slug}`;
 		}
 		redirect(303, redirectURL);
-		return {
-			success: true,
-			status: response.status,
-			text: response.statusText,
-			data: json
-		}
 	}
 });
 

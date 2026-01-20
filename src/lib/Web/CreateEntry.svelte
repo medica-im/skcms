@@ -6,6 +6,7 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
 	import { variables } from '$lib/utils/constants';
 	import { nodeBefore } from '$lib/helpers/whitespacesHelper';
 	import type { User, UserResponse } from '$lib/interfaces/user.interface';
@@ -64,9 +65,9 @@ createdEffector: "{JSON.stringify(createdEffector)}"<br>
 memberships: "{JSON.stringify(memberships)}"<br>
 membershipsDone: {membershipsDone}
 -->
+<div id="top"></div>
 {#if createdEffector && selectedFacility && selectedEffectorType && membershipsDone}
-	<div class="grid grid-cols-1 gap-4 w-full variant-ringed p-2 place-items-center" bind:this={top}>
-		<h3 class="h3">Confirmer ou annuler la création de la nouvelle entrée</h3>
+	<div class="grid grid-cols-1 w-full p-2 place-items-center" bind:this={top}>
 		<EntryCreationForm
 			bind:createdEffector
 			bind:selectedFacility
@@ -189,6 +190,7 @@ membershipsDone: {membershipsDone}
 				<button
 					onclick={async () => {
 						membershipsDone = true;
+						goto("#top");
 					}}
 					class="btn variant-ghost-surface"
 					title="Passer"><span><Fa icon={faChevronRight} /></span><span>Passer</span></button

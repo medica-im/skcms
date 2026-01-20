@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { variables } from '$lib/utils/constants.ts';
 	import { page } from '$app/state';
@@ -169,6 +170,7 @@
 							onclick={() => {
 								membershipsDone = true;
 								dialog?.close();
+								goto("#top");
 							}}>Confirmer</button
 						>
 					</div>

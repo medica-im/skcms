@@ -13,10 +13,19 @@
 	import type { FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 	import type { Facility } from '$lib/interfaces/v2/facility.ts';
 
-	let { data, entries, showEffectors } : {
+	let {
+		data,
+		entries,
+		showEffectors,
+		mapHeight = 64,
+		update = true,
+	} : {
 		data: FacilityV2;
 		entries?: any;
-		showEffectors: boolean } = $props();
+		showEffectors: boolean;
+		mapHeight?: number;
+		update?: boolean;
+	} = $props();
 
 	const createFacilityGeoData = (facility: FacilityV2) => {
 		let facilityGeoData = {
@@ -56,7 +65,9 @@
 							>{data.name}</a
 						>
 					</h6>
+					{#if update}
 					<UpdateFacilityModal bind:facility={data} />
+					{/if}
 				</div>
 				<!--div class="flex items-center space-x-2">
 					<span class="badge variant-filled">Label</span>
@@ -116,7 +127,7 @@
 				</div>
 			{/if}
 		</div>
-		<div class="mx-2 p-1 h-64 lg:w-full z-0">
+		<div class="mx-2 p-1 h-{mapHeight} lg:w-full z-0">
 			<Map data={createMapData2(data)} />
 		</div>
 	</div>

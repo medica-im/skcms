@@ -2,6 +2,7 @@
 	import { createEntry } from '../../entry.remote.ts';
 	import { invalidateAll } from '$app/navigation';
 	import Fa from 'svelte-fa';
+	import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 	import { faUser } from '@fortawesome/free-regular-svg-icons';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
@@ -35,7 +36,7 @@
 		}
 	});
 	let formResult = $derived(createEntry.for(uid)?.result);
-	let disabled: boolean = $derived(formResult?.success == true);
+	let disabled: boolean = $state(false);
 	let hasBeenClicked = false;
 
 	const clear = () => {
@@ -46,8 +47,8 @@
 		directory = undefined;
 	};
 	function handleClick() {
+		disabled = true;
 		if (hasBeenClicked) return;
-
 		hasBeenClicked = true;
 		setTimeout(() => {
 			hasBeenClicked = false;
@@ -61,8 +62,30 @@
 formResult?.data: {formResult?.data}<br>
 selectedFacility: {JSON.stringify(selectedFacility)}-->
 <div class="rounded-lg p-4 variant-ghost-secondary gap-2 items-center place-items-center">
-	<form {...createEntry.for(uid)} class="">
+	<form {...createEntry.for(uid).enhance(async ({ form, data, submit }) => {
+				try {
+					//data = manipulateForm(data);
+					const dataString = JSON.stringify(data);
+					console.log(dataString);
+					disabled=true;
+					await submit();
+				} catch (error) {
+					console.log(error);
+				}
+			})} class="">
 		<div class="p-2 space-y-4 justify-items-stretch gap-6">
+			<h3 class="h3">Confirmer ou annuler la création de la nouvelle entrée</h3>
+			{#if formResult}
+				<aside class="alert variant-filled-error">
+					<!-- Icon -->
+					<span class="badge-icon"><Fa size="2x" icon={faExclamationTriangle} /></span>
+					<!-- Message -->
+					<div class="alert-message">
+						<h3 class="h3">Erreur {formResult.status} {formResult.text}</h3>
+						<p>{formResult.data?.detail}</p>
+					</div>
+				</aside>
+			{/if}
 			<div class="p-2 space-y-2 w-full">
 				<label class="flex label place-self-start place-items-center space-x-2 w-full">
 					<span>Personne:</span>
@@ -100,7 +123,7 @@ selectedFacility: {JSON.stringify(selectedFacility)}-->
 					/>
 				</label>
 				{#if facility}
-					<DisplayFacility facilityUid={facility} showEffectors={false} />
+					<DisplayFacility facilityUid={facility} showEffectors={false} mapHeight={36} />
 				{/if}
 				<label class="flex label place-self-start place-items-center space-x-2 w-full">
 					<span>Organisation:</span>
@@ -147,8 +170,7 @@ selectedFacility: {JSON.stringify(selectedFacility)}-->
 				<button
 					type="submit"
 					class="variant-filled-secondary btn w-min"
-					{disabled}
-					onclick={handleClick}>Confirmer</button
+					{disabled}>Confirmer</button
 				>
 			</div>
 			<div class="w-auto justify-center">
