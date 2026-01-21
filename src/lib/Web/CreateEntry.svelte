@@ -7,9 +7,6 @@
 	import Fa from 'svelte-fa';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import { variables } from '$lib/utils/constants';
-	import { nodeBefore } from '$lib/helpers/whitespacesHelper';
-	import type { User, UserResponse } from '$lib/interfaces/user.interface';
 	import * as m from '$msgs';
 	import FacilitySelect from '$lib/Web/FacilitySelect.svelte';
 	import EffectorSelect from './Effector/EffectorSelectModal.svelte';
@@ -25,8 +22,6 @@
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
 
-	let top: Element | undefined = $state();
-
 	const defaultDpt: SelectType = {
 		label: page.data.organization.department.name,
 		value: page.data.organization.department.code
@@ -34,7 +29,6 @@
 	let memberships: SelectType[] = $state([]);
 	let membershipsDone: boolean = $state(false);
 	let selectedFacility: { label: string; value: string } | undefined = $state();
-	//let createdFacility: { label: string; value: string } | undefined = $state();
 	let createdEffector: Effector | undefined = $state();
 	let selectedCommune: { label: string; value: string } | undefined = $state();
 	let facilityCount: number = $state(0);
@@ -67,7 +61,7 @@ membershipsDone: {membershipsDone}
 -->
 <div id="top"></div>
 {#if createdEffector && selectedFacility && selectedEffectorType && membershipsDone}
-	<div class="grid grid-cols-1 w-full p-2 place-items-center" bind:this={top}>
+	<div class="grid grid-cols-1 w-full p-2 place-items-center">
 		<EntryCreationForm
 			bind:createdEffector
 			bind:selectedFacility

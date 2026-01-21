@@ -1,16 +1,22 @@
 <script lang="ts">
+	import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
 	import * as m from '$msgs';
-	import { getEffectors } from './data';
 	import { Avatar } from '@skeletonlabs/skeleton';
 	import { faUser } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
+	import type { Effector } from '$lib/interfaces/v2/effector';
 
 	let { effectorType, facility }: { effectorType: string; facility: string } = $props();
 
-	let effectorsPromise = $derived(getEffectors({ effectorType: effectorType, facility: facility }));
+	async function getEffectors() {
+		const url = `${ORIGIN}/api/v2/effectors?facility=${facility}&effector_type=${effectorType}`;
+		const response = await fetch(url);
+		const data = (await response.json()) as Effector[];
+		return data;
+	}
 </script>
 
-{#await effectorsPromise}
+{#await getEffectors()}
 	<span>{m.LOADING}</span>
 {:then data}
 	{@const count = data.length}

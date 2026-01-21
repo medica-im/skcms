@@ -229,5 +229,6 @@
       }
     }
   ],
-  "ADDRESSBOOK_DEPARTMENTS_PLACEHOLDER": "Sélectionner par département..."
+  "ADDRESSBOOK_DEPARTMENTS_PLACEHOLDER": "Sélectionner par département...",
+  "slug": "permalien"
 }

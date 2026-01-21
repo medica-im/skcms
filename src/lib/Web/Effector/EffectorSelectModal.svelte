@@ -12,7 +12,6 @@
 	import FacilitySelect from '../FacilitySelect.svelte';
 	import OrganizationRadio from '../OrganizationRadio.svelte';
 	import { getEffectors } from '../../../effector.remote.ts';
-	import type { CreateQueryResult } from '@tanstack/svelte-query';
 	import type { Commune, DepartmentOfFrance, FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
@@ -103,7 +102,7 @@
 
 	const isRequired: IsRequired = $state({
 		effector: true,
-		isMember: true,
+		isMember: false,
 	});
 	let validateForm: ValidateForm = $state({
 		effector: false,
@@ -114,7 +113,7 @@
 		isMember: ''
 	});
 
-	let disabled: boolean = $derived(isMember == undefined || selectedEffector == undefined);
+	let disabled: boolean = $derived(selectedEffector == undefined);
 	let dialog: HTMLDialogElement | undefined = $state();
 	
 	const getLabel = (effector: Effector) => {

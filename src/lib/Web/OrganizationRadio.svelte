@@ -36,18 +36,14 @@
 </script>
 
 <div class="py-2 space-y-2">
-	<div>
-		Cette personne est-elle membre de {page.data.organization.formatted_name}?
-	</div>
 	<div class="flex items-center space-x-4">
 		{#each arr as row}
 			<label class="flex items-center space-x-2">
 				<input
-					class="radio {inputClass.isMember}"
+					class="radio"
 					type="radio"
 					value={row.value}
 					bind:group={orgRadio}
-					onchange={()=>onInput(row.data)}
 				/>
 				<p>{row.label}</p>
 			</label>

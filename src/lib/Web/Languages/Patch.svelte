@@ -97,7 +97,7 @@
 					onclick={async () => {
 						try {
 							result = await patchCommand(commandData);
-							if (result.success == true) {
+							if ( result?.success === true ) {
 								invalidate('entry:now');
 								disabled=true;
 							}

@@ -45,13 +45,17 @@ const zipIsValid = (value: string) => {
     const regexpFiveDigits = /^\d{5}$/;
     return regexpFiveDigits.test(value);
 };
-export const validateName = (name: string | null, inputClass: InputClass, isRequired: IsRequired, validateForm: ValidateForm) => {
+export const validateName = (name: string | null, inputClass: InputClass, isRequired: IsRequired, validateForm: ValidateForm, slug=false) => {
     if ((isRequired.name && name) || (!isRequired.name)) {
         inputClass.name = '';
         validateForm.name = true;
     } else {
         inputClass.name = inputError;
         validateForm.name = false;
+    }
+    if ( slug && name ) {
+        inputClass.slug = '';
+        validateForm.slug = true;
     }
 };
 export const validateLabel = (label: string | null, inputClass: InputClass, isRequired: IsRequired, validateForm: ValidateForm) => {

@@ -232,5 +232,6 @@
 			}
 		}
 	],
-	"ADDRESSBOOK_DEPARTMENTS_PLACEHOLDER": "Select by department..."
+	"ADDRESSBOOK_DEPARTMENTS_PLACEHOLDER": "Select by department...",
+	"slug": "slug"
 }

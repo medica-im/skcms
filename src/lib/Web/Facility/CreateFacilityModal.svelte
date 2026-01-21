@@ -198,7 +198,7 @@
 							placeholder=""
 							bind:value={name}
 							onchange={() => {
-								validateName(name, inputClass, isRequired, validateForm);
+								validateName(name, inputClass, isRequired, validateForm, true);
 							}}
 						/>
 					</label>

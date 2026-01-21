@@ -6,7 +6,7 @@ import { variables } from '$lib/utils/constants.ts';
 import type { Effector } from '$lib/interfaces/v2/effector.ts';
 
 const RoleEnum = z.enum(['anonymous', 'staff', 'administrator' , 'superuser']);
-const genderEnum = z.enum(['F', 'M', 'N']);
+const genderEnum = z.enum(['F', 'M', 'N'], "Vous devez choisir un genre grammatical.");
 
 const effectorGet = z.object({
     uid: z.string(),
@@ -102,12 +102,28 @@ export const updateEffector = form(effectorPatch, async (data) => {
     }
 });
 
-const effectorPost = z.object({
-    name_fr: z.string(),
-    label_fr: z.string(),
-    slug_fr: z.string(),
+const slugRequirement = "Un permalien ne peut contenir que des caractères minuscules de l'alphabet latin, des chiffres, des tirets et des tirets du bas.";
+const slugMandatory = "Vous devez indiquer un permalien.";
+const organizationEnum = z.enum( [ 'msp', 'cpts' ] )
+const effectorPost = z.discriminatedUnion('organization', [
+    z.object({
+    organization: organizationEnum.extract( [ 'msp' ] ),
+    name_fr: z.string().min(1,"Vous devez indiquer un nom."),
+    label_fr: z.string().optional(),
+    slug_fr: z.string().regex(new RegExp(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), {
+  error: issue => issue.input === "" ? slugMandatory : slugRequirement
+}),
     gender: genderEnum
-});
+}),
+z.object({
+    organization: organizationEnum.extract( [ 'cpts' ] ),
+    name_fr: z.string().optional(),
+    label_fr: z.string().optional(),
+    slug_fr: z.string().min(1, slugMandatory).regex(new RegExp(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), slugRequirement).optional(),
+    gender: genderEnum
+})]);
+type EffectorPost = z.infer<typeof effectorPost>
+
 
 export const createEffector = form(effectorPost, async (data) => {
     console.log(`form data: ${JSON.stringify(data)}`);

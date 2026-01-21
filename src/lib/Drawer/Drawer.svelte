@@ -11,7 +11,6 @@
 		menuNavCats.find((e) => e.list.includes(basePath))?.id
 	);
 	const getMenuNavLinks = (): any[] | undefined => {
-		$inspect.trace();
 		if (!currentRailCategory) {
 			return;
 		}
@@ -31,7 +30,6 @@
 	};
 	let navLinks = $derived(getMenuNavLinks());
 	let widthSetting = $derived.by(() => {
-		$inspect.trace();
 		if (navLinks?.length) {
 			return '';
 		} else {

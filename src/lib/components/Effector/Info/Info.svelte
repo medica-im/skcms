@@ -14,6 +14,8 @@
 
 	let { data }: { data: EntryFull } = $props();
 
+	let spokenLanguages = $derived(data.spoken_languages);
+
 	const editMode = getEditMode();
 </script>
 
@@ -25,15 +27,15 @@
 		</h3>
 	</div>
 </div>
-{#if data.effector_type.labels.includes('HCW') && (data.spoken_languages || $editMode)}
+{#if data.effector_type.labels.includes('HCW') && (spokenLanguages || $editMode)}
 	<div class="flex p-1">
 		<div class="w-9"></div>
 		<div class="flex gap-4">
-			<Languages data={data.spoken_languages} />
+			<Languages data={spokenLanguages} />
 			{#if $editMode}
-			<LanguagesPatch data={data.spoken_languages}/>
-			{#if data.spoken_languages !== null}
-			<LanguagesDelete data={data.spoken_languages}/>
+			<LanguagesPatch data={spokenLanguages}/>
+			{#if spokenLanguages !== null}
+			<LanguagesDelete data={spokenLanguages}/>
 			{/if}
 			{/if}
 		</div>

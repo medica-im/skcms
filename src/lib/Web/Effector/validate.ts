@@ -42,13 +42,17 @@ const slugIsValid = (value: string) => {
     const regexpSlug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
     return regexpSlug.test(value);
 };
-export const validateName = (name: string | null, inputClass: InputClass|InputClassUpdate, isRequired: IsRequired|IsRequiredUpdate, validateForm: ValidateForm|ValidateFormUpdate) => {
+export const validateName = (name: string | null, inputClass: InputClass|InputClassUpdate, isRequired: IsRequired|IsRequiredUpdate, validateForm: ValidateForm|ValidateFormUpdate, slug: boolean=false) => {
     if ((isRequired.name_fr && name) || (!isRequired.name_fr)) {
         inputClass.name_fr = '';
         validateForm.name_fr = true;
     } else {
         inputClass.name_fr = inputError;
         validateForm.name_fr = false;
+    }
+    if (slug && name) {
+        inputClass.slug_fr = '';
+        validateForm.slug_fr = true;
     }
 };
 export const validateLabel = (label: string | null, inputClass: InputClass|InputClassUpdate, isRequired: IsRequired|IsRequiredUpdate, validateForm: ValidateForm|ValidateFormUpdate) => {
