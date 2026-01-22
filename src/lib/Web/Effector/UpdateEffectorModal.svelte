@@ -46,7 +46,7 @@
 	let isModified: boolean = $derived(
 		name_fr != data.name || label_fr != data.label || slug_fr != data.slug || gender != data.gender
 	);
-	let disabled: boolean = $derived(!!updateEffector.pending ||
+	let disabled: boolean = $derived(!!updateEffector.for(data.effector_uid).pending ||
 		!Object.values(validateForm).every((v) => v === true) ||
 			formResult?.success == true ||
 			!isModified

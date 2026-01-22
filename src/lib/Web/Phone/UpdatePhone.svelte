@@ -47,7 +47,7 @@
 	let _roles: string[] | undefined = $derived(getRoles(selectedAccess?.value));
 	let result = $derived(updatePhone.for(data.id.toString()).result);
 	let disabled: boolean = $derived(
-		!!updatePhone.pending
+		!!updatePhone.for(data.id.toString()).pending
 		||result?.success
 		|| selectedType.value == data.type &&
 			_phone == data.phone &&

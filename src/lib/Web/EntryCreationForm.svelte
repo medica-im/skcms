@@ -156,7 +156,7 @@ selectedFacility: {JSON.stringify(selectedFacility)}-->
 				<button
 					type="submit"
 					class="variant-filled-secondary btn w-min"
-					disabled={!!createEntry.pending}>Confirmer</button
+					disabled={!!createEntry.for(uid).pending}>Confirmer</button
 				>
 			</div>
 			<div class="w-auto justify-center">

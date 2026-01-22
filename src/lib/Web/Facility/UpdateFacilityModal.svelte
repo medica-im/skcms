@@ -112,7 +112,7 @@
 	});
 	let formResult = $derived(updateFacility.for(uid).result);
 	let disabled: boolean = $derived(
-		!!updateFacility.pending ||
+		!!updateFacility.for(uid).pending ||
 			!Object.values(validateForm).every((v) => v === true) ||
 			formResult?.success == true ||
 			(name == facility.name &&
