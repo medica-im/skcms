@@ -23,7 +23,11 @@ const config = {
 			$assets: './src/assets',
 			$msgs: './src/paraglide/messages/_index.js',
 			$prgld: './src/paraglide/',
-			$var: './src/routes/(skvar)/(var)'
+			$var: './src/routes/(skvar)/(var)',
+			'$routes': './src/routes',
+		    '$routes/*': './src/routes/*',
+			'$src': './src',
+			'$src/*': './src/*',
 		},
 		experimental: {
 			remoteFunctions: true

@@ -26,13 +26,6 @@
 
 	let isMember: boolean | undefined = $state();
 	let dialog: HTMLDialogElement | undefined = $state();
-	let inputClass: InputClass = $state({
-		name_fr: '',
-		label_fr: '',
-		slug_fr: '',
-		gender: '',
-		isMember: ''
-	});
 	const isRequired: IsRequired = {
 		name_fr: true,
 		label_fr: false,
@@ -40,13 +33,6 @@
 		gender: true,
 		isMember: false,
 	};
-	let validateForm: ValidateForm = $state({
-		name_fr: !isRequired.name_fr,
-		label_fr: !isRequired.name_fr,
-		slug_fr: !isRequired.slug_fr,
-		gender: !isRequired.gender,
-		isMember: !isRequired.isMember
-	});
 	let name_fr: string = $state('');
 	let label_fr: string = $state('');
 	let slug_fr: string = $derived(slugify(name_fr));
@@ -158,7 +144,7 @@
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
 					<span>Cette personne est-elle membre de {page.data.organization.formatted_name}?</span>
 					<div class="flex items-center gap-2">
-						<OrganizationRadio bind:isMember bind:inputClass bind:validateForm {isRequired} /><div class="">{@render asterisk("isMember")}</div>
+						<OrganizationRadio bind:isMember /><div class="">{@render asterisk("isMember")}</div>
 					</div>
 					</label>
 					<div class="flex gap-8">

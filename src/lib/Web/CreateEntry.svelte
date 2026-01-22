@@ -2,14 +2,16 @@
 	import {
 		faCheck,
 		faChevronRight,
-		faXmark
+		faXmark,
+		faMagnifyingGlass
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import { page } from '$app/state';
-	import { goto } from '$app/navigation';
+	import { preloadData, pushState, goto } from '$app/navigation';
+  	import SelectEffector from '$routes/(common)/web/effector/select/+page.svelte';
+	import NewSelectEffectorModal from '$lib/Web/Effector/NewSelectEffectorModal.svelte';
 	import * as m from '$msgs';
 	import FacilitySelect from '$lib/Web/FacilitySelect.svelte';
-	import EffectorSelect from './Effector/EffectorSelectModal.svelte';
 	import EffectorTypeSelect from '$lib/Web/EffectorTypeSelect.svelte';
 	import DisplayFacility from '$lib/Web/DisplayFacility.svelte';
 	import Effectors from '$lib/Web/Effectors.svelte';
@@ -26,6 +28,7 @@
 		label: page.data.organization.department.name,
 		value: page.data.organization.department.code
 	};
+	let selectEffectorModal: NewSelectEffectorModal|undefined = $state();
 	let memberships: SelectType[] = $state([]);
 	let membershipsDone: boolean = $state(false);
 	let selectedFacility: { label: string; value: string } | undefined = $state();
@@ -168,7 +171,34 @@ membershipsDone: {membershipsDone}
 					{#if effectorType}
 						<Effectors {effectorType} facility={selectedFacility.value} />
 					{/if}
-					<EffectorSelect bind:effector={createdEffector} bind:memberships />
+					<a
+		href="/web/effector/select"
+		onclick={async (e) => {
+			if (e.shiftKey             // or the link is opened in a new window
+				|| e.metaKey || e.ctrlKey // or a new tab (mac: metaKey, win/linux: ctrlKey)
+				// should also consider clicking with a mouse scroll wheel
+			) return;
+
+			// prevent navigation
+			e.preventDefault();
+
+			const { href } = e.currentTarget;
+
+			// run `load` functions (or rather, get the result of the `load` functions
+			// that are already running because of `data-sveltekit-preload-data`)
+			const result = await preloadData(href);
+
+			if (result.type === 'loaded' && result.status === 200) {
+				pushState(href, { selected: result.data });
+			} else {
+				// something bad happened! try navigating
+				goto(href);
+			}
+		}}
+	>
+		<button class="btn variant-ghost-surface"
+	title="Sélectionner une personne"><span><Fa icon={faMagnifyingGlass} /></span><span>Sélectionner une personne existante</span></button>
+	</a>
 					<CreateEffectorModal bind:memberships bind:createdEffector />
 				{/if}
 			</div>
@@ -192,4 +222,9 @@ membershipsDone: {membershipsDone}
 			</div>
 		{/if}
 	</div>
+{/if}
+{#if page.state.selected}
+	<NewSelectEffectorModal bind:this={selectEffectorModal} effector={createdEffector} onresult={result => {console.log("result", result); history.back();}} title={"Sélectionner une personne"}>
+		<SelectEffector bind:effector={createdEffector} bind:memberships data={page.state.selected} />
+	</NewSelectEffectorModal>
 {/if}

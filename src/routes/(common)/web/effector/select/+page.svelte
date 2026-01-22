@@ -7,25 +7,22 @@
 	import { page } from '$app/state';
 	import * as m from '$msgs';
 	import Select from 'svelte-select';
-	import EffectorTypeSelect from '../EffectorTypeSelect.svelte';
-	import FacilitySelect from '../FacilitySelect.svelte';
-	import OrganizationRadio from '../OrganizationRadio.svelte';
-	import { getEffectors } from '../../../effector.remote.ts';
+	import EffectorTypeSelect from '$lib/Web/EffectorTypeSelect.svelte';
+	import FacilitySelect from '$lib/Web/FacilitySelect.svelte';
+	import OrganizationRadio from '$lib/Web/OrganizationRadio.svelte';
 	import type { Commune, DepartmentOfFrance, FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
 	import type { Entry } from '$lib/store/directoryStoreInterface.ts';
-	import { validateIsMember } from './validate.ts';
 
-	let {
-		effector = $bindable(),
-		memberships = $bindable(),
-	}: {
-		effector: Effector | undefined;
-		memberships: SelectType[];
-	} = $props();
+	interface Props {
+	effector: Effector | undefined;
+	memberships: SelectType[];
+	data: {effectors: Effector[]};
+	}
 
-	let isSuperUser = $derived(page.data?.user?.role == 'superuser');
+	let { effector=$bindable(), data, memberships=$bindable() } : Props = $props();
+
 	let isMember: boolean | undefined = $state();
 	const defaultDpt: SelectType = {
 		label: page.data.organization.department.name,
@@ -40,13 +37,13 @@
 	let communeUid: string | undefined = $derived(commune?.value);
 	let facilityCount: number = $state(0);
 	const entries: Entry[] = $derived(page.data.entries);
-	let allEffectors: Effector[];
-	let filteredEffectors: Effector[]|undefined = $state();
-	let effectorItems: SelectType[];
-	async function getAllEffectors() {
-		const directory = isSuperUser ? null : page.data.directory?.name;
-		return await getEffectors(directory);
+	let filteredEffectors: Effector[]|undefined = $derived.by(()=> 	{
+		if (data?.effectors) {
+			return getFilteredEffectors(data.effectors)
+		}
 	}
+	);
+
 	function getFilteredEffectors(effectors: Effector[]) {
 		if (effectors) {
 			return effectors.filter((e) => {
@@ -82,36 +79,7 @@
 			return [];
 		}
 	};
-	
-	interface InputClass {
-		effector: string;
-		isMember: string;
-	}
-	interface ValidateForm {
-		effector: boolean;
-		isMember: boolean;
-	}
-	interface IsRequired {
-		effector: boolean;
-		isMember: boolean;
-	}
-	const inputError = 'input-error';
-
-	const isRequired: IsRequired = $state({
-		effector: true,
-		isMember: false,
-	});
-	let validateForm: ValidateForm = $state({
-		effector: false,
-		isMember: false
-	});
-	let inputClass: InputClass = $state({
-		effector: '',
-		isMember: ''
-	});
-
-	let disabled: boolean = $derived(selectedEffector == undefined);
-	let dialog: HTMLDialogElement | undefined = $state();
+	let disabled: boolean = $derived(!selectedEffector);
 	
 	const getLabel = (effector: Effector) => {
 		return `${effector.name_fr}`;
@@ -129,12 +97,13 @@
 	};
 
 	const effectorLabel = (effectors: Effector[]) => {
-		return `Personne${effectors.length > 1 ? 's' : ''}: ${effectors.length}`;
+		return `Personne${effectors?.length > 1 ? 's' : ''}: ${effectors?.length||0}`;
 	};
 	function confirm() {
-		if (selectedEffector !== undefined && allEffectors) {
+		if (selectedEffector !== undefined && data?.effectors) {
 			const uid = selectedEffector.value;
-			effector = allEffectors.find((e) => e.uid == uid);
+			effector = data.effectors.find((e) => e.uid == uid);
+			disabled = true;
 		}
 		if ( isMember ) {
 			const orgItem = {
@@ -145,30 +114,10 @@
 				memberships.push(orgItem);
 			}
 		}
-		dialog?.close();
-	};
-	const validateAll = () => {
-		validateIsMember(isMember, inputClass,isRequired, validateForm);
 	};
 </script>
 
-<button
-	onclick={async () => {
-		allEffectors = await getAllEffectors();
-		filteredEffectors = getFilteredEffectors(allEffectors);
-		selectedEffectorType=undefined;
-		facility=undefined;
-		department=undefined;
-		commune=undefined;
-		isMember=undefined;
-		validateAll();
-		dialog?.showModal();
-	}}
-	class="btn variant-ghost-surface"
-	title="Sélectionner une personne"><span><Fa icon={faMagnifyingGlass} /></span><span>Sélectionner une personne</span></button
->
-<Dialog bind:dialog on:close={() => console.log('closed')}>
-	<div class="grid grid-cols-1 rounded-lg h-full w-full p-4 variant-ghost-secondary items-center gap-4">
+<div class="grid grid-cols-1 rounded-lg h-full w-full p-4 items-center gap-4">
 		<div class="place-items-center">
 		<h3 class="h3">Sélectionner une personne</h3>
 		<p>Si la personne recherchée a déjà une entrée dans l'annuaire, vous pouvez affiner la recherche en sélectionnant sa catégorie, sa localisation ou son établissement.</p>
@@ -183,29 +132,14 @@
 		{#if filteredEffectors}
 		<div class="grid grid-cols-1 gap-4 variant-ghost p-4">
 			<p>{effectorLabel(filteredEffectors)}</p>
-			<Select items={getEffectorItems(filteredEffectors)} hasError={selectedEffector ? false: true} bind:value={selectedEffector} placeholder="Sélectionner une personne" />
+			<Select items={getEffectorItems(filteredEffectors)} hasError={selectedEffector ? false : true} bind:value={selectedEffector} placeholder="Sélectionner une personne" />
 		</div>
 		{/if}
 		<OrganizationRadio bind:isMember />
-		<div class="flex gap-8">
-			<!--isMember: {isMember} selectedEffector: {Boolean(selectedEffector)}-->
-			<div class="w-auto justify-center">
-				<button
+		<button
 					type="button"
 					class="variant-filled-secondary btn w-min"
 					{disabled}
-					onclick={confirm}>Confirmer</button
+					onclick={()=>confirm()}>Confirmer</button
 				>
-			</div>
-			<div class="w-auto justify-center">
-				<button
-					type="button"
-					class="variant-filled-error btn w-min"
-					onclick={() => {
-						dialog?.close()
-					}}>Annuler</button
-				>
-			</div>
-		</div>
 	</div>
-</Dialog>

@@ -71,6 +71,9 @@ importers:
       svelte-fa:
         specifier: ^4.0.4
         version: 4.0.4(svelte@5.47.1)
+      svelte-headlessui:
+        specifier: ^0.0.46
+        version: 0.0.46(svelte@5.47.1)
       svelte-leafletjs:
         specifier: ^2.0.0
         version: 2.0.0(geojson@0.5.0)(leaflet@1.9.4)(svelte@5.47.1)
@@ -2736,6 +2739,11 @@ packages:
 
   svelte-floating-ui@1.5.8:
     resolution: {integrity: sha512-dVvJhZ2bT+kQDHlE4Lep8t+sgEc0XD96fXLzAi2DDI2bsaegBbClxXVNMma0C2WsG+n9GJSYx292dTvA8CYRtw==}
+
+  svelte-headlessui@0.0.46:
+    resolution: {integrity: sha512-yl3Pd7/LmIgl6uZ6dB9FuWNGJ+P7bazgJpwhNLA7Rk+AqYITv0vFXjGgl4D9ogAiPCrwjTkEAFMl8ovsk3FJ5Q==}
+    peerDependencies:
+      svelte: ^4.0.0 || ^5.0.0
 
   svelte-leafletjs@2.0.0:
     resolution: {integrity: sha512-Xw/Mwq+vc+loEfRTCLDqmNwE2g98+mIfaQGfm0clB3OJWIENqWz+IJy+4nQjbBdJUzCDv7/fRCpb+3YtBIQ2xA==}
@@ -5596,6 +5604,10 @@ snapshots:
     dependencies:
       '@floating-ui/core': 1.6.9
       '@floating-ui/dom': 1.6.13
+
+  svelte-headlessui@0.0.46(svelte@5.47.1):
+    dependencies:
+      svelte: 5.47.1
 
   svelte-leafletjs@2.0.0(geojson@0.5.0)(leaflet@1.9.4)(svelte@5.47.1):
     dependencies:

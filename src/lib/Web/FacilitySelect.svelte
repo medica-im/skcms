@@ -22,6 +22,7 @@
 	let departmentCode: string | undefined = $derived(department?.value);
 
 	let communes: Commune[]|undefined = $state();
+	let departments: DepartmentOfFrance[]|undefined = $state();
 	const communeItems = $derived.by(() => {
 		if ( !communes ) {
 			return;
@@ -68,6 +69,7 @@
 	};
 
 	onMount(async () => {
+		departments = await getDepartments();
 		allFacilities = await getFacilities();
 		if ( department ) {
 			communes = await getCommunesByDpt(department.value);
@@ -105,11 +107,12 @@
 		return a.name_fr.localeCompare(b.name_fr);
 	}
 
-	const getDepartmentItems = (departments: DepartmentOfFrance[]) => {
-		departments.sort((a: DepartmentOfFrance, b: DepartmentOfFrance) =>
+	const getDepartmentItems = (departments: DepartmentOfFrance[]|undefined) => {
+		if (!departments) return null
+		const sortedDepartments = departments.toSorted((a: DepartmentOfFrance, b: DepartmentOfFrance) =>
 			a.code.localeCompare(b.code)
 		);
-		return departments.map((e) => {
+		return sortedDepartments.map((e) => {
 			return { value: e.code, label: `${e.code} - ${e.name}` };
 		});
 	};
@@ -136,21 +139,13 @@
 <div class="p-4 theme">
 	<div class="grid grid-cols-1 gap-4 variant-ghost p-4">
 		<p>Département</p>
-		<svelte:boundary>
-			{#snippet pending()}
-				<span>{m.LOADING()}</span>
-			{/snippet}
-			{#snippet failed(error: any, reset)}
-				<span>{m.ERROR()}: {error.message}</span>
-			{/snippet}
 			<Select
-				items={getDepartmentItems(await getDepartments())}
+				items={getDepartmentItems(departments)}
 				bind:value={department}
 				on:clear={onDepartmentClear}
 				on:change={onDepartmentChange}
 				placeholder="Sélectionner un département"
 			/>
-		</svelte:boundary>
 	</div>
 	<div class="grid grid-cols-1 gap-4 variant-ghost p-4">
 		<p>Commune</p>
