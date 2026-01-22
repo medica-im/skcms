@@ -47,7 +47,7 @@
 		addTags: addTags,
 		removeTags: removeTags
 	});
-	let disabled: boolean = $derived(!addTags && !removeTags);
+	let disabled: boolean = $derived(!!postEntryTag.pending || !addTags && !removeTags);
 
 	const clear = () => {
 		addTags = null;

@@ -119,7 +119,7 @@
 		}
 	});
 	let formResult = $derived(createFacility.result);
-	let disabled: boolean = $derived(
+	let disabled: boolean = $derived(!!createFacility.pending ||
 		!Object.values(validateForm).every((v) => v === true) || formResult?.success == true
 	);
 
@@ -172,15 +172,7 @@
 	<div class="rounded-lg w-full p-4 variant-ghost-secondary items-center place-items-center">
 		<h3 class="h3 text-center">Créer un établissement</h3>
 		<form
-			{...createFacility.enhance(async ({ form, data, submit }) => {
-				console.log(data);
-				try {
-					await submit();
-					console.log('Successfully published!');
-				} catch (error) {
-					console.log(`Oh no! Something went wrong:${error}`);
-				}
-			})}
+			{...createFacility}
 			class=""
 		>
 			<div class="p-2 space-y-4 justify-items-stretch grid grid-cols-1 lg:grid-cols-2 lg:gap-6">

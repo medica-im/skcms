@@ -31,7 +31,7 @@
 	let selectedAccess: SelectType | undefined = $state(accessSelectTypes[0]);
 	let _roles: string[] | undefined = $derived(getRoles(selectedAccess?.value));
 	let result = $derived(create.result);
-	let disabled: boolean = $derived(_url == undefined || selectedAccess==undefined || result?.success==true);
+	let disabled: boolean = $derived(!!create.pending || _url == undefined || selectedAccess==undefined || result?.success==true);
 	function resetForm() {
 		_url = undefined;
 		result = undefined;

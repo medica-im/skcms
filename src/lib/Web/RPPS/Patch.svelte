@@ -36,7 +36,7 @@
 		effector: uid,
 		rpps: rpps ? rpps : null
 	});
-	let disabled: boolean = $derived(rpps==data.rpps);
+	let disabled: boolean = $derived(!!patchCommand.pending || rpps==data.rpps);
 	let validation: Validation|undefined = $state();
 
 	onMount(async () => {

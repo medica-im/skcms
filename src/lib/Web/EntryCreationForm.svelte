@@ -34,7 +34,6 @@
 		}
 	});
 	let formResult = $derived(createEntry.for(uid)?.result);
-	let disabled: boolean = $state(false);
 	let hasBeenClicked = false;
 
 	const clear = () => {
@@ -44,16 +43,6 @@
 		selectedEffectorType = undefined;
 		directory = undefined;
 	};
-	function handleClick() {
-		disabled = true;
-		if (hasBeenClicked) return;
-		hasBeenClicked = true;
-		setTimeout(() => {
-			hasBeenClicked = false;
-		}, 500);
-
-		console.log('click');
-	}
 </script>
 
 <!--formResult?.success: {formResult?.success}<br>
@@ -65,7 +54,6 @@ selectedFacility: {JSON.stringify(selectedFacility)}-->
 					//data = manipulateForm(data);
 					const dataString = JSON.stringify(data);
 					console.log(dataString);
-					disabled=true;
 					await submit();
 				} catch (error) {
 					console.log(error);
@@ -168,7 +156,7 @@ selectedFacility: {JSON.stringify(selectedFacility)}-->
 				<button
 					type="submit"
 					class="variant-filled-secondary btn w-min"
-					{disabled}>Confirmer</button
+					disabled={!!createEntry.pending}>Confirmer</button
 				>
 			</div>
 			<div class="w-auto justify-center">

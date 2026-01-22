@@ -1,5 +1,6 @@
 export interface FormResult {
-    success: boolean,
-    status: number,
-    text: string
+    success: boolean;
+    status: number;
+    text: string;
+    data?: any;
 }

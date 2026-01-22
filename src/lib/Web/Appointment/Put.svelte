@@ -58,7 +58,7 @@
 		'url': url ? url : null,
 		'phone': phone ? phone : null
 	});
-	let disabled: boolean = $derived(url==data.url && phone==data.phone && selectedLocation?.value==data.location);
+	let disabled: boolean = $derived(!!putCommand.pending || url==data.url && phone==data.phone && selectedLocation?.value==data.location);
 
 	const setValues = ()=>{
 		url=data.url;

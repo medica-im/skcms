@@ -45,12 +45,14 @@
 		getSelectedAccess(data.roles?.map((e) => e.name))
 	);
 	let _roles: string[] | undefined = $derived(getRoles(selectedAccess?.value));
+	let result = $derived(updatePhone.for(data.id.toString()).result);
 	let disabled: boolean = $derived(
-		selectedType.value == data.type &&
+		!!updatePhone.pending
+		||result?.success
+		|| selectedType.value == data.type &&
 			_phone == data.phone &&
 			selectedAccess?.value == getSelectedAccess(roles)?.value
 	);
-	let result = $derived(updatePhone.for(data.id.toString()).result);
 	function resetForm() {
 		_phone = data.phone;
 		//_type=data.type;

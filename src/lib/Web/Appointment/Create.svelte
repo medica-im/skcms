@@ -126,7 +126,6 @@
 								try {
 									result = await createCommand(commandData);
 									if (result?.success) {
-										disabled = true;
 										invalidate('entry:now');
 									}
 								} catch (error) {
@@ -135,7 +134,7 @@
 							}}
 							type="submit"
 							class="variant-filled-secondary btn w-min"
-							{disabled}>Envoyer</button
+							disabled={!!createCommand.pending || result?.success}>Envoyer</button
 						>
 						<button
 							type="button"

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { invalidate } from '$app/navigation';
 	import Dialog from '$lib/Web/Dialog.svelte';
 	import { updateEffector } from '../../../effector.remote.ts';
 	import Fa from 'svelte-fa';
@@ -45,7 +46,7 @@
 	let isModified: boolean = $derived(
 		name_fr != data.name || label_fr != data.label || slug_fr != data.slug || gender != data.gender
 	);
-	let disabled: boolean = $derived(
+	let disabled: boolean = $derived(!!updateEffector.pending ||
 		!Object.values(validateForm).every((v) => v === true) ||
 			formResult?.success == true ||
 			!isModified
@@ -86,6 +87,7 @@
 						try {
 							await submit();
 							console.log('Successfully published!');
+							invalidate('entry:now');
 						} catch (error) {
 							console.log(`Oh no! Something went wrong:${error}`);
 						}

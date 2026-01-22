@@ -50,19 +50,22 @@ export const patchCommand = command(Patch, async (data) => {
     const url = `${variables.BASE_URI}/api/v2/effectors/${effector_uid}`;
     const request = authReq(url, 'PATCH', cookies, JSON.stringify(data));
     const response = await fetch(request);
+    const jsn = await response.json();
     if (response.ok == false) {
         console.error(response.status)
         console.error(response.statusText)
         return {
             success: false,
             status: response.status,
-            text: response.statusText
+            text: response.statusText,
+            data: jsn
         }
     } else {
         return {
             success: true,
             status: response.status,
-            text: response.statusText
+            text: response.statusText,
+            data: jsn
         }
     }
 });

@@ -39,7 +39,8 @@
 	let result: FormResult | undefined = $state();
 	let selectedMemberships: SelectType[] = $state(initialMemberships);
 	let disabled: boolean = $derived(
-		areArraysEqualSets(
+		!!patchCommand.pending 
+		|| areArraysEqualSets(
 			initialMemberships.map((e) => e.value),
 			selectedMemberships.map((e) => e.value)
 		) || result?.success==true

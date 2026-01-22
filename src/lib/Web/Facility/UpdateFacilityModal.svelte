@@ -4,11 +4,7 @@
 	import { onMount } from 'svelte';
 	import * as m from '$msgs';
 	import { updateFacility } from '../../../facility.remote.ts';
-	import {
-		faCheck,
-		faPenToSquare,
-		faExclamationCircle,
-	} from '@fortawesome/free-solid-svg-icons';
+	import { faCheck, faPenToSquare, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import { JsonView } from '@zerodevx/svelte-json-view';
 	import Dialog from '$lib/Web/Dialog.svelte';
@@ -70,7 +66,7 @@
 		street: false,
 		geographical_complement: false,
 		zip: false,
-		zoom: false,
+		zoom: false
 	};
 	let validateForm: ValidateForm = $state({
 		name: !isRequired.name,
@@ -116,7 +112,8 @@
 	});
 	let formResult = $derived(updateFacility.for(uid).result);
 	let disabled: boolean = $derived(
-		!Object.values(validateForm).every((v) => v === true) ||
+		!!updateFacility.pending ||
+			!Object.values(validateForm).every((v) => v === true) ||
 			formResult?.success == true ||
 			(name == facility.name &&
 				label == facility.label &&
@@ -172,13 +169,7 @@
 					{#each updateFacility.for(uid).fields.uid.issues() as issue}
 						<p class="issue">{issue.message}</p>
 					{/each}
-					<input
-						class="input hidden"
-						name="uid"
-						type="text"
-						placeholder=""
-						bind:value={uid}
-					/>
+					<input class="input hidden" name="uid" type="text" placeholder="" bind:value={uid} />
 					<input
 						class="hidden"
 						name="redirect"
@@ -296,9 +287,7 @@
 
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
 						<span>Complément géographique</span>
-						{#each updateFacility
-							.for(uid)
-							.fields.geographical_complement.issues() as issue}
+						{#each updateFacility.for(uid).fields.geographical_complement.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<input

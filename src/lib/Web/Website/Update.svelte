@@ -34,6 +34,7 @@
 	);
 	let _roles: string[] | undefined = $derived(getRoles(selectedAccess?.value));
 	let disabled: boolean = $derived(
+		!!updateForm.pending ||
 		selectedAccess?.value == getSelectedAccess(roles)?.value && _url == data.url
 	);
 	let uuid: string = $state(crypto.randomUUID());

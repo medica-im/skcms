@@ -47,7 +47,7 @@
 		carte_vitale: selectedItem ? selectedItem.value : null
 	});
 
-	let disabled: boolean = $derived(selectedItem?.value == data);
+	let disabled: boolean = $derived(!!patchCommand.pending || selectedItem?.value == data);
 </script>
 
 <button

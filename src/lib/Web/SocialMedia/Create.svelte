@@ -37,7 +37,7 @@
 	let _type: string | undefined = $derived(selectedType?.value);
 
 	let result = $derived(create.result);
-	let disabled: boolean = $derived(_url == undefined || selectedAccess==undefined || result?.success==true);
+	let disabled: boolean = $derived(!!create.pending || _url == undefined || selectedAccess==undefined || result?.success==true);
 	function resetForm() {
 		_url = undefined;
 		result = undefined;

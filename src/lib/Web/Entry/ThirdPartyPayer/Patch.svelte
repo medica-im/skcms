@@ -53,7 +53,7 @@
 		third_party_payer: selectedItems !== undefined ? selectedItems?.map((e) => e.value) : null
 	});
 
-	let disabled: boolean = $derived(areArraysEqualSets(selectedItems?.map((e) => e.value)||[], data?.map((e) => e.name)||[]) || result?.success==true);
+	let disabled: boolean = $derived(!!patchCommand.pending || areArraysEqualSets(selectedItems?.map((e) => e.value)||[], data?.map((e) => e.name)||[]) || result?.success==true);
 
 	onMount(async () => {
 		payers = await getThirdPartyPayers();

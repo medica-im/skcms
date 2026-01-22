@@ -35,7 +35,7 @@
 	);
 	let _roles: string[] | undefined = $derived(getRoles(selectedAccess?.value));
 
-	let disabled: boolean = $derived(
+	let disabled: boolean = $derived(!!updateEmail.pending ||
 		(selectedAccess?.value == getSelectedAccess(roles)?.value && _email == data.email) || formResult?.success==true
 	);
 

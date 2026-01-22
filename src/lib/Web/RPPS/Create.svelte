@@ -36,7 +36,7 @@
 		rpps: rpps ? rpps : null
 	});
 	let validation: Validation|undefined = $state();
-	let disabled: boolean = $derived(!Boolean(rpps));
+	let disabled: boolean = $derived(!!patchCommand.pending || !Boolean(rpps));
 
 	onMount(async () => {
 		rpps = null;

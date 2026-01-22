@@ -54,7 +54,7 @@
 		convention: selectedItem !== undefined ? selectedItem?.value : null
 	});
 
-	let disabled: boolean = $derived(selectedItem?.value == data?.name);
+	let disabled: boolean = $derived(!!patchCommand.pending || selectedItem?.value == data?.name);
 
 	onMount(async () => {
 		conventions = await getConventions();

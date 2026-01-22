@@ -1,9 +1,4 @@
 <script lang="ts">
-	import {
-		faMagnifyingGlass
-	} from '@fortawesome/free-solid-svg-icons';
-	import Fa from 'svelte-fa';
-	import Dialog from '$lib/Web/Dialog.svelte';
 	import { page } from '$app/state';
 	import * as m from '$msgs';
 	import Select from 'svelte-select';

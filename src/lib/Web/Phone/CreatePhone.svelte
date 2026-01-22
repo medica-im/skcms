@@ -45,7 +45,7 @@
 	let selectedAccess: SelectType | undefined = $state();
 	let _type: string | undefined = $derived(selectedType?.value);
 	let _roles: string[] | undefined = $derived(getRoles(selectedAccess?.value));
-	let disabled: boolean = $derived(
+	let disabled: boolean = $derived(!!createPhone.pending ||
 		_type == undefined || _phone == undefined || _roles == undefined || result?.success===true
 	);
 	function resetForm() {

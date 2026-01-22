@@ -35,7 +35,7 @@
 	let _email: string|undefined = $state();
 	let selectedAccess: SelectType|undefined = $state();
 	let _roles: string[]|undefined = $derived(getRoles(selectedAccess?.value))
-	let disabled: boolean = $derived(
+	let disabled: boolean = $derived(!!createEmail.pending ||
 		(_email == undefined) || (selectedAccess == undefined) || formResult?.success==true
 	);
 	let hasBeenClicked = false;
