@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { setContext } from 'svelte';
-	import { asyncDerived, derived as syncDerived } from '@square/svelte-store';
+	import { derived as syncDerived } from '@square/svelte-store';
 	import haversine from 'haversine-distance';
 	import {
 		setTerm,
@@ -159,86 +158,23 @@
 	});
 	setDistanceEffectors(distanceEffectors);
 
-	const fullFilteredEffectors = asyncDerived(
-		[selectSituation, currentOrg, limitCategories],
-		async ([$selectSituation, $currentOrg, $limitCategories]) => {
-			return fullFilteredEntriesF(
-				situations,
-				entries,
-				$selectSituation,
-				$currentOrg,
-				organization,
-				$limitCategories
-			);
-		}
-	);
-
-	const filteredEffectors = asyncDerived(
-		[term, fullFilteredEffectors, selectCategories, selectDepartments, selectCommunes, selectFacility, selectTags],
-		async ([
-			$term,
-			$fullFilteredEffectors,
-			$selectCategories,
-			$selectDepartments,
-			$selectCommunes,
-			$selectFacility,
-			$selectTags
-		]) => {
-			return filteredEntriesF(
-				$fullFilteredEffectors,
-				$selectCategories,
-				$selectDepartments,
-				$selectCommunes,
-				$selectFacility,
-				$term,
-				$selectTags
-			);
-		}
-	);
-	setContext('filteredEffectors', filteredEffectors);
-
-	const categorizedFilteredEffectors = asyncDerived(
-		[filteredEffectors, selectSituation],
-		async ([$filteredEffectors, $selectSituation]) => {
-			return categorizedFilteredEffectorsF($filteredEffectors, $distanceEffectors, $selectSituation);
-		}
-	);
-
-	setContext('categorizedFilteredEffectors', categorizedFilteredEffectors);
-
-	const categorizedFullFilteredEffectors = asyncDerived(
-		fullFilteredEffectors,
-		async ($fullFilteredEffectors) => {
-			return categorizedFullFilteredEffectorsF($fullFilteredEffectors);
-		}
-	);
-	setContext('categorizedFullFilteredEffectors', categorizedFullFilteredEffectors);
-
-	const cardinalCategorizedFilteredEffectors = asyncDerived(
-		[categorizedFilteredEffectors, filteredEffectors, addressFeature],
-		async ([$categorizedFilteredEffectors, $filteredEffectors, $addressFeature]) => {
-			return cardinalCategorizedFilteredEffectorsF($categorizedFilteredEffectors, effectorTypeLabels);
-		}
-	);
-	setContext('cardinalCategorizedFilteredEffectors', cardinalCategorizedFilteredEffectors);
-
 	//runes
 	let rSelectSituation: SelectType | null | undefined = $state($selectSituation);
 	let rCurrentOrg = $derived(propCurrentOrg);
 	let rDirectoryRedirect = $derived(setRedirect);
 	let rLimitCategories = $derived(propLimitCategories);
-	const rFullFilteredEntries = $derived.by(() => {
+	let rFullFilteredEntries = $derived.by(() => {
 		return fullFilteredEntriesF(
 			situations,
 			entries,
-			rSelectSituation,
+			$selectSituation,
 			rCurrentOrg,
 			organization,
 			rLimitCategories
 		);
 	});
 
-	const rFilteredEntries = $derived.by(()=>{
+	let rFilteredEntries = $derived.by(()=>{
 		return filteredEntriesF(
 				rFullFilteredEntries,
 				$selectCategories,
@@ -253,23 +189,19 @@
 	//$inspect("rFullFilteredEntries", rFullFilteredEntries);
 	//$inspect("rFilteredEntries", rFilteredEntries);
 
-	const rCategorizedFullFilteredEntries = $derived.by(()=>{
+	let rCategorizedFullFilteredEntries = $derived.by(()=>{
 			return categorizedFullFilteredEffectorsF(rFullFilteredEntries);
 		}
 	);
 	//$inspect("rCategorizedFullFilteredEntries", rCategorizedFullFilteredEntries);
 
-	const rCategorizedFilteredEntries = $derived.by(()=>{
-		/*[categorizedFilteredEffectors, filteredEffectors, addressFeature],
-		async ([$categorizedFilteredEffectors, $filteredEffectors, $addressFeature]) => {*/
+	let rCategorizedFilteredEntries = $derived.by(()=>{
 			return categorizedFilteredEffectorsF(rFilteredEntries,$distanceEffectors, $selectSituation);
 		}
 	);
 	//$inspect("rCategorizedFilteredEntries", rCategorizedFilteredEntries);
 
 	const rCardinalCategorizedFilteredEntries = $derived.by(()=>{
-		/*[categorizedFilteredEffectors, filteredEffectors, addressFeature],
-		async ([$categorizedFilteredEffectors, $filteredEffectors, $addressFeature]) => {*/
 			return cardinalCategorizedFilteredEffectorsF( rCategorizedFilteredEntries, effectorTypeLabels);
 		}
 	);
@@ -313,5 +245,6 @@
 		{facilityOf}
 		{tagOf}
 		rCCFE={rCardinalCategorizedFilteredEntries}
+		rCFFE={rCategorizedFullFilteredEntries}
 	/>
 {/if}

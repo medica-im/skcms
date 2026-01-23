@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { getContext } from 'svelte';
 	import { onMount } from 'svelte';
 	import { getSelectCategories } from './context';
 	import * as m from '$msgs';
@@ -9,23 +8,16 @@
 	import { faCheck } from '@fortawesome/free-solid-svg-icons';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { uniq } from '$lib/utils/utils.ts';
-	import type { Loadable } from '@square/svelte-store';
 	import type { Entry, CategorizedEntries, Type } from '$lib/store/directoryStoreInterface';
 	import type { EffectorType } from '$lib/interfaces/v2/effector';
 
-	let { categoryOf } = $props();
+	let { rCFFE } : { rCFFE: CategorizedEntries; } = $props();
 
-	const categories: EffectorType[] = uniq(page.data.entries.map((e: Entry) => e.effector_type)).sort(function (a, b) {
-			return a.uid.localeCompare(b.uid);
-		});
-
-	const categorizedFilteredEffectors = getContext<Loadable<CategorizedEntries>>(
-		'categorizedFilteredEffectors'
-	);
-
-	const categorizedFullFilteredEffectors = getContext<Loadable<CategorizedEntries>>(
-		'categorizedFullFilteredEffectors'
-	);
+	const categories: EffectorType[] = uniq(
+		page.data.entries.map((e: Entry) => e.effector_type)
+	).sort(function (a, b) {
+		return a.uid.localeCompare(b.uid);
+	});
 
 	let selectCategories = getSelectCategories();
 
@@ -44,7 +36,7 @@
 		let initLimit = '?limit=100';
 		let next = '';
 		do {
-			if ( next ) initLimit='';
+			if (next) initLimit = '';
 			const url = `${baseUrl}${initLimit}${next}`;
 			const res = await fetch(url);
 			const data = await res.json();
@@ -76,20 +68,14 @@
 		value = await getValue();
 	});
 
-	function getItems(elements) {
-		return elements.map(function (x) {
-			let dct = { value: x.uid, label: x.name };
-			return dct;
-		});
-	}
-
 	async function getValue() {
 		let sElements = get(selectCategories);
 		if (!sElements?.length) {
 			return null;
 		} else {
 			if (categories) {
-				let val = categories.filter((x) => sElements.includes(x.uid))
+				let val = categories
+					.filter((x) => sElements.includes(x.uid))
 					.map(function (x) {
 						let dct = { value: x.uid, label: x.name };
 						return dct;
@@ -98,32 +84,20 @@
 			}
 		}
 	}
-
-	function handleClear(event) {
-		if (event.detail) {
-			selectCategories.set([]);
-		}
-	}
-
-	function handleChange(event) {
-		if (event.detail) {
-			selectCategories.set([event.detail.value]);
-		}
-	}
 </script>
+
 <div class="flex flex-wrap gap-2 items-center text-surface-700">
-	{#await categorizedFullFilteredEffectors.load()}
+	{#if !rCFFE}
 		<div class="placeholder"></div>
-	{:then}
-		{#if $query.status === 'pending'}
-			<div class="placeholder"></div>
-		{:else if $query.error}
-			<p>Error: {$query.error.message}</p>
-		{:else}
-			{#key category}
-				{#each [...$categorizedFullFilteredEffectors] as [c, value], index}
-					<!-- prettier-ignore -->
-					 <button onclick={() => {
+	{:else if $query.status === 'pending'}
+		<div class="placeholder"></div>
+	{:else if $query.error}
+		<p>Error: {$query.error.message}</p>
+	{:else}
+		{#key category}
+			{#each [...rCFFE] as [c, value], index}
+				<!-- prettier-ignore -->
+				<button onclick={() => {
 						select(c, $query.data);
 					}} tabindex={index+1}>
 					<span
@@ -135,22 +109,20 @@
 					<span>{$query.data.find(x=>x.name==c).label}</span>
 				</span>
 				</button>
-				{/each}
-				{#if $categorizedFullFilteredEffectors.size > 1}
-				<button onclick={() => {
-							select('', $query.data);
-						}} tabindex={$categorizedFullFilteredEffectors.size}>
-					<span
-						role="button"
-						class="chip {category === '' ? 'variant-filled' : 'variant-soft'}"
-						
-					>
+			{/each}
+			{#if rCFFE.size > 1}
+				<button
+					onclick={() => {
+						select('', $query.data);
+					}}
+					tabindex={rCFFE.size}
+				>
+					<span role="button" class="chip {category === '' ? 'variant-filled' : 'variant-soft'}">
 						{#if category === ''}<span><Fa icon={faCheck} /></span>{/if}
 						<span>{m.ADDRESSBOOK_CATEGORIES_ALL()}</span>
 					</span>
-					</button>
-				{/if}
-			{/key}
-		{/if}
-	{/await}
+				</button>
+			{/if}
+		{/key}
+	{/if}
 </div>

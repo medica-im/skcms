@@ -5,6 +5,8 @@ import { error } from '@sveltejs/kit';
 import type { Facility } from '$lib/interfaces/facility.interface.ts';
 import type { PageLoad } from './$types';
 
+const LIMIT:number = 1000;
+
 export const load: PageLoad = async ({ data, parent, fetch }) => {
     const { organization } = await parent();
     if (organization===undefined) throw new Error("organization undefined")
@@ -14,7 +16,7 @@ export const load: PageLoad = async ({ data, parent, fetch }) => {
     if ( labels === undefined ) throw new Error("labels undefined")
     const { directory } = await parent();
     if (directory===undefined) throw new Error("directory undefined")
-    const url = `${ORIGIN}/api/v1/facilities/`;
+    const url = `${ORIGIN}/api/v1/facilities/?limit=${LIMIT}`;
     console.log("url", url);
     const response = await fetch(url,
         {

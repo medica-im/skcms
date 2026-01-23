@@ -176,7 +176,7 @@ function distanceOfEffector(entry: Entry, distEffectors: DistanceEffectors) {
 	}
 }
 
-function compareEffectorDistance(a, b, distEffectors: DistanceEffectors) {
+function compareEffectorDistance(a: Entry, b: Entry, distEffectors: DistanceEffectors) {
 	let dist_a = distanceOfEffector(a, distEffectors);
 	let dist_b = distanceOfEffector(b, distEffectors);
 	if (!dist_a && !dist_b) {
@@ -212,8 +212,7 @@ export const fullFilteredEntriesF = (situations: Situation[], entries: Entry[], 
 			} else {
 				return true
 			}
-		}
-		).filter(function (x) {
+		}).filter(function (x) {
 			if (selectSituation === undefined) {
 				return true
 			} else {

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
 	import { getSelectSituation } from './context.ts';
 	import { scrollY } from '$lib/store/scrollStore.ts';
 	import { variables } from '$lib/utils/constants.ts';
@@ -17,7 +16,6 @@
 	import Fa from 'svelte-fa';
 	import { faArrowsUpToLine } from '@fortawesome/free-solid-svg-icons';
 	import { logMap } from '$lib/utils/utils.ts';
-	import type { Loadable } from '@square/svelte-store';
 	import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
 	import type { Type, Tag } from '$lib/store/directoryStoreInterface.ts';
 	import type { Commune } from '$lib/interfaces/geography.interface.ts';
@@ -39,6 +37,7 @@
 		facilityOf,
 		tagOf,
 		rCCFE,
+		rCFFE,
 	}: {
 		data: any;
 		displayCategory: boolean;
@@ -57,8 +56,8 @@
 		facilityOf: FacilityOf[];
 		tagOf: Tag[];
 		rCCFE: Map<any,any[]>;
+		rCFFE: Map<any,any[]>;
 	} = $props();
-	const cCFE = getContext<Loadable<Map<any, any>>>('cardinalCategorizedFilteredEffectors');
 	const selectSituation = getSelectSituation();
 	let top: Element;
 	let showOnPx = 500;
@@ -86,7 +85,7 @@
 			{/if}
 			{#if displayCategory}
 				{#if $selectSituation}
-					<SelectCategoriesChips {categoryOf} />
+					<SelectCategoriesChips {rCFFE} />
 				{:else}
 					<SelectCategories {categoryOf} />
 				{/if}
@@ -111,7 +110,7 @@
 						</div>
 					{/if}
 				{:then}-->
-					<List data={rCCFE} {avatar} loading={false} />
+					<List data={rCCFE} {avatar} />
 				<!--{/await}-->
 			</div>
 		</div>

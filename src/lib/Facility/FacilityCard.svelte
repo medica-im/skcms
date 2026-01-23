@@ -17,8 +17,9 @@
 	import { createFacilitiesMapData } from '$lib/components/Map/mapData.ts';
 	import type { Facility } from '$lib/interfaces/facility.interface.ts';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
+	import type { SvelteSet } from 'svelte/reactivity';
 
-	let { facility, entries } : { facility: Facility; entries: Entry[]|undefined } = $props();
+	let { facility, entries, intersecting } : { facility: Facility; entries: Entry[]|undefined; intersecting: SvelteSet<string> } = $props();
 
 	const createFacilityGeoData = (facility: Facility) => {
 		let address = facility?.address;
@@ -94,7 +95,9 @@
 			{/if}
 		</div>
 		<div class="mx-2 p-1 h-64 lg:w-full z-0">
+			{#if intersecting.has(facility.uid)}
 			<Map data={createFacilitiesMapData([facility])} />
+			{/if}
 		</div>
 	</div>
 

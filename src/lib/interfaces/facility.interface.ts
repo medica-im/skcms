@@ -26,21 +26,29 @@ export interface Avatar {
 }
 
 export interface Facility {
-    uid: string,
-    address: Address,
-    commune: string,
-    name: string,
-    label: string,
-    organizations: any[],
-    resource_uri: string|null,
-    slug: string,
-    socialnetworks: SocialNetwork[]|null,
-    websites: Website[]|null,
-    avatar: Avatar,
-    emails: Email[],
-    phones: Phone[],
+    uid: string;
+    address: Address;
+    ban_banId: string|null;
+    ban_id: string|null;
+    commune: string;
+    name: string;
+    label: string;
+    organizations: any[];
+    resource_uri: string;
+    slug: string;
+    socialnetworks: SocialNetwork[]|null;
+    websites: Website[]|null;
+    avatar: Avatar|null;
+    emails: Email[]|null;
+    phones: Phone[]|null;
     entries: string[];
 }
+
+
+export interface FacilityIntersect extends Facility {
+    htmlElement: HTMLElement|null;
+}
+
 
 export interface FacilityOf extends Address {
     uid: string,
