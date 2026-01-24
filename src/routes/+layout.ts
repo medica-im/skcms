@@ -1,6 +1,6 @@
 import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
 import { checkVersion } from '$lib/version';
-import { getSituations } from '$lib/store/directoryStore';
+import { getSituationsV2 } from '$lib/store/directoryStore';
 import type { User } from "$lib/interfaces/user.interface";
 import type { Entry } from '$lib/store/directoryStoreInterface';
 import type { LayoutLoad } from './$types';
@@ -42,7 +42,7 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
   }
 
   return {
-    situations: await getSituations(fetch),
+    situations: data.directory?.inputField.situation ? await getSituationsV2(fetch) : undefined,
     directory: data.directory,
     session: data.session,
     user: user || data.user,
