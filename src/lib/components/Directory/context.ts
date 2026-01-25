@@ -67,13 +67,13 @@ export function getLimitCategories() {
     return getContext<Writable<string[]>>('limitCategories');
 }
 
-export function setSelectedDepartments() {
-    let selectDepartments: Writable<string[]|null> = writable(null);
-    setContext('selectedDepartments', selectDepartments)
+export function setSelectedDepartment() {
+    let selectDepartment: Writable<{label: string, value: string}|null> = writable();
+    setContext('selectedDepartment', selectDepartment)
 }
 
-export function getSelectedDepartments() {
-    return getContext<Writable<string[]|null>>('selectedDepartments');
+export function getSelectedDepartment() {
+    return getContext<Writable<{label: string, value: string}|null>>('selectedDepartment');
 }
 
 export function setSelectedTags() {

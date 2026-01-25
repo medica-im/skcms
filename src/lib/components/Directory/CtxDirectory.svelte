@@ -9,8 +9,8 @@
 		getSelectCategories,
 		setLimitCategories,
 		getLimitCategories,
-		getSelectedDepartments,
-		setSelectedDepartments,
+		getSelectedDepartment,
+		setSelectedDepartment,
 		setSelectedCommunesUids,
 		getSelectedCommunesUids,
 		setSelectedCommunesChoices,
@@ -102,7 +102,7 @@
 	setLimitCategories();
 	setCurrentOrg();
 	setDirectoryRedirect();
-	setSelectedDepartments();
+	setSelectedDepartment();
 	setSelectedCommunesUids();
 	setSelectedCommunesChoices();
 	setSelectSituation();
@@ -118,7 +118,7 @@
 	let selectCategories = getSelectCategories();
 	let selectSituation = getSelectSituation();
 	let selectCommunes = getSelectedCommunesUids();
-	let selectDepartments = getSelectedDepartments();
+	let selectDepartment = getSelectedDepartment();
 	let selectTags = getSelectedTags();
 	let addressFeature = getAddressFeature();
 	let selectFacility = getSelectFacility();
@@ -178,7 +178,7 @@
 		return filteredEntriesF(
 				rFullFilteredEntries,
 				$selectCategories,
-				$selectDepartments,
+				$selectDepartment,
 				$selectCommunes,
 				$selectFacility,
 				$term,
@@ -208,19 +208,19 @@
 	//$inspect("rCardinalCategorizedFilteredEntries", rCardinalCategorizedFilteredEntries);
 
 	const communeOf = $derived.by(() => {
-		return communeOfF(rFullFilteredEntries, $selectCategories, $selectDepartments, $selectFacility);
+		return communeOfF(rFullFilteredEntries, $selectCategories, $selectDepartment, $selectFacility);
 	});
 	const departmentOf = $derived.by(() => {
 		return departmentOfF(rFullFilteredEntries, $selectFacility, $selectCategories, $selectCommunes);
 	});
 	const facilityOf = $derived.by(() => {
-		return facilityOfF(rFullFilteredEntries, $selectCategories, $selectCommunes, $selectDepartments);
+		return facilityOfF(rFullFilteredEntries, $selectCategories, $selectCommunes, $selectDepartment);
 	});
 	const categoryOf = $derived.by(() => {
-		return categoryOfF(rFullFilteredEntries, $selectCommunes, $selectDepartments, $selectFacility);
+		return categoryOfF(rFullFilteredEntries, $selectCommunes, $selectDepartment, $selectFacility);
 	});
 	const tagOf = $derived.by(() => {
-		return tagOfF(rFullFilteredEntries, $selectFacility, $selectCategories, $selectCommunes, $selectDepartments, );
+		return tagOfF(rFullFilteredEntries, $selectFacility, $selectCategories, $selectCommunes, $selectDepartment, );
 	});
 </script>
 

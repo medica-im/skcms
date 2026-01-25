@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 	import { invalidate } from '$app/navigation';
 	import Dialog from '$lib/Web/Dialog.svelte';
 	import { updateEffector } from '../../../effector.remote.ts';
@@ -57,6 +59,10 @@
 		validateSlug(slug_fr, inputClass, isRequired, validateForm);
 		validateGender(gender, inputClass, isRequired, validateForm);
 	};
+	let redirect: boolean = $derived(
+		!(slug_fr == null && data.slug == null) &&
+			slug_fr != data.slug);
+	let slugSuccess: boolean = $derived(page.url.searchParams.get('success') === 'true');
 	onMount(() => {
 		validateAll();
 	});
@@ -83,11 +89,8 @@
 			<div class="p-4 space-y-2 justify-items-stretch grid grid-cols-1 gap-6">
 				<form
 					{...updateEffector.for(data.effector_uid).enhance(async ({ form, data, submit }) => {
-						console.log(data);
 						try {
 							await submit();
-							console.log('Successfully published!');
-							invalidate('entry:now');
 						} catch (error) {
 							console.log(`Oh no! Something went wrong:${error}`);
 						}
@@ -99,7 +102,28 @@
 						name="effector"
 						type="text"
 						placeholder=""
-						bind:value={data.effector_uid}
+						value={data.effector_uid}
+					/>
+					<input
+						class="hidden"
+						name="path"
+						type="text"
+						placeholder=""
+						bind:value={page.url.pathname}
+					/>
+					<input
+						class="hidden"
+						name="oldSlug"
+						type="text"
+						placeholder=""
+						value={data.slug}
+					/>
+					<input
+						class="hidden"
+						name="redirect"
+						type="checkbox"
+						placeholder=""
+						bind:checked={redirect}
 					/>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
 						<span class="h4">Nom</span>
@@ -178,7 +202,7 @@
 					</label>
 					<div class="flex gap-8">
 						<div class="flex gap-2 items-center">
-							{#if formResult?.success}
+							{#if formResult?.success || slugSuccess}
 								<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
 							{:else if formResult && formResult.success == false}
 								<span class="badge-icon variant-filled-error"
@@ -191,9 +215,7 @@
 								type="submit"
 								class="variant-filled-secondary btn w-min"
 								{disabled}
-								onclick={async () => {
-									await new Promise((resolve) => setTimeout(resolve, 1000));
-								}}>Envoyer</button
+								>Envoyer</button
 							>
 						</div>
 						<div class="w-auto justify-center">
@@ -201,8 +223,10 @@
 								type="button"
 								class="variant-filled-error btn w-min"
 								onclick={() => {
+									page.url.searchParams.set('success', 'false');
+							goto(`?${page.url.searchParams.toString()}`);
 									dialog?.close();
-								}}>{formResult?.success ? 'Fermer' : 'Annuler'}</button
+								}}>{formResult?.success || slugSuccess ? 'Fermer' : 'Annuler'}</button
 							>
 						</div>
 					</div>

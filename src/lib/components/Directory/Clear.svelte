@@ -5,7 +5,7 @@
 		getTerm,
 		getSelectedCommunesUids,
 		getSelectedCommunesChoices,
-		getSelectedDepartments,
+		getSelectedDepartment,
 		getSelectCategories,
 		getSelCatVal,
 		getSelectSituation,
@@ -23,7 +23,7 @@
 	let term = getTerm();
 	let selectedCommunesChoices = getSelectedCommunesChoices();
 	let selectedCommunesUids = getSelectedCommunesUids();
-	let selectDepartments = getSelectedDepartments();
+	let selectDepartment = getSelectedDepartment();
 	let selCatVal = getSelCatVal();
 	let selectSituation = getSelectSituation();
 	let inputAddress = getInputAddress();
@@ -39,7 +39,7 @@
 		$term ||
 		$selectedCommunesUids.length ||
 		$selectedCommunesChoices ||
-		$selectDepartments ||
+		$selectDepartment ||
 		$selCatVal ||
 		$selectSituation ||
 		$inputAddress ||
@@ -52,7 +52,7 @@
 		term.set('');
 		selectedCommunesUids.set([]);
 		selectedCommunesChoices.set(null);
-		selectDepartments.set(null);
+		selectDepartment.set(null);
 		selectCategories.set([]);
 		selCatVal.set(null);
 		selectSituation.set(undefined);

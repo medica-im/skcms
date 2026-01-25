@@ -4,10 +4,9 @@
 	import Select from 'svelte-select';
 	import { onMount } from 'svelte';
 	import * as m from '$msgs';
-	import { getSelectedDepartments } from './context';
+	import { getSelectedDepartment } from './context';
 	import { getDepartments } from '$lib/Web/data';
 	import type { DepartmentOfFrance } from '$lib/interfaces/v2/facility';
-	import type { SelectType } from '$lib/interfaces/select';
 
 	let { departmentOf }: { departmentOf: string[] } = $props();
 
@@ -21,49 +20,30 @@
 				})
 		}
 	});
-	let selectDepartments = getSelectedDepartments();
-	let value: SelectType | SelectType[] | undefined = $derived.by(() => {
-		if ($selectDepartments === null) {
-			return undefined;
-		} else {
-			const _value = getValue($selectDepartments);
-			if (!_value) return;
-			if (multiple) {
-				return _value;
-			} else {
-				return _value[0];
-			}
-		}
-	});
-	let multiple: boolean = $state(false);
+	let selectDepartment = getSelectedDepartment();
 	const label = 'label';
 	const itemId = 'value';
 
-	//let selectedCommunesChoices = getSelectedCommunesChoices();
-	/*let value: SelectType | SelectType[] | undefined = $derived.by(() => {
-		if (multiple) {
-			return $selectedCommunesChoices || undefined;
-		} else {
-			return $selectedCommunesChoices ? $selectedCommunesChoices[0] : undefined;
-		}
-	});*/
-	function getValue(dptsCodes: string[]) {
-		if ( departments && departments?.length ) {
-		return departments.filter((d) => {
-				return dptsCodes.includes(d.code);
+	function getValue(dptCode: string) {
+		if ( !(departments === undefined) ) {
+			const found = departments.find((d) => {
+				return dptCode===d.code;
 			})
-			.map((d) => {
-				return { label: d.name, value: d.code };
-			});
+			if (found) {
+				return { label: found.name, value: found.code };
+			}
 		}
+		return null
 	}
 
 	onMount(() => {
-		const dptsParam = page.url.searchParams.get('departments');
-		console.log('dptsParam', dptsParam);
-		if (!dptsParam) return;
-		const dptsCodes: string[] = JSON.parse(dptsParam);
-		selectDepartments.set(dptsCodes);
+		const dptParam = page.url.searchParams.get('department');
+		if (!dptParam) return;
+		const dptCode: string = JSON.parse(dptParam);
+		if ($selectDepartment?.value !== dptCode) {
+			const value = getValue(dptCode);
+			selectDepartment.set(value);
+		}
 	});
 
 	/*function getChoices(communeUids: string[], allCommunes: Commune[]) {
@@ -76,39 +56,16 @@
 		return choices;
 	}*/
 
-	function handleClear(event: CustomEvent) {
+	const handleClear = (event: CustomEvent) => {
 		if (event.detail) {
-			$selectDepartments = null;
-			//$selectedCommunesChoices = null;
-			if (page.url.searchParams.get('communes')) {
-				page.url.searchParams.delete('communes');
+			if (page.url.searchParams.get('department')) {
+				page.url.searchParams.delete('department');
 				goto(page.url.pathname + '?' + page.url.searchParams);
 			}
 		}
-	}
-
-	function handleChange(event: CustomEvent) {
-		if (event.detail) {
-			console.log(event.detail);
-			if (Array.isArray(event.detail)) {
-				//$selectedCommunesChoices = event.detail;
-				$selectDepartments = event.detail.map((e) => e.value);
-			} else {
-				console.log(event.detail.value);
-				//$selectedCommunesChoices = [event.detail];
-				selectDepartments.set([event.detail.value]);
-				console.log($selectDepartments);
-			}
-		}
-	}
+	};
 </script>
 
-<!--
-{departmentOf ? JSON.stringify(departmentOf.slice(0, 2)) : departmentOf}<br />
-{departmentOf ? departmentOf?.length : 0} commune(s)<br />
-$selectDepartments: {JSON.stringify($selectDepartments)}<br />
-typeof $selectDepartments: {typeof $selectDepartments}<br />
--->
 <div class="text-surface-700 theme max-h-12">
 	{#if !departmentOf}
 		<Select loading={true} placeholder={m.ADDRESSBOOK_DEPARTMENTS_PLACEHOLDER()} />
@@ -118,10 +75,9 @@ typeof $selectDepartments: {typeof $selectDepartments}<br />
 			{itemId}
 			{items}
 			searchable={true}
-			on:change={handleChange}
 			on:clear={handleClear}
 			placeholder={m.ADDRESSBOOK_DEPARTMENTS_PLACEHOLDER()}
-			bind:value
+			bind:value={$selectDepartment}
 		/>
 	{/if}
 </div>

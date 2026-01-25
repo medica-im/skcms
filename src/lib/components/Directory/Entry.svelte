@@ -3,7 +3,7 @@
 	import { FacilityLink } from '$lib';
 	import AvatarList from '$lib/components/Effector/Avatar/AvatarList.svelte';
 	import { page } from '$app/state';
-	import { getSelectFacility, getSelectCategories, getTerm, getSelectedCommunesUids, getSelectedDepartments, getSelectSituation, getSelectedTags, getAddressFeature, getDisplayMap } from './context';
+	import { getSelectFacility, getSelectCategories, getTerm, getSelectedCommunesUids, getSelectedDepartment, getSelectSituation, getSelectedTags, getAddressFeature, getDisplayMap } from './context';
 	import { goto } from '$app/navigation';
 	import CommunityAddress from '$lib/Address/CommunityAddress.svelte';
 	import { entryPageUrl } from '$lib/utils/utils';
@@ -15,7 +15,7 @@
 	let selectFacility = getSelectFacility();
 	let selectCategories = getSelectCategories();
 	let selectCommunes = getSelectedCommunesUids();
-	let selectDepartments = getSelectedDepartments();
+	let selectDepartment = getSelectedDepartment();
 	let tags =  getSelectedTags();
 	let term = getTerm();
 	let displayMap = getDisplayMap();
@@ -30,7 +30,7 @@
 			$tags?.map(t=>t.uid),
 			$term,
 			$selectCommunes,
-			$selectDepartments,
+			$selectDepartment,
 			$selectSituation?.value,
 			$addressFeature,
 			$displayMap,

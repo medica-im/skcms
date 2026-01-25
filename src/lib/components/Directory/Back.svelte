@@ -10,7 +10,7 @@
 	const siteCat = page.data.organization.category.name;
 
 	function isSearchParamsEmpty(searchParams: URLSearchParams): boolean {
-		const params: string[] = ['term', 'situation', 'facility', 'types', 'communes'];
+		const params: string[] = ['term', 'situation', 'facility', 'types', 'communes', 'department'];
 		for (let param of params) {
 			if (searchParams.get(param) != null) return false;
 		}
@@ -52,9 +52,9 @@
 		if (communesParam) {
 			params.push(`communes=${encodeURIComponent(communesParam)}`);
 		}
-		const dptsParam = searchParams.get('departments');
-		if (dptsParam) {
-			params.push(`departments=${encodeURIComponent(dptsParam)}`);
+		const dptParam = searchParams.get('department');
+		if (dptParam) {
+			params.push(`department=${encodeURIComponent(dptParam)}`);
 		}
 		const typesParam = searchParams.get('types');
 		if (typesParam) {

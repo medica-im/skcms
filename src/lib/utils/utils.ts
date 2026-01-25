@@ -89,7 +89,7 @@ export const mapToString = (map: Map<string,object>, start?: number|undefined, s
 	return _array.slice(start, stop).join('\n')
 }
 
-export const entryPageUrl = (entry: Entry, org_category: string | null = null, pathname: string | null = null, facility: string | null = null, types: string[] | null = null, tags: string[]|null = null, term: string | null = null, communes: string[] | null = null, departments: string[] | null = null, situation: string | undefined = undefined, addressFeature: AddressFeature|null=null, displayMap: boolean = false) => {
+export const entryPageUrl = (entry: Entry, org_category: string | null = null, pathname: string | null = null, facility: string | null = null, types: string[] | null = null, tags: string[]|null = null, term: string | null = null, communes: string[] | null = null, department: {label: string, value: string} | null = null, situation: string | undefined = undefined, addressFeature: AddressFeature|null=null, displayMap: boolean = false) => {
 	const typeSlug = entry.effector_type.slug;
 	const communeSlug = entry.commune?.slug;
 	const nameSlug = entry.slug;
@@ -101,8 +101,8 @@ export const entryPageUrl = (entry: Entry, org_category: string | null = null, p
 	const communesParam = communes?.length
 		? `${encodeURIComponent(JSON.stringify(communes))}`
 		: '';
-	const departmentsParam = departments?.length
-		? `${encodeURIComponent(JSON.stringify(departments))}`
+	const departmentsParam = department
+		? `${encodeURIComponent(JSON.stringify(department.value))}`
 		: '';
 	const situationParam = situation ? `${encodeURIComponent(situation)}`: '';
 	const addressFeatureParam = addressFeature ? `${encodeURIComponent(JSON.stringify(addressFeature))}`: '';
@@ -116,7 +116,7 @@ export const entryPageUrl = (entry: Entry, org_category: string | null = null, p
 		{types: typesParam},
 		{term: termParam},
 		{communes: communesParam},
-		{departments: departmentsParam},
+		{department: departmentsParam},
 		{situation:	situationParam},
 		{address: addressFeatureParam},
 		{map: displayMapParam},

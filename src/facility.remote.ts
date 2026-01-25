@@ -84,7 +84,7 @@ export const updateFacility = form(putFacility, async (data) => {
 	const url = `${variables.BASE_URI}/api/v2/facilities/${data.uid}`;
 	console.log(url);
 	console.log(`redirect: ${data.redirect}`);
-	const doRedirect: boolean = data.redirect || false;
+	const doRedirect: boolean = !!data.redirect;
 	delete data.redirect;
 	delete data.uid;
 	const request = authReq(url, 'PUT', cookies, JSON.stringify(data));

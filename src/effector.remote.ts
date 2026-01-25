@@ -5,7 +5,7 @@ import { authReq } from '$lib/utils/request.ts';
 import { variables } from '$lib/utils/constants.ts';
 import type { Effector } from '$lib/interfaces/v2/effector.ts';
 
-const RoleEnum = z.enum(['anonymous', 'staff', 'administrator' , 'superuser']);
+const RoleEnum = z.enum(['anonymous', 'staff', 'administrator', 'superuser']);
 const genderEnum = z.enum(['F', 'M', 'N'], "Vous devez choisir un genre grammatical.");
 
 const effectorGet = z.object({
@@ -23,7 +23,6 @@ export const getEffectors = query(z.string().nullable(), async (directory) => {
     const { cookies } = getRequestEvent();
     const params = directory ? `?directory=${encodeURIComponent(directory)}` : '';
     const url = `${variables.BASE_URI}/api/v2/effectors${params}`;
-    console.log("getEffectors url", url);
     const request = authReq(url, 'GET', cookies);
     const response = await fetch(request);
     if (response.ok == false) {
@@ -33,7 +32,7 @@ export const getEffectors = query(z.string().nullable(), async (directory) => {
     } else {
         return await response.json() as Effector[]
     }
- });
+});
 
 const Patch = z.object({
     effector: z.string().regex(/^[0-9a-fA-F]{32}$/).optional(),
@@ -43,7 +42,6 @@ const Patch = z.object({
 });
 
 export const patchCommand = command(Patch, async (data) => {
-    console.log(JSON.stringify(data));
     const effector_uid = data.effector;
     delete data.effector;
     const { cookies } = getRequestEvent();
@@ -71,20 +69,53 @@ export const patchCommand = command(Patch, async (data) => {
 });
 
 const effectorPatch = z.object({
-    effector: z.string().regex(/^[0-9a-fA-F]{32}$/).optional(),
+    effector: z.string().regex(/^[0-9a-fA-F]{32}$/),
     name_fr: z.string(),
     label_fr: z.string(),
     slug_fr: z.string(),
-    gender: genderEnum
+    gender: genderEnum,
+    redirect: z.coerce.boolean<boolean>(),
+    oldSlug: z.string(),
+    path: z.string(),
 });
 
+const EffectorPatchToSend = z.object({
+    name_fr: z.string(),
+    label_fr: z.string(),
+    slug_fr: z.string(),
+    gender: genderEnum,
+});
+
+interface EffectorPath {
+    name_fr: string;
+    label_fr: string;
+    slug_fr: string;
+    gender: string;
+    effector?: string;
+    redirect?: boolean;
+    oldSlug?: string;
+    path?: string;
+}
+
 export const updateEffector = form(effectorPatch, async (data) => {
-    console.log(JSON.stringify(data));
+    const dataToProcess: EffectorPath = structuredClone(data);
     const effector_uid = data.effector;
-    delete data.effector;
+    delete dataToProcess.effector;
+    const doRedirect: boolean = !!data.redirect;
+    delete dataToProcess.redirect;
+    const redirectPath = data.path.replace(data.oldSlug, data.slug_fr);
+    delete dataToProcess.oldSlug;
+    let body;
+    try {
+        body = EffectorPatchToSend.parse(dataToProcess);
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            throw Error(JSON.stringify(error.issues));
+        }
+    }
     const { cookies } = getRequestEvent();
     const url = `${variables.BASE_URI}/api/v2/effectors/${effector_uid}`;
-    const request = authReq(url, 'PATCH', cookies, JSON.stringify(data));
+    const request = authReq(url, 'PATCH', cookies, JSON.stringify(body));
     const response = await fetch(request);
     if (response.ok == false) {
         console.error(response.status)
@@ -96,40 +127,42 @@ export const updateEffector = form(effectorPatch, async (data) => {
         }
     } else {
         const json = await response.json();
-        return {
-            success: true,
-            status: response.status,
-            text: response.statusText,
-            data: json
+        if (!doRedirect) {
+            return {
+                success: true,
+                status: response.status,
+                text: response.statusText,
+                data: json
+            }
         }
+        redirect(303, `${redirectPath}?success=true`);
     }
 });
 
 const slugRequirement = "Un permalien ne peut contenir que des caractères minuscules de l'alphabet latin, des chiffres, des tirets et des tirets du bas.";
 const slugMandatory = "Vous devez indiquer un permalien.";
-const organizationEnum = z.enum( [ 'msp', 'cpts' ] )
+const organizationEnum = z.enum(['msp', 'cpts'])
 const effectorPost = z.discriminatedUnion('organization', [
     z.object({
-    organization: organizationEnum.extract( [ 'msp' ] ),
-    name_fr: z.string().min(1,"Vous devez indiquer un nom."),
-    label_fr: z.string().optional(),
-    slug_fr: z.string().regex(new RegExp(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), {
-  error: issue => issue.input === "" ? slugMandatory : slugRequirement
-}),
-    gender: genderEnum
-}),
-z.object({
-    organization: organizationEnum.extract( [ 'cpts' ] ),
-    name_fr: z.string().optional(),
-    label_fr: z.string().optional(),
-    slug_fr: z.string().min(1, slugMandatory).regex(new RegExp(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), slugRequirement).optional(),
-    gender: genderEnum
-})]);
+        organization: organizationEnum.extract(['msp']),
+        name_fr: z.string().min(1, "Vous devez indiquer un nom."),
+        label_fr: z.string().optional(),
+        slug_fr: z.string().regex(new RegExp(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), {
+            error: issue => issue.input === "" ? slugMandatory : slugRequirement
+        }),
+        gender: genderEnum
+    }),
+    z.object({
+        organization: organizationEnum.extract(['cpts']),
+        name_fr: z.string().optional(),
+        label_fr: z.string().optional(),
+        slug_fr: z.string().min(1, slugMandatory).regex(new RegExp(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), slugRequirement).optional(),
+        gender: genderEnum
+    })]);
 type EffectorPost = z.infer<typeof effectorPost>
 
 
 export const createEffector = form(effectorPost, async (data) => {
-    console.log(`form data: ${JSON.stringify(data)}`);
     const { cookies } = getRequestEvent();
     const url = `${variables.BASE_URI}/api/v2/effectors`;
     const request = authReq(url, 'POST', cookies, JSON.stringify(data));

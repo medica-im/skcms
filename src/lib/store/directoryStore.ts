@@ -204,8 +204,8 @@ export const fullFilteredEntriesF = (situations: Situation[], entries: Entry[], 
 	}
 };
 
-export const filteredEntriesF = (fullFilteredEffectors: Entry[], selectCategories: String[], selectDepartments: string[] | null, selectCommunes: string[], selectFacility: string | null, term: string, selectTags: Tag[] | null) => {
-	if (!selectCategories?.length && !selectDepartments && !selectCommunes?.length && selectFacility == null && term == '' && selectTags === null) {
+export const filteredEntriesF = (fullFilteredEffectors: Entry[], selectCategories: String[], selectDepartment: {label: string, value: string} | null, selectCommunes: string[], selectFacility: string | null, term: string, selectTags: Tag[] | null) => {
+	if (!selectCategories?.length && !selectDepartment && !selectCommunes?.length && selectFacility == null && term == '' && selectTags === null) {
 		return fullFilteredEffectors
 	} else {
 		return fullFilteredEffectors.filter(function (x) {
@@ -215,10 +215,10 @@ export const filteredEntriesF = (fullFilteredEffectors: Entry[], selectCategorie
 				return selectCategories.includes(x.effector_type.uid)
 			}
 		}).filter(function (x) {
-			if (!selectDepartments) {
+			if (!selectDepartment) {
 				return true
 			} else {
-				return selectDepartments.includes(x.department.code)
+				return selectDepartment.value===x.department.code
 			}
 		}).filter(function (x) {
 			if (!selectCommunes?.length) {
@@ -379,11 +379,11 @@ const uniqueArray = (objects: any, uniqueBy: string[], keepFirst = true) => {
 	)
 }
 
-export const categoryOfF = (fullFilteredEntries: Entry[], selectCommunes: string[], selectDepartments: string[] | null, selectFacility: string | null): Type[] => {
+export const categoryOfF = (fullFilteredEntries: Entry[], selectCommunes: string[], selectDepartment: {label: string, value: string} | null, selectFacility: string | null): Type[] => {
 	if (!Array.isArray(fullFilteredEntries)) {
 		return []
 	}
-	if (!selectCommunes.length && !selectDepartments && selectFacility == null) {
+	if (!selectCommunes.length && !selectDepartment && selectFacility == null) {
 		return uniq(
 			fullFilteredEntries.map(
 				function (x) {
@@ -396,7 +396,7 @@ export const categoryOfF = (fullFilteredEntries: Entry[], selectCommunes: string
 			fullFilteredEntries.filter(
 				function (x) {
 					return (
-						(!(selectCommunes.length) || selectCommunes.includes(x.commune.uid)) && (!selectFacility || selectFacility == x.facility.uid) && (!selectDepartments || selectDepartments.includes(x.department.code))
+						(!(selectCommunes.length) || selectCommunes.includes(x.commune.uid)) && (!selectFacility || selectFacility == x.facility.uid) && (!selectDepartment || selectDepartment.value===x.department.code)
 					)
 				}
 			).map(
@@ -425,8 +425,8 @@ export const departmentOfF = (fullFilteredEntries: Entry[], selectFacility: stri
 	}
 }
 
-export const communeOfF = (fullFilteredEntries: Entry[], selectCategories: string[], selectDepartments: string[] | null, selectFacility: string | null) => {
-	if (!selectCategories?.length && !selectDepartments && !selectFacility) {
+export const communeOfF = (fullFilteredEntries: Entry[], selectCategories: string[], selectDepartment: {label: string, value: string} | null, selectFacility: string | null) => {
+	if (!selectCategories?.length && !selectDepartment && !selectFacility) {
 		const allCommunes = fullFilteredEntries.map(x => x.commune);
 		const mapFromCommunes = new Map(
 			allCommunes.map(c => [c.uid, c])
@@ -437,7 +437,7 @@ export const communeOfF = (fullFilteredEntries: Entry[], selectCategories: strin
 		const communes = fullFilteredEntries.filter(
 			x => {
 				return (!selectCategories?.length || selectCategories.includes(x.effector_type.uid)
-				) && (!selectFacility || x.facility.uid == selectFacility) && (!selectDepartments || selectDepartments.includes(x.department.code))
+				) && (!selectFacility || x.facility.uid == selectFacility) && (!selectDepartment || selectDepartment.value===x.department.code)
 			}
 		).map(x => x.commune);
 		const mapFromCommunes = new Map(
@@ -452,16 +452,16 @@ export const communeOfF = (fullFilteredEntries: Entry[], selectCategories: strin
 	}
 }
 
-export const facilityOfF = (fullFilteredEntries: Entry[], selectCategories: string[], selectCommunes: string[], selectDepartments: string[] | null) => {
+export const facilityOfF = (fullFilteredEntries: Entry[], selectCategories: string[], selectCommunes: string[], selectDepartment: {label: string, value: string} | null) => {
 	let entries: Entry[];
 	let facilities: FacilityOf[];
-	if (!selectCategories?.length && !selectCommunes?.length && !selectDepartments) {
+	if (!selectCategories?.length && !selectCommunes?.length && !selectDepartment) {
 		entries = fullFilteredEntries;
 	} else {
 		entries = fullFilteredEntries.filter(
 			x => {
 				(!selectCategories?.length || selectCategories.includes(x.effector_type.uid)
-				) && (!selectCommunes?.length || selectCommunes.includes(x.commune.uid)) && (!selectDepartments || selectDepartments.includes(x.department.code))
+				) && (!selectCommunes?.length || selectCommunes.includes(x.commune.uid)) && (!selectDepartment || selectDepartment.value===x.department.code)
 			}
 		)
 	}
@@ -475,8 +475,8 @@ export const facilityOfF = (fullFilteredEntries: Entry[], selectCategories: stri
 	return uniqueFacilities
 };
 
-export const tagOfF = (fullFilteredEntries: Entry[], selectFacility: string | null, selectCategories: string[], selectCommunes: String[], selectDepartments: string[] | null): Tag[] => {
-	if (!selectCategories?.length && !selectFacility && !selectCommunes.length && !selectDepartments) {
+export const tagOfF = (fullFilteredEntries: Entry[], selectFacility: string | null, selectCategories: string[], selectCommunes: String[], selectDepartment: {label: string, value: string} | null): Tag[] => {
+	if (!selectCategories?.length && !selectFacility && !selectCommunes.length && !selectDepartment) {
 		const allTags = fullFilteredEntries.filter((x) => x.tags !== null).map(x => x.tags).flat();
 		const uniqueTags = uniqueArray(allTags, ["uid"]);
 		return uniqueTags as Tag[];
@@ -484,7 +484,7 @@ export const tagOfF = (fullFilteredEntries: Entry[], selectFacility: string | nu
 		const tags = fullFilteredEntries.filter(
 			x => {
 				return (!selectCategories?.length || selectCategories.includes(x.effector_type.uid)
-				) && (!selectFacility || x.facility.uid == selectFacility) && (!selectCommunes.length || selectCommunes.includes(x.commune.uid)) && (!selectDepartments || selectDepartments.includes(x.department.code))
+				) && (!selectFacility || x.facility.uid == selectFacility) && (!selectCommunes.length || selectCommunes.includes(x.commune.uid)) && (!selectDepartment || selectDepartment.value===x.department.code)
 			}
 		).map(x => x.tags).flat();
 		const uniqueTags = uniqueArray(tags, ["uid"]);
