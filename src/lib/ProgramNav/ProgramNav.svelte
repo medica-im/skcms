@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as m from "$msgs";
-	import { language } from '$lib/store/languageStore.ts';
+	import { variables } from '$src/lib/utils/constants';
 	import { capitalizeFirstLetter, lowercaseFirstLetter } from '$lib/helpers/stringHelpers.ts';
 	import { getProgram, getIsOther } from '$lib/links.ts';
 	import Fa from "svelte-fa";
@@ -41,7 +41,7 @@
 <div class="card bg-initial w-fit my-2 py-2">
 	<header class="card-header">
 		<h3 class="h3">
-			{programOf(program.title, $language, isOther, program.list.length)}
+			{programOf(program.title, variables.DEFAULT_LANGUAGE, isOther, program.list.length)}
 		</h3>
 	</header>
 	<section class="p-4 space-y-4">

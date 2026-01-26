@@ -46,7 +46,7 @@
 	import { getDrawerStore } from '@skeletonlabs/skeleton';
 	import * as m from '$msgs';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import { language } from '$lib/store/languageStore';
+	
 
 	const drawerStore = getDrawerStore();
 	const modalStore = getModalStore();
@@ -144,12 +144,12 @@
 			<div class="block lg:hidden">
 				{capitalizeFirstLetter(
 					page.data.organization?.formatted_name_short || page.data.organization?.formatted_name,
-					$language
+					variables.DEFAULT_LANGUAGE
 				)}
 			</div>
 			<span class="max-lg:hidden"
 				><h4 class="h4">
-					{capitalizeFirstLetter(page.data.organization.formatted_name, $language)}
+					{capitalizeFirstLetter(page.data.organization.formatted_name, variables.DEFAULT_LANGUAGE)}
 				</h4>
 			</span>
 		</div>

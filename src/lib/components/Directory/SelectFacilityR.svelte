@@ -10,7 +10,6 @@
 
 	let { facilityOf }: { facilityOf: FacilityOf[] } = $props();
 
-
 	let selectFacility = getSelectFacility();
 	let facilityChoice = getFacilityChoice();
 
@@ -23,10 +22,10 @@
 		facilityParam = page.url.searchParams.get('facility');
 		if (facilityParam) {
 			selectFacility.set(facilityParam);
-				const value = getValue(facilityParam, facilityOf);
-				if (value) {
-					$facilityChoice = value;
-				}
+			const value = getValue(facilityParam, facilityOf);
+			if (value) {
+				$facilityChoice = value;
+			}
 		}
 	});
 
@@ -41,7 +40,7 @@
 	}
 
 	function getItems(facilities: FacilityOf[]) {
-		if ( !facilities ) return
+		if (!facilities) return;
 		return facilities
 			.map(function (x) {
 				const name = x.label || x.name || 'Étbl.';
@@ -71,13 +70,13 @@
 	}
 </script>
 
-	<!--facilityChoice: {JSON.stringify(facilityChoice)}<br>
+<!--facilityChoice: {JSON.stringify(facilityChoice)}<br>
 	selectFacility: {$selectFacility}<br />
-	facilityOf: {$facilityOf} ({$facilityOf.length})-->
-	<div class="text-surface-700 z-auto theme">
-		{#if !facilityOf}
+	facilityOf: {JSON.stringify(facilityOf)} ({facilityOf.length})-->
+<div class="text-surface-700 z-auto theme">
+	{#if !facilityOf}
 		<Select loading={true} placeholder={m.ADDRESSBOOK_FACILITIES_PLACEHOLDER()} />
-		{:else}
+	{:else}
 		<Select
 			{label}
 			{itemId}
@@ -88,8 +87,8 @@
 			placeholder={m.ADDRESSBOOK_FACILITIES_PLACEHOLDER()}
 			bind:value={$facilityChoice}
 		/>
-		{/if}
-	</div>
+	{/if}
+</div>
 
 <style>
 	/*

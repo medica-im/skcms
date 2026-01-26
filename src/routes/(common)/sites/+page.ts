@@ -1,5 +1,5 @@
 import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
-import { openGraphStore } from '$lib/store/openGraphStore';
+import { getOpenGraph } from '$lib/store/openGraphStore';
 import { allFacilityEntries, allFacilities } from '$lib/components/Directory/sites.ts';
 import { error } from '@sveltejs/kit';
 import type { Facility } from '$lib/interfaces/facility.interface.ts';

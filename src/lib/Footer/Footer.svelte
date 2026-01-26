@@ -6,10 +6,14 @@
 	import SocialNetworks from '../SoMed/SoMed.svelte';
 	import BlogIconLink from '$lib/Ghost/BlogIconLink.svelte';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import { language } from '$lib/store/languageStore';
 	import OutpatientClinicLogo from '$lib/Logos/OutpatientClinicLogo.svelte';
+	import type { ProgramsNavLinks } from '$lib/interfaces/variables.interface';
 
-	export let programsNavLinks;
+	let {
+		programsNavLinks
+	} : {
+		programsNavLinks: ProgramsNavLinks
+	} = $props();
 </script>
 <footer class="page-footer text-xs md:text-base">
 	<div class="w-full max-w-7xl mx-auto p-4 py-16 md:py-24 space-y-10">
@@ -59,7 +63,7 @@
 					<ul class="font-medium">
 						{#each Object.values(programsNavLinks) as navLink}
 							<li class="mb-4">
-								<a href={navLink.href} class="hover:underline ">{navLink.title[$language]}</a>
+								<a href={navLink.href} class="hover:underline ">{navLink.title[variables.DEFAULT_LANGUAGE as keyof object]}</a>
 							</li>
 						{/each}
 					</ul>
@@ -67,17 +71,17 @@
 				{/if}
 				<div>
 					<h6 class="mb-6 text-sm font-semibold uppercase">
-						{capitalizeFirstLetter(m.LEGAL(), $language)}
+						{capitalizeFirstLetter(m.LEGAL(), variables.DEFAULT_LANGUAGE)}
 					</h6>
 					<ul class="font-medium">
 						<!--li class="mb-4">
 							<a href="/politique-de-confidentialite" class="hover:underline"
-								>{capitalizeFirstLetter(m.PRIVACY_POLICY(), $language)}</a
+								>{capitalizeFirstLetter(m.PRIVACY_POLICY(), variables.DEFAULT_LANGUAGE)}</a
 							>
 						</li-->
 						<li class="mb-4">
 							<a href="/mentions-legales" class="hover:underline"
-								>{capitalizeFirstLetter(m.LEGAL_NOTICES(), $language)}</a
+								>{capitalizeFirstLetter(m.LEGAL_NOTICES(), variables.DEFAULT_LANGUAGE)}</a
 							>
 						</li>
 					</ul>

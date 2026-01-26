@@ -17,14 +17,12 @@
 		embedded = false,
 		data,
 		appBar = false,
-		sideBar = false,
 		appRail = false,
 		editMode = false,
 	} : {
 		embedded?: boolean;
 		data: SocialNetwork[];
 		appBar?: boolean;
-		sideBar?: boolean;
 		appRail?: boolean;
 		editMode?: boolean;
 	} = $props();
@@ -93,14 +91,6 @@
 		>
 			<span><Fa icon={getIcon(somed)} size="lg" /></span>
 		</a>
-	{/each}
-{:else if sideBar}
-	{#each data as somed}
-		<li>
-			<a href={somed.url} class="hover:variant-soft-secondary" target="_blank" rel="external">
-				<span><Fa icon={getIcon(somed)} size="lg" /></span><span>{somed.type_display}</span>
-			</a>
-		</li>
 	{/each}
 {:else if appRail}
 	{#each data as somed}

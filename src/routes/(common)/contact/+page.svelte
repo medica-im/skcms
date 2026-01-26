@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { variables } from '$src/lib/utils/constants';
 	import { page } from '$app/state';
-	import { language } from '$lib/store/languageStore';
+	
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import * as m from '$msgs';
 	import Contact from '$lib/Contact/Contact.svelte';
@@ -10,7 +11,7 @@
 
 <svelte:head>
 	<title>
-		{m.CONTACT_TITLE()} - {capitalizeFirstLetter(page.data.organization.formatted_name, $language)}
+		{m.CONTACT_TITLE()} - {capitalizeFirstLetter(page.data.organization.formatted_name, variables.DEFAULT_LANGUAGE)}
 	</title>
 </svelte:head>
 

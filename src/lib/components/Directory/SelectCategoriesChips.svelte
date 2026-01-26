@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import { getSelectCategories } from './context';
 	import * as m from '$msgs';
-	import { get } from '@square/svelte-store';
+	import { get } from 'svelte/store';
 	import Fa from 'svelte-fa';
 	import { faCheck } from '@fortawesome/free-solid-svg-icons';
 	import { createQuery } from '@tanstack/svelte-query';

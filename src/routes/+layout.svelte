@@ -10,7 +10,6 @@
     import { storePopup } from '@skeletonlabs/skeleton';
     import Sidebar from '$lib/SkeletonAppBar/Sidebar.svelte';
     import { afterNavigate } from '$app/navigation';
-    import { notificationData } from '$lib/store/notificationStore';
     import { fly } from 'svelte/transition';
     import { page } from '$app/state';
     import { variables } from '$lib/utils/constants';
@@ -116,13 +115,6 @@
 		</svelte:fragment>
 		<svelte:fragment slot="sidebarLeft">
 			<Sidebar/>
-		</svelte:fragment>
-		<svelte:fragment slot="pageHeader">
-			{#if $notificationData}
-				<p class="notification" id="notification" in:fly={{x: 200, duration: 500, delay: 0 }} out:fly={{}}>
-					{$notificationData}
-				</p>
-			{/if}
 		</svelte:fragment>
 		<!-- Page Content -->
 		<QueryClientProvider client={queryClient}>

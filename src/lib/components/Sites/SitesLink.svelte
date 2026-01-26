@@ -1,8 +1,7 @@
 <script lang="ts">
-	import * as m from "$msgs";	import { language } from '$lib/store/languageStore';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import * as m from "$msgs";
 	import Fa from 'svelte-fa';
-	import { faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+	import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 </script>
 
 <a href="/sites" class="btn variant-filled w-fit">

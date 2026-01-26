@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { variables } from '$src/lib/utils/constants';
 	import { page } from '$app/state';
 	import * as m from "$msgs";
-	import { language } from '$lib/store/languageStore';
+	
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import Fa from 'svelte-fa';
 	import { faCheck } from '@fortawesome/free-solid-svg-icons';
@@ -11,12 +12,12 @@
 	<title>
 		{capitalizeFirstLetter(
 			m.PRIVACY_POLICY(),
-			$language
-		)} - {capitalizeFirstLetter(page.data.organization.formatted_name, $language)}
+			variables.DEFAULT_LANGUAGE
+		)} - {capitalizeFirstLetter(page.data.organization.formatted_name, variables.DEFAULT_LANGUAGE)}
 	</title>
 </svelte:head>
 
 <h2 class="h2">{capitalizeFirstLetter(
 	m.PRIVACY_POLICY(),
-	$language
+	variables.DEFAULT_LANGUAGE
 )}</h2>

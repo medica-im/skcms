@@ -1,10 +1,6 @@
 import { browser } from '$app/environment';
 import type { Token, User, UserResponse } from '$lib/interfaces/user.interface';
 import type { CustomError } from '$lib/interfaces/error.interface';
-import { notificationData } from '$lib/store/notificationStore';
-import { userData } from '$lib/store/userStore';
-import * as m from "$msgs"; import { isAuth } from '$lib/store/authStore';
-
 const refreshUrl = '/api/v1/accounts/token/refresh/';
 
 export const browserGet = (key: string): string | undefined => {
@@ -106,45 +102,9 @@ export async function getCurrentUser(fetch, mode?: "optional") {
 	}
 };
 
-export const setCurrentUser = async () => {
-	const [response, errs]: [User, CustomError[]] = await getCurrentUser(fetch);
-	//console.log(`User: ${JSON.stringify(response)}`);
-	if (errs.length <= 0) {
-		userData.set(response);
-	} else {
-		userData.set(undefined);
-	}
-}
-
 function removeRefreshToken() {
 	localStorage.removeItem('refreshToken');
 }
-
-export const logOutUser = async (): Promise<void> => {
-	const _accessRefresh = await accessRefresh();
-	const jres = await fetch('/api/v1/accounts/logout/', {
-		method: 'POST',
-		mode: 'cors',
-		headers: {
-			Authorization: `Bearer ${_accessRefresh.access}`,
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify({
-			refresh: `${browserGet('refreshToken')}`
-		})
-	});
-	if (jres.status !== 204) {
-		const data = await jres.json();
-		//const error = data.user?.error[0];
-		//throw { id: error.id, message: error };
-		console.error(data);
-	}
-	userData.set({});
-	removeRefreshToken();
-	isAuth.set(false);
-	notificationData.update(() => m.LOGOUT_SUCCESSFUL());
-	//await goto('/accounts/login');
-};
 
 export const handlePostRequestsWithPermissions = async (
 	fetch,

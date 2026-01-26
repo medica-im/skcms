@@ -13,7 +13,7 @@ const BLOG_URI: string = PUBLIC_BLOG_URI;
 
 const GHOST_API_KEY = import.meta.env.VITE_GHOST_API_KEY;
 
-const DEFAULT_LANGUAGE = import.meta.env.VITE_DEFAULT_LANGUAGE;
+const DEFAULT_LANGUAGE = import.meta.env.PUBLIC_DEFAULT_LANGUAGE;
 
 const TIMELINE: boolean = PUBLIC_VITE_TIMELINE == "true"
 	? true

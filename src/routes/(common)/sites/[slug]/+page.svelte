@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { language } from '$lib/store/languageStore.ts';
+	import { variables } from '$src/lib/utils/constants';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import FacilityPage from '$lib/Facility/FacilityPage.svelte';
 	import SitesLink from '$lib/components/Sites/SitesLink.svelte';
@@ -60,7 +60,7 @@
 	<title>
 		{data.facility?.name} - {capitalizeFirstLetter(
 			page.data.organization.formatted_name,
-			$language
+			variables.DEFAULT_LANGUAGE
 		)}
 	</title>
 </svelte:head>

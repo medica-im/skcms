@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
-	import { language } from '$lib/store/languageStore.ts';
 	import * as m from '$msgs';
 	import { page } from '$app/state';
 	import { variables } from '$lib/utils/constants.ts';
@@ -158,7 +157,7 @@
 				{#if list.filter((e: any) => e.active != false).length > 0}
 					<!-- Title -->
 					<div {id} class="text-primary-700 dark:text-primary-500 font-bold uppercase px-4">
-						{title[$language]}
+						{title[variables.DEFAULT_LANGUAGE]}
 					</div>
 					<!-- Navigation List -->
 					<nav class="list-nav">

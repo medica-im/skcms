@@ -16,7 +16,8 @@
 			return departments
 				.filter((d) => departmentOf.includes(d.code))
 				.map((d) => {
-					return { label: d.name, value: d.code };
+					const label = `${d.name} - ${d.code}`;
+					return { label: label, value: d.code };
 				})
 		}
 	});

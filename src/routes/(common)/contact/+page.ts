@@ -1,5 +1,5 @@
-import { websiteSchema } from '$lib/store/facilityStore';
-import { openGraphStore } from '$lib/store/openGraphStore';
+//import { websiteSchema } from '$lib/store/facilityStore';
+import { getOpenGraph } from '$lib/store/openGraphStore';
 import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
 import type { EntryFull } from '$lib/store/directoryStoreInterface';
 import type { PageLoad } from './$types';

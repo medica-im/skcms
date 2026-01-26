@@ -1,10 +1,9 @@
 import { getContext, setContext } from 'svelte';
 import { writable } from 'svelte/store';
-import type { Loadable } from '@square/svelte-store';
 import type { Writable } from 'svelte/store';
 import type { Tag } from '$lib/store/directoryStoreInterface';
 
-import type { LimitCategoriesStore, AddressFeature, CurrentOrgStore, CommunesValueStore, DistanceEffectors, Type } from '$lib/store/directoryStoreInterface';
+import type { LimitCategoriesStore, AddressFeature, CurrentOrgStore, Type } from '$lib/store/directoryStoreInterface';
 import type { SelectType } from '$lib/interfaces/select';
 
 export function setEffectorUid(uid:string) {
@@ -182,12 +181,4 @@ export function setDirectoryRedirect() {
 
 export function getDirectoryRedirect(): Writable<boolean> {
     return getContext('directoryRedirect');
-}
-
-export function setDistanceEffectors(distanceEffectors: Loadable<DistanceEffectors|null>) {
-    setContext('distanceEffectors', distanceEffectors)
-}
-
-export function getDistanceEffectors(): Loadable<DistanceEffectors|null> {
-    return getContext('distanceEffectors')
 }

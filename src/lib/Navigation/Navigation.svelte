@@ -3,7 +3,7 @@ import * as m from "$msgs";
 import Fa from 'svelte-fa';
 import { faRoute } from '@fortawesome/free-solid-svg-icons';
 import { getLocale } from "$prgld/runtime.js";
-import { language } from '$lib/store/languageStore';
+
 import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 export let geoData;
 </script>

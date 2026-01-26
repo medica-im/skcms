@@ -1,16 +1,17 @@
 <script lang="ts">
+	import { variables } from '$src/lib/utils/constants';
 	import { page } from '$app/state';
 	import * as m from '$msgs';
-	import { language } from '$lib/store/languageStore';
+	
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import LegalNotices from '$lib/LegalNotices/LegalNotices.svelte';
 </script>
 
 <svelte:head>
 	<title>
-		{capitalizeFirstLetter(m.LEGAL_NOTICES(), $language)} - {capitalizeFirstLetter(
+		{capitalizeFirstLetter(m.LEGAL_NOTICES(), variables.DEFAULT_LANGUAGE)} - {capitalizeFirstLetter(
 			page.data.organization.formatted_name,
-			$language
+			variables.DEFAULT_LANGUAGE
 		)}
 	</title>
 </svelte:head>

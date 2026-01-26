@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import * as m from '$msgs';
-	import { language } from '$lib/store/languageStore';
+	import { variables } from '$src/lib/utils/constants';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import LegalEntity from '$lib/components/LegalEntity/LegalEntity.svelte';
 	import Address from '$lib/Address/Address.svelte';
@@ -11,7 +11,7 @@
 
 <header>
 	<div class="section-container">
-		<h2 class="h2">{capitalizeFirstLetter(m.LEGAL_NOTICES(), $language)}</h2>
+		<h2 class="h2">{capitalizeFirstLetter(m.LEGAL_NOTICES(), variables.DEFAULT_LANGUAGE)}</h2>
 	</div>
 </header>
 <section>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { language } from '$lib/store/languageStore.ts';
+	import { variables } from '$src/lib/utils/constants';
 	import { popup } from '@skeletonlabs/skeleton';
 	import Fa from 'svelte-fa';
 	import { page } from '$app/state';
@@ -34,7 +34,7 @@
 {#each menuNavCats as navCat}
 	<!-- trigger -->
 	<button class="btn hover:variant-soft-primary" use:popup={{ event: 'click', target: navCat.id }}>
-		<span>{navCat.title[$language]}</span>
+		<span>{navCat.title[variables.DEFAULT_LANGUAGE]}</span>
 		<span class="opacity-50"><Fa icon={faCaretDown} /></span>
 	</button>
 	<!-- popup -->
@@ -45,7 +45,7 @@
                 {#each getNavGroups(navCat.id) as navGroup}
 				{#if getNavGroups(navCat.id).length > 1}
                 <li>
-                    {navGroup.title[$language]}
+                    {navGroup.title[variables.DEFAULT_LANGUAGE]}
                 </li>
 				{/if}
                 {#each navGroup.list.filter(e=>e.active != false) as { href, label, icon, preload }}

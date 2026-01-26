@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { derived as syncDerived } from '@square/svelte-store';
 	import haversine from 'haversine-distance';
 	import {
 		setTerm,
@@ -28,7 +27,6 @@
 		setSelCatVal,
 		setInputAddress,
 		setGeoInputAddress,
-		setDistanceEffectors,
 		setSelectedTags,
 		getSelectedTags
 	} from './context';
@@ -153,11 +151,7 @@
 		}
 		return distanceOfEffector;
 	};
-	const distanceEffectors = syncDerived(addressFeature, ($addressFeature) => {
-		return distanceEffectorsF(entries, $addressFeature);
-	});
-	setDistanceEffectors(distanceEffectors);
-
+	
 	//runes
 	let rSelectSituation: SelectType | null | undefined = $state($selectSituation);
 	let rCurrentOrg = $derived(propCurrentOrg);
@@ -195,8 +189,10 @@
 	);
 	//$inspect("rCategorizedFullFilteredEntries", rCategorizedFullFilteredEntries);
 
+	let distanceEffectors = $derived(distanceEffectorsF(page.data.entries, $addressFeature));
+
 	let rCategorizedFilteredEntries = $derived.by(()=>{
-			return categorizedFilteredEffectorsF(rFilteredEntries,$distanceEffectors, $selectSituation);
+			return categorizedFilteredEffectorsF(rFilteredEntries,distanceEffectors, $selectSituation);
 		}
 	);
 	//$inspect("rCategorizedFilteredEntries", rCategorizedFilteredEntries);

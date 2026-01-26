@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { language } from '$lib/store/languageStore';
+	import { variables } from '$src/lib/utils/constants';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import Fa from 'svelte-fa';
 	import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
@@ -60,7 +60,7 @@
 
 <svelte:head>
 	<title>
-		{fullentry.name} - {capitalizeFirstLetter(page.data.organization.formatted_name, $language)}
+		{fullentry.name} - {capitalizeFirstLetter(page.data.organization.formatted_name, variables.DEFAULT_LANGUAGE)}
 	</title>
 </svelte:head>
 <div class="grid grid-cols-1 space-y-4">

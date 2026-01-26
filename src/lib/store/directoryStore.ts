@@ -1,4 +1,4 @@
-import { writable } from '@square/svelte-store';
+import { writable } from 'svelte/store';
 import { variables } from '$lib/utils/constants.ts';
 import { browser } from "$app/environment";
 import { handleRequestsWithPermissions } from '$lib/utils/requestUtils.ts';
@@ -8,7 +8,7 @@ import { isExpired } from '$lib/utils/utils.ts';
 import { setLocalStorage } from '$lib/utils/storage.ts';
 import type { Situation } from '$lib/store/directoryStoreInterface.ts';
 import { uniq } from '$lib/utils/utils.ts';
-import type { Writable } from '@square/svelte-store';
+import type { Writable } from 'svelte/store';
 import type { Entry, AddressFeature, DistanceEffectors, CategorizedEntries, Type } from './directoryStoreInterface.ts';
 import type { Tastypie } from '$lib/interfaces/api.interface.ts';
 import type { CustomError } from '$lib/interfaces/error.interface.ts';
@@ -455,13 +455,12 @@ export const communeOfF = (fullFilteredEntries: Entry[], selectCategories: strin
 export const facilityOfF = (fullFilteredEntries: Entry[], selectCategories: string[], selectCommunes: string[], selectDepartment: {label: string, value: string} | null) => {
 	let entries: Entry[];
 	let facilities: FacilityOf[];
-	if (!selectCategories?.length && !selectCommunes?.length && !selectDepartment) {
+	if (!selectCategories?.length && !selectCommunes?.length && selectDepartment==null) {
 		entries = fullFilteredEntries;
 	} else {
 		entries = fullFilteredEntries.filter(
 			x => {
-				(!selectCategories?.length || selectCategories.includes(x.effector_type.uid)
-				) && (!selectCommunes?.length || selectCommunes.includes(x.commune.uid)) && (!selectDepartment || selectDepartment.value===x.department.code)
+				return (!selectCategories?.length || selectCategories.includes(x.effector_type.uid)) && (!selectCommunes?.length || selectCommunes.includes(x.commune.uid)) && (!selectDepartment || selectDepartment.value===x.department.code)
 			}
 		)
 	}

@@ -1,5 +1,5 @@
 import type { Phone } from '$lib/interfaces/phone.interface.ts';
-import type { Writable } from '@square/svelte-store';
+import type { Writable } from 'svelte/store';
 import type { Facility } from '$lib/interfaces/facility.interface.ts';
 import type { Appointment } from '$lib/interfaces/appointment.interface.ts';
 import type { CarteVitale, Convention, PaymentMethod, ThirdPartyPayer, SpokenLanguage } from '$lib/interfaces/fullEffector.interface.ts';

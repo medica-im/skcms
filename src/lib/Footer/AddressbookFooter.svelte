@@ -6,8 +6,6 @@
 	import SocialNetworks from '../SoMed/SoMed.svelte';
 	import BlogIconLink from '$lib/Ghost/BlogIconLink.svelte';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import { language } from '$lib/store/languageStore';
-	import OutpatientClinicLogo from '$lib/Logos/OutpatientClinicLogo.svelte';
 </script>
 
 <footer class="page-footer text-xs md:text-base">
@@ -52,17 +50,17 @@
 				</div>
 				<div>
 					<h6 class="mb-6 text-sm font-semibold uppercase">
-						{capitalizeFirstLetter(m.LEGAL(), $language)}
+						{capitalizeFirstLetter(m.LEGAL(), variables.DEFAULT_LANGUAGE)}
 					</h6>
 					<ul class="font-medium">
 						<!--li class="mb-4">
 							<a href="/politique-de-confidentialite" class="hover:underline"
-								>{capitalizeFirstLetter(m.PRIVACY_POLICY(), $language)}</a
+								>{capitalizeFirstLetter(m.PRIVACY_POLICY(), variables.DEFAULT_LANGUAGE)}</a
 							>
 						</li-->
 						<li class="mb-4">
 							<a href="/mentions-legales" class="hover:underline"
-								>{capitalizeFirstLetter(m.LEGAL_NOTICES(), $language)}</a
+								>{capitalizeFirstLetter(m.LEGAL_NOTICES(), variables.DEFAULT_LANGUAGE)}</a
 							>
 						</li>
 					</ul>

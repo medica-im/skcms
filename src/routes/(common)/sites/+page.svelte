@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { variables } from '$src/lib/utils/constants';
 	import { MultipleIntersectionObserver } from 'svelte-intersection-observer';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import { language } from '$lib/store/languageStore';
+	
 	import { page } from '$app/state';
 	import FacilityCard from '$lib/Facility/FacilityCard.svelte';
 	import { SvelteSet } from 'svelte/reactivity';
@@ -114,7 +115,7 @@
 
 <svelte:head>
 	<title>
-		{getTitle()} - {capitalizeFirstLetter(page.data.organization.formatted_name, $language)}
+		{getTitle()} - {capitalizeFirstLetter(page.data.organization.formatted_name, variables.DEFAULT_LANGUAGE)}
 	</title>
 </svelte:head>
 <header id="hero" class="bg-surface-100-800-token hero-gradient">

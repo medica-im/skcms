@@ -2,7 +2,6 @@
 	import * as m from '$msgs';
 	import { page } from '$app/state';
 	import { SignOut } from '@auth/sveltekit/components';
-	import { logOutUser } from '$lib/utils/requestUtils';
 	import { getDrawerStore } from '@skeletonlabs/skeleton';
 	import { popup } from '@skeletonlabs/skeleton';
 	import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
@@ -26,7 +25,7 @@
 		faUser,
 		faHexagonNodes
 	} from '@fortawesome/free-solid-svg-icons';
-	let { embedded = false, sideBar = false }: { embedded?: boolean; sideBar?: boolean } = $props();
+	let { embedded = false}: { embedded?: boolean; } = $props();
 	const drawerStore = getDrawerStore();
 
 	// ListItem Click Handler
@@ -45,34 +44,7 @@
 	//let classesActive = (href: string) => (href === page.url.pathname ? '!bg-primary-500' : '');
 </script>
 
-{#if sideBar}
-	<ul class="navbar-nav">
-		{#if session}
-			<li class="nav-item">
-				<a href="/dashboard" class={classesActive('/dashboard')}
-					><span class="hidden 2xl:inline-block"><Fa icon={faUser} size="lg" /></span><span
-						class="2xl:hidden"><Fa icon={faUser} size="xs" /></span
-					>
-					<span>{m.NAVBAR_HI()} {session.user.name}</span></a
-				>
-			</li>
-			<li class="nav-item">
-				<button type="button" onclick={async () => await logOutUser()}
-					><span class="hidden 2xl:inline-block"><Fa icon={faRightFromBracket} size="lg" /></span
-					><span class="2xl:hidden"><Fa icon={faRightFromBracket} size="xs" /></span>
-					<span>{m.NAVBAR_LOGOUT()}</span></button
-				>
-			</li>
-		{:else}
-			<li class="nav-item">
-				<a class={classesActive(signin)} href={signin}
-					><span><Fa icon={faRightToBracket} size="lg" /></span>
-					<span>{m.NAVBAR_LOGIN()}</span></a
-				>
-			</li>
-		{/if}
-	</ul>
-{:else if session?.user}
+{#if session?.user}
 	<div class="flex flex-wrap gap-0">
 		<button
 			use:popup={{ event: 'click', target: 'user' }}

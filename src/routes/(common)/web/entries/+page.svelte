@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { variables } from '$src/lib/utils/constants';
 	import { page } from '$app/state';
 	import * as m from '$msgs';
-	import { language } from '$lib/store/languageStore';
+	
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import type { PageProps } from './$types';
 	import Directory from '$lib/components/Directory/CtxDirectory.svelte';
@@ -21,7 +22,7 @@
 <!--LDTag schema={data.websiteSchema} /-->
 <svelte:head>
 	<title>
-		Entrées - {capitalizeFirstLetter(page.data.organization.formatted_name, $language)}
+		Entrées - {capitalizeFirstLetter(page.data.organization.formatted_name, variables.DEFAULT_LANGUAGE)}
 	</title>
 </svelte:head>
 	<!-- hero -->

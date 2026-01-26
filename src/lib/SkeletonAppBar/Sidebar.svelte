@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { language } from '$lib/store/languageStore.ts';
 	import * as m from '$msgs';
 	import { page } from '$app/state';
 	import DocsIcon from '$lib/Icon/Icon.svelte';
 	import { menuNavLinks, menuNavCats } from '$var/variables.ts';
 	import { AppRail, AppRailTile } from '@skeletonlabs/skeleton';
 	import { variables } from '$lib/utils/constants';
+	import MenuNavLinks from './MenuNavLinks.svelte';
 
 	let basePath: string = $derived(page.url.pathname.split('/')[1]);
 	let currentRailCategory: string | undefined = $derived(
@@ -84,7 +84,7 @@
 					{#if list.filter((e) => e.active != false).length > 0}
 						<!-- Title -->
 						<div {id} class="text-primary-700 dark:text-primary-500 font-bold uppercase px-4">
-							{title[$language]}
+							{title[variables.DEFAULT_LANGUAGE]}
 						</div>
 						<!-- Navigation List -->
 						<nav class="list-nav">

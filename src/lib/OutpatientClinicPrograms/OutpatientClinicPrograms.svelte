@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { language } from '$lib/store/languageStore.ts';
+	import { variables } from '$src/lib/utils/constants';
 	import * as m from "$msgs";
 	import Fa from 'svelte-fa';
 	import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
@@ -24,12 +24,12 @@
 			<!-- Card -->
 			<div class="card variant-glass p-4 shadow-lg md:p-10 space-y-4 text-center">
 				<div>
-                    <a href={progCat.href} title="{progCat.title[$language]}" class="btn-icon btn-icon-xl variant-soft-primary">
+                    <a href={progCat.href} title="{progCat.title[variables.DEFAULT_LANGUAGE as keyof object]}" class="btn-icon btn-icon-xl variant-soft-primary">
 						<Fa icon={progCat.icon} />
                     </a>
             </div>
             <div>
-				<a href={progCat.href} class="btn bg-initial hover:variant-soft-primary"><h3 class="flex flex-wrap whitespace-normal text-left">{progCat.title[$language]}</h3></a>
+				<a href={progCat.href} class="btn bg-initial hover:variant-soft-primary"><h3 class="flex flex-wrap whitespace-normal text-left">{progCat.title[variables.DEFAULT_LANGUAGE as keyof object]}</h3></a>
             </div>
             <div>
 				<ul class="list text-left">

@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { variables } from '$src/lib/utils/constants';
 	import * as m from '$msgs';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import { language } from '$lib/store/languageStore';
+	
 	import Fa from 'svelte-fa';
 	import { faGlobe, faBlog } from '@fortawesome/free-solid-svg-icons';
 	import Update from '$lib/Web/Website/Update.svelte';
@@ -19,7 +20,7 @@
 	<div class="flex-initial break-words overflow-hidden">
 		<div class="btn btn-sm !bg-transparent p-0 align-middle">
 			<span class="w-4"><Fa icon={faGlobe} /></span>
-			<span class="hidden 2xl:inline-block">{capitalizeFirstLetter(m.WEBSITE(), $language)}</span>
+			<span class="hidden 2xl:inline-block">{capitalizeFirstLetter(m.WEBSITE(), variables.DEFAULT_LANGUAGE)}</span>
 		</div>
 	</div>
 	<a
