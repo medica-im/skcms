@@ -22,6 +22,7 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import { menuNavLinks, menuNavCats } from '$var/variables.ts';
 
+	const lang = variables.DEFAULT_LANGUAGE;
 	function getNavGroups(id: string) {
 		let cat = menuNavCats.find((obj) => {
 			return obj.id === id;
@@ -34,7 +35,7 @@
 {#each menuNavCats as navCat}
 	<!-- trigger -->
 	<button class="btn hover:variant-soft-primary" use:popup={{ event: 'click', target: navCat.id }}>
-		<span>{navCat.title[variables.DEFAULT_LANGUAGE]}</span>
+		<span>{navCat.title[lang as keyof object]}</span>
 		<span class="opacity-50"><Fa icon={faCaretDown} /></span>
 	</button>
 	<!-- popup -->
@@ -45,7 +46,7 @@
                 {#each getNavGroups(navCat.id) as navGroup}
 				{#if getNavGroups(navCat.id).length > 1}
                 <li>
-                    {navGroup.title[variables.DEFAULT_LANGUAGE]}
+                    {navGroup.title[lang]}
                 </li>
 				{/if}
                 {#each navGroup.list.filter(e=>e.active != false) as { href, label, icon, preload }}
