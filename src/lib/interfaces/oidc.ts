@@ -1,7 +1,7 @@
 interface User {
     name: string,
     email: string,
-    userId: string,
+    providerAccountId: string,
     provider: string,
     image?: string
 }

@@ -16,7 +16,7 @@ export const authReq = (url: string, method: Method, cookies: Cookies, body: str
                 method: method,
                 headers: {
                     'Accept': 'application/json',
-                    'content-type': 'application/json'
+                    'Content-Type': 'application/json'
                 },
                 body: body
             }

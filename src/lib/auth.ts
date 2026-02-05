@@ -8,8 +8,8 @@ import Google from "@auth/sveltekit/providers/google";
 declare module "@auth/sveltekit" {
   interface Session {
     user: {
-      userId: string;
       provider: string;
+      providerAccountId: string;
       /**
        * By default, TypeScript merges new interface properties and overwrites existing ones.
        * In this case, the default session user properties will be overwritten,
@@ -25,25 +25,42 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
   debug: AUTH_DEBUG == 'true' ? true : false,
   providers: [Google, GitHub],
   callbacks: {
-    jwt({ token, user, account }) {
+    jwt({ token, user, account, profile }) {
       if (token) {
-        //console.log(`token: ${JSON.stringify(token)}`);
+        if (import.meta.env.DEV) {
+          console.log("token", JSON.stringify(token));
+        }
       }
       if (account) {
-        //console.log(`account: ${JSON.stringify(account)}`);
+        if (import.meta.env.DEV) {
+          console.log("account", JSON.stringify(account));
+        }
         token.provider = account.provider
+        token.providerAccountId = account.providerAccountId
       }
       if (user) { // User is available during sign-in
-        token.id = user.id
+        if (import.meta.env.DEV) {
+          console.log("user", JSON.stringify(user));
+        }
+      }
+      if ( profile ) {
+        if (import.meta.env.DEV) {
+          console.log("profile", JSON.stringify(profile));
+        }
+        token.iss=profile.iss;
+        token.aud=profile.aud;
+        token.given_name=profile.given_name;
+        token.family_name=profile.family_name;
       }
       return token
     },
     session({ session, token }) {
-      session.user.userId = token.id as string
       session.user.provider = token.provider as string;
+      session.user.providerAccountId = token.providerAccountId as string;
       return session
     },
     async signIn({ user, account, profile, email, credentials }) {
+      console.log('signin', { user, account, profile });
       return true
     },
     async redirect({ url, baseUrl }) {
