@@ -55,6 +55,9 @@
   "NAVBAR_GO_HOME": "Aller à l'accueil",
   "NAVBAR_THEME": "Thème",
   "LOGIN": "Connexion",
+  "RESET": "Réinitialiser",
+  "RESET_PASSWORD": "Réinitialiser votre mot de passe",
+  "RESET_SUCCESSFUL": "L'e-mail de réinitialisation du mot de passe a été envoyé.",
   "TOLOGIN": "Se connecter",
   "NOACCOUNT": "Pas encore de compte?",
   "SIGNINGIN": "Connexion en cours...",
@@ -104,16 +107,18 @@
   "RESOURCES": "ressources",
   "LEGAL": "légal",
   "PHONE": "téléphone",
+  "PHONE_NUMBER": "numéro de téléphone",
   "DIRECTION": "itinéraire",
   "YES": "oui",
   "NO": "non",
   "AND": "et",
   "SKELETON_AUTOCOMPLETE_EMPTY_STATE": "Aucun résultat trouvé",
   "ROLE": {
-    "ADMINISTRATOR": "administrateur",
-    "SUPERUSER": "super-utilisateur",
-    "STAFF": "équipier",
-    "ANONYMOUS": "inconnu"
+    "ADMINISTRATOR": "Administrateur",
+    "SUPERUSER": "Super-utilisateur",
+    "STAFF": "Équipier",
+    "REGISTERED": "Utilisateur enregistré",
+    "ANONYMOUS": "Anonyme"
   },
   "PHONE_TYPE": {
     "M": "Mobile personnel",
@@ -194,9 +199,10 @@
       "selectors": [
         "countPlural"
       ],
-      "match": [
-        ""
-      ]
+      "match": {
+        "countPlural=one": "entrée",
+        "countPlural=other": "entrées"
+      }
     }
   ],
   "tag": [

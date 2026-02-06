@@ -16,6 +16,7 @@
 	"ADDRESSBOOK_A11Y_PROFILE_PIC_OF": "Profile picture of",
 	"ADDRESSBOOK_TITLE": "Address book",
 	"ADDRESSBOOK_GEOCODER_PLACEHOLDER": "Enter the person's address...",
+	"ADDRESSBOOK_GEOCODER_ARIA_LABEL": "Search for person's address",
 	"ADDRESSBOOK_COMMUNES_PLACEHOLDER": "Select by municipality...",
 	"ADDRESSBOOK_OCCUPATIONS_PLACEHOLDER": "Select by profession...",
 	"ADDRESSBOOK_FACILITIES_PLACEHOLDER": "Select by facility...",
@@ -128,9 +129,11 @@
 	"APPOINTMENT": "Appointment",
 	"WEB_ADDRESS": "web address",
 	"ROLE": {
-		"ADMINISTRATOR": "administrator",
-		"SUPERUSER": "superuser",
-		"STAFF": ""
+		"ADMINISTRATOR": "Administrator",
+		"SUPERUSER": "Superuser",
+		"STAFF": "Staff",
+		"REGISTERED": "Registered User",
+		"ANONYMOUS": "Anonymous"
 	},
 	"FACILITY": "facility",
 	"CREATE": "create",
