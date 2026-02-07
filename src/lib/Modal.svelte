@@ -13,7 +13,7 @@
 
   interface Props {
     children: Snippet
-    commands: Snippet
+    commands?: Snippet
     onclose: () => void
   }
 
@@ -44,7 +44,9 @@
             {onclose}
           >
             <div class="bg-opacity-100  px-4 pb-4 pt-5 sm:p-6 sm:pb-4">{@render children()}</div>
-            <div class="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">{@render commands()}</div>
+            {#if commands}
+              <div class="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">{@render commands()}</div>
+            {/if}
           </div>
       </div>
     </div>

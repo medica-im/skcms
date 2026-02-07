@@ -1,4 +1,3 @@
-import { error, redirect } from '@sveltejs/kit';
 import { getRequestEvent, query, form, command } from '$app/server';
 import * as z from "zod";
 import { authReq } from '$lib/utils/request.ts';

@@ -1,15 +1,28 @@
 <script lang="ts">
-	import { page } from '$app/state';
-	import { enhance } from '$app/forms';
+	import { createInvitee } from '$src/invitee.remote.ts';
+	import { goto } from '$app/navigation';
 	import * as m from '$msgs';
+	import Fa from 'svelte-fa';
+	import { faCheck, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 	import Select from 'svelte-select';
 	import type { Role } from '$lib/interfaces/v2/invitee';
 	import type { PageData } from './$types';
 
-	let { data }: { data: PageData } = $props();
+	interface Props {
+		data: {
+			session: PageData['session'];
+			organization: PageData['organization'];
+		};
+		counter: number;
+	}
+
+	let { data, counter }: Props = $props();
+	let result = $derived(createInvitee.for(counter)?.result);
+
+	let organization = $derived(data.organization);
+	let session = $derived(data.session);
 
 	const roleOptions = [
-		{ value: 'registered', label: m['ROLE.REGISTERED']() },
 		{ value: 'staff', label: m['ROLE.STAFF']() },
 		{ value: 'administrator', label: m['ROLE.ADMINISTRATOR']() }
 	];
@@ -17,15 +30,11 @@
 	let email = $state('');
 	let name = $state('');
 	let selectedRole: { value: Role; label: string } | undefined = $state();
-	let isSubmitting = $state(false);
-	let error = $state('');
+	let entry = $derived(organization.uid);
+	let createdBy = $derived(session?.user?.providerAccountId || '');
 
-	const disabled = $derived(!email || !selectedRole || isSubmitting);
+	const disabled = $derived(!email || !selectedRole || Boolean(createInvitee.for(counter).pending) || result?.success);
 
-	function handleSubmit() {
-		isSubmitting = true;
-		error = '';
-	}
 </script>
 
 <div class="grid grid-cols-1 rounded-lg h-full w-full p-4 items-center gap-4">
@@ -35,25 +44,13 @@
 	</div>
 
 	<form
-		method="POST"
-		action="?/createInvitee"
-		use:enhance={({ formData }) => {
-			handleSubmit();
-			formData.append('entry', data.organization.neomodel_uid || '');
-			formData.append('createdBy', data.user?.uid || '');
-			return async ({ result, update }) => {
-				isSubmitting = false;
-				if (result.type === 'success') {
-					// Close modal or redirect
-					history.back();
-				} else if (result.type === 'failure') {
-					error = result.data?.message || 'Une erreur est survenue';
-				}
-				await update();
-			};
-		}}
+		{...createInvitee.for(counter)}
 		class="grid grid-cols-1 gap-4 w-full max-w-xl"
 	>
+		<!-- Hidden fields -->
+		<input type="hidden" name="entry" value={entry} />
+		<input type="hidden" name="createdBy" value={createdBy} />
+
 		<!-- Email field -->
 		<label class="label">
 			<span>Email *</span>
@@ -86,16 +83,32 @@
 			/>
 			<input type="hidden" name="role" value={selectedRole?.value || ''} />
 		</div>
-
-		{#if error}
-			<div class="alert variant-filled-error">
-				<p>{error}</p>
-			</div>
-		{/if}
-
 		<!-- Submit button -->
-		<button type="submit" class="btn variant-filled-primary w-min" {disabled}>
-			{isSubmitting ? 'Envoi...' : 'Créer l\'invitation'}
+		 <div class="flex gap-8">
+				<div class="flex gap-2 items-center">
+					{#if result?.success==true}
+						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
+					{:else if result?.success==false}
+						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span>
+						<span class="text-base">{result?.response?.detail || result?.text}</span>
+					{/if}
+				</div>
+				<div class="w-auto justify-center">
+					<button type="submit" class="btn variant-filled-primary w-min" {disabled}>
+			{createInvitee.for(counter).pending ? 'Envoi...' : 'Créer l\'invitation'}
 		</button>
+				</div>
+				<div class="w-auto justify-center">
+					<button
+						type="button"
+						class="variant-filled-error btn w-min"
+						onclick={() => {
+							goto('/web/invite/invitees');
+						}}
+						>{#if result?.success}Fermer{:else}Annuler{/if}</button
+					>
+				</div>
+			</div>
+		
 	</form>
 </div>

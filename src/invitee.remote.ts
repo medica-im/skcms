@@ -17,9 +17,10 @@ const CreateInvitee = z.object({
 export const createInvitee = form(CreateInvitee, async (data) => {
 	console.log(`form data:${JSON.stringify(data)}`);
 	const { cookies } = getRequestEvent();
-	const url = `${variables.BASE_URI}/api/v2/invitee`;
+	const url = `${variables.BASE_URI}/api/v2/invitees`;
 	const request = authReq(url, 'POST', cookies, JSON.stringify(data));
 	const response = await fetch(request);
+	const json = await response.json()
 	if (response.ok == false) {
 		console.error(JSON.stringify(response))
 		console.error(response.status)
@@ -28,10 +29,9 @@ export const createInvitee = form(CreateInvitee, async (data) => {
 			success: false,
 			status: response.status,
 			text: response.statusText,
-			response: await response.json()
+			response: json
 		}
 	} else {
-		const json = await response.json()
 		console.log(`Success! Status: ${response.status} Status text: ${response.statusText}`);
 		console.log(json);
 		return {
@@ -48,25 +48,26 @@ const UpdateInvitee = z.object({
 	email: z.string().email().optional(),
 	role: RoleEnum.optional(),
 	name: z.string().optional(),
-	active: z.boolean().optional()
+	active: z.string().transform((val) => val === 'true').pipe(z.boolean())
 });
 
 export const updateInvitee = form(UpdateInvitee, async (data) => {
 	console.log(`form data:${JSON.stringify(data)}`);
 	const { cookies } = getRequestEvent();
 	const { id, ...updateData } = data;
-	const url = `${variables.BASE_URI}/api/v2/invitee/${id}`;
+	const url = `${variables.BASE_URI}/api/v2/invitees/${id}`;
 	const request = authReq(url, 'PATCH', cookies, JSON.stringify(updateData));
 	const response = await fetch(request);
+	const json = await response.json();
+	console.log("PATCH json data", JSON.stringify(json));
 	if (response.ok == false) {
 		return {
 			success: false,
 			status: response.status,
-			text: response.statusText
+			text: response.statusText,
+			data: json
 		}
 	} else {
-		const json = await response.json()
-		console.log(JSON.stringify(json));
 		return {
 			success: true,
 			status: response.status,
@@ -77,11 +78,13 @@ export const updateInvitee = form(UpdateInvitee, async (data) => {
 });
 
 const DeleteInvitee = z.object({
-	id: z.string()
+	id: z.string(),
+	redirect: z.optional(z.coerce.boolean<boolean>())
 });
 
 export const deleteInvitee = form(DeleteInvitee, async (data) => {
 	const { cookies } = getRequestEvent();
+	const doRedirect: boolean = !!data.redirect;
 	const url = `${variables.BASE_URI}/api/v2/invitees/${data.id}`;
 	const request = authReq(url, 'DELETE', cookies);
 	const response = await fetch(request);
@@ -92,10 +95,13 @@ export const deleteInvitee = form(DeleteInvitee, async (data) => {
 			text: response.statusText
 		}
 	} else {
-		return {
-			success: true,
-			status: response.status,
-			text: response.statusText
+		if (!doRedirect) {
+			return {
+				success: true,
+				status: response.status,
+				text: response.statusText
+			}
 		}
+		redirect(303, '/web/invite/invitees');
 	}
 });

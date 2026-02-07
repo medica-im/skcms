@@ -12,9 +12,6 @@ export default defineConfig(({ mode }) => {
 	const API_URL = `${env.VITE_BASE_URI_DEV ?? 'http://localhost:3000'}`;
 	console.log("API_URL", API_URL);
 	return {
-		optimizeDeps: {
-			include: ['lodash.get', 'lodash.isequal', 'lodash.clonedeep'],
-		},
 		plugins: [
 			devtoolsJson(),
 			sveltekit(),
@@ -36,6 +33,17 @@ export default defineConfig(({ mode }) => {
 			}
 		},
 		server: {
+			watch: {
+				usePolling: true,
+				interval: 1000,
+				ignored: [
+					'**/node_modules/**',
+					'**/.git/**',
+					'**/build/**',
+					'**/.svelte-kit/**',
+					'**/dist/**'
+				]
+			},
 			proxy: {
 				'/media/': API_URL,
 				'/api/v2': {

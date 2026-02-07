@@ -236,5 +236,21 @@
 		}
 	],
 	"ADDRESSBOOK_DEPARTMENTS_PLACEHOLDER": "Select by department...",
-	"slug": "slug"
+	"slug": "slug",
+	"INVITEE_BACK_TO_LIST": "Back to invitations",
+	"invitation": [
+		{
+			"declarations": [
+				"input count",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "invitation",
+				"countPlural=other": "invitations"
+			}
+		}
+	]
 }

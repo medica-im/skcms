@@ -236,5 +236,21 @@
     }
   ],
   "ADDRESSBOOK_DEPARTMENTS_PLACEHOLDER": "Sélectionner par département...",
-  "slug": "permalien"
+  "slug": "permalien",
+  "INVITEE_BACK_TO_LIST": "Retour aux invitations",
+  "invitation": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "invitation",
+        "countPlural=other": "invitations"
+      }
+    }
+  ]
 }

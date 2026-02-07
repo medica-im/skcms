@@ -7,6 +7,11 @@ declare global {
 		interface Error {}
 		interface Locals {}
 		interface PageData {}
+		interface PageState {
+			selected?: unknown;
+			editing?: unknown;
+			deleting?: unknown;
+		}
 		interface Platform {}
 	}
 	interface Window {

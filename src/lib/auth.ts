@@ -27,26 +27,26 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
   callbacks: {
     jwt({ token, user, account, profile }) {
       if (token) {
-        if (import.meta.env.DEV) {
+        /*if (import.meta.env.DEV) {
           console.log("token", JSON.stringify(token));
-        }
+        }*/
       }
       if (account) {
-        if (import.meta.env.DEV) {
+        /*if (import.meta.env.DEV) {
           console.log("account", JSON.stringify(account));
-        }
+        }*/
         token.provider = account.provider
         token.providerAccountId = account.providerAccountId
       }
       if (user) { // User is available during sign-in
-        if (import.meta.env.DEV) {
+        /*if (import.meta.env.DEV) {
           console.log("user", JSON.stringify(user));
-        }
+        }*/
       }
       if ( profile ) {
-        if (import.meta.env.DEV) {
+        /*if (import.meta.env.DEV) {
           console.log("profile", JSON.stringify(profile));
-        }
+        }*/
         token.iss=profile.iss;
         token.aud=profile.aud;
         token.given_name=profile.given_name;
@@ -60,7 +60,7 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
       return session
     },
     async signIn({ user, account, profile, email, credentials }) {
-      console.log('signin', { user, account, profile });
+      //console.log('signin', { user, account, profile });
       return true
     },
     async redirect({ url, baseUrl }) {

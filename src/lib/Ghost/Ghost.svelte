@@ -7,7 +7,7 @@
   ghost: GhostSiteResponse,
 } = $props();
 
-const ghostData: GhostSite|null = ghost.success ? ghost.data : null;
+const ghostData: GhostSite|null = ghost?.success ? ghost.data : null;
 
 	function formatDate(datetime: string) {
 		const event = new Date(datetime);
