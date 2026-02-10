@@ -3,11 +3,13 @@
 		faCheck,
 		faChevronRight,
 		faXmark,
-		faMagnifyingGlass
+		faMagnifyingGlass,
+		faPlus
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import { page } from '$app/state';
 	import { preloadData, pushState, goto } from '$app/navigation';
+	import { fade, slide } from 'svelte/transition';
   	import SelectEffector from '$routes/(common)/web/effector/select/+page.svelte';
 	import NewSelectEffectorModal from '$lib/Web/Effector/NewSelectEffectorModal.svelte';
 	import * as m from '$msgs';
@@ -24,10 +26,15 @@
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
 
-	const defaultDpt: SelectType = {
+	const defaultDpt: SelectType|undefined = page.data.directory.department_default ? {
 		label: page.data.organization.department.name,
 		value: page.data.organization.department.code
-	};
+	} : undefined;
+	/*TODO:
+	const communeDefault: SelectType|undefined = page.data.directory.commune_default ? {
+		label: page.data.organization.commune.name,
+		value: page.data.organization.commune.uid
+	} : undefined;*/
 	let selectEffectorModal: NewSelectEffectorModal|undefined = $state();
 	let memberships: SelectType[] = $state([]);
 	let membershipsDone: boolean = $state(false);
@@ -53,6 +60,9 @@
 		}
 		return label;
 	};
+	const scrollIntoView: import('svelte/action').Action = (node) => {
+		node.scrollIntoView({ behavior: 'smooth', block: 'start' });
+	};
 </script>
 
 <!--
@@ -64,7 +74,10 @@ membershipsDone: {membershipsDone}
 -->
 <div id="top"></div>
 {#if createdEffector && selectedFacility && selectedEffectorType && membershipsDone}
-	<div class="grid grid-cols-1 w-full p-2 place-items-center">
+	<div class="grid grid-cols-1 w-full p-2 place-items-center"
+		in:slide={{ duration: 400, delay: 300 }}
+		out:fade={{ duration: 200 }}
+		use:scrollIntoView>
 		<EntryCreationForm
 			bind:createdEffector
 			bind:selectedFacility
@@ -73,7 +86,8 @@ membershipsDone: {membershipsDone}
 		/>
 	</div>
 {:else}
-	<div class="grid grid-cols-1 gap-4 w-full p-4 place-items-center">
+	<div class="grid grid-cols-1 gap-4 w-full p-4 place-items-center"
+		out:fade={{ duration: 200 }}>
 		{#if !selectedFacility}
 			<h3 class="h3">Sélectionner ou créer un établissement</h3>
 			<div class="w-full max-w-xl">
@@ -94,6 +108,10 @@ membershipsDone: {membershipsDone}
 						bind:selectedFacility
 					/>
 				{:else}
+				<button disabled
+	class="btn variant-filled-primary"
+	title="Créer"><span><Fa icon={faPlus} /></span><span>Créer un établissement</span></button
+>
 					<div class="card p-2 variant-ghost-warning">
 						Pour créer un nouvel établissement, vous devez sélectionner un département et une
 						commune.
@@ -118,7 +136,8 @@ membershipsDone: {membershipsDone}
 		{/if}
 
 		{#if selectedFacility}
-			<div class="grid grid-cols-1 gap-4 w-full max-w-xl p-4 place-items-center items-center">
+			<div class="grid grid-cols-1 gap-4 w-full max-w-xl p-4 place-items-center items-center"
+				use:scrollIntoView>
 				{#if !selectedEffectorType}
 					<h3 class="h3">Sélectionner une catégorie</h3>
 					<EffectorTypeSelect bind:selectedEffectorType />
@@ -134,7 +153,7 @@ membershipsDone: {membershipsDone}
 							}}><Fa icon={faXmark} /></button
 						>
 					</div>
-					<div class="badge variant-filled"><h3 class="h3">{selectedEffectorType.label}</h3></div>
+					<div class="card variant-soft p-2"><h3 class="h3">{selectedEffectorType.label}</h3></div>
 					{#if page.data.user?.role == 'superuser'}
 						<p class="text-sm">
 							{selectedEffectorType.value}
@@ -147,7 +166,8 @@ membershipsDone: {membershipsDone}
 			</div>
 		{/if}
 		{#if selectedFacility && selectedEffectorType}
-			<div class="grid grid-cols-1 gap-4 w-full place-items-center p-4">
+			<div class="grid grid-cols-1 gap-4 w-full place-items-center p-4"
+				use:scrollIntoView>
 				{#if createdEffector}
 					<div class="card variant-ringed p-2 items-center">
 						<div class="flex p-2 gap-4 items-center">
@@ -196,7 +216,7 @@ membershipsDone: {membershipsDone}
 			}
 		}}
 	>
-		<button class="btn variant-ghost-surface"
+		<button class="btn variant-filled-primary subtle-glow"
 	title="Sélectionner une personne"><span><Fa icon={faMagnifyingGlass} /></span><span>Sélectionner une personne existante</span></button>
 	</a>
 					<CreateEffectorModal bind:memberships bind:createdEffector />
@@ -204,7 +224,8 @@ membershipsDone: {membershipsDone}
 			</div>
 		{/if}
 		{#if selectedFacility && selectedEffectorType && createdEffector}
-			<div class="grid grid-cols-1 gap-4 w-full place-items-center p-4">
+			<div class="grid grid-cols-1 gap-4 w-full place-items-center p-4"
+				use:scrollIntoView>
 				<h3 class="h3">Affiliations</h3>
 				<p>
 					Ajoutez des affiliations à des organisations (CPTS, MSP, etc.) ou passer à l'étape
@@ -216,7 +237,7 @@ membershipsDone: {membershipsDone}
 						membershipsDone = true;
 						goto("#top");
 					}}
-					class="btn variant-ghost-surface"
+					class="btn variant-filled-primary"
 					title="Passer"><span><Fa icon={faChevronRight} /></span><span>Passer</span></button
 				>
 			</div>
@@ -228,3 +249,13 @@ membershipsDone: {membershipsDone}
 		<SelectEffector bind:effector={createdEffector} bind:memberships data={page.state.selected} />
 	</NewSelectEffectorModal>
 {/if}
+
+<style>
+	.subtle-glow {
+		animation: subtle-glow 2s ease-in-out 3;
+	}
+	@keyframes subtle-glow {
+		0%, 100% { box-shadow: 0 0 0 0 transparent; }
+		50% { box-shadow: 0 0 0 3px rgba(var(--color-primary-500) / 0.25); }
+	}
+</style>

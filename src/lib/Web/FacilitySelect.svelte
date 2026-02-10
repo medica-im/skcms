@@ -168,12 +168,15 @@
 	<div class="grid grid-cols-1 gap-4 variant-ghost p-4">
 		{#if allFacilities}
 			<p>{facilityLabel(allFacilities)}</p>
-			<Select
-				items={getFacilityItems(allFacilities)}
-				bind:value={selectedFacility}
-				placeholder="Sélectionner un établissement"
-			/>
+			<div class="facility-glow">
+				<Select
+					items={getFacilityItems(allFacilities)}
+					bind:value={selectedFacility}
+					placeholder="Sélectionner un établissement"
+				/>
+			</div>
 		{:else}
+		<p>{m.LOADING()}</p>
 		<Select
 			loading={true}
 				items={null}
@@ -197,5 +200,17 @@
 		--item-outline: 1px solid rgb(var(--color-secondary-500));
 		--clear-select-focus-outline: 1px solid rgb(var(--color-secondary-500));
 		--height: 3rem;
+	}
+	.facility-glow {
+		--border-color: rgb(var(--color-primary-500));
+		--border: 2px solid rgb(var(--color-primary-500));
+		--border-focused: 2px solid rgb(var(--color-primary-700));
+		--border-hover: 2px solid rgb(var(--color-primary-600));
+		--placeholder-color: rgb(var(--color-primary-700));
+		animation: subtle-glow 2s ease-in-out 3;
+	}
+	@keyframes subtle-glow {
+		0%, 100% { box-shadow: 0 0 0 0 transparent; }
+		50% { box-shadow: 0 0 0 3px rgba(var(--color-primary-500) / 0.25); border-radius: var(--theme-rounded-container); }
 	}
 </style>

@@ -39,11 +39,11 @@
       <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
         
           <div
-            class="bg-opacity-100 bg-surface-500 relative transform overflow-hidden rounded-lg text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg"
+            class="bg-surface-100-800-token relative transform overflow-hidden rounded-lg text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg"
             use:dialog.modal
             {onclose}
           >
-            <div class="bg-opacity-100  px-4 pb-4 pt-5 sm:p-6 sm:pb-4">{@render children()}</div>
+            <div class="px-4 pb-4 pt-5 sm:p-6 sm:pb-4">{@render children()}</div>
             {#if commands}
               <div class="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">{@render commands()}</div>
             {/if}

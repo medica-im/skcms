@@ -15,7 +15,7 @@
 {#if effectorUid}
 	{#await fetchEffector()}
 		<!-- promise is pending -->
-		<div class="card p-4 grid grid-cols-1">
+		<div class="card variant-soft p-4 grid grid-cols-1">
 				<h4 class="h4">Nom</h4>
 				<ul>
 					<li>Label <div class="placeholder"></div></li>
@@ -29,7 +29,7 @@
 			<p>Erreur {status}</p>
 		{:else}
         {@const effector = value }
-			<div class="card p-4 grid grid-cols-1">
+			<div class="card variant-soft p-4 grid grid-cols-1">
 				<h4 class="h4">{effector.name_fr}</h4>
 				<ul class="list">
 					<li>Label {effector.label_fr}</li>

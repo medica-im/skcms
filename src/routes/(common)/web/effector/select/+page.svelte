@@ -109,13 +109,14 @@
 				memberships.push(orgItem);
 			}
 		}
+		history.back();
 	};
 </script>
 
 <div class="grid grid-cols-1 rounded-lg h-full w-full p-4 items-center gap-4">
 		<div class="place-items-center">
-		<h3 class="h3">Sélectionner une personne</h3>
-		<p>Si la personne recherchée a déjà une entrée dans l'annuaire, vous pouvez affiner la recherche en sélectionnant sa catégorie, sa localisation ou son établissement.</p>
+			<h3 class="h3">Sélectionner une personne</h3>
+			<p>Si la personne recherchée a déjà une entrée dans l'annuaire, vous pouvez affiner la recherche en sélectionnant sa catégorie, sa localisation ou son établissement.</p>
 		</div>
 		<EffectorTypeSelect bind:selectedEffectorType />
 		<FacilitySelect
@@ -127,14 +128,49 @@
 		{#if filteredEffectors}
 		<div class="grid grid-cols-1 gap-4 variant-ghost p-4">
 			<p>{effectorLabel(filteredEffectors)}</p>
-			<Select items={getEffectorItems(filteredEffectors)} hasError={selectedEffector ? false : true} bind:value={selectedEffector} placeholder="Sélectionner une personne" />
+			<div class="effector-select">
+				<Select items={getEffectorItems(filteredEffectors)} hasError={selectedEffector ? false : true} bind:value={selectedEffector} placeholder="Sélectionner une personne" />
+			</div>
 		</div>
 		{/if}
-		<OrganizationRadio bind:isMember />
-		<button
+		<div class="card variant-ghost p-4">
+			<p>
+				La personne est-elle affiliée à {page.data.organization.formatted_name}?
+			</p>
+			<OrganizationRadio bind:isMember />
+		</div>
+		<div class="flex gap-8 justify-center">
+			<div class="w-auto justify-center">
+				<button
 					type="button"
 					class="variant-filled-secondary btn w-min"
 					{disabled}
 					onclick={()=>confirm()}>Confirmer</button
 				>
+			</div>
+			<div class="w-auto justify-center">
+				<button
+					type="button"
+					class="variant-filled-error btn w-min"
+					onclick={() => history.back()}>Annuler</button
+				>
+			</div>
+		</div>
 	</div>
+
+<style>
+	.effector-select {
+		--border-color: rgb(var(--color-primary-500));
+		--border: 2px solid rgb(var(--color-primary-500));
+		--border-focused: 2px solid rgb(var(--color-primary-700));
+		--border-hover: 2px solid rgb(var(--color-primary-600));
+		--placeholder-color: rgb(var(--color-primary-700));
+		--border-radius: var(--theme-rounded-container);
+		--height: 3rem;
+		animation: subtle-glow 2s ease-in-out 3;
+	}
+	@keyframes subtle-glow {
+		0%, 100% { box-shadow: 0 0 0 0 transparent; }
+		50% { box-shadow: 0 0 0 3px rgba(var(--color-primary-500) / 0.25); border-radius: var(--theme-rounded-container); }
+	}
+</style>

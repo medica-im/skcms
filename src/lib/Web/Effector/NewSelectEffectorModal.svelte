@@ -43,18 +43,4 @@
       </div>
     </div-->
   </div>
-
-  {#snippet commands()}
-		<div class="flex gap-8">
-			<!--isMember: {isMember} selectedEffector: {Boolean(selectedEffector)}-->
-				
-			<div class="w-auto justify-center">
-				<button
-					type="button"
-					class="{effector ? "variant-filled-success":"variant-filled-error"} btn w-min"
-					onclick={() => close(false)}>{effector ? "Fermer":"Annuler"}</button
-				>
-			</div>
-		</div>
-		{/snippet}
 </Modal>

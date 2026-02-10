@@ -37,7 +37,7 @@
 			<p>Erreur {status}</p>
 		{:else}
 			{@const facility = value}
-			<FacilityCard data={facility} {showEffectors} {mapHeight} update={false} />
+			<FacilityCard data={facility} {showEffectors} {mapHeight} update={false} anchor={false} />
 		{/if}
 	{:catch error}
 		<p>Erreur {error.message}</p>

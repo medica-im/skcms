@@ -19,12 +19,14 @@
 		showEffectors,
 		mapHeight = 64,
 		update = true,
+		anchor = true,
 	} : {
 		data: FacilityV2;
 		entries?: any;
 		showEffectors: boolean;
 		mapHeight?: number;
 		update?: boolean;
+		anchor?: boolean;
 	} = $props();
 
 	const createFacilityGeoData = (facility: FacilityV2) => {
@@ -38,7 +40,6 @@
 	};
 </script>
 
-<div id="{data.name}_anchor" class="card variant-soft p-4 space-y-4 lg:scroll-mt-12">
 	<!--{#if (import.meta.env.VITE_DEV == 'true')}
 	<div class="card variant-ringed">
 		<Accordion>
@@ -50,20 +51,19 @@
 		</Accordion>
 	</div>
 	{/if}-->
-	<div class="variant-ringed grid grid-cols-1 md:grid-cols-2 p-4">
+	<div id="{data.name}_anchor" class="card variant-soft p-2 space-y-4 lg:scroll-mt-12 grid grid-cols-1 md:grid-cols-2">
 		<div class="overflow-hidden m-1 p-1">
-			<!-- Header -->
-			<!--header>
-                <img src={img} class="bg-black/50 w-full" alt={alt} />
-            </header-->
-			<!-- Body -->
 			<div class="p-2 space-y-2">
 				<div class="flex items-center text-wrap space-x-2">
 					<!--span class="badge variant-filled">Nom</span-->
 					<h6 class="h6">
+						{#if anchor}
 						<a href="/sites/{data.slug}" class="anchor" data-sveltekit-preload-data="hover"
 							>{data.name}</a
 						>
+						{:else}
+						<b>{data.name}</b>
+						{/if}
 					</h6>
 					{#if update}
 					<UpdateFacilityModal bind:facility={data} />
@@ -127,8 +127,7 @@
 				</div>
 			{/if}
 		</div>
-		<div class="mx-2 p-1 h-{mapHeight} lg:w-full z-0">
+		<div class="mx-2 p-2 h-{mapHeight} lg:w-full z-0">
 			<Map data={createMapData2(data)} />
 		</div>
 	</div>
-</div>

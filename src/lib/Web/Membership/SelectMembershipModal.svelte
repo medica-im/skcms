@@ -111,7 +111,7 @@
 		await loadMembership();
 		dialog?.showModal();
 	}}
-	class="btn variant-ghost-surface"
+	class="btn variant-filled-primary"
 	title="Créer"><span><Fa icon={faPlus} /></span><span>Affiliations</span></button
 >
 <Dialog bind:dialog>

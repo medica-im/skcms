@@ -4,6 +4,8 @@ export interface Directory {
   presentation: string;
   slug: string;
   postal_codes: string[],
+  department_default: boolean;
+  commune_default: boolean;
   inputField: {
     category: boolean|null;
     commune: boolean|null;
