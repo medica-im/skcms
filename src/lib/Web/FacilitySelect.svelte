@@ -6,6 +6,11 @@
 	import type { SelectType } from '$lib/interfaces/select.ts';
 	import type { Commune, DepartmentOfFrance, FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 	import { getCommunesByDpt, getDepartments, getFacilities } from './data';
+	import { normalize } from '$lib/helpers/stringHelpers.ts';
+
+	const communeFilter = (label: any, filterText: any) => {
+		return normalize(label).includes(normalize(filterText));
+	};
 
 	let {
 		selectedFacility = $bindable(),
@@ -158,6 +163,7 @@
 		{:else}
 			<Select
 				items={communeItems}
+				itemFilter={communeFilter}
 				bind:value={commune}
 				on:clear={onCommuneClear}
 				on:change={onCommuneChange}
