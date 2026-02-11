@@ -11,6 +11,9 @@
 	const communeFilter = (label: any, filterText: any) => {
 		return normalize(label).includes(normalize(filterText));
 	};
+	const departmentFilter = (label: any, filterText: any) => {
+		return normalize(label).includes(normalize(filterText));
+	};
 
 	let {
 		selectedFacility = $bindable(),
@@ -146,6 +149,7 @@
 		<p>Département</p>
 			<Select
 				items={getDepartmentItems(departments)}
+				itemFilter={departmentFilter}
 				bind:value={department}
 				on:clear={onDepartmentClear}
 				on:change={onDepartmentChange}
