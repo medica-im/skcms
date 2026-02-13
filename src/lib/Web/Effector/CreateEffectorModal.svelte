@@ -161,7 +161,7 @@
 							<button
 								type="submit"
 								class="variant-filled-secondary btn w-min"
-								disabled={!!createEffector.for(uuid).pending}
+								disabled={!!createEffector.for(uuid).pending||result?.success}
 								>Envoyer</button
 							>
 						</div>
