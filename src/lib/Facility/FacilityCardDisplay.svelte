@@ -54,6 +54,9 @@
 	<div id="{data.name}_anchor" class="card variant-soft p-2 space-y-4 lg:scroll-mt-12 grid grid-cols-1 md:grid-cols-2">
 		<div class="overflow-hidden m-1 p-1">
 			<div class="p-2 space-y-2">
+				{#if update}
+					<UpdateFacilityModal bind:facility={data} />
+				{/if}
 				<div class="flex items-center text-wrap space-x-2">
 					<!--span class="badge variant-filled">Nom</span-->
 					<h6 class="h6">
@@ -65,9 +68,7 @@
 						<b>{data.name}</b>
 						{/if}
 					</h6>
-					{#if update}
-					<UpdateFacilityModal bind:facility={data} />
-					{/if}
+					
 				</div>
 				<!--div class="flex items-center space-x-2">
 					<span class="badge variant-filled">Label</span>

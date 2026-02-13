@@ -320,7 +320,7 @@
 						}}
 					/>
 				</label>
-				<label class="{name.length > 20 ? '' : 'hidden'} flex label place-self-start place-items-center space-x-2 w-full">
+				<label class="{name.length > 30 ? '' : 'hidden'} flex label place-self-start place-items-center space-x-2 w-full">
 					<span>Label</span>
 					{#each createFacility.fields.label.issues() as issue}
 						<p class="issue">{issue.message}</p>

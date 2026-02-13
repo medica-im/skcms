@@ -148,7 +148,7 @@
 	}}
 	class="btn variant-ghost-surface"
 	title="Créer"
-	><span><Fa icon={faPenToSquare} /></span><span>Modifier l'établissement</span></button
+	><span><Fa icon={faPenToSquare} /></span><span class="whitespace-normal text-left">Modifier l'établissement</span></button
 >
 
 <Dialog bind:dialog classProp="w-full">

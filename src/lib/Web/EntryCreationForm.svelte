@@ -49,7 +49,7 @@
 <!--formResult?.success: {formResult?.success}<br>
 formResult?.data: {formResult?.data}<br>
 selectedFacility: {JSON.stringify(selectedFacility)}-->
-<div class="rounded-lg p-4 variant-ghost-secondary gap-2 items-center place-items-center">
+<div class="rounded-lg p-4 variant-ghost-secondary w-full">
 	<form {...createEntry.for(uid).enhance(async ({ form, data, submit }) => {
 				try {
 					//data = manipulateForm(data);
@@ -63,69 +63,69 @@ selectedFacility: {JSON.stringify(selectedFacility)}-->
 				} catch (error) {
 					console.log(error);
 				}
-			})} class="">
-		<div class="p-2 space-y-4 justify-items-stretch gap-6">
-			<h3 class="h3">Confirmer ou annuler la création de la nouvelle entrée</h3>
-			{#if formResult?.success === false}
-				<aside class="alert variant-filled-error">
-					<!-- Icon -->
-					<span class="badge-icon"><Fa size="2x" icon={faExclamationTriangle} /></span>
-					<!-- Message -->
-					<div class="alert-message">
-						<h3 class="h3">Erreur {formResult.status} {formResult.text}</h3>
-						<p>{formResult.data?.detail}</p>
-					</div>
-				</aside>
+			})} class="space-y-4 w-full">
+		<h3 class="h3">Confirmer ou annuler la création de la nouvelle entrée</h3>
+		{#if formResult?.success === false}
+			<aside class="alert variant-filled-error">
+				<!-- Icon -->
+				<span class="badge-icon"><Fa size="2x" icon={faExclamationTriangle} /></span>
+				<!-- Message -->
+				<div class="alert-message">
+					<h3 class="h3">Erreur {formResult.status} {formResult.text}</h3>
+					<p>{formResult.data?.detail}</p>
+				</div>
+			</aside>
+		{/if}
+		<div class="space-y-3 w-full">
+			<label class="label w-full">
+				<span class="text-sm font-medium">Personne</span>
+				<input
+					oninput={() => {}}
+					class="hidden input"
+					name="effector"
+					type="text"
+					placeholder=""
+					bind:value={effector}
+				/>
+				<div class="badge variant-ghost-surface">{createdEffector?.name_fr}</div>
+			</label>
+			<label class="label w-full">
+				<span class="text-sm font-medium">Catégorie</span>
+				<input
+					oninput={() => {}}
+					class="input hidden"
+					name="effector_type"
+					type="text"
+					placeholder=""
+					bind:value={effector_type}
+				/>
+				<div class="badge variant-ghost-surface">{selectedEffectorType?.label}</div>
+			</label>
+			<label class="label w-full">
+				<span class="text-sm font-medium">Établissement</span>
+				<input
+					oninput={() => {}}
+					class="input hidden"
+					name="facility"
+					type="text"
+					placeholder=""
+					bind:value={facility}
+				/>
+			</label>
+			{#if facility}
+				<DisplayFacility facilityUid={facility} showEffectors={false} mapHeight={36} />
 			{/if}
-			<div class="p-2 space-y-2 w-full">
-				<label class="flex label place-self-start place-items-center space-x-2 w-full">
-					<span>Personne:</span>
-					<input
-						oninput={() => {}}
-						class="hidden input"
-						name="effector"
-						type="text"
-						placeholder=""
-						bind:value={effector}
-					/>
-					<div class="badge variant-ghost-surface">{createdEffector?.name_fr}</div>
-				</label>
-				<label class="flex label place-self-start place-items-center space-x-2 w-full">
-					<span>Catégorie:</span>
-					<input
-						oninput={() => {}}
-						class="input hidden"
-						name="effector_type"
-						type="text"
-						placeholder=""
-						bind:value={effector_type}
-					/>
-					<div class="badge variant-ghost-surface">{selectedEffectorType?.label}</div>
-				</label>
-				<label class="flex label place-self-start place-items-center space-x-2 w-full">
-					<span>Établissement:</span>
-					<input
-						oninput={() => {}}
-						class="input hidden"
-						name="facility"
-						type="text"
-						placeholder=""
-						bind:value={facility}
-					/>
-				</label>
-				{#if facility}
-					<DisplayFacility facilityUid={facility} showEffectors={false} mapHeight={36} />
-				{/if}
-				<label class="flex label place-self-start place-items-center space-x-2 w-full">
-					<span>Organisation:</span>
-					<input
-						oninput={() => {}}
-						class="input hidden"
-						name="memberships"
-						type="text"
-						placeholder=""
-						value={memberships?.length ? memberships.map((e) => e.value) : ''}
-					/>
+			<label class="label w-full">
+				<span class="text-sm font-medium">Organisation</span>
+				<input
+					oninput={() => {}}
+					class="input hidden"
+					name="memberships"
+					type="text"
+					placeholder=""
+					value={memberships?.length ? memberships.map((e) => e.value) : ''}
+				/>
+				<div class="flex flex-wrap gap-1">
 					{#if memberships.length}
 						{#each memberships as membership}
 							<div class="badge variant-ghost-surface">{membership.label}</div>
@@ -133,46 +133,42 @@ selectedFacility: {JSON.stringify(selectedFacility)}-->
 					{:else}
 						<div class="badge variant-ghost-surface">∅</div>
 					{/if}
+				</div>
+			</label>
+			<input
+				class="hidden"
+				name="organization_category"
+				type="text"
+				placeholder=""
+				value={page.data.organization.category.name}
+			/>
+			{#if isSuperUser}
+				<label class="label w-full">
+					<span class="text-sm font-medium">Annuaire</span>
+					<input
+						oninput={() => {}}
+						class="input w-full"
+						name="directory"
+						type="text"
+						placeholder=""
+						bind:value={directory}
+					/>
 				</label>
-				<input
-					class="hidden"
-					name="organization_category"
-					type="text"
-					placeholder=""
-					value={page.data.organization.category.name}
-				/>
-				{#if isSuperUser}
-					<label class="flex label place-self-start place-items-center space-x-2 w-full">
-						<span>Annuaire</span>
-						<input
-							oninput={() => {}}
-							class="input}"
-							name="directory"
-							type="text"
-							placeholder=""
-							bind:value={directory}
-						/>
-					</label>
-				{/if}
-			</div>
+			{/if}
 		</div>
-		<div class="flex gap-8">
-			<div class="w-auto justify-center">
-				<button
-					type="submit"
-					class="variant-filled-secondary btn w-min"
-					disabled={!!createEntry.for(uid).pending}>Confirmer</button
-				>
-			</div>
-			<div class="w-auto justify-center">
-				<button
-					type="button"
-					class="variant-filled-error btn w-min"
-					onclick={() => {
-						clear();
-					}}>Annuler</button
-				>
-			</div>
+		<div class="flex gap-4">
+			<button
+				type="submit"
+				class="variant-filled-secondary btn"
+				disabled={!!createEntry.for(uid).pending}>Confirmer</button
+			>
+			<button
+				type="button"
+				class="variant-filled-error btn"
+				onclick={() => {
+					clear();
+				}}>Annuler</button
+			>
 		</div>
 	</form>
 </div>
