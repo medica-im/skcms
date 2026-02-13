@@ -4,6 +4,7 @@
 	import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 	import { faUser } from '@fortawesome/free-regular-svg-icons';
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
 	import * as m from '$msgs';
 	import DisplayFacility from '$lib/Web/DisplayFacility.svelte';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
@@ -55,13 +56,17 @@ selectedFacility: {JSON.stringify(selectedFacility)}-->
 					const dataString = JSON.stringify(data);
 					console.log(dataString);
 					await submit();
+					const result = createEntry.for(uid).result;
+					if (result?.redirectURL) {
+						goto(result.redirectURL);
+					}
 				} catch (error) {
 					console.log(error);
 				}
 			})} class="">
 		<div class="p-2 space-y-4 justify-items-stretch gap-6">
 			<h3 class="h3">Confirmer ou annuler la création de la nouvelle entrée</h3>
-			{#if formResult}
+			{#if formResult?.success === false}
 				<aside class="alert variant-filled-error">
 					<!-- Icon -->
 					<span class="badge-icon"><Fa size="2x" icon={faExclamationTriangle} /></span>

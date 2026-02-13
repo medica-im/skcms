@@ -1,4 +1,4 @@
-import { error, redirect } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 import { getRequestEvent, query, form, command } from '$app/server';
 import * as z from "zod";
 import { authReq } from '$lib/utils/request.ts';
@@ -53,7 +53,12 @@ export const createEntry = form(postEntry, async (data) => {
 		} else {
 			redirectURL=`/${slugify(json.facility.slug)}/${json.effector_type.slug}/${json.slug}`;
 		}
-		redirect(303, redirectURL);
+		return {
+			success: true,
+			status: response.status,
+			text: response.statusText,
+			redirectURL,
+		}
 	}
 });
 
