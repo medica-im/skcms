@@ -41,7 +41,7 @@
 		"prettier": "^3.7.4",
 		"prettier-plugin-tailwindcss": "^0.7.2",
 		"schema-dts": "^1.1.5",
-		"svelte": "^5.50.0",
+		"svelte": "^5.51.0",
 		"svelte-carousel": "^1.0.25",
 		"svelte-check": "^4.3.5",
 		"svelte-copy": "^2.0.0",
