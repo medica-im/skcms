@@ -4,7 +4,6 @@
 	import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 	import { faUser } from '@fortawesome/free-regular-svg-icons';
 	import { page } from '$app/state';
-	import { goto } from '$app/navigation';
 	import * as m from '$msgs';
 	import DisplayFacility from '$lib/Web/DisplayFacility.svelte';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
@@ -58,7 +57,7 @@ selectedFacility: {JSON.stringify(selectedFacility)}-->
 					await submit();
 					const result = createEntry.for(uid).result;
 					if (result?.redirectURL) {
-						goto(result.redirectURL);
+						window.location.href = result.redirectURL;
 					}
 				} catch (error) {
 					console.log(error);
