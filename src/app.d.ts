@@ -11,6 +11,7 @@ declare global {
 			selected?: unknown;
 			editing?: unknown;
 			deleting?: unknown;
+			facilityCreate?: unknown;
 		}
 		interface Platform {}
 	}

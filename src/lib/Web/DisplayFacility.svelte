@@ -3,12 +3,15 @@
 	import * as m from '$msgs';
 	import FacilityCard from '$lib/Facility/FacilityCardDisplay.svelte';
 	import type { FacilityV2, Commune } from '$lib/interfaces/v2/facility.ts';
+	import { page } from '$app/state';
 
 	let {
 		facilityUid,
 		showEffectors,
 		mapHeight = 64
 	}: { facilityUid: string; showEffectors: boolean; mapHeight?: number } = $props();
+
+	const update = page.data.user?.role === 'superuser';
 
 	async function fetchFacility(): Promise<FacilityV2 | number> {
 		const response = await fetch(`/api/v2/facilities/${facilityUid}`);
@@ -37,7 +40,7 @@
 			<p>Erreur {status}</p>
 		{:else}
 			{@const facility = value}
-			<FacilityCard data={facility} {showEffectors} {mapHeight} update={false} anchor={false} />
+			<FacilityCard data={facility} {showEffectors} {mapHeight} {update} anchor={false} />
 		{/if}
 	{:catch error}
 		<p>Erreur {error.message}</p>

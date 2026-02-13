@@ -40,21 +40,22 @@
 	const getItem = (data: boolean | null) => {
 		return cvItems.find((e) => e.value == data);
 	};
+	let initialItem: SelectType | undefined = $state();
 
 	let result: FormResult | undefined = $state();
-	let selectedItem: SelectType | undefined = $state(getItem(data));
+	let selectedItem: SelectType | undefined = $state(initialItem);
 	let commandData = $derived({
 		entry: uid,
 		carte_vitale: selectedItem ? selectedItem.value : null
 	});
 
-	let disabled: boolean = $derived(!!patchCommand.pending || selectedItem?.value == data);
+	let disabled: boolean = $derived(!!patchCommand.pending || selectedItem?.value == initialItem?.value || result?.success == true);
 </script>
 
 <button
 	onclick={() => {
 		result = undefined;
-		selectedItem = getItem(data);
+		initialItem = selectedItem = getItem(data);
 		dialog.showModal();
 	}}
 	class={data==null ? 'btn-icon btn-icon-sm variant-ghost-surface' : ''}

@@ -2,7 +2,7 @@
 	import * as m from '$msgs';
 	import EditCV from '$lib/Web/Entry/CarteVitale/Patch.svelte';
 	import DeleteCV from '$lib/Web/Entry/CarteVitale/Delete.svelte';
-    import type { CarteVitale } from '$lib/interfaces/fullEffector.interface';
+	import type { CarteVitale } from '$lib/interfaces/fullEffector.interface';
 
 	let { data, editMode = false }: { data: CarteVitale|null; editMode?: boolean } = $props();
 

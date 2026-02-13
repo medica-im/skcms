@@ -15,9 +15,10 @@
     children: Snippet
     commands?: Snippet
     onclose: () => void
+    dialogClass?: string
   }
 
-  let { children, commands, onclose }: Props = $props()
+  let { children, commands, onclose, dialogClass = 'sm:max-w-lg' }: Props = $props()
 
   const dialog = createDialog()
 
@@ -39,7 +40,7 @@
       <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
         
           <div
-            class="bg-surface-100-800-token relative transform overflow-hidden rounded-lg text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg"
+            class="bg-surface-100-800-token relative transform overflow-hidden rounded-lg text-left shadow-xl transition-all sm:my-8 sm:w-full {dialogClass}"
             use:dialog.modal
             {onclose}
           >

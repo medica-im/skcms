@@ -1,6 +1,6 @@
 <script lang="ts">
-	let { dialog = $bindable(), classProp = "size-fit" } : { dialog: HTMLDialogElement|undefined; classProp?: string; } = $props();
+	let { dialog = $bindable(), classProp = "max-w-full sm:max-w-[90vw] lg:max-w-5xl" } : { dialog: HTMLDialogElement|undefined; classProp?: string; } = $props();
 </script>
-<dialog class="size-fit" bind:this={dialog}>
+<dialog class="{classProp}" bind:this={dialog}>
 	<slot/>
 </dialog>

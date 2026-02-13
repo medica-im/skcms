@@ -18,6 +18,7 @@
 	import DisplayFacility from '$lib/Web/DisplayFacility.svelte';
 	import Effectors from '$lib/Web/Effectors.svelte';
 	import CreateFacilityModal from '$lib/Web/Facility/CreateFacilityModal.svelte';
+	import CreateFacility from '$routes/(common)/web/facility/create/+page.svelte';
 	import CreateEffectorModal from '$lib/Web/Effector/CreateEffectorModal.svelte';
 	import DisplayEffector from './DisplayEffector.svelte';
 	import { copy } from 'svelte-copy';
@@ -36,9 +37,11 @@
 		value: page.data.organization.commune.uid
 	} : undefined;*/
 	let selectEffectorModal: NewSelectEffectorModal|undefined = $state();
+	let createFacilityModal: CreateFacilityModal|undefined = $state();
 	let memberships: SelectType[] = $state([]);
 	let membershipsDone: boolean = $state(false);
 	let selectedFacility: { label: string; value: string } | undefined = $state();
+	let facilityCreateOpen: boolean = $state(false);
 	let createdEffector: Effector | undefined = $state();
 	let selectedCommune: { label: string; value: string } | undefined = $state();
 	let facilityCount: number = $state(0);
@@ -103,10 +106,26 @@ membershipsDone: {membershipsDone}
 				<p>Aucun établissement sélectionné</p>
 				<p>{facilityLabel()}</p>
 				{#if !selectedFacility && selectedCommune}
-					<CreateFacilityModal
-						commune={selectedCommune}
-						bind:selectedFacility
-					/>
+					<a
+						href="/web/facility/create"
+						onclick={async (e) => {
+							if (e.shiftKey || e.metaKey || e.ctrlKey) return;
+
+							e.preventDefault();
+							const { href } = e.currentTarget;
+							const result = await preloadData(href);
+
+							if (result.type === 'loaded' && result.status === 200) {
+								facilityCreateOpen = true;
+								pushState(href, { facilityCreate: result.data });
+							} else {
+								goto(href);
+							}
+						}}
+					>
+						<button class="btn variant-filled-primary"
+							title="Créer"><span><Fa icon={faPlus} /></span><span>Créer un établissement</span></button>
+					</a>
 				{:else}
 				<button disabled
 	class="btn variant-filled-primary"
@@ -243,6 +262,11 @@ membershipsDone: {membershipsDone}
 			</div>
 		{/if}
 	</div>
+{/if}
+{#if facilityCreateOpen}
+	<CreateFacilityModal onresult={()=>{}} title={"Créer un établissement"} {selectedFacility}>
+		<CreateFacility data={page.state.facilityCreate} commune={selectedCommune} bind:facilityCreateOpen department={department} bind:selectedFacility />
+	</CreateFacilityModal>
 {/if}
 {#if page.state.selected}
 	<NewSelectEffectorModal bind:this={selectEffectorModal} effector={createdEffector} onresult={result => {console.log("result", result); history.back();}} title={"Sélectionner une personne"}>

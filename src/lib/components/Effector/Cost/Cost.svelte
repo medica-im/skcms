@@ -10,6 +10,10 @@
 	import type { EntryFull } from '$lib/store/directoryStoreInterface';
 	let { data }: { data: EntryFull } = $props();
 
+	let cvData = $derived(data.carte_vitale);
+	let tppData = $derived(data.third_party_payers);
+	let conventionData = $derived(data.convention);
+
 	const editMode = getEditMode();
 </script>
 
@@ -22,11 +26,11 @@
 	</div>
 </div>
 {#if data?.convention != null || $editMode}
-	<Convention data={data.convention} editMode={$editMode} />
+	<Convention data={conventionData} editMode={$editMode} />
 {/if}
 {#if data?.carte_vitale != null || $editMode}
-	<CarteVitale data={data.carte_vitale} editMode={$editMode} />
+	<CarteVitale data={cvData} editMode={$editMode} />
 {/if}
 {#if data.third_party_payers != null || $editMode}
-	<ThirdPartyPayer data={data?.third_party_payers} editMode={$editMode} />
+	<ThirdPartyPayer data={tppData} editMode={$editMode} />
 {/if}
