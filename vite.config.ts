@@ -49,7 +49,7 @@ export default defineConfig(({ mode }) => {
 				'/api/v2': {
 					target: API_URL,
 					changeOrigin: true,
-					secure: true,
+					secure: false,
 					configure: (proxy, _options) => {
 						proxy.on('error', (err, _req, _res) => {
 							console.log('proxy error', err);
@@ -65,7 +65,7 @@ export default defineConfig(({ mode }) => {
 				'/api/v1': {
 					target: API_URL,
 					changeOrigin: true,
-					secure: true,
+					secure: false,
 					configure: (proxy, _options) => {
 						proxy.on('error', (err, _req, _res) => {
 							console.log('proxy error', err);
