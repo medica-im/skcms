@@ -6,6 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **frontend** of a larger application. It is paired with a backend in a separate folder and git repo.
 
+## Development
+It's not necessary to systematically build the sveltekit app to verify after each change because the vite dev updates automatically. Build only if necessary.
+
 ## Backend
 
 * **Relative path**: `../backend`

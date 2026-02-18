@@ -8,6 +8,7 @@
 	import { preloadData, pushState, goto } from '$app/navigation';
 	import { faPlus } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
+	import * as m from '$msgs';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -50,6 +51,18 @@
 			</button>
 		</a>
 	</header>
+
+	<!-- Column Headers (large screens only) -->
+	<div class="hidden lg:grid lg:grid-cols-[40px_1fr_1.5fr_120px_130px_130px_80px_36px_36px_36px] lg:items-center lg:gap-4 px-3 pb-2 text-sm font-semibold text-surface-500">
+		<span></span>
+		<span>{m.INVITEE_COL_NAME()}</span>
+		<span>{m.INVITEE_COL_EMAIL()}</span>
+		<span>{m.INVITEE_COL_ROLE()}</span>
+		<span>{m.INVITEE_COL_CREATED()}</span>
+		<span>{m.INVITEE_COL_REDEEMED()}</span>
+		<span>{m.INVITEE_COL_STATUS()}</span>
+		<span class="col-span-3 text-center">{m.INVITEE_COL_ACTIONS()}</span>
+	</div>
 
 	<div class="grid grid-cols-1 gap-2">
 		{#each invitees as invitee (invitee.uid)}

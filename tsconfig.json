@@ -3,8 +3,7 @@
 	"compilerOptions": {
 		"verbatimModuleSyntax": true,
 		"plugins": [
-			{ "name": "vite-plugin-iso-import"},
-			{"name": "typescript-svelte-plugin"}
+			{ "name": "vite-plugin-iso-import"}
 		],
 		"allowJs": true,
 		"checkJs": true,

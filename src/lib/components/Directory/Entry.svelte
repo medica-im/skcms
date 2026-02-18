@@ -8,6 +8,7 @@
 	import CommunityAddress from '$lib/Address/CommunityAddress.svelte';
 	import { entryPageUrl } from '$lib/utils/utils';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
+	import * as m from '$msgs';
 	let { entry, avatar }:{ entry: Entry; avatar: boolean;} = $props();
 
 	let addressFeature = getAddressFeature();
@@ -52,8 +53,13 @@
 				<AvatarList data={entry} />
 			</div>
 		{/if}
-		<div class="p-4 space-y-1">
-			<h3 class="h3">{entry.name}</h3>
+		<div class="p-4 space-y-1 flex-1">
+			<div class="flex items-center justify-between">
+				<h3 class="h3">{entry.name}</h3>
+				{#if entry.active === false}
+					<span class="badge variant-filled-error badge-sm" title={m.ENTRY_INACTIVE()}>{m.INACTIVE()}</span>
+				{/if}
+			</div>
 			<!--
 			{#if (import.meta.env.VITE_DEV == 'true')}
 			<p class="text-xs">{entry.effector_uid}</p>

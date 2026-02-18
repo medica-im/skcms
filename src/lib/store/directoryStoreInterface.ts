@@ -68,6 +68,7 @@ export interface Entry {
 }
 
 export interface EntryFull {
+    active: Boolean;
     address: Address;
     appointments: Appointment[] | null;
     avatar: Avatar;

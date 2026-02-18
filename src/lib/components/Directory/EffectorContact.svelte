@@ -34,7 +34,7 @@
 	import CreateWebsite from '$lib/Web/Website/Create.svelte';
 	import CreateSoMed from '$lib/Web/SocialMedia/Create.svelte';
 	import UpdateEffector from '$lib/Web/Effector/UpdateEffectorModal.svelte';
-	import InactivateEntry from '$lib/Web/Entry/InactivateEntry.svelte';
+	import EntryToggleActive from '$lib/Web/Entry/EntryToggleActive.svelte';
 	import Tag from '$lib/Tag/Tag.svelte';
 	import { setEditMode, getEditMode, setEntryUid, setEffectorUid } from './context';
 	import UuidHex from '$lib/Uuid/UuidHex.svelte';
@@ -83,6 +83,9 @@
 			{/if}
 			<h2 class="h2 flex flex-initial break-words overflow-hidden place-items-center gap-4">
 				{fullentry.name}{#if $editMode}<UpdateEffector data={fullentry} />{/if}
+				{#if fullentry.active === false}
+					<span class="badge variant-filled-error badge-sm" title={m.ENTRY_INACTIVE()}>{m.INACTIVE()}</span>
+				{/if}
 			</h2>
 			{#if isSuperUser && $editMode}
 				effector {fullentry?.effector_uid}
@@ -260,7 +263,7 @@
 	{/if}
 	{#if $editMode}
 		<div class="flex flex-row">
-			<InactivateEntry />
+			<EntryToggleActive active={fullentry.active} />
 		</div>
 	{/if}
 	<div class="flex flex-row-reverse">

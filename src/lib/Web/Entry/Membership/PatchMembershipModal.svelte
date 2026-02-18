@@ -28,14 +28,19 @@
 	} = $props();
 
 	const uid = getEntryUid();
-	let initialMemberships: SelectType[] = currentMemberships
-		? currentMemberships.map((e) => {
+	let initialMemberships: SelectType[] = $state([]);
+	function setInitialMemberships() {
+		if (currentMemberships) {
+		initialMemberships = currentMemberships.map((e) => {
 				return {
 					label: e.name,
 					value: e.uid
 				};
 			})
-		: [];
+		 } else {
+			initialMemberships = [];
+		 }
+	}
 	let result: FormResult | undefined = $state();
 	let selectedMemberships: SelectType[] = $state(initialMemberships);
 	let disabled: boolean = $derived(
@@ -127,6 +132,7 @@
 <button
 	onclick={async () => {
 		result = undefined;
+		setInitialMemberships();
 		loadMembership();
 		dialog?.showModal();
 	}}

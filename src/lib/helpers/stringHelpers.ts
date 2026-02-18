@@ -3,11 +3,17 @@ import { variables } from '$lib/utils/constants';
 const lang = variables.DEFAULT_LANGUAGE;
 
 
-export const capitalizeFirstLetter = ([first='', ...rest]: string, l=lang) =>
-first.toLocaleUpperCase(l) + rest.join('')
+export const capitalizeFirstLetter = (str: string | undefined | null, l=lang) => {
+	if (!str) return '';
+	const [first='', ...rest] = str;
+	return first.toLocaleUpperCase(l) + rest.join('');
+}
 
-export const lowercaseFirstLetter = ([first='', ...rest], l=lang) =>
-first.toLocaleLowerCase(l) + rest.join('')
+export const lowercaseFirstLetter = (str: string | undefined | null, l=lang) => {
+	if (!str) return '';
+	const [first='', ...rest] = str;
+	return first.toLocaleLowerCase(l) + rest.join('');
+}
 
 export const workerTitleFormattedName = (w) =>
 `${w?.title||""}${w?.title ? " " : ""}${w.name}`

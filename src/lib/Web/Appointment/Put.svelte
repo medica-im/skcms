@@ -98,7 +98,7 @@
 >
 
 <Dialog bind:dialog on:close={() => console.log('closed')}>
-	<div class="rounded-lg h-96 w-96 p-4 variant-ghost-secondary items-center place-items-center">
+	<div class="rounded-lg w-[90vw] sm:w-[28rem] p-4 variant-ghost-secondary items-center place-items-center">
 		<!--div class="text-wrap p-2">
 		<p class="text-sm">{JSON.stringify(selectedLocation?.value)}</p>
 		<div class="wrap">

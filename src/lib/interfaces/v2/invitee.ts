@@ -8,4 +8,5 @@ export interface Invitee {
     createdBy: string;
     role: Role;
     active: boolean;
+    redeemedAt: number | null;
 }
