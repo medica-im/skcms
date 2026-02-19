@@ -1,5 +1,6 @@
 import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
 import { authReq } from '$lib/utils/request';
+import { getEntries } from '$lib/api.ts';
 import type { Organization } from '$lib/interfaces/organization.ts';
 import type { LayoutServerLoad } from "./$types"
 import type { User } from "$lib/interfaces/user.interface";
@@ -25,8 +26,8 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
     }
   }
   // here retrieving entries with auth works with http://localhost and pnpm run dev
-  let entries: Entry[] | undefined;
-    const entriesUrl = `${ORIGIN}/api/v2/entries`;
+  let entries: Entry[] | undefined = await getEntries(fetch, cookies);
+    /*const entriesUrl = `${ORIGIN}/api/v2/entries`;
     const entriesRequest = authReq(entriesUrl, "GET", cookies);
     try {
       response = await fetch(entriesRequest);
@@ -37,7 +38,7 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
       if (entries) console.log('entries layout.server.ts', entries[0].name);
     } catch (error: any) {
       console.error('There was an error while retrieving entries from layout.server.ts', error.message);
-    };
+    };*/
   let organization;
   const orgUrl = `${ORIGIN}/api/v2/organization`;
   try {

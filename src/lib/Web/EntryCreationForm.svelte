@@ -49,7 +49,7 @@
 formResult?.data: {formResult?.data}<br>
 selectedFacility: {JSON.stringify(selectedFacility)}-->
 <div class="rounded-lg p-4 variant-ghost-secondary w-full">
-	<form {...createEntry.for(uid).enhance(async ({ form, data, submit }) => {
+	<form {...createEntry.for(uid)/*.enhance(async ({ form, data, submit }) => {
 				try {
 					//data = manipulateForm(data);
 					const dataString = JSON.stringify(data);
@@ -62,7 +62,7 @@ selectedFacility: {JSON.stringify(selectedFacility)}-->
 				} catch (error) {
 					console.log(error);
 				}
-			})} class="space-y-4 w-full">
+			})*/} class="space-y-4 w-full">
 		<h3 class="h3">Confirmer ou annuler la création de la nouvelle entrée</h3>
 		{#if formResult?.success === false}
 			<aside class="alert variant-filled-error">
@@ -112,7 +112,7 @@ selectedFacility: {JSON.stringify(selectedFacility)}-->
 				/>
 			</label>
 			{#if facility}
-				<DisplayFacility facilityUid={facility} showEffectors={false} mapHeight={36} />
+				<DisplayFacility facilityUid={facility} showEffectors={false} mapHeight={36} update={false} />
 			{/if}
 			<label class="label w-full">
 				<span class="text-sm font-medium">Organisation</span>
