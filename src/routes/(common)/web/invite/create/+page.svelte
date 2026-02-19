@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { createInvitee } from '$src/invitee.remote.ts';
 	import { goto } from '$app/navigation';
 	import * as m from '$msgs';
@@ -26,7 +27,14 @@
 		{ value: 'staff', label: m['ROLE.STAFF']() },
 		{ value: 'administrator', label: m['ROLE.ADMINISTRATOR']() }
 	];
-
+	const superUserRole = { value: 'superuser', label: m['ROLE.SUPERUSER']() };
+	const isSuperUser = $derived(page.data?.user?.role == 'superuser');
+	const getRoleOptions = $derived(() => {
+		if (isSuperUser) {
+			return [...roleOptions, superUserRole];
+		}
+		return roleOptions;
+	});
 	let email = $state('');
 	let name = $state('');
 	let selectedRole: { value: Role; label: string } | undefined = $state();
@@ -74,14 +82,14 @@
 		<div class="grid grid-cols-1 gap-2">
 			<label class="label">
 				<span>Rôle *</span>
+				<input type="hidden" name="role" value={selectedRole?.value || ''} />
 			</label>
 			<Select
-				items={roleOptions}
+				items={getRoleOptions()}
 				bind:value={selectedRole}
 				placeholder="Sélectionner un rôle"
 				hasError={!selectedRole}
 			/>
-			<input type="hidden" name="role" value={selectedRole?.value || ''} />
 		</div>
 		<!-- Submit button -->
 		 <div class="flex gap-8">
