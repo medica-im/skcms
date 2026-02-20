@@ -9,12 +9,16 @@ export const load: PageLoad = async ({ data }) => {
     if (browser && import.meta.env.PROD) {
         try {
             const endpointUrl = `${ORIGIN}/api/v2/invitees`;
-            const response = await fetch(endpointUrl);
+            const response = await fetch(endpointUrl, {
+                credentials: 'include',
+                method: 'GET',
+                headers: { "content-type": "application/json" },
+            });
             if (!response.ok) {
                 throw new Error(`Response status: ${response.status}`);
             }
             invitees = await response.json() as Invitee[];
-            console.log(`${invitees?.length} invitee(s) fetched +page.ts`);
+            console.log(`invitee(s) fetched +page.ts`, invitees);
         } catch (error: any) {
             console.error('There was an error while retrieving invitees from +page.ts', error.message);
         }
