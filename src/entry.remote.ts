@@ -4,6 +4,7 @@ import * as z from "zod";
 import { authReq } from '$lib/utils/request.ts';
 import { variables } from '$lib/utils/constants.ts';
 import { slugify } from '$lib/helpers/stringHelpers';
+import { redirect } from '@sveltejs/kit';
 
 const RoleEnum = z.enum(['anonymous', 'staff', 'administrator', 'superuser']);
 
@@ -47,18 +48,20 @@ export const createEntry = form(postEntry, async (data) => {
 		const json = await response.json()
 		console.log(`Success! Status: ${response.status} Status text: ${response.statusText}`);
 		console.log(json);
-		let redirectURL;
+		let redirectPath;
 		if (organization_category=="cpts") {
-			redirectURL=`/${json.effector_type.slug}/${slugify(json.address.city)}/${json.slug}`;
+			redirectPath=`/${json.effector_type.slug}/${slugify(json.address.city)}/${json.slug}`;
 		} else {
-			redirectURL=`/${slugify(json.facility.slug)}/${json.effector_type.slug}/${json.slug}`;
+			redirectPath=`/${slugify(json.facility.slug)}/${json.effector_type.slug}/${json.slug}`;
 		}
-		return {
+		const redirectURL = `${redirectPath}?invalidateEntries`;
+		redirect(303, redirectURL)
+		/*return {
 			success: true,
 			status: response.status,
 			text: response.statusText,
 			redirectURL,
-		}
+		}*/
 	}
 });
 

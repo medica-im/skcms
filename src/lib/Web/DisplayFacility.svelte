@@ -8,10 +8,9 @@
 	let {
 		facilityUid,
 		showEffectors,
-		mapHeight = 64
-	}: { facilityUid: string; showEffectors: boolean; mapHeight?: number } = $props();
-
-	const update = page.data.user?.role === 'superuser';
+		mapHeight = 64,
+		update = page.data.user?.role === 'superuser'
+	}: { facilityUid: string; showEffectors: boolean; mapHeight?: number; update?: boolean } = $props();
 
 	async function fetchFacility(): Promise<FacilityV2 | number> {
 		const response = await fetch(`/api/v2/facilities/${facilityUid}`);

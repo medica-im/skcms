@@ -10,7 +10,7 @@
 
 	let { departmentOf }: { departmentOf: string[] } = $props();
 
-	const departments: DepartmentOfFrance[] | undefined = $derived(await getDepartments());
+	let departments: DepartmentOfFrance[] | undefined = $state(undefined);
 	let items = $derived.by(() => {
 		if ( departments && departments?.length ) {
 			return departments
@@ -37,7 +37,8 @@
 		return null
 	}
 
-	onMount(() => {
+	onMount(async () => {
+		departments = await getDepartments();
 		const dptParam = page.url.searchParams.get('department');
 		if (!dptParam) return;
 		const dptCode: string = JSON.parse(dptParam);
