@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as m from '$msgs';
 	import { patchCommand } from '../../../entry.remote';
-	import { invalidate } from '$app/navigation';
+	import { invalidateAll } from '$app/navigation';
 	import {
 		faCheck,
 		faWindowClose,
@@ -42,7 +42,7 @@
 				active: !activeWhenOpened
 			});
 			if (result?.success) {
-				invalidate('entry:now');
+				invalidateAll();
 				dialog?.close();
 			}
 		} catch (error) {
