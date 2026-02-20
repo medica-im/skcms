@@ -10,7 +10,7 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
   checkVersion();
   let response;
   let user: User | undefined;
-  if (import.meta.env.PROD) {
+  console.log("layout.ts browser", browser);
     const userUrl = `${ORIGIN}/api/v2/users/me`;
     try {
       response = await fetch(userUrl, {
@@ -26,9 +26,8 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
     } catch (error: any) {
       console.error('There was an error while retrieving user from layout.ts', error.message);
     }
-  }
   let entries;
-  if ( browser && import.meta.env.PROD ) {
+  //if ( browser && import.meta.env.PROD ) {
     try {
       response = await fetch(`${ORIGIN}/api/v2/entries`);
       if (!response.ok) {
@@ -39,7 +38,7 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
     } catch (error: any) {
       console.error('There was an error while retrieving entries from layout.ts', error.message);
     }
-  }
+  //}
 
   return {
     situations: data.directory?.inputField.situation ? await getSituationsV2(fetch) : undefined,
