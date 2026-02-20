@@ -1,7 +1,25 @@
+import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
+import { browser } from '$app/environment';
 import type { PageLoad } from './$types';
+import type { Invitee } from '$src/lib/interfaces/v2/invitee';
 
 export const load: PageLoad = async ({ data }) => {
+
+    let invitees: Invitee[] | undefined;
+    if (browser && import.meta.env.PROD) {
+        try {
+            const endpointUrl = `${ORIGIN}/api/v2/invitees`;
+            const response = await fetch(endpointUrl);
+            if (!response.ok) {
+                throw new Error(`Response status: ${response.status}`);
+            }
+            invitees = await response.json() as Invitee[];
+            console.log(`${invitees?.length} invitee(s) fetched +page.ts`);
+        } catch (error: any) {
+            console.error('There was an error while retrieving invitees from +page.ts', error.message);
+        }
+    }
     return {
-        invitees: data.invitees || []
+        invitees: invitees || data.invitees
     }
 }
