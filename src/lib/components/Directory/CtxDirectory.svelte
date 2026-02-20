@@ -73,7 +73,8 @@
 		avatar = true,
 		typesView = false,
 		displayEntries = false,
-		types = null
+		types = null,
+		active = undefined,
 	}: {
 		data?: any;
 		displayGeocoder?: boolean;
@@ -93,6 +94,7 @@
 		typesView?: boolean;
 		displayEntries?: boolean;
 		types?: string[] | null;
+		active?: boolean | undefined;
 	} = $props();
 
 	setTerm();
@@ -164,7 +166,8 @@
 			$selectSituation,
 			rCurrentOrg,
 			organization,
-			rLimitCategories
+			rLimitCategories,
+			active
 		);
 	});
 
