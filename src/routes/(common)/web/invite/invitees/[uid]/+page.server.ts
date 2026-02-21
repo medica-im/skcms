@@ -4,6 +4,8 @@ import { variables } from '$lib/utils/constants.ts';
 import type { Invitee } from '$src/lib/interfaces/v2/invitee';
 import type { PageServerLoad } from "./$types"
 
+export const ssr = false;
+
 export const load: PageServerLoad = async ({ url, cookies, locals, fetch, params }) => {
    const session = await locals.auth();
    if (!session) {

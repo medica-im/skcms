@@ -7,6 +7,7 @@ export const load: PageLoad = async ({ data, params, fetch }) => {
     if (import.meta.env.PROD) {
         try {
             const endpointUrl = `${ORIGIN}/api/v2/invitees/${params.uid}`;
+            console.log(endpointUrl);
             const response = await fetch(endpointUrl, {
                 credentials: 'include',
                 method: 'GET',
