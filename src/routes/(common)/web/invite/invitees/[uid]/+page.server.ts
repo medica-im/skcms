@@ -9,19 +9,18 @@ export const load: PageServerLoad = async ({ url, cookies, locals, fetch, params
    if (!session) {
       redirect(303, `/signin?redirect=${url.pathname}`);
    }
-
-   const { uid } = params;
-   const endpointUrl = `${variables.BASE_URI}/api/v2/invitees/${uid}`;
-   const request = authReq(endpointUrl, 'GET', cookies);
-   const response = await fetch(request);
-
-   if (!response.ok) {
-      console.error(`Failed to fetch invitee: ${response.status} ${response.statusText}`);
-      error(response.status === 404 ? 404 : 500, 'Invitee not found');
+   let invitee: Invitee | undefined;
+   if (import.meta.env.DEV) {
+      const { uid } = params;
+      const endpointUrl = `${variables.BASE_URI}/api/v2/invitees/${uid}`;
+      const request = authReq(endpointUrl, 'GET', cookies);
+      const response = await fetch(request);
+      if (!response.ok) {
+         console.error(`Failed to fetch invitee: ${response.status} ${response.statusText}`);
+         error(response.status === 404 ? 404 : 500, 'Invitee not found');
+      }
+      invitee = await response.json();
    }
-
-   const invitee: Invitee = await response.json();
-
    return {
       session,
       invitee
