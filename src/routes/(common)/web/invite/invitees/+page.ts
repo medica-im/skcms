@@ -3,7 +3,7 @@ import { browser } from '$app/environment';
 import type { PageLoad } from './$types';
 import type { Invitee } from '$src/lib/interfaces/v2/invitee';
 
-export const load: PageLoad = async ({ data, url }) => {
+export const load: PageLoad = async ({ fetch, data, url }) => {
     let invitees: Invitee[] | undefined;
     if (browser && import.meta.env.PROD) {
         try {

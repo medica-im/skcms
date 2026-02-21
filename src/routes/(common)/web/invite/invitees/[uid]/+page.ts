@@ -2,7 +2,7 @@ import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
 import type { PageLoad } from './$types';
 import type { Invitee } from '$src/lib/interfaces/v2/invitee';
 
-export const load: PageLoad = async ({ data, params }) => {
+export const load: PageLoad = async ({ data, params, fetch }) => {
     let invitee: Invitee | undefined;
     if (import.meta.env.PROD) {
         try {
