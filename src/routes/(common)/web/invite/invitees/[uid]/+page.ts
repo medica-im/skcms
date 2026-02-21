@@ -1,11 +1,10 @@
 import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
-import { browser } from '$app/environment';
 import type { PageLoad } from './$types';
 import type { Invitee } from '$src/lib/interfaces/v2/invitee';
 
 export const load: PageLoad = async ({ data, params }) => {
     let invitee: Invitee | undefined;
-    if (browser && import.meta.env.PROD) {
+    if (import.meta.env.PROD) {
         try {
             const endpointUrl = `${ORIGIN}/api/v2/invitees/${params.uid}`;
             const response = await fetch(endpointUrl, {
