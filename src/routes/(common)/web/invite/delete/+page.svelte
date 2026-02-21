@@ -14,7 +14,7 @@
 		redirect?: boolean;
 	}
 
-	let { data, redirect=false }: Props = $props();
+	let { data, redirect=true }: Props = $props();
 	let result = $derived(deleteInvitee.for(data.invitee.uid)?.result);
 	let invitee = $derived(data.invitee);
 

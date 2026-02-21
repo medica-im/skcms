@@ -5,7 +5,7 @@
     import DeleteInvitee from '$routes/(common)/web/invite/delete/+page.svelte';
     import type { Invitee } from '$lib/interfaces/v2/invitee';
 
-    let { redirect=false }: { redirect?: boolean } = $props();
+    let { redirect=true }: { redirect?: boolean } = $props();
 
     export async function handleDelete(invitee: Invitee) {
         const href = '/web/invite/delete';

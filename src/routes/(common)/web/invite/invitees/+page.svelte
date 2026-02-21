@@ -1,5 +1,6 @@
 <script lang="ts">
     import { page } from '$app/state';
+	import { onMount } from 'svelte';
     import CreateInviteeModal from '$lib/Invitee/CreateInviteeModal.svelte';
 	import CreateInvitee from '$routes/(common)/web/invite/create/+page.svelte';
 	import EditInviteeModal from '$lib/Invitee/EditInviteeModal.svelte';
@@ -24,7 +25,7 @@
 		<div>
 			<h1 class="h1 mb-2">Invitations</h1>
 			<p class="text-surface-600">
-				{invitees.length} invitation{invitees.length > 1 ? 's' : ''}
+				{invitees?.length ?? 0} invitation{(invitees?.length ?? 0) > 1 ? 's' : ''}
 			</p>
 		</div>
 		<a
@@ -66,7 +67,7 @@
 
 	<div class="grid grid-cols-1 gap-2">
 		{#each invitees as invitee (invitee.uid)}
-			<Invitee {invitee} onEdit={(inv) => editModal.handleEdit(inv)} onDelete={(inv) => deleteModal.handleDelete(inv)} />
+			<Invitee {invitee} highlighted={(Date.now() - new Date(invitee.createdAt).getTime()) < 60_000} onEdit={(inv) => editModal.handleEdit(inv)} onDelete={(inv) => deleteModal.handleDelete(inv)} />
 		{/each}
 	</div>
 </div>

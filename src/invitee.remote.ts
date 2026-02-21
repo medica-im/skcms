@@ -34,12 +34,7 @@ export const createInvitee = form(CreateInvitee, async (data) => {
 	} else {
 		console.log(`Success! Status: ${response.status} Status text: ${response.statusText}`);
 		console.log(json);
-		return {
-			success: true,
-			status: response.status,
-			text: response.statusText,
-			data: json
-		}
+		redirect(303, `/web/invite/invitees`);
 	}
 });
 
@@ -68,12 +63,7 @@ export const updateInvitee = form(UpdateInvitee, async (data) => {
 			data: json
 		}
 	} else {
-		return {
-			success: true,
-			status: response.status,
-			text: response.statusText,
-			data: json
-		}
+		redirect(303, '/web/invite/invitees');
 	}
 });
 

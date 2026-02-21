@@ -4,10 +4,17 @@
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faEnvelope, faUser, faCircle, faEye, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
+	import { onMount } from 'svelte';
 
-	let { invitee, showLink = true, onEdit, onDelete }: { invitee: Invitee; showLink?: boolean; onEdit?: (invitee: Invitee) => void; onDelete?: (invitee: Invitee) => void } = $props();
+	let { invitee, showLink = true, highlighted = false, onEdit, onDelete }: { invitee: Invitee; showLink?: boolean; highlighted?: boolean; onEdit?: (invitee: Invitee) => void; onDelete?: (invitee: Invitee) => void } = $props();
 
+	let el: HTMLDivElement;
 	let isRedeemed = $derived(invitee.redeemedAt != null);
+
+	onMount(() => {
+		if (highlighted) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+	});
+
 	let showDetailLink = $derived(showLink && (import.meta.env.DEV || page.data?.user?.role === 'superuser'));
 
 	const roleLabels: Record<Role, string> = {
@@ -48,7 +55,7 @@
 	}
 </script>
 
-<div class="card variant-ghost p-3 flex flex-col gap-3 lg:grid lg:grid-cols-[40px_1fr_1.5fr_120px_130px_130px_80px_36px_36px_36px] lg:items-center lg:gap-4 hover:variant-soft transition-colors {isRedeemed ? 'opacity-50' : ''}">
+<div bind:this={el} class="card variant-ghost p-3 flex flex-col gap-3 lg:grid lg:grid-cols-[40px_1fr_1.5fr_120px_130px_130px_80px_36px_36px_36px] lg:items-center lg:gap-4 hover:variant-soft transition-colors {isRedeemed ? 'opacity-50' : ''} {highlighted ? 'invitee-highlighted' : ''}">
 	<!-- Avatar/Icon -->
 	<div class="flex items-center gap-3 lg:contents">
 		<div class="w-10 h-10 rounded-full bg-surface-500/10 flex items-center justify-center flex-shrink-0">
@@ -123,3 +130,18 @@
 		{/if}
 	</div>
 </div>
+
+<style>
+	@keyframes highlight-ring {
+		0%, 60% {
+			box-shadow: 0 0 0 2px rgb(var(--color-primary-500) / 1), 0 0 0 5px rgb(var(--color-primary-500) / 0.15);
+		}
+		100% {
+			box-shadow: 0 0 0 2px rgb(var(--color-primary-500) / 0), 0 0 0 5px rgb(var(--color-primary-500) / 0);
+		}
+	}
+
+	.invitee-highlighted {
+		animation: highlight-ring 5s ease-out forwards;
+	}
+</style>
