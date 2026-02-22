@@ -198,7 +198,7 @@ export const fullFilteredEntriesF = (situations: Situation[], entries: Entry[], 
 				return true
 			}
 		}).filter(function (x) {
-			if (selectSituation === undefined) {
+			if (selectSituation == undefined) {
 				return true
 			} else {
 				let entries = situations.find(obj => { return obj.uid === selectSituation?.value })?.entries;
