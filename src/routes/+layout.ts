@@ -26,7 +26,7 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
     } catch (error: any) {
       console.error('There was an error while retrieving user from layout.ts', error.message);
     }
-  let entries;
+  let entries: Entry[] | undefined;
   //if ( browser && import.meta.env.PROD ) {
     try {
       response = await fetch(`${ORIGIN}/api/v2/entries`);
