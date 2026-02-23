@@ -11,6 +11,8 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
   let response;
   let user: User | undefined;
   console.log("layout.ts browser", browser);
+    if ( import.meta.env.PROD ) {
+
     const userUrl = `${ORIGIN}/api/v2/users/me`;
     try {
       response = await fetch(userUrl, {
@@ -26,6 +28,7 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
     } catch (error: any) {
       console.error('There was an error while retrieving user from layout.ts', error.message);
     }
+  }
   let entries: Entry[] | undefined;
   //if ( browser && import.meta.env.PROD ) {
     try {

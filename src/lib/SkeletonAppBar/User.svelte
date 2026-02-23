@@ -23,6 +23,7 @@
 		faRightFromBracket,
 		faUserPlus,
 		faUser,
+		faUsers,
 		faHexagonNodes
 	} from '@fortawesome/free-solid-svg-icons';
 	let { embedded = false}: { embedded?: boolean; } = $props();
@@ -37,6 +38,9 @@
 	let session = $derived(page.data.session);
 
 	let signin = $derived(encodeURI(`/signin?redirect=${page.url.pathname}`));
+	let isAdmin = $derived(
+		page.data?.user?.role === 'superuser' || page.data?.user?.role === 'administrator'
+	);
 	let classesActive = $derived((href: string) => {
 		return page.url.pathname == href ? '!bg-primary-500' : '';
 	});
@@ -100,6 +104,12 @@
 							<span class="w-6 text-center"><Fa icon={faEnvelope} /></span>
 							<span class="capitalize">{m.invitation({ count: 2 })}</span>
 						</a>
+						{#if isAdmin}
+							<a href="/web/users">
+								<span class="w-6 text-center"><Fa icon={faUsers} /></span>
+								<span>Utilisateurs</span>
+							</a>
+						{/if}
 						<!--hr class="my-4"-->
 						<!--a href="/{ facility.category.slug }/projet-de-sante">
 							<span class="w-6 text-center"><Fa icon={faBookMedical} /></span>

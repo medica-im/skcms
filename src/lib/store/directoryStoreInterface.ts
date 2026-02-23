@@ -65,6 +65,8 @@ export interface Entry {
     tags: Tag[]|null;
     uid: string;
     updatedAt: number;
+    owner: string[]|null;
+    creator: string[]|null;
 }
 
 export interface EntryFull {
