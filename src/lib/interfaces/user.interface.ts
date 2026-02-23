@@ -16,6 +16,7 @@ export interface Role {
 }
 
 export interface User {
+	uid: string|null;
 	name: string;
 	email: string;
 	picture: string;

@@ -1,6 +1,7 @@
 <script lang="ts">
     import { page } from "$app/state";
     import UserCard from "$lib/Dashboard/UserCard.svelte";
+    import { UserEntries } from "$lib/User";
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
     import type { OauthSession } from "$lib/interfaces/oidc";
     const session = $derived(page.data.session);
@@ -14,9 +15,14 @@
 
 <div class="section-container">
 {#if session?.user}
-<div class="flex flex-wrap">
-    <UserCard />
-    </div>
+	<div class="flex flex-col gap-8 w-full">
+		<div class="flex flex-wrap">
+			<UserCard />
+		</div>
+		{#if page.data.user?.uid}
+			<UserEntries userUid={page.data.user.uid} />
+		{/if}
+	</div>
 {/if}
 </div>
 

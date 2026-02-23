@@ -285,5 +285,9 @@
         "countPlural=other": "Utilisateurs"
       }
     }
-  ]
+  ],
+  "my_entries": "Mes entrées",
+  "creator": "Créateur",
+  "owner": "Propriétaire",
+  "no_entry": "Aucune entrée."
 }

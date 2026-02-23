@@ -1,7 +1,7 @@
 <script lang="ts">
     import { page } from '$app/state';
     import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-    import { UserCard } from '$lib/User';
+    import { UserCard, UserEntries } from '$lib/User';
     import type { Role } from '$lib/interfaces/v2/invitee';
     import * as m from '$msgs';
     import Fa from 'svelte-fa';
@@ -131,6 +131,11 @@
                 {:else}
                     <p class="text-surface-500">Aucun accès enregistré.</p>
                 {/if}
+            </section>
+
+            <!-- Entries section -->
+            <section class="mt-8">
+                <UserEntries userUid={userDetail.uid} />
             </section>
         {:else}
             <div class="alert variant-filled-warning">
