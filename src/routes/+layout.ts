@@ -29,7 +29,7 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
     }
   }
   let entries: Entry[] | undefined;
-  if (import.meta.env.PROD ) {
+  if ( browser && import.meta.env.PROD ) {
     try {
       const entriesUrl = `${ORIGIN}/api/v2/entries`;
       response = await fetch(entriesUrl, {
