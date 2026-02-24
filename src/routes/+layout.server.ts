@@ -12,6 +12,7 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch, depends }
   depends('app:entries');
   let response;
   let user: User | undefined;
+  if ( import.meta.env.DEV ) {
     const userUrl = `${ORIGIN}/api/v2/users/me`;
     const request = authReq(userUrl, "GET", cookies);
     try {
@@ -24,6 +25,7 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch, depends }
     } catch (error: any) {
       console.error('There was an error while retrieving user from layout.server.ts', error.message);
     }
+  }
   // here retrieving entries with auth works with http://localhost and pnpm run dev
   let entries: Entry[] | undefined = await getEntries(fetch, cookies);
     /*const entriesUrl = `${ORIGIN}/api/v2/entries`;
