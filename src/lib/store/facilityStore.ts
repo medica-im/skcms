@@ -8,44 +8,6 @@ import { doRefresh } from '$lib/utils/utils.ts';
 import type { Organization } from '$lib/interfaces/organization.ts';
 import type { Fetch } from '$lib/interfaces/fetch';
 
-export const getOrganization = async () => {
-	var cachelife = 600;
-	const cacheName = "organization";
-	let cachedData;
-	let expired = true;
-	let empty: boolean = true;
-	let lang = variables.DEFAULT_LANGUAGE;
-	if (browser) {
-		cachedData = localStorage.getItem(`${cacheName}`);
-	}
-	if (cachedData) {
-		cachedData = JSON.parse(cachedData);
-		expired = Date.now() - cachedData.cachetime > cachelife * 1000;
-		if ('data' in cachedData) {
-			if (cachedData.data) {
-				empty = false;
-			}
-		}
-	}
-	if (cachedData && !expired && cachedData.data) {
-		return cachedData.data;
-	} else {
-		const url = `${variables.BASE_URI}/api/v2/organization`;
-		const response = await fetch(url);
-		if (response.ok) {
-			const data: Organization = await response.json();
-			if (browser) {
-				var json = { data: data, cachetime: Date.now() }
-				localStorage.setItem(`${cacheName}`, JSON.stringify(json));
-			}
-			return data;
-		} else {
-			throw new Error(`fetch ${url} ${response.status}`);
-		}
-	}
-};
-
-
 export const getFacilities = async (skFetch: Fetch | null = null): Promise<Facility[]> => {
 	const cacheName = "facilities";
 	let cachedData;
@@ -91,8 +53,7 @@ export const facilitiesWithAvatar = async (): Promise<Facility[]> => {
 	return carousel
 };
 
-export const websiteSchema = async () => {
-	const organization = await getOrganization();
+export const websiteSchema = (organization: Organization) => {
 	const someds = [];
 	for (let somed of organization.contact.socialnetworks) {
 		someds.push(somed.url)
