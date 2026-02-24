@@ -11,7 +11,7 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
   let response;
   let user: User | undefined;
   console.log("layout.ts browser", browser);
-    if ( import.meta.env.PROD ) {
+    if ( browser && import.meta.env.PROD ) {
     const userUrl = `${ORIGIN}/api/v2/users/me`;
     try {
       response = await fetch(userUrl, {
