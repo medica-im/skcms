@@ -37,7 +37,7 @@ export const authReq = (url: string, method: Method, cookies: Cookies, body: str
         .getAll()
         .filter(({ value }) => value !== '')
         .filter(({ name }) => ['authjs.session-token', '__Secure-authjs.session-token'].includes(name))
-        .map(({ name, value }) => `${name}=${encodeURIComponent(value)}`).join('; ')
+        .map(({ name, value }) => `${name}=${value}`).join('; ')
     )
     return request
 }
