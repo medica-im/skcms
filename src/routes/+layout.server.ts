@@ -8,7 +8,8 @@ import type { Entry } from '$lib/store/directoryStoreInterface';
 import type { Labels } from '$lib/interfaces/label.interace.ts';
 import type { Directory } from '$lib/interfaces/directory.interface.ts';
 
-export const load: LayoutServerLoad = async ({ locals, cookies, fetch }) => {
+export const load: LayoutServerLoad = async ({ locals, cookies, fetch, depends }) => {
+  depends('app:entries');
   let response;
   let user: User | undefined;
   if ( import.meta.env.DEV ) {
