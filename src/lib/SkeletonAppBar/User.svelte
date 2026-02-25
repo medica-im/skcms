@@ -96,6 +96,7 @@
 							<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
 							<span>Créer une entrée</span>
 						</a>
+						{#if isAdmin}
 						<a href="/web/entries">
 							<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
 							<span>Toutes les entrées</span>
@@ -104,7 +105,6 @@
 							<span class="w-6 text-center"><Fa icon={faEnvelope} /></span>
 							<span class="capitalize">{m.invitation({ count: 2 })}</span>
 						</a>
-						{#if isAdmin}
 							<a href="/web/users">
 								<span class="w-6 text-center"><Fa icon={faUsers} /></span>
 								<span>Utilisateurs</span>

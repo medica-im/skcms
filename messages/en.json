@@ -289,5 +289,6 @@
 	"my_entries": "My entries",
 	"creator": "Creator",
 	"owner": "Owner",
-	"no_entry": "No entry."
+	"no_entry": "No entry.",
+	"create_entry_cta": "Create your entry in the address book!"
 }

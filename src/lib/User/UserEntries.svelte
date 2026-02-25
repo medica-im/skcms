@@ -104,5 +104,7 @@
 		</div>
 	</div>
 {:else}
-	<p class="text-sm text-surface-500">{m.no_entry()}</p>
+	<div class="flex justify-center py-4">
+		<a href="/web" class="btn btn-lg variant-ghost-primary text-lg font-semibold px-8 py-4 shadow-md hover:shadow-lg transition-shadow">{m.create_entry_cta()}</a>
+	</div>
 {/if}
