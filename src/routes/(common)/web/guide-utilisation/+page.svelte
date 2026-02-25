@@ -4,6 +4,7 @@
 	import { page } from '$app/state';
 	import Fa from 'svelte-fa';
 	import {
+		faUser,
 		faPlus,
 		faCheck,
 		faWindowClose,
@@ -97,7 +98,7 @@
 				<p>
 					Une catégorie peut caractériser le type de travail d'un effecteur (kinésithérapeute,
 					portage de repas à domicile) ou un type d'organisation qui regroupe des effecteurs (MSP,
-					CPTS, maternité)
+					CPTS, maternité, organisation professionnelle)
 				</p>
 				<h4 class="h4">Personne</h4>
 				<dl class="list-dl">
@@ -130,6 +131,7 @@
 				</p>
 
 				<h3 class="h3">Créer une entrée</h3>
+				<p>Après connexion, le menu utilisateur apparaît en haut et à droite: {@render inlineIcon(faUser)}. Un clic déroule plusieurs choix dont "<a class="anchor" href="/web" >Créer une entrée</a>".</p>
 
 				<h4 class="h4">1. Sélectionner ou créer un établissement</h4>
 				<p>
@@ -200,8 +202,7 @@
 				<p>
 					Simple étape de vérification des choix et de confirmation. Après confirmation, l'entrée
 					sera créé immédiatement et votre navigateur web affichera la page de la fiche nouvellement
-					créée, où vous pourrez commencer à entrer les autres coordonnées et les données
-					supplémentaires.
+					créée, où vous pourrez commencer à entrer coordonnées et données supplémentaires.
 				</p>
 
 				<h3 class="h3">Modifier un établissement</h3>
@@ -253,12 +254,12 @@
 				<p>
 					Sur la page de l'entrée, activer le mode d'édition puis aller en bas de cliquer sur le
 					bouton rouge {@render inlineIcon(faTrashCanArrowUp)} "Supprimer l'entrée". L'entrée n'apparaîtra
-					plus dans la liste des entrées de l'annuaire et la page de l'entrée ne sera plus accessible.
+					plus dans la liste des entrées de l'annuaire et la page de l'entrée ne sera plus accessible aux visiteurs anonymes ou aux membres. Vous pouvez accéder aux entrées inactives dont vous êtes propriétaire via votre dashboard si vous êtes membres. Les administrateurs peuvent voir les entrées inactives via la page listant "Toutes les entrée" (actives et inactives) accessible depuis leur menu utilsateur.
 				</p>
 				<p>
 					Supprimer une entrée ne supprime ni la personne physique ou morale, ni la catégorie, ni
 					l'établissement. Vous pourrez donc recréer l'entrée à l'identique en quelques secondes en
-					sélectionnant le même établissement, la même catégorie et la même personne.
+					sélectionnant le même établissement, la même catégorie et la même personne ou plus simplement en réactivant l'entrée avec le bouton "réactiver".
 				</p>
 			</div>
 		</section>
