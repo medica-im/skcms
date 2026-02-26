@@ -7,7 +7,8 @@ import type { PageLoad } from './$types';
 
 const LIMIT:number = 1000;
 
-export const load: PageLoad = async ({ data, parent, fetch }) => {
+export const load: PageLoad = async ({ data, params, parent, fetch }) => {
+    console.log('sites/[slug] load called with params:', params, 'url:', window.location.pathname);
     const { organization } = await parent();
     if (organization===undefined) throw new Error("organization undefined")
     const { entries } = await parent();

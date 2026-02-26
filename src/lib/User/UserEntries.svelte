@@ -21,11 +21,12 @@
 	<div>
 		<!-- Column Headers -->
 		<div
-			class="grid grid-cols-1 sm:grid-cols-[1fr_80px_80px] items-center gap-2 px-3 pb-2 text-sm font-semibold text-surface-500"
+			class="grid grid-cols-1 sm:grid-cols-[1fr_80px_80px_80px] items-center gap-2 px-3 pb-2 text-sm font-semibold text-surface-500"
 		>
 			<span
 				>{m.my_entries()} <span class="badge variant-soft-primary ml-1">{userEntries.length}</span></span
 			>
+			<span class="hidden sm:block text-center"></span>
 			<span class="hidden sm:block text-center">{m.creator()}</span>
 			<span class="hidden sm:block text-center">{m.owner()}</span>
 		</div>
@@ -33,7 +34,7 @@
 		<div class="grid grid-cols-1 gap-4">
 			{#each userEntries as entry (entry.uid)}
 				<div
-					class="grid grid-cols-1 sm:grid-cols-[1fr_80px_80px] items-center gap-2 p-2 variant-soft-surface hover:variant-ghost-surface"
+					class="grid grid-cols-1 sm:grid-cols-[1fr_80px_80px_80px] items-center gap-2 p-2 variant-soft-surface hover:variant-ghost-surface"
 				>
 					<!-- Entry card -->
 					<a href={entryUrl(entry, page.url.pathname, org, true)} class="no-underline">
@@ -76,6 +77,13 @@
 						</div>
 					</a>
 
+					<!-- Inactive badge (desktop) -->
+					<div class="hidden sm:flex justify-center">
+						{#if !entry.active}
+							<span class="badge variant-soft-error badge-sm">{m.INACTIVE()}</span>
+						{/if}
+					</div>
+
 					<!-- Creator check -->
 					<div class="hidden sm:flex justify-center">
 						{#if entry.creator?.includes(userUid)}
@@ -90,13 +98,16 @@
 						{/if}
 					</div>
 
-					<!-- Mobile: role badges -->
+					<!-- Mobile: role + status badges -->
 					<div class="flex gap-2 px-3 sm:hidden">
 						{#if entry.creator?.includes(userUid)}
 							<span class="badge variant-soft-secondary badge-sm">{m.creator()}</span>
 						{/if}
 						{#if entry.owner?.includes(userUid)}
 							<span class="badge variant-soft-primary badge-sm">{m.owner()}</span>
+						{/if}
+						{#if !entry.active}
+							<span class="badge variant-soft-error badge-sm">{m.INACTIVE()}</span>
 						{/if}
 					</div>
 				</div>
@@ -105,6 +116,6 @@
 	</div>
 {:else}
 	<div class="flex justify-center py-4">
-		<a href="/web" class="btn btn-lg variant-ghost-primary text-lg font-semibold px-8 py-4 shadow-md hover:shadow-lg transition-shadow">{m.create_entry_cta()}</a>
+		<a href="/web/entry" class="btn btn-lg variant-ghost-primary text-lg font-semibold px-8 py-4 shadow-md hover:shadow-lg transition-shadow">{m.create_entry_cta()}</a>
 	</div>
 {/if}

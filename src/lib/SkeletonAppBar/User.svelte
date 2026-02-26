@@ -92,7 +92,7 @@
 							<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
 							<span>Guide d'utilisation</span>
 						</a>
-						<a href="/web">
+						<a href="/web/entry">
 							<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
 							<span>Créer une entrée</span>
 						</a>

@@ -131,7 +131,7 @@
 				</p>
 
 				<h3 class="h3">Créer une entrée</h3>
-				<p>Après connexion, le menu utilisateur apparaît en haut et à droite: {@render inlineIcon(faUser)}. Un clic déroule plusieurs choix dont "<a class="anchor" href="/web" >Créer une entrée</a>".</p>
+				<p>Après connexion, le menu utilisateur apparaît en haut et à droite: {@render inlineIcon(faUser)}. Un clic déroule plusieurs choix dont "<a class="anchor" href="/web/entry" >Créer une entrée</a>".</p>
 
 				<h4 class="h4">1. Sélectionner ou créer un établissement</h4>
 				<p>

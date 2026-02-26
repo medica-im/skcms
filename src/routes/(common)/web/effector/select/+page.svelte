@@ -9,15 +9,19 @@
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
 	import type { Entry } from '$lib/store/directoryStoreInterface.ts';
+	import type { User } from '$lib/interfaces/user.interface.ts';
 
 	interface Props {
 	effector: Effector | undefined;
 	memberships: SelectType[];
-	data: {effectors: Effector[]};
+	data: {
+		effectors: Effector[];
+		user: User;
+	};
 	}
 
 	let { effector=$bindable(), data, memberships=$bindable() } : Props = $props();
-
+	let userIsAdmin: boolean = $derived(['superuser', 'administrator'].includes(data.user.role)); 
 	let isMember: boolean | undefined = $state();
 	const defaultDpt: SelectType = {
 		label: page.data.organization.department.name,
@@ -69,6 +73,15 @@
 						.map((e) => e.effector_uid);
 					return effectorUids.includes(e.uid);
 				}
+			}).filter((e) => {
+				if (facility==undefined) {
+					return true;
+				} else {
+					const effectorUids = entries
+						.filter((e) => e.facility.uid == facility?.value)
+						.map((e) => e.effector_uid);
+					return effectorUids.includes(e.uid);
+				}
 			});
 		} else {
 			return [];
@@ -116,8 +129,13 @@
 <div class="grid grid-cols-1 rounded-lg h-full w-full p-4 items-center gap-4">
 		<div class="place-items-center">
 			<h3 class="h3">Sélectionner une personne</h3>
+			{#if userIsAdmin}
 			<p>Si la personne recherchée a déjà une entrée dans l'annuaire, vous pouvez affiner la recherche en sélectionnant sa catégorie, sa localisation ou son établissement.</p>
+			{:else}
+			<p>Si vous avez créé une personne physique ou morale précédemment, elle apparaîtra dans la liste. Si la liste est vide ou si vous souhaitez créer une nouvelle personne, cliquer sur "Annuler" puis sur "Créer une personne".</p>
+			{/if}
 		</div>
+		{#if userIsAdmin}
 		<EffectorTypeSelect bind:selectedEffectorType />
 		<FacilitySelect
 			bind:selectedFacility={facility}
@@ -125,6 +143,7 @@
 			bind:commune
 			bind:facilityCount
 		/>
+		{/if}
 		{#if filteredEffectors}
 		<div class="grid grid-cols-1 gap-4 variant-ghost p-4">
 			<p>{effectorLabel(filteredEffectors)}</p>

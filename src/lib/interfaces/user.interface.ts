@@ -16,12 +16,12 @@ export interface Role {
 }
 
 export interface User {
-	uid: string|null;
+	uid: string;
 	name: string;
 	email: string;
 	picture: string;
 	full_name: string|null;
-	role: string|null;
+	role: string;
 	effector: string|null;
 	gender: string|null;
 }
