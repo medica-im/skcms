@@ -254,7 +254,7 @@
 				<p>
 					Sur la page de l'entrée, activer le mode d'édition puis aller en bas de cliquer sur le
 					bouton rouge {@render inlineIcon(faTrashCanArrowUp)} "Supprimer l'entrée". L'entrée n'apparaîtra
-					plus dans la liste des entrées de l'annuaire et la page de l'entrée ne sera plus accessible aux visiteurs anonymes ou aux membres. Vous pouvez accéder aux entrées inactives dont vous êtes propriétaire via votre dashboard si vous êtes membres. Les administrateurs peuvent voir les entrées inactives via la page listant "Toutes les entrée" (actives et inactives) accessible depuis leur menu utilsateur.
+					plus dans la liste des entrées de l'annuaire et la page de l'entrée ne sera plus accessible aux visiteurs anonymes ou aux membres. Vous pouvez accéder aux entrées inactives dont vous êtes propriétaire via votre dashboard si vous êtes membres. Les administrateurs peuvent voir les entrées inactives via la page listant "Toutes les entrées" (actives et inactives) accessible depuis leur menu utilsateur.
 				</p>
 				<p>
 					Supprimer une entrée ne supprime ni la personne physique ou morale, ni la catégorie, ni
