@@ -286,9 +286,23 @@
       }
     }
   ],
-  "my_entries": "Mes entrées",
+  "my_entries": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "mon entrée",
+        "countPlural=other": "mes entrées"
+      }
+    }
+  ],
   "creator": "Créateur",
   "owner": "Propriétaire",
   "no_entry": "Aucune entrée.",
-  "create_entry_cta": "Créer votre entrée dans l'annuaire !"
+  "create_entry_cta": "Créer votre entrée!"
 }

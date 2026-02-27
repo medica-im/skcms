@@ -286,9 +286,23 @@
 			}
 		}
 	],
-	"my_entries": "My entries",
+	"my_entries": [
+		{
+			"declarations": [
+				"input count",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "my entry",
+				"countPlural=other": "my entries"
+			}
+		}
+	],
 	"creator": "Creator",
 	"owner": "Owner",
 	"no_entry": "No entry.",
-	"create_entry_cta": "Create your entry in the address book!"
+	"create_entry_cta": "Create your entry!"
 }

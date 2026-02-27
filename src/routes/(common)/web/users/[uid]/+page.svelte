@@ -5,7 +5,7 @@
     import type { Role } from '$lib/interfaces/v2/invitee';
     import * as m from '$msgs';
     import Fa from 'svelte-fa';
-    import { faArrowLeft, faKey, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
+    import { faArrowLeft, faKey, faShieldHalved, faClipboardList } from '@fortawesome/free-solid-svg-icons';
     import type { PageData } from './$types';
 
     let { data }: { data: PageData } = $props();
@@ -135,6 +135,10 @@
 
             <!-- Entries section -->
             <section class="mt-8">
+                <h2 class="h3 mb-4 flex items-center gap-2">
+                    <Fa icon={faClipboardList} class="text-primary-500" />
+                    {capitalizeFirstLetter(m.ENTRIES({ count: 2 }))}
+                </h2>
                 <UserEntries userUid={userDetail.uid} />
             </section>
         {:else}
