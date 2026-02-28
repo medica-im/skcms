@@ -48,7 +48,20 @@
 		--clear-select-focus-outline: 1px solid rgb(var(--color-primary-500));
 		--height: 3rem;
 		--placeholder-color: rgb(var(--color-primary-700));
+		--background: rgb(var(--color-surface-200));
+		--list-background: rgb(var(--color-surface-200));
+		--item-color: rgb(var(--color-surface-900));
+		--item-hover-bg: rgb(var(--color-primary-500) / 0.15);
+		--item-is-active-bg: rgb(var(--color-primary-500) / 0.25);
+		--input-color: rgb(var(--color-surface-900));
 		animation: subtle-glow 2s ease-in-out 3;
+	}
+	:global(.dark) .themed {
+		--background: rgb(var(--color-surface-700));
+		--list-background: rgb(var(--color-surface-700));
+		--item-color: rgb(var(--color-surface-100));
+		--input-color: rgb(var(--color-surface-100));
+		--placeholder-color: rgb(var(--color-primary-300));
 	}
 	@keyframes subtle-glow {
 		0%, 100% { box-shadow: 0 0 0 0 transparent; }

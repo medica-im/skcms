@@ -210,6 +210,23 @@
 		--item-outline: 1px solid rgb(var(--color-secondary-500));
 		--clear-select-focus-outline: 1px solid rgb(var(--color-secondary-500));
 		--height: 3rem;
+		--background: rgb(var(--color-surface-200));
+		--list-background: rgb(var(--color-surface-200));
+		--item-color: rgb(var(--color-surface-900));
+		--item-hover-bg: rgb(var(--color-primary-500) / 0.15);
+		--item-is-active-bg: rgb(var(--color-primary-500) / 0.25);
+		--input-color: rgb(var(--color-surface-900));
+		--placeholder-color: rgb(var(--color-surface-500));
+	}
+	:global(.dark) .theme {
+		--background: rgb(var(--color-surface-700));
+		--list-background: rgb(var(--color-surface-700));
+		--item-color: rgb(var(--color-surface-100));
+		--input-color: rgb(var(--color-surface-100));
+		--placeholder-color: rgb(var(--color-surface-400));
+		--disabled-background: rgb(var(--color-surface-800));
+		--disabled-color: rgb(var(--color-surface-400));
+		--disabled-placeholder-color: rgb(var(--color-surface-500));
 	}
 	.facility-glow {
 		--border-color: rgb(var(--color-primary-500));
@@ -218,6 +235,9 @@
 		--border-hover: 2px solid rgb(var(--color-primary-600));
 		--placeholder-color: rgb(var(--color-primary-700));
 		animation: subtle-glow 2s ease-in-out 3;
+	}
+	:global(.dark) .facility-glow {
+		--placeholder-color: rgb(var(--color-primary-300));
 	}
 	@keyframes subtle-glow {
 		0%, 100% { box-shadow: 0 0 0 0 transparent; }

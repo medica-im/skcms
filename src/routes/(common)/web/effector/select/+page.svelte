@@ -186,7 +186,22 @@
 		--placeholder-color: rgb(var(--color-primary-700));
 		--border-radius: var(--theme-rounded-container);
 		--height: 3rem;
+		--background: rgb(var(--color-surface-200));
+		--list-background: rgb(var(--color-surface-200));
+		--item-color: rgb(var(--color-surface-900));
+		--item-hover-bg: rgb(var(--color-primary-500) / 0.15);
+		--item-is-active-bg: rgb(var(--color-primary-500) / 0.25);
+		--input-color: rgb(var(--color-surface-900));
 		animation: subtle-glow 2s ease-in-out 3;
+	}
+	:global(.dark) .effector-select {
+		--background: rgb(var(--color-surface-700));
+		--list-background: rgb(var(--color-surface-700));
+		--item-color: rgb(var(--color-surface-100));
+		--input-color: rgb(var(--color-surface-100));
+		--placeholder-color: rgb(var(--color-primary-300));
+		--error-background: rgb(var(--color-surface-700));
+		--error-border: 1px solid rgb(var(--color-error-500));
 	}
 	@keyframes subtle-glow {
 		0%, 100% { box-shadow: 0 0 0 0 transparent; }
