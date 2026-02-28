@@ -384,7 +384,7 @@
 			</div>
 			{/if}
 		</div>
-		<div class="flex gap-8">
+		<div class="flex gap-8 justify-end">
 			<div class="flex gap-2 items-center">
 				{#if formResult?.success}
 					<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>

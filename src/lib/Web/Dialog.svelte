@@ -4,3 +4,14 @@
 <dialog class="rounded-lg overflow-visible {classProp}" bind:this={dialog}>
 	<slot/>
 </dialog>
+
+<style>
+	dialog {
+		background-color: rgb(var(--color-surface-100));
+		color: rgb(var(--color-surface-900));
+	}
+	:global(.dark) dialog {
+		background-color: rgb(var(--color-surface-800));
+		color: rgb(var(--color-surface-100));
+	}
+</style>
