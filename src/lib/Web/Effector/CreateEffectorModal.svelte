@@ -74,113 +74,118 @@
 	title="Créer"><span><Fa icon={faPlus} /></span><span>Créer une personne</span></button
 >
 <Dialog bind:dialog>
-	<div class="rounded-lg w-full p-4 variant-ghost-secondary items-center place-items-center">
-		<div class="rounded-lg p-6 variant-ghost-secondary space-y-6 items-center place-items-center">
-			<h3 class="h3 text-center">Créer une nouvelle personne physique ou morale</h3>
-			<div class="p-4 space-y-2 justify-items-stretch grid grid-cols-1 gap-6">
-				<form {...createEffector.for(uuid)} class="grid grid-cols-1 gap-6">
-				<div class="grid grid-cols-1 gap-4">
+	<div class="rounded-lg w-full p-4 variant-ghost-secondary items-center place-items-center space-y-6">
+		<h3 class="h3 text-center">Créer une nouvelle personne physique ou morale</h3>
+		<form {...createEffector.for(uuid)} class="space-y-6">
+			<div class="space-y-4 w-full">
+				<input
+					class="hidden"
+					name="organization"
+					type="text"
+					placeholder=""
+					value={page.data.organization.category.name}
+				/>
+				<label class="flex label place-self-start place-items-center space-x-2 w-full">
+					<span>Nom</span>
+					{#each createEffector.for(uuid).fields.name_fr.issues() as issue}
+						<p class="issue text-error-500">{issue.message}</p>
+					{/each}
 					<input
-							class="hidden"
-							name="organization"
-							type="text"
-							placeholder=""
-							value={page.data.organization.category.name}
-						/>
-					<label class="flex label place-self-start place-items-center space-x-2 w-full">
-						<span>Nom</span>
-						{#each createEffector.for(uuid).fields.name_fr.issues() as issue}
-							<p class="issue text-error-500">{issue.message}</p>
-						{/each}
-						<input
-							class="input"
-							name="name_fr"
-							type="text"
-							placeholder=""
-							bind:value={name_fr}
-						/>{@render asterisk("name_fr")}
-					</label>
-					<label class="{name_fr.length > 30 ? '' : 'hidden'} flex label place-self-start place-items-center space-x-2 w-full">
-						<span>Label</span>
-						{#each createEffector.for(uuid).fields.label_fr.issues() as issue}
-							<p class="issue text-error-500">{issue.message}</p>
-						{/each}
-						<input
-							class="{name_fr.length > 30 ? '' : 'hidden'} input"
-							name="label_fr"
-							type="text"
-							placeholder=""
-							bind:value={label_fr}
-						/>{@render asterisk("label_fr")}
-					</label>
-					<label class="hidden flex label place-self-start place-items-center space-x-2 w-full">
-						<span>{capitalizeFirstLetter(m.slug())}</span>
-						{#each createEffector.for(uuid).fields.slug_fr.issues() as issue}
-							<p class="issue text-error-500">{issue.message}</p>
-						{/each}
-						<input
-							class="input hidden"
-							name="slug_fr"
-							type="text"
-							placeholder=""
-							bind:value={slug_fr}
-						/>{@render asterisk("slug_fr")}
-					</label>
-					<label class="flex label place-self-start place-items-center space-x-2 w-full items-center">
-						<span>Genre grammatical</span>
-						{#each createEffector.for(uuid).fields.gender.issues() as issue}
-							<p class="issue text-error-500">{issue.message}</p>
-						{/each}
-						<select
-							class="select w-min"
-							name="gender"
-							size="3"
-							bind:value={gender}
-						>
-							<option value="F">Féminin</option>
-							<option value="M">Masculin</option>
-							<option value="N">Neutre</option>
-						</select>{@render asterisk("gender")}
-					</label>
-					<label class="flex label place-self-start place-items-center space-x-2 w-full">
+						class="input w-full"
+						name="name_fr"
+						type="text"
+						placeholder=""
+						bind:value={name_fr}
+					/>{@render asterisk("name_fr")}
+				</label>
+				<label class="{name_fr.length > 30 ? '' : 'hidden'} flex label place-self-start place-items-center space-x-2 w-full">
+					<span>Label</span>
+					{#each createEffector.for(uuid).fields.label_fr.issues() as issue}
+						<p class="issue text-error-500">{issue.message}</p>
+					{/each}
+					<input
+						class="{name_fr.length > 30 ? '' : 'hidden'} input w-full"
+						name="label_fr"
+						type="text"
+						placeholder=""
+						bind:value={label_fr}
+					/>{@render asterisk("label_fr")}
+				</label>
+				<label class="hidden flex label place-self-start place-items-center space-x-2 w-full">
+					<span>{capitalizeFirstLetter(m.slug())}</span>
+					{#each createEffector.for(uuid).fields.slug_fr.issues() as issue}
+						<p class="issue text-error-500">{issue.message}</p>
+					{/each}
+					<input
+						class="input hidden"
+						name="slug_fr"
+						type="text"
+						placeholder=""
+						bind:value={slug_fr}
+					/>{@render asterisk("slug_fr")}
+				</label>
+				<label class="flex label place-self-start place-items-center space-x-2 w-full">
+					<span>Genre grammatical</span>
+					{#each createEffector.for(uuid).fields.gender.issues() as issue}
+						<p class="issue text-error-500">{issue.message}</p>
+					{/each}
+					<select
+						class="select w-min"
+						name="gender"
+						size="3"
+						bind:value={gender}
+					>
+						<option value="F">Féminin</option>
+						<option value="M">Masculin</option>
+						<option value="N">Neutre</option>
+					</select>{@render asterisk("gender")}
+				</label>
+				<label class="flex label place-self-start place-items-center space-x-2 w-full">
 					<span>Cette personne est-elle membre de {page.data.organization.formatted_name}?</span>
 					<div class="flex items-center gap-2">
-						<OrganizationRadio bind:isMember /><div class="">{@render asterisk("isMember")}</div>
+						<OrganizationRadio bind:isMember /><div>{@render asterisk("isMember")}</div>
 					</div>
-					</label>
-					</div>
-					<div class="flex gap-8 justify-end">
-						<div class="flex gap-2 items-center">
-							{#if result?.success}
-								<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
-							{:else if result?.success === false}
-								<span class="badge-icon variant-filled-error"
-									><Fa icon={faExclamationCircle} /></span
-								>{result?.data.detail}
-							{/if}
-						</div>
-						<div class="w-auto justify-center">
-							<button
-								type="submit"
-								class="variant-filled-secondary btn w-min"
-								disabled={!!createEffector.for(uuid).pending ||result?.success || (!name_fr.length || gender==undefined)}
-								>Envoyer</button
-							>
-						</div>
-						<div class="w-auto justify-center">
-							<button
-								type="button"
-								class="variant-filled-error btn w-min"
-								onclick={() => {
-									createdEffector = result?.data;
-									addOrgMembership();
-									dialog?.close();
-								}}>{result?.success ? 'Fermer' : 'Annuler'}</button
-							>
-						</div>
-					</div>
-				</form>
+				</label>
 			</div>
-		</div>
+			<div class="flex gap-8 justify-end">
+				<div class="flex gap-2 items-center">
+					{#if result?.success}
+						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
+					{:else if result?.success === false}
+						<span class="badge-icon variant-filled-error"
+							><Fa icon={faExclamationCircle} /></span
+						>{result?.data.detail}
+					{/if}
+				</div>
+				<div class="w-auto justify-center">
+					<button
+						type="submit"
+						class="variant-filled-secondary btn w-min"
+						disabled={!!createEffector.for(uuid).pending ||result?.success || (!name_fr.length || gender==undefined)}
+						>Envoyer</button
+					>
+				</div>
+				<div class="w-auto justify-center">
+					<button
+						type="button"
+						class="variant-filled-error btn w-min"
+						onclick={() => {
+							createdEffector = result?.data;
+							addOrgMembership();
+							dialog?.close();
+						}}>{result?.success ? 'Fermer' : 'Annuler'}</button
+					>
+				</div>
+			</div>
+		</form>
 	</div>
 </Dialog>
+
+<style>
+	:global(.dark) input.input,
+	:global(.dark) select.select {
+		background-color: rgb(var(--color-surface-700));
+		color: rgb(var(--color-surface-100));
+		border-color: rgb(var(--color-surface-500));
+	}
+</style>
