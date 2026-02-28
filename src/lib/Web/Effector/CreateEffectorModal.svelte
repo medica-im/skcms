@@ -78,7 +78,8 @@
 		<div class="rounded-lg p-6 variant-ghost-secondary space-y-6 items-center place-items-center">
 			<h3 class="h3 text-center">Créer une nouvelle personne physique ou morale</h3>
 			<div class="p-4 space-y-2 justify-items-stretch grid grid-cols-1 gap-6">
-				<form {...createEffector.for(uuid)}>
+				<form {...createEffector.for(uuid)} class="grid grid-cols-1 gap-6">
+				<div class="grid grid-cols-1 gap-4">
 					<input
 							class="hidden"
 							name="organization"
@@ -99,26 +100,26 @@
 							bind:value={name_fr}
 						/>{@render asterisk("name_fr")}
 					</label>
-					<label class="flex label place-self-start place-items-center space-x-2 w-full">
+					<label class="{name_fr.length > 30 ? '' : 'hidden'} flex label place-self-start place-items-center space-x-2 w-full">
 						<span>Label</span>
 						{#each createEffector.for(uuid).fields.label_fr.issues() as issue}
 							<p class="issue text-error-500">{issue.message}</p>
 						{/each}
 						<input
-							class="input"
+							class="{name_fr.length > 30 ? '' : 'hidden'} input"
 							name="label_fr"
 							type="text"
 							placeholder=""
 							bind:value={label_fr}
 						/>{@render asterisk("label_fr")}
 					</label>
-					<label class="flex label place-self-start place-items-center space-x-2 w-full">
+					<label class="hidden flex label place-self-start place-items-center space-x-2 w-full">
 						<span>{capitalizeFirstLetter(m.slug())}</span>
 						{#each createEffector.for(uuid).fields.slug_fr.issues() as issue}
 							<p class="issue text-error-500">{issue.message}</p>
 						{/each}
 						<input
-							class="input"
+							class="input hidden"
 							name="slug_fr"
 							type="text"
 							placeholder=""
@@ -147,7 +148,8 @@
 						<OrganizationRadio bind:isMember /><div class="">{@render asterisk("isMember")}</div>
 					</div>
 					</label>
-					<div class="flex gap-8">
+					</div>
+					<div class="flex gap-8 justify-end">
 						<div class="flex gap-2 items-center">
 							{#if result?.success}
 								<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
@@ -161,7 +163,7 @@
 							<button
 								type="submit"
 								class="variant-filled-secondary btn w-min"
-								disabled={!!createEffector.for(uuid).pending||result?.success}
+								disabled={!!createEffector.for(uuid).pending ||result?.success || (!name_fr.length || gender==undefined)}
 								>Envoyer</button
 							>
 						</div>
