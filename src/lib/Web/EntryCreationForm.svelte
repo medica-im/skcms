@@ -14,7 +14,7 @@
 		effector = $bindable(),
 		facility = $bindable(),
 		effectorType = $bindable(),
-		memberships,
+		memberships = $bindable(),
 		submitted = $bindable(false)
 	}: {
 		effector: Effector | undefined;
@@ -47,6 +47,7 @@
 		facility = undefined;
 		effectorType = undefined;
 		directory = undefined;
+		memberships = [];
 	};
 </script>
 
@@ -139,7 +140,7 @@ facility: {JSON.stringify(facility)}-->
 						value={memberships?.length ? memberships.map((e) => e.value) : ''}
 					/>
 					<div class="flex flex-wrap gap-1">
-						{#if memberships.length}
+						{#if memberships?.length}
 							{#each memberships as membership}
 								<div class="badge variant-ghost-surface">{membership.label}</div>
 							{/each}

@@ -89,7 +89,7 @@ membershipsDone: {membershipsDone}
 			bind:facility
 			bind:effectorType
 			bind:submitted
-			{memberships}
+			bind:memberships
 		/>
 	</div>
 {:else}
