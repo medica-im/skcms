@@ -9,15 +9,15 @@
 	import OrganizationRadio from './../OrganizationRadio.svelte';
 	import { slugify } from '$lib/helpers/stringHelpers';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import type { InputClass, IsRequired, ValidateForm } from './validate.ts';
+	import type { InputClass, IsRequired, ValidateForm } from '$lib/Web/Effector/validate.ts';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
 	import type { SelectType } from '$lib/interfaces/select';
 
 	let {
-		createdEffector = $bindable(),
+		effector = $bindable(),
 		memberships = $bindable()
 	}: {
-		createdEffector: Effector | undefined;
+		effector: Effector | undefined;
 		memberships: SelectType[];
 	} = $props();
 
@@ -51,7 +51,7 @@
 	}
 	const clear = () => {
 		result = undefined;
-		createdEffector = undefined;
+		effector = undefined;
 		isMember = undefined;
 		name_fr = "";
 		label_fr = "";
@@ -170,7 +170,7 @@
 						type="button"
 						class="variant-filled-error btn w-min"
 						onclick={() => {
-							createdEffector = result?.data;
+							effector = result?.data;
 							addOrgMembership();
 							dialog?.close();
 						}}>{result?.success ? 'Fermer' : 'Annuler'}</button

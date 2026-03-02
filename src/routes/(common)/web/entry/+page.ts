@@ -6,8 +6,8 @@ import type { User } from '$src/lib/interfaces/user.interface';
 
 export const load: PageLoad = async ({ params, fetch, parent, data }) => {
     return {
-        effectors: data.effectors,
         user: data.user,
+        effectors: data.effectors,
         session: data.session
     }
 }

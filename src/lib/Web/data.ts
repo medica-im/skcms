@@ -37,30 +37,3 @@ export const getCommunesByDpt = async (code: string): Promise<Commune[]> => {
   const data = (await response.json()) as Commune[]
   return data
 }
-
-export async function getEffectors(
-  {effectorType = null, department_of_france = null, commune  = null, facility = null} : { effectorType?: string|null, department_of_france?: string|null, commune?: string|null, facility?: string|null} = {}): Promise<Effector[]> {
-  const params: string[] = [];
-  if (effectorType) {
-    params.push(`effector_type=${effectorType}`)
-  }
-  if (department_of_france) {
-    params.push(`department_of_france=${department_of_france}`)
-
-  }
-  if (commune) {
-    params.push(`commune=${commune}`)
-  }
-  if (facility) {
-    params.push(`facility=${facility}`)
-  }
-  let paramStr;
-  if (params.length) {
-    paramStr = `?${params.join("&")}`; 
-  }
-  const response = await fetch(
-    `${ORIGIN}/api/v2/effectors${paramStr ?? ''}`,
-  )
-  const data = (await response.json()) as Effector[]
-  return data
-}

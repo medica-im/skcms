@@ -10,6 +10,7 @@
 	import type { SelectType } from '$lib/interfaces/select.ts';
 	import type { Entry } from '$lib/store/directoryStoreInterface.ts';
 	import type { User } from '$lib/interfaces/user.interface.ts';
+	import type { IsRequired } from '$lib/Web/Effector/validate.ts';
 
 	interface Props {
 	effector: Effector | undefined;
@@ -87,7 +88,7 @@
 			return [];
 		}
 	};
-	let disabled: boolean = $derived(!selectedEffector);
+	let disabled: boolean = $derived(!selectedEffector || isMember==undefined);
 	
 	const getLabel = (effector: Effector) => {
 		return `${effector.name_fr}`;
@@ -124,11 +125,20 @@
 		}
 		history.back();
 	};
+	const isRequired: IsRequired = {
+		isMember: true,
+	};
 </script>
+
+{#snippet asterisk(formElement: string)}
+{#if isRequired[formElement as keyof IsRequired]}<span class="text-error-500">*</span>
+{/if}
+{/snippet}
 
 <div class="grid grid-cols-1 rounded-lg h-full w-full p-4 items-center gap-4">
 		<div class="place-items-center">
 			<h3 class="h3">Sélectionner une personne</h3>
+			{page.data.user.role}
 			{#if userIsAdmin}
 			<p>Si la personne recherchée a déjà une entrée dans l'annuaire, vous pouvez affiner la recherche en sélectionnant sa catégorie, sa localisation ou son établissement.</p>
 			{:else}
@@ -152,11 +162,11 @@
 			</div>
 		</div>
 		{/if}
-		<div class="card variant-ghost p-4">
+		<div class="card variant-ghost p-4 flex">
 			<p>
 				La personne est-elle affiliée à {page.data.organization.formatted_name}?
 			</p>
-			<OrganizationRadio bind:isMember />
+			<OrganizationRadio bind:isMember />{@render asterisk("isMember")}
 		</div>
 		<div class="flex gap-8 justify-center">
 			<div class="w-auto justify-center">

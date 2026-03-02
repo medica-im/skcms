@@ -11,46 +11,48 @@
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
 
 	let {
-		createdEffector = $bindable(),
-		selectedFacility = $bindable(),
-		selectedEffectorType = $bindable(),
-		memberships
+		effector = $bindable(),
+		facility = $bindable(),
+		effectorType = $bindable(),
+		memberships,
+		submitted = $bindable(false)
 	}: {
-		createdEffector: Effector | undefined;
-		selectedFacility: SelectType | undefined;
-		selectedEffectorType: SelectType | undefined;
+		effector: Effector | undefined;
+		facility: SelectType | undefined;
+		effectorType: SelectType | undefined;
 		memberships: SelectType[];
+		submitted?: boolean;
 	} = $props();
 
 	const isSuperUser = $derived(page.data?.user?.role == 'superuser');
-	let effector: string | undefined = $derived(createdEffector?.uid);
-	let effector_type: string | undefined = $derived(selectedEffectorType?.value);
-	let facility: string | undefined = $derived(selectedFacility?.value);
+	let effectorUid: string | undefined = $derived(effector?.uid);
+	let effector_type: string | undefined = $derived(effectorType?.value);
+	let facilityUid: string | undefined = $derived(facility?.value);
 	let directory: string | undefined = $state();
 	let uid = $derived.by(() => {
-		if (effector && effector_type && facility) {
-			return effector.concat(effector_type, facility);
+		if (effectorUid && effector_type && facilityUid) {
+			return effectorUid.concat(effector_type, facilityUid);
 		} else {
 			return '';
 		}
 	});
 	let formResult = $derived(createEntry.for(uid)?.result);
 	let hasBeenClicked = false;
-	let submitted = $state(false);
+	// submitted is now a bindable prop
 	const isRedirecting = $derived(submitted && formResult?.success !== false);
 
 	const clear = () => {
 		formResult = undefined;
-		createdEffector = undefined;
-		selectedFacility = undefined;
-		selectedEffectorType = undefined;
+		effector = undefined;
+		facility = undefined;
+		effectorType = undefined;
 		directory = undefined;
 	};
 </script>
 
 <!--formResult?.success: {formResult?.success}<br>
 formResult?.data: {formResult?.data}<br>
-selectedFacility: {JSON.stringify(selectedFacility)}-->
+facility: {JSON.stringify(facility)}-->
 {#if isRedirecting}
 	<div class="rounded-lg p-8 variant-ghost-secondary w-full flex flex-col items-center gap-6">
 		<ProgressRadial width="w-16" />
@@ -75,7 +77,7 @@ selectedFacility: {JSON.stringify(selectedFacility)}-->
 					console.log(error);
 				}
 			})*/} onsubmit={() => { submitted = true; }} class="space-y-4 w-full">
-			<h3 class="h3">Confirmer ou annuler la création de la nouvelle entrée</h3>
+			<h3 class="h3">Valider ou annuler la création de l'entrée</h3>
 			{#if formResult?.success === false}
 				<aside class="alert variant-filled-error">
 					<!-- Icon -->
@@ -96,9 +98,9 @@ selectedFacility: {JSON.stringify(selectedFacility)}-->
 						name="effector"
 						type="text"
 						placeholder=""
-						bind:value={effector}
+						bind:value={effectorUid}
 					/>
-					<div class="badge variant-ghost-surface">{createdEffector?.name_fr}</div>
+					<div class="badge variant-ghost-surface">{effector?.name_fr}</div>
 				</label>
 				<label class="label w-full">
 					<span class="text-sm font-medium">Catégorie</span>
@@ -110,7 +112,7 @@ selectedFacility: {JSON.stringify(selectedFacility)}-->
 						placeholder=""
 						bind:value={effector_type}
 					/>
-					<div class="badge variant-ghost-surface">{selectedEffectorType?.label}</div>
+					<div class="badge variant-ghost-surface">{effectorType?.label}</div>
 				</label>
 				<label class="label w-full">
 					<span class="text-sm font-medium">Établissement</span>
@@ -120,11 +122,11 @@ selectedFacility: {JSON.stringify(selectedFacility)}-->
 						name="facility"
 						type="text"
 						placeholder=""
-						bind:value={facility}
+						bind:value={facilityUid}
 					/>
 				</label>
-				{#if facility}
-					<DisplayFacility facilityUid={facility} showEffectors={false} mapHeight={36} update={false} />
+				{#if facilityUid}
+					<DisplayFacility facilityUid={facilityUid} showEffectors={false} mapHeight={36} update={false} />
 				{/if}
 				<label class="label w-full">
 					<span class="text-sm font-medium">Organisation</span>
@@ -167,11 +169,11 @@ selectedFacility: {JSON.stringify(selectedFacility)}-->
 					</label>
 				{/if}
 			</div>
-			<div class="flex gap-4">
+			<div class="flex gap-4 justify-end">
 				<button
 					type="submit"
 					class="variant-filled-secondary btn"
-					disabled={!!createEntry.for(uid).pending}>Confirmer</button
+					disabled={!!createEntry.for(uid).pending}>Valider</button
 				>
 				<button
 					type="button"
