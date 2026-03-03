@@ -62,22 +62,9 @@ facility: {JSON.stringify(facility)}-->
 			<p class="text-sm opacity-70">Vous allez être redirigé dans quelques instants.</p>
 		</div>
 	</div>
-{:else}
-	<div class="rounded-lg p-4 variant-ghost-secondary w-full">
-		<form {...createEntry.for(uid)/*.enhance(async ({ form, data, submit }) => {
-				try {
-					//data = manipulateForm(data);
-					const dataString = JSON.stringify(data);
-					console.log(dataString);
-					await submit();
-					const result = createEntry.for(uid).result;
-					if (result?.redirectURL) {
-						window.location.href = result.redirectURL;
-					}
-				} catch (error) {
-					console.log(error);
-				}
-			})*/} onsubmit={() => { submitted = true; }} class="space-y-4 w-full">
+{/if}
+	<div class="rounded-lg p-4 variant-ghost-secondary w-full" class:hidden={isRedirecting}>
+		<form {...createEntry.for(uid)} onsubmit={() => { submitted = true; }} class="space-y-4 w-full">
 			<h3 class="h3">Valider ou annuler la création de l'entrée</h3>
 			{#if formResult?.success === false}
 				<aside class="alert variant-filled-error">
@@ -186,4 +173,3 @@ facility: {JSON.stringify(facility)}-->
 			</div>
 		</form>
 	</div>
-{/if}
