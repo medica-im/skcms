@@ -98,11 +98,11 @@ $selCatVal: {JSON.stringify($selCatVal)}<br>
 categoryOf: {$categoryOf} ({$categoryOf.length})<br />
 filterText: {filterText}-->
 {#await categoryOf.load()}
-	<div class="text-surface-700 theme">
+	<div class="text-surface-700 svelte-select">
 		<Select loading={true} placeholder={m.ADDRESSBOOK_CATEGORIES_PLACEHOLDER()} />
 	</div>
 {:then cOf}
-	<div class="text-surface-700 z-auto theme">
+	<div class="text-surface-700 z-auto svelte-select">
 		<Select
 			{itemFilter}
 			{label}
@@ -118,20 +118,3 @@ filterText: {filterText}-->
 		><NoOptions slot="empty" /></Select>
 	</div>
 {/await}
-
-<style>
-	/*
-			CSS variables can be used to control theming.
-			https://github.com/rob-balfre/svelte-select/blob/master/docs/theming_variables.md
-	*/
-	.theme {
-		--border-radius: var(--theme-rounded-container);
-		--border-color: rgb(var(--color-secondary-500));
-		--border-focused: 1px solid rgb(var(--color-secondary-500));
-		--border-hover: 1px solid rgb(var(--color-secondary-500));
-		--item-active-outline: 1px solid rgb(var(--color-secondary-500));
-		--item-outline: 1px solid rgb(var(--color-secondary-500));
-		--clear-select-focus-outline: 1px solid rgb(var(--color-secondary-500));
-		--height: 3rem;
-	}
-</style>

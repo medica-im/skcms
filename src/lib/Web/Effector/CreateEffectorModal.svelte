@@ -44,7 +44,7 @@
 				label: page.data.organization.name,
 				value: page.data.organization.uid
 			};
-			if (memberships.indexOf(orgItem) === -1) {
+			if (!memberships.some((m) => m.value === orgItem.value)) {
 				memberships.push(orgItem);
 			}
 		}

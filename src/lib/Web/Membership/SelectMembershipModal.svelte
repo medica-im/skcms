@@ -14,6 +14,7 @@
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
 	import type { SelectType } from '$lib/interfaces/select';
 	import type { EntryFull } from '$lib/store/directoryStoreInterface';
+	import type { Entry } from '$lib/store/directoryStoreInterface';
 
 	let {
 		memberships = $bindable(),
@@ -29,7 +30,7 @@
 	let selectedMSP: SelectType[] = $state([]);
 	let selectedCPTS: SelectType[] = $state([]);
 
-	const entries = page.data.entries;
+	const entries: Entry[] = page.data.entries;
 	let cptsItems = $derived(
 		entries
 			.filter((e) => e.effector_type.slug == 'cpts')
@@ -47,31 +48,26 @@
 			(e) =>
 				e.effector_type.name !== 'maison de santé pluriprofessionnelle' &&
 				e.effector_type.slug !== 'cpts'
-		)
+		).map((e) => {
+				return { label: e.name, value: e.uid };
+			})
 	);
 
 	function onChange(event: CustomEvent) {
-		console.log(`concatenate: ${JSON.stringify(event.detail)}`);
 		if (event.detail) {
 			const e: SelectType[] = event.detail;
-			console.log(`value: ${JSON.stringify(e)}`);
 			for (var i = 0, len = e.length; i < len; i++) {
 				const element = e[i];
-				console.log($state.snapshot(element));
-				if (memberships.indexOf(element) === -1) {
+				if (!memberships.some((m) => m.value === element.value)) {
 					memberships.push(element);
 				}
 			}
-			console.log(`memberships: ${JSON.stringify(memberships)}`);
 		}
 	}
 	function onClear(event: CustomEvent) {
-		console.log(`concatenate: ${JSON.stringify(event.detail)}`);
 		if (event.detail) {
 			const e: SelectType = event.detail;
-			console.log(`value: ${JSON.stringify(e)}`);
-			memberships = memberships.filter((item) => item !== e);
-			console.log(`memberships: ${JSON.stringify(memberships)}`);
+			memberships = memberships.filter((item) => item.value !== e.value);
 		}
 	}
 	function clear() {

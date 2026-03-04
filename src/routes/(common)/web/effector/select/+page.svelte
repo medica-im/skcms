@@ -20,9 +20,10 @@
 		effectors: Effector[];
 		user: User;
 	};
+	onclose?: () => void;
 	}
 
-	let { effector=$bindable(), data, memberships=$bindable() } : Props = $props();
+	let { effector=$bindable(), data, memberships=$bindable(), onclose = () => history.back() } : Props = $props();
 	let userIsAdmin: boolean = $derived(['superuser', 'administrator'].includes(data.user.role)); 
 	let isMember: boolean | undefined = $state();
 	const defaultDpt: SelectType = {
@@ -120,11 +121,11 @@
 				label: page.data.organization.formatted_name,
 				value: page.data.organization.uid
 			};
-			if (memberships.indexOf(orgItem) === -1) {
+			if (!memberships.some((m) => m.value === orgItem.value)) {
 				memberships.push(orgItem);
 			}
 		}
-		history.back();
+		onclose();
 	};
 	const isRequired: IsRequired = {
 		isMember: true,
@@ -155,7 +156,7 @@
 		{#if filteredEffectors}
 		<div class="grid grid-cols-1 gap-4 variant-ghost p-4">
 			<p>{effectorLabel(filteredEffectors)}</p>
-			<div class="effector-select">
+			<div class="svelte-select svelte-select-glow">
 				<Select items={getEffectorItems(filteredEffectors)} hasError={selectedEffector ? false : true} bind:value={selectedEffector} placeholder="Sélectionner une personne"><NoOptions slot="empty" /></Select>
 			</div>
 		</div>
@@ -179,40 +180,8 @@
 				<button
 					type="button"
 					class="variant-filled-error btn w-min"
-					onclick={() => history.back()}>Annuler</button
+					onclick={() => onclose()}>Annuler</button
 				>
 			</div>
 		</div>
 	</div>
-
-<style>
-	.effector-select {
-		--border-color: rgb(var(--color-primary-500));
-		--border: 2px solid rgb(var(--color-primary-500));
-		--border-focused: 2px solid rgb(var(--color-primary-700));
-		--border-hover: 2px solid rgb(var(--color-primary-600));
-		--placeholder-color: rgb(var(--color-primary-700));
-		--border-radius: var(--theme-rounded-container);
-		--height: 3rem;
-		--background: rgb(var(--color-surface-200));
-		--list-background: rgb(var(--color-surface-200));
-		--item-color: rgb(var(--color-surface-900));
-		--item-hover-bg: rgb(var(--color-primary-500) / 0.15);
-		--item-is-active-bg: rgb(var(--color-primary-500) / 0.25);
-		--input-color: rgb(var(--color-surface-900));
-		animation: subtle-glow 2s ease-in-out 3;
-	}
-	:global(.dark) .effector-select {
-		--background: rgb(var(--color-surface-700));
-		--list-background: rgb(var(--color-surface-700));
-		--item-color: rgb(var(--color-surface-100));
-		--input-color: rgb(var(--color-surface-100));
-		--placeholder-color: rgb(var(--color-primary-300));
-		--error-background: rgb(var(--color-surface-700));
-		--error-border: 1px solid rgb(var(--color-error-500));
-	}
-	@keyframes subtle-glow {
-		0%, 100% { box-shadow: 0 0 0 0 transparent; }
-		50% { box-shadow: 0 0 0 3px rgba(var(--color-primary-500) / 0.25); border-radius: var(--theme-rounded-container); }
-	}
-</style>

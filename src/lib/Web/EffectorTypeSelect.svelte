@@ -21,7 +21,7 @@
 </script>
 
 {#if effectorTypes}
-	<div class="themed w-full">
+	<div class="svelte-select svelte-select-glow w-full">
 		<Select
 			{itemFilter}
 			searchable={true}
@@ -32,40 +32,7 @@
 		><NoOptions slot="empty" /></Select>
 	</div>
 {:else}
-	<div class="themed w-full">
+	<div class="svelte-select svelte-select-glow w-full">
 		<Select loading={true} placeholder="Sélectionner une catégorie" />
 	</div>
 {/if}
-
-<style>
-	.themed {
-		--border-radius: var(--theme-rounded-container);
-		--border-color: rgb(var(--color-primary-500));
-		--border: 2px solid rgb(var(--color-primary-500));
-		--border-focused: 2px solid rgb(var(--color-primary-700));
-		--border-hover: 2px solid rgb(var(--color-primary-600));
-		--item-active-outline: 1px solid rgb(var(--color-primary-500));
-		--item-outline: 1px solid rgb(var(--color-primary-500));
-		--clear-select-focus-outline: 1px solid rgb(var(--color-primary-500));
-		--height: 3rem;
-		--placeholder-color: rgb(var(--color-primary-700));
-		--background: rgb(var(--color-surface-200));
-		--list-background: rgb(var(--color-surface-200));
-		--item-color: rgb(var(--color-surface-900));
-		--item-hover-bg: rgb(var(--color-primary-500) / 0.15);
-		--item-is-active-bg: rgb(var(--color-primary-500) / 0.25);
-		--input-color: rgb(var(--color-surface-900));
-		animation: subtle-glow 2s ease-in-out 3;
-	}
-	:global(.dark) .themed {
-		--background: rgb(var(--color-surface-700));
-		--list-background: rgb(var(--color-surface-700));
-		--item-color: rgb(var(--color-surface-100));
-		--input-color: rgb(var(--color-surface-100));
-		--placeholder-color: rgb(var(--color-primary-300));
-	}
-	@keyframes subtle-glow {
-		0%, 100% { box-shadow: 0 0 0 0 transparent; }
-		50% { box-shadow: 0 0 0 3px rgba(var(--color-primary-500) / 0.25); border-radius: var(--theme-rounded-container); }
-	}
-</style>

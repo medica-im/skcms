@@ -6,6 +6,7 @@
 	import { autoModeWatcher } from '@skeletonlabs/skeleton';
 	import { initializeStores, Modal } from '@skeletonlabs/skeleton';
     import '../app.postcss';
+	import '$lib/assets/css/svelte-select.css';
     import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
     import { storePopup } from '@skeletonlabs/skeleton';
     import Sidebar from '$lib/SkeletonAppBar/Sidebar.svelte';

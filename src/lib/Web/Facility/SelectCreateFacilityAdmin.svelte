@@ -40,6 +40,7 @@
 </script>
 
 <h3 class="h3">Sélectionner ou créer un établissement</h3>
+<p>L'établissement est votre lieu de travail ou le siège social de votre organisation.</p>
 <div class="w-full max-w-xl">
 	<FacilitySelect
 		bind:selectedFacility={facility}

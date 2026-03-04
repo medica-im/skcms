@@ -47,8 +47,8 @@
 	} : undefined;*/
 	let selectEffectorModal: NewSelectEffectorModal | undefined = $state();
 	let memberships: SelectType[] = $state([]);
-	let membershipsDone: boolean = $state(false);
-	let displayMembershipStep: boolean = $derived(["superuser", "administrator"].includes(page.data.user.role));
+	const displayMembershipStep: boolean = ["superuser", "administrator"].includes(page.data.user.role);
+	let membershipsDone: boolean = $state(!displayMembershipStep);
 	let facility: { label: string; value: string } | undefined = $state();
 	let effector: Effector | undefined = $state();
 	let selectedCommune: { label: string; value: string } | undefined = $state();
@@ -77,7 +77,7 @@ membershipsDone: {membershipsDone}
 -->
 <div id="top"></div>
 <StepProgress {steps} />
-{#if effector && facility && effectorType && (membershipsDone||!displayMembershipStep)}
+{#if effector && facility && effectorType && membershipsDone}
 	<div
 		class="grid grid-cols-1 w-full p-2 place-items-center"
 		in:slide={{ duration: 400, delay: 300 }}
@@ -90,6 +90,8 @@ membershipsDone: {membershipsDone}
 			bind:effectorType
 			bind:submitted
 			bind:memberships
+			bind:membershipsDone
+			{displayMembershipStep}
 		/>
 	</div>
 {:else}
@@ -244,7 +246,7 @@ membershipsDone: {membershipsDone}
 		}}
 		title={'Sélectionner une personne'}
 	>
-		<SelectEffector bind:effector bind:memberships data={page.state.selected} />
+		<SelectEffector bind:effector bind:memberships data={page.state.selected} onclose={() => history.back()} />
 	</NewSelectEffectorModal>
 {/if}
 

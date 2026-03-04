@@ -1,0 +1,55 @@
+.svelte-select {
+    --border-radius: var(--theme-rounded-container);
+    --border-color: rgb(var(--color-surface-400));
+    --border-focused: 1px solid rgb(var(--color-primary-500));
+    --border-hover: 1px solid rgb(var(--color-primary-400));
+    --height: 3rem;
+    --background: rgb(var(--color-surface-200));
+    --list-background: rgb(var(--color-surface-200));
+    --item-color: rgb(var(--color-surface-900));
+    --item-hover-bg: rgb(var(--color-primary-500) / 0.15);
+    --item-is-active-bg: rgb(var(--color-primary-500) / 0.25);
+    --input-color: rgb(var(--color-surface-900));
+    --placeholder-color: rgb(var(--color-surface-600));
+    --disabled-background: rgb(var(--color-surface-300));
+    --disabled-color: rgb(var(--color-surface-600));
+    --disabled-placeholder-color: rgb(var(--color-surface-400));
+}
+
+.dark .svelte-select {
+    --border-color: rgb(var(--color-surface-500));
+    --border-focused: 1px solid rgb(var(--color-primary-400));
+    --border-hover: 1px solid rgb(var(--color-primary-300));
+    --background: rgb(var(--color-surface-700));
+    --list-background: rgb(var(--color-surface-700));
+    --item-color: rgb(var(--color-surface-100));
+    --input-color: rgb(var(--color-surface-100));
+    --placeholder-color: rgb(var(--color-surface-300));
+    --error-background: rgb(var(--color-surface-700));
+    --error-border: 1px solid rgb(var(--color-error-500));
+    --item-hover-bg: rgb(var(--color-primary-500) / 0.3);
+    --item-hover-color: rgb(var(--color-surface-50));
+    --item-is-active-bg: rgb(var(--color-primary-500) / 0.4);
+    --item-is-active-color: rgb(var(--color-surface-50));
+    --disabled-background: rgb(var(--color-surface-800));
+    --disabled-color: rgb(var(--color-surface-400));
+    --disabled-placeholder-color: rgb(var(--color-surface-500));
+}
+
+.svelte-select-glow {
+    --border-color: rgb(var(--color-primary-500));
+    --border: 2px solid rgb(var(--color-primary-500));
+    --border-focused: 2px solid rgb(var(--color-primary-700));
+    --border-hover: 2px solid rgb(var(--color-primary-600));
+    --placeholder-color: rgb(var(--color-primary-700));
+    animation: svelte-select-glow 2s ease-in-out 3;
+}
+
+.dark .svelte-select-glow {
+    --placeholder-color: rgb(var(--color-primary-300));
+}
+
+@keyframes svelte-select-glow {
+    0%, 100% { box-shadow: 0 0 0 0 transparent; }
+    50% { box-shadow: 0 0 0 3px rgba(var(--color-primary-500) / 0.25); border-radius: var(--theme-rounded-container); }
+}

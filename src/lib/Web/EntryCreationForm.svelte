@@ -15,13 +15,17 @@
 		facility = $bindable(),
 		effectorType = $bindable(),
 		memberships = $bindable(),
-		submitted = $bindable(false)
+		submitted = $bindable(false),
+		membershipsDone = $bindable(),
+		displayMembershipStep
 	}: {
 		effector: Effector | undefined;
 		facility: SelectType | undefined;
 		effectorType: SelectType | undefined;
 		memberships: SelectType[];
 		submitted?: boolean;
+		membershipsDone: boolean;
+		displayMembershipStep: boolean;
 	} = $props();
 
 	const isSuperUser = $derived(page.data?.user?.role == 'superuser');
@@ -48,6 +52,7 @@
 		effectorType = undefined;
 		directory = undefined;
 		memberships = [];
+		membershipsDone = !displayMembershipStep;
 	};
 </script>
 
