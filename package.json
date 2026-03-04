@@ -81,7 +81,7 @@
 		"svelte-headlessui": "^0.0.46",
 		"svelte-intersection-observer": "^1.1.1",
 		"svelte-leafletjs": "^2.0.0",
-		"svelte-maplibre": "1.2.5",
+		"svelte-maplibre": "1.2.6",
 		"svelte-select": "^5.8.3",
 		"video.js": "^8.23.4"
 	},
