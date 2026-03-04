@@ -237,7 +237,7 @@
 			</div>
 		</div>
 	{/if}
-	{#if memberships || $editMode}
+	{#if memberships?.length || $editMode}
 		<div class="d-flex justify-content-between align-items-start">
 			<div class="flex items-center py-2">
 				<div class="w-9"><Fa icon={faPeopleGroup} size="sm" /></div>
