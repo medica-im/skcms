@@ -137,15 +137,12 @@
 {/snippet}
 
 <div class="grid grid-cols-1 rounded-lg h-full w-full p-4 items-center gap-4">
-		<div class="place-items-center">
-			<h3 class="h3">Sélectionner une personne</h3>
-			{page.data.user.role}
+			<h3 class="h3 text-center">Sélectionner une personne</h3>
 			{#if userIsAdmin}
 			<p>Si la personne recherchée a déjà une entrée dans l'annuaire, vous pouvez affiner la recherche en sélectionnant sa catégorie, sa localisation ou son établissement.</p>
 			{:else}
 			<p>Si vous avez créé une personne physique ou morale précédemment, elle apparaîtra dans la liste. Si la liste est vide ou si vous souhaitez créer une nouvelle personne, cliquer sur "Annuler" puis sur "Créer une personne".</p>
 			{/if}
-		</div>
 		{#if userIsAdmin}
 		<EffectorTypeSelect bind:selectedEffectorType />
 		<FacilitySelect
