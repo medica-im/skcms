@@ -1,4 +1,4 @@
-import { redirect } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
 import { authReq } from '$lib/utils/request';
 import type { User } from '$src/lib/interfaces/user.interface';
@@ -16,7 +16,7 @@ function getUrl(user: User, directoryName: string) {
    } else if (user?.role === 'staff') {
       return `${url}/staff-effectors`
    } else {
-      throw new Error("role is not authorized")
+      error(403, "role is not authorized")
    }
 }
 
@@ -26,11 +26,11 @@ export const load: PageServerLoad = async ({ fetch, locals, params, cookies, par
       redirect(303, `/signin?redirect=${url.pathname}`);
    }
    const { user } = await parent();
-   if (user === undefined) throw new Error("user undefined")
+   if (user === undefined) error(403, "Utilisateur inconnu")
    const { organization } = await parent();
-   if (organization === undefined) throw new Error("organization undefined")
+   if (organization === undefined) error(500, "Organisation non disponible")
    const { directory } = await parent();
-   if (directory === undefined) throw new Error("directory undefined")
+   if (directory === undefined) error(500, "Annuaire non disponible")
    const directoryName = directory?.name;
    const effectorsUrl = getUrl(user, directoryName);
    console.log("src/routes/(common)/web/entry/+page.server.ts url", effectorsUrl);
@@ -41,7 +41,7 @@ export const load: PageServerLoad = async ({ fetch, locals, params, cookies, par
    if (response.ok == false) {
       console.error(response.status)
       console.error(response.statusText)
-      throw Error(`${response.status} ${response.text}`)
+      error(response.status, response.statusText)
    } else {
       effectors = await response.json() as Effector[];
       console.log(`web/entry/+page.ts: ${JSON.stringify(effectors)}`)

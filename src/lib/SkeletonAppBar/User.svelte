@@ -41,6 +41,11 @@
 	let isAdmin = $derived(
 		page.data?.user?.role === 'superuser' || page.data?.user?.role === 'administrator'
 	);
+	let isStaffOrHigher = $derived.by(()=> {
+		const role = page.data?.user?.role;
+		if ( !role ) return false
+		return ["superuser", "administrator", "staff"].includes(role)
+	})
 	let classesActive = $derived((href: string) => {
 		return page.url.pathname == href ? '!bg-primary-500' : '';
 	});
@@ -92,10 +97,12 @@
 							<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
 							<span>Guide d'utilisation</span>
 						</a>
+						{#if isStaffOrHigher}
 						<a href="/web/entry">
 							<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
 							<span>Créer une entrée</span>
 						</a>
+						{/if}
 						{#if isAdmin}
 						<a href="/web/entries">
 							<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>

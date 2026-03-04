@@ -5,6 +5,7 @@
 	import { faInfo, faUser, faQuestion, faXmark } from '@fortawesome/free-solid-svg-icons';
 	import { JsonView } from '@zerodevx/svelte-json-view';
 	import { providers } from '$lib/Auth/data.ts';
+	import UnknownEmail from '$lib/Auth/UnknownEmail.svelte';
 	import defaultProfilePicture from '$assets/images/profile/default_profile_picture.png';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 
@@ -33,22 +34,13 @@ page.data?.user?.role {page.data?.user?.role}<br>
 !page.data?.user?.role {!page.data?.user?.role}-->
 <section class="section-container">
 	<div class="grid grid-cols-1 gap-6 place-items-center">
-		{#if page.data?.user?.role === 'anonymous'}
+		{#if !page.data?.user?.role}
 			{#if visible}
 				<aside class="alert variant-ghost">
 					<!-- Icon -->
 					<div><Fa icon={faQuestion} size="3x" /></div>
 					<!-- Message -->
-					<div class="alert-message">
-						<h3 class="h3">Bonjour {user?.name}!</h3>
-						<p>
-							Merci de votre visite. Votre email <q>{session?.user?.email}</q> ne figure pas dans la liste
-							des utilisateurs connus de ce service. Peut-être avons-nous enregistré une autre
-							adresse de courrier électronique au moment de votre inscription? Si vous pensez qu'il
-							s'agit d'une erreur, merci de nous
-							<a href="/contact" class="anchor">contacter</a>.
-						</p>
-					</div>
+					<UnknownEmail {session} />
 					<!-- Actions -->
 					<div class="alert-actions">
 						<button

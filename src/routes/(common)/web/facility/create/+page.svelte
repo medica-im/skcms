@@ -304,7 +304,7 @@
 					/>
 				</label>
 				<label class="{street ? '': 'hidden'} flex label place-self-start place-items-center space-x-2 w-full">
-					<span>Nom</span>
+					<span>Nom de l'établissement</span>
 					{#each createFacility.fields.name.issues() as issue}
 						<p class="issue">{issue.message}</p>
 					{/each}
@@ -313,7 +313,7 @@
 						class="input {street ? '': 'hidden'} {inputClass.name}"
 						name="name"
 						type="text"
-						placeholder="Nom complet officiel"
+						placeholder="Nom complet de l'établissement"
 						bind:value={name}
 						onchange={() => {
 							validateName(name, inputClass, isRequired, validateForm, true);
