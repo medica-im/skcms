@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import Select from 'svelte-select';
+	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import { onMount } from 'svelte';
 	import * as m from '$msgs';
 	import { getSelectedCommunesUids, getSelectedCommunesChoices } from './context';
@@ -96,7 +97,7 @@ $selectedCommunesChoices: {JSON.stringify($selectedCommunesChoices)}
 			placeholder={m.ADDRESSBOOK_COMMUNES_PLACEHOLDER()}
 			{multiple}
 			bind:value
-		/>
+		><NoOptions slot="empty" /></Select>
 	{/if}
 </div>
 

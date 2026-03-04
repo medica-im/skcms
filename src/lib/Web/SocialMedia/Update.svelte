@@ -15,6 +15,7 @@
 	import Fa from 'svelte-fa';
 	import type { Website } from '$lib/interfaces/website.interface.ts';
 	import Select from 'svelte-select';
+	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import Dialog from '../Dialog.svelte';
 	import { accessSelectTypes, getAccess, getRoles, getSelectedAccess } from '$lib/Web/access.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
@@ -114,7 +115,7 @@
 						type="text"
 						bind:value={_type}
 					/>
-					<Select items={somedTypesItems} bind:value={selectedType} />
+					<Select items={somedTypesItems} bind:value={selectedType}><NoOptions slot="empty" /></Select>
 				</label>
 				<label class="label">
 					<span>Accès</span>
@@ -126,7 +127,7 @@
 						placeholder=""
 						bind:value={_roles}
 					/>
-					<Select items={accessSelectTypes} bind:value={selectedAccess} />
+					<Select items={accessSelectTypes} bind:value={selectedAccess}><NoOptions slot="empty" /></Select>
 				</label>
 
 				<div class="flex gap-8">

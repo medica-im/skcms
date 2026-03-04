@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import Select from 'svelte-select';
+	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import { onMount } from 'svelte';
 	import * as m from '$msgs';
 	import { getSelectedDepartment } from './context';
@@ -80,7 +81,7 @@
 			on:clear={handleClear}
 			placeholder={m.ADDRESSBOOK_DEPARTMENTS_PLACEHOLDER()}
 			bind:value={$selectDepartment}
-		/>
+		><NoOptions slot="empty" /></Select>
 	{/if}
 </div>
 

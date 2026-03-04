@@ -14,6 +14,7 @@
 	import Fa from 'svelte-fa';
 	import type { Phone } from '$lib/interfaces/phone.interface.ts';
 	import Select from 'svelte-select';
+	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import Dialog from '../Dialog.svelte';
 	import { accessSelectTypes, getRoles, getSelectedAccess } from '$lib/Web/access.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
@@ -123,7 +124,7 @@
 							placeholder=""
 							bind:value={_type}
 						/>
-						<Select items={getItems()} bind:value={selectedType} />
+						<Select items={getItems()} bind:value={selectedType}><NoOptions slot="empty" /></Select>
 					</label>
 					{#each updatePhone.fields.type.issues() as issue}
 						<p class="issue">{issue.message}</p>
@@ -138,7 +139,7 @@
 							placeholder=""
 							bind:value={_roles}
 						/>
-						<Select items={accessSelectTypes} bind:value={selectedAccess} />
+						<Select items={accessSelectTypes} bind:value={selectedAccess}><NoOptions slot="empty" /></Select>
 					</label>
 					{#each updatePhone.fields.roles.issues() as issue}
 						<p class="issue">{issue.message}</p>

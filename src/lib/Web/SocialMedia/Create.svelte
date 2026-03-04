@@ -14,6 +14,7 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Select from 'svelte-select';
+	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import Dialog from '../Dialog.svelte';
 	import { page } from '$app/state';
 	import { accessSelectTypes, getRoles } from '$lib/Web/access.ts';
@@ -108,7 +109,7 @@
 						type="text"
 						bind:value={_type}
 					/>
-					<Select items={somedTypesItems} bind:value={selectedType} />
+					<Select items={somedTypesItems} bind:value={selectedType}><NoOptions slot="empty" /></Select>
 				</label>
 				<label class="label">
 					<span>Accès</span>
@@ -123,7 +124,7 @@
 						placeholder=""
 						bind:value={_roles}
 					/>
-					<Select items={accessSelectTypes} bind:value={selectedAccess} />
+					<Select items={accessSelectTypes} bind:value={selectedAccess}><NoOptions slot="empty" /></Select>
 				</label>
 			</div>
 			<div class="flex gap-8">

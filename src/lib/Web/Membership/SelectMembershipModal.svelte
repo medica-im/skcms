@@ -8,6 +8,7 @@
 	import Fa from 'svelte-fa';
 	import { faPlus, faCheck, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 	import Select from 'svelte-select';
+	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import OrganizationRadio from './../OrganizationRadio.svelte';
 	import { slugify } from '$lib/helpers/stringHelpers';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
@@ -130,7 +131,7 @@
 					on:change={onChange}
 					on:clear={onClear}
 					searchable={true}
-				/>
+				><NoOptions slot="empty" /></Select>
 				<!--selectedCPTS: {JSON.stringify(selectedCPTS)}<br>
 				memberships: {JSON.stringify(memberships)}-->
 				<h4 class="h4">MSP</h4>
@@ -141,7 +142,7 @@
 					on:change={onChange}
 					on:clear={onClear}
 					searchable={true}
-				/>
+				><NoOptions slot="empty" /></Select>
 				<h4 class="h4">Autre</h4>
 				<Select
 					multiple
@@ -150,7 +151,7 @@
 					on:change={onChange}
 					on:clear={onClear}
 					searchable={true}
-				/>
+				><NoOptions slot="empty" /></Select>
 
 				{#if memberships.length}
 					<div class="card p-4 variant-ringed">

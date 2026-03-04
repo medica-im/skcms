@@ -10,6 +10,7 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Select from 'svelte-select';
+	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import Dialog from '$lib/Web/Dialog.svelte';
 	import { getEffectorUid } from '$lib/components/Directory/context';
 	import languagesFr from './languages_fr.json';
@@ -87,7 +88,7 @@
 		<p>commandData: {JSON.stringify(commandData)}</p-->
 		<div class="grid grid-cols-1 gap-4">
 			<h3 class="h3">Langues</h3>
-			<Select multiple items={items()} bind:value={selectedItems} />
+			<Select multiple items={items()} bind:value={selectedItems}><NoOptions slot="empty" /></Select>
 			<div class="flex flex-wrap gap-4 justify-end">
 				<div class="flex gap-2 items-center">
 					{#if result?.success}

@@ -3,6 +3,7 @@
 	import { goto } from '$app/navigation';
 	import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
 	import Select from 'svelte-select';
+	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import { onMount } from 'svelte';
 	import { getFacilities } from '$lib/store/facilityStore';
 	import { getSelectFacility, getFacilityChoice } from './context.ts';
@@ -86,7 +87,7 @@
 			on:clear={handleClear}
 			placeholder={m.ADDRESSBOOK_FACILITIES_PLACEHOLDER()}
 			bind:value={$facilityChoice}
-		/>
+		><NoOptions slot="empty" /></Select>
 	{/if}
 </div>
 

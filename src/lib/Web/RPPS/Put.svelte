@@ -15,6 +15,7 @@
 	    import { JsonView } from '@zerodevx/svelte-json-view';
 	import type { Email } from '$lib/interfaces/email.interface.ts';
 	import Select from 'svelte-select';
+	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import Dialog from '../Dialog.svelte';
 	import { getEntryUid } from '$lib/components/Directory/context';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
@@ -115,11 +116,11 @@
 			
 			<label class="flex label place-self-start place-items-center space-x-2 w-full">			
 			<span>Lieu</span>
-			<Select items={locationChoices} bind:value={selectedLocation} />
+			<Select items={locationChoices} bind:value={selectedLocation}><NoOptions slot="empty" /></Select>
 			</label>
 			<label class="flex label place-self-start place-items-center space-x-2 w-full">			
 			<span>Méthode</span>
-			<Select items={phoneUrlChoices} bind:value={selectedPhoneUrl} on:change={handle} />
+			<Select items={phoneUrlChoices} bind:value={selectedPhoneUrl} on:change={handle}><NoOptions slot="empty" /></Select>
 			</label>
 			{#if selectedPhoneUrl?.value == 'url'}
 						<label class="flex label place-self-start place-items-center space-x-2 w-full">

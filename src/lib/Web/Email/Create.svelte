@@ -14,6 +14,7 @@
 	import Fa from 'svelte-fa';
 	import type { Email } from '$lib/interfaces/email.interface.ts';
 	import Select from 'svelte-select';
+	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import Dialog from '../Dialog.svelte';
 	import { copy } from 'svelte-copy';
 	import { page } from '$app/state';
@@ -108,7 +109,7 @@
 							placeholder=""
 							bind:value={_roles}
 						/>
-						<Select items={accessSelectTypes} bind:value={selectedAccess} />
+						<Select items={accessSelectTypes} bind:value={selectedAccess}><NoOptions slot="empty" /></Select>
 					</label>
 				</div>
 			</div>

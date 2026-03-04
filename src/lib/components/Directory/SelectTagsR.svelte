@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import Select from 'svelte-select';
+	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import { onMount } from 'svelte';
 	import * as m from '$msgs';
 	import { getSelectedTags, getSelectCategories } from './context';
@@ -115,7 +116,7 @@
 				on:clear={handleClear}
 				placeholder={aTC.labelShort}
 				bind:value
-			/>
+			><NoOptions slot="empty" /></Select>
 		{/if}
 	</div>
 {/each}

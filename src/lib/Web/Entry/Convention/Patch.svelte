@@ -14,6 +14,7 @@
 	import Fa from 'svelte-fa';
 	import type { Email } from '$lib/interfaces/email.interface.ts';
 	import Select from 'svelte-select';
+	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import Dialog from '../../Dialog.svelte';
 	import { getEntryUid } from '$lib/components/Directory/context';
 	import type { Convention } from '$lib/interfaces/fullEffector.interface';
@@ -82,7 +83,7 @@
 		<p class="text-sm">commandData: {JSON.stringify(commandData)}</p-->
 		<div class="grid grid-cols-1 item-center place-items-center gap-12 w-full">
 			<h3 class="h3">Convention</h3>
-				<Select items={choices} bind:value={selectedItem} />
+				<Select items={choices} bind:value={selectedItem}><NoOptions slot="empty" /></Select>
 			<div class="flex w-full items-center">
 				<div class="w-1/3">
 					{#if result?.success}

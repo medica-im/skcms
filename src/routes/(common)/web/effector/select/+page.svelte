@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import * as m from '$msgs';
 	import Select from 'svelte-select';
+	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import EffectorTypeSelect from '$lib/Web/EffectorTypeSelect.svelte';
 	import FacilitySelect from '$lib/Web/FacilitySelect.svelte';
 	import OrganizationRadio from '$lib/Web/OrganizationRadio.svelte';
@@ -158,7 +159,7 @@
 		<div class="grid grid-cols-1 gap-4 variant-ghost p-4">
 			<p>{effectorLabel(filteredEffectors)}</p>
 			<div class="effector-select">
-				<Select items={getEffectorItems(filteredEffectors)} hasError={selectedEffector ? false : true} bind:value={selectedEffector} placeholder="Sélectionner une personne" />
+				<Select items={getEffectorItems(filteredEffectors)} hasError={selectedEffector ? false : true} bind:value={selectedEffector} placeholder="Sélectionner une personne"><NoOptions slot="empty" /></Select>
 			</div>
 		</div>
 		{/if}

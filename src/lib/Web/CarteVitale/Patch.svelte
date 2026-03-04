@@ -12,6 +12,7 @@
 	import Fa from 'svelte-fa';
 	import type { Email } from '$lib/interfaces/email.interface.ts';
 	import Select from 'svelte-select';
+	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import Dialog from '$lib/Web/Dialog.svelte';
 	import { getEntryUid } from '$lib/components/Directory/context';
 	import type { SelectType } from '$lib/interfaces/select.ts';
@@ -69,7 +70,7 @@
 		-->
 		<div class="grid grid-cols-1 gap-4">
 			<h3 class="h3">Carte vitale</h3>
-			<Select items={cvItems} bind:value={selectedItem} />
+			<Select items={cvItems} bind:value={selectedItem}><NoOptions slot="empty" /></Select>
 			<div class="flex flex-wrap gap-4 justify-end">
 				<button
 					onclick={async () => {

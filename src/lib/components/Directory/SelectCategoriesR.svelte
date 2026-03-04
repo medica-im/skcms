@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Select from 'svelte-select';
+	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import { onMount } from 'svelte';
 	import * as m from '$msgs';
 	import { goto } from '$app/navigation';
@@ -121,7 +122,7 @@ categoryOf: {categoryOf} ({categoryOf.length})<br />
 			on:clear={handleClear}
 			bind:value={$selCatVal}
 			placeholder={m.ADDRESSBOOK_CATEGORIES_PLACEHOLDER()}
-		/>
+		><NoOptions slot="empty" /></Select>
 	</div>
 {/if}
 

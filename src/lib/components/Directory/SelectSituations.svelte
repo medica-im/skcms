@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Select from 'svelte-select';
+	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import { onMount } from 'svelte';
 	import { getSelectSituation } from './context';
 	import { page } from '$app/state';
@@ -71,7 +72,7 @@
 			on:clear={handleClear}
 			placeholder={m.ADDRESSBOOK_SITUATIONS_PLACEHOLDER()}
 			bind:value={$selectSituation}
-		/>
+		><NoOptions slot="empty" /></Select>
 	{/if}
 </div>
 
