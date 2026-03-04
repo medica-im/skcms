@@ -304,5 +304,6 @@
   "creator": "Créateur",
   "owner": "Propriétaire",
   "no_entry": "Aucune entrée.",
-  "create_entry_cta": "Créer votre entrée!"
+  "create_entry_cta": "Créer votre entrée!",
+  "NO_OPTIONS": "Aucune option"
 }

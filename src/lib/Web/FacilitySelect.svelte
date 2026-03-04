@@ -183,7 +183,7 @@
 					items={getFacilityItems(allFacilities)}
 					bind:value={selectedFacility}
 					placeholder="Sélectionner un établissement"
-				/>
+				><div slot="empty" class="text-center py-5 text-surface-400-500-token">{m.NO_OPTIONS()}</div></Select>
 			</div>
 		{:else}
 		<p>{m.LOADING()}</p>
