@@ -31,7 +31,7 @@
 		label_fr: false,
 		slug_fr: true,
 		gender: true,
-		isMember: false,
+		isMember: true,
 	};
 	let name_fr: string = $state('');
 	let label_fr: string = $state('');
@@ -57,6 +57,7 @@
 		label_fr = "";
 		gender = undefined;
 	};
+	const disabled = $derived(!!createEffector.for(uuid).pending ||result?.success || (!name_fr.length || gender==undefined) || isMember == undefined)
 </script>
 
 {#snippet asterisk(formElement: string)}
@@ -161,7 +162,7 @@
 					<button
 						type="submit"
 						class="variant-filled-secondary btn w-min"
-						disabled={!!createEffector.for(uuid).pending ||result?.success || (!name_fr.length || gender==undefined)}
+						{disabled}
 						>Envoyer</button
 					>
 				</div>
