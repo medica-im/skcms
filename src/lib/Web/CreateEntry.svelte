@@ -246,7 +246,7 @@ membershipsDone: {membershipsDone}
 		}}
 		title={'Sélectionner une personne'}
 	>
-		<SelectEffector bind:effector bind:memberships data={page.state.selected} onclose={() => history.back()} />
+		<SelectEffector bind:effector bind:memberships data={page.state.selected as { effectors: Effector[]; user: User }} onclose={() => history.back()} />
 	</NewSelectEffectorModal>
 {/if}
 
