@@ -3,7 +3,7 @@
 	import Fa from 'svelte-fa';
 	import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 	import { faUser } from '@fortawesome/free-regular-svg-icons';
-	import { page } from '$app/state';
+	import { navigating, page } from '$app/state';
 	import * as m from '$msgs';
 	import DisplayFacility from '$lib/Web/DisplayFacility.svelte';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
@@ -43,7 +43,9 @@
 	let formResult = $derived(createEntry.for(uid)?.result);
 	let hasBeenClicked = false;
 	// submitted is now a bindable prop
-	const isRedirecting = $derived(submitted && formResult?.success !== false);
+	const allIssues = $derived(createEntry.for(uid)?.fields?.allIssues() ?? []);
+	const hasErrors = $derived(allIssues.length > 0);
+	const isRedirecting = $derived(!!createEntry.for(uid)?.pending || !!navigating.to);
 
 	const clear = () => {
 		formResult = undefined;
@@ -55,10 +57,12 @@
 		membershipsDone = !displayMembershipStep;
 	};
 </script>
-
-<!--formResult?.success: {formResult?.success}<br>
-formResult?.data: {formResult?.data}<br>
-facility: {JSON.stringify(facility)}-->
+<!--
+formResult: {JSON.stringify(formResult)}<br>
+pending: {createEntry.for(uid)?.pending}<br>
+submitted: {submitted}<br>
+allIssues: {JSON.stringify(createEntry.for(uid).fields.allIssues())}<br>
+hasErrors: {hasErrors}-->
 {#if isRedirecting}
 	<div class="rounded-lg p-8 variant-ghost-secondary w-full flex flex-col items-center gap-6">
 		<ProgressRadial width="w-16" />
@@ -71,17 +75,17 @@ facility: {JSON.stringify(facility)}-->
 	<div class="rounded-lg p-4 variant-ghost-secondary w-full" class:hidden={isRedirecting}>
 		<form {...createEntry.for(uid)} onsubmit={() => { submitted = true; }} class="space-y-4 w-full">
 			<h3 class="h3">Valider ou annuler la création de l'entrée</h3>
-			{#if formResult?.success === false}
+			{#each createEntry.for(uid).fields.allIssues() ?? [] as issue}
 				<aside class="alert variant-filled-error">
-					<!-- Icon -->
 					<span class="badge-icon"><Fa size="2x" icon={faExclamationTriangle} /></span>
-					<!-- Message -->
 					<div class="alert-message">
-						<h3 class="h3">Erreur {formResult.status} {formResult.text}</h3>
-						<p>{formResult.data?.detail}</p>
+						<h3 class="h3">Erreur</h3>
+						<p>{issue.message === 'One active Entry object with same effector, effector_type and facility already exists.'
+							? 'Une entrée active avec la même personne, la même catégorie et le même établissement existe déjà.'
+							: issue.message}</p>
 					</div>
 				</aside>
-			{/if}
+			{/each}
 			<div class="space-y-3 w-full">
 				<label class="label w-full">
 					<span class="text-sm font-medium">Personne</span>
