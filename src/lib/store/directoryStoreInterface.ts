@@ -98,6 +98,8 @@ export interface EntryFull {
     websites: Website[] | null;
     memberships: string[]|null;
     tags: Tag[]|null;
+    owner: string[]|null;
+    creator: string[]|null;
 }
 
 export interface FeatureCollection {

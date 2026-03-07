@@ -1,4 +1,4 @@
-import { error } from '@sveltejs/kit';
+import { invalid } from '@sveltejs/kit';
 import { getRequestEvent, query, form, command } from '$app/server';
 import * as z from "zod";
 import { authReq } from '$lib/utils/request.ts';
@@ -25,7 +25,7 @@ const postEntry = z.object({
 }
 );
 
-export const createEntry = form(postEntry, async (data) => {
+export const createEntry = form(postEntry, async (data, issue) => {
 	console.log(`entry form data: ${JSON.stringify(data)}`);
 	const { cookies } = getRequestEvent();
 	const url = `${variables.BASE_URI}/api/v2/entries`;
@@ -38,12 +38,7 @@ export const createEntry = form(postEntry, async (data) => {
 		console.error(JSON.stringify(json))
 		console.error(response.status)
 		console.error(response.statusText)
-		return {
-			success: false,
-			status: response.status,
-			text: response.statusText,
-			data: json,
-		}
+		invalid(json.detail ?? `${response.status} ${response.statusText}`);
 	} else {
 		const json = await response.json()
 		console.log(`Success! Status: ${response.status} Status text: ${response.statusText}`);
@@ -73,7 +68,8 @@ const Patch = z.object({
 	third_party_payer: z.nullable(z.array(z.string())).optional(),
 	convention: z.nullable(z.string()).optional(),
 	active: z.boolean().optional(),
-	memberships: z.array(z.string()).optional()
+	memberships: z.array(z.string()).optional(),
+	owners: z.array(z.string()).optional()
 });
 
 export const patchCommand = command(Patch, async (data) => {

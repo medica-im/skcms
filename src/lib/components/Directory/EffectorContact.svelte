@@ -41,6 +41,7 @@
 	import UuidHyphen from '$lib/Uuid/UuidHyphen.svelte';
 	import Membership from '$lib/Membership/Membership.svelte';
 	import PatchMembershipModal from '$lib/Web/Entry/Membership/PatchMembershipModal.svelte';
+	import CreatorOwner from '$lib/Web/Users/CreatorOwner.svelte';
 	import TagModal from '$lib/Web/Tag/TagModal.svelte';
 	import { JsonView } from '@zerodevx/svelte-json-view';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
@@ -260,6 +261,9 @@
 				</div>
 			</div>
 		</div>
+	{/if}
+	{#if ['superuser', 'administrator'].includes(page.data?.user?.role)}
+		<CreatorOwner owner={fullentry.owner} creator={fullentry.creator} />
 	{/if}
 	{#if $editMode}
 		<div class="flex flex-row">
