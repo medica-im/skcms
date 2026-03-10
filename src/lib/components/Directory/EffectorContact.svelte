@@ -99,7 +99,7 @@
 				<UuidHex data={fullentry?.effector_type?.uid} />
 				<UuidHyphen data={fullentry?.effector_type?.uid} />
 			{/if}
-			<Tag data={fullentry?.tags} />
+			<Tag data={fullentry?.tags} compact={false} />
 			{#if $editMode}<TagModal tags={fullentry.tags} />{/if}
 			<FacilityLink data={fullentry.facility} />
 			{#if isSuperUser && $editMode}

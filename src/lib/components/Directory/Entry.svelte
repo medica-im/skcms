@@ -6,6 +6,7 @@
 	import { getSelectFacility, getSelectCategories, getTerm, getSelectedCommunesUids, getSelectedDepartment, getSelectSituation, getSelectedTags, getAddressFeature, getDisplayMap } from './context';
 	import { goto } from '$app/navigation';
 	import CommunityAddress from '$lib/Address/CommunityAddress.svelte';
+	import Tag from '$lib/Tag/Tag.svelte';
 	import { entryPageUrl } from '$lib/utils/utils';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 	import * as m from '$msgs';
@@ -65,7 +66,10 @@
 			<p class="text-xs">{entry.effector_uid}</p>
 			{/if}
 			-->
-			<h4 class="h4"><i>{entry.effector_type.label}</i></h4>
+			<div class="flex flex-wrap gap-2">
+			<h4 class="h4"><i>{entry.effector_type.label}</i></h4> 			<Tag data={entry?.tags} compact={true} />
+			</div>
+
 
 			{#if entry.phones?.length}
 				<Phones data={entry.phones} />

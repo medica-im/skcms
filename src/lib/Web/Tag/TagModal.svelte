@@ -210,8 +210,9 @@
 								try {
 									result = await postEntryTag(commandData);
 									if (result?.success) {
-										disabled = true;
+										invalidate('app:entries');
 										invalidate('entry:now');
+										disabled = true;
 									}
 								} catch (error) {
 									console.error(error);
