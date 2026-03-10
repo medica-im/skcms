@@ -34,6 +34,11 @@
     --disabled-background: rgb(var(--color-surface-800));
     --disabled-color: rgb(var(--color-surface-400));
     --disabled-placeholder-color: rgb(var(--color-surface-500));
+    --selected-item-color: rgb(var(--color-surface-50));
+    --multi-item-bg: rgb(var(--color-surface-500));
+    --multi-item-color: rgb(var(--color-surface-50));
+    --multi-item-outline: 1px solid rgb(var(--color-surface-400));
+    --multi-item-clear-icon-color: rgb(var(--color-surface-200));
 }
 
 .svelte-select-glow {
