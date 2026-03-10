@@ -11,7 +11,10 @@
 		faPenToSquare,
 		faExclamationCircle,
 		faTrashCanArrowUp,
-		faArrowsUpToLine
+		faArrowsUpToLine,
+
+		faPlusCircle
+
 	} from '@fortawesome/free-solid-svg-icons';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import { TableOfContents, tocCrawler } from '@skeletonlabs/skeleton';
@@ -227,7 +230,7 @@
 					cliquer sur le bouton "Off".
 				</p>
 
-				<h3 class="h3">Éditer les coordonnées d'une entrée</h3>
+				<h3 class="h3">Éditer les données d'une entrée</h3>
 				<p>
 					Aller sur la page de l'entrée. Si vous êtes connecté, le widget d'édition en haut à droite
 					de l'écran apparaît: icône édition <span
@@ -236,14 +239,17 @@
 						<Fa icon={faPenToSquare} /></span
 					> et boutons "On" et "Off". Cliquer sur le bouton "On". Le mode d'édition est activé.
 				</p>
-				<h4 class="h4">Modifier les coordonnées d'une entrée</h4>
+				<h5>Étiquettes</h5>
+				<p>Certaines catégories sont associées à des étiquettes qui permettent d'apporter un complément d'information sur l'activité. Par exemple, la catégorie IPA (Infirmiers en Pratique Avancée) est associée à 5 étiquettes qui correspondent aux 5 mentions IPA. Pour ajouter une étiquette, cliquer sur le bouton <span class="btn btn-sm variant-ghost-surface"><span>Ajouter une étiquette</span><span 
+					><Fa icon={faPlus} /></span></span> qui suit la catégorie.</p>
+				<h4 class="h4">Modifier les données d'une entrée</h4>
 				<p>
 					Cliquer sur l'icone {@render inlineIcon(faPenToSquare)} "modifier" qui suit la donnée. Pour
 					sortir du mode d'édition et voir la page comme n'importe quel utilisateur, cliquer sur le bouton
 					"Off".
 				</p>
 
-				<h4 class="h4">Supprimer les coordonnées d'une entrée</h4>
+				<h4 class="h4">Supprimer les données d'une entrée</h4>
 				<p>
 					Cliquer sur l'icone {@render inlineIcon(faTrashCanArrowUp)} "supprimer" qui suit la donnée.
 					Pour sortir du mode d'édition et voir la page comme n'importe quel utilisateur, cliquer sur
