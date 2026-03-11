@@ -305,5 +305,15 @@
 	"owner": "Owner",
 	"no_entry": "No entry.",
 	"create_entry_cta": "Create your entry!",
-	"NO_OPTIONS": "No options"
+	"NO_OPTIONS": "No options",
+	"AVATAR_UPLOAD": "Add photo",
+	"AVATAR_CHANGE": "Change photo",
+	"AVATAR_DELETE": "Delete photo",
+	"AVATAR_CROP_TITLE": "Profile picture",
+	"AVATAR_SELECT_FILE": "Select an image",
+	"AVATAR_UPLOADING": "Uploading...",
+	"AVATAR_UPLOAD_BTN": "Upload",
+	"AVATAR_UPLOAD_SUCCESS": "Photo updated",
+	"AVATAR_BROWSE": "Browse",
+	"AVATAR_NO_FILE": "No file selected"
 }

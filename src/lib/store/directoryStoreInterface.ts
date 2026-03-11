@@ -10,8 +10,8 @@ import type { Address } from '$lib/interfaces/facility.interface.ts';
 import type { Commune } from '$lib/interfaces/geography.interface.ts';
 
 export interface Avatar {
-    fb: string,
-    lt: string,
+    sm: string,
+    lg: string,
     raw: string
 }
 

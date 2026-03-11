@@ -305,5 +305,15 @@
   "owner": "Propriétaire",
   "no_entry": "Aucune entrée.",
   "create_entry_cta": "Créer votre entrée!",
-  "NO_OPTIONS": "Aucune option"
+  "NO_OPTIONS": "Aucune option",
+  "AVATAR_UPLOAD": "Ajouter une photo",
+  "AVATAR_CHANGE": "Modifier la photo",
+  "AVATAR_DELETE": "Supprimer la photo",
+  "AVATAR_CROP_TITLE": "Photo de profil",
+  "AVATAR_SELECT_FILE": "Sélectionner une image",
+  "AVATAR_UPLOADING": "Envoi en cours...",
+  "AVATAR_UPLOAD_BTN": "Envoyer",
+  "AVATAR_UPLOAD_SUCCESS": "Photo mise à jour",
+  "AVATAR_BROWSE": "Parcourir",
+  "AVATAR_NO_FILE": "Aucun fichier sélectionné"
 }

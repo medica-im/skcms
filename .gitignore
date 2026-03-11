@@ -18,3 +18,4 @@ static
 .vscode
 src/routes/test
 vite.config.ts.timestamp-*
+.claude

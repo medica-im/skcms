@@ -10,7 +10,7 @@
 	}*/
 
 	function getUrl(data: EntryFull|Entry) {
-			return `${variables.BASE_URI}${data.avatar?.fb || data.avatar?.lt || data.avatar?.raw || "/media/profile_images/default_profile_picture.png"}`;
+			return `${variables.BASE_URI}${data.avatar?.sm || data.avatar?.lg || data.avatar?.raw || "/media/profile_images/default_profile_picture.png"}`;
 	}
 </script>
 
@@ -18,4 +18,5 @@
         src={getUrl(data)}
         alt="{m.ADDRESSBOOK_A11Y_PROFILE_PIC_OF()}  {data.name}"
         class="w-44 h-44 shrink-0 rounded-none lg:rounded-l-lg"
+        loading="lazy"
     />

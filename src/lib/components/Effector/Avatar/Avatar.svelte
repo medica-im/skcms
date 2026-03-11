@@ -3,23 +3,22 @@
 	import * as m from '$msgs';
 	import type { EntryFull } from '$lib/store/directoryStoreInterface';
 
-	export let data: EntryFull;
+	let { data }: { data: EntryFull } = $props();
 
-	function getUrl(data) {
-		if (data?.avatar && data?.avatar?.lt) {
-			return variables.BASE_URI + data.avatar.lt;
-		} else if (data?.avatar && data?.avatar?.fb) {
-			return variables.BASE_URI + data.avatar.fb;
-		} else if (data?.avatar && data?.avatar?.raw) {
+	let avatarUrl = $derived.by(() => {
+		if (data?.avatar?.lg) {
+			return variables.BASE_URI + data.avatar.lg;
+		} else if (data?.avatar?.sm) {
+			return variables.BASE_URI + data.avatar.sm;
+		} else if (data?.avatar?.raw) {
 			return variables.BASE_URI + data.avatar.raw;
-		} else {
-			return `/media/profile_images/default_profile_picture.png`;
 		}
-	}
+		return `/media/profile_images/default_profile_picture.png`;
+	});
 </script>
 
 <img
-	src={getUrl(data)}
-	alt="{m.ADDRESSBOOK_A11Y_PROFILE_PIC_OF()}  {null}"
+	src={avatarUrl}
+	alt="{m.ADDRESSBOOK_A11Y_PROFILE_PIC_OF()}  {data.name}"
 	class="w-44 h-44 rounded-lg"
 />

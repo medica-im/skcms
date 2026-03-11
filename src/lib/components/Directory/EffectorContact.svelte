@@ -43,6 +43,7 @@
 	import PatchMembershipModal from '$lib/Web/Entry/Membership/PatchMembershipModal.svelte';
 	import CreatorOwner from '$lib/Web/Users/CreatorOwner.svelte';
 	import TagModal from '$lib/Web/Tag/TagModal.svelte';
+	import AvatarUploadModal from '$lib/Web/Avatar/AvatarUploadModal.svelte';
 	import { JsonView } from '@zerodevx/svelte-json-view';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 	import type { EntryFull } from '$lib/store/directoryStoreInterface';
@@ -108,9 +109,12 @@
 				<UuidHyphen data={fullentry?.facility?.uid} />
 			{/if}
 		</div>
-		<div class="flex-none">
+		<div class="flex-none space-y-2">
 			{#if fullentry?.avatar}
 				<AvatarList data={fullentry} />
+			{/if}
+			{#if $editMode}
+				<AvatarUploadModal entryUid={fullentry.uid} hasAvatar={!!fullentry?.avatar?.raw} />
 			{/if}
 		</div>
 	</div>
