@@ -22,5 +22,5 @@
 <img
 	src={avatarUrl}
 	alt="{m.ADDRESSBOOK_A11Y_PROFILE_PIC_OF()}  {name}"
-	class="{size=="sm" ? "h-44 w-44" : "h-72 w-72"} rounded-lg"
+	class="{size=="sm" ? "h-44 w-44" : "h-72 w-72"} rounded-lg lg:rounded-none lg:rounded-tl-lg"
 />

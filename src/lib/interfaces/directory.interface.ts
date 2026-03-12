@@ -20,5 +20,6 @@ export interface Directory {
   setting: {
     sort_category_display: string;
     display_facility_organization: boolean|null;
+    list_navigation: boolean;
   }
 }

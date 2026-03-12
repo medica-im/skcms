@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Directory from '$lib/components/Directory/CtxDirectory.svelte';
-	import MapSvelte from '$lib/components/Map/Map.svelte';
+	import MapLibre from '$lib/MapLibre/MapLibre.svelte';
 	import Address from '$lib/Address/Address.svelte';
 	import Navigation from '$lib/Navigation/Navigation.svelte';
 	import Email from '$lib/Email/Email.svelte';
@@ -102,7 +102,7 @@
 	{/if}
 	{#if facility.address.longitude && facility.address.latitude}
 		<div class="h-64 w-64 lg:w-96 lg:h-96 z-0 mx-auto lg:w-{lgGridCols()=='2' ? '1/2' : '1/3'}">
-			<MapSvelte data={createFacilitiesMapData([facility])} />
+			<MapLibre data={createFacilitiesMapData([facility])} showTooltip={false} target={null} />
 		</div>
 	{/if}
 </div>
