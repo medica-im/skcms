@@ -68,7 +68,7 @@
 		<div
 			id="sticky-banner"
 			tabindex="-1"
-			class="sticky top-0 right-10 w-full flex justify-end z-100"
+			class="sticky top-0 right-10 w-full flex justify-end z-100 h-0 overflow-visible"
 		>
 			<Switch icon={faPenToSquare} />
 		</div>
@@ -76,7 +76,7 @@
 
 	<div class="flex flex-wrap p-2 gap-10">
 		
-		<div class="flex flex-wrap-reverse justify-end gap-4 lg:gap-8">
+		<div class="flex flex-wrap-reverse justify-start lg:justify-end gap-4 lg:gap-8">
 		<div class="grid grid-cols-1 items-start content-start gap-2">
 			{#if r.SuperUser && $editMode}
 				entry {fullentry?.uid}

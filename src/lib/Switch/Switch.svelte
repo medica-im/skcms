@@ -22,7 +22,7 @@
 	};
 </script>
 
-<div class="flex justify-end variant-ringed w-min p-2 gap-2 items-center">
+<div class="flex justify-end variant-ringed h-10 w-min p-2 gap-2 items-center">
 {#if icon}
 <div><Fa icon={icon}/></div>
 {/if}
