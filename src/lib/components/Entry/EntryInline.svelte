@@ -14,7 +14,7 @@
 {#if data && _entry}
 	<a href={entryUrl(_entry, page.url.pathname, org, true)} class="anchor">
 		<div class="flex flex-wrap gap-2 items-center">
-			<Avatar src={data.avatar.fb||data.avatar.raw} width="w-10">
+			<Avatar src={data.avatar.sm||data.avatar.raw} width="w-10">
 				<Fa icon={faUser} />
 			</Avatar>
 			<div>{data?.name}, {data?.effector_type.label}</div>

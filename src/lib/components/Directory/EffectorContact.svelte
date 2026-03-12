@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { userRoles } from '$lib/auth/roles';
 	import { variables } from '$src/lib/utils/constants';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import Fa from 'svelte-fa';
@@ -10,7 +11,6 @@
 		faPhone,
 		faMapLocationDot,
 		faPenToSquare,
-		faPeopleGroup,
 		faInfo
 	} from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
@@ -26,7 +26,7 @@
 	import Payment from '$lib/Addressbook/Payment/Payment.svelte';
 	import { FacilityLink } from '$lib';
 	import Info from '$lib/components/Effector/Info/Info.svelte';
-	import AvatarList from '$lib/components/Effector/Avatar/Avatar.svelte';
+	import Avatar from '$lib/components/Effector/Avatar/Avatar.svelte';
 	import Back from '$lib/components/Directory/Back.svelte';
 	import Switch from '$lib/Switch/Switch.svelte';
 	import CreatePhone from '$lib/Web/Phone/CreatePhone.svelte';
@@ -39,8 +39,7 @@
 	import { setEditMode, getEditMode, setEntryUid, setEffectorUid } from './context';
 	import UuidHex from '$lib/Uuid/UuidHex.svelte';
 	import UuidHyphen from '$lib/Uuid/UuidHyphen.svelte';
-	import Membership from '$lib/Membership/Membership.svelte';
-	import PatchMembershipModal from '$lib/Web/Entry/Membership/PatchMembershipModal.svelte';
+	import MembershipSection from '$lib/components/Directory/MembershipSection.svelte';
 	import CreatorOwner from '$lib/Web/Users/CreatorOwner.svelte';
 	import TagModal from '$lib/Web/Tag/TagModal.svelte';
 	import AvatarUploadModal from '$lib/Web/Avatar/AvatarUploadModal.svelte';
@@ -48,16 +47,15 @@
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 	import type { EntryFull } from '$lib/store/directoryStoreInterface';
 	let { data } = $props();
+  	const r = $derived(userRoles(page.data?.user?.role));
 
 	let fullentry: EntryFull = $derived(data.fullentry);
 	let memberships: Entry[] | null = $derived(data.memberships);
-
 	setEntryUid(data.fullentry.uid);
 	setEffectorUid(data.fullentry.effector_uid);
 	setEditMode();
 	const editMode = getEditMode();
-
-	const isSuperUser = $derived(page.data?.user?.role == 'superuser');
+	const avatar = $derived(fullentry.avatar);
 </script>
 
 <svelte:head>
@@ -66,7 +64,7 @@
 	</title>
 </svelte:head>
 <div class="grid grid-cols-1 space-y-4">
-	{#if page?.data?.session}
+	{#if r.Member}
 		<div
 			id="sticky-banner"
 			tabindex="-1"
@@ -77,8 +75,10 @@
 	{/if}
 
 	<div class="flex flex-wrap p-2 gap-10">
-		<div class="space-y-2">
-			{#if isSuperUser && $editMode}
+		
+		<div class="flex flex-wrap-reverse justify-end gap-4 lg:gap-8">
+		<div class="grid grid-cols-1 items-start content-start gap-2">
+			{#if r.SuperUser && $editMode}
 				entry {fullentry?.uid}
 				<UuidHex data={fullentry?.uid} />
 				<UuidHyphen data={fullentry?.uid} />
@@ -89,34 +89,32 @@
 					<span class="badge variant-filled-error badge-sm" title={m.ENTRY_INACTIVE()}>{m.INACTIVE()}</span>
 				{/if}
 			</h2>
-			{#if isSuperUser && $editMode}
+			{#if r.SuperUser && $editMode}
 				effector {fullentry?.effector_uid}
 				<UuidHex data={fullentry?.effector_uid} />
 				<UuidHyphen data={fullentry?.effector_uid} />
 			{/if}
 			<h3 class="h3 italic">{fullentry?.effector_type?.label}</h3>
-			{#if isSuperUser && $editMode}
+			{#if r.SuperUser && $editMode}
 				type {fullentry?.effector_type?.uid}
 				<UuidHex data={fullentry?.effector_type?.uid} />
 				<UuidHyphen data={fullentry?.effector_type?.uid} />
 			{/if}
 			<Tag data={fullentry?.tags} compact={false} />
 			{#if $editMode}<TagModal tags={fullentry.tags} />{/if}
-			<FacilityLink data={fullentry.facility} />
-			{#if isSuperUser && $editMode}
-				facility {fullentry?.facility?.uid}
-				<UuidHex data={fullentry?.facility?.uid} />
-				<UuidHyphen data={fullentry?.facility?.uid} />
-			{/if}
-		</div>
-		<div class="flex-none space-y-2">
+				<MembershipSection {memberships} editMode={$editMode} />
+
+			</div>
+			<div class="flex-none space-y-2">
 			{#if fullentry?.avatar}
-				<AvatarList data={fullentry} />
+				<Avatar {avatar} name={data.name} size="lg" />
 			{/if}
 			{#if $editMode}
 				<AvatarUploadModal entryUid={fullentry.uid} hasAvatar={!!fullentry?.avatar?.raw} />
 			{/if}
 		</div>
+		</div>
+		
 	</div>
 	<div class="grid grid-cols-1 lg:grid-cols-1 p-2 gap-4">
 		{#if fullentry?.appointments?.length || $editMode}
@@ -212,7 +210,7 @@
 				{/if}
 			</div>
 		{/if}
-		{#if fullentry?.spoken_languages || fullentry?.rpps || $editMode}
+		{#if fullentry?.spoken_languages?.length || fullentry?.rpps || $editMode}
 			<div class="d-flex justify-content-between align-items-start">
 				<Info data={fullentry} />
 			</div>
@@ -231,36 +229,17 @@
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 p-1">
 					<div class="space-y-2">
 						<FacilityLink data={fullentry.facility} />
+						{#if r.SuperUser && $editMode}
+				facility {fullentry?.facility?.uid}
+				<UuidHex data={fullentry?.facility?.uid} />
+				<UuidHyphen data={fullentry?.facility?.uid} />
+			{/if}
 						<Address data={fullentry.address} distance={false} />
 					</div>
 					{#if fullentry.address.longitude && fullentry.address.latitude}
 						<div class="h-56 w-64 lg:h-64 lg:w-96 p-2 z-0">
 							<Map data={createMapData(fullentry.address, fullentry.facility.name)} />
 						</div>
-					{/if}
-				</div>
-			</div>
-		</div>
-	{/if}
-	{#if memberships?.length || $editMode}
-		<div class="d-flex justify-content-between align-items-start">
-			<div class="flex items-center py-2">
-				<div class="w-9"><Fa icon={faPeopleGroup} size="sm" /></div>
-				<div>
-					<h3 class="h3 flex place-items-center gap-1">
-						{capitalizeFirstLetter(
-							m.MEMBERSHIP({ count: memberships?.length||0 })
-						)}{#if $editMode}<PatchMembershipModal currentMemberships={memberships} />{/if}
-					</h3>
-				</div>
-			</div>
-			<div class="flex">
-				<div class="w-9"></div>
-				<div class="py-2">
-					{#if memberships}
-						<Membership data={memberships} />
-					{:else}
-						Cette entrée n'est membre d'aucune organisation.
 					{/if}
 				</div>
 			</div>
@@ -283,13 +262,3 @@
 		</div>
 	{/if}
 </div>
-
-<style>
-	.wrap {
-		font-family: monospace;
-		font-size: 14px;
-		--jsonBorderLeft: 4px dashed;
-		--jsonValColor: blue;
-		--jsonPaddingLeft: 10rem;
-	}
-</style>

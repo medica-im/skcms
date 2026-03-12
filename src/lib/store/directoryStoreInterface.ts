@@ -8,12 +8,7 @@ import type { SocialNetwork } from '$lib/interfaces/socialnetwork.interface.ts';
 import type { Website } from '$lib/interfaces/website.interface.ts';
 import type { Address } from '$lib/interfaces/facility.interface.ts';
 import type { Commune } from '$lib/interfaces/geography.interface.ts';
-
-export interface Avatar {
-    sm: string,
-    lg: string,
-    raw: string
-}
+import type { Avatar } from '$lib/interfaces/facility.interface.ts';
 
 export interface Department {
     code: string

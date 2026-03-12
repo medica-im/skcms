@@ -20,9 +20,9 @@ export interface Address {
 }
 
 export interface Avatar {
-        fb: string|null,
-        lt: string|null,
-        raw: string|null
+    sm: string,
+    lg: string,
+    raw: string
 }
 
 export interface Facility {

@@ -50,7 +50,7 @@
 		const { default: Cropper } = await import('cropperjs');
 		cropper = new Cropper(img, {
 			container: cropperContainer,
-			template: `<cropper-canvas background style="width:100%;height:600px;">
+			template: `<cropper-canvas background style="width:100%;height:450px;">
 				<cropper-image scalable translatable></cropper-image>
 				<cropper-shade hidden></cropper-shade>
 				<cropper-handle action="select" plain></cropper-handle>
@@ -175,10 +175,10 @@
 </button>
 
 <Dialog bind:dialog>
-	<div class="p-4 space-y-4 w-full min-w-[360px]">
+	<div class="p-4 space-y-4 w-full min-w-[360px] flex flex-col items-center">
 		<h3 class="h3 mb-4">{m.AVATAR_CROP_TITLE()}</h3>
 		{#if !imageSrc}
-		<div class="card variant-ghost p-4 w-96">
+		<div class="card variant-ghost p-4 w-72">
 <p>Pour assurer la cohésion d'ensemble, pour une personne physique, nous recommandons une photo de style identité, dans un cadre professionnel ou neutre, centrée sur le visage, de face, avec un espace minimum au-dessus de la tête, incluant les épaules de face et avec un peu d'espace en-dessous du col.</p></div>
 {/if}
 		<div class="space-y-4">
@@ -199,7 +199,7 @@
 				<div
 					bind:this={cropperContainer}
 					class="relative min-w-[320px] lg:min-w-[512px] w-full h-full"
-					style="height: 600px;"
+					style="height: 450px;"
 				>
 					<!-- svelte-ignore element_invalid_self_closing_tag -->
 					<img

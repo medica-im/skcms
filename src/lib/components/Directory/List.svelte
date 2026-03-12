@@ -57,7 +57,7 @@
 				</div>
 				<div class="grid grid-cols-1 lg:grid-cols-2 lg:gap-x-16 lg:gap-y-8 space-y-4">
 					{#each value as entry (entry.uid)}
-						<EntryComponent {entry} {avatar} />
+						<EntryComponent {entry} displayAvatar={avatar} />
 					{/each}
 				</div>
 			{/each}

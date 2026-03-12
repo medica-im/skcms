@@ -1,17 +1,19 @@
 <script lang="ts">
 	import { variables } from '$lib/utils/constants';
 	import * as m from '$msgs';
-	import type { EntryFull } from '$lib/store/directoryStoreInterface';
+	import type { Avatar } from '$src/lib/interfaces/facility.interface';
+	
+	type AvatarSize = "lg" | "sm";
 
-	let { data }: { data: EntryFull } = $props();
+	let { avatar, name, size }: { avatar: Avatar; name: string; size: AvatarSize; } = $props();
 
 	let avatarUrl = $derived.by(() => {
-		if (data?.avatar?.lg) {
-			return variables.BASE_URI + data.avatar.lg;
-		} else if (data?.avatar?.sm) {
-			return variables.BASE_URI + data.avatar.sm;
-		} else if (data?.avatar?.raw) {
-			return variables.BASE_URI + data.avatar.raw;
+		if ( size=="lg" && avatar?.lg ) {
+			return variables.BASE_URI + avatar.lg;
+		} else if ( size=="sm" && avatar?.sm ) {
+			return variables.BASE_URI + avatar.sm;
+		} else if ( avatar?.raw ) {
+			return variables.BASE_URI + avatar.raw;
 		}
 		return `/media/profile_images/default_profile_picture.png`;
 	});
@@ -19,6 +21,6 @@
 
 <img
 	src={avatarUrl}
-	alt="{m.ADDRESSBOOK_A11Y_PROFILE_PIC_OF()}  {data.name}"
-	class="w-44 h-44 rounded-lg"
+	alt="{m.ADDRESSBOOK_A11Y_PROFILE_PIC_OF()}  {name}"
+	class="{size=="sm" ? "h-44 w-44" : "h-72 w-72"} rounded-lg"
 />
