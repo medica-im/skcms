@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import Fa from 'svelte-fa';
 	import {
 		faMobileScreen,
@@ -9,6 +10,7 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import Distance from '$lib/Directory/Distance.svelte';
 	let { data } = $props();
+	const displayNavigation = $derived(page.data?.directory?.setting?.list_navigation);
 </script>
 
 <ul class="list">
@@ -32,6 +34,7 @@
 				<Distance uid={data.facility_uid} />
 			</div>
 		</li>
+		{#if displayNavigation}
 		<li>
 			<div class="flex space-x-4">
 				<div>
@@ -55,5 +58,6 @@
 				</div>
 			</div>
 		</li>
+		{/if}
 	{/if}
 </ul>
