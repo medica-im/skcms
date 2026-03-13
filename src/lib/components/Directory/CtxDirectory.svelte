@@ -28,7 +28,8 @@
 		setInputAddress,
 		setGeoInputAddress,
 		setSelectedTags,
-		getSelectedTags
+		getSelectedTags,
+		setSelectedOwners
 	} from './context';
 	import {
 		fullFilteredEntriesF,
@@ -67,7 +68,7 @@
 		displaySituation = page.data.directory.inputField.situation,
 		displayTag = page.data.directory.inputField.tag,
 		propCurrentOrg = true,
-		setRedirect = true,
+		setRedirect = false,
 		propLimitCategories = [],
 		propSelectFacility = null,
 		avatar = true,
@@ -75,6 +76,7 @@
 		displayEntries = false,
 		types = null,
 		active = undefined,
+		displaySelector = false,
 	}: {
 		data?: any;
 		displayGeocoder?: boolean;
@@ -95,6 +97,7 @@
 		displayEntries?: boolean;
 		types?: string[] | null;
 		active?: boolean | undefined;
+		displaySelector?: boolean;
 	} = $props();
 
 	setTerm();
@@ -113,6 +116,7 @@
 	setSelCatVal();
 	setInputAddress();
 	setSelectedTags();
+	if (!displaySelector) setSelectedOwners();
 
 	let term = getTerm();
 	let selectCategories = getSelectCategories();
@@ -238,6 +242,7 @@
 		{displaySituation}
 		{displayTag}
 		{avatar}
+		{displaySelector}
 		{communeOf}
 		{departmentOf}
 		{categoryOf}

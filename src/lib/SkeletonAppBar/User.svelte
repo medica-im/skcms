@@ -1,6 +1,7 @@
 <script lang="ts">
 	import * as m from '$msgs';
 	import { page } from '$app/state';
+	import { userRoles } from '$lib/auth/roles';
 	import { SignOut } from '@auth/sveltekit/components';
 	import { getDrawerStore } from '@skeletonlabs/skeleton';
 	import { popup } from '@skeletonlabs/skeleton';
@@ -10,6 +11,7 @@
 
 	import Fa from 'svelte-fa';
 	import {
+		faAt,
 		faBars,
 		faInfo,
 		faTimeline,
@@ -38,6 +40,7 @@
 	let session = $derived(page.data.session);
 
 	let signin = $derived(encodeURI(`/signin?redirect=${page.url.pathname}`));
+	const r = $derived(userRoles(page.data?.user?.role));
 	let isAdmin = $derived(
 		page.data?.user?.role === 'superuser' || page.data?.user?.role === 'administrator'
 	);
@@ -116,6 +119,12 @@
 								<span class="w-6 text-center"><Fa icon={faUsers} /></span>
 								<span>Utilisateurs</span>
 							</a>
+						{/if}
+						{#if r.SuperUser}
+						<a href="/web/email">
+							<span class="w-6 text-center"><Fa icon={faAt} /></span>
+							<span>Email</span>
+						</a>
 						{/if}
 						<!--hr class="my-4"-->
 						<!--a href="/{ facility.category.slug }/projet-de-sante">

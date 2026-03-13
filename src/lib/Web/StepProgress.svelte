@@ -4,9 +4,11 @@
 	import { fade } from 'svelte/transition';
 
 	let {
-		steps
+		steps,
+		compact = false
 	}: {
 		steps: { label: string; completed: boolean }[];
+		compact?: boolean;
 	} = $props();
 
 	const activeIndex = $derived(steps.findIndex((s) => !s.completed));
@@ -26,19 +28,19 @@
 </script>
 
 {#if visible}
-<div class="sticky top-0 z-10 self-start bg-surface-100-800-token py-3 px-4 shadow-sm opacity-90 w-fit" transition:fade={{ duration: 300 }}>
+<div class="sticky top-0 z-10 self-start bg-surface-100-800-token {compact ? 'py-2 px-3' : 'py-3 px-4'} shadow-sm opacity-90 w-fit" transition:fade={{ duration: 300 }}>
 	<div class="flex items-center">
 		{#each steps as step, i}
 			{#if i > 0}
 				<div
-					class="w-8 h-0.5 mx-1 transition-colors duration-300 {steps[i - 1].completed
+					class="{compact ? 'w-5' : 'w-8'} h-0.5 mx-1 transition-colors duration-300 {steps[i - 1].completed
 						? 'bg-success-500'
 						: 'bg-surface-300 dark:bg-surface-600'}"
 				></div>
 			{/if}
 			<div class="flex flex-col items-center gap-1">
 				<div
-					class="w-8 h-8 rounded-full flex items-center justify-center font-bold transition-all duration-300
+					class="{compact ? 'w-6 h-6 text-xs' : 'w-8 h-8'} rounded-full flex items-center justify-center font-bold transition-all duration-300
 						{step.completed
 						? 'variant-filled-success'
 						: i === activeIndex

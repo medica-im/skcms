@@ -31,6 +31,7 @@
 		displaySituation,
 		displayTag,
 		avatar = true,
+		displaySelector = false,
 		communeOf,
 		departmentOf,
 		categoryOf,
@@ -50,6 +51,7 @@
 		displaySituation: boolean;
 		displayTag: boolean;
 		avatar: boolean;
+		displaySelector: boolean;
 		communeOf: Commune[];
 		departmentOf: string[];
 		categoryOf: Type[];
@@ -110,7 +112,7 @@
 						</div>
 					{/if}
 				{:then}-->
-					<List data={rCCFE} {avatar} />
+					<List data={rCCFE} {avatar} {displaySelector} />
 				<!--{/await}-->
 			</div>
 		</div>
