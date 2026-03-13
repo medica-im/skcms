@@ -182,3 +182,18 @@ export function setDirectoryRedirect() {
 export function getDirectoryRedirect(): Writable<boolean> {
     return getContext('directoryRedirect');
 }
+
+export interface OwnerInfo {
+    uid: string;
+    name: string | null;
+    email: string | null;
+}
+
+export function setSelectedOwners() {
+    let selectedOwners: Writable<Map<string, OwnerInfo>> = writable(new Map());
+    setContext('selectedOwners', selectedOwners);
+}
+
+export function getSelectedOwners() {
+    return getContext<Writable<Map<string, OwnerInfo>>>('selectedOwners');
+}
