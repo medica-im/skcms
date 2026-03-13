@@ -1,13 +1,16 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
 	import { InputChip } from '@skeletonlabs/skeleton';
 	import { sendBatchEmail } from '../../../batchemail.remote.ts';
 	import { setSelectedOwners, getSelectedOwners } from '$lib/components/Directory/context';
 	import CtxDirectory from '$lib/components/Directory/CtxDirectory.svelte';
 	import StepProgress from '$lib/Web/StepProgress.svelte';
 	import Fa from 'svelte-fa';
-	import { faPaperPlane, faArrowLeft, faCheck, faXmark, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+	import { faPaperPlane, faArrowLeft, faCheck, faXmark, faExclamationCircle, faEnvelopeOpenText } from '@fortawesome/free-solid-svg-icons';
 	import type { OwnerInfo } from '$lib/components/Directory/context';
+	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import * as m from '$msgs';
 
 	setSelectedOwners();
 
@@ -55,20 +58,31 @@
 	}
 </script>
 
-<div class="space-y-4 p-4">
-	<StepProgress {steps} />
-
-	{#if currentStep === 0}
-		<div class="flex justify-end p-4">
+<div class="p-2">
+	<div class="flex flex-wrap gap-2 justify-between items-start p-2 lg:sticky lg:top-0 lg:z-20 lg:h-0 lg:overflow-visible">
+		<div class="w-fit">
+			<StepProgress {steps} compact />
+		</div>
+		{#if currentStep === 0}
+			<div class="flex flex-wrap gap-2 max-w-44">
+				<div class="chip variant-filled-primary">{$selectedOwners.size} {m.selected({ count: $selectedOwners.size })}</div>
 			<button
 				type="button"
-				class="btn variant-filled-primary"
+				class="btn variant-ringed-surface shadow-lg p-2"
 				disabled={!hasSelection}
 				onclick={validateSelection}
-			>
-				Valider la sélection
+			>Valider
 			</button>
+			<a href="/web/email" class="btn variant-ghost-surface p-2">
+				<Fa icon={faEnvelopeOpenText} class="mr-1" />
+				{capitalizeFirstLetter(m.sent_emails())}
+			</a>
 		</div>
+		{/if}
+	</div>
+
+	{#if currentStep === 0}
+		<div class="hidden lg:block pt-10"></div>
 		<CtxDirectory displaySelector={true} />
 	{:else if currentStep === 1}
 		<div class="card p-6 space-y-4 max-w-3xl mx-auto">
@@ -91,6 +105,7 @@
 						await submit();
 						if (sendBatchEmail.result?.success) {
 							currentStep = 2;
+							setTimeout(() => goto('/web/email'), 2000);
 						}
 					} catch (error) {
 						console.error(error);
@@ -164,11 +179,11 @@
 					</div>
 				</div>
 				<p class="text-lg">Erreur: {formResult?.text}</p>
-			{/if}
 			<button type="button" class="btn variant-ghost-primary" onclick={cancel}>
 				<Fa icon={faArrowLeft} class="mr-2" />
 				Retour
 			</button>
+			{/if}
 		</div>
 	{/if}
 </div>

@@ -315,5 +315,22 @@
 	"AVATAR_UPLOAD_BTN": "Upload",
 	"AVATAR_UPLOAD_SUCCESS": "Photo updated",
 	"AVATAR_BROWSE": "Browse",
-	"AVATAR_NO_FILE": "No file selected"
+	"AVATAR_NO_FILE": "No file selected",
+	"batch_email": "batch email",
+	"sent_emails": "sent emails",
+	"selected": [
+		{
+			"declarations": [
+				"input count",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "selected",
+				"countPlural=other": "selected"
+			}
+		}
+	]
 }

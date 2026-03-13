@@ -95,10 +95,12 @@
 		}
 		$selectedOwners = owners;
 	});
+
 </script>
 
 <div class="overflow-x-auto">
-	<table class="table table-compact w-full">
+	<!-- Fixed header -->
+	<table class="table table-compact table-fixed w-full">
 		<thead>
 			<tr class="text-sm font-semibold text-surface-500">
 				<th class="w-10">
@@ -111,57 +113,63 @@
 					/>
 				</th>
 				{#if avatar}<th class="w-10"></th>{/if}
-				<th>Nom</th>
-				<th>Type</th>
-				<th>{capitalizeFirstLetter(m.tag({ count: 2 }))}</th>
-				<th>Commune</th>
-				<th>Dépt.</th>
-				<th>{capitalizeFirstLetter(m.owner())}</th>
-				<th>Email</th>
+				<th class="w-44">Nom</th>
+				<th class="w-28">Type</th>
+				<th class="w-24">{capitalizeFirstLetter(m.tag({ count: 2 }))}</th>
+				<th class="w-24">Commune</th>
+				<th class="w-14">Dépt.</th>
+				<th class="w-32">{capitalizeFirstLetter(m.owner())}</th>
+				<th class="w-40">Email</th>
 			</tr>
 		</thead>
-		<tbody>
-			{#each allEntries as entry (entry.uid)}
-				{@const owner = getOwner(entry)}
-				<tr class="hover:variant-ghost-surface">
-					<td>
-						<input
-							type="checkbox"
-							checked={selected.has(entry.uid)}
-							onchange={() => toggleEntry(entry.uid)}
-							class="checkbox"
-						/>
-					</td>
-					{#if avatar}
-						<td>
-							<img
-								src={avatarUrl(entry)}
-								alt={entry.name}
-								class="h-8 w-8 rounded-full object-cover"
+	</table>
+
+	<!-- Scrollable body -->
+	<div class="overflow-y-auto max-h-[calc(100vh-14rem)]">
+		<table class="table table-compact table-fixed w-full">
+			<tbody>
+				{#each allEntries as entry (entry.uid)}
+					{@const owner = getOwner(entry)}
+					<tr class="hover:variant-ghost-surface">
+						<td class="w-10">
+							<input
+								type="checkbox"
+								checked={selected.has(entry.uid)}
+								onchange={() => toggleEntry(entry.uid)}
+								class="checkbox"
 							/>
 						</td>
-					{/if}
-					<td class="font-semibold truncate max-w-48">{entry.name}</td>
-					<td class="text-sm italic truncate max-w-32">{entry.effector_type?.label || ''}</td>
-					<td><Tag data={entry.tags} compact={true} /></td>
-					<td class="text-sm truncate max-w-24">{entry.commune?.name || ''}</td>
-					<td class="text-sm">{entry.department?.code || ''}</td>
-					<td class="text-sm truncate max-w-32">
-						{#if loadingUsers}
-							<span class="placeholder animate-pulse w-20 h-4"></span>
-						{:else}
-							{owner?.name || '—'}
+						{#if avatar}
+							<td class="w-10">
+								<img
+									src={avatarUrl(entry)}
+									alt={entry.name}
+									class="h-8 w-8 rounded-full object-cover"
+								/>
+							</td>
 						{/if}
-					</td>
-					<td class="text-sm truncate max-w-40">
-						{#if loadingUsers}
-							<span class="placeholder animate-pulse w-24 h-4"></span>
-						{:else}
-							{owner?.email || '—'}
-						{/if}
-					</td>
-				</tr>
-			{/each}
-		</tbody>
-	</table>
+						<td class="w-44 font-semibold truncate">{entry.name}</td>
+						<td class="w-28 text-sm italic truncate">{entry.effector_type?.label || ''}</td>
+						<td class="w-24"><Tag data={entry.tags} compact={true} /></td>
+						<td class="w-24 text-sm truncate">{entry.commune?.name || ''}</td>
+						<td class="w-14 text-sm">{entry.department?.code || ''}</td>
+						<td class="w-32 text-sm truncate">
+							{#if loadingUsers}
+								<span class="placeholder animate-pulse w-20 h-4"></span>
+							{:else}
+								{owner?.name || '—'}
+							{/if}
+						</td>
+						<td class="w-40 text-sm truncate">
+							{#if loadingUsers}
+								<span class="placeholder animate-pulse w-24 h-4"></span>
+							{:else}
+								{owner?.email || '—'}
+							{/if}
+						</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+	</div>
 </div>
