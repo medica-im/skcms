@@ -1,4 +1,4 @@
-import { error, redirect } from '@sveltejs/kit';
+import { redirect, invalid } from '@sveltejs/kit';
 import { getRequestEvent, query, form } from '$app/server';
 import * as z from "zod";
 import { authReq } from '$lib/utils/request.ts';
@@ -14,27 +14,31 @@ const CreateInvitee = z.object({
 	createdBy: z.string()
 });
 
-export const createInvitee = form(CreateInvitee, async (data) => {
+export const createInvitee = form(CreateInvitee, async (data, issue) => {
 	console.log(`form data:${JSON.stringify(data)}`);
 	const { cookies } = getRequestEvent();
 	const url = `${variables.BASE_URI}/api/v2/invitees`;
 	const request = authReq(url, 'POST', cookies, JSON.stringify(data));
 	const response = await fetch(request);
-	const json = await response.json()
+	const jsn = await response.json()
+	console.log(JSON.stringify(jsn))
 	if (response.ok == false) {
-		console.error(JSON.stringify(response))
 		console.error(response.status)
 		console.error(response.statusText)
-		return {
-			success: false,
-			status: response.status,
-			text: response.statusText,
-			response: json
+		if ( jsn.detail.code === 'DUPLICATE_EMAIL' ) {
+			console.log("DUPLICATE_EMAIL true if block");
+			invalid(issue.email(jsn.detail.message));
 		}
+		invalid(jsn.detail?.message ?? response.statusText);
 	} else {
 		console.log(`Success! Status: ${response.status} Status text: ${response.statusText}`);
-		console.log(json);
-		redirect(303, `/web/invite/invitees`);
+		console.log(jsn);
+		return {
+			success: true,
+			status: response.status,
+			text: response.statusText,
+			response: jsn
+		}
 	}
 });
 

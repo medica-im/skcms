@@ -10,16 +10,10 @@
 	import type { Role } from '$lib/interfaces/v2/invitee';
 	import type { PageData } from './$types';
 
-	interface Props {
-		data: {
-			session: PageData['session'];
-			organization: PageData['organization'];
-		};
-		counter: number;
-	}
+	let { data, onclose }: { data: PageData; onclose?: () => void } = $props();
 
-	let { data, counter }: Props = $props();
-	let result = $derived(createInvitee.for(counter)?.result);
+	const formKey = crypto.randomUUID();
+	let result = $derived(createInvitee.for(formKey)?.result);
 
 	let organization = $derived(data.organization);
 	let session = $derived(data.session);
@@ -42,7 +36,7 @@
 	let entry = $derived(organization.uid);
 	let createdBy = $derived(session?.user?.providerAccountId || '');
 
-	const disabled = $derived(!email || !selectedRole || Boolean(createInvitee.for(counter).pending) || result?.success);
+	const disabled = $derived(!email || !selectedRole || Boolean(createInvitee.for(formKey).pending));
 
 
 </script>
@@ -54,7 +48,7 @@
 	</div>
 
 	<form
-		{...createInvitee.for(counter)}
+		{...createInvitee.for(formKey)}
 		class="grid grid-cols-1 gap-4 w-full max-w-xl"
 	>
 		<!-- Hidden fields -->
@@ -65,19 +59,21 @@
 		<label class="label">
 			<span>Email *</span>
 			<input
-				type="email"
-				name="email"
+				{...createInvitee.for(formKey).fields.email.as('email')}
 				bind:value={email}
 				class="input"
 				placeholder="utilisateur@example.com"
 				required
 			/>
+			{#each createInvitee.for(formKey).fields.email.issues() as iss}
+				<p class="text-error-500 text-sm">{iss.message}</p>
+			{/each}
 		</label>
 
 		<!-- Name field -->
 		<label class="label">
 			<span>Nom (optionnel)</span>
-			<input type="text" name="name" bind:value={name} class="input" placeholder="Nom complet" />
+			<input {...createInvitee.for(formKey).fields.name.as('text')} bind:value={name} class="input" placeholder="Nom complet" />
 		</label>
 
 		<!-- Role select -->
@@ -94,18 +90,22 @@
 			><NoOptions slot="empty" /></Select>
 		</div>
 		<!-- Submit button -->
-		 <div class="flex gap-8">
+		 <div class="flex flex-wrap gap-8 justify-end">
 				<div class="flex gap-2 items-center">
-					{#if result?.success==true}
+					{#if result?.success && !email}
 						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
 					{:else if result?.success==false}
 						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span>
 						<span class="text-base">{result?.response?.detail || result?.text}</span>
 					{/if}
+					{#each createInvitee.for(formKey).fields.allIssues() as iss}
+						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span>
+						<span class="text-base">{iss.message}</span>
+					{/each}
 				</div>
 				<div class="w-auto justify-center">
 					<button type="submit" class="btn variant-filled-primary w-min" {disabled}>
-			{createInvitee.for(counter).pending ? 'Envoi...' : 'Créer l\'invitation'}
+			{createInvitee.for(formKey).pending ? 'Envoi...' : 'Créer l\'invitation'}
 		</button>
 				</div>
 				<div class="w-auto justify-center">
@@ -113,7 +113,8 @@
 						type="button"
 						class="variant-filled-error btn w-min"
 						onclick={() => {
-							goto('/web/invite/invitees');
+							if (onclose) onclose();
+							else goto('/web/invite/invitees');
 						}}
 						>{#if result?.success}Fermer{:else}Annuler{/if}</button
 					>

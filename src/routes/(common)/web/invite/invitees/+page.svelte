@@ -1,11 +1,10 @@
 <script lang="ts">
-    import { page } from '$app/state';
-	import { onMount } from 'svelte';
-    import CreateInviteeModal from '$lib/Invitee/CreateInviteeModal.svelte';
+	import { page } from '$app/state';
+	import CreateInviteeModal from '$lib/Invitee/CreateInviteeModal.svelte';
 	import CreateInvitee from '$routes/(common)/web/invite/create/+page.svelte';
 	import EditInviteeModal from '$lib/Invitee/EditInviteeModal.svelte';
 	import DeleteInviteeModal from '$lib/Invitee/DeleteInviteeModal.svelte';
-    import { Invitee } from '$lib/Invitee';
+	import { Invitee } from '$lib/Invitee';
 	import { preloadData, pushState, goto } from '$app/navigation';
 	import { faPlus } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
@@ -14,10 +13,9 @@
 
 	let { data }: { data: PageData } = $props();
 	let invitees = $derived(data.invitees);
-	let createInviteeModal: CreateInviteeModal|undefined = $state();
 	let editModal: EditInviteeModal;
 	let deleteModal: DeleteInviteeModal;
-	let createInviteeCounter = $state(0);
+	let createOpen: boolean = $state(false);
 </script>
 
 <div class="container mx-auto p-4">
@@ -31,8 +29,6 @@
 		<a
 			href="/web/invite/create"
 			onclick={async (e) => {
-				createInviteeCounter+=1;
-				console.log('Create invitee counter:', createInviteeCounter);
 				if (e.shiftKey || e.metaKey || e.ctrlKey) return;
 
 				e.preventDefault();
@@ -40,6 +36,7 @@
 				const result = await preloadData(href);
 
 				if (result.type === 'loaded' && result.status === 200) {
+					createOpen = true;
 					pushState(href, { selected: result.data });
 				} else {
 					goto(href);
@@ -72,9 +69,12 @@
 	</div>
 </div>
 
-{#if page.state.selected}
-	<CreateInviteeModal bind:this={createInviteeModal} onresult={() => history.back()} title={"Créer une invitation"}>
-		<CreateInvitee data={page.state.selected} counter={createInviteeCounter} />
+{#if createOpen}
+	<CreateInviteeModal onresult={() => {}} title={"Créer une invitation"}>
+		<CreateInvitee data={page.state.selected ?? data} onclose={() => {
+			createOpen = false;
+			history.back();
+		}} />
 	</CreateInviteeModal>
 {/if}
 

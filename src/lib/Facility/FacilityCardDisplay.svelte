@@ -3,11 +3,9 @@
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import FileJson from '@lucide/svelte/icons/file-json';
 	import Directory from '$lib/components/Directory/CtxDirectory.svelte';
-	import Map from '$lib/components/Map/Map.svelte';
+	import Map from '$lib/MapLibre/MapLibre.svelte';
 	import Address from '$lib/Address/Address.svelte';
 	import Navigation from '$lib/Navigation/Navigation.svelte';
-	import { browser } from '$app/environment';
-	import { isMobile } from '$lib/helpers/deviceDetector.ts';
 	import { createMapData2 } from '$lib/components/Map/mapData.ts';
 	import UpdateFacilityModal from '$lib/Web/Facility/UpdateFacilityModal.svelte';
 	import type { FacilityV2 } from '$lib/interfaces/v2/facility.ts';
@@ -29,15 +27,6 @@
 		anchor?: boolean;
 	} = $props();
 
-	const createFacilityGeoData = (facility: FacilityV2) => {
-		let facilityGeoData = {
-			name: facility?.name ?? 'default',
-			latitude: Number(facility.location?.latitude ?? 0),
-			longitude: Number(facility.location?.longitude ?? 0),
-			zoom: facility?.zoom ?? 0
-		};
-		return facilityGeoData;
-	};
 </script>
 
 	<!--{#if (import.meta.env.VITE_DEV == 'true')}

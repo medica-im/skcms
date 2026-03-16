@@ -21,7 +21,7 @@ export const load: PageServerLoad = async ({ url, cookies, locals, fetch }) => {
       const authCookies = allCookies.filter(({ name }) =>
          name.includes('auth') || name.includes('session')
       );
-      console.log('Auth cookies:', authCookies);
+      //console.log('Auth cookies:', authCookies);
 
       try {
          const request = authReq(endpointUrl, 'GET', cookies);

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import FacilityCarousel from '$lib/Facility/FacilityCarousel.svelte';
-	import MapLeaflet from '$lib/MapLeaflet/MapLeaflet.svelte';
-	import { createFacilitiesMapData } from '$lib/MapLeaflet/mapData.js';
+	import Map from '$lib/MapLibre/MapLibre.svelte';
+	import { createFacilitiesMapData } from '$lib/MapLeaflet/mapData.ts';
 	import { scale } from 'svelte/transition';
 	import type { Facility } from '$lib/interfaces/facility.interface.js';
 
@@ -39,7 +39,7 @@
 		{/each}
 	</div>
 	<div in:scale class="h-64 z-0">
-		<MapLeaflet data={createFacilitiesMapData(data, true)} />
+		<Map data={createFacilitiesMapData(data, true)} />
 	</div>
 	{#if carouselFacilities.length}
 		<div class="place-items-center items-center justify-center content-center">

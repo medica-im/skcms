@@ -6,7 +6,7 @@
 	import Fa from 'svelte-fa';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import Directory from '$lib/components/Directory/CtxDirectory.svelte';
-	import Map from '$lib/components/Map/Map.svelte';
+	import Map from '$lib/MapLibre/MapLibre.svelte';
 	import Address from '$lib/Address/Address.svelte';
 	import Navigation from '$lib/Navigation/Navigation.svelte';
 	import Email from '$lib/Email/Email.svelte';

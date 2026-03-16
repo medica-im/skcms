@@ -40,7 +40,7 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
       }
       if (user) { // User is available during sign-in
         if (import.meta.env.DEV) {
-          console.log("user", JSON.stringify(user));
+          //console.log("user", JSON.stringify(user));
         }
       }
       if ( profile ) {
@@ -64,7 +64,7 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
       return true
     },
     async redirect({ url, baseUrl }) {
-      console.log("redirect callback", { url, baseUrl });
+      //console.log("redirect callback", { url, baseUrl });
     // Allows relative callback URLs
     if (url.startsWith("/")) return `${baseUrl}${url}`
     // Allows callback URLs on the same origin

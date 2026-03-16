@@ -8,7 +8,7 @@ var splitWords = function (str) {
 };
 
 /**
- * Create DOM element. Excerpt from Leaflet library
+ * Create DOM element
  **/
 var dom = {
   create: function (tagName, className, container) {
