@@ -31,11 +31,6 @@
 	let targetLngLat: LngLatLike | undefined = $derived(
 		target ? [target.geometry.coordinates[0], target.geometry.coordinates[1]] : undefined
 	);
-	let zoom = $derived.by(() => {
-		if (data?.length == 1 || bboxElements(bounds) < 4) {
-			return data[0].zoom || 15;
-		}
-	});
 	const bboxElements = (b: LngLatBoundsLike | undefined) => {
 		if (b == undefined || b == null) return 0;
 		const obj = Object.values(b);
@@ -43,18 +38,6 @@
 		const size = set.size || 0;
 		return size;
 	};
-	let center = $derived.by(() => {
-		const c = data[0].latLng.slice().reverse() as [number, number];
-		if (data?.length == 1) {
-			return c;
-		} else {
-			const size = bboxElements(bounds);
-			if (size < 4) {
-				return c;
-			}
-		}
-	});
-
 	const padding = { top: 60, bottom: 45, left: 115, right: 70 };
 	let bounds: LngLatBoundsLike | undefined = $derived.by(() => {
 		if (!data) return;
@@ -70,6 +53,22 @@
 				return b;
 			} else {
 				return undefined;
+			}
+		}
+	});
+	let zoom = $derived.by(() => {
+		if (data?.length == 1 || bboxElements(bounds) < 4) {
+			return data[0].zoom || 15;
+		}
+	});
+	let center = $derived.by(() => {
+		const c = data[0].latLng.slice().reverse() as [number, number];
+		if (data?.length == 1) {
+			return c;
+		} else {
+			const size = bboxElements(bounds);
+			if (size < 4) {
+				return c;
 			}
 		}
 	});
