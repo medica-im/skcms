@@ -1,7 +1,7 @@
 import { entryPageUrl } from '$lib/utils/utils.ts';
 import type { MapData } from '$lib/interfaces/mapData.interface.ts';
 import type { Facility, Address } from '$lib/interfaces/facility.interface.ts';
-import type { Facility as Facility2 } from '$lib/interfaces/v2/facility.ts';
+import type { Facility as FacilityV1, FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 import type { Entry, AddressFeature } from '$lib/store/directoryStoreInterface.ts';
 
 export const createContactMapData = (address: Address, facilityName: string) => {
@@ -30,7 +30,7 @@ export const createMapData = (address: Address, facilityName: string) => {
     return mapData;
 };
 
-export const createMapData2 = (facility: Facility2) => {
+export const createMapData2 = (facility: FacilityV1 | FacilityV2) => {
     const mapData: MapData[] = [
         {
             latLng: [Number(facility?.location?.latitude ?? 0), Number(facility?.location?.longitude ?? 0)],

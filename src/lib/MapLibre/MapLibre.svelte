@@ -24,8 +24,8 @@
 		target = null
 	}: {
 		data: MapData[];
-		showTooltip: boolean;
-		target: AddressFeature | null;
+		showTooltip?: boolean;
+		target?: AddressFeature | null;
 	} = $props();
 
 	let targetLngLat: LngLatLike | undefined = $derived(
