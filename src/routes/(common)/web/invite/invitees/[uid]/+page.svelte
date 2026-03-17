@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Invitee } from '$lib/Invitee';
+    import { InviteeDetail } from '$lib/Invitee';
     import EditInviteeModal from '$lib/Invitee/EditInviteeModal.svelte';
     import DeleteInviteeModal from '$lib/Invitee/DeleteInviteeModal.svelte';
     import * as m from '$msgs';
@@ -9,6 +9,7 @@
 
     let { data }: { data: PageData } = $props();
     let invitee = $derived(data.invitee);
+    let createdByUser = $derived(data.createdByUser);
     let editModal: EditInviteeModal;
     let deleteModal!: DeleteInviteeModal;
 </script>
@@ -22,7 +23,7 @@
         <h1 class="h1 mb-2">Invitation</h1>
     </header>
 
-    <Invitee {invitee} showLink={false} onEdit={(inv) => editModal.handleEdit(inv)} onDelete={(inv) => deleteModal.handleDelete(inv)} />
+    <InviteeDetail {invitee} {createdByUser} onEdit={(inv) => editModal.handleEdit(inv)} onDelete={(inv) => deleteModal.handleDelete(inv)} />
 </div>
 
 <EditInviteeModal bind:this={editModal} />
