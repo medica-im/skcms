@@ -16,7 +16,7 @@
 		<Fa icon={faLocationDot}/>
 	</span>
 	<span>
-		{data.label||data.name||capitalizeFirstLetter(m.FACILITY())}
+		{data.label||data.name||capitalizeFirstLetter(m.FACILITY({ count: 1 }))}
 	</span>
 </a>
 {/if}

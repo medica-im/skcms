@@ -12,6 +12,7 @@
 	"SITES_SINGULAR": "Site",
 	"SITES_PLURAL": "Sites",
 	"SITES_ALL": "All sites",
+	"SITE_COUNT": [{"declarations":["input count","local countPlural = count: plural"],"selectors":["countPlural"],"match":{"countPlural=one":"site","countPlural=other":"sites"}}],
 	"SEARCH": "Search",
 	"ADDRESSBOOK_A11Y_PROFILE_PIC_OF": "Profile picture of",
 	"ADDRESSBOOK_TITLE": "Address book",
@@ -140,7 +141,8 @@
 		"ANONYMOUS": "Anonymous",
 		"ANONYMOUS_SHORT": "Anon"
 	},
-	"FACILITY": "facility",
+	"FACILITY": [{"declarations":["input count","local countPlural = count: plural"],"selectors":["countPlural"],"match":{"countPlural=one":"facility","countPlural=other":"facilities"}}],
+	"OUR_FACILITIES": [{"declarations":["input count","local countPlural = count: plural"],"selectors":["countPlural"],"match":{"countPlural=one":"Our facility","countPlural=other":"Our {count} facilities"}}],
 	"CREATE": "create",
 	"EDIT": "edit",
 	"PHONE_TYPE": {
