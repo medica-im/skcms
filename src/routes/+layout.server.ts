@@ -1,4 +1,4 @@
-import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
+import { ORIGIN } from '$lib/utils/origin.ts';
 import { authReq } from '$lib/utils/request';
 import { getEntries } from '$lib/api.ts';
 import type { Organization } from '$lib/interfaces/organization.ts';

@@ -1,8 +1,8 @@
-import { variables } from '$lib/utils/constants';
+import { ORIGIN } from '$lib/utils/origin.ts';
 import type { OpenGraph } from '$lib/interfaces/openGraph.interface';
 
 export const getOpenGraph = async () => {
-	const url = `${variables.BASE_URI}/api/v1/opengraph/`;
+	const url = `${ORIGIN}/api/v1/opengraph/`;
 	try {
 		const response = await fetch(url);
 		if (!response.ok) {

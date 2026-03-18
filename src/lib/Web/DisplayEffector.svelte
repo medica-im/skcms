@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
+	import { ORIGIN } from '$lib/utils/origin.ts';
 	import type { Effector } from '$lib/interfaces/v2/effector';
 	let { effectorUid }: { effectorUid: string | undefined } = $props();
 	async function fetchEffector(): Promise<Effector | number> {

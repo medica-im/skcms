@@ -1,4 +1,4 @@
-import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
+import { ORIGIN } from '$lib/utils/origin.ts';
 import type { PageLoad } from './$types';
 import type { BatchEmailMessage } from '$lib/interfaces/v2/batchEmail';
 import type { User } from '$lib/interfaces/v2/user';

@@ -1,4 +1,4 @@
-import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
+import { ORIGIN } from '$lib/utils/origin.ts';
 import { facilityEntries } from '$lib/components/Directory/sites.ts';
 import { error } from '@sveltejs/kit';
 import type { Facility } from '$lib/interfaces/facility.interface.ts';

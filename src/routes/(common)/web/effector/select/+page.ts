@@ -1,4 +1,4 @@
-import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
+import { ORIGIN } from '$lib/utils/origin.ts';
 import type { Effector } from '$src/lib/interfaces/v2/effector';
 import type { PageLoad } from './$types';
 import type { User } from '$src/lib/interfaces/user.interface';

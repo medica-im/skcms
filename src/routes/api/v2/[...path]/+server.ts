@@ -1,4 +1,4 @@
-import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
+import { ORIGIN } from '$lib/utils/origin.ts';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = ({ params, url }) => {

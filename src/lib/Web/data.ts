@@ -1,4 +1,4 @@
-import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
+import { ORIGIN } from '$lib/utils/origin.ts';
 import { variables } from '$lib/utils/constants.ts';
 import type { Organization } from '$lib/interfaces/v2/organization';
 import type { Effector, EffectorType } from '$lib/interfaces/v2/effector';

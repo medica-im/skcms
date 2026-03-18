@@ -1,4 +1,4 @@
-import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
+import { ORIGIN } from '$lib/utils/origin.ts';
 import { checkVersion } from '$lib/version';
 import { getSituationsV2 } from '$lib/store/directoryStore';
 import type { User } from "$lib/interfaces/user.interface";

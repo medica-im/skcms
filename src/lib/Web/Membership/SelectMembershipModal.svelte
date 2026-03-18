@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { variables } from '$lib/utils/constants.ts';
+	import { ORIGIN } from '$lib/utils/origin.ts';
 	import { page } from '$app/state';
 	import { SvelteSet } from 'svelte/reactivity';
 	import Dialog from '$lib/Web/Dialog.svelte';
@@ -80,7 +81,7 @@
 		for (let m of initialMemberships) {
 			const entryUid = m.value;
 			let entry: EntryFull | undefined;
-			const response = await fetch(`${variables.BASE_URI}/api/v2/fullentries/${entryUid}`);
+			const response = await fetch(`${ORIGIN}/api/v2/fullentries/${entryUid}`);
 			if (response.ok) {
 				entry = await response.json();
 			}

@@ -1,6 +1,6 @@
 //import { websiteSchema } from '$lib/store/facilityStore';
 import { getOpenGraph } from '$lib/store/openGraphStore';
-import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
+import { ORIGIN } from '$lib/utils/origin.ts';
 import type { EntryFull } from '$lib/store/directoryStoreInterface';
 import type { PageLoad } from './$types';
 

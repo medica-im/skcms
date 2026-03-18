@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
+	import { ORIGIN } from '$lib/utils/origin.ts';
 	import * as m from '$msgs';
 	import { Avatar } from '@skeletonlabs/skeleton';
 	import { faUser } from '@fortawesome/free-solid-svg-icons';

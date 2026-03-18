@@ -1,5 +1,5 @@
 import { error, redirect } from '@sveltejs/kit';
-import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
+import { ORIGIN } from '$lib/utils/origin.ts';
 import { authReq } from '$lib/utils/request';
 import type { User } from '$src/lib/interfaces/user.interface';
 import type { Effector } from '$src/lib/interfaces/v2/effector';

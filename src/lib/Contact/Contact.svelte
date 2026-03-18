@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
+	import { ORIGIN } from '$lib/utils/origin.ts';
 	import { MapLibre, DefaultMarker } from 'svelte-maplibre';
 	import { page } from '$app/state';
 	import Fa from 'svelte-fa';

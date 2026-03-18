@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
+	import { ORIGIN } from '$lib/utils/origin.ts';
 	import Fa from 'svelte-fa';
 	import { faArrowRight, faXmark, faTemperatureHigh } from '@fortawesome/free-solid-svg-icons';
 

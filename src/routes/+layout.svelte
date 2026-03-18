@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
 	import { beforeNavigate, invalidate } from '$app/navigation';
 	import { updated } from '$app/state';
 	import { setLocale } from "../paraglide/runtime.js";
