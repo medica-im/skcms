@@ -139,7 +139,7 @@ typeof bounds: '{typeof bounds}'<br>
 		{#each data as { latLng, tooltip, popup }}
 			<DefaultMarker lngLat={latLng.slice().reverse() as [number, number]}>
 				{#if popup}
-					<Popup offset={[0, -10]}>
+					<Popup offset={[0, -10]} openOn={showTooltip ? 'manual' : 'click'} open={showTooltip}>
 						<div class="p-1 m-0 font-bold">{@html popup?.text}</div>
 					</Popup>
 				{/if}

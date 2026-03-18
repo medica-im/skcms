@@ -54,7 +54,9 @@ export const createFacilitiesMapData = (facilities: Facility[], tooltip = false)
         points.push({
             latLng: [Number(item.address?.latitude ?? 0), Number(item.address?.longitude ?? 0)],
             zoom: item?.address?.zoom ?? 0,
-            popup: null,
+            popup: {
+                text: item.label || item.name
+            },
             tooltip: {
                 text: item.address.tooltip_text || item.label || item.name,
                 permanent: tooltip,
