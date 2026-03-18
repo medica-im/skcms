@@ -12,11 +12,11 @@
 	let isRedeemed = $derived(invitee.redeemedAt != null);
 
 	const roleLabels: Record<Role, string> = {
-		superuser: m['ROLE.SUPERUSER'](),
-		administrator: m['ROLE.ADMINISTRATOR'](),
-		staff: m['ROLE.STAFF'](),
-		registered: m['ROLE.REGISTERED'](),
-		anonymous: m['ROLE.ANONYMOUS']()
+		superuser: m['ROLE.SUPERUSER_SHORT'](),
+		administrator: m['ROLE.ADMINISTRATOR_SHORT'](),
+		staff: m['ROLE.STAFF_SHORT'](),
+		registered: m['ROLE.REGISTERED_SHORT'](),
+		anonymous: m['ROLE.ANONYMOUS_SHORT']()
 	};
 
 	const roleVariants: Record<Role, string> = {

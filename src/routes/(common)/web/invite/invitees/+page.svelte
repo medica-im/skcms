@@ -9,10 +9,20 @@
 	import { faPlus } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import * as m from '$msgs';
+	import { normalize } from '$lib/helpers/stringHelpers.ts';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 	let invitees = $derived(data.invitees);
+	let searchTerm = $state('');
+	let filteredInvitees = $derived.by(() => {
+		if (!searchTerm.trim()) return invitees;
+		const term = normalize(searchTerm);
+		return invitees?.filter((inv) =>
+			(inv.name && normalize(inv.name).includes(term)) ||
+			normalize(inv.email).includes(term)
+		);
+	});
 	let editModal: EditInviteeModal;
 	let deleteModal: DeleteInviteeModal;
 	let createOpen: boolean = $state(false);
@@ -23,7 +33,7 @@
 		<div>
 			<h1 class="h1 mb-2">Invitations</h1>
 			<p class="text-surface-600">
-				{invitees?.length ?? 0} invitation{(invitees?.length ?? 0) > 1 ? 's' : ''}
+				{filteredInvitees?.length ?? 0} invitation{(filteredInvitees?.length ?? 0) > 1 ? 's' : ''}
 			</p>
 		</div>
 		<a
@@ -50,6 +60,16 @@
 		</a>
 	</header>
 
+	<!-- Search -->
+	<div class="mb-4 max-w-sm">
+		<input
+			type="search"
+			class="input"
+			placeholder="{m.INVITEE_COL_NAME()} / {m.INVITEE_COL_EMAIL()}..."
+			bind:value={searchTerm}
+		/>
+	</div>
+
 	<!-- Column Headers (large screens only) -->
 	<div class="hidden lg:grid lg:grid-cols-[40px_1fr_1.5fr_120px_130px_130px_80px_36px_36px_36px] lg:items-center lg:gap-4 px-3 pb-2 text-sm font-semibold text-surface-500">
 		<span></span>
@@ -63,7 +83,7 @@
 	</div>
 
 	<div class="grid grid-cols-1 gap-2">
-		{#each invitees as invitee (invitee.uid)}
+		{#each filteredInvitees as invitee (invitee.uid)}
 			<Invitee {invitee} highlighted={(Date.now() - new Date(invitee.createdAt).getTime()) < 60_000} onEdit={(inv) => editModal.handleEdit(inv)} onDelete={(inv) => deleteModal.handleDelete(inv)} />
 		{/each}
 	</div>

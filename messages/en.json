@@ -130,10 +130,15 @@
 	"WEB_ADDRESS": "web address",
 	"ROLE": {
 		"ADMINISTRATOR": "Administrator",
+		"ADMINISTRATOR_SHORT": "Admin",
 		"SUPERUSER": "Superuser",
+		"SUPERUSER_SHORT": "Super",
 		"STAFF": "Staff",
+		"STAFF_SHORT": "Staff",
 		"REGISTERED": "Registered User",
-		"ANONYMOUS": "Anonymous"
+		"REGISTERED_SHORT": "User",
+		"ANONYMOUS": "Anonymous",
+		"ANONYMOUS_SHORT": "Anon"
 	},
 	"FACILITY": "facility",
 	"CREATE": "create",

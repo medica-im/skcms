@@ -115,10 +115,15 @@
   "SKELETON_AUTOCOMPLETE_EMPTY_STATE": "Aucun résultat trouvé",
   "ROLE": {
     "ADMINISTRATOR": "Administrateur",
+    "ADMINISTRATOR_SHORT": "Admin",
     "SUPERUSER": "Super-utilisateur",
+    "SUPERUSER_SHORT": "Super",
     "STAFF": "Équipier",
+    "STAFF_SHORT": "Équipier",
     "REGISTERED": "Utilisateur enregistré",
-    "ANONYMOUS": "Anonyme"
+    "REGISTERED_SHORT": "Inscrit",
+    "ANONYMOUS": "Anonyme",
+    "ANONYMOUS_SHORT": "Anon"
   },
   "PHONE_TYPE": {
     "M": "Mobile personnel",

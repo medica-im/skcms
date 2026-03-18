@@ -3,7 +3,7 @@
 	import type { Invitee, Role } from '$lib/interfaces/v2/invitee';
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
-	import { faEnvelope, faUser, faCircle, faEye, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
+	import { faEnvelope, faUser, faCircle, faEye, faPenToSquare, faTrash, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 	import { onMount } from 'svelte';
 
 	let { invitee, showLink = true, highlighted = false, onEdit, onDelete }: { invitee: Invitee; showLink?: boolean; highlighted?: boolean; onEdit?: (invitee: Invitee) => void; onDelete?: (invitee: Invitee) => void } = $props();
@@ -18,11 +18,11 @@
 	let showDetailLink = $derived(showLink && (import.meta.env.DEV || page.data?.user?.role === 'superuser'));
 
 	const roleLabels: Record<Role, string> = {
-		superuser: m['ROLE.SUPERUSER'](),
-		administrator: m['ROLE.ADMINISTRATOR'](),
-		staff: m['ROLE.STAFF'](),
-		registered: m['ROLE.REGISTERED'](),
-		anonymous: m['ROLE.ANONYMOUS']()
+		superuser: m['ROLE.SUPERUSER_SHORT'](),
+		administrator: m['ROLE.ADMINISTRATOR_SHORT'](),
+		staff: m['ROLE.STAFF_SHORT'](),
+		registered: m['ROLE.REGISTERED_SHORT'](),
+		anonymous: m['ROLE.ANONYMOUS_SHORT']()
 	};
 
 	const roleVariants: Record<Role, string> = {
@@ -83,9 +83,12 @@
 	</span>
 
 	<!-- Redeemed Date -->
-	<span class="text-sm text-surface-500">
+	<span class="text-sm text-surface-500 flex items-center gap-1">
 		{#if isRedeemed}
+			<Fa icon={faCheck} size="sm" class="text-success-500" />
 			<span class="lg:hidden">{m.INVITEE_REDEEMED_ON()}&nbsp;</span>{formatDateTime(invitee.redeemedAt!)}
+		{:else}
+			<Fa icon={faXmark} size="sm" class="text-surface-400" />
 		{/if}
 	</span>
 
