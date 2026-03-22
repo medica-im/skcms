@@ -24,12 +24,13 @@
 			et.synonyms_fr?.some(s => normalize(s).includes(term))
 		);
 	});
+	let editedUid = $derived(page.url.searchParams.get('edited'));
 	let editModal: EditEffectorTypeModal;
 	let deleteModal: DeleteEffectorTypeModal;
 	let createOpen: boolean = $state(false);
 </script>
 
-<div class="container mx-auto p-4">
+<div class="max-w-screen-2xl mx-auto p-4">
 	<header class="mb-6 flex justify-between items-center">
 		<div>
 			<h1 class="h1 mb-2">{m.EFFECTOR_TYPE_TITLE()}</h1>
@@ -70,11 +71,12 @@
 	</div>
 
 	<!-- Column Headers (large screens only) -->
-	<div class="hidden lg:grid lg:grid-cols-[1fr_1fr_1.5fr_1fr_72px] lg:items-center lg:gap-4 px-3 pb-2 text-sm font-semibold text-surface-500">
+	<div class="hidden lg:grid lg:grid-cols-[1fr_1fr_1.5fr_1fr_100px_72px] lg:items-center lg:gap-4 px-3 pb-2 text-sm font-semibold text-surface-500">
 		<span>{m.EFFECTOR_TYPE_COL_NAME()}</span>
 		<span>{m.EFFECTOR_TYPE_COL_LABEL()}</span>
 		<span>{m.EFFECTOR_TYPE_COL_SYNONYMS()}</span>
 		<span>{m.EFFECTOR_TYPE_COL_PARENT()}</span>
+		<span>{m.EFFECTOR_TYPE_COL_LABELS()}</span>
 		<span class="text-center">{m.EFFECTOR_TYPE_COL_ACTIONS()}</span>
 	</div>
 
@@ -82,6 +84,7 @@
 		{#each filteredEffectorTypes ?? [] as effectorType (effectorType.uid)}
 			<EffectorTypeRow
 				{effectorType}
+				highlighted={effectorType.uid === editedUid}
 				onEdit={(et) => editModal.handleEdit(et)}
 				onDelete={(et) => deleteModal.handleDelete(et)}
 			/>

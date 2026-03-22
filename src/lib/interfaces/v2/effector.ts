@@ -7,6 +7,11 @@ export interface EffectorType {
     slug_fr: string|null,
     effector_type_uid: string|null,
     effector_type_label_fr: string|null,
+    isHCW: boolean,
+    isRPPS: boolean,
+    unique_ID: string|null,
+    concept_en: string|null,
+    concept_fr: string|null,
 }
 
 export interface Effector {

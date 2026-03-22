@@ -19,7 +19,7 @@
 </script>
 
 {#if page.state.editing}
-    <EffectorTypeModal onresult={() => history.back()} title={m.EFFECTOR_TYPE_EDIT()}>
+    <EffectorTypeModal onresult={() => history.back()} title={m.EFFECTOR_TYPE_EDIT()} dialogClass="sm:max-w-4xl">
         <UpdateEffectorType data={page.state.editing} />
     </EffectorTypeModal>
 {/if}

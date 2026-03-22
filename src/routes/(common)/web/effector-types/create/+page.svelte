@@ -24,6 +24,21 @@
 	let definition_fr = $state('');
 	let synonyms_fr = $state('');
 	let selectedParent: { value: string; label: string } | undefined = $state();
+	let isHCW = $state(false);
+	let isRPPS = $state(false);
+	let unique_ID = $state('');
+	let concept_en = $state('');
+	let concept_fr = $state('');
+
+	function toggleHCW() {
+		isHCW = !isHCW;
+		if (!isHCW) isRPPS = false;
+	}
+
+	function toggleRPPS() {
+		if (!isHCW) return;
+		isRPPS = !isRPPS;
+	}
 
 	const disabled = $derived(
 		!name_fr || !label_fr || !slug_fr || Boolean(createEffectorType.for(formKey).pending)
@@ -121,6 +136,46 @@
 				><NoOptions slot="empty" /></Select>
 			</div>
 		</div>
+
+		<!-- Neo4j Labels -->
+		<div class="grid grid-cols-1 gap-2">
+			<span class="label">Labels</span>
+			<input type="hidden" name="isHCW" value={String(isHCW)} />
+			<input type="hidden" name="isRPPS" value={String(isRPPS)} />
+			<div class="flex gap-2 flex-wrap">
+				<span class="chip variant-filled-surface cursor-default opacity-75">EffectorType</span>
+				<button
+					type="button"
+					class="chip {isHCW ? 'variant-filled-primary' : 'variant-ghost-surface'}"
+					onclick={toggleHCW}
+				>HCW</button>
+				<button
+					type="button"
+					class="chip {isRPPS ? 'variant-filled-primary' : 'variant-ghost-surface'} {!isHCW ? 'opacity-40 cursor-not-allowed' : ''}"
+					onclick={toggleRPPS}
+					disabled={!isHCW}
+				>RPPS</button>
+			</div>
+		</div>
+
+		<!-- HCW fields -->
+		{#if isHCW}
+			<input type="hidden" name="unique_ID" value={unique_ID} />
+			<input type="hidden" name="concept_en" value={concept_en} />
+			<input type="hidden" name="concept_fr" value={concept_fr} />
+			<label class="label">
+				<span>{m.EFFECTOR_TYPE_MESH_UNIQUE_ID()}</span>
+				<input type="text" bind:value={unique_ID} class="input" />
+			</label>
+			<label class="label">
+				<span>{m.EFFECTOR_TYPE_CONCEPT()} [Fr]</span>
+				<input type="text" bind:value={concept_fr} class="input" />
+			</label>
+			<label class="label">
+				<span>{m.EFFECTOR_TYPE_CONCEPT()} [En]</span>
+				<input type="text" bind:value={concept_en} class="input" />
+			</label>
+		{/if}
 
 		<!-- Submit -->
 		<div class="flex flex-wrap gap-8 justify-end">

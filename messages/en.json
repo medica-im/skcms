@@ -334,12 +334,15 @@
 	"EFFECTOR_TYPE_COL_LABEL": "Label",
 	"EFFECTOR_TYPE_COL_SYNONYMS": "Synonyms",
 	"EFFECTOR_TYPE_COL_PARENT": "Parent",
+	"EFFECTOR_TYPE_COL_LABELS": "Labels",
 	"EFFECTOR_TYPE_COL_ACTIONS": "Actions",
 	"EFFECTOR_TYPE_DELETE_CONFIRM": "Are you sure you want to delete the effector type",
 	"EFFECTOR_TYPE_NO_PARENT": "No parent",
 	"EFFECTOR_TYPE_DEFINITION": "Definition",
 	"EFFECTOR_TYPE_SLUG": "Slug",
 	"EFFECTOR_TYPE_PARENT_PLACEHOLDER": "Select a parent...",
+	"EFFECTOR_TYPE_MESH_UNIQUE_ID": "MeSH unique ID",
+	"EFFECTOR_TYPE_CONCEPT": "Concept",
 	"selected": [
 		{
 			"declarations": [

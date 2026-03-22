@@ -7,9 +7,10 @@
     title: string
     children?: Snippet
     onresult: (result: boolean) => void
+    dialogClass?: string
   }
 
-  let { title, children, onresult }: Props = $props()
+  let { title, children, onresult, dialogClass = 'sm:max-w-lg' }: Props = $props()
 
   let modal: Modal
 
@@ -27,7 +28,7 @@
   }
 </script>
 
-<Modal bind:this={modal} onclose={() => onresult(false)}>
+<Modal bind:this={modal} onclose={() => onresult(false)} {dialogClass}>
   <div class="sm:flex sm:items-start">
     {#if children}
       {@render children()}
