@@ -27,7 +27,7 @@
 	<!-- Name -->
 	<span class="font-semibold truncate">
 		<span class="lg:hidden text-sm text-surface-500">{m.EFFECTOR_TYPE_COL_NAME()}: </span>
-		{effectorType.name_fr}
+		<a href="/web/effector-types/{effectorType.uid}" class="anchor">{effectorType.name_fr}</a>
 	</span>
 
 	<!-- Label -->

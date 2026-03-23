@@ -53,9 +53,9 @@
 				}
 			}}
 		>
-			<button class="btn variant-filled-primary" title={m.EFFECTOR_TYPE_CREATE()}>
+			<button class="btn variant-filled-primary" title={m.CREATE()}>
 				<span><Fa icon={faPlus} /></span>
-				<span class="hidden lg:block">{m.EFFECTOR_TYPE_CREATE()}</span>
+				<span class="hidden lg:block">{m.CREATE()}</span>
 			</button>
 		</a>
 	</header>
@@ -93,7 +93,7 @@
 </div>
 
 {#if createOpen}
-	<CreateEffectorTypeModal onresult={() => {}} title={m.EFFECTOR_TYPE_CREATE()}>
+	<CreateEffectorTypeModal onresult={() => {}} title={m.CREATE()}>
 		<CreateEffectorType data={page.state.selected ?? data} onclose={() => {
 			createOpen = false;
 			history.back();

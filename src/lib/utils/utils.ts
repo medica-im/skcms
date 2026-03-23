@@ -138,6 +138,47 @@ export const entryPageUrl = (entry: Entry, org_category: string | null = null, p
 	}
 }
 
+export const entrySlugPageUrl = (entry: Entry, pathname: string | null = null, facility: string | null = null, types: string[] | null = null, tags: string[]|null = null, term: string | null = null, communes: string[] | null = null, department: {label: string, value: string} | null = null, situation: string | undefined = undefined, addressFeature: AddressFeature|null=null, displayMap: boolean = false) => {
+	const originParam = pathname ? `${encodeURIComponent(pathname)}` : '';
+	const facilityParam = facility ? `${encodeURIComponent(facility)}` : '';
+	const typesParam = types?.length ? `${encodeURIComponent(JSON.stringify(types))}` : '';
+	const termParam = term ? `${encodeURIComponent(term)}` : '';
+	const communesParam = communes?.length
+		? `${encodeURIComponent(JSON.stringify(communes))}`
+		: '';
+	const departmentsParam = department
+		? `${encodeURIComponent(JSON.stringify(department.value))}`
+		: '';
+	const situationParam = situation ? `${encodeURIComponent(situation)}`: '';
+	const addressFeatureParam = addressFeature ? `${encodeURIComponent(JSON.stringify(addressFeature))}`: '';
+	const tagsParam = tags ? `${encodeURIComponent(JSON.stringify(tags))}`: '';
+
+	const displayMapParam = displayMap;
+
+	const params: { [key: string]: string|boolean; }[] = [
+		{origin: originParam},
+		{facility: facilityParam},
+		{types: typesParam},
+		{term: termParam},
+		{communes: communesParam},
+		{department: departmentsParam},
+		{situation:	situationParam},
+		{address: addressFeatureParam},
+		{map: displayMapParam},
+		{tags: tagsParam},
+	]
+	const urlParams: string[] = [];
+	params.forEach((value, index)=>{
+		const key = Object.keys(value)[0];
+		const param = value[key]
+		if (!param) return;
+		const p = index==0 ? '?':'&';
+		urlParams.push(`${p}${key}${typeof param === 'string' ? '=':''}${typeof param === 'string' ? param:''}`);
+	});
+	const qs = urlParams.join('');
+	return `/e/${entry.entrySlug}${qs}`;
+}
+
 export function isExpired(ttl: number, cacheTime: number): boolean {
 	const elapsed = Date.now() - cacheTime;
 	return elapsed > ttl * 1000;

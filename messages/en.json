@@ -143,8 +143,9 @@
 	},
 	"FACILITY": [{"declarations":["input count","local countPlural = count: plural"],"selectors":["countPlural"],"match":{"countPlural=one":"facility","countPlural=other":"facilities"}}],
 	"OUR_FACILITIES": [{"declarations":["input count","local countPlural = count: plural"],"selectors":["countPlural"],"match":{"countPlural=one":"Our facility","countPlural=other":"Our {count} facilities"}}],
-	"CREATE": "create",
-	"EDIT": "edit",
+	"CREATE": "Create",
+	"EDIT": "Edit",
+	"DELETE": "Delete",
 	"PHONE_TYPE": {
 		"M": "Personal mobile phone",
 		"MW": "Work mobile phone",
