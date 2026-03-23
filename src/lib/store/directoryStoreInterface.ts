@@ -57,6 +57,7 @@ export interface Entry {
     phones: Phone[];
     resource_uri: string;
     slug: string;
+    entrySlug: string;
     tags: Tag[]|null;
     uid: string;
     updatedAt: number;
@@ -84,6 +85,7 @@ export interface EntryFull {
     resource_uri: string;
     rpps: number | null;
     slug: string;
+    entrySlug: string;
     socialnetworks: SocialNetwork[] | null;
     spoken_languages: SpokenLanguage[] | null;
     third_party_payers: ThirdPartyPayer[] | null;

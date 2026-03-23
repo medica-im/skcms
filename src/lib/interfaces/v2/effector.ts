@@ -1,10 +1,22 @@
 export interface EffectorType {
     uid: string,
-    name: string,
-    label: string,
-    synonyms: string[]|null,
-    definition: string|null,
-    slug: string
+    name_fr: string,
+    name_en: string|null,
+    label_fr: string,
+    label_en: string|null,
+    synonyms_fr: string[]|null,
+    synonyms_en: string[]|null,
+    definition_fr: string|null,
+    definition_en: string|null,
+    slug_fr: string|null,
+    slug_en: string|null,
+    effector_type_uid: string|null,
+    effector_type_label_fr: string|null,
+    isHCW: boolean,
+    isRPPS: boolean,
+    unique_ID: string|null,
+    concept_en: string|null,
+    concept_fr: string|null,
 }
 
 export interface Effector {

@@ -121,6 +121,10 @@
 							</a>
 						{/if}
 						{#if r.SuperUser}
+						<a href="/web/effector-types">
+							<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
+							<span>{m.CATEGORIES()}</span>
+						</a>
 						<a href="/web/email">
 							<span class="w-6 text-center"><Fa icon={faAt} /></span>
 							<span>Email</span>

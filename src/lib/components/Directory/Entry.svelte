@@ -17,9 +17,11 @@
 	import { goto } from '$app/navigation';
 	import CommunityAddress from '$lib/Address/CommunityAddress.svelte';
 	import Tag from '$lib/Tag/Tag.svelte';
-	import { entryPageUrl } from '$lib/utils/utils';
+	import { entrySlugPageUrl, entryPageUrl } from '$lib/utils/utils';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 	import * as m from '$msgs';
+	import Fa from 'svelte-fa';
+	import { faLink } from '@fortawesome/free-solid-svg-icons';
 	let { entry, displayAvatar }: { entry: Entry; displayAvatar: boolean } = $props();
 
 	let addressFeature = getAddressFeature();
@@ -33,10 +35,28 @@
 	let displayMap = getDisplayMap();
 	const avatar = $derived(entry.avatar);
 
+	const oldUrl = $derived(entryPageUrl(
+		entry,
+		page.data.organization?.category?.name,
+		page.url.pathname,
+		$selectFacility,
+		$selectCategories,
+		$tags?.map((t) => t.uid),
+		$term,
+		$selectCommunes,
+		$selectDepartment,
+		$selectSituation?.value,
+		$addressFeature,
+		$displayMap
+	));
+
+	const goToOld = () => {
+		goto(oldUrl, { replaceState: false });
+	};
+
 	const goTo = () => {
-		const url = entryPageUrl(
+		const url = entrySlugPageUrl(
 			entry,
-			page.data.organization.category.name,
 			page.url.pathname,
 			$selectFacility,
 			$selectCategories,
@@ -48,6 +68,7 @@
 			$addressFeature,
 			$displayMap
 		);
+		console.log("goTo() url", url);
 		goto(url, { replaceState: false });
 	};
 </script>
@@ -69,7 +90,19 @@
 		{/if}
 		<div class="p-4 space-y-1 flex-1">
 			<div class="flex items-center justify-between">
-				<h3 class="h3">{entry.name}</h3>
+				<div class="flex items-center gap-2">
+					<h3 class="h3">{entry.name}</h3>
+					{#if import.meta.env.DEV}
+						<button
+							type="button"
+							class="btn btn-sm variant-ghost-surface p-1"
+							title={oldUrl}
+							onclick={(e: MouseEvent) => { e.stopPropagation(); goToOld(); }}
+						>
+							<Fa icon={faLink} size="xs" />
+						</button>
+					{/if}
+				</div>
 				{#if entry.active === false}
 					<span class="badge variant-filled-error badge-sm" title={m.ENTRY_INACTIVE()}
 						>{m.INACTIVE()}</span
