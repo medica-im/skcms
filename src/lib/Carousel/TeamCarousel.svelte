@@ -16,8 +16,7 @@
 		);*/
 	}
 	function getLink(entry: Entry, pathname: string) {
-		return `/${entry.facility.slug}/${entry.effector_type.slug}/${entry.slug
-	}?origin=${encodeURIComponent(pathname)}`
+		return `/e/${entry.entrySlug}?origin=${encodeURIComponent(pathname)}`
 	}
 </script>
 
