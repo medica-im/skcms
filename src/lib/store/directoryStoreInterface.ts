@@ -48,7 +48,6 @@ export interface Entry {
     department: Department;
     effector_uid: string;
     effector_type: Type;
-    employers: string[];
     facility: Facility;
     gender: string | null;
     label: string;

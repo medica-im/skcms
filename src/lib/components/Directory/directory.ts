@@ -9,9 +9,9 @@ export const cardCatEntries = (entries: Entry[], labels: Labels, currentOrg: boo
     if (!entries) return null
     const filteredEntries = entries.filter((e: Entry) => {
         if (currentOrg == true && orgUid) {
-            return e.memberships?.includes(orgUid) || e.employers?.includes(orgUid)
+            return e.memberships?.includes(orgUid)
         } else if (currentOrg == false && orgUid) {
-            return !e.memberships?.includes(orgUid) && !e.employers?.includes(orgUid)
+            return !e.memberships?.includes(orgUid)
         } else {
             return true
         }
@@ -28,7 +28,7 @@ export const cardCatEntries = (entries: Entry[], labels: Labels, currentOrg: boo
 
 export const getAvatars = (entries: Entry[], uid: string) => {
     let carousel = entries.filter((e: Entry)=>{
-        return ((e.avatar?.lt || e.avatar?.raw || e.avatar?.fb) && (e.memberships.includes(uid) || e.employers.includes(uid)))
+        return ((e.avatar?.sm || e.avatar?.raw) && (e.memberships.includes(uid)))
     });
     shuffle(carousel);
     return carousel
