@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import { Avatar } from '@skeletonlabs/skeleton';
 	import { faUser, faCheck } from '@fortawesome/free-solid-svg-icons';
-	import { entryUrl } from '$lib/utils/utils.ts';
+	import { entrySlugPageUrl } from '$lib/utils/utils.ts';
 	import Fa from 'svelte-fa';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
@@ -17,7 +17,6 @@
 		);
 	}
 	const user = $derived(page.data.user);
-	const org = $derived(page.data.organization?.category?.name);
 	const allEntries: Entry[] = $derived(page.data.entries ?? []);
 
 	let userEntries = $derived(
@@ -45,11 +44,11 @@
 					class="grid grid-cols-1 sm:grid-cols-[1fr_80px_80px_80px] items-center gap-2 p-2 variant-soft-surface hover:variant-ghost-surface"
 				>
 					<!-- Entry card -->
-					<a href={entryUrl(entry, page.url.pathname, org, true)} class="no-underline">
+					<a href={entrySlugPageUrl(entry, page.url.pathname)} class="no-underline">
 						<div class="grid lg:grid-cols-[10%_45%_45%] sm:grid-cols-1 flex flex-wrap p-1 items-center gap-3 transition-colors">
-							{#if entry.avatar?.fb || entry.avatar?.raw}
+							{#if entry.avatar?.lg || entry.avatar?.raw}
 								<Avatar
-									src={entry.avatar.fb || entry.avatar.raw}
+									src={entry.avatar?.lg || entry.avatar?.raw}
 									width="w-10"
 									rounded="rounded-full"
 								/>
