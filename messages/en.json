@@ -146,6 +146,7 @@
 	"CREATE": "Create",
 	"EDIT": "Edit",
 	"DELETE": "Delete",
+	"DELETE_CONFIRM": "Are you sure you want to delete this item?",
 	"PHONE_TYPE": {
 		"M": "Personal mobile phone",
 		"MW": "Work mobile phone",
@@ -255,6 +256,8 @@
 	"ENTRY_REACTIVATE_TITLE": "Reactivation",
 	"ENTRY_REACTIVATE_CONFIRM": "Reactivate this entry in the directory?",
 	"ENTRY_REACTIVATE_DESCRIPTION": "The entry will appear again in the directory.",
+	"ENTRY_IS_OWNER": "Owner of the entry",
+	"REDEEM_EMAIL": "Redeem email",
 	"INVITEE_BACK_TO_LIST": "Back to invitations",
 	"INVITEE_REDEEMED_ON": "redeemed on",
 	"INVITEE_COL_NAME": "Name",

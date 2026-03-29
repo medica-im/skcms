@@ -22,6 +22,8 @@ const postEntry = z.object({
 	),
 	directory: z.string().optional(),
 	organization_category: z.string().optional(),
+	isOwner: z.boolean().default(true),
+	redeemEmail: z.preprocess((val) => val === '' ? undefined : val, z.email().optional())
 }
 );
 
@@ -69,7 +71,8 @@ const Patch = z.object({
 	convention: z.nullable(z.string()).optional(),
 	active: z.boolean().optional(),
 	memberships: z.array(z.string()).optional(),
-	owners: z.array(z.string()).optional()
+	owners: z.array(z.string()).optional(),
+	redeemEmail: z.nullable(z.string().email()).optional()
 });
 
 export const patchCommand = command(Patch, async (data) => {
@@ -80,7 +83,9 @@ export const patchCommand = command(Patch, async (data) => {
 	const url = `${variables.BASE_URI}/api/v2/entries/${entry_uid}`;
 	const request = authReq(url, 'PATCH', cookies, JSON.stringify(data));
 	const response = await fetch(request);
+	//const jsn = await response.json();
 	if (response.ok == false) {
+		//console.log("patchCommand json", JSON.stringify(jsn));
 		console.error(response.status)
 		console.error(response.statusText)
 		return {

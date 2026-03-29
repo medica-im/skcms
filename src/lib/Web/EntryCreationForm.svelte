@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { userRoles } from '$lib/auth/roles';
 	import { createEntry } from '../../entry.remote.ts';
 	import Fa from 'svelte-fa';
 	import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
@@ -28,11 +29,13 @@
 		displayMembershipStep: boolean;
 	} = $props();
 
+	const r = $derived(userRoles(page.data?.user?.role));
 	const isSuperUser = $derived(page.data?.user?.role == 'superuser');
 	let effectorUid: string | undefined = $derived(effector?.uid);
 	let effector_type: string | undefined = $derived(effectorType?.value);
 	let facilityUid: string | undefined = $derived(facility?.value);
 	let directory: string | undefined = $state();
+	let isOwner = $state(true);
 	let uid = $derived.by(() => {
 		if (effectorUid && effector_type && facilityUid) {
 			return effectorUid.concat(effector_type, facilityUid);
@@ -162,6 +165,22 @@ hasErrors: {hasErrors}-->
 							type="text"
 							placeholder=""
 							bind:value={directory}
+						/>
+					</label>
+				{/if}
+				{#if r.SuperUser || r.Admin}
+					<input type="hidden" name="b:isOwner" value={isOwner ? 'on' : ''} />
+					<label class="flex items-center gap-2">
+						<input type="checkbox" bind:checked={isOwner} /> {m.ENTRY_IS_OWNER()}
+					</label>
+					<label class="label w-full">
+						<span class="text-sm font-medium">{m.REDEEM_EMAIL()}</span>
+						<input
+							oninput={() => {}}
+							class="input w-full"
+							name="redeemEmail"
+							type="email"
+							placeholder=""
 						/>
 					</label>
 				{/if}

@@ -96,6 +96,7 @@ export interface EntryFull {
     tags: Tag[]|null;
     owner: string[]|null;
     creator: string[]|null;
+    redeemEmail: string|null;
 }
 
 export interface FeatureCollection {

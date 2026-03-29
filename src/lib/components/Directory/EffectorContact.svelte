@@ -42,6 +42,7 @@
 	import UuidHyphen from '$lib/Uuid/UuidHyphen.svelte';
 	import MembershipSection from '$lib/components/Directory/MembershipSection.svelte';
 	import CreatorOwner from '$lib/Web/Users/CreatorOwner.svelte';
+	import RedeemEmail from '$lib/Web/Entry/RedeemEmail.svelte';
 	import TagModal from '$lib/Web/Tag/TagModal.svelte';
 	import AvatarUploadModal from '$lib/Web/Avatar/AvatarUploadModal.svelte';
 	import { JsonView } from '@zerodevx/svelte-json-view';
@@ -257,6 +258,7 @@
 	{/if}
 	{#if ['superuser', 'administrator'].includes(page.data?.user?.role)}
 		<CreatorOwner owner={fullentry.owner} creator={fullentry.creator} />
+		<RedeemEmail data={fullentry} editMode={$editMode} />
 	{/if}
 	{#if $editMode}
 		<div class="flex flex-row">
