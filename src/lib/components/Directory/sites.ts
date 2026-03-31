@@ -5,7 +5,7 @@ import type { Facility } from '$lib/interfaces/facility.interface.ts';
 import type { Labels } from '$lib/interfaces/label.interace.ts';
 
 export const facilityEntries = (entries: Entry[], facilityUid: string | undefined, eTL: Labels) => {
-    const filteredEntries = entries.filter(e => facilityUid == e.facility.uid);
+    const filteredEntries = entries.filter(e => facilityUid == e.facility.uid && e.active);
     const categorizedEntries = categorizedFilteredEffectorsF(filteredEntries);
     const cardinalCategorizedEntries = cardinalCategorizedFilteredEffectorsF(categorizedEntries, eTL);
     return cardinalCategorizedEntries;
