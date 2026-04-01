@@ -20,6 +20,8 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 
+	const dirPath = page.data.directory.setting.path || "/";
+
 	let term = getTerm();
 	let selectedCommunesChoices = getSelectedCommunesChoices();
 	let selectedCommunesUids = getSelectedCommunesUids();
@@ -72,8 +74,8 @@
 			query.delete(key);
 		});
 		goto(`?${query.toString()}`);
-		if (page.url.pathname != '/annuaire' && $directoryRedirect) {
-			goto('/annuaire');
+		if (page.url.pathname != dirPath && $directoryRedirect) {
+			goto(dirPath);
 		}
 	}
 </script>

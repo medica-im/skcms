@@ -15,6 +15,12 @@
 			labels.length < 2 ? '' : ` et `
 		);*/
 	}
+	function displayName(entry: Entry): string {
+		if (entry.name.length > 30 && entry.label) {
+			return entry.label;
+		}
+		return entry.name;
+	}
 	function getLink(entry: Entry, pathname: string) {
 		return `/e/${entry.entrySlug}?origin=${encodeURIComponent(pathname)}`
 	}
@@ -39,7 +45,7 @@
 								href={getLink(entry, page.url.pathname)}
 								class="anchor flex shrink"
 								><div class="mx-auto text-primary">
-									{entry.name}, {getLabels(entry)}
+									{displayName(entry)}, {getLabels(entry)}
 								</div></a
 							>
 						</figcaption>
@@ -56,7 +62,7 @@
 			<figcaption class="text-center w-64">
 				<a href={getLink(entry, page.url.pathname)} class="anchor"
 					><div class="mx-auto text-primary underline">
-						{entry.name}, {getLabels(entry)}
+						{displayName(entry)}, {getLabels(entry)}
 					</div></a
 				>
 			</figcaption>

@@ -8,7 +8,7 @@
 		const types = `["${value[0].effector_type.uid}"]`;
 		const encodedTypes = encodeURIComponent(JSON.stringify(types));
 		const encodedFacility = `${value[0].facility.uid}`;
-		const path = page.data.organization.category.name == "msp" ? "/annuaire" : "/";
+		const path = page.data.directory.setting.path || "/";
 		return `${path}?types=${encodedTypes}&facility=${encodedFacility}`;
 	};
 	const entryClass = () => {

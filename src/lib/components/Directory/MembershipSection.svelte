@@ -15,11 +15,11 @@
 		<div class="flex items-center py-2">
 			<div class="w-9"><Fa icon={faPeopleGroup} size="sm" /></div>
 			<div>
-				<h3 class="h3 flex place-items-center gap-1">
+				<h4 class="h4 flex place-items-center gap-1">
 					{capitalizeFirstLetter(
 						m.MEMBERSHIP({ count: memberships?.length||0 })
 					)}{#if editMode}<PatchMembershipModal currentMemberships={memberships} />{/if}
-				</h3>
+				</h4>
 			</div>
 		</div>
 		<div class="flex">

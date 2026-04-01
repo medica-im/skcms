@@ -11,7 +11,7 @@
 	import { faBlog } from '@fortawesome/free-solid-svg-icons';
 
 	let {
-		currentRailCategory=$bindable(),
+		currentRailCategory = $bindable(),
 		navLinks
 	}: {
 		currentRailCategory: string | undefined;
@@ -19,6 +19,7 @@
 	} = $props();
 
 	const siteCat = page.data.organization.category.name;
+	const dirPath = page.data.directory.setting.path || '/';
 	const drawerStore = getDrawerStore();
 
 	function onClickAnchor(): void {
@@ -39,51 +40,49 @@
 >
 	<!-- App Rail -->
 	<AppRail background="!bg-transparent" border="border-r border-surface-500/30">
-		{#if siteCat == 'msp'}
-			<AppRailAnchor
-				data-sveltekit-preload-data="off"
-				href="/"
-				selected={page.url.pathname == '/' && !currentRailCategory}
-				class="lg:hidden"
-				on:click={() => {
-					onClickAnchor();
-				}}
-			>
-				<svelte:fragment slot="lead"
-					><DocsIcon name="home" width="w-6" height="h-6" /></svelte:fragment
-				>
-				<span>{m.HOME_TITLE()}</span>
-			</AppRailAnchor>
-		{/if}
 		<AppRailAnchor
-			href={siteCat == 'msp' ? '/annuaire' : '/'}
-			selected={page.url.pathname.startsWith('/annuaire') && !currentRailCategory}
+			data-sveltekit-preload-data="off"
+			href="/"
+			selected={page.url.pathname == '/' && !currentRailCategory}
 			class="lg:hidden"
 			on:click={() => {
 				onClickAnchor();
 			}}
 		>
 			<svelte:fragment slot="lead"
-				><DocsIcon name="addressBook" width="w-6" height="h-6" /></svelte:fragment
+				><DocsIcon name="home" width="w-6" height="h-6" /></svelte:fragment
 			>
-			<span>{m.NAVBAR_ADDRESSBOOK()}</span>
+			<span>{m.HOME_TITLE()}</span>
 		</AppRailAnchor>
-		{#if siteCat == 'msp'}
+		{#if dirPath != '/'}
 			<AppRailAnchor
-				href="/sites"
-				selected={page.url.pathname == '/sites' && !currentRailCategory}
+				href={dirPath}
+				selected={page.url.pathname.startsWith(dirPath) && !currentRailCategory}
 				class="lg:hidden"
 				on:click={() => {
 					onClickAnchor();
 				}}
 			>
 				<svelte:fragment slot="lead"
-					><DocsIcon name="mapLocationDot" width="w-6" height="h-6" /></svelte:fragment
+					><DocsIcon name="addressBook" width="w-6" height="h-6" /></svelte:fragment
 				>
-				<span>Sites</span>
+				<span>{m.NAVBAR_ADDRESSBOOK()}</span>
 			</AppRailAnchor>
 		{/if}
-		{#if page.data.organization.category.name == 'msp'}
+		<AppRailAnchor
+			href="/sites"
+			selected={page.url.pathname == '/sites' && !currentRailCategory}
+			class="lg:hidden"
+			on:click={() => {
+				onClickAnchor();
+			}}
+		>
+			<svelte:fragment slot="lead"
+				><DocsIcon name="mapLocationDot" width="w-6" height="h-6" /></svelte:fragment
+			>
+			<span>Sites</span>
+		</AppRailAnchor>
+		{#if siteCat == 'msp'}
 			<AppRailTile bind:group={currentRailCategory} name="msp" value={'msp'}>
 				<svelte:fragment slot="lead"
 					><DocsIcon name="outpatientClinic" width="w-6" height="h-6" /></svelte:fragment
@@ -143,10 +142,10 @@
 			<SoMed data={page.data.organization.contact.socialnetworks} appRail={true} />
 		{/if}
 		{#if page.data.organization.contact?.websites}
-			{#each page.data.organization.contact?.websites as website }
-			{#if website.url!==ORIGIN}
-			<Website {website} appRail={true} />
-			{/if}
+			{#each page.data.organization.contact?.websites as website}
+				{#if website.url !== ORIGIN}
+					<Website {website} appRail={true} />
+				{/if}
 			{/each}
 		{/if}
 	</AppRail>

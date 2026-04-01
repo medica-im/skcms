@@ -45,7 +45,7 @@
 							</a>
 						</li>
 						<li class="mb-4">
-							<a href="/annuaire"> Annuaire </a>
+							<a href={page.data.directory.setting.path || '/'}> Annuaire </a>
 						</li>
 						<li class="mb-4">
 							<a href="/sites"> Sites </a>

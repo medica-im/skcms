@@ -16,6 +16,8 @@
 
 	let { categoryOf }: { categoryOf: Type[] } = $props();
 
+	const dirPath = page.data.directory.setting.path || "/";
+
 	const itemFilter = (label: any, filterText: any, option: any) => {
 		const normalizedFilterText = normalize(filterText);
 		const name = normalize(option.name);
@@ -33,7 +35,7 @@
 	const itemId = 'uid';
 	let focused = $state(false);
 	let listOpen = $state(false);
-	let srcElement = $state();
+	let srcElement: HTMLElement | undefined = $state();
 
 	let selCatVal = getSelCatVal();
 	let selectCategories = getSelectCategories();
@@ -67,12 +69,10 @@
 				await goto(page.url.pathname + '?' + page.url.searchParams);
 			}
 			if (srcElement) srcElement.blur();
-			if (page.url.pathname != '/annuaire' && $directoryRedirect) {
-				let url = '/annuaire';
+			if (page.url.pathname != dirPath && $directoryRedirect) {
 				if ($selectFacility) {
-					url += `?facility=${$selectFacility}`;
+					await goto(`${dirPath}?facility=${$selectFacility}`);
 				}
-				await goto(url);
 			}
 		} else {
 			if (srcElement) srcElement.blur();
@@ -84,13 +84,13 @@
 			console.log("event.detail", event.detail);
 			selectCategories.set([event.detail.uid]);
 			if (srcElement) srcElement.blur();
-			if (page.url.pathname != '/annuaire' && $directoryRedirect) {
+			if (page.url.pathname != dirPath && $directoryRedirect) {
 				const typesParam = JSON.stringify(`[${event.detail.uid}]`);
 				let urlParams = `?types=${typesParam}`;
 				if ($selectFacility) {
 					urlParams += `&facility=${$selectFacility}`;
 				}
-				goto(`/annuaire${urlParams}`);
+				goto(`${dirPath}${urlParams}`);
 			}
 		} else {
 			if (srcElement) srcElement.blur();

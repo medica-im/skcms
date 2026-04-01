@@ -1,11 +1,13 @@
 <script lang="ts">
+import { page } from "$app/state";
 	export let data: any;
+	const dirPath = page.data.directory.setting.path || '/';
 </script>
 
 <div class="space-x-2">
 	{#each [...data] as [key, value]}
 		<a
-			href={`/annuaire/${value[0].effector_type.slug}?types=${encodeURIComponent(JSON.stringify([value[0].effector_type.uid]))}`}
+			href={`${dirPath}/${value[0].effector_type.slug}?types=${encodeURIComponent(JSON.stringify([value[0].effector_type.uid]))}`}
 			class="btn variant-ghost-primary btn-sm m-2"
 			><span class="">
 				{value.length}

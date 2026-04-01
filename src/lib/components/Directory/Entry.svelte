@@ -54,6 +54,13 @@
 		goto(oldUrl, { replaceState: false });
 	};
 
+	function displayName(entry: Entry): string {
+		if (entry.name.length > 30 && entry.label) {
+			return entry.label;
+		}
+		return entry.name;
+	}
+
 	const goTo = () => {
 		const url = entrySlugPageUrl(
 			entry,
@@ -91,7 +98,7 @@
 		<div class="p-4 space-y-1 flex-1">
 			<div class="flex items-center justify-between">
 				<div class="flex items-center gap-2">
-					<h3 class="h3">{entry.name}</h3>
+					<h3 class="h3">{displayName(entry)}</h3>
 					{#if import.meta.env.DEV}
 						<button
 							type="button"

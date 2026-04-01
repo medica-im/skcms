@@ -20,9 +20,9 @@
 <div class="flex items-center p-1">
 	<div class="w-9"><Fa icon={faEuroSign} size="sm" /></div>
 	<div>
-		<h3 class="h3">
+		<h4 class="h4">
 			{m.ADDRESSBOOK_COSTS_AND_REIMBURSEMENTS()}
-		</h3>
+		</h4>
 	</div>
 </div>
 {#if data?.convention != null || $editMode}
@@ -31,6 +31,6 @@
 {#if data?.carte_vitale != null || $editMode}
 	<CarteVitale data={cvData} editMode={$editMode} />
 {/if}
-{#if data.third_party_payers != null || $editMode}
+{#if tppData != null || $editMode}
 	<ThirdPartyPayer data={tppData} editMode={$editMode} />
 {/if}

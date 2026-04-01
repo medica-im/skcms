@@ -17,7 +17,7 @@
 	import type { FormResult } from '$lib/interfaces/v2/form';
 	import type { EntryFull } from '$lib/store/directoryStoreInterface';
 
-	let { data, editMode = false }: { data: EntryFull; owners: any; editMode?: boolean } = $props();
+	let { data, editMode = false }: { data: EntryFull; editMode?: boolean } = $props();
 
 	const uid = getEntryUid();
 
@@ -38,7 +38,7 @@
 	<div class="flex items-center py-2">
 		<div class="w-9"><Fa icon={faEnvelope} size="sm" /></div>
 		<div>
-			<h3 class="h3 flex place-items-center gap-1">
+			<h4 class="h4 flex place-items-center gap-1">
 				{m.REDEEM_EMAIL()}
 				{#if editMode}
 					<button
@@ -61,7 +61,7 @@
 						>
 					{/if}
 				{/if}
-			</h3>
+			</h4>
 		</div>
 	</div>
 

@@ -38,7 +38,7 @@
 							</a>
 						</li-->
 						<li class="mb-4">
-							<a href="/">{m.ADDRESSBOOK_TITLE()}</a>
+							<a href={page.data.directory.setting.path || '/'}>{m.ADDRESSBOOK_TITLE()}</a>
 						</li>
 						<!--li class="mb-4">
 							<a href="/sites"> Sites </a>

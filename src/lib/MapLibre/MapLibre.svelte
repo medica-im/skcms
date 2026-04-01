@@ -57,11 +57,13 @@
 		}
 	});
 	let zoom = $derived.by(() => {
-		if (data?.length == 1 || bboxElements(bounds) < 4) {
+		if (!data?.length) return 15;
+		if (data.length == 1 || bboxElements(bounds) < 4) {
 			return data[0].zoom || 15;
 		}
 	});
 	let center = $derived.by(() => {
+		if (!data?.length) return undefined;
 		const c = data[0].latLng.slice().reverse() as [number, number];
 		if (data?.length == 1) {
 			return c;

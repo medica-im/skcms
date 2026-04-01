@@ -47,7 +47,7 @@
 	import * as m from '$msgs';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	
-
+	const dirPath = page.data.directory.setting.path || "/";
 	const drawerStore = getDrawerStore();
 	const modalStore = getModalStore();
 
@@ -187,7 +187,7 @@
 							</a>
 						</li>
 						<li>
-							<a data-sveltekit-preload-data="tap" href="/annuaire">
+							<a data-sveltekit-preload-data="tap" href={dirPath}>
 								<span class="w-6 text-center"><Fa icon={faAddressBook} /></span>
 								<span>{m.NAVBAR_ADDRESSBOOK()}</span>
 							</a>
@@ -200,7 +200,7 @@
 						</li>
 						{:else}
 						<li>
-							<a data-sveltekit-preload-data="tap" href="/">
+							<a data-sveltekit-preload-data="tap" href={dirPath}>
 								<span class="w-6 text-center"><Fa icon={faAddressBook} /></span>
 								<span>{m.NAVBAR_ADDRESSBOOK()}</span>
 							</a>

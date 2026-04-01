@@ -22,9 +22,9 @@
 <div class="flex items-center p-1">
 	<div class="w-9"><Fa icon={faCalendarCheck} size="sm" /></div>
 	<div>
-		<h3 class="h3 flex place-items-center gap-1">
+		<h4 class="h4 flex place-items-center gap-1">
 			{m.ADDRESSBOOK_APPOINTMENT_LABEL()}{#if $editMode}<CreateAppointment />{/if}
-		</h3>
+		</h4>
 	</div>
 </div>
 {#if data && data?.length}
