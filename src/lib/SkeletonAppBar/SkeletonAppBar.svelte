@@ -50,6 +50,7 @@
 	const dirPath = page.data.directory.setting.path || "/";
 	const drawerStore = getDrawerStore();
 	const modalStore = getModalStore();
+	const isMSP = page.data?.organization?.category?.name == "msp";
 
 	// Local
 	let isOsMac = false;
@@ -179,13 +180,14 @@
 			<div class="card p-4 w-60 shadow-xl" data-popup="features">
 				<nav class="list-nav">
 					<ul>
-						{#if page.data?.organization?.category?.name == "msp"}
+						{#if dirPath !== "/"}
 						<li>
 							<a data-sveltekit-preload-data="off" href="/">
 								<span class="w-6 text-center"><Fa icon={faHouse} /></span>
 								<span>{m.HOME_TITLE()}</span>
 							</a>
 						</li>
+						{/if}
 						<li>
 							<a data-sveltekit-preload-data="tap" href={dirPath}>
 								<span class="w-6 text-center"><Fa icon={faAddressBook} /></span>
@@ -198,15 +200,6 @@
 								<span>Sites</span>
 							</a>
 						</li>
-						{:else}
-						<li>
-							<a data-sveltekit-preload-data="tap" href={dirPath}>
-								<span class="w-6 text-center"><Fa icon={faAddressBook} /></span>
-								<span>{m.NAVBAR_ADDRESSBOOK()}</span>
-							</a>
-						</li>
-						{/if}
-						
 						<li>
 							<a href="/contact">
 								<span class="w-6 text-center"><Fa icon={faEnvelope} /></span>
@@ -217,6 +210,7 @@
 				</nav>
 			</div>
 		</div>
+		{#if isMSP}
 		<div class="hidden">
 			<!-- trigger -->
 			<button
@@ -254,6 +248,7 @@
 				</nav>
 			</div>
 		</div>
+		{/if}
 		<div class="relative hidden xl:block">
 			<MenuNavLinks />
 		</div>
