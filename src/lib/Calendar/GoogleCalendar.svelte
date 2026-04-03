@@ -69,3 +69,10 @@
 	</details>
 {/if}
 <div bind:this={calendarEl} class="w-full"></div>
+
+<style>
+	:global(.fc-event-title) {
+		white-space: normal !important;
+		overflow-wrap: break-word;
+	}
+</style>
