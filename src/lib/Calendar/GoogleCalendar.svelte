@@ -2,17 +2,20 @@
 	import { onMount } from 'svelte';
 	import { Calendar } from '@fullcalendar/core';
 	import dayGridPlugin from '@fullcalendar/daygrid';
+	import listPlugin from '@fullcalendar/list';
 	import googleCalendarPlugin from '@fullcalendar/google-calendar';
 	import { getLocale } from '$prgld/runtime.js';
 
 	let {
 		calendarId,
 		apiKey,
-		locale = getLocale()
+		locale = getLocale(),
+		view = 'dayGridMonth'
 	}: {
 		calendarId: string;
 		apiKey: string;
 		locale?: string;
+		view?: 'dayGridMonth' | 'listMonth';
 	} = $props();
 
 	let calendarEl: HTMLDivElement;
@@ -22,7 +25,8 @@
 
 	onMount(() => {
 		calendar = new Calendar(calendarEl, {
-			plugins: [dayGridPlugin, googleCalendarPlugin],
+			plugins: [dayGridPlugin, listPlugin, googleCalendarPlugin],
+			initialView: view,
 			googleCalendarApiKey: apiKey,
 			events: {
 				googleCalendarId: calendarId,
@@ -36,10 +40,11 @@
 				}
 			},
 			locale,
+			contentHeight: 'auto',
 			headerToolbar: {
 				left: 'prev,next today',
 				center: 'title',
-				right: ''
+				right: 'dayGridMonth,listMonth'
 			}
 		});
 		calendar.render();
