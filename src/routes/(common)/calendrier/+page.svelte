@@ -14,7 +14,6 @@
 
 <section class="bg-surface-100-800-token">
 	<div class="section-container">
-		<h2 class="h2">{m.CALENDAR()}</h2>
 		{#if page.data.organization.google_calendar_id && page.data.organization.google_calendar_api_key}
 			<GoogleCalendar
 				calendarId={page.data.organization.google_calendar_id}
