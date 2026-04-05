@@ -8,7 +8,7 @@
 	import SoMed from '$lib/SoMed/SoMed.svelte';
 	import Website from '$lib/components/Website/Website.svelte';
 	import Fa from 'svelte-fa';
-	import { faBlog } from '@fortawesome/free-solid-svg-icons';
+	import { faBlog, faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 	let {
 		currentRailCategory = $bindable(),
@@ -109,6 +109,21 @@
 			</AppRailTile>
 
 			<hr class="opacity-30" />
+		{/if}
+		{#if page.data.organization.google_calendar_id && page.data.organization.google_calendar_api_key}
+			<AppRailAnchor
+				href="/calendrier"
+				selected={page.url.pathname == '/calendrier' && !currentRailCategory}
+				class="lg:hidden"
+				on:click={() => {
+					onClickAnchor();
+				}}
+			>
+				<svelte:fragment slot="lead"
+					><Fa icon={faCalendar} size="lg" class="inline-block outline-none" /></svelte:fragment
+				>
+				<span>{m.CALENDAR()}</span>
+			</AppRailAnchor>
 		{/if}
 		<AppRailAnchor
 			href="/contact"

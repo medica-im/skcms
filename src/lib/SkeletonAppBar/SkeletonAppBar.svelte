@@ -22,7 +22,8 @@
 		faRightFromBracket,
 		faUserPlus,
 		faUser,
-		faPalette
+		faPalette,
+		faCalendar
 	} from '@fortawesome/free-solid-svg-icons';
 	import User from '$lib/SkeletonAppBar/User.svelte';
 	// Types
@@ -200,6 +201,14 @@
 								<span>Sites</span>
 							</a>
 						</li>
+						{#if page.data.organization.google_calendar_id && page.data.organization.google_calendar_api_key}
+						<li>
+							<a href="/calendrier">
+								<span class="w-6 text-center"><Fa icon={faCalendar} /></span>
+								<span>{m.CALENDAR()}</span>
+							</a>
+						</li>
+						{/if}
 						<li>
 							<a href="/contact">
 								<span class="w-6 text-center"><Fa icon={faEnvelope} /></span>
