@@ -9,6 +9,7 @@
 	import Website from '$lib/components/Website/Website.svelte';
 	import Fa from 'svelte-fa';
 	import { faBlog, faCalendar } from '@fortawesome/free-solid-svg-icons';
+	import BookUser from '@lucide/svelte/icons/book-user';
 
 	let {
 		currentRailCategory = $bindable(),
@@ -137,6 +138,19 @@
 				><DocsIcon name="envelope" width="w-6" height="h-6" /></svelte:fragment
 			>
 			<span>Contact</span>
+		</AppRailAnchor>
+		<AppRailAnchor
+			href="/association"
+			selected={page.url.pathname == '/association' && !currentRailCategory}
+			class="lg:hidden"
+			on:click={() => {
+				onClickAnchor();
+			}}
+		>
+			<svelte:fragment slot="lead"
+				><BookUser size={20} /></svelte:fragment
+			>
+			<span>Association</span>
 		</AppRailAnchor>
 		{#if variables.BLOG_URI}
 			<AppRailAnchor

@@ -25,6 +25,7 @@
 		faPalette,
 		faCalendar
 	} from '@fortawesome/free-solid-svg-icons';
+	import BookUser from '@lucide/svelte/icons/book-user';
 	import User from '$lib/SkeletonAppBar/User.svelte';
 	// Types
 	import type { ModalSettings } from '@skeletonlabs/skeleton';
@@ -213,6 +214,12 @@
 							<a href="/contact">
 								<span class="w-6 text-center"><Fa icon={faEnvelope} /></span>
 								<span>Contact</span>
+							</a>
+						</li>
+						<li>
+							<a href="/association">
+								<span class="w-6 text-center"><BookUser size={16} /></span>
+								<span>Association</span>
 							</a>
 						</li>
 					</ul>
