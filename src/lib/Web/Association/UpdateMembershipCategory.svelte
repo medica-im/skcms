@@ -1,27 +1,26 @@
 <script lang="ts">
 	import * as m from '$msgs';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import { updateBoardMember } from '../../../association.remote';
+	import { updateMembershipCategory } from '../../../association.remote';
 	import { invalidate } from '$app/navigation';
 	import { faCheck, faExclamationCircle, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Dialog from '../Dialog.svelte';
-	import type { BoardMember } from '$lib/interfaces/v2/association';
+	import type { MembershipCategory } from '$lib/interfaces/v2/association';
 
 	let {
-		member
+		category
 	}: {
-		member: BoardMember;
+		category: MembershipCategory;
 	} = $props();
 
 	let dialog: HTMLDialogElement | undefined = $state();
-	let start: string = $state(member.start);
-	let stop: string = $state(member.stop || '');
+	let label: string = $state(category.label);
 	let uuid: string = $state(crypto.randomUUID());
-	const initial = { start: member.start, stop: member.stop || '' };
-	let hasChanges = $derived(start !== initial.start || stop !== initial.stop);
+	const initial = { label: category.label };
+	let hasChanges = $derived(label !== initial.label);
 	let disabled: boolean = $derived(
-		!!updateBoardMember.for(uuid).pending || !hasChanges
+		!!updateMembershipCategory.for(uuid).pending || !hasChanges || label.trim() === ''
 	);
 
 	function updateUuid() {
@@ -29,8 +28,7 @@
 	}
 
 	function resetForm() {
-		start = member.start;
-		stop = member.stop || '';
+		label = category.label;
 	}
 </script>
 
@@ -40,14 +38,14 @@
 		updateUuid();
 		dialog?.showModal();
 	}}
-	title={m.BOARD_MEMBER_UPDATE()}
+	title={m.MEMBERSHIP_CATEGORY_UPDATE()}
 ><Fa icon={faPenToSquare} /></button>
 
 <Dialog bind:dialog>
 	<div class="rounded-lg p-4 variant-ghost-secondary space-y-4">
-		<h3 class="h3">{capitalizeFirstLetter(m.BOARD_MEMBER_UPDATE())}</h3>
+		<h3 class="h3">{capitalizeFirstLetter(m.MEMBERSHIP_CATEGORY_UPDATE())}</h3>
 		<form
-			{...updateBoardMember.for(uuid).enhance(async ({ submit }) => {
+			{...updateMembershipCategory.for(uuid).enhance(async ({ submit }) => {
 				try {
 					await submit();
 					invalidate('association:data');
@@ -57,38 +55,29 @@
 			})}
 		>
 			<div class="space-y-4">
-				<input class="hidden" name="uid" type="text" value={member.uid} />
-
+				<input class="hidden" name="uid" type="text" value={category.uid} />
 				<label class="label">
-					<span>{m.COL_START()}</span>
+					<span>{m.COL_LABEL()}</span>
+					{#each updateMembershipCategory.for(uuid).fields.label.issues() as issue}
+						<p class="text-error-500 text-sm">{issue.message}</p>
+					{/each}
 					<input
 						oninput={() => {}}
 						class="input"
-						name="start"
-						type="date"
-						bind:value={start}
+						name="label"
+						type="text"
+						placeholder=""
+						bind:value={label}
 					/>
 				</label>
-
-				<label class="label">
-					<span>{m.COL_STOP()}</span>
-					<input
-						oninput={() => {}}
-						class="input"
-						name="stop"
-						type="date"
-						bind:value={stop}
-					/>
-				</label>
-
 				<div class="flex gap-4 items-center">
-					{#if updateBoardMember.for(uuid).result?.success}
+					{#if updateMembershipCategory.for(uuid).result?.success}
 						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
-					{:else if updateBoardMember.for(uuid).result?.success === false}
+					{:else if updateMembershipCategory.for(uuid).result?.success === false}
 						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span>
-						<span class="text-sm">{updateBoardMember.for(uuid).result?.response?.detail || updateBoardMember.for(uuid).result?.text}</span>
+						<span class="text-sm">{updateMembershipCategory.for(uuid).result?.response?.detail || updateMembershipCategory.for(uuid).result?.text}</span>
 					{/if}
-					<button type="submit" class="variant-filled-secondary btn" {disabled}>{m.BOARD_MEMBER_UPDATE()}</button>
+					<button type="submit" class="variant-filled-secondary btn" {disabled}>{m.MEMBERSHIP_CATEGORY_UPDATE()}</button>
 					<button
 						type="button"
 						class="variant-filled-error btn"
@@ -96,7 +85,7 @@
 							dialog?.close();
 							resetForm();
 						}}
-					>{#if updateBoardMember.for(uuid).result?.success}{m.CLOSE()}{:else}{m.CANCEL()}{/if}</button>
+					>{#if updateMembershipCategory.for(uuid).result?.success}{m.CLOSE()}{:else}{m.CANCEL()}{/if}</button>
 				</div>
 			</div>
 		</form>

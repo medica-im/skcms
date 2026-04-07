@@ -17,10 +17,12 @@
 
 	let {
 		member,
-		entries
+		entries,
+		categoryLabel = ''
 	}: {
 		member: BoardMember;
 		entries: Entry[];
+		categoryLabel?: string;
 	} = $props();
 
 	let matchedEntries = $derived(

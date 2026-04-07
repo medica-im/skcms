@@ -399,5 +399,31 @@
 	"ORG_ROLE_DELETE_CONFLICT": "This role cannot be deleted because it is linked to officers.",
 	"SELECT_EFFECTOR": "Select an effector",
 	"SELECT_ROLE": "Select a role",
-	"ROLE_LABEL": "Role label"
+	"ROLE_LABEL": "Role label",
+	"MEMBERSHIP_CATEGORY": [
+		{
+			"declarations": [
+				"input count",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "membership category",
+				"countPlural=other": "membership categories"
+			}
+		}
+	],
+	"MEMBERSHIP_CATEGORY_CREATE": "Add membership category",
+	"MEMBERSHIP_CATEGORY_UPDATE": "Edit membership category",
+	"MEMBERSHIP_CATEGORY_DELETE": "Remove membership category",
+	"MEMBERSHIP_CATEGORY_DELETE_CONFIRM": "Are you sure you want to delete this membership category?",
+	"MEMBERSHIP_CATEGORY_DELETE_CONFLICT": "This category cannot be deleted because it is linked to board members.",
+	"COL_CATEGORY": "Category",
+	"FILTER_ALL": "All",
+	"SELECT_CATEGORY": "Select a category",
+	"VACANT": "Vacant.",
+	"NO_OFFICER": "No officers.",
+	"NO_BOARD_MEMBER": "No board members."
 }

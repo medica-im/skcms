@@ -1,7 +1,7 @@
 import { ORIGIN } from '$lib/utils/origin.ts';
 import { browser } from '$app/environment';
 import type { PageLoad } from './$types';
-import type { BoardMember, Officer, OrganizationRole } from '$lib/interfaces/v2/association';
+import type { BoardMember, MembershipCategory, Officer, OrganizationRole } from '$lib/interfaces/v2/association';
 import type { Effector } from '$lib/interfaces/v2/effector';
 
 async function fetchJson<T>(fetch: typeof globalThis.fetch, url: string): Promise<T | undefined> {
@@ -19,10 +19,12 @@ async function fetchJson<T>(fetch: typeof globalThis.fetch, url: string): Promis
     }
 }
 
-export const load: PageLoad = async ({ fetch, data, parent }) => {
+export const load: PageLoad = async ({ fetch, data, parent, depends }) => {
+    depends('association:data');
     let boardMembers: BoardMember[] | undefined;
     let officers: Officer[] | undefined;
     let organizationRoles: OrganizationRole[] | undefined;
+    let membershipCategories: MembershipCategory[] | undefined;
     let effectors: Effector[] | undefined;
 
     if (browser && import.meta.env.PROD) {
@@ -32,6 +34,7 @@ export const load: PageLoad = async ({ fetch, data, parent }) => {
         boardMembers = await fetchJson<BoardMember[]>(fetch, `${ORIGIN}/api/v2/board-members?entry_uid=${entryUid}`);
         officers = await fetchJson<Officer[]>(fetch, `${ORIGIN}/api/v2/officers?entry_uid=${entryUid}`);
         organizationRoles = await fetchJson<OrganizationRole[]>(fetch, `${ORIGIN}/api/v2/organization-roles`);
+        membershipCategories = await fetchJson<MembershipCategory[]>(fetch, `${ORIGIN}/api/v2/membership-categories?entry_uid=${entryUid}`);
 
         if (user?.role === 'superuser') {
             effectors = await fetchJson<Effector[]>(fetch, `${ORIGIN}/api/v2/superuser-effectors`);
@@ -44,6 +47,7 @@ export const load: PageLoad = async ({ fetch, data, parent }) => {
         boardMembers: boardMembers || data.boardMembers,
         officers: officers || data.officers,
         organizationRoles: organizationRoles || data.organizationRoles,
+        membershipCategories: membershipCategories || data.membershipCategories,
         effectors: effectors || data.effectors,
     };
 }

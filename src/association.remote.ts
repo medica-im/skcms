@@ -8,6 +8,7 @@ import { variables } from '$lib/utils/constants.ts';
 const CreateBoardMember = z.object({
 	entry_uid: z.string(),
 	effector_uid: z.string().min(1),
+	category_uid: z.string().optional(),
 	start: z.string().min(1),
 	stop: z.string().optional(),
 });
@@ -20,6 +21,7 @@ export const createBoardMember = form(CreateBoardMember, async (data) => {
 		effector_uid: data.effector_uid,
 		start: data.start,
 	};
+	if (data.category_uid) body.category_uid = data.category_uid;
 	if (data.stop) body.stop = data.stop;
 	const request = authReq(url, 'POST', cookies, JSON.stringify(body));
 	const response = await fetch(request);
@@ -247,6 +249,82 @@ const DeleteOrganizationRole = z.object({
 export const deleteOrganizationRole = form(DeleteOrganizationRole, async (data) => {
 	const { cookies } = getRequestEvent();
 	const url = `${variables.BASE_URI}/api/v2/organization-roles/${data.uid}`;
+	const request = authReq(url, 'DELETE', cookies);
+	const response = await fetch(request);
+	if (!response.ok) {
+		return {
+			success: false,
+			status: response.status,
+			text: response.statusText,
+			response: await response.json()
+		};
+	}
+	return {
+		success: true,
+		status: response.status,
+		text: response.statusText
+	};
+});
+
+// ── Membership Categories ──
+
+const CreateMembershipCategory = z.object({
+	entry_uid: z.string(),
+	label: z.string().min(1),
+});
+
+export const createMembershipCategory = form(CreateMembershipCategory, async (data) => {
+	const { cookies } = getRequestEvent();
+	const url = `${variables.BASE_URI}/api/v2/membership-categories`;
+	const request = authReq(url, 'POST', cookies, JSON.stringify(data));
+	const response = await fetch(request);
+	if (!response.ok) {
+		return {
+			success: false,
+			status: response.status,
+			text: response.statusText,
+			response: await response.json()
+		};
+	}
+	return {
+		success: true,
+		status: response.status,
+		text: response.statusText
+	};
+});
+
+const UpdateMembershipCategory = z.object({
+	uid: z.string(),
+	label: z.string().min(1),
+});
+
+export const updateMembershipCategory = form(UpdateMembershipCategory, async (data) => {
+	const { cookies } = getRequestEvent();
+	const url = `${variables.BASE_URI}/api/v2/membership-categories/${data.uid}`;
+	const request = authReq(url, 'PATCH', cookies, JSON.stringify({ label: data.label }));
+	const response = await fetch(request);
+	if (!response.ok) {
+		return {
+			success: false,
+			status: response.status,
+			text: response.statusText,
+			response: await response.json()
+		};
+	}
+	return {
+		success: true,
+		status: response.status,
+		text: response.statusText
+	};
+});
+
+const DeleteMembershipCategory = z.object({
+	uid: z.string(),
+});
+
+export const deleteMembershipCategory = form(DeleteMembershipCategory, async (data) => {
+	const { cookies } = getRequestEvent();
+	const url = `${variables.BASE_URI}/api/v2/membership-categories/${data.uid}`;
 	const request = authReq(url, 'DELETE', cookies);
 	const response = await fetch(request);
 	if (!response.ok) {

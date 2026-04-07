@@ -399,5 +399,31 @@
   "ORG_ROLE_DELETE_CONFLICT": "Ce rôle ne peut pas être supprimé car il est lié à des responsables.",
   "SELECT_EFFECTOR": "Sélectionner un effecteur",
   "SELECT_ROLE": "Sélectionner un rôle",
-  "ROLE_LABEL": "Libellé du rôle"
+  "ROLE_LABEL": "Libellé du rôle",
+  "MEMBERSHIP_CATEGORY": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "collège",
+        "countPlural=other": "collèges"
+      }
+    }
+  ],
+  "MEMBERSHIP_CATEGORY_CREATE": "Ajouter un collège",
+  "MEMBERSHIP_CATEGORY_UPDATE": "Modifier le collège",
+  "MEMBERSHIP_CATEGORY_DELETE": "Supprimer le collège",
+  "MEMBERSHIP_CATEGORY_DELETE_CONFIRM": "Êtes-vous sûr de vouloir supprimer ce collège ?",
+  "MEMBERSHIP_CATEGORY_DELETE_CONFLICT": "Ce collège ne peut pas être supprimé car il est lié à des membres du conseil.",
+  "COL_CATEGORY": "Collège",
+  "FILTER_ALL": "Tous",
+  "SELECT_CATEGORY": "Sélectionner un collège",
+  "VACANT": "Vacant.",
+  "NO_OFFICER": "Aucun membre du bureau.",
+  "NO_BOARD_MEMBER": "Aucun membre du conseil d'administration."
 }

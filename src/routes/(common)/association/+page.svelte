@@ -3,7 +3,7 @@
 	import * as m from '$msgs';
 	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 	import OfficerCard from '$lib/Association/OfficerCard.svelte';
-	import BoardMemberCard from '$lib/Association/BoardMemberCard.svelte';
+	import BoardMembersDisplay from '$lib/Association/BoardMembersDisplay.svelte';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 
 	let { data } = $props();
@@ -19,7 +19,7 @@
 	);
 </script>
 
-<div class="w-full max-w-7xl mx-auto p-4 space-y-6">
+<div class="w-full max-w-5xl mx-auto p-4 space-y-6">
 	<h2 class="h2">{m.ASSOCIATION_TITLE()}</h2>
 
 	<TabGroup>
@@ -31,27 +31,25 @@
 		</Tab>
 		<svelte:fragment slot="panel">
 			{#if tabIndex === 0}
-				<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+				<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 					{#each activeOfficers as officer (officer.uid)}
 						<OfficerCard
 							{officer}
 							{entries}
 							organizationRoles={data.organizationRoles || []}
+							organizationRoleLabels={data.organizationRoleLabels || {}}
 						/>
 					{/each}
 				</div>
 				{#if !activeOfficers.length}
-					<p class="text-center opacity-60">Aucun membre du bureau.</p>
+					<p class="text-center opacity-60">{m.NO_OFFICER()}</p>
 				{/if}
 			{:else if tabIndex === 1}
-				<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-					{#each activeBoardMembers as member (member.uid)}
-						<BoardMemberCard {member} {entries} />
-					{/each}
-				</div>
-				{#if !activeBoardMembers.length}
-					<p class="text-center opacity-60">Aucun membre du conseil d'administration.</p>
-				{/if}
+				<BoardMembersDisplay
+					boardMembers={activeBoardMembers}
+					membershipCategories={data.membershipCategories || []}
+					{entries}
+				/>
 			{/if}
 		</svelte:fragment>
 	</TabGroup>

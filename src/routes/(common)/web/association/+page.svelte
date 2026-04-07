@@ -6,6 +6,7 @@
 	import BoardMembersPanel from '$lib/Web/Association/BoardMembersPanel.svelte';
 	import OfficersPanel from '$lib/Web/Association/OfficersPanel.svelte';
 	import OrganizationRolesPanel from '$lib/Web/Association/OrganizationRolesPanel.svelte';
+	import MembershipCategoriesPanel from '$lib/Web/Association/MembershipCategoriesPanel.svelte';
 
 	let { data } = $props();
 
@@ -33,8 +34,11 @@
 			<Tab bind:group={tabIndex} name="boardMembers" value={1}>
 				{m.BOARD_MEMBERS()}
 			</Tab>
+			<Tab bind:group={tabIndex} name="membershipCategories" value={2}>
+				{capitalizeFirstLetter(m.MEMBERSHIP_CATEGORY({ count: 2 }))}
+			</Tab>
 			{#if isSuperUser}
-				<Tab bind:group={tabIndex} name="organizationRoles" value={2}>
+				<Tab bind:group={tabIndex} name="organizationRoles" value={3}>
 					{m.ORGANIZATION_ROLES()}
 				</Tab>
 			{/if}
@@ -50,9 +54,15 @@
 					<BoardMembersPanel
 						boardMembers={data.boardMembers || []}
 						effectors={data.effectors || []}
+						membershipCategories={data.membershipCategories || []}
 						{entryUid}
 					/>
-				{:else if tabIndex === 2 && isSuperUser}
+				{:else if tabIndex === 2}
+					<MembershipCategoriesPanel
+						membershipCategories={data.membershipCategories || []}
+						{entryUid}
+					/>
+				{:else if tabIndex === 3 && isSuperUser}
 					<OrganizationRolesPanel
 						organizationRoles={data.organizationRoles || []}
 					/>

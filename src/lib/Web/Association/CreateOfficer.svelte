@@ -74,7 +74,7 @@
 			{...createOfficer.enhance(async ({ submit }) => {
 				try {
 					await submit();
-					invalidate('entry:now');
+					invalidate('association:data');
 				} catch (error) {
 					console.error(error);
 				}

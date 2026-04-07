@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter, normalize } from '$lib/helpers/stringHelpers';
 	import { createBoardMember } from '../../../association.remote';
 	import { invalidate } from '$app/navigation';
 	import { faCheck, faExclamationCircle, faPlus } from '@fortawesome/free-solid-svg-icons';
@@ -9,19 +9,24 @@
 	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import Dialog from '../Dialog.svelte';
 	import type { Effector } from '$lib/interfaces/v2/effector';
+	import type { MembershipCategory } from '$lib/interfaces/v2/association';
 	import type { SelectType } from '$lib/interfaces/select';
 
 	let {
 		effectors,
+		membershipCategories,
 		entryUid
 	}: {
 		effectors: Effector[];
+		membershipCategories: MembershipCategory[];
 		entryUid: string;
 	} = $props();
 
 	let dialog: HTMLDialogElement;
 	let selectedEffector: SelectType | undefined = $state();
+	let selectedCategory: SelectType | undefined = $state();
 	let effectorUid: string = $derived(selectedEffector?.value || '');
+	let categoryUid: string = $derived(selectedCategory?.value || '');
 	let start: string = $state('');
 	let stop: string = $state('');
 	let result = $derived(createBoardMember.result);
@@ -29,12 +34,20 @@
 		!!createBoardMember.pending || !effectorUid || !start || result?.success === true
 	);
 
+	const effectorFilter = (label: any, filterText: any) => {
+		return normalize(label).includes(normalize(filterText));
+	};
+
 	let effectorItems = $derived(
 		effectors.map((e) => ({ label: e.name_fr, value: e.uid }))
+	);
+	let categoryItems = $derived(
+		membershipCategories.map((c) => ({ label: c.label, value: c.uid }))
 	);
 
 	function resetForm() {
 		selectedEffector = undefined;
+		selectedCategory = undefined;
 		start = '';
 		stop = '';
 		result = undefined;
@@ -57,7 +70,7 @@
 			{...createBoardMember.enhance(async ({ submit }) => {
 				try {
 					await submit();
-					invalidate('entry:now');
+					invalidate('association:data');
 				} catch (error) {
 					console.error(error);
 				}
@@ -66,6 +79,7 @@
 			<div class="space-y-4">
 				<input class="hidden" name="entry_uid" type="text" value={entryUid} />
 				<input class="hidden" name="effector_uid" type="text" bind:value={effectorUid} />
+				<input class="hidden" name="category_uid" type="text" bind:value={categoryUid} />
 
 				<label class="label">
 					<span>{m.COL_EFFECTOR()}</span>
@@ -74,10 +88,25 @@
 					{/each}
 					<Select
 						items={effectorItems}
+						itemFilter={effectorFilter}
 						bind:value={selectedEffector}
 						searchable={true}
 					><NoOptions slot="empty" /></Select>
 				</label>
+
+				{#if categoryItems.length > 0}
+					<label class="label">
+						<span>{m.COL_CATEGORY()}</span>
+						<Select
+							items={categoryItems}
+							itemFilter={effectorFilter}
+							bind:value={selectedCategory}
+							searchable={true}
+							clearable={true}
+							placeholder={m.SELECT_CATEGORY()}
+						><NoOptions slot="empty" /></Select>
+					</label>
+				{/if}
 
 				<label class="label">
 					<span>{m.COL_START()}</span>

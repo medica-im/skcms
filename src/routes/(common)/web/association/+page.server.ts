@@ -2,7 +2,7 @@ import { redirect } from '@sveltejs/kit';
 import { authReq } from '$lib/utils/request.ts';
 import { variables } from '$lib/utils/constants.ts';
 import { ORIGIN } from '$lib/utils/origin.ts';
-import type { BoardMember, Officer, OrganizationRole } from '$lib/interfaces/v2/association';
+import type { BoardMember, MembershipCategory, Officer, OrganizationRole } from '$lib/interfaces/v2/association';
 import type { Effector } from '$lib/interfaces/v2/effector';
 import type { User } from '$lib/interfaces/user.interface';
 import type { PageServerLoad } from "./$types"
@@ -16,7 +16,8 @@ function getEffectorsUrl(user: User) {
     throw new Error("role is not authorized");
 }
 
-export const load: PageServerLoad = async ({ url, cookies, locals, parent }) => {
+export const load: PageServerLoad = async ({ url, cookies, locals, parent, depends }) => {
+    depends('association:data');
     const session = await locals.auth();
     if (!session) {
         redirect(303, `/signin?redirect=${url.pathname}`);
@@ -27,6 +28,7 @@ export const load: PageServerLoad = async ({ url, cookies, locals, parent }) => 
     let boardMembers: BoardMember[] | undefined;
     let officers: Officer[] | undefined;
     let organizationRoles: OrganizationRole[] | undefined;
+    let membershipCategories: MembershipCategory[] | undefined;
     let effectors: Effector[] | undefined;
 
     if (import.meta.env.DEV) {
@@ -62,6 +64,16 @@ export const load: PageServerLoad = async ({ url, cookies, locals, parent }) => 
             console.error('Error retrieving organization roles:', error.message);
         }
 
+        try {
+            const mcUrl = `${variables.BASE_URI}/api/v2/membership-categories?entry_uid=${entryUid}`;
+            const mcReq = authReq(mcUrl, 'GET', cookies);
+            const mcRes = await globalThis.fetch(mcReq);
+            if (mcRes.ok) membershipCategories = await mcRes.json();
+            else console.error(`Failed to fetch membership categories: ${mcRes.status}`);
+        } catch (error: any) {
+            console.error('Error retrieving membership categories:', error.message);
+        }
+
         if (user?.role === 'superuser' || user?.role === 'administrator') {
             try {
                 const effUrl = getEffectorsUrl(user);
@@ -80,6 +92,7 @@ export const load: PageServerLoad = async ({ url, cookies, locals, parent }) => 
         boardMembers,
         officers,
         organizationRoles,
+        membershipCategories,
         effectors,
     };
 }

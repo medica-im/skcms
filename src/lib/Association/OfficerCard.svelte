@@ -6,6 +6,8 @@
 	import { getLocale } from '../../paraglide/runtime.js';
 	import type { Officer, OrganizationRole } from '$lib/interfaces/v2/association';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
+	import type { Labels } from '$lib/interfaces/label.interace';
+	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 
 	function formatDate(dateStr: string): string {
 		return new Date(dateStr).toLocaleDateString(getLocale(), {
@@ -18,11 +20,13 @@
 	let {
 		officer,
 		entries,
-		organizationRoles
+		organizationRoles,
+		organizationRoleLabels = {}
 	}: {
 		officer: Officer;
 		entries: Entry[];
 		organizationRoles: OrganizationRole[];
+		organizationRoleLabels?: Labels;
 	} = $props();
 
 	let matchedEntries = $derived(
@@ -33,11 +37,15 @@
 	let avatarSrc = $derived(
 		firstEntry?.avatar?.sm || firstEntry?.avatar?.lg || firstEntry?.avatar?.raw || ''
 	);
-	let roleName = $derived(
-		officer.role_label ||
-		organizationRoles.find((r) => r.uid === officer.role_uid)?.label ||
-		''
-	);
+	let roleName = $derived.by(() => {
+		const gender = firstEntry?.gender as 'F' | 'M' | 'N' | null;
+		const raw = gender && organizationRoleLabels[officer.role_uid]?.S?.[gender]
+			? organizationRoleLabels[officer.role_uid].S[gender]!
+			: officer.role_label ||
+				organizationRoles.find((r) => r.uid === officer.role_uid)?.label ||
+				'';
+		return capitalizeFirstLetter(raw);
+	});
 	let uniqueTypes = $derived.by(() => {
 		const seen = new Set<string>();
 		return matchedEntries.filter((e) => {
