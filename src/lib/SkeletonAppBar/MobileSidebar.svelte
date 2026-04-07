@@ -8,6 +8,7 @@
 	import SoMed from '$lib/SoMed/SoMed.svelte';
 	import Website from '$lib/components/Website/Website.svelte';
 	import Fa from 'svelte-fa';
+	import { org } from '$lib/state.svelte.js';
 	import { faBlog, faCalendar } from '@fortawesome/free-solid-svg-icons';
 	import BookUser from '@lucide/svelte/icons/book-user';
 
@@ -139,6 +140,7 @@
 			>
 			<span>Contact</span>
 		</AppRailAnchor>
+		{#if org.isAsso && org.displayAsso}
 		<AppRailAnchor
 			href="/association"
 			selected={page.url.pathname == '/association' && !currentRailCategory}
@@ -152,6 +154,7 @@
 			>
 			<span>Association</span>
 		</AppRailAnchor>
+		{/if}
 		{#if variables.BLOG_URI}
 			<AppRailAnchor
 				href={variables.BLOG_URI}

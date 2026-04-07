@@ -6,6 +6,7 @@
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { variables } from '$lib/utils/constants';
 	import Fa from 'svelte-fa';
+	import { org } from '$lib/state.svelte.js';
 	import { faCaretSquareDown } from '@fortawesome/free-regular-svg-icons';
 	import {
 		faBars,
@@ -216,12 +217,14 @@
 								<span>Contact</span>
 							</a>
 						</li>
+						{#if org.isAsso && org.displayAsso}
 						<li>
 							<a href="/association">
 								<span class="w-6 text-center"><BookUser size={16} /></span>
 								<span>Association</span>
 							</a>
 						</li>
+						{/if}
 					</ul>
 				</nav>
 			</div>
