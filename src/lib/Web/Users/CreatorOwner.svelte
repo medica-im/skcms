@@ -70,10 +70,10 @@
 	<div class="flex items-center py-2">
 		<div class="w-9"><Fa icon={faUserShield} size="sm" /></div>
 		<div>
-			<h3 class="h3 flex place-items-center gap-1">
+			<h4 class="h4 flex place-items-center gap-1">
 				{m.owner()} / {m.creator()}
 				{#if $editMode}<PatchOwnerModal currentOwners={owner} />{/if}
-			</h3>
+			</h4>
 		</div>
 	</div>
 

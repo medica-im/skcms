@@ -22,9 +22,9 @@
 <div class="flex items-center p-1">
 	<div class="w-9"><Fa icon={faInfo} /></div>
 	<div>
-		<h3 class="h3">
+		<h4 class="h4">
 			{capitalizeFirstLetter(m.ADDRESSBOOK_INFORMATIONS())}
-		</h3>
+		</h4>
 	</div>
 </div>
 {#if data.effector_type.labels.includes('HCW') && (spokenLanguages || $editMode)}

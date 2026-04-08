@@ -6,8 +6,9 @@
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import * as m from '$msgs';
 	import type { Facility } from '$lib/interfaces/facility.interface.js';
+	import { JsonView } from '@zerodevx/svelte-json-view';
 
-	let { data } = $props();
+	let { data }: { data: Facility[] } = $props();
 
 	function filterFacilities(facilities: Facility[]) {
 		const f = facilities.filter((facility) =>
@@ -33,7 +34,7 @@
 		{#each data.sort(compareFn) as facility}
 			<div>
 				<a
-					href="/sites/{facility.slug}"
+					href="/sites/{facility.slug||facility.uid}"
 					title={facility.name}
 					class="btn variant-ghost-primary w-fit">{facility.label || facility.name}</a
 				>
@@ -49,3 +50,9 @@
 		</div>
 	{/if}
 </div>
+{#if import.meta.env.DEV}
+	<details class="p-2">
+		<summary class="cursor-pointer text-sm text-surface-500">JSON</summary>
+		<JsonView json={data} depth={1} />
+	</details>
+{/if}

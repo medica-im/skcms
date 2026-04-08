@@ -130,11 +130,13 @@
 	<!-- programs -->
 	<section id="programs" class="bg-surface-100-800-token programs-gradient">
 		<div class="section-container">
+			{#if data.facilities.length > 1}
 			<div class="lg:hidden logo-cloud grid-cols-1 gap-0.5">
 				{#each data.facilities as facility}
 					<a href="#{facility.name}_anchor" class="logo-item p-2">{facility.name}</a>
 				{/each}
 			</div>
+			{/if}
 			<div class="grid lg:grid-cols-2 gap-6">
 				<MultipleIntersectionObserver
 					elements={htmlElements}
@@ -161,7 +163,7 @@
 
 <style lang="postcss">
 	.section-container {
-		@apply mx-auto flex w-full max-w-7xl justify-center space-y-6 px-6 py-6 md:py-8;
+		@apply mx-auto flex flex-col w-full max-w-7xl justify-center space-y-6 px-6 py-6 md:py-8;
 	}
 	/* Hero Gradient */
 	/* prettier-ignore */

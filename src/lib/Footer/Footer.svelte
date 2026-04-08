@@ -45,11 +45,16 @@
 							</a>
 						</li>
 						<li class="mb-4">
-							<a href="/annuaire"> Annuaire </a>
+							<a href={page.data.directory.setting.path || '/'}> Annuaire </a>
 						</li>
 						<li class="mb-4">
 							<a href="/sites"> Sites </a>
 						</li>
+						{#if page.data.organization.google_calendar_id && page.data.organization.google_calendar_api_key}
+							<li class="mb-4">
+								<a href="/calendrier"> {m.CALENDAR()} </a>
+							</li>
+						{/if}
 						<li class="mb-4">
 							<a href="/contact"> Contact </a>
 						</li>

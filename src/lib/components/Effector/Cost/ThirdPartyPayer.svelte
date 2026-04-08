@@ -12,13 +12,14 @@
 		<div class="w-9"></div>
 		<div class="p-1">
 			{m.ADDRESSBOOK_THIRD_PARTY_PAYER()}:
-            
+			{#if data?.length}
 			{#each data as p, i}
 				{@const count = data.length}
 				{#if i > 0}{' '}{/if}{p.label_fr}{#if i < count - 2},{:else if i == count - 2}{' '}{m.AND()}{:else}.{/if}
 			            {:else}
 			∅
             {/each}
+			{/if}
 		</div>
 		{#if editMode}
 			<div class="flex p-2 space-x-4">

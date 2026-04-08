@@ -8,11 +8,7 @@
 	let { data }: { data: SveltekitError } = $props();
 	console.log(getLocale());
 	const addressbookUrl = () => {
-		if ( page.data.organization.category.name === "cpts") {
-			return '/'
-		} else {
-			return '/annuaire'
-		}
+		return page.data.directory.setting.path || '/'
 	};
 </script>
 

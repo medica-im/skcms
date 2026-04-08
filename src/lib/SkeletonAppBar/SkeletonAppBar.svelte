@@ -6,6 +6,7 @@
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { variables } from '$lib/utils/constants';
 	import Fa from 'svelte-fa';
+	import { org } from '$lib/state.svelte.js';
 	import { faCaretSquareDown } from '@fortawesome/free-regular-svg-icons';
 	import {
 		faBars,
@@ -22,8 +23,10 @@
 		faRightFromBracket,
 		faUserPlus,
 		faUser,
-		faPalette
+		faPalette,
+		faCalendar
 	} from '@fortawesome/free-solid-svg-icons';
+	import BookUser from '@lucide/svelte/icons/book-user';
 	import User from '$lib/SkeletonAppBar/User.svelte';
 	// Types
 	import type { ModalSettings } from '@skeletonlabs/skeleton';
@@ -47,9 +50,10 @@
 	import * as m from '$msgs';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	
-
+	const dirPath = page.data.directory.setting.path || "/";
 	const drawerStore = getDrawerStore();
 	const modalStore = getModalStore();
+	const isMSP = page.data?.organization?.category?.name == "msp";
 
 	// Local
 	let isOsMac = false;
@@ -179,15 +183,16 @@
 			<div class="card p-4 w-60 shadow-xl" data-popup="features">
 				<nav class="list-nav">
 					<ul>
-						{#if page.data?.organization?.category?.name == "msp"}
+						{#if dirPath !== "/"}
 						<li>
 							<a data-sveltekit-preload-data="off" href="/">
 								<span class="w-6 text-center"><Fa icon={faHouse} /></span>
 								<span>{m.HOME_TITLE()}</span>
 							</a>
 						</li>
+						{/if}
 						<li>
-							<a data-sveltekit-preload-data="tap" href="/annuaire">
+							<a data-sveltekit-preload-data="tap" href={dirPath}>
 								<span class="w-6 text-center"><Fa icon={faAddressBook} /></span>
 								<span>{m.NAVBAR_ADDRESSBOOK()}</span>
 							</a>
@@ -198,25 +203,33 @@
 								<span>Sites</span>
 							</a>
 						</li>
-						{:else}
+						{#if page.data.organization.google_calendar_id && page.data.organization.google_calendar_api_key}
 						<li>
-							<a data-sveltekit-preload-data="tap" href="/">
-								<span class="w-6 text-center"><Fa icon={faAddressBook} /></span>
-								<span>{m.NAVBAR_ADDRESSBOOK()}</span>
+							<a href="/calendrier">
+								<span class="w-6 text-center"><Fa icon={faCalendar} /></span>
+								<span>{m.CALENDAR()}</span>
 							</a>
 						</li>
 						{/if}
-						
 						<li>
 							<a href="/contact">
 								<span class="w-6 text-center"><Fa icon={faEnvelope} /></span>
 								<span>Contact</span>
 							</a>
 						</li>
+						{#if org.isAsso && org.displayAsso}
+						<li>
+							<a href="/association">
+								<span class="w-6 text-center"><BookUser size={16} /></span>
+								<span>Association</span>
+							</a>
+						</li>
+						{/if}
 					</ul>
 				</nav>
 			</div>
 		</div>
+		{#if isMSP}
 		<div class="hidden">
 			<!-- trigger -->
 			<button
@@ -254,6 +267,7 @@
 				</nav>
 			</div>
 		</div>
+		{/if}
 		<div class="relative hidden xl:block">
 			<MenuNavLinks />
 		</div>

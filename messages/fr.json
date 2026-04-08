@@ -6,8 +6,13 @@
   "HOME_WELCOME": "Bienvenue dans",
   "HOME_TEAM_TITLE": "Équipe",
   "HOME_TEAM_TEXT": "Notre équipe pluriprofessionnelle s'engage pour votre santé et celle de vos proches.",
+  "HOME_COMMUNITY_TITLE": "Communauté",
+  "HOME_COMMUNITY_TEXT": "Notre communauté professionnelle s'engage pour votre santé.",
   "HOME_FOOTER_WIP": "Site en construction. Contacter le développeur:",
   "CONTACT_TITLE": "Contact",
+  "CALENDAR": "Calendrier",
+  "FULLSCREEN": "Plein écran",
+  "EXIT_FULLSCREEN": "Quitter le plein écran",
   "CONTACT_CALL_US": "Appelez-nous",
   "SITES_TITLE": "Sites",
   "SITES_SINGULAR": "Site",
@@ -361,5 +366,64 @@
         "countPlural=other": "sélectionnés"
       }
     }
-  ]
+  ],
+  "ASSOCIATION_TITLE": "Association",
+  "BOARD_MEMBERS": "Membres du conseil d'administration",
+  "BOARD_MEMBERS_SHORT": "CA",
+  "BOARD_MEMBER": "Membre du conseil d'administration",
+  "OFFICERS": "Membres du bureau",
+  "OFFICERS_SHORT": "Bureau",
+  "OFFICER": "Membre du bureau",
+  "ORGANIZATION_ROLES": "Rôles de l'organisation",
+  "ORGANIZATION_ROLE": "Rôle de l'organisation",
+  "ADMIN_ACCESS_RESTRICTED": "Accès restreint aux super-utilisateurs et administrateurs.",
+  "COL_EFFECTOR": "Effecteur",
+  "COL_ROLE": "Rôle",
+  "COL_START": "Début",
+  "COL_STOP": "Fin",
+  "COL_ACTIONS": "Actions",
+  "COL_LABEL": "Libellé",
+  "STATUS_ACTIVE": "Actif",
+  "STATUS_ENDED": "Terminé",
+  "BOARD_MEMBER_CREATE": "Ajouter un membre du CA",
+  "BOARD_MEMBER_UPDATE": "Modifier le membre du CA",
+  "BOARD_MEMBER_DELETE": "Supprimer le membre du CA",
+  "BOARD_MEMBER_DELETE_CONFIRM": "Définir une date de fin pour ce membre du bureau ?",
+  "OFFICER_CREATE": "Ajouter un membre du bureau",
+  "OFFICER_UPDATE": "Modifier le membre du bureau",
+  "OFFICER_DELETE": "Supprimer le membre du bureau",
+  "ORG_ROLE_CREATE": "Créer un rôle",
+  "ORG_ROLE_UPDATE": "Modifier le rôle",
+  "ORG_ROLE_DELETE": "Supprimer le rôle",
+  "ORG_ROLE_DELETE_CONFIRM": "Êtes-vous sûr de vouloir supprimer ce rôle ?",
+  "ORG_ROLE_DELETE_CONFLICT": "Ce rôle ne peut pas être supprimé car il est lié à des responsables.",
+  "SELECT_EFFECTOR": "Sélectionner un effecteur",
+  "SELECT_ROLE": "Sélectionner un rôle",
+  "ROLE_LABEL": "Libellé du rôle",
+  "MEMBERSHIP_CATEGORY": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "collège",
+        "countPlural=other": "collèges"
+      }
+    }
+  ],
+  "MEMBERSHIP_CATEGORY_CREATE": "Ajouter un collège",
+  "MEMBERSHIP_CATEGORY_UPDATE": "Modifier le collège",
+  "MEMBERSHIP_CATEGORY_DELETE": "Supprimer le collège",
+  "MEMBERSHIP_CATEGORY_DELETE_CONFIRM": "Êtes-vous sûr de vouloir supprimer ce collège ?",
+  "MEMBERSHIP_CATEGORY_DELETE_CONFLICT": "Ce collège ne peut pas être supprimé car il est lié à des membres du conseil.",
+  "COL_CATEGORY": "Collège",
+  "FILTER_ALL": "Tous",
+  "SELECT_CATEGORY": "Sélectionner un collège",
+  "VACANT": "Vacant.",
+  "NO_OFFICER": "Aucun membre du bureau.",
+  "NO_BOARD_MEMBER": "Aucun membre du conseil d'administration."
 }

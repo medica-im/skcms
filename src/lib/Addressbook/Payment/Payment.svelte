@@ -14,7 +14,7 @@
 <div class="flex items-center p-1">
 	<div class="w-9"><Fa icon={faCreditCard} size="sm" /></div>
 	<div>
-		<h3 class="h3">
+		<h4 class="h4">
 			{#if data && data.length > 1}
 			{m.ADDRESSBOOK_PAYMENT_METHODS()}
 			{:else}
@@ -23,7 +23,7 @@
 				<Patch {data}/>
 			{/if}
 			{/if}
-        </h3>
+        </h4>
 	</div>
 </div>
 {#if data}

@@ -5,6 +5,7 @@ import { authReq } from '$lib/utils/request.ts';
 import { variables } from '$lib/utils/constants.ts';
 import { slugify } from '$lib/helpers/stringHelpers';
 import { redirect } from '@sveltejs/kit';
+import type { EntryFull } from './lib/store/directoryStoreInterface';
 
 const RoleEnum = z.enum(['anonymous', 'staff', 'administrator', 'superuser']);
 
@@ -42,15 +43,10 @@ export const createEntry = form(postEntry, async (data, issue) => {
 		console.error(response.statusText)
 		invalid(json.detail ?? `${response.status} ${response.statusText}`);
 	} else {
-		const json = await response.json()
+		const json = await response.json() as EntryFull;
 		console.log(`Success! Status: ${response.status} Status text: ${response.statusText}`);
 		console.log(json);
-		let redirectPath;
-		if (organization_category=="cpts") {
-			redirectPath=`/${json.effector_type.slug}/${slugify(json.address.city)}/${json.slug}`;
-		} else {
-			redirectPath=`/${slugify(json.facility.slug)}/${json.effector_type.slug}/${json.slug}`;
-		}
+		const redirectPath = `/e/${json.entrySlug}`;
 		const redirectURL = `${redirectPath}?invalidateEntries`;
 		redirect(303, redirectURL)
 		/*return {
