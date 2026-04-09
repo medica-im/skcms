@@ -5,7 +5,6 @@
 	import Select from 'svelte-select';
 	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import { onMount } from 'svelte';
-	import { getFacilities } from '$lib/store/facilityStore';
 	import { getSelectFacility, getFacilityChoice } from './context.ts';
 	import * as m from '$msgs';
 

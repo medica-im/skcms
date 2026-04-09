@@ -126,7 +126,6 @@
 		<div class="grid grid-cols-1 gap-2">
 			<label class="label">
 				<span>{m.EFFECTOR_TYPE_COL_PARENT()}</span>
-			</label>
 			<div class="svelte-select svelte-select-glow w-full">
 				<Select
 					items={parentOptions}
@@ -135,6 +134,7 @@
 					clearable={true}
 				><NoOptions slot="empty" /></Select>
 			</div>
+			</label>
 		</div>
 
 		<!-- Neo4j Labels -->
@@ -204,7 +204,7 @@
 						if (onclose) onclose();
 						else goto('/web/effector-types');
 					}}
-				>{#if result?.success}{m.CANCEL()}{:else}{m.CANCEL()}{/if}</button>
+				>{#if result?.success}{m.CLOSE()}{:else}{m.CANCEL()}{/if}</button>
 			</div>
 		</div>
 	</form>
