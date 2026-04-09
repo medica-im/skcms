@@ -44,7 +44,6 @@ export const load: PageServerLoad = async ({ fetch, locals, params, cookies, par
       error(response.status, response.statusText)
    } else {
       effectors = await response.json() as Effector[];
-      console.log(`web/entry/+page.ts: ${JSON.stringify(effectors)}`)
    }
    return {
       effectors: effectors,
