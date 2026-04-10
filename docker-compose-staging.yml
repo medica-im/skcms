@@ -28,7 +28,7 @@ services:
         condition: service_healthy
     restart: "no"
     volumes:
-      - ${LINKCHECK_REPORTS_DIR}:/reports
+      - "${LINKCHECK_REPORTS_DIR}:/reports"
     command:
       - --verbose
       - --no-progress
