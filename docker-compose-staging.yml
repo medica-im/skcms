@@ -34,7 +34,7 @@ services:
       - "${LINKCHECK_PUBLIC_HOST}:host-gateway"
     command:
       - --verbose
-      - --buffer-size=8192
+      - --buffer-size=131072
       - --max-connections=16
       - --max-connections-per-host=8
       - --timeout=20
