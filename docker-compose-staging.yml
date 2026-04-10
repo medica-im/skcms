@@ -25,24 +25,15 @@ services:
       start_period: 30s
 
   linkcheck:
-    image: raviqqe/muffet:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.linkcheck
     depends_on:
       nodeserver_staging:
         condition: service_healthy
     restart: "no"
     extra_hosts:
       - "${LINKCHECK_PUBLIC_HOST}:host-gateway"
-    command:
-      - --verbose
-      - --buffer-size=131072
-      - --max-connections=16
-      - --max-connections-per-host=8
-      - --timeout=20
-      - --max-redirections=5
-      - "--exclude=openstreetmap\\.org/.*#"
-      - "--exclude=^mailto:"
-      - "--exclude=^tel:"
-      - "--exclude=doctolib\\.fr"
-      - --exclude=/signin
-      - --exclude=/signout
-      - "${LINKCHECK_TARGET_URL}"
+    environment:
+      LINKCHECK_FLAGS: ${LINKCHECK_FLAGS}
+      LINKCHECK_TARGET_URL: ${LINKCHECK_TARGET_URL}

@@ -1,0 +1,6 @@
+FROM raviqqe/muffet:latest AS muffet
+
+FROM alpine:3.20
+RUN apk add --no-cache ca-certificates
+COPY --from=muffet /muffet /usr/local/bin/muffet
+ENTRYPOINT ["/bin/sh", "-c", "exec muffet $LINKCHECK_FLAGS \"$LINKCHECK_TARGET_URL\""]
