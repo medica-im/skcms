@@ -37,7 +37,7 @@ services:
       - --max-concurrency=16
       - --timeout=20
       - --max-redirects=5
-      - --accept=200,201,204,301,302,308,401,403
+      - --accept=200,201,204,301,302,308,401,403,405
       - "--exclude=^mailto:"
       - "--exclude=^tel:"
       - --format=markdown
