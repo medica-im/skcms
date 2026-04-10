@@ -27,6 +27,8 @@ services:
       nodeserver_staging:
         condition: service_healthy
     restart: "no"
+    extra_hosts:
+      - "${LINKCHECK_PUBLIC_HOST}:host-gateway"
     volumes:
       - "${LINKCHECK_REPORTS_DIR}:/reports"
     command:
@@ -40,4 +42,4 @@ services:
       - "--exclude=^tel:"
       - --format=markdown
       - --output=/reports/report.md
-      - http://nodeserver_staging:3000/
+      - "${LINKCHECK_TARGET_URL}"
