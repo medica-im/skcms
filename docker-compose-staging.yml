@@ -42,6 +42,7 @@ services:
       - "--exclude=openstreetmap\\.org/.*#"
       - "--exclude=^mailto:"
       - "--exclude=^tel:"
+      - "--exclude=doctolib\\.fr"
       - --exclude=/signin
       - --exclude=/signout
       - "${LINKCHECK_TARGET_URL}"
