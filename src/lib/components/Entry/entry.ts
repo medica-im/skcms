@@ -6,10 +6,9 @@ type Fetch = {
     (input: string | URL | globalThis.Request, init?: RequestInit): Promise<Response>;
 }
 
-export async function getEntry(entryUrl: string, fetch: Fetch) {
+export async function getEntry(entrySlug: string, fetch: Fetch) {
     try {
-        const [facility, type, effector] = entryUrl.split("/");
-        const response = await fetch(`${variables.BASE_URI}/api/v2/ftefullentries/${facility}/${type}/${effector}`)
+        const response = await fetch(`${variables.BASE_URI}/api/v2/fullentries/slug/${entrySlug}`)
         if (response.status !== 200 && !response.ok) {
             throw new Error(`${response.status}: Unable to fetch resource`)
         }
@@ -24,10 +23,10 @@ export async function getEntry(entryUrl: string, fetch: Fetch) {
     }
 }
 
-export function getEntryPromises(entries: string[], fetch: Fetch) {
+export function getEntryPromises(entrySlugs: string[], fetch: Fetch) {
     const entryPromises = [];
-    for (const entryUrl of entries) {
-        entryPromises.push(getEntry(entryUrl, fetch));
+    for (const entrySlug of entrySlugs) {
+        entryPromises.push(getEntry(entrySlug, fetch));
     }
     return entryPromises;
 };
