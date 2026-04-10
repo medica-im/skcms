@@ -10,3 +10,34 @@ services:
     environment:
       NODE_ENV: production
       ORIGIN: ${ORIGIN}
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://localhost:3000/', r => process.exit(r.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  linkcheck:
+    image: lycheeverse/lychee:latest
+    depends_on:
+      nodeserver_staging:
+        condition: service_healthy
+    restart: "no"
+    volumes:
+      - ${LINKCHECK_REPORTS_DIR}:/reports
+    command:
+      - --verbose
+      - --no-progress
+      - --max-concurrency=16
+      - --timeout=20
+      - --max-redirects=5
+      - --accept=200,201,204,301,302,308,401,403
+      - --exclude=^mailto:
+      - --exclude=^tel:
+      - --format=markdown
+      - --output=/reports/report.md
+      - http://nodeserver_staging:3000/
