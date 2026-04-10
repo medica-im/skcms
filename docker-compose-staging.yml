@@ -39,6 +39,7 @@ services:
       - --max-connections-per-host=8
       - --timeout=20
       - --max-redirections=5
+      - "--exclude=openstreetmap\\.org/.*#"
       - "--exclude=^mailto:"
       - "--exclude=^tel:"
       - --exclude=/signin
