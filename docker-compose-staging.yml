@@ -36,8 +36,8 @@ services:
       - --timeout=20
       - --max-redirects=5
       - --accept=200,201,204,301,302,308,401,403
-      - --exclude=^mailto:
-      - --exclude=^tel:
+      - "--exclude=^mailto:"
+      - "--exclude=^tel:"
       - --format=markdown
       - --output=/reports/report.md
       - http://nodeserver_staging:3000/
