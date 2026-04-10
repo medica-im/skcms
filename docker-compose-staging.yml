@@ -10,14 +10,17 @@ services:
     environment:
       NODE_ENV: production
       ORIGIN: ${ORIGIN}
+      LINKCHECK_TARGET_URL: ${LINKCHECK_TARGET_URL}
+    extra_hosts:
+      - "${LINKCHECK_PUBLIC_HOST}:host-gateway"
     healthcheck:
       test:
         - CMD
         - node
         - -e
-        - "require('http').get('http://localhost:3000/', r => process.exit(r.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))"
+        - "const u=new URL(process.env.LINKCHECK_TARGET_URL);require(u.protocol==='https:'?'https':'http').get({hostname:u.hostname,port:u.port||(u.protocol==='https:'?443:80),path:u.pathname||'/',rejectUnauthorized:false},r=>process.exit(r.statusCode<500?0:1)).on('error',()=>process.exit(1))"
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 12
       start_period: 30s
 
