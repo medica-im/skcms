@@ -32,7 +32,6 @@
     import { QueryClientProvider, QueryClient } from '@tanstack/svelte-query'
     import type { ComponentProps } from 'svelte';
     import { scrollY } from '$lib/store/scrollStore';
-	import { locales, localizeHref } from '$prgld/runtime.js';
 	import { programsNavLinks } from '$var/variables.ts';
 	import { PUBLIC_PLAUSIBLE_SCRIPT_SRC } from '$env/static/public';
 
@@ -128,8 +127,3 @@
 			{/if}
 		</svelte:fragment>
 	</AppShell>
-	<div style="display:none">
-		{#each locales as locale}
-			<a href={localizeHref(page.url.pathname, { locale })}>{locale}</a>
-		{/each}
-	</div>

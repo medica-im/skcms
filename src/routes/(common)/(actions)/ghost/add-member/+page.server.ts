@@ -1,8 +1,12 @@
 import { TSGhostAdminAPI } from "@ts-ghost/admin-api";
 import { GHOST_ADMIN_API_KEY } from '$env/static/private';
 import { PUBLIC_BLOG_URI } from '$env/static/public';
-import { fail } from '@sveltejs/kit';
-import type { Actions } from './$types';
+import { error, fail } from '@sveltejs/kit';
+import type { Actions, PageServerLoad } from './$types';
+
+export const load: PageServerLoad = () => {
+  error(405, 'Method Not Allowed');
+};
 
 export const actions = {
   default: async (event) => {
