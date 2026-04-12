@@ -8,6 +8,7 @@
 	onMount(() => {
 		if (page.url.searchParams.has('invalidateEntries')) {
 			invalidate('app:entries');
+			invalidate('app:facilities');
 		}
 	});
 </script>

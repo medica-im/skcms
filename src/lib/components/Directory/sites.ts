@@ -1,4 +1,3 @@
-import { getFacilities } from '$lib/store/facilityStore';
 import { categorizedFilteredEffectorsF, cardinalCategorizedFilteredEffectorsF } from '$lib/store/directoryStore.ts';
 import type { Entry } from '$lib/store/directoryStoreInterface';
 import type { Facility } from '$lib/interfaces/facility.interface.ts';
