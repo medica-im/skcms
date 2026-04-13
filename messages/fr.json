@@ -425,5 +425,6 @@
   "SELECT_CATEGORY": "Sélectionner un collège",
   "VACANT": "Vacant.",
   "NO_OFFICER": "Aucun membre du bureau.",
-  "NO_BOARD_MEMBER": "Aucun membre du conseil d'administration."
+  "NO_BOARD_MEMBER": "Aucun membre du conseil d'administration.",
+  "JOIN": "Adhérer"
 }
