@@ -425,5 +425,6 @@
 	"SELECT_CATEGORY": "Select a category",
 	"VACANT": "Vacant.",
 	"NO_OFFICER": "No officers.",
-	"NO_BOARD_MEMBER": "No board members."
+	"NO_BOARD_MEMBER": "No board members.",
+	"JOIN": "Join"
 }

@@ -19,6 +19,7 @@ const config = {
 			$msgs: './src/paraglide/messages/_index.js',
 			$prgld: './src/paraglide/',
 			$var: './src/routes/(skvar)/(var)',
+			$svlt: './src/routes/(skvar)/(svlt)',
 			'$routes': './src/routes',
 		    '$routes/*': './src/routes/*',
 			'$src': './src',
