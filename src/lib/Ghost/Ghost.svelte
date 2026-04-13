@@ -1,5 +1,6 @@
 <script lang="ts">
 	import RoundCard from '$lib/RoundCard/RoundCard.svelte';
+	import SignupForm from '$lib/Ghost/SignupForm.svelte';
 	import type { GhostSiteResponse, GhostSite, GhostError } from "$lib/interfaces/ghost.interface";
 
 	let { data, ghost }: {
@@ -35,6 +36,7 @@ const ghostData: GhostSite|null = ghost?.success ? ghost.data : null;
 					excerpt={post.custom_excerpt}
 				/>
 			{/each}
+			<SignupForm data={ghost} />
 		</div>
 	</div>
 {/if}
