@@ -188,5 +188,6 @@ typeof bounds: '{typeof bounds}'<br>
 	}
 	:global(.maplibregl-popup-content) {
 		padding: 0px;
+		color: #000;
 	}
 </style>

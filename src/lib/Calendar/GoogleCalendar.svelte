@@ -54,6 +54,11 @@
 			},
 			locale,
 			contentHeight: 'auto' as const,
+			buttonText: {
+				today: m.CALENDAR_TODAY(),
+				month: m.CALENDAR_MONTH(),
+				list: m.CALENDAR_LIST()
+			},
 			headerToolbar: {
 				left: 'prev,next today',
 				center: 'title',
@@ -168,5 +173,9 @@
 	:global(.fc-event-title) {
 		white-space: normal !important;
 		overflow-wrap: break-word;
+	}
+	:global(.fc-daygrid-dot-event) {
+		flex-direction: column;
+		align-items: flex-start;
 	}
 </style>
