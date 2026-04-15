@@ -6,9 +6,13 @@
 	import MobileSidebar from '$lib/SkeletonAppBar/MobileSidebar.svelte';
 
 	const drawerStore = getDrawerStore();
-	let basePath: string = $derived(page.url.pathname.split('/')[1]);
 	let currentRailCategory: string | undefined = $derived(
-		menuNavCats.find((e) => e.list.includes(basePath))?.id
+		menuNavCats.find((cat) =>
+			Object.values(cat.list).some((group: any) =>
+				group.href === page.url.pathname ||
+				group.list.some((link: any) => link.href === page.url.pathname + page.url.search)
+			)
+		)?.id
 	);
 	const getMenuNavLinks = (): any[] | undefined => {
 		if (!currentRailCategory) {
@@ -20,7 +24,7 @@
 			return;
 		}
 		let _filteredMenuNavLinks: any[] = Object.values(menuNavLinks).filter((linkSet: any) => {
-			return list.some((e: any) => e == linkSet.id);
+			return linkSet.id in list;
 		});
 		if (_filteredMenuNavLinks.length) {
 			return _filteredMenuNavLinks;

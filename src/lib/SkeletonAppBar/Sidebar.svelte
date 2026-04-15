@@ -7,9 +7,13 @@
 	import { variables } from '$lib/utils/constants';
 	import MenuNavLinks from './MenuNavLinks.svelte';
 
-	let basePath: string = $derived(page.url.pathname.split('/')[1]);
 	let currentRailCategory: string | undefined = $derived(
-		menuNavCats.find((e) => e.list.includes(basePath))?.id
+		menuNavCats.find((cat) =>
+			Object.values(cat.list).some((group: any) =>
+				group.href === page.url.pathname ||
+				group.list.some((link: any) => link.href === page.url.pathname + page.url.search)
+			)
+		)?.id
 	);
 
 	const getMenuNavLinks = (): any[] | undefined => {
@@ -22,7 +26,7 @@
 			return;
 		}
 		let _filteredMenuNavLinks: any[] = Object.values(menuNavLinks).filter((linkSet: any) => {
-			return list.some((e: any) => e == linkSet.id);
+			return linkSet.id in list;
 		});
 		if (_filteredMenuNavLinks.length) {
 			return _filteredMenuNavLinks;
@@ -33,7 +37,7 @@
 	let navLinks = $derived(getMenuNavLinks());
 
 	let classesActive = $derived((href: string) => {
-		return page.url.pathname == href ? 'variant-ringed-primary' : '';
+		return page.url.pathname + page.url.search === href ? 'variant-ringed-primary' : '';
 	});
 </script>
 

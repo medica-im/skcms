@@ -27,7 +27,7 @@
 		let cat = menuNavCats.find((obj) => {
 			return obj.id === id;
 		});
-		const navGroup = Object.values(menuNavLinks).filter((x) => cat.list.includes(x.id));
+		const navGroup = Object.values(menuNavLinks).filter((x: any) => x.id in cat.list);
 		return navGroup;
 	}
 </script>
@@ -51,7 +51,7 @@
 				{/if}
                 {#each navGroup.list.filter(e=>e.active != false) as { href, label, icon, preload }}
                 <li>
-                    <a data-sveltekit-preload-data={preload ? preload:"hover"} {href} class={page.url.pathname === href ? 'variant-ringed-primary' : ''}>
+                    <a data-sveltekit-preload-data={preload ? preload:"hover"} {href} class={page.url.pathname + page.url.search === href ? 'variant-ringed-primary' : ''}>
                         <span class="w-6 text-center">
 							{#if icon}
 							<Fa icon={icon} />
