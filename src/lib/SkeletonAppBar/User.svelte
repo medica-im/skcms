@@ -121,6 +121,12 @@
 								<span>Utilisateurs</span>
 							</a>
 						{/if}
+						{#if isAdmin}
+						<a href="/web/association">
+							<span class="w-6 text-center"><BookUser size={16} /></span>
+							<span>{m.ASSOCIATION_TITLE()}</span>
+						</a>
+						{/if}
 						{#if r.SuperUser}
 						<a href="/web/effector-types">
 							<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
@@ -129,10 +135,6 @@
 						<a href="/web/email">
 							<span class="w-6 text-center"><Fa icon={faAt} /></span>
 							<span>Email</span>
-						</a>
-						<a href="/web/association">
-							<span class="w-6 text-center"><BookUser size={16} /></span>
-							<span>{m.ASSOCIATION_TITLE()}</span>
 						</a>
 						{/if}
 						<!--hr class="my-4"-->
