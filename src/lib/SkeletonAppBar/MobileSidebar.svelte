@@ -11,6 +11,7 @@
 	import { org } from '$lib/state.svelte.js';
 	import { faBlog, faCalendar } from '@fortawesome/free-solid-svg-icons';
 	import BookUser from '@lucide/svelte/icons/book-user';
+	import { menuNavCats } from '$var/variables.ts';
 
 	let {
 		currentRailCategory = $bindable(),
@@ -33,7 +34,7 @@
 	}
 
 	const classesActive = (href: string) => {
-		return page.url.pathname == href ? 'variant-ringed-primary' : '';
+		return page.url.pathname + page.url.search === href ? 'variant-ringed-primary' : '';
 	};
 </script>
 
@@ -84,34 +85,6 @@
 			>
 			<span>Sites</span>
 		</AppRailAnchor>
-		{#if siteCat == 'msp'}
-			<AppRailTile bind:group={currentRailCategory} name="msp" value={'msp'}>
-				<svelte:fragment slot="lead"
-					><DocsIcon name="outpatientClinic" width="w-6" height="h-6" /></svelte:fragment
-				>
-				<span>Maison de santé</span>
-			</AppRailTile>
-			<AppRailTile bind:group={currentRailCategory} name="education" value={'education'}>
-				<svelte:fragment slot="lead"
-					><DocsIcon name="faPersonChalkboard" width="w-6" height="h-6" /></svelte:fragment
-				>
-				<span>Éducation</span>
-			</AppRailTile>
-			<AppRailTile bind:group={currentRailCategory} name="soins" value={'soins'}>
-				<svelte:fragment slot="lead"
-					><DocsIcon name="faHandHoldingMedical" width="w-6" height="h-6" /></svelte:fragment
-				>
-				<span>Soins</span>
-			</AppRailTile>
-			<AppRailTile bind:group={currentRailCategory} name="prevention" value={'prevention'}>
-				<svelte:fragment slot="lead"
-					><DocsIcon name="faShieldHeart" width="w-6" height="h-6" /></svelte:fragment
-				>
-				<span>Prévention</span>
-			</AppRailTile>
-
-			<hr class="opacity-30" />
-		{/if}
 		{#if page.data.organization.google_calendar_id && page.data.organization.google_calendar_api_key}
 			<AppRailAnchor
 				href="/calendrier"
@@ -127,34 +100,15 @@
 				<span>{m.CALENDAR()}</span>
 			</AppRailAnchor>
 		{/if}
-		<AppRailAnchor
-			href="/contact"
-			selected={page.url.pathname == '/contact' && !currentRailCategory}
-			class="lg:hidden"
-			on:click={() => {
-				onClickAnchor();
-			}}
-		>
-			<svelte:fragment slot="lead"
-				><DocsIcon name="envelope" width="w-6" height="h-6" /></svelte:fragment
-			>
-			<span>Contact</span>
-		</AppRailAnchor>
-		{#if org.isAsso && org.displayAsso}
-		<AppRailAnchor
-			href="/association"
-			selected={page.url.pathname == '/association' && !currentRailCategory}
-			class="lg:hidden"
-			on:click={() => {
-				onClickAnchor();
-			}}
-		>
-			<svelte:fragment slot="lead"
-				><BookUser size={20} /></svelte:fragment
-			>
-			<span>Association</span>
-		</AppRailAnchor>
-		{/if}
+		<!--tiles from menuNavCats:-->
+		{#each menuNavCats as navCat}
+			<AppRailTile bind:group={currentRailCategory} name={navCat.id} value={navCat.id}>
+				<svelte:fragment slot="lead">
+					<DocsIcon name={navCat.docsIcon} width="w-6" height="h-6" />
+				</svelte:fragment>
+				<span>{navCat.title[variables.DEFAULT_LANGUAGE]}</span>
+			</AppRailTile>
+		{/each}
 		{#if variables.BLOG_URI}
 			<AppRailAnchor
 				href={variables.BLOG_URI}
@@ -180,6 +134,19 @@
 				{/if}
 			{/each}
 		{/if}
+		<AppRailAnchor
+			href="/contact"
+			selected={page.url.pathname == '/contact' && !currentRailCategory}
+			class="lg:hidden"
+			on:click={() => {
+				onClickAnchor();
+			}}
+		>
+			<svelte:fragment slot="lead"
+				><DocsIcon name="envelope" width="w-6" height="h-6" /></svelte:fragment
+			>
+			<span>Contact</span>
+		</AppRailAnchor>
 	</AppRail>
 	{#if navLinks?.length}
 		<!-- Nav Links -->

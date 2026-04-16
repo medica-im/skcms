@@ -2,39 +2,23 @@
 	import * as m from '$msgs';
 	import { page } from '$app/state';
 	import DocsIcon from '$lib/Icon/Icon.svelte';
-	import { menuNavLinks, menuNavCats } from '$var/variables.ts';
+	import { menuNavCats } from '$var/variables.ts';
 	import { AppRail, AppRailTile } from '@skeletonlabs/skeleton';
 	import { variables } from '$lib/utils/constants';
 	import MenuNavLinks from './MenuNavLinks.svelte';
 
 	let currentRailCategory: string | undefined = $derived(
 		menuNavCats.find((cat) =>
-			Object.values(cat.list).some((group: any) =>
-				group.href === page.url.pathname ||
-				group.list.some((link: any) => link.href === page.url.pathname + page.url.search)
+			cat.list.some((navItem: any) =>
+				navItem.href === page.url.pathname + page.url.search ||
+				navItem.list.some((link: any) => link.href === page.url.pathname + page.url.search)
 			)
 		)?.id
 	);
 
-	const getMenuNavLinks = (): any[] | undefined => {
-		if (!currentRailCategory) {
-			return;
-		}
-		const cat = menuNavCats.find((cat) => cat.id == currentRailCategory);
-		const list = cat?.list;
-		if (!list) {
-			return;
-		}
-		let _filteredMenuNavLinks: any[] = Object.values(menuNavLinks).filter((linkSet: any) => {
-			return linkSet.id in list;
-		});
-		if (_filteredMenuNavLinks.length) {
-			return _filteredMenuNavLinks;
-		} else {
-			return;
-		}
-	};
-	let navLinks = $derived(getMenuNavLinks());
+	let navLinks = $derived(
+		menuNavCats.find((cat) => cat.id === currentRailCategory)?.list
+	);
 
 	let classesActive = $derived((href: string) => {
 		return page.url.pathname + page.url.search === href ? 'variant-ringed-primary' : '';
@@ -63,12 +47,6 @@
 						<span>Maison de santé</span>
 					</AppRailTile>
 				{/if}
-				<AppRailTile bind:group={currentRailCategory} name="education" value={'education'}>
-					<svelte:fragment slot="lead"
-						><DocsIcon name="faPersonChalkboard" width="w-6" height="h-6" /></svelte:fragment
-					>
-					<span>Éducation</span>
-				</AppRailTile>
 				<AppRailTile bind:group={currentRailCategory} name="soins" value={'soins'}>
 					<svelte:fragment slot="lead"
 						><DocsIcon name="faHandHoldingMedical" width="w-6" height="h-6" /></svelte:fragment

@@ -20,15 +20,11 @@
 		faUser,
 		faPersonChalkboard
 	} from '@fortawesome/free-solid-svg-icons';
-	import { menuNavLinks, menuNavCats } from '$var/variables.ts';
+	import { menuNavCats } from '$var/variables.ts';
 
 	const lang = variables.DEFAULT_LANGUAGE;
 	function getNavGroups(id: string) {
-		let cat = menuNavCats.find((obj) => {
-			return obj.id === id;
-		});
-		const navGroup = Object.values(menuNavLinks).filter((x: any) => x.id in cat.list);
-		return navGroup;
+		return menuNavCats.find((obj) => obj.id === id)?.list ?? [];
 	}
 </script>
 
@@ -44,8 +40,8 @@
         <nav class="list-nav">
             <ul>
                 {#each getNavGroups(navCat.id) as navGroup}
-				{#if getNavGroups(navCat.id).length > 1}
-                <li>
+				{#if getNavGroups(navCat.id).length > 0}
+                <li class="font-bold">
                     {navGroup.title[lang]}
                 </li>
 				{/if}

@@ -217,14 +217,6 @@
 								<span>Contact</span>
 							</a>
 						</li>
-						{#if org.isAsso && org.displayAsso}
-						<li>
-							<a href="/association">
-								<span class="w-6 text-center"><BookUser size={16} /></span>
-								<span>Association</span>
-							</a>
-						</li>
-						{/if}
 					</ul>
 				</nav>
 			</div>

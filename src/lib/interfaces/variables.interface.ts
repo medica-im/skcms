@@ -19,8 +19,19 @@ export interface Variables {
 	readonly SITUATIONS_TTL: number;
 }
 
-export type ProgramsNavLinks =
-	Required<Record<"soins" | "education-therapeutique" | "prevention", Nav>>;
+export interface ProgramsNavLinks {
+	[key: string]: Nav
+}
+
+export interface MenuNavCat {
+	id: string;
+	title: {
+		en: string;
+		fr: string;
+	};
+	docsIcon: string;
+	list: Nav[];
+}
 
 interface Link {
 	href: string,

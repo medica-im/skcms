@@ -21,14 +21,10 @@
 		const idx = tabIndex;
 		untrack(() => {
 			const currentTab = page.url.searchParams.get('tab') ?? '';
-			const newTab = idx === 0 ? '' : reverseTabMap[idx];
+			const newTab = reverseTabMap[idx];
 			if (currentTab === newTab) return;
 			const url = new URL(page.url);
-			if (idx === 0) {
-				url.searchParams.delete('tab');
-			} else {
-				url.searchParams.set('tab', newTab);
-			}
+			url.searchParams.set('tab', newTab);
 			goto(url.pathname + url.search, { replaceState: true, noScroll: true, keepFocus: true });
 		});
 	});

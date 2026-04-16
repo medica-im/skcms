@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { menuNavLinks } from '$var/variables.ts';
+	import { menuNavCats } from '$var/variables.ts';
 	import { Modal, getModalStore } from '@skeletonlabs/skeleton';
 	// Classes
 	const cBase =
@@ -14,7 +14,7 @@
 
 	// Local
 	let searchTerm = '';
-	let navigationOriginal: any[] = Object.values(menuNavLinks);
+	let navigationOriginal: any[] = menuNavCats.flatMap((cat) => cat.list);
 	let navigation: any[] = navigationOriginal;
 
 	// Elements
