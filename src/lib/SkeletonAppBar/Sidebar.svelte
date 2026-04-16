@@ -32,33 +32,14 @@
 		>
 			<!-- App Rail -->
 			<AppRail background="!bg-transparent" border="border-r border-surface-500/30">
-				{#if page.data.organization.category.name == 'cpts'}
-					<AppRailTile bind:group={currentRailCategory} name="cpts" value={'cpts'}>
-						<svelte:fragment slot="lead"
-							><DocsIcon name="outpatientClinic" width="w-6" height="h-6" /></svelte:fragment
-						>
-						<span>CPTS</span>
+				{#each menuNavCats as navCat}
+					<AppRailTile bind:group={currentRailCategory} name={navCat.id} value={navCat.id}>
+						<svelte:fragment slot="lead">
+							<DocsIcon name={navCat.docsIcon} width="w-6" height="h-6" />
+						</svelte:fragment>
+						<span>{navCat.title[variables.DEFAULT_LANGUAGE]}</span>
 					</AppRailTile>
-				{:else if page.data.organization.category.name == 'msp'}
-					<AppRailTile bind:group={currentRailCategory} name="msp" value={'msp'}>
-						<svelte:fragment slot="lead"
-							><DocsIcon name="outpatientClinic" width="w-6" height="h-6" /></svelte:fragment
-						>
-						<span>Maison de santé</span>
-					</AppRailTile>
-				{/if}
-				<AppRailTile bind:group={currentRailCategory} name="soins" value={'soins'}>
-					<svelte:fragment slot="lead"
-						><DocsIcon name="faHandHoldingMedical" width="w-6" height="h-6" /></svelte:fragment
-					>
-					<span>Soins</span>
-				</AppRailTile>
-				<AppRailTile bind:group={currentRailCategory} name="prevention" value={'prevention'}>
-					<svelte:fragment slot="lead"
-						><DocsIcon name="faShieldHeart" width="w-6" height="h-6" /></svelte:fragment
-					>
-					<span>Prévention</span>
-				</AppRailTile>
+				{/each}
 			</AppRail>
 			<!-- Nav Links -->
 			<section class="p-4 pb-20 space-y-4 overflow-y-auto w-[360px]">

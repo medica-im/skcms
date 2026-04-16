@@ -7,13 +7,7 @@
 	import BlogIconLink from '$lib/Ghost/BlogIconLink.svelte';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import OutpatientClinicLogo from '$lib/Logos/OutpatientClinicLogo.svelte';
-	import type { ProgramsNavLinks } from '$lib/interfaces/variables.interface';
-
-	let {
-		programsNavLinks
-	} : {
-		programsNavLinks: ProgramsNavLinks
-	} = $props();
+	import { programsNavLinks } from '$var/variables.ts';
 
 	const dirPath = page.data.directory.setting.path;
 </script>

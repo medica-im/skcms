@@ -33,17 +33,17 @@ export interface MenuNavCat {
 	list: Nav[];
 }
 
-interface Link {
+export interface Link {
 	href: string,
 	label: string,
 	keywords: string,
 	icon: object|null,
-	category: string,
+	category?: string,
 	active?: boolean,
 	preload?: string
 };
 
-interface Nav {
+export interface Nav {
 	id: string,
 	title: {
 		en: string,
@@ -51,6 +51,6 @@ interface Nav {
 	},
 	menu: string,
 	href: string,
-	icon: IconDefinition,
+	icon?: IconDefinition,
 	list: Link[]
 };
