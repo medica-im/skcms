@@ -32,7 +32,6 @@
     import { QueryClientProvider, QueryClient } from '@tanstack/svelte-query'
     import type { ComponentProps } from 'svelte';
     import { scrollY } from '$lib/store/scrollStore';
-	import { programsNavLinks } from '$var/variables.ts';
 	import { PUBLIC_PLAUSIBLE_SCRIPT_SRC } from '$env/static/public';
 
 	beforeNavigate(({ willUnload, to }) => {
@@ -121,7 +120,7 @@
 		</QueryClientProvider>
 		<svelte:fragment slot="pageFooter">
 			{#if page.data.organization?.category.name=="msp"}
-				<Footer {programsNavLinks}/>
+				<Footer />
 			{:else if page.data.organization?.category.name=="cpts"}
 				<AddressbookFooter/>
 			{/if}

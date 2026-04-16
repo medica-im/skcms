@@ -20,15 +20,11 @@
 		faUser,
 		faPersonChalkboard
 	} from '@fortawesome/free-solid-svg-icons';
-	import { menuNavLinks, menuNavCats } from '$var/variables.ts';
+	import { menuNavCats } from '$var/variables.ts';
 
 	const lang = variables.DEFAULT_LANGUAGE;
 	function getNavGroups(id: string) {
-		let cat = menuNavCats.find((obj) => {
-			return obj.id === id;
-		});
-		const navGroup = Object.values(menuNavLinks).filter((x) => cat.list.includes(x.id));
-		return navGroup;
+		return menuNavCats.find((obj) => obj.id === id)?.list ?? [];
 	}
 </script>
 
@@ -44,14 +40,14 @@
         <nav class="list-nav">
             <ul>
                 {#each getNavGroups(navCat.id) as navGroup}
-				{#if getNavGroups(navCat.id).length > 1}
-                <li>
+				{#if getNavGroups(navCat.id).length > 0}
+                <li class="font-bold">
                     {navGroup.title[lang]}
                 </li>
 				{/if}
                 {#each navGroup.list.filter(e=>e.active != false) as { href, label, icon, preload }}
                 <li>
-                    <a data-sveltekit-preload-data={preload ? preload:"hover"} {href} class={page.url.pathname === href ? 'variant-ringed-primary' : ''}>
+                    <a data-sveltekit-preload-data={preload ? preload:"hover"} {href} class={page.url.pathname + page.url.search === href ? 'variant-ringed-primary' : ''}>
                         <span class="w-6 text-center">
 							{#if icon}
 							<Fa icon={icon} />

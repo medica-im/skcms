@@ -1,34 +1,22 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { menuNavLinks, menuNavCats } from '$var/variables.ts';
+	import { menuNavCats } from '$var/variables.ts';
 	import { getDrawerStore, Drawer } from '@skeletonlabs/skeleton';
 	import Sidebar from '$lib/SkeletonAppBar/Sidebar.svelte';
 	import MobileSidebar from '$lib/SkeletonAppBar/MobileSidebar.svelte';
 
 	const drawerStore = getDrawerStore();
-	let basePath: string = $derived(page.url.pathname.split('/')[1]);
 	let currentRailCategory: string | undefined = $derived(
-		menuNavCats.find((e) => e.list.includes(basePath))?.id
+		menuNavCats.find((cat) =>
+			cat.list.some((navItem: any) =>
+				navItem.href === page.url.pathname + page.url.search ||
+				navItem.list.some((link: any) => link.href === page.url.pathname + page.url.search)
+			)
+		)?.id
 	);
-	const getMenuNavLinks = (): any[] | undefined => {
-		if (!currentRailCategory) {
-			return;
-		}
-		const cat = menuNavCats.find((cat) => cat.id == currentRailCategory);
-		const list = cat?.list;
-		if (!list) {
-			return;
-		}
-		let _filteredMenuNavLinks: any[] = Object.values(menuNavLinks).filter((linkSet: any) => {
-			return list.some((e: any) => e == linkSet.id);
-		});
-		if (_filteredMenuNavLinks.length) {
-			return _filteredMenuNavLinks;
-		} else {
-			return;
-		}
-	};
-	let navLinks = $derived(getMenuNavLinks());
+	let navLinks = $derived(
+		menuNavCats.find((cat) => cat.id === currentRailCategory)?.list
+	);
 	let widthSetting = $derived.by(() => {
 		if (navLinks?.length) {
 			return '';

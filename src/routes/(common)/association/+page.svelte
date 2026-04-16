@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
+	import { untrack } from 'svelte';
 	import * as m from '$msgs';
 	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 	import OfficerCard from '$lib/Association/OfficerCard.svelte';
@@ -11,7 +13,21 @@
 
 	let { data } = $props();
 
-	let tabIndex: number = $state(0);
+	const tabMap: Record<string, number> = { bureau: 0, CA: 1, adherer: 2 };
+	const reverseTabMap = Object.fromEntries(Object.entries(tabMap).map(([k, v]) => [v, k]));
+	let tabIndex: number = $derived(tabMap[page.url.searchParams.get('tab') ?? ''] ?? 0);
+
+	$effect(() => {
+		const idx = tabIndex;
+		untrack(() => {
+			const currentTab = page.url.searchParams.get('tab') ?? '';
+			const newTab = reverseTabMap[idx];
+			if (currentTab === newTab) return;
+			const url = new URL(page.url);
+			url.searchParams.set('tab', newTab);
+			goto(url.pathname + url.search, { replaceState: true, noScroll: true, keepFocus: true });
+		});
+	});
 
 	const entries: Entry[] = $derived(page.data?.entries || []);
 	const activeOfficers = $derived((data.officers || []).filter((o) => !o.stop));

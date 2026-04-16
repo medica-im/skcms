@@ -7,13 +7,9 @@
 	import BlogIconLink from '$lib/Ghost/BlogIconLink.svelte';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import OutpatientClinicLogo from '$lib/Logos/OutpatientClinicLogo.svelte';
-	import type { ProgramsNavLinks } from '$lib/interfaces/variables.interface';
+	import { programsNavLinks } from '$var/variables.ts';
 
-	let {
-		programsNavLinks
-	} : {
-		programsNavLinks: ProgramsNavLinks
-	} = $props();
+	const dirPath = page.data.directory.setting.path;
 </script>
 <footer class="page-footer text-xs md:text-base">
 	<div class="w-full max-w-7xl mx-auto p-4 py-16 md:py-24 space-y-10">
@@ -44,9 +40,11 @@
 								{m.HOME_TITLE()}
 							</a>
 						</li>
+						{#if dirPath != "/"}
 						<li class="mb-4">
-							<a href={page.data.directory.setting.path || '/'}> Annuaire </a>
+							<a href={page.data.directory.setting.path || '/'}>{m.ADDRESSBOOK_TITLE() }</a>
 						</li>
+						{/if}
 						<li class="mb-4">
 							<a href="/sites"> Sites </a>
 						</li>

@@ -2,38 +2,26 @@
 	import * as m from '$msgs';
 	import { page } from '$app/state';
 	import DocsIcon from '$lib/Icon/Icon.svelte';
-	import { menuNavLinks, menuNavCats } from '$var/variables.ts';
+	import { menuNavCats } from '$var/variables.ts';
 	import { AppRail, AppRailTile } from '@skeletonlabs/skeleton';
 	import { variables } from '$lib/utils/constants';
 	import MenuNavLinks from './MenuNavLinks.svelte';
 
-	let basePath: string = $derived(page.url.pathname.split('/')[1]);
 	let currentRailCategory: string | undefined = $derived(
-		menuNavCats.find((e) => e.list.includes(basePath))?.id
+		menuNavCats.find((cat) =>
+			cat.list.some((navItem: any) =>
+				navItem.href === page.url.pathname + page.url.search ||
+				navItem.list.some((link: any) => link.href === page.url.pathname + page.url.search)
+			)
+		)?.id
 	);
 
-	const getMenuNavLinks = (): any[] | undefined => {
-		if (!currentRailCategory) {
-			return;
-		}
-		const cat = menuNavCats.find((cat) => cat.id == currentRailCategory);
-		const list = cat?.list;
-		if (!list) {
-			return;
-		}
-		let _filteredMenuNavLinks: any[] = Object.values(menuNavLinks).filter((linkSet: any) => {
-			return list.some((e: any) => e == linkSet.id);
-		});
-		if (_filteredMenuNavLinks.length) {
-			return _filteredMenuNavLinks;
-		} else {
-			return;
-		}
-	};
-	let navLinks = $derived(getMenuNavLinks());
+	let navLinks = $derived(
+		menuNavCats.find((cat) => cat.id === currentRailCategory)?.list
+	);
 
 	let classesActive = $derived((href: string) => {
-		return page.url.pathname == href ? 'variant-ringed-primary' : '';
+		return page.url.pathname + page.url.search === href ? 'variant-ringed-primary' : '';
 	});
 </script>
 
@@ -44,39 +32,14 @@
 		>
 			<!-- App Rail -->
 			<AppRail background="!bg-transparent" border="border-r border-surface-500/30">
-				{#if page.data.organization.category.name == 'cpts'}
-					<AppRailTile bind:group={currentRailCategory} name="cpts" value={'cpts'}>
-						<svelte:fragment slot="lead"
-							><DocsIcon name="outpatientClinic" width="w-6" height="h-6" /></svelte:fragment
-						>
-						<span>CPTS</span>
+				{#each menuNavCats as navCat}
+					<AppRailTile bind:group={currentRailCategory} name={navCat.id} value={navCat.id}>
+						<svelte:fragment slot="lead">
+							<DocsIcon name={navCat.docsIcon} width="w-6" height="h-6" />
+						</svelte:fragment>
+						<span>{navCat.title[variables.DEFAULT_LANGUAGE]}</span>
 					</AppRailTile>
-				{:else if page.data.organization.category.name == 'msp'}
-					<AppRailTile bind:group={currentRailCategory} name="msp" value={'msp'}>
-						<svelte:fragment slot="lead"
-							><DocsIcon name="outpatientClinic" width="w-6" height="h-6" /></svelte:fragment
-						>
-						<span>Maison de santé</span>
-					</AppRailTile>
-				{/if}
-				<AppRailTile bind:group={currentRailCategory} name="education" value={'education'}>
-					<svelte:fragment slot="lead"
-						><DocsIcon name="faPersonChalkboard" width="w-6" height="h-6" /></svelte:fragment
-					>
-					<span>Éducation</span>
-				</AppRailTile>
-				<AppRailTile bind:group={currentRailCategory} name="soins" value={'soins'}>
-					<svelte:fragment slot="lead"
-						><DocsIcon name="faHandHoldingMedical" width="w-6" height="h-6" /></svelte:fragment
-					>
-					<span>Soins</span>
-				</AppRailTile>
-				<AppRailTile bind:group={currentRailCategory} name="prevention" value={'prevention'}>
-					<svelte:fragment slot="lead"
-						><DocsIcon name="faShieldHeart" width="w-6" height="h-6" /></svelte:fragment
-					>
-					<span>Prévention</span>
-				</AppRailTile>
+				{/each}
 			</AppRail>
 			<!-- Nav Links -->
 			<section class="p-4 pb-20 space-y-4 overflow-y-auto w-[360px]">
