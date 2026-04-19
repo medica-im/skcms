@@ -8,7 +8,7 @@
 	import type { Facility } from '$lib/interfaces/facility.interface.js';
 	import { JsonView } from '@zerodevx/svelte-json-view';
 
-	let { data, carousel=true }: { data: Facility[]; carousel?: boolean } = $props();
+	let { data, carousel=true, geojson=null }: { data: Facility[]; carousel?: boolean; geojson?: any } = $props();
 
 	const lgCols = carousel ? 3 : 2;
 	function filterFacilities(facilities: Facility[]) {
@@ -41,7 +41,7 @@
 		{/each}
 	</div>
 	<div in:scale class="h-64 z-0">
-		<Map data={createFacilitiesMapData(data, true)} showTooltip={true} />
+		<Map data={createFacilitiesMapData(data, true)} showTooltip={true} {geojson} />
 	</div>
 	{#if carouselFacilities.length && carousel}
 		<div class="place-items-center items-center justify-center content-center">

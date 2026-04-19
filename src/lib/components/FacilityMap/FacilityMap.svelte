@@ -5,7 +5,7 @@
 	import type { Entry } from '$lib/store/directoryStoreInterface.ts';
 	import { getSelectFacility, getSelectCategories, getTerm, getSelectedCommunesUids, getSelectSituation, getAddressFeature, getDisplayMap, getSelectedTags, getSelectedDepartment } from '$lib/components/Directory/context.ts';
 
-	let { data } : { data: Map<string, Entry[]>; } = $props();
+	let { data, geojson = null } : { data: Map<string, Entry[]>; geojson?: any } = $props();
 	const entries = $derived(Object.values(Object.fromEntries(data)).flat());
 
 	const org_category = page.data.organization.category.name;
@@ -22,4 +22,4 @@
 	let mapData = $derived(createEntriesMapData(entries, false, $addressFeature, org_category, page.url.pathname, $selectFacility, $selectCategories, $selectTags?.map(t=>t.uid), $term, $selectCommunes, $selectDepartment, $selectSituation?.value, $displayMap));
 </script>
 
-<Maplibre data={mapData} showTooltip={false} target={$addressFeature} />
+<Maplibre data={mapData} showTooltip={false} target={$addressFeature} {geojson} />

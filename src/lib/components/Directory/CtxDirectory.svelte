@@ -77,6 +77,7 @@
 		types = null,
 		active = undefined,
 		displaySelector = false,
+		geojson = null,
 	}: {
 		data?: any;
 		displayGeocoder?: boolean;
@@ -98,6 +99,7 @@
 		types?: string[] | null;
 		active?: boolean | undefined;
 		displaySelector?: boolean;
+		geojson?: any;
 	} = $props();
 
 	setTerm();
@@ -250,5 +252,6 @@
 		{tagOf}
 		rCCFE={rCardinalCategorizedFilteredEntries}
 		rCFFE={rCategorizedFullFilteredEntries}
+		{geojson}
 	/>
 {/if}

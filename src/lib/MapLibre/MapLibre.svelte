@@ -14,18 +14,23 @@
 		ControlButton,
 		DefaultMarker,
 		Marker,
-		Popup
+		Popup,
+		GeoJSON,
+		FillLayer,
+		LineLayer
 	} from 'svelte-maplibre';
 	import * as openStreetMap from '$lib/MapLibre/style/openStreetMap.json';
 
 	let {
 		data,
 		showTooltip = false,
-		target = null
+		target = null,
+		geojson = null
 	}: {
 		data: MapData[];
 		showTooltip?: boolean;
 		target?: AddressFeature | null;
+		geojson?: any;
 	} = $props();
 
 	let targetLngLat: LngLatLike | undefined = $derived(
@@ -172,6 +177,22 @@ typeof bounds: '{typeof bounds}'<br>
 					<Fa icon={faHome} scale={0.45} translateY={-0.08} color="white" />
 				</FaLayers>
 			</Marker>
+		{/if}
+		{#if geojson}
+			<GeoJSON id="geojson-polygon" data={geojson}>
+				<FillLayer
+					paint={{
+						'fill-color': '#006600',
+						'fill-opacity': 0.15,
+					}}
+					beforeLayerType="symbol"
+				/>
+				<LineLayer
+					layout={{ 'line-cap': 'round', 'line-join': 'round' }}
+					paint={{ 'line-color': '#003300', 'line-width': 2 }}
+					beforeLayerType="symbol"
+				/>
+			</GeoJSON>
 		{/if}
 	{/snippet}
 </MapLibre>

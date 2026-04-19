@@ -39,6 +39,7 @@
 		tagOf,
 		rCCFE,
 		rCFFE,
+		geojson = null,
 	}: {
 		data: any;
 		displayCategory: boolean;
@@ -59,6 +60,7 @@
 		tagOf: Tag[];
 		rCCFE: Map<any,any[]>;
 		rCFFE: Map<any,any[]>;
+		geojson?: any;
 	} = $props();
 	const selectSituation = getSelectSituation();
 	let top: Element;
@@ -112,7 +114,7 @@
 						</div>
 					{/if}
 				{:then}-->
-					<List data={rCCFE} {avatar} {displaySelector} />
+					<List data={rCCFE} {avatar} {displaySelector} {geojson} />
 				<!--{/await}-->
 			</div>
 		</div>

@@ -10,7 +10,7 @@
 	import { setDisplayMap, getDisplayMap } from '$lib/components/Directory/context.ts';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 
-	let { data, avatar = true, displaySelector = false }: { data: Map<string, Entry[]>; avatar: boolean; displaySelector: boolean } = $props();
+	let { data, avatar = true, displaySelector = false, geojson = null }: { data: Map<string, Entry[]>; avatar: boolean; displaySelector: boolean; geojson?: any } = $props();
 	setDisplayMap();
 	const displayMap = getDisplayMap();
 
@@ -36,7 +36,7 @@
 	{#if data}
 		{#if $displayMap}
 			<div class="h-screen px-4 z-0">
-				<FacilityMap {data} />
+				<FacilityMap {data} {geojson} />
 			</div>
 		{:else if displaySelector}
 			<EntrySelector {data} {avatar} />
