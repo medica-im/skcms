@@ -178,4 +178,12 @@
 		flex-direction: column;
 		align-items: flex-start;
 	}
+	:global(.fc-list-day-cushion) {
+		background-color: rgb(var(--color-surface-300)) !important;
+		color: rgb(var(--color-surface-900)) !important;
+	}
+	:global(.dark .fc-list-day-cushion) {
+		background-color: rgb(var(--color-surface-700)) !important;
+		color: rgb(var(--color-surface-100)) !important;
+	}
 </style>
