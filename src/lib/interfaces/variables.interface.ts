@@ -49,7 +49,6 @@ export interface Nav {
 		en: string,
 	    fr: string
 	},
-	menu: string,
 	href: string,
 	icon?: IconDefinition,
 	list: Link[]
