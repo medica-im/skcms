@@ -56,8 +56,8 @@ importers:
         specifier: ^5.90.2
         version: 5.90.2(svelte@5.51.5)
       '@ts-ghost/admin-api':
-        specifier: ^4.3.0
-        version: 4.3.0
+        specifier: ^6.0.0
+        version: 6.0.0
       '@turf/bbox':
         specifier: ^7.3.1
         version: 7.3.4
@@ -911,11 +911,11 @@ packages:
     peerDependencies:
       svelte: ^3.54.0 || ^4.0.0 || ^5.0.0
 
-  '@ts-ghost/admin-api@4.3.0':
-    resolution: {integrity: sha512-tfWVUBdlYXZ8J6FPAXVTQga/EANcks9Vpw7T9KZOFDfl2yq3DowEOGltZ5d59vvN2euWzCl3AFzj+0sugvwbEw==}
+  '@ts-ghost/admin-api@6.0.0':
+    resolution: {integrity: sha512-i169jZC+K+pGpZI8999mW8GKrb0xHEKII3KJpcxbjcdjyQ/b6g1p6cceUiQVyVNFQlRgt7lqhSqOgwYJAflvDA==}
 
-  '@ts-ghost/core-api@6.3.0':
-    resolution: {integrity: sha512-ufsPnbmGiKOLBRcNr4us44gUYvC82CW3l6KeYeW0/YLugrQUzR3QIETi7dunL2IraxuSSpF1Ng9kBDpcbApv3A==}
+  '@ts-ghost/core-api@7.0.0':
+    resolution: {integrity: sha512-+mKfNx9Ka53Sqfz3B5JGGeH34ZnatLKaVgOdOoGMSfKOpSkUug3i0qggNMEpwfpm4ucuHM0Xlcd8ke5h5Hq1Bg==}
 
   '@turf/bbox@7.3.4':
     resolution: {integrity: sha512-D5ErVWtfQbEPh11yzI69uxqrcJmbPU/9Y59f1uTapgwAwQHQztDWgsYpnL3ns8r1GmPWLP8sGJLVTIk2TZSiYA==}
@@ -3117,11 +3117,8 @@ packages:
   zimmerframe@1.1.4:
     resolution: {integrity: sha512-B58NGBEoc8Y9MWWCQGl/gq9xBCe4IiKM0a2x7GZdQKOW5Exr8S1W24J6OgM1njK8xCRGvAJIL/MxXHf6SkmQKQ==}
 
-  zod@3.23.8:
-    resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
-
-  zod@4.3.4:
-    resolution: {integrity: sha512-Zw/uYiiyF6pUT1qmKbZziChgNPRu+ZRneAsMUDU6IwmXdWt5JwcUfy2bvLOCUtz5UniaN/Zx5aFttZYbYc7O/A==}
+  zod@4.3.5:
+    resolution: {integrity: sha512-k7Nwx6vuWx1IJ9Bjuf4Zt1PEllcwe7cls3VNzm4CQ1/hgtFUK2bRNG3rvnpPUhFjmqJKAKtjV576KnUkHocg/g==}
 
   zod@4.3.6:
     resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
@@ -3733,16 +3730,16 @@ snapshots:
       '@tanstack/query-core': 5.90.2
       svelte: 5.51.5
 
-  '@ts-ghost/admin-api@4.3.0':
+  '@ts-ghost/admin-api@6.0.0':
     dependencies:
-      '@ts-ghost/core-api': 6.3.0
+      '@ts-ghost/core-api': 7.0.0
       validator: 13.15.26
-      zod: 3.23.8
+      zod: 4.3.5
 
-  '@ts-ghost/core-api@6.3.0':
+  '@ts-ghost/core-api@7.0.0':
     dependencies:
       jose: 6.2.1
-      zod: 4.3.4
+      zod: 4.3.5
 
   '@turf/bbox@7.3.4':
     dependencies:
@@ -6014,8 +6011,6 @@ snapshots:
 
   zimmerframe@1.1.4: {}
 
-  zod@3.23.8: {}
-
-  zod@4.3.4: {}
+  zod@4.3.5: {}
 
   zod@4.3.6: {}
