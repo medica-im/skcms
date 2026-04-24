@@ -40,6 +40,7 @@
 		 } else {
 			initialMemberships = [];
 		 }
+		 selectedMemberships = [...initialMemberships];
 	}
 	let result: FormResult | undefined = $state();
 	let selectedMemberships: SelectType[] = $state(initialMemberships);
