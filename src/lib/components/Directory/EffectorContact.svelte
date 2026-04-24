@@ -46,6 +46,7 @@
 	import TagModal from '$lib/Web/Tag/TagModal.svelte';
 	import AvatarUploadModal from '$lib/Web/Avatar/AvatarUploadModal.svelte';
 	import { JsonView } from '@zerodevx/svelte-json-view';
+	import Affiliates from '$lib/Facility/Affiliates.svelte';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 	import type { EntryFull } from '$lib/store/directoryStoreInterface';
 	let { data } = $props();
@@ -108,7 +109,7 @@
 				{/if}
 				<Tag data={fullentry?.tags} compact={false} />
 				{#if $editMode}<TagModal tags={fullentry.tags} />{/if}
-				<MembershipSection {memberships} editMode={$editMode} />
+				<MembershipSection {memberships} editMode={$editMode} uid={fullentry.uid} />
 			</div>
 			<div class="flex-none space-y-2">
 				{#if fullentry?.avatar}
@@ -258,6 +259,7 @@
 			</div>
 		</div>
 	{/if}
+	<Affiliates uid={fullentry.uid}/>
 	{#if ['superuser', 'administrator'].includes(page.data?.user?.role)}
 		<CreatorOwner owner={fullentry.owner} creator={fullentry.creator} />
 		<RedeemEmail data={fullentry} editMode={$editMode} />
