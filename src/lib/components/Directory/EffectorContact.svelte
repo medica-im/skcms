@@ -47,6 +47,7 @@
 	import AvatarUploadModal from '$lib/Web/Avatar/AvatarUploadModal.svelte';
 	import { JsonView } from '@zerodevx/svelte-json-view';
 	import Affiliates from '$lib/Facility/Affiliates.svelte';
+	import AccessControl from '$lib/Web/Entry/AccessControl.svelte';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 	import type { EntryFull } from '$lib/store/directoryStoreInterface';
 	let { data } = $props();
@@ -260,6 +261,9 @@
 		</div>
 	{/if}
 	<Affiliates uid={fullentry.uid}/>
+	{#if r.Admin || fullentry.owner?.includes(page.data?.user?.uid)}
+		<AccessControl access={fullentry.access} editMode={$editMode} />
+	{/if}
 	{#if ['superuser', 'administrator'].includes(page.data?.user?.role)}
 		<CreatorOwner owner={fullentry.owner} creator={fullentry.creator} />
 		<RedeemEmail data={fullentry} editMode={$editMode} />

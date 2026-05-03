@@ -97,6 +97,7 @@ export interface EntryFull {
     owner: string[]|null;
     creator: string[]|null;
     redeemEmail: string|null;
+    access: string;
 }
 
 export interface FeatureCollection {

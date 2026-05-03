@@ -10,6 +10,7 @@
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
+	import { allAccessOptions, accessDescriptions } from '$lib/Web/Entry/access';
 
 	let {
 		effector = $bindable(),
@@ -36,6 +37,16 @@
 	let facilityUid: string | undefined = $derived(facility?.value);
 	let directory: string | undefined = $state();
 	let isOwner = $state(true);
+	let access = $state('anonymous');
+
+	const accessOptions = $derived.by(() => {
+		const role = page.data?.user?.role;
+		if (role === 'superuser') return allAccessOptions;
+		if (role === 'administrator') return allAccessOptions.filter(o => o.value !== 'superuser');
+		return allAccessOptions.filter(o => o.value === 'anonymous' || o.value === 'staff');
+	});
+	const accessDescription = $derived(accessDescriptions[access] ?? '');
+
 	let uid = $derived.by(() => {
 		if (effectorUid && effector_type && facilityUid) {
 			return effectorUid.concat(effector_type, facilityUid);
@@ -58,6 +69,7 @@
 		directory = undefined;
 		memberships = [];
 		membershipsDone = !displayMembershipStep;
+		access = 'anonymous';
 	};
 </script>
 <!--
@@ -155,6 +167,19 @@ hasErrors: {hasErrors}-->
 					placeholder=""
 					value={page.data.organization.category.name}
 				/>
+				<div class="w-full">
+					<span class="text-sm font-medium">{m['ACCESS.ACCESS_CONTROL']()}</span>
+					<div class="flex flex-col lg:flex-row lg:items-center gap-2 mt-1">
+						<label class="label">
+							<select class="select" name="access" bind:value={access}>
+								{#each accessOptions as option}
+									<option value={option.value}>{option.label}</option>
+								{/each}
+							</select>
+						</label>
+						<span class="text-sm opacity-70">{accessDescription}</span>
+					</div>
+				</div>
 				{#if isSuperUser}
 					<label class="label w-full">
 						<span class="text-sm font-medium">Annuaire</span>

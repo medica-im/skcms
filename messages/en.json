@@ -167,14 +167,21 @@
 		"CHOICES": {
 			"PUBLIC": "Everyone",
 			"TEAM": "Team",
-			"ADMIN": "Administrator"
+			"ADMIN": "Administrator",
+			"SUPERUSER": "Superuser"
 		},
 		"SUMMARY": {
 			"PUBLIC": "Public access",
 			"TEAM": "Only members of the organization",
 			"ADMIN": "Only administrators of the organization"
 		},
-		"ACCESS_CONTROL": "Access control"
+		"ENTRY": {
+			"PUBLIC": "This entry is visible to all visitors of the site.",
+			"TEAM": "This entry is visible only to authenticated members of the organization, after login.",
+			"ADMIN": "This entry is visible only to authenticated administrators of the organization, after login.",
+			"SUPERUSER": "This entry is visible only to authenticated application developers, after login."
+		},
+		"ACCESS_CONTROL": "Entry visibility"
 	},
 	"MEMBERSHIP": [
 		{
@@ -192,6 +199,7 @@
 		}
 	],
 	"CANCEL": "Cancel",
+	"CONFIRM": "Confirm",
 	"ENTRIES": [
 		{
 			"declarations": [

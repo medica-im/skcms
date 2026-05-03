@@ -24,7 +24,8 @@ const postEntry = z.object({
 	directory: z.string().optional(),
 	organization_category: z.string().optional(),
 	isOwner: z.boolean().default(true),
-	redeemEmail: z.preprocess((val) => val === '' ? undefined : val, z.email().optional())
+	redeemEmail: z.preprocess((val) => val === '' ? undefined : val, z.email().optional()),
+	access: z.string().default('anonymous')
 }
 );
 
@@ -68,7 +69,8 @@ const Patch = z.object({
 	active: z.boolean().optional(),
 	memberships: z.array(z.string()).optional(),
 	owners: z.array(z.string()).optional(),
-	redeemEmail: z.nullable(z.string().email()).optional()
+	redeemEmail: z.nullable(z.string().email()).optional(),
+	access: z.string().optional()
 });
 
 export const patchCommand = command(Patch, async (data) => {

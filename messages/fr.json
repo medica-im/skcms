@@ -1,6 +1,7 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
   "CANCEL": "Annuler",
+  "CONFIRM": "Valider",
   "LOADING": "Chargement...",
   "HOME_TITLE": "Accueil",
   "HOME_WELCOME": "Bienvenue dans",
@@ -145,14 +146,21 @@
     "CHOICES": {
       "PUBLIC": "Public",
       "TEAM": "Équipe",
-      "ADMIN": "Administrateurs"
+      "ADMIN": "Administrateurs",
+      "SUPERUSER": "Super-utilisateur"
     },
     "SUMMARY": {
       "PUBLIC": "Accès access",
       "TEAM": "Uniquement les membres de l'organisation",
       "ADMIN": "Uniquement les administrateurs de l'organisation"
     },
-    "ACCESS_CONTROL": "Contrôle d'accès"
+    "ENTRY": {
+      "PUBLIC": "Cette entrée est visible par tous les visiteurs du site.",
+      "TEAM": "Cette entrée est visible uniquement par les membres de l'organisation authentifiés, après connexion.",
+      "ADMIN": "Cette entrée est visible uniquement par les administrateurs de l'organisation authentifiés, après connexion.",
+      "SUPERUSER": "Cette entrée est visible uniquement par les développeurs de l'application authentifiés, après connexion."
+    },
+    "ACCESS_CONTROL": "Visibilité de l'entrée"
   },
   "MEMBERSHIP": [
     {
