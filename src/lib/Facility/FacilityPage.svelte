@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Directory from '$lib/components/Directory/CtxDirectory.svelte';
+	import Types from '$lib/components/Directory/Types.svelte';
 	import MapLibre from '$lib/MapLibre/MapLibre.svelte';
 	import Address from '$lib/Address/Address.svelte';
 	import Navigation from '$lib/Navigation/Navigation.svelte';
@@ -75,12 +75,9 @@
 			</div>
 		{/if}
 		<div class="lg:max-w-{lgGridCols()=='2' ? 'lg' : 'sm'}">
-			<Directory
+			<Types
 				data={entries}
-				typesView={true}
-				propSelectFacility={facility.uid}
 				displayEntries={true}
-				propCurrentOrg={null}
 			/>
 		</div>
 	</div>

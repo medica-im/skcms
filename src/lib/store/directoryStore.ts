@@ -282,79 +282,39 @@ export const categorizedFilteredEffectorsF = (filteredEffectors: Entry[], distan
 	return effectorsMap as CategorizedEntries;
 };
 
+export const genderedLabel = (entries: Entry[], eTL: Labels, fallback: string): string => {
+	let countF = 0;
+	let countM = 0;
+	let countN = 0;
+	let countNone = 0;
+	const type: Type = entries[0].effector_type;
+	for (const e of entries) {
+		if (e.gender == 'F') countF++;
+		else if (e.gender == 'M') countM++;
+		else if (e.gender == 'N') countN++;
+		else if (e.gender == undefined) countNone++;
+	}
+	const plural = entries.length > 1;
+	const number = plural ? 'P' : 'S';
+	let gender: 'F' | 'M' | 'N';
+	if (entries.length == countNone || entries.length == countN) {
+		gender = 'N';
+	} else {
+		gender = countF > countM ? 'F' : 'M';
+	}
+	try {
+		return eTL[type.uid][number][gender] ?? fallback;
+	} catch (error) {
+		console.error(error);
+		console.error(fallback);
+		return fallback;
+	}
+};
+
 export const cardinalCategorizedFilteredEffectorsF = (categorizedFilteredEffectors: CategorizedEntries, eTL: Labels): Map<string, Entry[]> => {
 	let cardinalMap = new Map();
 	for (const [key, value] of categorizedFilteredEffectors) {
-		let label: string | null = key;
-		let countF: number = 0;
-		let countM: number = 0;
-		let countN: number = 0;
-		let countNone: number = 0;
-		let type: Type = value[0].effector_type;
-		value.forEach(
-			(e) => {
-				if (e.gender == 'F') {
-					countF += 1;
-				} else if (e.gender == 'M') {
-					countM += 1;
-				} else if (e.gender == 'N') {
-					countN += 1;
-				} else if (e.gender == undefined) {
-					countNone += 1;
-				}
-			}
-		)
-		if (value.length == countNone || value.length == countN) {
-			if (value.length > 1) {
-				try {
-					label = eTL[type.uid]['P']['N']
-				} catch (error) {
-					console.error(error);
-					console.error(key);
-				}
-			} else {
-				try {
-					label = eTL[type.uid]['S']['N']
-				} catch (error) {
-					console.error(error);
-					console.error(key);
-				}
-			}
-		} else {
-			if (value.length > 1) {
-				if (countF > countM) {
-					try {
-						label = eTL[type.uid]['P']['F']
-					} catch (error) {
-						console.error(error);
-						console.error(key);
-					}
-				} else {
-					try {
-						label = eTL[type.uid]['P']['M']
-					} catch (error) {
-						console.error(error);
-						console.error(key);
-					}
-				}
-			} else {
-				if (countF > countM) {
-					try {
-						label = eTL[type.uid]['S']['F']
-					} catch (error) {
-						console.error(error);
-						console.error(key);
-					}
-				} else {
-					try {
-						label = eTL[type.uid]['S']['M']
-					} catch (error) {
-						console.error(error);
-						console.error(key);
-					}
-				}
-			}
-		}
+		const label = genderedLabel(value, eTL, key);
 		cardinalMap.set(label, value)
 	}
 	return cardinalMap;

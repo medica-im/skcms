@@ -72,9 +72,6 @@
 		propLimitCategories = [],
 		propSelectFacility = null,
 		avatar = true,
-		typesView = false,
-		displayEntries = false,
-		types = null,
 		active = undefined,
 		displaySelector = false,
 		geojson = null,
@@ -94,9 +91,6 @@
 		propLimitCategories?: string[];
 		propSelectFacility?: string | null;
 		avatar?: boolean;
-		typesView?: boolean;
-		displayEntries?: boolean;
-		types?: string[] | null;
 		active?: boolean | undefined;
 		displaySelector?: boolean;
 		geojson?: any;
@@ -138,7 +132,7 @@
 
 	const situations = $derived(page.data.situations);
 	const organization = $derived(page.data.organization);
-	const entries = $derived(page.data.entries);
+	const entries = $derived(data || page.data.entries);
 	const effectorTypeLabels = $derived(page.data.labels);
 
 	const distanceEffectorsF = (entries: Entry[], addressFeature: AddressFeature | null) => {
@@ -229,10 +223,7 @@
 	});
 </script>
 
-{#if typesView}
-	<Types {displayEntries} {data} />
-{:else}
-	<FullDirectory
+<FullDirectory
 		{data}
 		{displayCategory}
 		{displayCommune}
@@ -254,4 +245,3 @@
 		rCFFE={rCategorizedFullFilteredEntries}
 		{geojson}
 	/>
-{/if}

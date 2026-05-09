@@ -26,6 +26,25 @@ export const cardCatEntries = (entries: Entry[], labels: Labels, currentOrg: boo
     return cardinalCategorizedEntries;
 };
 
+export const filterEntries = (entries: Entry[], currentOrg: boolean | null=null, orgUid: string|null=null, types: string[]|null = null) => {
+    if (!entries) return null
+    const filteredEntries = entries.filter((e: Entry) => {
+        if (currentOrg == true && orgUid) {
+            return e.memberships?.includes(orgUid)
+        } else if (currentOrg == false && orgUid) {
+            return !e.memberships?.includes(orgUid)
+        } else {
+            return true
+        }
+    });
+    if (types) {
+        filterInPlace(filteredEntries, (e: Entry) => {
+            return types.includes(e.effector_type.uid)
+        });
+    }
+    return filteredEntries;
+};
+
 export const getAvatars = (entries: Entry[], uid: string) => {
     let carousel = entries.filter((e: Entry)=>{
         return ((e.avatar?.sm || e.avatar?.raw) && (e.memberships.includes(uid)))

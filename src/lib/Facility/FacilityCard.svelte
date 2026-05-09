@@ -5,7 +5,7 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import Directory from '$lib/components/Directory/CtxDirectory.svelte';
+	import Types from '$lib/components/Directory/Types.svelte';
 	import Map from '$lib/MapLibre/MapLibre.svelte';
 	import Address from '$lib/Address/Address.svelte';
 	import Navigation from '$lib/Navigation/Navigation.svelte';
@@ -84,11 +84,8 @@
 			</div>
             {#if entries}
 			<div>
-				<Directory
+				<Types
 					data={entries}
-					typesView={true}
-					propSelectFacility={facility.uid}
-					propCurrentOrg={null}
 					displayEntries={false}
 				/>
 			</div>

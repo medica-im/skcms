@@ -3,7 +3,7 @@
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faPeopleGroup } from '@fortawesome/free-solid-svg-icons';
-	import Directory from '$lib/components/Directory/CtxDirectory.svelte';
+	import Types from '$lib/components/Directory/Types.svelte';
 	import { cardCatEntries } from '$lib/components/Directory/directory';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 
@@ -29,11 +29,9 @@
 		<div class="flex">
 			<div class="w-9"></div>
 			<div class="py-2">
-				<Directory
+				<Types
 					data={affiliates}
-					typesView={true}
 					displayEntries={true}
-					propCurrentOrg={null}
 				/>
 			</div>
 		</div>

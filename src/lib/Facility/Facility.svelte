@@ -49,9 +49,9 @@
 		</div>
 	{/if}
 </div>
-<!--{#if import.meta.env.DEV}
+{#if import.meta.env.DEV}
 	<details class="p-2">
 		<summary class="cursor-pointer text-sm text-surface-500">JSON</summary>
 		<JsonView json={data} depth={1} />
 	</details>
-{/if}-->
+{/if}

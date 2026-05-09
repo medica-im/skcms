@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import FileJson from '@lucide/svelte/icons/file-json';
-	import Directory from '$lib/components/Directory/CtxDirectory.svelte';
+	import Types from '$lib/components/Directory/Types.svelte';
 	import Map from '$lib/MapLibre/MapLibre.svelte';
 	import Address from '$lib/Address/Address.svelte';
 	import Navigation from '$lib/Navigation/Navigation.svelte';
@@ -108,10 +108,8 @@
 			</div>
 			{#if entries}
 				<div>
-					<Directory
+					<Types
 						data={entries}
-						typesView={true}
-						propSelectFacility={data.uid}
 						displayEntries={false}
 					/>
 				</div>
