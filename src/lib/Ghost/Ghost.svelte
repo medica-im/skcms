@@ -25,7 +25,7 @@ const ghostData: GhostSite|null = ghost?.success ? ghost.data : null;
 			<h2 class="h2">Blog</h2>
 			{/if}
 		</div>
-		<div class="flex flex-wrap justify-center gap-6 md:gap-10">
+		<div class="flex flex-wrap justify-center items-start gap-6 md:gap-10">
 			{#each data.posts as post}
 				<RoundCard
 					url={post.url}
