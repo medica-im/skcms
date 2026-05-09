@@ -72,6 +72,8 @@
 			if (page.url.pathname != dirPath && $directoryRedirect) {
 				if ($selectFacility) {
 					await goto(`${dirPath}?facility=${$selectFacility}`);
+				} else {
+					await goto(dirPath);
 				}
 			}
 		} else {
