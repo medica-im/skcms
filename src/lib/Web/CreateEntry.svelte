@@ -40,18 +40,17 @@
 				value: page.data.organization.department.code
 			}
 		: undefined;
-	/*TODO:
 	const communeDefault: SelectType|undefined = page.data.directory.commune_default ? {
 		label: page.data.organization.commune.name,
 		value: page.data.organization.commune.uid
-	} : undefined;*/
+	} : undefined;
 	let selectEffectorModal: NewSelectEffectorModal | undefined = $state();
 	let memberships: SelectType[] = $state([]);
 	const displayMembershipStep: boolean = ["superuser", "administrator"].includes(page.data.user.role);
 	let membershipsDone: boolean = $state(!displayMembershipStep);
 	let facility: { label: string; value: string } | undefined = $state();
 	let effector: Effector | undefined = $state();
-	let selectedCommune: { label: string; value: string } | undefined = $state();
+	let selectedCommune: { label: string; value: string } | undefined = $state(communeDefault);
 	let facilityCount: number = $state(0);
 	let department: { label: string; value: string } | undefined = $state(defaultDpt);
 	let effectorType: { label: string; value: string } | undefined = $state();
