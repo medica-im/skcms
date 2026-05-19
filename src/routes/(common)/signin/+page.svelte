@@ -9,6 +9,10 @@
 	const redirect = redirectParam ? redirectParam : '/dashboard';
 	const redirectTo = encodeURI(`${redirect}`);
 </script>
+
+<svelte:head>
+	<link rel="canonical" href="/signin" />
+</svelte:head>
 	<header>
 		<div class="section-container">
 			<h1 class="h1">{m.LOGIN()}</h1>
