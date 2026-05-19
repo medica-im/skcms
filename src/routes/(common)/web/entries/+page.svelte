@@ -35,7 +35,7 @@
 	</header>
 	<div>
 			<Directory
-				data={data?.cardinal}
+				data={data?.entries}
 				propCurrentOrg={null}
 				displayCommune={true}
 				displayGeocoder={false}
@@ -43,6 +43,7 @@
 				displaySituation={false}
 				avatar={false}
 				setRedirect={false}
+				active={null}
 			/>
 	</div>
 
