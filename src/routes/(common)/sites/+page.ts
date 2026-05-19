@@ -14,7 +14,7 @@ export const load: PageLoad = async ({ data, params, parent, fetch }) => {
     if (directory===undefined) throw new Error("directory undefined")
     const facilities = await fetchFacilities(fetch);
     const currentOrg = directory.setting.display_facility_organization;
-    const _allFacilities = allFacilities(facilities, entries, organization.uid, currentOrg);
+    const _allFacilities = allFacilities(facilities, entries, organization.uid, currentOrg, true);
     const _allFacilityEntries = allFacilityEntries(facilities, entries, organization.uid, labels, currentOrg);
     return {
         //websiteSchema: await websiteSchema.load(),

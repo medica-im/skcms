@@ -35,7 +35,7 @@ export const load: PageServerLoad = async ({ parent, fetch }) => {
     const f: {facilities: Facility[]} = await response.json();
     const facilities: Facility[] = f.facilities;
     const currentOrg = directory.setting.display_facility_organization;
-    const _allFacilities = allFacilities(facilities, entries, organization.uid, currentOrg);
+    const _allFacilities = allFacilities(facilities, entries, organization.uid, currentOrg, true);
     const _allFacilityEntries = allFacilityEntries(facilities, entries, organization.uid, labels, currentOrg);
     return {
         //websiteSchema: await websiteSchema.load(),

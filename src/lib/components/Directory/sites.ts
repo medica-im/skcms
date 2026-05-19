@@ -24,11 +24,15 @@ export const allFacilityEntries = (facilities: Facility[], entries: Entry[], org
     return facilityEntriesMap;
 }
 
-export function allFacilities(facilities: Facility[], entries: Entry[], orgUid: string, currentOrg: boolean | null = null): Facility[] {
+export function allFacilities(facilities: Facility[], entries: Entry[], orgUid: string, currentOrg: boolean | null = null, active: boolean | null = true): Facility[] {
+    const filteredEntries = active === null
+        ? entries
+        : entries.filter(e => e.active === active);
     if ( currentOrg==null ) {
-        return facilities
+        const entryUids = filteredEntries.map(e => e.uid);
+        return facilities.filter(f => f.entries.some(e => entryUids.includes(e)));
     }
-    const members = entries.filter(e=>e.memberships.includes(orgUid)).map(e=>e.uid);
+    const members = filteredEntries.filter(e=>e.memberships.includes(orgUid)).map(e=>e.uid);
     const filteredFacilities = facilities.filter(f => {
             return (currentOrg == true && members.some(e=>f.entries.includes(e))) || (currentOrg == false && !members.some(e=>f.entries.includes(e)))
     }

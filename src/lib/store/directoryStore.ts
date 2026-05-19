@@ -168,17 +168,17 @@ function compareEffectorDistance(a: Entry, b: Entry, distEffectors: DistanceEffe
 	}
 }
 
-export const fullFilteredEntriesF = (situations: Situation[], entries: Entry[], selectSituation: SelectType | null | undefined = undefined, currentOrg: Boolean | null = null, organization: Organization | undefined, limitCategories: String[], active: Boolean|undefined = undefined): Entry[] => {
+export const fullFilteredEntriesF = (situations: Situation[], entries: Entry[], selectSituation: SelectType | null | undefined = undefined, currentOrg: Boolean | null = null, organization: Organization | undefined, limitCategories: String[], active: Boolean|null = true): Entry[] => {
 	if (
 		!selectSituation
 		&& currentOrg === null
 		&& !limitCategories?.length
-		&& active === undefined
+		&& active === null
 	) {
 		return entries
 	} else {
 		return entries.filter(function (x) {
-			if (active===undefined) {
+			if (active===null) {
 				return true
 			} else {
 				return x.active===active
