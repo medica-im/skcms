@@ -72,7 +72,7 @@
 		propLimitCategories = [],
 		propSelectFacility = null,
 		avatar = true,
-		active = undefined,
+		active = true,
 		displaySelector = false,
 		geojson = null,
 	}: {
@@ -91,7 +91,7 @@
 		propLimitCategories?: string[];
 		propSelectFacility?: string | null;
 		avatar?: boolean;
-		active?: boolean | undefined;
+		active?: boolean | null;
 		displaySelector?: boolean;
 		geojson?: any;
 	} = $props();
