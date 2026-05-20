@@ -27,6 +27,7 @@ git pull origin "$GIT_BRANCH"
 
 echo "==> Pulling submodule $SUBMODULE_PATH..."
 cd "$SUBMODULE_PATH"
+git remote set-url origin git@github.com:medica-im/skvar.git
 git pull
 cd "$PROJECT_DIR"
 
