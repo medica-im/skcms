@@ -8,6 +8,7 @@ import type { Labels } from '$lib/interfaces/label.interace.ts';
 export const cardCatEntries = (entries: Entry[], labels: Labels, currentOrg: boolean | null=null, orgUid: string|null=null, types: string[]|null = null) => {
     if (!entries) return null
     const filteredEntries = entries.filter((e: Entry) => {
+        if (!e.active) return false;
         if (currentOrg == true && orgUid) {
             return e.memberships?.includes(orgUid)
         } else if (currentOrg == false && orgUid) {
