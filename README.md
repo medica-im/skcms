@@ -36,3 +36,20 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+
+## Docker compose
+### staging
+```bash
+ENV_FILE=.env.staging.domain.com docker compose -f docker-compose-staging.yml build
+```
+
+## Docker build
+### staging
+```bash
+docker build --target staging --build-arg ENV_FILE=.env.staging.domain.com -t skcms:local .
+docker tag image-name ghcr.io/jeromecc/url:staging
+docker push ghcr.io/jeromecc/url:staging
+
+docker compose -f docker-compose-staging.yml pull
+docker compose -f docker-compose-staging.yml up -d
+```

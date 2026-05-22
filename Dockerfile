@@ -1,4 +1,5 @@
-FROM node:22-slim AS builder
+# --- ÉTAPE 1 : Base commune ---
+FROM node:22-slim AS base
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
@@ -9,13 +10,30 @@ WORKDIR /app
 COPY . .
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     pnpm install --frozen-lockfile
+
+# --- ÉTAPE 2 : Build de l'application ---
+FROM base AS builder
 RUN pnpm run -r build
 
-FROM node:22-slim
-
+# --- ÉTAPE 3 : Image de STAGING ---
+FROM base AS staging
+COPY --from=builder /app/build ./build
+EXPOSE 3000
 ENV NODE_ENV=production
+ENV DEBUG_MODE=true
+CMD [ "node", "index.js" ]
+
+# --- ÉTAPE 4 : Image de PRODUCTION ---
+FROM node:22-slim AS production
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+ENV NODE_ENV=production
+RUN corepack enable && npm install -g corepack@latest
 WORKDIR /app
-COPY --from=builder /app/node_modules node_modules/
-COPY --from=builder /app/build .
 COPY --from=builder /app/package.json .
+COPY --from=builder /app/pnpm-lock.yaml .
+COPY --from=builder /app/patches ./patches
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    pnpm install --prod --frozen-lockfile
+COPY --from=builder /app/build .
 CMD [ "node", "index.js" ]

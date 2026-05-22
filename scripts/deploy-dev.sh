@@ -6,6 +6,7 @@ BASE_DIR="${BASE_DIR:-/opt/dev.medica.im}"
 COMPOSE_FILE="${COMPOSE_FILE:-docker-compose-production.yml}"
 SUBMODULE_PATH="${SUBMODULE_PATH:-src/routes/(skvar)}"
 GIT_BRANCH="${GIT_BRANCH:-dev}"
+TARGET="${TARGET:-staging}"
 
 if [[ $# -lt 1 ]]; then
     echo "Usage: $0 <project-folder>"
@@ -29,11 +30,17 @@ echo "==> Pulling submodule $SUBMODULE_PATH..."
 cd "$SUBMODULE_PATH"
 git remote set-url origin git@github.com:medica-im/skvar.git
 git pull
+SKVAR_BRANCH=\$(git branch --show-current)
 cd "$PROJECT_DIR"
 
-echo "==> Building and restarting..."
+export DOCKER_IMAGE_NAME="skcms:\${SKVAR_BRANCH}-${TARGET}"
+echo "==> Building image: \$DOCKER_IMAGE_NAME (target: $TARGET)..."
 docker compose -f "$COMPOSE_FILE" build --parallel
+
+echo "==> Restarting..."
 docker compose -f "$COMPOSE_FILE" up -d
+
+echo "==> Deployed \$DOCKER_IMAGE_NAME"
 EOF
 
 duration=$SECONDS
