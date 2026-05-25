@@ -13,11 +13,13 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
 
 # --- ÉTAPE 2 : Build de l'application ---
 FROM base AS builder
+ARG ENV_FILE=.env
+RUN cp ${ENV_FILE} .env
 RUN pnpm run -r build
 
 # --- ÉTAPE 3 : Image de STAGING ---
 FROM base AS staging
-COPY --from=builder /app/build ./build
+COPY --from=builder /app/build .
 EXPOSE 3000
 ENV NODE_ENV=production
 ENV DEBUG_MODE=true
