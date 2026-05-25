@@ -47,7 +47,7 @@ ENV_FILE=.env.staging.domain.com docker compose -f docker-compose-staging.yml bu
 ### staging
 ```bash
 docker build --target staging --build-arg ENV_FILE=.env.staging.domain.com -t skcms:local .
-docker tag image-name ghcr.io/jeromecc/url:staging
+docker tag image-name ghcr.io/medica-im/url:staging
 docker push ghcr.io/jeromecc/url:staging
 
 docker compose -f docker-compose-staging.yml pull
