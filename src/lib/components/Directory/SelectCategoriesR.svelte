@@ -1,7 +1,6 @@
 <script lang="ts">
 	import Select from 'svelte-select';
 	import NoOptions from '$lib/Web/NoOptions.svelte';
-	import { onMount } from 'svelte';
 	import * as m from '$msgs';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
@@ -42,15 +41,22 @@
 	let selectFacility = getSelectFacility();
 	let directoryRedirect = getDirectoryRedirect();
 
-	onMount(() => {
-		const typesParam: string | null = page.url.searchParams.get('types');
-		if (typesParam != null) {
-			const types: string[] = JSON.parse(typesParam);
-			$selectCategories = types;
-			const effector_type = categoryOf.find((e) => types.includes(e.uid));
-			if (effector_type) {
-				$selCatVal = effector_type;
-			}
+	const selectionFromUrl: Type | null = $derived.by(() => {
+		const typesParam = page.url.searchParams.get('types');
+		if (!typesParam) return null;
+		const types: string[] = JSON.parse(typesParam);
+		const effector_type = categoryOf.find((e) => types.includes(e.uid));
+		return effector_type || null;
+	});
+
+	$effect(() => {
+		const sel = selectionFromUrl;
+		if (sel) {
+			$selectCategories = [sel.uid];
+			$selCatVal = sel;
+		} else {
+			$selectCategories = [];
+			$selCatVal = null;
 		}
 	});
 
@@ -62,14 +68,13 @@
 
 	const handleClear = async (event: CustomEvent) => {
 		if (event.detail) {
-			//if (srcElement) srcElement.blur();
-			$selectCategories = [];
-			if (page.url.searchParams.has('types')) {
-				page.url.searchParams.delete('types');
-				await goto(page.url.pathname + '?' + page.url.searchParams);
-			}
 			if (srcElement) srcElement.blur();
-			if (page.url.pathname != dirPath && $directoryRedirect) {
+			if (page.url.pathname == dirPath && page.url.searchParams.has('types')) {
+				const url = new URL(page.url);
+				url.searchParams.delete('types');
+				const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
+				goto(newUrl, { noScroll: true, keepFocus: true });
+			} else if (page.url.pathname != dirPath && $directoryRedirect) {
 				if ($selectFacility) {
 					await goto(`${dirPath}?facility=${$selectFacility}`);
 				} else {
@@ -83,11 +88,13 @@
 
 	function handleChange(event: CustomEvent) {
 		if (event.detail) {
-			console.log("event.detail", event.detail);
-			selectCategories.set([event.detail.uid]);
 			if (srcElement) srcElement.blur();
-			if (page.url.pathname != dirPath && $directoryRedirect) {
-				const typesParam = JSON.stringify(`[${event.detail.uid}]`);
+			if (page.url.pathname == dirPath) {
+				const url = new URL(page.url);
+				url.searchParams.set('types', JSON.stringify([event.detail.uid]));
+				goto(`${url.pathname}?${url.searchParams}`, { noScroll: true, keepFocus: true });
+			} else if ($directoryRedirect) {
+				const typesParam = JSON.stringify([event.detail.uid]);
 				let urlParams = `?types=${typesParam}`;
 				if ($selectFacility) {
 					urlParams += `&facility=${$selectFacility}`;
@@ -99,13 +106,7 @@
 		}
 	}
 </script>
-<!--
-srcElement: {srcElement}<br>
-$selectCategories: {JSON.stringify($selectCategories)}<br>
-$selCatVal: {JSON.stringify($selCatVal)}<br>
-categoryOf: {categoryOf} ({categoryOf.length})<br />
--->
-{#if !categoryOf || !items || selCatVal == undefined}
+{#if !categoryOf || !items}
 	<div class="text-surface-700 svelte-select">
 		<Select loading={true} placeholder={m.ADDRESSBOOK_CATEGORIES_PLACEHOLDER()} />
 	</div>
@@ -122,7 +123,7 @@ categoryOf: {categoryOf} ({categoryOf.length})<br />
 			on:focus={handleFocus}
 			on:change={handleChange}
 			on:clear={handleClear}
-			bind:value={$selCatVal}
+			value={selectionFromUrl}
 			placeholder={m.ADDRESSBOOK_CATEGORIES_PLACEHOLDER()}
 		><NoOptions slot="empty" /></Select>
 	</div>

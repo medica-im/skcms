@@ -13,13 +13,15 @@
 		addressOptions = $bindable(),
 		inputClass = $bindable(),
 		isValid = $bindable({geocoder: false}),
-		commune = null
+		commune = null,
+		onSelect
 	}: {
 		addressFeature: AddressFeature | null;
 		addressOptions: SelectOption[];
 		inputClass?: string|null;
 		isValid: IsValid;
 		commune?: string | null;
+		onSelect?: (feature: AddressFeature) => void;
 	} = $props();
 
 	let inputAddress = getGeoInputAddress();
@@ -35,6 +37,7 @@
 				const city = `[${addressFeature.properties.city}]`;
 				$inputAddress = `${addressFeature.properties.name} ${city}`;
 			}
+			onSelect?.(addressFeature);
 		}
 	}
 </script>

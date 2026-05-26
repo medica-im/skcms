@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { page } from '$app/state';
 	import Carousel from 'svelte-carousel';
 	import { browser } from '$app/environment';
 	import type { Entry } from '$lib/store/directoryStoreInterface.js';
@@ -21,8 +20,8 @@
 		}
 		return entry.name;
 	}
-	function getLink(entry: Entry, pathname: string) {
-		return `/e/${entry.entrySlug}?origin=${encodeURIComponent(pathname)}`
+	function getLink(entry: Entry) {
+		return `/e/${entry.entrySlug}`
 	}
 </script>
 
@@ -32,7 +31,7 @@
 			{#each data as entry}
 				<div class="mx-auto">
 					<figure class="content-center mx-auto w-64">
-						<a href={getLink(entry, page.url.pathname)} class="flex m-2">
+						<a href={getLink(entry)} class="flex m-2">
 							<img
 								class="h-auto w-fit"
 								src="{entry.avatar.lg||entry.avatar.sm||entry.avatar.raw}"
@@ -42,7 +41,7 @@
 
 						<figcaption class="text-center w-64">
 							<a
-								href={getLink(entry, page.url.pathname)}
+								href={getLink(entry)}
 								class="anchor flex shrink"
 								><div class="mx-auto text-primary">
 									{displayName(entry)}, {getLabels(entry)}
@@ -56,11 +55,11 @@
 	{:else}
 		{@const entry = data[0]}
 		<figure class="content-center shrink mx-auto w-64">
-			<a href={getLink(entry, page.url.pathname)} class="flex m-2">
+			<a href={getLink(entry)} class="flex m-2">
 				<img class="h-auto w-fit" src="{entry.avatar.lg||entry.avatar.sm||entry.avatar.raw}" alt={entry.name} />
 			</a>
 			<figcaption class="text-center w-64">
-				<a href={getLink(entry, page.url.pathname)} class="anchor"
+				<a href={getLink(entry)} class="anchor"
 					><div class="mx-auto text-primary underline">
 						{displayName(entry)}, {getLabels(entry)}
 					</div></a

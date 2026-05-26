@@ -9,7 +9,7 @@
 	let { entry, avatar }: { entry: Entry; avatar: boolean } = $props();
 
 	const goTo = () => {
-		const url = entryPageUrl(entry,page.data.organization.category.name,page.url.pathname).concat("&uid=",entry.uid);
+		const url = entryPageUrl(entry,page.data.organization.category.name);
 		goto(url, { replaceState: false });
 	};
 </script>

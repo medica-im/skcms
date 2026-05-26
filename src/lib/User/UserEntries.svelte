@@ -44,7 +44,7 @@
 					class="grid grid-cols-1 sm:grid-cols-[1fr_80px_80px_80px] items-center gap-2 p-2 variant-soft-surface hover:variant-ghost-surface"
 				>
 					<!-- Entry card -->
-					<a href={entrySlugPageUrl(entry, page.url.pathname)} class="no-underline">
+					<a href={entrySlugPageUrl(entry)} class="no-underline">
 						<div class="grid lg:grid-cols-[10%_45%_45%] sm:grid-cols-1 flex flex-wrap p-1 items-center gap-3 transition-colors">
 							{#if entry.avatar?.lg || entry.avatar?.raw}
 								<Avatar

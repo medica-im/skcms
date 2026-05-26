@@ -3,7 +3,6 @@
 	import { goto } from '$app/navigation';
 	import Select from 'svelte-select';
 	import NoOptions from '$lib/Web/NoOptions.svelte';
-	import { onMount } from 'svelte';
 	import * as m from '$msgs';
 	import { getSelectedCommunesUids, getSelectedCommunesChoices } from './context';
 	import type { Commune } from '$lib/interfaces/geography.interface.ts';
@@ -15,63 +14,68 @@
 	const label = 'label';
 	const itemId = 'value';
 
-	let communesParam: string | null = null;
-
 	let selectedCommunes = getSelectedCommunesUids();
 	let selectedCommunesChoices = getSelectedCommunesChoices();
-	let value: SelectType | SelectType[] | undefined = $derived.by(() => {
-		if (multiple) {
-			return $selectedCommunesChoices || undefined;
-		} else {
-			return $selectedCommunesChoices ? $selectedCommunesChoices[0] : undefined;
-		}
-	});
-
-	onMount(() => {
-		communesParam = page.url.searchParams.get('communes');
-		if (!communesParam) return;
-		const communeUids: string[] = JSON.parse(communesParam);
-		selectedCommunes.set(communeUids);
-		$selectedCommunesChoices = getChoices(communeUids, communeOf);
-	});
 
 	function getItems(communes: Commune[]) {
 		return communes.map(function (x) {
-			let dct = { value: x.uid, label: x.name };
-			return dct;
+			return { value: x.uid, label: x.name };
 		});
 	}
 
-	function getChoices(communeUids: string[], allCommunes: Commune[]) {
-		const choices = allCommunes
+	function getChoices(communeUids: string[], allCommunes: Commune[]): SelectType[] {
+		return allCommunes
 			.filter((x) => communeUids.includes(x.uid))
 			.map(function (x) {
-				let dct = { value: x.uid, label: x.name };
-				return dct;
+				return { value: x.uid, label: x.name };
 			});
-		return choices;
 	}
+
+	const selectionFromUrl: SelectType | SelectType[] | null = $derived.by(() => {
+		const communesParam = page.url.searchParams.get('communes');
+		if (!communesParam) return null;
+		const communeUids: string[] = JSON.parse(communesParam);
+		const choices = getChoices(communeUids, communeOf);
+		if (!choices.length) return null;
+		if (multiple) {
+			return choices;
+		} else {
+			return choices[0];
+		}
+	});
+
+	$effect(() => {
+		const communesParam = page.url.searchParams.get('communes');
+		if (communesParam) {
+			const communeUids: string[] = JSON.parse(communesParam);
+			$selectedCommunes = communeUids;
+			$selectedCommunesChoices = getChoices(communeUids, communeOf);
+		} else {
+			$selectedCommunes = [];
+			$selectedCommunesChoices = null;
+		}
+	});
 
 	function handleClear(event: CustomEvent) {
 		if (event.detail) {
-			$selectedCommunes = [];
-			$selectedCommunesChoices = null;
-			if (page.url.searchParams.get('communes')) {
-				page.url.searchParams.delete('communes');
-				goto(page.url.pathname + '?' + page.url.searchParams);
-			}
+			const url = new URL(page.url);
+			url.searchParams.delete('communes');
+			const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
+			goto(newUrl, { noScroll: true, keepFocus: true });
 		}
 	}
 
 	function handleChange(event: CustomEvent) {
 		if (event.detail) {
+			let uids: string[];
 			if (Array.isArray(event.detail)) {
-				$selectedCommunesChoices = event.detail;
-				$selectedCommunes = event.detail.map((e) => e.value);
+				uids = event.detail.map((e: SelectType) => e.value);
 			} else {
-				$selectedCommunesChoices = [event.detail];
-				$selectedCommunes = [event.detail.value];
+				uids = [event.detail.value];
 			}
+			const url = new URL(page.url);
+			url.searchParams.set('communes', JSON.stringify(uids));
+			goto(`${url.pathname}?${url.searchParams}`, { noScroll: true, keepFocus: true });
 		}
 	}
 </script>
@@ -96,7 +100,7 @@ $selectedCommunesChoices: {JSON.stringify($selectedCommunesChoices)}
 			on:clear={handleClear}
 			placeholder={m.ADDRESSBOOK_COMMUNES_PLACEHOLDER()}
 			{multiple}
-			bind:value
+			value={selectionFromUrl}
 		><NoOptions slot="empty" /></Select>
 	{/if}
 </div>

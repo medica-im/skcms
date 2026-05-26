@@ -1,10 +1,9 @@
 <script lang="ts">
 	import Select from 'svelte-select';
 	import NoOptions from '$lib/Web/NoOptions.svelte';
-	import { onMount } from 'svelte';
-	import { getSelectSituation } from './context';
-	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
+	import { getSelectSituation } from './context';
 	import * as m from '$msgs';
 	import type { Situation } from '$lib/store/directoryStoreInterface.ts';
 	import type { SelectType } from '$lib/interfaces/select';
@@ -23,39 +22,37 @@
 				return a.name.localeCompare(b.name);
 			})
 			.map(function (e) {
-				const situation = {
-					value: e.uid,
-					label: e.name
-				};
-				return situation;
+				return { value: e.uid, label: e.name };
 			});
 		return situationItems;
 	});
 
-	function getSituationSelect(uid: string | null) {
-		const _situation = page.data.situations.find((e: Situation) => e.uid == uid);
-		const _situationSelect: SelectType = {
-			label: _situation.name,
-			value: _situation.uid
-		};
-		return _situationSelect;
-	}
-
-	onMount(() => {
+	const selectionFromUrl: SelectType | null = $derived.by(() => {
 		const situationUid = page.url.searchParams.get('situation');
-		if (!situationUid) return;
-		const situation = getSituationSelect(situationUid);
-		if (situation) {
-			selectSituation.set(situation);
-		}
+		if (!situationUid) return null;
+		const _situation = page.data.situations.find((e: Situation) => e.uid == situationUid);
+		if (!_situation) return null;
+		return { label: _situation.name, value: _situation.uid };
 	});
+
+	$effect(() => {
+		selectSituation.set(selectionFromUrl);
+	});
+
+	function handleChange(event: CustomEvent) {
+		if (event.detail) {
+			const url = new URL(page.url);
+			url.searchParams.set('situation', event.detail.value);
+			goto(`${url.pathname}?${url.searchParams}`, { noScroll: true, keepFocus: true });
+		}
+	}
 
 	function handleClear(event: CustomEvent) {
 		if (event.detail) {
-			if (page.url.searchParams.get('situation')) {
-				page.url.searchParams.delete('situation');
-				goto(page.url.pathname + '?' + page.url.searchParams);
-			}
+			const url = new URL(page.url);
+			url.searchParams.delete('situation');
+			const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
+			goto(newUrl, { noScroll: true, keepFocus: true });
 		}
 	}
 </script>
@@ -69,9 +66,10 @@
 			{itemId}
 			items={situations}
 			searchable={true}
+			on:change={handleChange}
 			on:clear={handleClear}
 			placeholder={m.ADDRESSBOOK_SITUATIONS_PLACEHOLDER()}
-			bind:value={$selectSituation}
+			value={selectionFromUrl}
 		><NoOptions slot="empty" /></Select>
 	{/if}
 </div>

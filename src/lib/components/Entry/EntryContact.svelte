@@ -13,7 +13,7 @@
 
 	const goTo = () => {
 		const _entry: Entry = page.data.entries.find((e: Entry)=>e.uid==entry.uid);
-		const url = entryPageUrl(_entry, page.data.organization.category.name, page.url.pathname);
+		const url = entryPageUrl(_entry, page.data.organization.category.name);
 		goto(url, { replaceState: false });
 	};
 </script>

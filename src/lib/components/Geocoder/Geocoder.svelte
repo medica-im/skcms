@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import * as m from '$msgs';
@@ -122,20 +121,38 @@
 			addressOptions = getAddressOptions(geojson);
 		}
 	}
+	const addressFromUrl: AddressFeature | null = $derived.by(() => {
+		const addressParam = page.url.searchParams.get('address');
+		if (!addressParam) return null;
+		return JSON.parse(addressParam);
+	});
+
+	$effect(() => {
+		const feature = addressFromUrl;
+		if (feature) {
+			$addressFeature = feature;
+			if (commune) {
+				$inputAddress = feature.properties.name;
+			} else {
+				$inputAddress = `${feature.properties.name} [${feature.properties.city}]`;
+			}
+		}
+	});
+
+	function updateUrlWithAddress(feature: AddressFeature) {
+		const url = new URL(page.url);
+		url.searchParams.set('address', JSON.stringify(feature));
+		goto(`${url.pathname}?${url.searchParams}`, { noScroll: true, keepFocus: true });
+	}
+
 	function handleClear() {
 		$inputAddress = null;
 		$addressFeature = null;
-		if (page.url.searchParams.get('address')) {
-			page.url.searchParams.delete('address');
-			goto(page.url.pathname + '?' + page.url.searchParams);
-		}
+		const url = new URL(page.url);
+		url.searchParams.delete('address');
+		const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
+		goto(newUrl, { noScroll: true, keepFocus: true });
 	}
-	onMount(async () => {
-		const addressParam: string | null = page.url.searchParams.get('address');
-		if (addressParam) {
-			$addressFeature = JSON.parse(addressParam);
-		}
-	});
 </script>
 <!--inputAddress:{$inputAddress}<br>
 visible: {visible}<br>
@@ -166,7 +183,7 @@ $addressFeature: {JSON.stringify($addressFeature)}-->
 	</button>
 </div>
 {#if visible}
-	<SelectAddress {commune} {addressOptions} bind:addressFeature={$addressFeature} bind:inputClass bind:isValid />
+	<SelectAddress {commune} {addressOptions} bind:addressFeature={$addressFeature} bind:inputClass bind:isValid onSelect={updateUrlWithAddress} />
 {/if}
 
 <style>

@@ -2,9 +2,9 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
+	import type { SelectType } from '$lib/interfaces/select';
 	import Select from 'svelte-select';
 	import NoOptions from '$lib/Web/NoOptions.svelte';
-	import { onMount } from 'svelte';
 	import { getSelectFacility, getFacilityChoice } from './context.ts';
 	import * as m from '$msgs';
 
@@ -16,56 +16,52 @@
 	const label = 'label';
 	const itemId = 'value';
 
-	let facilityParam: string | null = null;
-
-	onMount(async () => {
-		facilityParam = page.url.searchParams.get('facility');
-		if (facilityParam) {
-			selectFacility.set(facilityParam);
-			const value = getValue(facilityParam, facilityOf);
-			if (value) {
-				$facilityChoice = value;
-			}
-		}
-	});
-
-	function getValue(facilityUid: string, facilities: FacilityOf[]) {
-		if (facilities != undefined) {
-			const facility = facilities.find((e) => e.uid == facilityUid);
-			if (facility) {
-				const label = facility.name;
-				return { label: label, value: facilityUid };
-			}
-		}
-	}
-
 	function getItems(facilities: FacilityOf[]) {
 		if (!facilities) return;
 		return facilities
 			.map(function (x) {
 				const name = x.label || x.name || 'Étbl.';
 				const label = `${name} | ${x.street} | ${x.city}`;
-				let dct = { value: x.uid, label: label, city: x.city };
-				return dct;
+				return { value: x.uid, label: label, city: x.city };
 			})
 			.sort(function (a, b) {
 				return a.city.localeCompare(b.city) || a.label.localeCompare(b.label);
 			});
 	}
 
-	function handleClear(event: CustomEvent) {
-		if (event.detail) {
-			selectFacility.set(null);
-			if (page.url.searchParams.get('facility')) {
-				page.url.searchParams.delete('facility');
-				goto(page.url.pathname + '?' + page.url.searchParams);
-			}
+	const selectionFromUrl: SelectType | null = $derived.by(() => {
+		const facilityUid = page.url.searchParams.get('facility');
+		if (!facilityUid || !facilityOf) return null;
+		const facility = facilityOf.find((e) => e.uid == facilityUid);
+		if (!facility) return null;
+		return { label: facility.name, value: facilityUid };
+	});
+
+	$effect(() => {
+		const sel = selectionFromUrl;
+		if (sel) {
+			$selectFacility = sel.value;
+			$facilityChoice = sel;
+		} else {
+			$selectFacility = null;
+			$facilityChoice = null;
 		}
-	}
+	});
 
 	function handleChange(event: CustomEvent) {
 		if (event.detail) {
-			selectFacility.set(event.detail.value);
+			const url = new URL(page.url);
+			url.searchParams.set('facility', event.detail.value);
+			goto(`${url.pathname}?${url.searchParams}`, { noScroll: true, keepFocus: true });
+		}
+	}
+
+	function handleClear(event: CustomEvent) {
+		if (event.detail) {
+			const url = new URL(page.url);
+			url.searchParams.delete('facility');
+			const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
+			goto(newUrl, { noScroll: true, keepFocus: true });
 		}
 	}
 </script>
@@ -85,7 +81,7 @@
 			on:change={handleChange}
 			on:clear={handleClear}
 			placeholder={m.ADDRESSBOOK_FACILITIES_PLACEHOLDER()}
-			bind:value={$facilityChoice}
+			value={selectionFromUrl}
 		><NoOptions slot="empty" /></Select>
 	{/if}
 </div>

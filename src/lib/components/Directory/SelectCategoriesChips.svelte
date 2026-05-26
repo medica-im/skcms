@@ -1,9 +1,8 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { onMount } from 'svelte';
 	import { getSelectCategories } from './context';
 	import * as m from '$msgs';
-	import { get } from 'svelte/store';
 	import Fa from 'svelte-fa';
 	import { faCheck } from '@fortawesome/free-solid-svg-icons';
 	import { createQuery } from '@tanstack/svelte-query';
@@ -11,7 +10,7 @@
 	import type { Entry, CategorizedEntries, Type } from '$lib/store/directoryStoreInterface';
 	import type { EffectorType } from '$lib/interfaces/v2/effector';
 
-	let { rCFFE } : { rCFFE: CategorizedEntries; } = $props();
+	let { rCFFE }: { rCFFE: CategorizedEntries } = $props();
 
 	const categories: EffectorType[] = uniq(
 		page.data.entries.map((e: Entry) => e.effector_type)
@@ -21,18 +20,10 @@
 
 	let selectCategories = getSelectCategories();
 
-	let value = null;
-
-	let category = $state('');
-
 	const baseUrl = '/api/v1/effector_types/';
 
 	async function downloadRecords() {
 		let records = [];
-
-		//const res = await fetch(url);
-		//const data = await res.json();
-		//records.push(...data.effector_types);
 		let initLimit = '?limit=100';
 		let next = '';
 		do {
@@ -51,36 +42,36 @@
 		queryFn: () => downloadRecords()
 	});
 
-	function select(c: string, effectorTypes: Type[]): void {
-		if (category == c || c == '') {
-			selectCategories.set([]);
-			category = '';
-		} else {
-			category = c;
-			let effectorType = effectorTypes.find((x) => x.name == c);
-			if (effectorType) {
-				selectCategories.set([effectorType.uid]);
-			}
-		}
-	}
-
-	onMount(async () => {
-		value = await getValue();
+	const categoryFromUrl: string = $derived.by(() => {
+		const typesParam = page.url.searchParams.get('types');
+		if (!typesParam) return '';
+		const types: string[] = JSON.parse(typesParam);
+		const effectorType = categories.find((e) => types.includes(e.uid));
+		return effectorType?.name || '';
 	});
 
-	async function getValue() {
-		let sElements = get(selectCategories);
-		if (!sElements?.length) {
-			return null;
+	$effect(() => {
+		const typesParam = page.url.searchParams.get('types');
+		if (typesParam) {
+			const types: string[] = JSON.parse(typesParam);
+			$selectCategories = types;
 		} else {
-			if (categories) {
-				let val = categories
-					.filter((x) => sElements.includes(x.uid))
-					.map(function (x) {
-						let dct = { value: x.uid, label: x.name };
-						return dct;
-					})[0];
-				return val;
+			$selectCategories = [];
+		}
+	});
+
+	function select(c: string, effectorTypes: Type[]): void {
+		if (categoryFromUrl == c || c == '') {
+			const url = new URL(page.url);
+			url.searchParams.delete('types');
+			const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
+			goto(newUrl, { noScroll: true, keepFocus: true });
+		} else {
+			let effectorType = effectorTypes.find((x) => x.name == c);
+			if (effectorType) {
+				const url = new URL(page.url);
+				url.searchParams.set('types', JSON.stringify([effectorType.uid]));
+				goto(`${url.pathname}?${url.searchParams}`, { noScroll: true, keepFocus: true });
 			}
 		}
 	}
@@ -94,35 +85,32 @@
 	{:else if $query.error}
 		<p>Error: {$query.error.message}</p>
 	{:else}
-		{#key category}
-			{#each [...rCFFE] as [c, value], index}
-				<!-- prettier-ignore -->
-				<button onclick={() => {
-						select(c, $query.data);
-					}} tabindex={index+1}>
-					<span
-					role="button"
-					class="chip {category === c ? 'variant-filled' : 'variant-soft'}"
-					
-				>
-					{#if category === c}<span><Fa icon={faCheck} /></span>{/if}
-					<span>{$query.data.find(x=>x.name==c).label}</span>
+		{#each [...rCFFE] as [c, value], index}
+			<!-- prettier-ignore -->
+			<button onclick={() => {
+					select(c, $query.data);
+				}} tabindex={index+1}>
+				<span
+				role="button"
+				class="chip {categoryFromUrl === c ? 'variant-filled' : 'variant-soft'}"
+			>
+				{#if categoryFromUrl === c}<span><Fa icon={faCheck} /></span>{/if}
+				<span>{$query.data.find(x=>x.name==c).label}</span>
+			</span>
+			</button>
+		{/each}
+		{#if rCFFE.size > 1}
+			<button
+				onclick={() => {
+					select('', $query.data);
+				}}
+				tabindex={rCFFE.size}
+			>
+				<span role="button" class="chip {categoryFromUrl === '' ? 'variant-filled' : 'variant-soft'}">
+					{#if categoryFromUrl === ''}<span><Fa icon={faCheck} /></span>{/if}
+					<span>{m.ADDRESSBOOK_CATEGORIES_ALL()}</span>
 				</span>
-				</button>
-			{/each}
-			{#if rCFFE.size > 1}
-				<button
-					onclick={() => {
-						select('', $query.data);
-					}}
-					tabindex={rCFFE.size}
-				>
-					<span role="button" class="chip {category === '' ? 'variant-filled' : 'variant-soft'}">
-						{#if category === ''}<span><Fa icon={faCheck} /></span>{/if}
-						<span>{m.ADDRESSBOOK_CATEGORIES_ALL()}</span>
-					</span>
-				</button>
-			{/if}
-		{/key}
+			</button>
+		{/if}
 	{/if}
 </div>

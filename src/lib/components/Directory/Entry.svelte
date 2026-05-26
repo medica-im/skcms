@@ -3,56 +3,15 @@
 	import { FacilityLink } from '$lib';
 	import Avatar from '$lib/components/Effector/Avatar/Avatar.svelte';
 	import { page } from '$app/state';
-	import {
-		getSelectFacility,
-		getSelectCategories,
-		getTerm,
-		getSelectedCommunesUids,
-		getSelectedDepartment,
-		getSelectSituation,
-		getSelectedTags,
-		getAddressFeature,
-		getDisplayMap
-	} from './context';
 	import { goto } from '$app/navigation';
 	import CommunityAddress from '$lib/Address/CommunityAddress.svelte';
 	import Tag from '$lib/Tag/Tag.svelte';
-	import { entrySlugPageUrl, entryPageUrl } from '$lib/utils/utils';
+	import { entrySlugPageUrl } from '$lib/utils/utils';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 	import * as m from '$msgs';
-	import Fa from 'svelte-fa';
-	import { faLink } from '@fortawesome/free-solid-svg-icons';
 	let { entry, displayAvatar }: { entry: Entry; displayAvatar: boolean } = $props();
 
-	let addressFeature = getAddressFeature();
-	let selectSituation = getSelectSituation();
-	let selectFacility = getSelectFacility();
-	let selectCategories = getSelectCategories();
-	let selectCommunes = getSelectedCommunesUids();
-	let selectDepartment = getSelectedDepartment();
-	let tags = getSelectedTags();
-	let term = getTerm();
-	let displayMap = getDisplayMap();
 	const avatar = $derived(entry.avatar);
-
-	const oldUrl = $derived(entryPageUrl(
-		entry,
-		page.data.organization?.category?.name,
-		page.url.pathname,
-		$selectFacility,
-		$selectCategories,
-		$tags?.map((t) => t.uid),
-		$term,
-		$selectCommunes,
-		$selectDepartment,
-		$selectSituation?.value,
-		$addressFeature,
-		$displayMap
-	));
-
-	const goToOld = () => {
-		goto(oldUrl, { replaceState: false });
-	};
 
 	function displayName(entry: Entry): string {
 		if (entry.name.length > 30 && entry.label) {
@@ -62,20 +21,7 @@
 	}
 
 	const goTo = () => {
-		const url = entrySlugPageUrl(
-			entry,
-			page.url.pathname,
-			$selectFacility,
-			$selectCategories,
-			$tags?.map((t) => t.uid),
-			$term,
-			$selectCommunes,
-			$selectDepartment,
-			$selectSituation?.value,
-			$addressFeature,
-			$displayMap
-		);
-		console.log("goTo() url", url);
+		const url = entrySlugPageUrl(entry);
 		goto(url, { replaceState: false });
 	};
 </script>
@@ -97,19 +43,7 @@
 		{/if}
 		<div class="p-4 space-y-1 flex-1">
 			<div class="flex items-center justify-between">
-				<div class="flex items-center gap-2">
-					<h3 class="h3">{displayName(entry)}</h3>
-					{#if import.meta.env.DEV}
-						<button
-							type="button"
-							class="btn btn-sm variant-ghost-surface p-1"
-							title={oldUrl}
-							onclick={(e: MouseEvent) => { e.stopPropagation(); goToOld(); }}
-						>
-							<Fa icon={faLink} size="xs" />
-						</button>
-					{/if}
-				</div>
+				<h3 class="h3">{displayName(entry)}</h3>
 				{#if entry.active === false}
 					<span class="badge variant-filled-error badge-sm" title={m.ENTRY_INACTIVE()}
 						>{m.INACTIVE()}</span

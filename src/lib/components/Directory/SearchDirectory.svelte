@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { getTerm } from '$lib/components/Directory/context';
@@ -7,14 +6,13 @@
 	import Fa from 'svelte-fa';
 	import DocsIcon from '$lib/Icon/Icon.svelte';
 	import * as m from "$msgs";
-	const term = getTerm();
-	let termParam: string | null = null;
 
-	onMount(async () => {
-		termParam = page.url.searchParams.get('term');
-		if (termParam) {
-			term.set(termParam);
-		}
+	const term = getTerm();
+
+	const termFromUrl: string = $derived(page.url.searchParams.get('term') || '');
+
+	$effect(() => {
+		term.set(termFromUrl);
 	});
 </script>
 
@@ -25,16 +23,25 @@
 		autocomplete="off"
 		placeholder={m.ADDRESSBOOK_SEARCH_PLACEHOLDER()}
 		bind:value={$term}
+		onblur={() => {
+			const url = new URL(page.url);
+			if ($term) {
+				url.searchParams.set('term', $term);
+			} else {
+				url.searchParams.delete('term');
+			}
+			const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
+			goto(newUrl, { replaceState: true, noScroll: true, keepFocus: true });
+		}}
 		aria-label={m.ADDRESSBOOK_SEARCH_ARIA_LABEL()}
 	/>
 	<button
 		class="variant-filled-secondary"
-		on:click={() => {
-			$term = '';
-			if (page.url.searchParams.has('term')) {
-				page.url.searchParams.delete('term');
-		    	goto(page.url.pathname+"?"+page.url.searchParams);
-			}
+		onclick={() => {
+			const url = new URL(page.url);
+			url.searchParams.delete('term');
+			const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
+			goto(newUrl, { noScroll: true, keepFocus: true });
 		}}
 		aria-label={m.ADDRESSBOOK_CLEAR()}
 		disabled={!$term}

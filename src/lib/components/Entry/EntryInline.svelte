@@ -11,7 +11,7 @@
 </script>
 
 {#if data && _entry}
-	<a href={entrySlugPageUrl(_entry, page.url.pathname)} class="anchor">
+	<a href={entrySlugPageUrl(_entry)} class="anchor">
 		<div class="flex flex-wrap gap-2 items-center">
 			<Avatar src={data.avatar.sm||data.avatar.raw} width="w-10">
 				<Fa icon={faUser} />

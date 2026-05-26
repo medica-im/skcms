@@ -2,8 +2,6 @@ import { getTimestamps } from '$lib/store/directoryStore';
 import { cptsPostgres, mspPostgres } from '$lib/constants';
 import type { Timestamps } from '$lib/store/directoryStore';
 import type { Entry } from '$lib/store/directoryStoreInterface.ts';
-import type { AddressFeature } from '$lib/store/directoryStoreInterface.ts';
-import type { Page } from '@sveltejs/kit';
 
 // Replaces the locale slug in a URL.
 //
@@ -89,94 +87,19 @@ export const mapToString = (map: Map<string,object>, start?: number|undefined, s
 	return _array.slice(start, stop).join('\n')
 }
 
-export const entryPageUrl = (entry: Entry, org_category: string | null = null, pathname: string | null = null, facility: string | null = null, types: string[] | null = null, tags: string[]|null = null, term: string | null = null, communes: string[] | null = null, department: {label: string, value: string} | null = null, situation: string | undefined = undefined, addressFeature: AddressFeature|null=null, displayMap: boolean = false) => {
+export const entryPageUrl = (entry: Entry, org_category: string | null = null): string => {
 	const typeSlug = entry.effector_type.slug;
 	const communeSlug = entry.commune?.slug;
 	const nameSlug = entry.slug;
 	const facilitySlug = entry.facility?.slug;
-	const originParam = pathname ? `${encodeURIComponent(pathname)}` : '';
-	const facilityParam = facility ? `${encodeURIComponent(facility)}` : '';
-	const typesParam = types?.length ? `${encodeURIComponent(JSON.stringify(types))}` : '';
-	const termParam = term ? `${encodeURIComponent(term)}` : '';
-	const communesParam = communes?.length
-		? `${encodeURIComponent(JSON.stringify(communes))}`
-		: '';
-	const departmentsParam = department
-		? `${encodeURIComponent(JSON.stringify(department.value))}`
-		: '';
-	const situationParam = situation ? `${encodeURIComponent(situation)}`: '';
-	const addressFeatureParam = addressFeature ? `${encodeURIComponent(JSON.stringify(addressFeature))}`: '';
-	const tagsParam = tags ? `${encodeURIComponent(JSON.stringify(tags))}`: '';
-
-	const displayMapParam = displayMap;
-
-	const params: { [key: string]: string|boolean; }[] = [
-		{origin: originParam},
-		{facility: facilityParam},
-		{types: typesParam},
-		{term: termParam},
-		{communes: communesParam},
-		{department: departmentsParam},
-		{situation:	situationParam},
-		{address: addressFeatureParam},
-		{map: displayMapParam},
-		{tags: tagsParam},
-	]
-	const urlParams: string[] = [];
-	params.forEach((value, index)=>{
-		const key = Object.keys(value)[0];
-		const param = value[key]
-		if (!param) return;
-		const p = index==0 ? '?':'&';
-		urlParams.push(`${p}${key}${typeof param === 'string' ? '=':''}${typeof param === 'string' ? param:''}`);
-	});
-	const qs = urlParams.join('');
 	if (org_category == 'msp') {
-		return `/${facilitySlug}/${typeSlug}/${nameSlug}${qs}`;
-	} else {
-		return `/${typeSlug}/${communeSlug}/${nameSlug}${qs}`;
+		return `/${facilitySlug}/${typeSlug}/${nameSlug}`;
 	}
+	return `/${typeSlug}/${communeSlug}/${nameSlug}`;
 }
 
-export const entrySlugPageUrl = (entry: Entry, pathname: string | null = null, facility: string | null = null, types: string[] | null = null, tags: string[]|null = null, term: string | null = null, communes: string[] | null = null, department: {label: string, value: string} | null = null, situation: string | undefined = undefined, addressFeature: AddressFeature|null=null, displayMap: boolean = false) => {
-	const originParam = pathname ? `${encodeURIComponent(pathname)}` : '';
-	const facilityParam = facility ? `${encodeURIComponent(facility)}` : '';
-	const typesParam = types?.length ? `${encodeURIComponent(JSON.stringify(types))}` : '';
-	const termParam = term ? `${encodeURIComponent(term)}` : '';
-	const communesParam = communes?.length
-		? `${encodeURIComponent(JSON.stringify(communes))}`
-		: '';
-	const departmentsParam = department
-		? `${encodeURIComponent(JSON.stringify(department.value))}`
-		: '';
-	const situationParam = situation ? `${encodeURIComponent(situation)}`: '';
-	const addressFeatureParam = addressFeature ? `${encodeURIComponent(JSON.stringify(addressFeature))}`: '';
-	const tagsParam = tags ? `${encodeURIComponent(JSON.stringify(tags))}`: '';
-
-	const displayMapParam = displayMap;
-
-	const params: { [key: string]: string|boolean; }[] = [
-		{origin: originParam},
-		{facility: facilityParam},
-		{types: typesParam},
-		{term: termParam},
-		{communes: communesParam},
-		{department: departmentsParam},
-		{situation:	situationParam},
-		{address: addressFeatureParam},
-		{map: displayMapParam},
-		{tags: tagsParam},
-	]
-	const urlParams: string[] = [];
-	params.forEach((value, index)=>{
-		const key = Object.keys(value)[0];
-		const param = value[key]
-		if (!param) return;
-		const p = index==0 ? '?':'&';
-		urlParams.push(`${p}${key}${typeof param === 'string' ? '=':''}${typeof param === 'string' ? param:''}`);
-	});
-	const qs = urlParams.join('');
-	return `/e/${entry.entrySlug}${qs}`;
+export const entrySlugPageUrl = (entry: Entry) => {
+	return `/e/${entry.entrySlug}`;
 }
 
 export function isExpired(ttl: number, cacheTime: number): boolean {
@@ -209,16 +132,15 @@ export function getHostnameFromURL(str: string) {
   		return array.map(m => m[2]);
 }
 
-export function entryUrl(entry: Entry, pathname: string, org: string, origin=false) {
+export function entryUrl(entry: Entry, org: string) {
 		let typeSlug = entry.effector_type.slug;
 		let facilitySlug = entry.facility.slug;
 		const communeSlug = entry.commune.slug;
 		let nameSlug = entry.slug;
-		const originURI = `?origin=${encodeURIComponent(pathname)}`;
 		if ( mspPostgres === org ) {
-			return `/${facilitySlug}/${typeSlug}/${nameSlug}${origin? originURI : ""}`;
+			return `/${facilitySlug}/${typeSlug}/${nameSlug}`;
 		} else if ( cptsPostgres === org ) {
-			return `/${typeSlug}/${communeSlug}/${nameSlug}${origin? originURI : ""}`;
+			return `/${typeSlug}/${communeSlug}/${nameSlug}`;
 		}
 	}
 
