@@ -20,12 +20,11 @@
 	</header>
 
 	<section
-		class="container"
 		in:fly={{ x: -100, duration: 500, delay: 500 }}
 		out:fly={{ duration: 500 }}
 	>
 		<div class="section-container">
-			<div class="grid cols-1 gap-6">
+			<div class="flex flex-col items-center gap-6">
 				{#each providers as provider}
 					<SignIn
 						options={{
