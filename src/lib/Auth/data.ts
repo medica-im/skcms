@@ -9,11 +9,6 @@ import {
 
 export const providers = [
 		{
-			name: 'github',
-			label: 'GitHub',
-			icon: faGithub
-		},
-		{
 			name: 'google',
 			label: 'Google',
 			icon: faGoogle
