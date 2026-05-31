@@ -21,7 +21,7 @@
 							{capitalizeFirstLetter(page.data.organization.formatted_name, getLocale())}
 						</h4>
 						<p>{page.data.organization.contact.address.street}</p>
-						<p>{page.data.organization.city.name}</p>
+						<p>{page.data.organization.contact.address.city}</p>
 					</div>
 					</div>
 				</a>
