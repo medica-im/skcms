@@ -5,6 +5,7 @@ import { handle as handleAuth } from "$lib/auth.ts"
 import { env } from '$env/dynamic/private';
 
 export const handleError: HandleServerError = async ({ error }) => {
+    console.error('[SSR Error]', (error as Error).message, (error as Error).stack);
     if (env.DEBUG_MODE === 'true') {
         return {
             message: (error as Error).message,
