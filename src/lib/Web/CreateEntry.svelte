@@ -8,6 +8,7 @@
 	import Fa from 'svelte-fa';
 	import { page } from '$app/state';
 	import { preloadData, pushState, goto } from '$app/navigation';
+	import { tick } from 'svelte';
 	import { fade, slide } from 'svelte/transition';
 	import SelectEffector from '$routes/(common)/web/effector/select/+page.svelte';
 	import NewSelectEffectorModal from '$lib/Web/Effector/NewSelectEffectorModal.svelte';
@@ -226,7 +227,8 @@ membershipsDone: {membershipsDone}
 				<button
 					onclick={async () => {
 						membershipsDone = true;
-						goto('#top');
+						await tick();
+						document.getElementById('top')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 					}}
 					class="btn variant-filled-primary"
 					title="Passer"><span><Fa icon={faChevronRight} /></span><span>Passer</span></button

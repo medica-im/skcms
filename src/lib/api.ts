@@ -19,4 +19,5 @@ export async function getEntries(fetch: Fetch, cookies: Cookies) {
         } catch (error: any) {
           console.error('There was an error while retrieving entries from layout.server.ts', error.message);
         };
+    return entries || [];
 }
