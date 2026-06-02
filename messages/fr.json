@@ -438,5 +438,6 @@
   "VACANT": "Vacant.",
   "NO_OFFICER": "Aucun membre du bureau.",
   "NO_BOARD_MEMBER": "Aucun membre du conseil d'administration.",
-  "JOIN": "Adhérer"
+  "JOIN": "Adhérer",
+  "signin_cta": "Pour tester, connectez-vous !"
 }
