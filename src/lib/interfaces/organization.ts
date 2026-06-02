@@ -54,6 +54,7 @@ export interface Organization {
             code: string
         }
     }
+    sandbox: boolean
     legal_entity: {
         id: number,
         name: string,
