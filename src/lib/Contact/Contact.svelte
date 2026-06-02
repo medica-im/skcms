@@ -20,10 +20,13 @@
 				page.data.organization.contact.address,
 				page.data.organization.formatted_name
 			);
+
+	const logoSrc = $derived(data?.avatar?.lg || page.data.organization.logo);
+	const logoAlt = $derived(data?.avatar?.lg ? page.data.organization.formatted_name : page.data.organization.logo_alt);
 </script>
 <div class="grid lg:grid-cols-[2fr_1fr]">
 	<div>
-		<div class="flex flex-wrap pt-12 lg:pt-0">
+		<div class="flex flex-wrap pt-0">
 			<div
 				class="mb-12 grow-0 shrink-0 basis-auto w-full md:w-6/12 lg:w-full xl:w-6/12 px-3 md:px-6 xl:px-12"
 			>
@@ -35,7 +38,7 @@
 							<Fa icon={faLocationDot} size="2x" />
 						</div>
 					</div>
-					<div class="ml-6">
+					<div class="text-center lg:text-left lg:ml-6">
 						<p class="font-bold mb-1">Siège social</p>
 						<Address data={page.data.organization.contact} />
 						{#if page.data.organization.contact.phonenumbers}
@@ -47,11 +50,11 @@
 						{#if showWebsite}
 						<Websites data={data?.websites!!!} />
 						{/if}
-						{#if page.data.organization.logo}
+						{#if logoSrc}
 							<img
-								class="rounded-lg py-4 max-w-80"
-								src={page.data.organization.logo}
-								alt={page.data.organization.logo_alt}
+								class="rounded-lg py-4 w-full sm:max-w-80"
+								src={logoSrc}
+								alt={logoAlt}
 							/>
 						{/if}
 					</div>
@@ -59,7 +62,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="h-80 lg:min-h-80 lg:h-full p-2">
+	<div class="h-72 lg:h-80 lg:min-h-80 lg:h-full p-2">
 		<MapLibre 
   center={mapData.lngLat}
   zoom={mapData.zoom}
