@@ -21,8 +21,8 @@
 				page.data.organization.formatted_name
 			);
 </script>
-<div class="grid lg:grid-cols-2">
-	<div class="grow-0 basis-auto lg:w-6/12 xl:w-8/12">
+<div class="grid lg:grid-cols-[2fr_1fr]">
+	<div>
 		<div class="flex flex-wrap pt-12 lg:pt-0">
 			<div
 				class="mb-12 grow-0 shrink-0 basis-auto w-full md:w-6/12 lg:w-full xl:w-6/12 px-3 md:px-6 xl:px-12"
@@ -59,7 +59,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="h-80 lg:h-full p-2">
+	<div class="h-80 lg:min-h-80 lg:h-full p-2">
 		<MapLibre 
   center={mapData.lngLat}
   zoom={mapData.zoom}
