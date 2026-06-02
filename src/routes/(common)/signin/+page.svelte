@@ -33,9 +33,8 @@
 						}}
 						provider={provider.name}
 						signInPage="signin"
-						class="gap-2 p-4 variant-ghost w-fit"
 					>
-						<div class="flex gap-2 place-items-center" slot="submitButton">
+						<div class="btn variant-filled-primary flex gap-2 place-items-center" slot="submitButton">
 							<Fa icon={provider.icon} />
 							{m.SIGNIN()}
 							{m.with()} {provider.label}
