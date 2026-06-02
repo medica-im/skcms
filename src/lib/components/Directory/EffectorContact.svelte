@@ -60,6 +60,10 @@
 	setEditMode();
 	const editMode = getEditMode();
 	const avatar = $derived(fullentry.avatar);
+	const userUid = $derived(page.data?.user?.uid);
+	const canEdit = $derived(
+		r.Admin || (r.Member && (fullentry.owner?.includes(userUid) || fullentry.creator?.includes(userUid)))
+	);
 </script>
 
 <svelte:head>
@@ -71,7 +75,7 @@
 	</title>
 </svelte:head>
 <div class="grid grid-cols-1 space-y-4">
-	{#if r.Member}
+	{#if canEdit}
 		<div
 			id="sticky-banner"
 			tabindex="-1"
