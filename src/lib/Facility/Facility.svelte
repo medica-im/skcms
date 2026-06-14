@@ -5,10 +5,21 @@
 	import { scale } from 'svelte/transition';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import * as m from '$msgs';
+	import Fa from 'svelte-fa';
+	import { faBuilding } from '@fortawesome/free-regular-svg-icons';
+	import { page } from '$app/state';
 	import type { Facility } from '$lib/interfaces/facility.interface.js';
 	import { JsonView } from '@zerodevx/svelte-json-view';
 
 	let { data, carousel=true, geojson=null }: { data: Facility[]; carousel?: boolean; geojson?: any } = $props();
+
+	const isMsp = $derived(page.data.organization?.category?.slug === 'msp');
+	const heading = $derived(
+		isMsp
+			? capitalizeFirstLetter(m.SITE_COUNT({ count: data.length }))
+			: capitalizeFirstLetter(m.FACILITY({ count: data.length }))
+	);
+	const allLabel = $derived(isMsp ? m.SITES_ALL() : m.FACILITIES_ALL());
 
 	const lgCols = carousel ? 3 : 2;
 	function filterFacilities(facilities: Facility[]) {
@@ -27,7 +38,7 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-{lgCols} gap-6 lg:gap-10 items-start">
 	<div class="lg:col-span-3 text-center">
-		<h2 class="h2">{capitalizeFirstLetter(m.SITE_COUNT({ count: data.length }))}</h2>
+		<h2 class="h2">{heading}</h2>
 	<p>{m.OUR_FACILITIES({ count: data.length })}</p>
 	</div>
 
@@ -39,6 +50,11 @@
 					class="btn btn-sm variant-ghost-primary w-fit">{facility.label || facility.name}</a
 				>
 		{/each}
+		{#if data.length > 1}
+			<a href="/sites" class="btn variant-ghost-surface" data-sveltekit-preload-data="hover">
+				<span><Fa icon={faBuilding} /></span><span>{allLabel}</span>
+			</a>
+		{/if}
 	</div>
 	<div in:scale class="h-64 z-0">
 		<Map data={createFacilitiesMapData(data, true)} showTooltip={true} {geojson} />

@@ -27,7 +27,7 @@
 
 <div class="flex justify-center shrink place-content-center content-center mx-auto w-80">
 	{#if browser}
-		<Carousel autoplay autoplayDuration={5000} duration={1000} dots={false}>
+		<Carousel autoplay={data.length > 1} autoplayDuration={5000} duration={1000} dots={false}>
 			{#each data as entry}
 				<div class="mx-auto">
 					<figure class="content-center mx-auto w-64">

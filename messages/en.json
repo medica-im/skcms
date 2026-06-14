@@ -439,5 +439,6 @@
 	"NO_OFFICER": "No officers.",
 	"NO_BOARD_MEMBER": "No board members.",
 	"JOIN": "Join",
-	"signin_cta": "To test, sign in!"
+	"signin_cta": "To test, sign in!",
+	"FACILITIES_ALL": "All facilities"
 }
