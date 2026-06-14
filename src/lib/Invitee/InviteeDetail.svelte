@@ -77,21 +77,20 @@
 			</p>
 		</div>
 
-		<!-- Status -->
-		<div>
-			<span class="text-sm text-surface-500 flex items-center gap-1">
-				<Fa icon={faCircle} size="sm" />
-				Statut
-			</span>
-			<p class="font-semibold flex items-center gap-1">
-				<Fa
-					icon={faCircle}
-					size="sm"
-					class={invitee.active ? 'text-success-500' : 'text-surface-400'}
-				/>
-				{invitee.active ? 'Active' : 'Inactive'}
-			</p>
-		</div>
+		<!-- Status (hidden when redeemed, same as list view) -->
+		{#if !isRedeemed}
+			<div>
+				<span class="text-sm text-surface-500">{m.INVITEE_COL_STATUS()}</span>
+				<p class="font-semibold flex items-center gap-1">
+					<Fa
+						icon={faCircle}
+						size="sm"
+						class={invitee.active ? 'text-success-500' : 'text-surface-400'}
+					/>
+					{invitee.active ? 'Active' : 'Inactive'}
+				</p>
+			</div>
+		{/if}
 
 		<!-- Created at -->
 		<div>

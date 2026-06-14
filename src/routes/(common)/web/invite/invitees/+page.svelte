@@ -6,7 +6,7 @@
 	import DeleteInviteeModal from '$lib/Invitee/DeleteInviteeModal.svelte';
 	import { Invitee } from '$lib/Invitee';
 	import { preloadData, pushState, goto } from '$app/navigation';
-	import { faPlus } from '@fortawesome/free-solid-svg-icons';
+	import { faPlus, faFileLines } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import * as m from '$msgs';
 	import { normalize } from '$lib/helpers/stringHelpers.ts';
@@ -36,28 +36,36 @@
 				{filteredInvitees?.length ?? 0} invitation{(filteredInvitees?.length ?? 0) > 1 ? 's' : ''}
 			</p>
 		</div>
-		<a
-			href="/web/invite/create"
-			onclick={async (e) => {
-				if (e.shiftKey || e.metaKey || e.ctrlKey) return;
+		<div class="flex gap-2">
+			<a href="/web/invite/batch">
+				<button class="btn variant-filled-secondary" title={m.BATCH_INVITEE_BUTTON()}>
+					<span><Fa icon={faFileLines} /></span>
+					<span class="hidden lg:block">{m.BATCH_INVITEE_BUTTON()}</span>
+				</button>
+			</a>
+			<a
+				href="/web/invite/create"
+				onclick={async (e) => {
+					if (e.shiftKey || e.metaKey || e.ctrlKey) return;
 
-				e.preventDefault();
-				const { href } = e.currentTarget;
-				const result = await preloadData(href);
+					e.preventDefault();
+					const { href } = e.currentTarget;
+					const result = await preloadData(href);
 
-				if (result.type === 'loaded' && result.status === 200) {
-					createOpen = true;
-					pushState(href, { selected: result.data });
-				} else {
-					goto(href);
-				}
-			}}
-		>
-			<button class="btn variant-filled-primary" title="Créer une invitation">
-				<span><Fa icon={faPlus} /></span>
-				<span class="hidden lg:block">Créer une invitation</span>
-			</button>
-		</a>
+					if (result.type === 'loaded' && result.status === 200) {
+						createOpen = true;
+						pushState(href, { selected: result.data });
+					} else {
+						goto(href);
+					}
+				}}
+			>
+				<button class="btn variant-filled-primary" title="Créer une invitation">
+					<span><Fa icon={faPlus} /></span>
+					<span class="hidden lg:block">Créer une invitation</span>
+				</button>
+			</a>
+		</div>
 	</header>
 
 	<!-- Search -->
