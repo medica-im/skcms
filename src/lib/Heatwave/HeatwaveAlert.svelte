@@ -105,7 +105,7 @@
 						Vigilance {riskName(alert)} canicule
 					</h3>
 					<p>
-						Vigilance météorologique canicule Vaucluse émise par Météo France le {formatDate(
+						Vigilance météorologique canicule {page.data.organization.department.name} émise par Météo France le {formatDate(
 							alert.start_time
 						)} valable jusqu'au {formatDate(alert.end_time)}.
 					</p>
@@ -114,9 +114,15 @@
 				<div
 					class="flex flex-wrap lg:flex-nowrap alert-actions gap-4 align-center place-content-center"
 				>
-					{#if link}<a href="/prevention/canicule" class="btn variant-ghost">
+					{#if link}
+						<a href="/prevention/canicule" class="btn variant-ghost">
 							<span><Fa icon={faArrowRight} /></span>
 							<span>Fiche prévention canicule</span>
+						</a>
+					{:else}
+						<a href="https://vigilance.meteofrance.fr/fr/{page.data.organization.department.slug}" target="_blank" rel="noopener noreferrer" class="btn variant-ghost">
+							<span><Fa icon={faArrowRight} /></span>
+							<span>VIGILANCE METEO {page.data.organization.department.name.toUpperCase()} ({page.data.organization.department.code})</span>
 						</a>
 					{/if}
 					<button onclick={() => (visible = false)} class="btn variant-ghost"><span
