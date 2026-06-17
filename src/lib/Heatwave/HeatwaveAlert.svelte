@@ -6,6 +6,9 @@
 
 	let { link }: { link: boolean } = $props();
 
+	const CANICULE_PATH = '/prevention/canicule';
+	let isOnCaniculePage = $derived(page.url.pathname === CANICULE_PATH);
+
 	interface HeatwaveAlert {
 		start_time: string | null;
 		end_time: string | null;
@@ -90,50 +93,57 @@
 	{/if}
 {:then alert}
 	{#if alert && alert.start_time && alert.end_time && alert.risk_code && isActive(alert) && visible}
-		<div class="py-6 lg:py-10 ">
-			<aside class="alert border-4" style="border-color:{riskColor(alert)}">
-				<!-- Icon -->
-				<div class="hidden lg:block">
-					<Fa icon={faTemperatureHigh} color={riskColor(alert)} size="3x" />
-				</div>
-				<!-- Message -->
-				<div class="alert-message">
-					<h3 class="h3 text-center">
-						<span class="inline-block lg:hidden px-1"
-							><Fa icon={faTemperatureHigh} color={riskColor(alert)} /></span
-						>
-						Vigilance {riskName(alert)} canicule
-					</h3>
-					<p>
-						Vigilance météorologique canicule {page.data.organization.department.name} émise par Météo France le {formatDate(
-							alert.start_time
-						)} valable jusqu'au {formatDate(alert.end_time)}.
-					</p>
-				</div>
-				<!-- Actions -->
-				<div
-					class="flex flex-wrap lg:flex-nowrap alert-actions gap-4 align-center place-content-center"
-				>
+		<aside class="alert border-4 max-w-3xl mx-auto" style="border-color:{riskColor(alert)}">
+			<!-- Icon -->
+			<div class="hidden lg:block">
+				<Fa icon={faTemperatureHigh} color={riskColor(alert)} size="3x" />
+			</div>
+			<!-- Message -->
+			<div class="alert-message">
+				<h3 class="h3 text-center">
+					<span class="inline-block lg:hidden px-1"
+						><Fa icon={faTemperatureHigh} color={riskColor(alert)} /></span
+					>
+					Vigilance {riskName(alert)} canicule
+				</h3>
+				<p>
+					Vigilance météorologique canicule {page.data.organization.department.name} émise par Météo France
+					le {formatDate(alert.start_time)} valable jusqu'au {formatDate(alert.end_time)}.
+				</p>
+			</div>
+			<!-- Actions -->
+			<div
+				class="flex flex-wrap lg:flex-nowrap alert-actions gap-4 align-center place-content-center"
+			>
+				{#if !isOnCaniculePage}
 					{#if link}
-						<a href="/prevention/canicule" class="btn variant-ghost">
+						<a href={CANICULE_PATH} class="btn variant-ghost">
 							<span><Fa icon={faArrowRight} /></span>
 							<span>Fiche prévention canicule</span>
 						</a>
 					{:else}
-						<a href="https://vigilance.meteofrance.fr/fr/{page.data.organization.department.slug}" target="_blank" rel="noopener noreferrer" class="btn variant-ghost">
+						<a
+							href="https://vigilance.meteofrance.fr/fr/{page.data.organization.department.slug}"
+							target="_blank"
+							rel="noopener noreferrer"
+							class="btn variant-ghost"
+						>
 							<span><Fa icon={faArrowRight} /></span>
-							<span>VIGILANCE METEO {page.data.organization.department.name.toUpperCase()} ({page.data.organization.department.code})</span>
+							<span
+								>VIGILANCE METEO {page.data.organization.department.name.toUpperCase()} ({page.data
+									.organization.department.code})</span
+							>
 						</a>
 					{/if}
-					<button onclick={() => (visible = false)} class="btn variant-ghost"><span
-						><Fa icon={faXmark} /></span
-					></button>
-				</div>
-			</aside>
-		</div>
+				{/if}
+				<button onclick={() => (visible = false)} class="btn variant-ghost"
+					><span><Fa icon={faXmark} /></span></button
+				>
+			</div>
+		</aside>
 	{/if}
 {:catch error}
-	{#if import.meta.env.DEV }
+	{#if import.meta.env.DEV}
 		<p>Error loading heatwave alert: {error.message}</p>
 	{/if}
 {/await}
