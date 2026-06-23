@@ -14,7 +14,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
 # --- ÉTAPE 2 : Build de l'application ---
 FROM base AS builder
 ARG ENV_FILE=.env
-RUN [ "${ENV_FILE}" = ".env" ] || (rm -f .env && cp ${ENV_FILE} .env)
+RUN [ "${ENV_FILE}" = ".env" ] || [ "$(readlink -f ${ENV_FILE})" = "$(readlink -f .env)" ] || cp ${ENV_FILE} .env
 RUN pnpm run -r build
 
 # --- ÉTAPE 3 : Image de STAGING ---
