@@ -97,20 +97,6 @@ export interface Timestamps {
 	"v1:entries": number,
 }
 
-export const getTimestamps = async (): Promise<Timestamps | undefined> => {
-	const url = `${ORIGIN}/api/v1/directory/timestamps`;
-	try {
-		const res = await fetch(url);
-		if (res.ok) {
-			return await res.json()
-		} else {
-			console.error(res.status);
-		}
-	} catch (error) {
-		console.error(error);
-	}
-};
-
 export const distanceEffectorsF = (entries: Entry[], addressFeature: AddressFeature | null) => {
 	const targetGeoJSON = addressFeature?.geometry?.coordinates;
 	if (!targetGeoJSON) {

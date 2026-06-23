@@ -3,7 +3,7 @@ import type { EntryGenerator } from './$types';
 import type { Facility } from '$lib/interfaces/facility.interface.ts';
 
 export const entries: EntryGenerator = async () => {
-    const url = `${ORIGIN}/api/v1/facilities/`;
+    const url = `${ORIGIN}/api/v2/public/facilities`;
     try {
         const response = await fetch(
             url,
@@ -19,8 +19,7 @@ export const entries: EntryGenerator = async () => {
             console.error(`entries fetch ${url} failed: ${response.status}`);
             return [];
         }
-        const facilities_json: any = await response.json();
-        const facilities: Facility[] = facilities_json?.facilities;
+        const facilities: Facility[] = await response.json();
         const slugArr: { slug: string }[] = []
         const slugs: string[] = facilities.map((e) => { return e.slug || e.uid });
         slugs.forEach((e) => {

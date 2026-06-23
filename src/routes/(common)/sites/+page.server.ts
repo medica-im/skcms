@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ parent, fetch }) => {
     if ( labels === undefined ) throw new Error("labels undefined")
     const { directory } = await parent();
     if (directory===undefined) throw new Error("directory undefined")
-    const url = `${ORIGIN}/api/v1/facilities/?limit=300`;
+    const url = `${ORIGIN}/api/v2/public/facilities`;
     console.log("url", url);
     const response = await fetch(url,
         {
@@ -32,8 +32,7 @@ export const load: PageServerLoad = async ({ parent, fetch }) => {
                         type: 'site'
                     });
         }
-    const f: {facilities: Facility[]} = await response.json();
-    const facilities: Facility[] = f.facilities;
+    const facilities: Facility[] = await response.json();
     const currentOrg = directory.setting.display_facility_organization;
     const _allFacilities = allFacilities(facilities, entries, organization.uid, currentOrg, true);
     const _allFacilityEntries = allFacilityEntries(facilities, entries, organization.uid, labels, currentOrg);

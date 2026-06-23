@@ -3,8 +3,8 @@ import { error } from '@sveltejs/kit';
 import type { Facility } from '$lib/interfaces/facility.interface.ts';
 import type { Fetch } from '$lib/interfaces/fetch';
 
-export const fetchFacilities = async (fetch: Fetch, limit: number = 1000): Promise<Facility[]> => {
-	const url = `${ORIGIN}/api/v1/facilities/?limit=${limit}`;
+export const fetchFacilities = async (fetch: Fetch): Promise<Facility[]> => {
+	const url = `${ORIGIN}/api/v2/public/facilities`;
 	const response = await fetch(url, {
 		method: 'GET',
 		headers: {
@@ -16,6 +16,5 @@ export const fetchFacilities = async (fetch: Fetch, limit: number = 1000): Promi
 		console.error(`fetchFacilities ${url} response status: ${response.status}`);
 		error(response.status, `Failed to fetch facilities (status ${response.status})`);
 	}
-	const f: { facilities: Facility[] } = await response.json();
-	return f.facilities;
+	return await response.json();
 };

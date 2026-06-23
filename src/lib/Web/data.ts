@@ -1,9 +1,6 @@
 import { ORIGIN } from '$lib/utils/origin.ts';
-import { variables } from '$lib/utils/constants.ts';
-import type { Organization } from '$lib/interfaces/v2/organization';
-import type { Effector, EffectorType } from '$lib/interfaces/v2/effector';
+import type { EffectorType } from '$lib/interfaces/v2/effector';
 import type { FacilityV2 } from '$lib/interfaces/v2/facility.ts';
-import type { Entry } from '$lib/store/directoryStoreInterface.ts';
 import type { Commune, DepartmentOfFrance } from '$lib/interfaces/v2/facility.ts';
 
 export const getEffectorTypes = async () => {

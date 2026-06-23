@@ -18,8 +18,8 @@ export const load: PageLoad = async ({ params, fetch, parent }) => {
     if (!slug) {
         error(404, 'Slug manquant.');
     }
-    const endpoint = isHexUUID(slug) ? 'facilitiesuid' : 'facilities';
-    const url = `${ORIGIN}/api/v1/${endpoint}/${slug}/`;
+    const endpoint = isHexUUID(slug) ? 'public/facilitiesuid' : 'public/facilities';
+    const url = `${ORIGIN}/api/v2/${endpoint}/${slug}/`;
     const response = await fetch(url,
         {
             method: 'GET',

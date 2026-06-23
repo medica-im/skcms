@@ -1,6 +1,4 @@
-import { getTimestamps } from '$lib/store/directoryStore';
 import { cptsPostgres, mspPostgres } from '$lib/constants';
-import type { Timestamps } from '$lib/store/directoryStore';
 import type { Entry } from '$lib/store/directoryStoreInterface.ts';
 
 // Replaces the locale slug in a URL.
@@ -105,17 +103,6 @@ export const entrySlugPageUrl = (entry: Entry) => {
 export function isExpired(ttl: number, cacheTime: number): boolean {
 	const elapsed = Date.now() - cacheTime;
 	return elapsed > ttl * 1000;
-}
-
-export async function doRefresh(endpoint: string, cachetime: number|undefined): Promise<boolean> {
-	const timestamps = await getTimestamps();
-	if ( timestamps === undefined ) {
-		return false
-	} else if ( cachetime === undefined ) {
-		return true
-	} else {
-		return cachetime < timestamps[endpoint as keyof Timestamps]
-	}
 }
 
 export function logMap(map: Map<any, any>) {
