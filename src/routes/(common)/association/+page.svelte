@@ -4,7 +4,7 @@
 	import { untrack } from 'svelte';
 	import * as m from '$msgs';
 	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
-	import OfficerCard from '$lib/Association/OfficerCard.svelte';
+	import MemberCard from '$lib/Association/MemberCard.svelte';
 	import BoardMembersDisplay from '$lib/Association/BoardMembersDisplay.svelte';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 
@@ -61,8 +61,8 @@
 
 					<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 						{#each activeOfficers as officer (officer.uid)}
-							<OfficerCard
-								{officer}
+							<MemberCard
+								member={officer}
 								{entries}
 								organizationRoles={data.organizationRoles || []}
 								organizationRoleLabels={data.organizationRoleLabels || {}}

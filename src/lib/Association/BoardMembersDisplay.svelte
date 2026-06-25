@@ -2,7 +2,7 @@
 	import * as m from '$msgs';
 	import type { BoardMember, MembershipCategory } from '$lib/interfaces/v2/association';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
-	import BoardMemberCard from './BoardMemberCard.svelte';
+	import MemberCard from './MemberCard.svelte';
 
 	let {
 		boardMembers,
@@ -26,7 +26,7 @@
 				{#if members.length > 0}
 					<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 						{#each members as member (member.uid)}
-							<BoardMemberCard {member} {entries} categoryLabel={category.label} />
+							<MemberCard {member} {entries} />
 						{/each}
 					</div>
 				{:else}
@@ -41,7 +41,7 @@
 {:else if boardMembers.length > 0}
 	<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 		{#each boardMembers as member (member.uid)}
-			<BoardMemberCard {member} {entries} />
+			<MemberCard {member} {entries} />
 		{/each}
 	</div>
 {:else}
