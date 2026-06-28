@@ -161,7 +161,7 @@
 <div class="rounded-lg w-full p-4 variant-ghost-secondary items-center place-items-center space-y-6">
 	<h3 class="h3 text-center">Créer un établissement</h3>
 	<form
-		{...createFacility.enhance(async ({form, data, submit}) => {
+		{...createFacility.enhance(async ({submit}) => {
 			await submit();
 		})}
 		class="space-y-6"

@@ -66,7 +66,7 @@
 			<h3 class="h3">{capitalizeFirstLetter(m.WEBSITE())}</h3>
 
 		<form
-			{...updateForm.for(uuid).enhance(async ({ form, data, submit }) => {
+			{...updateForm.for(uuid).enhance(async ({ submit }) => {
 				try {
 					await submit();
 					invalidate('entry:now');

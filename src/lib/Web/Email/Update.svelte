@@ -60,11 +60,8 @@
 <Dialog bind:dialog on:close={() => console.log('closed')}>
 	<div class="rounded-lg h-64 p-4 variant-ghost-secondary gap-2 items-center place-items-center">
 		<form
-			{...updateEmail.for(data.id.toString()).enhance(async ({ form, data, submit }) => {
+			{...updateEmail.for(data.id.toString()).enhance(async ({ submit }) => {
 				try {
-					//data = manipulateForm(data);
-					const dataString = JSON.stringify(data);
-					console.log(dataString);
 					await submit();
 					result = updateEmail.result;
 					invalidate('entry:now');

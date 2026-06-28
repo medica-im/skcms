@@ -32,11 +32,8 @@
 	<div class="rounded-lg h-64 p-4 variant-ghost-secondary gap-4 items-center place-items-center">
 
 		<form
-			{...deleteEmail.for(data.id.toString()).enhance(async ({ form, data, submit }) => {
+			{...deleteEmail.for(data.id.toString()).enhance(async ({ submit }) => {
 				try {
-					//data = manipulateForm(data);
-					const dataString = JSON.stringify(data);
-					console.log(dataString);
 					await submit();
 					invalidate('entry:now');
 				} catch (error) {

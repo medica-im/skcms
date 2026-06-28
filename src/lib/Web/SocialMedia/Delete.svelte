@@ -35,7 +35,7 @@
 	<div class="rounded-lg p-4 variant-ghost-secondary gap-4 items-center place-items-center">
 
 		<form
-			{...destroy.for(data.id.toString()).enhance(async ({ form, data, submit }) => {
+			{...destroy.for(data.id.toString()).enhance(async ({ submit }) => {
 				try {
 					await submit();
 					invalidate('entry:now');

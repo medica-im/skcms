@@ -155,8 +155,7 @@
 	<div class="rounded-lg w-full p-4 variant-ghost-secondary items-center place-items-center">
 		<h3 class="h3 text-center">Modifier l'établissement</h3>
 		<form
-			{...updateFacility.for(uid).enhance(async ({ form, data, submit }) => {
-				console.log(data);
+			{...updateFacility.for(uid).enhance(async ({ submit }) => {
 				try {
 					await submit();
 				} catch (error) {

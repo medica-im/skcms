@@ -88,7 +88,7 @@
 			<h3 class="h3 text-center">Modifier la personne physique ou morale</h3>
 			<div class="p-4 space-y-2 justify-items-stretch grid grid-cols-1 gap-6">
 				<form
-					{...updateEffector.for(data.effector_uid).enhance(async ({ form, data, submit }) => {
+					{...updateEffector.for(data.effector_uid).enhance(async ({ submit }) => {
 						try {
 							await submit();
 						} catch (error) {

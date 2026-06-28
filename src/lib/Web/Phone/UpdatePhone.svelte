@@ -79,10 +79,8 @@
 	<div class="rounded-lg h-96 p-4 variant-ghost-secondary gap-2 items-center place-items-center">
 		<!--p>id: {data.id} phone: {_phone} type: {_type} selectedAccess: {selectedAccess} roles: {roles}</p-->
 		<form
-			{...updatePhone.for(data.id.toString()).enhance(async ({ form, data, submit }) => {
+			{...updatePhone.for(data.id.toString()).enhance(async ({ submit }) => {
 				try {
-					const dataString = JSON.stringify(data);
-					console.log(dataString);
 					await submit();
 					invalidate('entry:now');
 				} catch (error) {

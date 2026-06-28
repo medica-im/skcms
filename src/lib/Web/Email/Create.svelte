@@ -66,9 +66,8 @@
 <Dialog bind:dialog on:close={() => console.log('closed')}>
 	<div class="rounded-lg h-64 p-4 variant-ghost-secondary gap-2 items-center place-items-center">
 		<form
-			{...createEmail.enhance(async ({ form, data, submit }) => {
+			{...createEmail.enhance(async ({ submit }) => {
 				try {
-					const dataString = JSON.stringify(data);
 					await submit();
 					invalidate('entry:now');
 				} catch (error) {

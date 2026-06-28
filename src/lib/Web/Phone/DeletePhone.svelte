@@ -32,10 +32,8 @@
 <Dialog bind:dialog on:close={() => console.log('closed')}>
 	<div class="rounded-lg h-96 p-4 variant-ghost-secondary gap-4 items-center place-items-center">
 		<form
-			{...deletePhone.for(data.id.toString()).enhance(async ({ form, data, submit }) => {
+			{...deletePhone.for(data.id.toString()).enhance(async ({ submit }) => {
 				try {
-					const dataString = JSON.stringify(data);
-					console.log(dataString);
 					await submit();
 					result = deletePhone.result;
 					invalidate('entry:now');

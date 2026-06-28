@@ -62,7 +62,7 @@
 	<div class="rounded-lg p-4 variant-ghost-secondary gap-2 items-center place-items-center">
 		<h3 class="h3">{capitalizeFirstLetter(m.ADDRESSBOOK_SOMED())}</h3>
 		<form
-			{...create.enhance(async ({ form, data, submit }) => {
+			{...create.enhance(async ({ submit }) => {
 				try {
 					await submit();
 					invalidate('entry:now');
