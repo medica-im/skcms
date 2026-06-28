@@ -16,7 +16,7 @@ export async function getEntry(entrySlug: string, fetch: Fetch) {
         return json as EntryFull
     } catch (error) {
         if (error instanceof Error) {
-            console.error('[request failed]', error.message)
+            console.error(`[request failed] ${entrySlug}:`, error.message)
         } else {
             throw error;
         }
