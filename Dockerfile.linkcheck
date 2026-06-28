@@ -4,4 +4,6 @@ FROM alpine:3.20
 RUN apk add --no-cache ca-certificates
 COPY --from=muffet /muffet /usr/local/bin/muffet
 ENV LINKCHECK_ERROR_FILE=/tmp/linkcheck-errors.txt
-ENTRYPOINT ["/bin/sh", "-c", "muffet $LINKCHECK_FLAGS \"$LINKCHECK_TARGET_URL\" 2>&1 | awk '/^[[:space:]]+[45][0-9][0-9][[:space:]]/{print \"\\033[1;31m\" $0 \"\\033[0m\"; print $0 >> ENVIRON[\"LINKCHECK_ERROR_FILE\"]; next} {print}; END {f=ENVIRON[\"LINKCHECK_ERROR_FILE\"]; if ((getline < f) > 0) {close(f); printf \"\\n\\033[1;31m=== ERRORS SUMMARY ===\\033[0m\\n\"; while ((getline line < f) > 0) print \"\\033[1;31m\" line \"\\033[0m\"; close(f); exit 1}}'"]
+COPY linkcheck.sh /usr/local/bin/linkcheck.sh
+RUN chmod +x /usr/local/bin/linkcheck.sh
+ENTRYPOINT ["/bin/sh", "/usr/local/bin/linkcheck.sh"]
