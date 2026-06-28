@@ -39,3 +39,6 @@ services:
     environment:
       LINKCHECK_FLAGS: ${LINKCHECK_FLAGS}
       LINKCHECK_TARGET_URL: ${LINKCHECK_TARGET_URL}
+      LINKCHECK_ERROR_FILE: /tmp/linkcheck-errors.txt
+    volumes:
+      - "${LINKCHECK_ERROR_DIR}:/tmp"
