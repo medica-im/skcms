@@ -2,7 +2,7 @@ import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
 import type { Fetch } from '$lib/interfaces/fetch.ts';
 
 export const fetchCareHome = async (fetch: Fetch, uid: string) => {
-    const apiUrl = `${ORIGIN}/api/v1/carehomes/${uid}`;
+    const apiUrl = `${ORIGIN}/api/v2/carehomes/${uid}`;
     try {
         const response = await fetch(apiUrl);
         if (response?.ok) {
