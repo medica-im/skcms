@@ -19,6 +19,10 @@ RUN pnpm run -r build
 
 # --- ÉTAPE 3 : Image de STAGING ---
 FROM base AS staging
+ARG GIT_SHA
+ARG SUBMODULE_SHA
+LABEL git.sha=$GIT_SHA
+LABEL git.submodule.sha=$SUBMODULE_SHA
 COPY --from=builder /app/build .
 EXPOSE 3000
 ENV NODE_ENV=production
@@ -27,6 +31,10 @@ CMD [ "node", "index.js" ]
 
 # --- ÉTAPE 4 : Image de PRODUCTION ---
 FROM node:22-slim AS production
+ARG GIT_SHA
+ARG SUBMODULE_SHA
+LABEL git.sha=$GIT_SHA
+LABEL git.submodule.sha=$SUBMODULE_SHA
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 ENV NODE_ENV=production
