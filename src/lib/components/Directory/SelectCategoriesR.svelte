@@ -69,17 +69,17 @@
 	const handleClear = async (event: CustomEvent) => {
 		if (event.detail) {
 			if (srcElement) srcElement.blur();
-			if (page.url.pathname == dirPath && page.url.searchParams.has('types')) {
-				const url = new URL(page.url);
-				url.searchParams.delete('types');
-				const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
-				goto(newUrl, { noScroll: true, keepFocus: true });
-			} else if (page.url.pathname != dirPath && $directoryRedirect) {
+			if ($directoryRedirect && page.url.pathname != dirPath) {
 				if ($selectFacility) {
 					await goto(`${dirPath}?facility=${$selectFacility}`);
 				} else {
 					await goto(dirPath);
 				}
+			} else {
+				const url = new URL(page.url);
+				url.searchParams.delete('types');
+				const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
+				goto(newUrl, { noScroll: true, keepFocus: true });
 			}
 		} else {
 			if (srcElement) srcElement.blur();
@@ -89,17 +89,17 @@
 	function handleChange(event: CustomEvent) {
 		if (event.detail) {
 			if (srcElement) srcElement.blur();
-			if (page.url.pathname == dirPath) {
-				const url = new URL(page.url);
-				url.searchParams.set('types', JSON.stringify([event.detail.uid]));
-				goto(`${url.pathname}?${url.searchParams}`, { noScroll: true, keepFocus: true });
-			} else if ($directoryRedirect) {
+			if ($directoryRedirect && page.url.pathname != dirPath) {
 				const typesParam = JSON.stringify([event.detail.uid]);
 				let urlParams = `?types=${typesParam}`;
 				if ($selectFacility) {
 					urlParams += `&facility=${$selectFacility}`;
 				}
 				goto(`${dirPath}${urlParams}`);
+			} else {
+				const url = new URL(page.url);
+				url.searchParams.set('types', JSON.stringify([event.detail.uid]));
+				goto(`${url.pathname}?${url.searchParams}`, { noScroll: true, keepFocus: true });
 			}
 		} else {
 			if (srcElement) srcElement.blur();
