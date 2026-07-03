@@ -223,6 +223,10 @@
 	});
 </script>
 
+<svelte:head>
+	<link rel="canonical" href="{page.url.origin}{page.url.pathname}" />
+</svelte:head>
+
 <FullDirectory
 		{data}
 		{displayCategory}
