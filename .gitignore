@@ -20,3 +20,4 @@ src/routes/test
 vite.config.ts.timestamp-*
 .claude
 DOCKER_BUILD.md
+MONITOR.md
