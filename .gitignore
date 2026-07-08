@@ -21,3 +21,5 @@ vite.config.ts.timestamp-*
 .claude
 DOCKER_BUILD.md
 MONITOR.md
+dev.yml
+images.yml
