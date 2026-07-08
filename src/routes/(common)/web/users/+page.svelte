@@ -3,6 +3,7 @@
     import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
     import { UserCard } from '$lib/User';
     import { ORIGIN } from '$lib/utils/origin.ts';
+    import ExportModeToggle from '$lib/components/ExportModeToggle/ExportModeToggle.svelte';
     import * as m from '$msgs';
     import type { PageData } from './$types';
 
@@ -18,8 +19,7 @@
     let selectedUids = $state<Set<string>>(new Set());
     let exporting = $state(false);
 
-    function toggleExportMode() {
-        exportMode = !exportMode;
+    function updateSelectionForExportMode() {
         if (exportMode && users) {
             selectedUids = new Set(users.map((u) => u.uid));
         } else {
@@ -95,12 +95,7 @@
                 </p>
             </div>
             {#if isSuperuser}
-                <button
-                    class="btn {exportMode ? 'variant-filled-warning' : 'variant-filled-primary'}"
-                    onclick={toggleExportMode}
-                >
-                    {exportMode ? m['cancel']?.() ?? 'Cancel' : 'Export Listmonk'}
-                </button>
+                <ExportModeToggle bind:checked={exportMode} onchange={updateSelectionForExportMode} />
             {/if}
         </header>
 
@@ -114,18 +109,18 @@
                         onchange={toggleAll}
                     />
                     <span class="text-sm font-semibold">
-                        {allSelected ? 'Deselect all' : 'Select all'}
+                        {allSelected ? m.USERS_DESELECT_ALL() : m.USERS_SELECT_ALL()}
                     </span>
                 </label>
                 <span class="text-sm text-surface-500">
-                    {selectedUids.size} / {users?.length ?? 0} selected
+                    {m.USERS_SELECTED_COUNT({ selected: selectedUids.size, total: users?.length ?? 0 })}
                 </span>
                 <button
                     class="btn variant-filled-primary ml-auto"
                     disabled={selectedUids.size === 0 || exporting}
                     onclick={exportCsv}
                 >
-                    {exporting ? 'Exporting…' : `Export ${selectedUids.size} user${selectedUids.size !== 1 ? 's' : ''}`}
+                    {exporting ? m.USERS_EXPORTING() : m.USERS_EXPORT_SELECTION({ count: selectedUids.size })}
                 </button>
             </div>
         {/if}
@@ -169,7 +164,7 @@
 {:else}
     <div class="container mx-auto p-4">
         <div class="alert variant-filled-error">
-            <p>Accès restreint aux super-utilisateurs et administrateurs.</p>
+            <p>{m.USERS_ACCESS_RESTRICTED()}</p>
         </div>
     </div>
 {/if}

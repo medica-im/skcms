@@ -8,8 +8,10 @@
 	import { preloadData, pushState, goto } from '$app/navigation';
 	import { faPlus, faFileLines } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
+	import ExportModeToggle from '$lib/components/ExportModeToggle/ExportModeToggle.svelte';
 	import * as m from '$msgs';
 	import { normalize } from '$lib/helpers/stringHelpers.ts';
+	import { ORIGIN } from '$lib/utils/origin.ts';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -26,46 +28,120 @@
 	let editModal: EditInviteeModal;
 	let deleteModal: DeleteInviteeModal;
 	let createOpen: boolean = $state(false);
+
+	const isSuperuser = $derived(page.data?.user?.role === 'superuser');
+
+	let exportMode = $state(false);
+	let selectedUids = $state<Set<string>>(new Set());
+	let exporting = $state(false);
+
+	function updateSelectionForExportMode() {
+		if (exportMode && filteredInvitees) {
+			selectedUids = new Set(filteredInvitees.map((i) => i.uid));
+		} else {
+			selectedUids = new Set();
+		}
+	}
+
+	function toggleAll() {
+		if (!filteredInvitees) return;
+		if (selectedUids.size === filteredInvitees.length) {
+			selectedUids = new Set();
+		} else {
+			selectedUids = new Set(filteredInvitees.map((i) => i.uid));
+		}
+	}
+
+	function toggleInvitee(uid: string) {
+		const next = new Set(selectedUids);
+		if (next.has(uid)) {
+			next.delete(uid);
+		} else {
+			next.add(uid);
+		}
+		selectedUids = next;
+	}
+
+	async function exportCsv() {
+		if (selectedUids.size === 0) return;
+		exporting = true;
+		try {
+			const response = await fetch(`${ORIGIN}/api/v2/invitees/export/listmonk`, {
+				credentials: 'include',
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({ invitee_uids: [...selectedUids] })
+			});
+			if (!response.ok) {
+				throw new Error(`Export failed: ${response.status}`);
+			}
+			const blob = await response.blob();
+			const disposition = response.headers.get('Content-Disposition') ?? '';
+			const match = disposition.match(/filename="?([^"]+)"?/);
+			const filename = match?.[1] ?? 'listmonk_invitees.csv';
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = filename;
+			a.click();
+			URL.revokeObjectURL(url);
+		} catch (error: any) {
+			console.error('Export error:', error.message);
+		} finally {
+			exporting = false;
+		}
+	}
+
+	let allSelected = $derived(
+		filteredInvitees != null && filteredInvitees.length > 0 && selectedUids.size === filteredInvitees.length
+	);
 </script>
 
 <div class="container mx-auto p-4">
-	<header class="mb-6 flex justify-between items-center">
-		<div>
-			<h1 class="h1 mb-2">Invitations</h1>
-			<p class="text-surface-600">
-				{filteredInvitees?.length ?? 0} invitation{(filteredInvitees?.length ?? 0) > 1 ? 's' : ''}
-			</p>
-		</div>
-		<div class="flex gap-2">
-			<a href="/web/invite/batch">
-				<button class="btn variant-filled-secondary" title={m.BATCH_INVITEE_BUTTON()}>
-					<span><Fa icon={faFileLines} /></span>
-					<span class="hidden lg:block">{m.BATCH_INVITEE_BUTTON()}</span>
-				</button>
-			</a>
-			<a
-				href="/web/invite/create"
-				onclick={async (e) => {
-					if (e.shiftKey || e.metaKey || e.ctrlKey) return;
+	<header class="mb-6 space-y-4">
+		<div class="flex justify-between items-center">
+			<div>
+				<h1 class="h1 mb-2">{m.INVITEE_PAGE_TITLE()}</h1>
+				<p class="text-surface-600">
+					{filteredInvitees?.length ?? 0} {m.invitee_noun({ count: filteredInvitees?.length ?? 0 })}
+				</p>
+			</div>
+			<div class="flex gap-2">
+				<a href="/web/invite/batch">
+					<button class="btn variant-filled-secondary" title={m.BATCH_INVITEE_BUTTON_TITLE()}>
+						<span><Fa icon={faFileLines} /></span>
+						<span class="hidden lg:block">{m.BATCH_INVITEE_BUTTON()}</span>
+					</button>
+				</a>
+				<a
+					href="/web/invite/create"
+					onclick={async (e) => {
+						if (e.shiftKey || e.metaKey || e.ctrlKey) return;
 
-					e.preventDefault();
-					const { href } = e.currentTarget;
-					const result = await preloadData(href);
+						e.preventDefault();
+						const { href } = e.currentTarget;
+						const result = await preloadData(href);
 
-					if (result.type === 'loaded' && result.status === 200) {
-						createOpen = true;
-						pushState(href, { selected: result.data });
-					} else {
-						goto(href);
-					}
-				}}
-			>
-				<button class="btn variant-filled-primary" title="Créer une invitation">
-					<span><Fa icon={faPlus} /></span>
-					<span class="hidden lg:block">Créer une invitation</span>
-				</button>
-			</a>
+						if (result.type === 'loaded' && result.status === 200) {
+							createOpen = true;
+							pushState(href, { selected: result.data });
+						} else {
+							goto(href);
+						}
+					}}
+				>
+					<button class="btn variant-filled-primary" title={m.INVITEE_CREATE_BUTTON()}>
+						<span><Fa icon={faPlus} /></span>
+						<span class="hidden lg:block">{m.INVITEE_CREATE_BUTTON()}</span>
+					</button>
+				</a>
+			</div>
 		</div>
+		{#if isSuperuser}
+			<div class="flex justify-end">
+				<ExportModeToggle bind:checked={exportMode} onchange={updateSelectionForExportMode} />
+			</div>
+		{/if}
 	</header>
 
 	<!-- Search -->
@@ -78,8 +154,38 @@
 		/>
 	</div>
 
+	{#if exportMode}
+		<div class="mb-4 flex items-center gap-4">
+			<label class="flex items-center gap-2">
+				<input
+					type="checkbox"
+					class="checkbox"
+					checked={allSelected}
+					onchange={toggleAll}
+				/>
+				<span class="text-sm font-semibold">
+					{allSelected ? m.USERS_DESELECT_ALL() : m.USERS_SELECT_ALL()}
+				</span>
+			</label>
+			<span class="text-sm text-surface-500">
+				{m.USERS_SELECTED_COUNT({ selected: selectedUids.size, total: filteredInvitees?.length ?? 0 })}
+			</span>
+			<button
+				class="btn variant-filled-primary ml-auto"
+				disabled={selectedUids.size === 0 || exporting}
+				onclick={exportCsv}
+			>
+				{exporting ? m.USERS_EXPORTING() : m.INVITEE_EXPORT_SELECTION({ count: selectedUids.size })}
+			</button>
+		</div>
+	{/if}
+
 	<!-- Column Headers (large screens only) -->
-	<div class="hidden lg:grid lg:grid-cols-[40px_1fr_1.5fr_120px_130px_130px_80px_36px_36px_36px] lg:items-center lg:gap-4 px-3 pb-2 text-sm font-semibold text-surface-500">
+	<div class="hidden lg:grid lg:items-center lg:gap-4 px-3 pb-2 text-sm font-semibold text-surface-500"
+		class:lg:grid-cols-[40px_40px_1fr_1.5fr_120px_130px_130px_80px_36px_36px_36px]={exportMode}
+		class:lg:grid-cols-[40px_1fr_1.5fr_120px_130px_130px_80px_36px_36px_36px]={!exportMode}
+	>
+		{#if exportMode}<span></span>{/if}
 		<span></span>
 		<span>{m.INVITEE_COL_NAME()}</span>
 		<span>{m.INVITEE_COL_EMAIL()}</span>
@@ -92,7 +198,21 @@
 
 	<div class="grid grid-cols-1 gap-2">
 		{#each filteredInvitees as invitee (invitee.uid)}
-			<Invitee {invitee} highlighted={(Date.now() - new Date(invitee.createdAt).getTime()) < 60_000} onEdit={(inv) => editModal.handleEdit(inv)} onDelete={(inv) => deleteModal.handleDelete(inv)} />
+			{#if exportMode}
+				<div class="flex items-center gap-2">
+					<input
+						type="checkbox"
+						class="checkbox flex-shrink-0"
+						checked={selectedUids.has(invitee.uid)}
+						onchange={() => toggleInvitee(invitee.uid)}
+					/>
+					<div class="flex-1">
+						<Invitee {invitee} highlighted={(Date.now() - new Date(invitee.createdAt).getTime()) < 60_000} onEdit={(inv) => editModal.handleEdit(inv)} onDelete={(inv) => deleteModal.handleDelete(inv)} />
+					</div>
+				</div>
+			{:else}
+				<Invitee {invitee} highlighted={(Date.now() - new Date(invitee.createdAt).getTime()) < 60_000} onEdit={(inv) => editModal.handleEdit(inv)} onDelete={(inv) => deleteModal.handleDelete(inv)} />
+			{/if}
 		{/each}
 	</div>
 </div>

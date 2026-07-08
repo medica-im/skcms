@@ -284,7 +284,40 @@
 	"INVITEE_COL_REDEEMED": "Redeemed",
 	"INVITEE_COL_STATUS": "Status",
 	"INVITEE_COL_ACTIONS": "Actions",
-	"BATCH_INVITEE_BUTTON": "Batch create invitations from a file",
+	"INVITEE_PAGE_TITLE": "Invitations",
+	"INVITEE_CREATE_BUTTON": "Create an invitation",
+	"invitee_noun": [
+		{
+			"declarations": [
+				"input count",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "invitation",
+				"countPlural=other": "invitations"
+			}
+		}
+	],
+	"INVITEE_EXPORT_SELECTION": [
+		{
+			"declarations": [
+				"input count",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "Export {count} invitation",
+				"countPlural=other": "Export {count} invitations"
+			}
+		}
+	],
+	"BATCH_INVITEE_BUTTON": "Batch invitations (Excel)",
+	"BATCH_INVITEE_BUTTON_TITLE": "Batch create invitations from a file",
 	"BATCH_INVITEE_TITLE": "Batch invitation creation",
 	"BATCH_INVITEE_SUBTITLE": "Upload a file to create multiple invitations at once.",
 	"BATCH_INVITEE_SUPPORTED_FORMATS": "Supported formats: .xlsx (Excel), .csv, .ods (LibreOffice)",
@@ -351,6 +384,27 @@
 			}
 		}
 	],
+	"USERS_EXPORT_LISTMONK_TOGGLE": "Export to Listmonk",
+	"USERS_SELECT_ALL": "Select all",
+	"USERS_DESELECT_ALL": "Deselect all",
+	"USERS_SELECTED_COUNT": "{selected} / {total} selected",
+	"USERS_EXPORTING": "Exporting…",
+	"USERS_EXPORT_SELECTION": [
+		{
+			"declarations": [
+				"input count",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "Export {count} user",
+				"countPlural=other": "Export {count} users"
+			}
+		}
+	],
+	"USERS_ACCESS_RESTRICTED": "Access restricted to super-users and administrators.",
 	"my_entries": [
 		{
 			"declarations": [

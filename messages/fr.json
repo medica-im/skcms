@@ -284,7 +284,40 @@
   "INVITEE_COL_REDEEMED": "Utilisée",
   "INVITEE_COL_STATUS": "Statut",
   "INVITEE_COL_ACTIONS": "Actions",
-  "BATCH_INVITEE_BUTTON": "Créer des invitations en masse via un fichier Excel",
+  "INVITEE_PAGE_TITLE": "Invitations",
+  "INVITEE_CREATE_BUTTON": "Créer une invitation",
+  "invitee_noun": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "invitation",
+        "countPlural=other": "invitations"
+      }
+    }
+  ],
+  "INVITEE_EXPORT_SELECTION": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "Exporter {count} invitation",
+        "countPlural=other": "Exporter {count} invitations"
+      }
+    }
+  ],
+  "BATCH_INVITEE_BUTTON": "Invitations en masse (Excel)",
+  "BATCH_INVITEE_BUTTON_TITLE": "Créer des invitations en masse via un fichier Excel",
   "BATCH_INVITEE_TITLE": "Création d'invitations en masse",
   "BATCH_INVITEE_SUBTITLE": "Importez un fichier pour créer plusieurs invitations à la fois.",
   "BATCH_INVITEE_SUPPORTED_FORMATS": "Formats supportés : .xlsx (Excel), .csv, .ods (LibreOffice)",
@@ -351,6 +384,27 @@
       }
     }
   ],
+  "USERS_EXPORT_LISTMONK_TOGGLE": "Exporter vers Listmonk",
+  "USERS_SELECT_ALL": "Tout sélectionner",
+  "USERS_DESELECT_ALL": "Tout désélectionner",
+  "USERS_SELECTED_COUNT": "{selected} / {total} sélectionné(s)",
+  "USERS_EXPORTING": "Export en cours…",
+  "USERS_EXPORT_SELECTION": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "Exporter {count} utilisateur",
+        "countPlural=other": "Exporter {count} utilisateurs"
+      }
+    }
+  ],
+  "USERS_ACCESS_RESTRICTED": "Accès restreint aux super-utilisateurs et administrateurs.",
   "my_entries": [
     {
       "declarations": [
