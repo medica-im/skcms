@@ -104,7 +104,7 @@
 		if ($addressFeature) {
 			return;
 		}
-		if ($inputAddress && $inputAddress?.length < options.minChar) {
+		if (!$inputAddress || $inputAddress.length < options.minChar) {
 			return;
 		}
 		let url = options.url + buildQueryString();
