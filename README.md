@@ -60,3 +60,6 @@ docker push ghcr.io/medica-im/website:production
 docker pull ghcr.io/medica-im/website:production
 docker compose -f docker-compose-production.yml up -d
 ```
+
+## Tests
+```docker compose -f docker-compose-development.yml exec -T fastapi python -m pytest```
