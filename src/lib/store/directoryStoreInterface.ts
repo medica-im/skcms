@@ -71,6 +71,7 @@ export interface EntryFull {
     avatar: Avatar;
     carte_vitale: CarteVitale;
     convention: Convention | null;
+    directories: string[];
     effector_uid: string;
     emails: Email[];
     facility: Facility;
@@ -98,6 +99,11 @@ export interface EntryFull {
     creator: string[]|null;
     redeemEmail: string|null;
     access: string;
+}
+
+export interface AvailableDirectory {
+    name: string;
+    display_name: string;
 }
 
 export interface FeatureCollection {

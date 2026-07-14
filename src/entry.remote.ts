@@ -69,6 +69,7 @@ const Patch = z.object({
 	active: z.boolean().optional(),
 	memberships: z.array(z.string()).optional(),
 	owners: z.array(z.string()).optional(),
+	directories: z.array(z.string()).optional(),
 	redeemEmail: z.nullable(z.string().email()).optional(),
 	access: z.string().optional()
 });
@@ -119,4 +120,15 @@ export const getConventions = query(async () => {
 	if (res.ok) {
 		return await res.json();
 	}
+});
+
+export const getAvailableDirectories = query(async () => {
+	const { cookies } = getRequestEvent();
+	const url = `${variables.BASE_URI}/api/v2/directories/available`;
+	const request = authReq(url, 'GET', cookies);
+	const res = await fetch(request);
+	if (res.ok) {
+		return await res.json();
+	}
+	return [];
 });
