@@ -41,7 +41,7 @@ export interface Tag {
 }
 
 export interface Entry {
-    active: Boolean|null;
+    active: boolean|null;
     address: Address;
     avatar: Avatar;
     commune: Commune;
@@ -65,7 +65,7 @@ export interface Entry {
 }
 
 export interface EntryFull {
-    active: Boolean;
+    active: boolean;
     address: Address;
     appointments: Appointment[] | null;
     avatar: Avatar;
