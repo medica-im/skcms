@@ -1,11 +1,29 @@
-import type { PlaywrightTestConfig } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
+import { defineBddConfig } from 'playwright-bdd';
 
-const config: PlaywrightTestConfig = {
+// Generates Playwright specs from Gherkin .feature files + step definitions.
+const testDir = defineBddConfig({
+	features: 'features/**/*.feature',
+	steps: 'steps/**/*.ts'
+});
+
+export default defineConfig({
+	testDir,
 	webServer: {
-		command: 'npm run build && npm run preview',
-		port: 4173
+		// Run against the dev server for fast BDD-driven development.
+		// Swap for `pnpm build && pnpm preview` (port 4173) for a prod-like run.
+		command: 'pnpm dev',
+		port: 3000,
+		reuseExistingServer: true
 	},
-	testDir: 'tests'
-};
-
-export default config;
+	use: {
+		baseURL: 'http://localhost:3000',
+		trace: 'on-first-retry'
+	},
+	projects: [
+		{
+			name: 'chromium',
+			use: { ...devices['Desktop Chrome'] }
+		}
+	]
+});
