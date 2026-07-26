@@ -162,17 +162,26 @@ ensure_stack() {
 # --- Suites ------------------------------------------------------------------
 suite_typecheck() {
     local out count
-    out=$(cd "$FRONTEND_DIR" && npx svelte-kit sync >/dev/null 2>&1; \
-          cd "$FRONTEND_DIR" && npx svelte-check --threshold error 2>&1)
-    count=$(printf '%s\n' "$out" | grep -oE 'COMPLETED [0-9]+ FILES [0-9]+ ERRORS' \
-            | grep -oE '[0-9]+ ERRORS' | grep -oE '[0-9]+' | tail -1)
+    (cd "$FRONTEND_DIR" && npx svelte-kit sync >/dev/null 2>&1)
+    # --output machine keeps the summary line stable; svelte-check otherwise
+    # switches to a human summary ("found N errors") when attached to a TTY.
+    out=$(cd "$FRONTEND_DIR" && npx svelte-check --output machine --threshold error 2>&1)
+
+    # Machine format: "... COMPLETED <n> FILES <n> ERRORS <n> WARNINGS ..."
+    count=$(printf '%s\n' "$out" | sed -nE 's/.*COMPLETED [0-9]+ FILES ([0-9]+) ERRORS.*/\1/p' | tail -1)
+    # Human fallback: "svelte-check found N errors and M warnings in K files"
+    [[ -z "$count" ]] && count=$(printf '%s\n' "$out" \
+        | sed -nE 's/.*found ([0-9]+) error.*/\1/p' | tail -1)
+    # No errors at all still needs a number.
+    [[ -z "$count" ]] && printf '%s\n' "$out" | grep -qiE 'found no errors|0 errors' && count=0
+
     if [[ -z "$count" ]]; then
-        printf '%s\n' "$out" | tail -5
+        printf '%s\n' "$out" | tail -8
         fail "could not parse svelte-check output"; return 1
     fi
     info "svelte-check errors: $count (baseline $TYPECHECK_BASELINE)"
     if (( count > TYPECHECK_BASELINE )); then
-        printf '%s\n' "$out" | grep -E '^[0-9]+ ERROR' | head -20
+        printf '%s\n' "$out" | grep -E 'ERROR' | head -20
         warn "error count rose above the baseline"
         return 1
     fi

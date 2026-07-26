@@ -149,9 +149,6 @@ importers:
       eslint-plugin-svelte:
         specifier: ^3.13.1
         version: 3.15.2(eslint@9.39.4(jiti@1.21.7))(svelte@5.51.5)
-      jose:
-        specifier: ^6.2.4
-        version: 6.2.4
       maplibre-gl:
         specifier: ^5.23.0
         version: 5.23.0
@@ -3608,7 +3605,7 @@ snapshots:
       '@cucumber/ci-environment': 14.0.0
       '@cucumber/cucumber-expressions': 20.0.0
       '@cucumber/gherkin': 41.0.0
-      '@cucumber/gherkin-streams': 7.0.1(@cucumber/gherkin@41.0.0)(@cucumber/message-streams@5.0.1(@cucumber/messages@32.3.1))(@cucumber/messages@34.0.1)
+      '@cucumber/gherkin-streams': 7.0.1(@cucumber/gherkin@41.0.0)(@cucumber/message-streams@5.0.1(@cucumber/messages@34.0.1))(@cucumber/messages@34.0.1)
       '@cucumber/gherkin-utils': 12.0.1
       '@cucumber/html-formatter': 24.0.0(@cucumber/messages@34.0.1)
       '@cucumber/junit-xml-formatter': 0.14.0(@cucumber/messages@34.0.1)
@@ -3638,7 +3635,7 @@ snapshots:
       yaml: 2.9.0
       yup: 1.7.1
 
-  '@cucumber/gherkin-streams@7.0.1(@cucumber/gherkin@41.0.0)(@cucumber/message-streams@5.0.1(@cucumber/messages@32.3.1))(@cucumber/messages@34.0.1)':
+  '@cucumber/gherkin-streams@7.0.1(@cucumber/gherkin@41.0.0)(@cucumber/message-streams@5.0.1(@cucumber/messages@34.0.1))(@cucumber/messages@34.0.1)':
     dependencies:
       '@cucumber/gherkin': 41.0.0
       '@cucumber/message-streams': 5.0.1(@cucumber/messages@34.0.1)

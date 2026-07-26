@@ -1,9 +1,14 @@
 import { readFileSync } from 'node:fs';
-import { hkdf } from 'node:crypto';
+import { createCipheriv, createHmac, hkdf, randomBytes } from 'node:crypto';
 import { promisify } from 'node:util';
-import { EncryptJWT } from 'jose';
 
 const hkdfAsync = promisify(hkdf);
+
+// Built on node:crypto rather than `jose` on purpose: adding jose as a
+// top-level dependency re-resolves the copy that @ts-ghost/core-api requires
+// from CJS, which breaks `vite build` with ERR_INTERNAL_ASSERTION on Node 22.
+
+const b64url = (b: Buffer) => b.toString('base64url');
 
 /**
  * Mints a real Auth.js v5 session cookie (JWE) so Playwright can browse as a
@@ -45,7 +50,7 @@ function readAuthSecret(): string {
 }
 
 /** Auth.js v5 key derivation (see fastapi_nextauth_jwt: HKDF-SHA256, salt = cookie name). */
-async function derivedKey(secret: string, salt: string): Promise<Uint8Array> {
+async function derivedKey(secret: string, salt: string): Promise<Buffer> {
 	const key = await hkdfAsync(
 		'sha256',
 		secret,
@@ -53,26 +58,46 @@ async function derivedKey(secret: string, salt: string): Promise<Uint8Array> {
 		`Auth.js Generated Encryption Key (${salt})`,
 		64 // A256CBC-HS512
 	);
-	return new Uint8Array(key as ArrayBuffer);
+	return Buffer.from(key as ArrayBuffer);
 }
 
 export async function createSessionCookie(role: TestRole): Promise<string> {
 	const account = TEST_ACCOUNTS[role];
-	const secret = readAuthSecret();
-	const key = await derivedKey(secret, SESSION_COOKIE);
+	const key = await derivedKey(readAuthSecret(), SESSION_COOKIE);
 	const now = Math.floor(Date.now() / 1000);
 
-	return await new EncryptJWT({
+	const payload = JSON.stringify({
 		name: account.name,
 		email: account.email,
 		sub: account.sub,
 		// The backend reads the role's identity from this claim.
-		providerAccountId: account.sub
-	})
-		.setProtectedHeader({ alg: 'dir', enc: 'A256CBC-HS512' })
-		.setIssuedAt(now)
-		.setExpirationTime(now + 60 * 60)
-		.encrypt(key);
+		providerAccountId: account.sub,
+		iat: now,
+		exp: now + 60 * 60
+	});
+
+	// JWE compact serialization, alg=dir + enc=A256CBC-HS512 (RFC 7516 §5.1 /
+	// RFC 7518 §5.2.5): first 32 bytes of the key are the HMAC key, last 32 the
+	// AES key; the tag is the first half of HMAC-SHA512 over AAD|IV|CT|AL.
+	const macKey = key.subarray(0, 32);
+	const encKey = key.subarray(32, 64);
+
+	const header = b64url(Buffer.from(JSON.stringify({ alg: 'dir', enc: 'A256CBC-HS512' })));
+	const iv = randomBytes(16);
+	const cipher = createCipheriv('aes-256-cbc', encKey, iv);
+	const ciphertext = Buffer.concat([cipher.update(Buffer.from(payload, 'utf8')), cipher.final()]);
+
+	const aad = Buffer.from(header, 'ascii');
+	// AL = AAD bit length as a 64-bit big-endian integer.
+	const al = Buffer.alloc(8);
+	al.writeBigUInt64BE(BigInt(aad.length) * 8n);
+	const tag = createHmac('sha512', macKey)
+		.update(Buffer.concat([aad, iv, ciphertext, al]))
+		.digest()
+		.subarray(0, 32);
+
+	// alg=dir means the encrypted key segment is empty.
+	return [header, '', b64url(iv), b64url(ciphertext), b64url(tag)].join('.');
 }
 
 /** Playwright storageState for a role, usable via browser.newContext(). */
