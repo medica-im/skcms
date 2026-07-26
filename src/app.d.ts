@@ -4,7 +4,12 @@
 
 declare global {
 	namespace App {
-		interface Error {}
+		interface Error {
+			// Extra fields passed to `error(status, { ... })` and read in +error.svelte
+			type?: string;
+			code?: string;
+			email?: string;
+		}
 		interface Locals {}
 		interface PageData {}
 		interface PageState {

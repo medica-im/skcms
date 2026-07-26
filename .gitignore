@@ -30,3 +30,8 @@ test-results
 playwright-report
 blob-report
 .playwright
+
+# Local test-runner overrides; the .example template stays tracked
+# (needed because the broad `.env.*` rule above would hide it).
+.env.test-all
+!.env.test-all.example

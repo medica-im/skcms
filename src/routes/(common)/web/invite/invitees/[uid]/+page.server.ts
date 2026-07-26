@@ -7,10 +7,20 @@ import type { PageServerLoad } from "./$types"
 
 export const ssr = false;
 
-export const load: PageServerLoad = async ({ url, cookies, locals, fetch, params }) => {
+const ALLOWED_ROLES = ['administrator', 'superuser'];
+
+export const load: PageServerLoad = async ({ url, cookies, locals, fetch, params, parent }) => {
    const session = await locals.auth();
    if (!session) {
       redirect(303, `/signin?redirect=${url.pathname}`);
+   }
+
+   const { user } = await parent();
+   if (!user?.role || !ALLOWED_ROLES.includes(user.role)) {
+      error(403, {
+         message: 'Access restricted to administrators',
+         type: 'invitees-forbidden'
+      });
    }
    let invitee: Invitee | undefined;
    let createdByUser: User | undefined;

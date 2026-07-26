@@ -1,13 +1,23 @@
-import { redirect } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import { authReq } from '$lib/utils/request.ts';
 import { variables } from '$lib/utils/constants.ts';
 import type { Invitee } from '$src/lib/interfaces/v2/invitee';
 import type { PageServerLoad } from "./$types"
 
-export const load: PageServerLoad = async ({ url, cookies, locals, fetch }) => {
+const ALLOWED_ROLES = ['administrator', 'superuser'];
+
+export const load: PageServerLoad = async ({ url, cookies, locals, fetch, parent }) => {
    const session = await locals.auth();
    if (!session) {
       redirect(303, `/signin?redirect=${url.pathname}`);
+   }
+
+   const { user } = await parent();
+   if (!user?.role || !ALLOWED_ROLES.includes(user.role)) {
+      error(403, {
+         message: 'Access restricted to administrators',
+         type: 'invitees-forbidden'
+      });
    }
 
    let invitees: Invitee[] | undefined;

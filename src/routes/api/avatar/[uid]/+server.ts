@@ -23,6 +23,10 @@ export const PUT: RequestHandler = async ({ request, params, cookies }) => {
 
     const proxyFormData = new FormData();
     proxyFormData.append('file', file, file.name);
+    const access = formData.get('access');
+    if (typeof access === 'string' && access) {
+        proxyFormData.append('access', access);
+    }
 
     const response = await fetch(
         `${variables.BASE_URI}/api/v2/entries/${uid}/avatar`,
@@ -41,6 +45,33 @@ export const PUT: RequestHandler = async ({ request, params, cookies }) => {
             detail: response.statusText,
         }));
         error(response.status, errorData.detail || 'Upload failed');
+    }
+
+    return json(await response.json());
+};
+
+export const PATCH: RequestHandler = async ({ request, params, cookies }) => {
+    const { uid } = params;
+    const body = await request.json();
+
+    const response = await fetch(
+        `${variables.BASE_URI}/api/v2/entries/${uid}/avatar/access`,
+        {
+            method: 'PATCH',
+            headers: {
+                cookie: getAuthCookieHeader(cookies),
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ access: body.access }),
+        }
+    );
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+            detail: response.statusText,
+        }));
+        error(response.status, errorData.detail || 'Access update failed');
     }
 
     return json(await response.json());

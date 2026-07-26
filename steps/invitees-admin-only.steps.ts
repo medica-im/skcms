@@ -1,0 +1,106 @@
+import { expect } from '@playwright/test';
+import { createBdd } from 'playwright-bdd';
+import { createSessionCookie, SESSION_COOKIE, type TestRole } from '../tests/fixtures/session';
+
+const { Given, When, Then } = createBdd();
+
+const INVITEES_PATH = '/web/invite/invitees';
+
+/** Per-scenario state. */
+const ctx: { status?: number; role?: string } = {};
+
+Given('I am signed out', async ({ context }) => {
+	await context.clearCookies();
+	ctx.role = undefined;
+});
+
+Given('I am signed in with the role {string}', async ({ context, baseURL }, role: string) => {
+	// Mints a real Auth.js session cookie for a seeded test user of this role
+	// (see tests/fixtures/seed_test_users.py), avoiding the OAuth flow.
+	const token = await createSessionCookie(role as TestRole);
+	await context.addCookies([
+		{
+			name: SESSION_COOKIE,
+			value: token,
+			domain: new URL(baseURL ?? 'http://localhost:3000').hostname,
+			path: '/',
+			expires: Math.floor(Date.now() / 1000) + 3600,
+			httpOnly: true,
+			secure: false,
+			sameSite: 'Lax'
+		}
+	]);
+	ctx.role = role;
+});
+
+// Note: "Given I am on the home page" is defined once in home.steps.ts and
+// reused here — playwright-bdd rejects duplicate step definitions.
+
+When('I open {string}', async ({ page }, path: string) => {
+	const response = await page.goto(path, { waitUntil: 'domcontentloaded' });
+	ctx.status = response?.status();
+});
+
+When('I open {string} directly', async ({ page }, path: string) => {
+	// A plain goto with no prior in-app navigation sends no referrer, which is
+	// what "opened directly" (deep link, bookmark, new tab) means here.
+	const response = await page.goto(path, { waitUntil: 'domcontentloaded' });
+	ctx.status = response?.status();
+});
+
+When('I follow a link to {string}', async ({ page }, path: string) => {
+	// Navigating from within the site sets a same-origin referrer.
+	const response = await page.goto(path, {
+		waitUntil: 'domcontentloaded',
+		referer: new URL('/', page.url()).toString()
+	});
+	ctx.status = response?.status();
+});
+
+Then('I am redirected to the sign-in page', async ({ page }) => {
+	await expect(page).toHaveURL(
+		new RegExp(`/signin\\?redirect=${INVITEES_PATH.replace(/\//g, '\\/')}`)
+	);
+});
+
+Then('the response status is {int}', async ({}, status: number) => {
+	expect(ctx.status).toBe(status);
+});
+
+Then('I see a message explaining the page is reserved for administrators', async ({ page }) => {
+	await expect(page.getByText(/réservée aux administrateurs/i).first()).toBeVisible();
+});
+
+Then('the list of invitees is not rendered', async ({ page }) => {
+	await expect(page.getByRole('button', { name: /Créer une invitation/i })).toHaveCount(0);
+});
+
+Then('I see a link to the home page', async ({ page }) => {
+	await expect(page.getByRole('link', { name: /Accueil/i })).toBeVisible();
+});
+
+// The Back button is added by an $effect after hydration, so wait for the page
+// to settle before asserting either way — otherwise the negative assertion can
+// pass simply because hydration has not run yet.
+async function backButton(page: import('@playwright/test').Page) {
+	await expect(page.getByRole('link', { name: /Accueil/i })).toBeVisible();
+	return page.getByRole('button', { name: /Retour/i });
+}
+
+Then('I see a {string} control', async ({ page }, label: string) => {
+	expect(label).toBe('back');
+	await expect(await backButton(page)).toBeVisible({ timeout: 15_000 });
+});
+
+Then('I do not see a {string} control', async ({ page }, label: string) => {
+	expect(label).toBe('back');
+	const button = await backButton(page);
+	// Give hydration a chance to add it, then confirm it stayed absent.
+	await page.waitForTimeout(1500);
+	await expect(button).toHaveCount(0);
+});
+
+Then('the invitees page is displayed', async ({ page }) => {
+	expect(ctx.status).toBe(200);
+	await expect(page.getByRole('heading', { name: /Invitations/i })).toBeVisible();
+});

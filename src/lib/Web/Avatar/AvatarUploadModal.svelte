@@ -2,6 +2,7 @@
 	import { invalidate } from '$app/navigation';
 	import * as m from '$msgs';
 	import Dialog from '$lib/Web/Dialog.svelte';
+	import { avatarAccessOptions, DEFAULT_AVATAR_ACCESS } from './avatarAccess';
 	import Fa from 'svelte-fa';
 	import {
 		faCamera,
@@ -12,8 +13,16 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	let {
 		entryUid,
-		hasAvatar = false
-	}: { entryUid: string; hasAvatar: boolean } = $props();
+		hasAvatar = false,
+		access = DEFAULT_AVATAR_ACCESS
+	}: { entryUid: string; hasAvatar: boolean; access?: string } = $props();
+
+	// Minimum role required to see the picture (see avatarAccess.ts).
+	let selectedAccess = $state(access);
+	let savingAccess = $state(false);
+	const selectedAccessDescription = $derived(
+		avatarAccessOptions.find((o) => o.value === selectedAccess)?.description ?? ''
+	);
 
 	let dialog: HTMLDialogElement | undefined = $state();
 	let fileInput: HTMLInputElement | undefined = $state();
@@ -106,6 +115,7 @@
 
 			const formData = new FormData();
 			formData.append('file', blob, `avatar-${entryUid}.jpg`);
+			formData.append('access', selectedAccess);
 
 			const response = await fetch(`/api/avatar/${entryUid}`, {
 				method: 'PUT',
@@ -127,6 +137,31 @@
 			result = { success: false, message: 'Erreur réseau' };
 		} finally {
 			uploading = false;
+		}
+	}
+
+	async function saveAccess() {
+		savingAccess = true;
+		result = undefined;
+
+		try {
+			const response = await fetch(`/api/avatar/${entryUid}`, {
+				method: 'PATCH',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({ access: selectedAccess })
+			});
+
+			if (response.ok) {
+				result = { success: true, message: m.AVATAR_ACCESS_SAVED() };
+				invalidate('entry:now');
+				invalidate('app:entries');
+			} else {
+				result = { success: false, message: `Erreur ${response.status}` };
+			}
+		} catch (err) {
+			result = { success: false, message: 'Erreur réseau' };
+		} finally {
+			savingAccess = false;
 		}
 	}
 
@@ -194,6 +229,22 @@
 				/>
 			</label>
 
+			<!-- Avatar access level -->
+			<label class="label max-w-sm">
+				<span>{m.AVATAR_ACCESS_LABEL()}</span>
+				<select
+					class="select"
+					name="avatar-access"
+					aria-label={m.AVATAR_ACCESS_LABEL()}
+					bind:value={selectedAccess}
+				>
+					{#each avatarAccessOptions as option}
+						<option value={option.value}>{option.label}</option>
+					{/each}
+				</select>
+				<span class="text-sm text-surface-500">{selectedAccessDescription}</span>
+			</label>
+
 			<!-- Cropper area -->
 			{#if imageSrc}
 				<div
@@ -233,6 +284,15 @@
 						{:else}
 							{m.AVATAR_UPLOAD_BTN()}
 						{/if}
+					</button>
+				{:else if hasAvatar && !result?.success}
+					<!-- Existing avatar: allow changing only its visibility -->
+					<button
+						onclick={saveAccess}
+						class="variant-filled-secondary btn"
+						disabled={savingAccess || selectedAccess === access}
+					>
+						{m.CONFIRM()}
 					</button>
 				{/if}
 				{#if hasAvatar && !result?.success}

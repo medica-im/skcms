@@ -122,7 +122,11 @@
 					<Avatar {avatar} name={data.name} size="lg" />
 				{/if}
 				{#if $editMode}
-					<AvatarUploadModal entryUid={fullentry.uid} hasAvatar={!!fullentry?.avatar?.raw} />
+					<AvatarUploadModal
+						entryUid={fullentry.uid}
+						hasAvatar={!!fullentry?.avatar?.raw}
+						access={fullentry?.avatar?.access ?? 'anonymous'}
+					/>
 				{/if}
 			</div>
 		</div>

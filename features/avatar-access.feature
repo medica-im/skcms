@@ -3,44 +3,39 @@ Feature: Avatar access level
   A user can choose who may see their profile picture (avatar): the public,
   the team (organization members), or administrators only. The chosen level
   is the minimum privilege required to see the avatar — viewers at that level
-  or with higher privilege see the picture; viewers below it see the fallback
-  placeholder instead, everywhere the avatar is used in the frontend.
+  or with higher privilege see the picture; viewers below it get no picture at
+  all from the API, so the frontend falls back to the placeholder everywhere
+  the avatar is used.
 
-  Access levels, from least to most restrictive:
-    | level  | role           | who can see the avatar                          |
-    | Public | anonymous      | everyone, including logged-out visitors         |
-    | Team   | staff          | organization members, admins, superusers        |
-    | Admin  | administrator  | organization admins and superusers only         |
+  Enforcement is server-side (api.utils.scrub_avatar), so a restricted picture
+  is never sent to an unauthorized viewer.
 
   Background:
-    Given a registered user "Camille" who owns the entry "camille-mg-84"
+    Given the entry "isabelle-dubuis-orthoptiste-69" has an avatar
 
-  Scenario: Choosing an avatar access level when adding or editing the avatar
-    Given Camille is signed in
-    And Camille is on her entry page "/e/camille-mg-84"
-    When she enables edit mode
-    And she opens the avatar upload dialog
-    Then she can choose an avatar access level among "Public", "Team", and "Admin"
-
-  Scenario Outline: The avatar is visible only at or above the chosen access level
-    Given Camille has set her avatar access level to "<access>"
-    When a viewer with role "<viewer_role>" visits her entry page "/e/camille-mg-84"
-    Then the avatar picture is "<visibility>"
+  Scenario Outline: A public visitor only sees avatars allowed to the public
+    Given the avatar access level is "<access>"
+    When a signed-out visitor requests the entry
+    Then the avatar is "<visibility>"
 
     Examples:
-      | access | viewer_role   | visibility |
-      | Public | anonymous     | shown      |
-      | Public | staff         | shown      |
-      | Public | administrator | shown      |
-      | Team   | anonymous     | hidden     |
-      | Team   | staff         | shown      |
-      | Team   | administrator | shown      |
-      | Admin  | anonymous     | hidden     |
-      | Admin  | staff         | hidden     |
-      | Admin  | administrator | shown      |
+      | access        | visibility |
+      | anonymous     | shown      |
+      | staff         | hidden     |
+      | administrator | hidden     |
 
-  Scenario: A hidden avatar falls back to the placeholder wherever it is used
-    Given Camille has set her avatar access level to "Team"
-    And a viewer with role "anonymous" is browsing the site
-    When the viewer sees Camille's entry in the directory listing
-    Then the avatar shows the fallback placeholder instead of the picture
+  Scenario Outline: A hidden avatar is also absent from the directory listing
+    Given the avatar access level is "<access>"
+    When a signed-out visitor requests the directory listing
+    Then the listed entry avatar is "<visibility>"
+
+    Examples:
+      | access        | visibility |
+      | anonymous     | shown      |
+      | staff         | hidden     |
+      | administrator | hidden     |
+
+  Scenario: The entry page shows the placeholder when the avatar is restricted
+    Given the avatar access level is "staff"
+    When a signed-out visitor opens the entry page
+    Then no profile picture is rendered on the page

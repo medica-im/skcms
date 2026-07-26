@@ -22,6 +22,12 @@ export default defineConfig(({ mode }) => {
 				}
 			)
 		],
+		test: {
+			// Unit tests live in src/. Everything under tests/, features/ and
+			// .features-gen/ belongs to Playwright and must not be run by vitest.
+			include: ['src/**/*.{test,spec}.{js,ts}'],
+			exclude: ['**/node_modules/**', '.features-gen/**', 'tests/**', 'features/**']
+		},
 		resolve: {
 			alias: {
 				'$': path.resolve(__dirname, 'src'),

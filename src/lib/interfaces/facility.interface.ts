@@ -22,7 +22,9 @@ export interface Address {
 export interface Avatar {
     sm: string,
     lg: string,
-    raw: string
+    raw: string,
+    // Minimum role required to see the picture (anonymous | staff | administrator)
+    access?: string
 }
 
 export interface Facility {
