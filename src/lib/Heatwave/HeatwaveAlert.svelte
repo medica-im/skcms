@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { browser } from '$app/environment';
 	import { ORIGIN } from '$lib/utils/origin.ts';
 	import Fa from 'svelte-fa';
 	import { faArrowRight, faXmark, faTemperatureHigh } from '@fortawesome/free-solid-svg-icons';
@@ -14,8 +15,26 @@
 		end_time: string | null;
 		risk_code: string | null;
 	}
-	let visible: boolean = $state(true);
+	// Closing the banner has to outlive a reload, but only for an hour — the
+	// alert itself can last days. localStorage rather than a cookie: the server
+	// never needs this, so there is no reason to send it with every request.
+	const DISMISSED_KEY = 'heatwave-alert-dismissed-until';
+	const DISMISS_DURATION_MS = 60 * 60 * 1000;
+
+	function dismissedUntil(): number {
+		if (!browser) return 0;
+		return Number(window.localStorage.getItem(DISMISSED_KEY)) || 0;
+	}
+
+	let visible: boolean = $state(dismissedUntil() <= Date.now());
 	let alert: HeatwaveAlert | null;
+
+	function dismiss() {
+		visible = false;
+		if (browser) {
+			window.localStorage.setItem(DISMISSED_KEY, String(Date.now() + DISMISS_DURATION_MS));
+		}
+	}
 
 	async function getHeatwaveAlert() {
 		const department = page.data.organization.department.code;
@@ -87,13 +106,23 @@
 	};
 </script>
 
-{#await getHeatwaveAlert()}
-	{#if import.meta.env.DEV}
-		<p>Loading alert...</p>
-	{/if}
-{:then alert}
-	{#if alert && alert.start_time && alert.end_time && alert.risk_code && isActive(alert) && visible}
-		<aside class="alert border-4 max-w-3xl mx-auto" style="border-color:{riskColor(alert)}">
+<!--
+	Dismissed banners skip the request altogether: there is nothing to show, so
+	fetching the alert only to hide it would also flash the dev placeholder on
+	every reload.
+-->
+{#if visible}
+	{#await getHeatwaveAlert()}
+		{#if import.meta.env.DEV}
+			<p data-testid="heatwave-alert-loading">Loading alert...</p>
+		{/if}
+	{:then alert}
+		{#if alert && alert.start_time && alert.end_time && alert.risk_code && isActive(alert)}
+			<aside
+				data-testid="heatwave-alert"
+				class="alert border-4 max-w-3xl mx-auto"
+				style="border-color:{riskColor(alert)}"
+			>
 			<!-- Icon -->
 			<div class="hidden lg:block">
 				<Fa icon={faTemperatureHigh} color={riskColor(alert)} size="3x" />
@@ -136,14 +165,18 @@
 						</a>
 					{/if}
 				{/if}
-				<button onclick={() => (visible = false)} class="btn variant-ghost"
-					><span><Fa icon={faXmark} /></span></button
+				<button
+					onclick={dismiss}
+					data-testid="heatwave-alert-close"
+					aria-label="Fermer l'alerte canicule"
+					class="btn variant-ghost"><span><Fa icon={faXmark} /></span></button
 				>
 			</div>
 		</aside>
 	{/if}
-{:catch error}
-	{#if import.meta.env.DEV}
-		<p>Error loading heatwave alert: {error.message}</p>
-	{/if}
-{/await}
+	{:catch error}
+		{#if import.meta.env.DEV}
+			<p>Error loading heatwave alert: {error.message}</p>
+		{/if}
+	{/await}
+{/if}
