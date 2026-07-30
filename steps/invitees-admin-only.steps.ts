@@ -1,37 +1,15 @@
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
-import { createSessionCookie, SESSION_COOKIE, type TestRole } from '../tests/fixtures/session';
 
-const { Given, When, Then } = createBdd();
+const { When, Then } = createBdd();
 
 const INVITEES_PATH = '/web/invite/invitees';
 
 /** Per-scenario state. */
-const ctx: { status?: number; role?: string } = {};
+const ctx: { status?: number } = {};
 
-Given('I am signed out', async ({ context }) => {
-	await context.clearCookies();
-	ctx.role = undefined;
-});
-
-Given('I am signed in with the role {string}', async ({ context, baseURL }, role: string) => {
-	// Mints a real Auth.js session cookie for a seeded test user of this role
-	// (see tests/fixtures/seed_test_users.py), avoiding the OAuth flow.
-	const token = await createSessionCookie(role as TestRole);
-	await context.addCookies([
-		{
-			name: SESSION_COOKIE,
-			value: token,
-			domain: new URL(baseURL ?? 'http://localhost:3000').hostname,
-			path: '/',
-			expires: Math.floor(Date.now() / 1000) + 3600,
-			httpOnly: true,
-			secure: false,
-			sameSite: 'Lax'
-		}
-	]);
-	ctx.role = role;
-});
+// "I am signed out" and "I am signed in with the role ..." live in common.steps.ts,
+// since both feature files use them and playwright-bdd forbids duplicates.
 
 // Note: "Given I am on the home page" is defined once in home.steps.ts and
 // reused here — playwright-bdd rejects duplicate step definitions.
