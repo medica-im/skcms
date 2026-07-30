@@ -17,6 +17,7 @@ export interface Department {
 export interface Type {
     definition: string | null,
     label: string | null,
+    raw_label: string | null,
     name: string,
     slug: string,
     synonyms: string[] | null,
