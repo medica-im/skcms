@@ -6,11 +6,20 @@ import type { Entry } from '$lib/store/directoryStoreInterface';
 import type { LayoutLoad } from './$types';
 import { browser } from "$app/environment"
 
-export const load: LayoutLoad = async ({ fetch, data }) => {
+export const load: LayoutLoad = async ({ fetch, data, depends }) => {
   checkVersion();
+  // Re-run whenever the session changes (sign in / sign out) so role-scoped
+  // data — notably which avatars the API is willing to send — is refetched
+  // without the user having to reload the page. `app:entries` lets any
+  // component force the same refresh via invalidate('app:entries').
+  depends('app:session');
+  depends('app:entries');
+  // Reading the server-provided session also registers it as a dependency, so
+  // an auth navigation invalidates this load automatically.
+  const currentSession = data?.session ?? null;
   let response;
   let user: User | undefined;
-  console.log("layout.ts browser", browser);
+  console.log("layout.ts browser", browser, "session:", currentSession ? 'yes' : 'no');
     if ( browser && import.meta.env.PROD ) {
     const userUrl = `${ORIGIN}/api/v2/users/me`;
     try {

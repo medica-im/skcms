@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { beforeNavigate, invalidate } from '$app/navigation';
+	import { beforeNavigate, invalidateAll } from '$app/navigation';
 	import { updated } from '$app/state';
 	import { setLocale } from "../paraglide/runtime.js";
 	import { autoModeWatcher } from '@skeletonlabs/skeleton';
@@ -38,6 +38,20 @@
 		if (updated.current && !willUnload && to?.url) {
 			location.href = to.url.href;
 		}
+	});
+
+	// Signing in or out changes which data the API is willing to send (avatars
+	// gated by access level, for instance). Auth.js redirects back to the same
+	// route, so SvelteKit reuses the cached server load and role-scoped data
+	// goes stale. invalidateAll() re-runs every load, server ones included, so
+	// the UI settles on the new role without the user pressing reload.
+	let lastSessionUser: string | null | undefined = undefined;
+	$effect(() => {
+		const current = page.data.session?.user?.email ?? null;
+		if (lastSessionUser !== undefined && lastSessionUser !== current) {
+			invalidateAll();
+		}
+		lastSessionUser = current;
 	});
 
 	setLocale('fr');
