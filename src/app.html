@@ -3,6 +3,25 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<!--
+		Skeleton's autoModeWatcher: follows the OS prefers-color-scheme and puts
+		the `dark` class on <html>. It has to run before first paint to avoid a
+		flash of the wrong theme, and it must live here rather than in an
+		{@html} block in +layout.svelte — injected there it mutated the DOM
+		before hydration compared server and client markup, which aborted
+		hydration and left every <svelte:window> listener unattached.
+	-->
+	<script>
+		(function () {
+			const mql = window.matchMedia('(prefers-color-scheme: light)');
+			function setMode(value) {
+				const elemHtmlClasses = document.documentElement.classList;
+				value === true ? elemHtmlClasses.remove('dark') : elemHtmlClasses.add('dark');
+			}
+			setMode(mql.matches);
+			mql.onchange = () => setMode(mql.matches);
+		})();
+	</script>
 	%sveltekit.head%
 </head>
 <body data-theme="" data-sveltekit-preload-data="hover">

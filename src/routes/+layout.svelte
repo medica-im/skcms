@@ -2,7 +2,6 @@
 	import { beforeNavigate, invalidateAll } from '$app/navigation';
 	import { updated } from '$app/state';
 	import { setLocale } from "../paraglide/runtime.js";
-	import { autoModeWatcher } from '@skeletonlabs/skeleton';
 	import { initializeStores, Modal } from '@skeletonlabs/skeleton';
     import '../app.postcss';
 	import '$lib/assets/css/svelte-select.css';
@@ -104,7 +103,7 @@
 </script>
 
 <svelte:head>
-	{@html '<script>(' + autoModeWatcher.toString() + ')();</script>'}
+	<!-- autoModeWatcher now runs from src/app.html: see the note there. -->
 	<link rel="icon" href="{favIcon}">
 	<link rel="mask-icon" href="{maskIcon}" color="#000000">
 	<link rel="apple-touch-icon" href="{appleTouchIcon}">
