@@ -1,36 +1,46 @@
 <script lang="ts">
 	import { getEditMode } from '$lib/components/Directory/context';
-	import { Fa } from 'svelte-fa';
-	import type { IconDefinition } from "@fortawesome/free-solid-svg-icons";
+	import Fa from 'svelte-fa';
+	import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+	import * as m from '$msgs';
 
-	let { label, icon }:{ label?:string;icon?: IconDefinition } = $props();
-	let editMode = getEditMode();
-	let offDisabled = $state(true);
-	let onDisabled = $state(false);
+	let { icon = faPenToSquare }: { icon?: typeof faPenToSquare } = $props();
 
-	const toggleEdit = (e) => {
-		const btnValue = e.target.value;
-		if (btnValue == 'on') {
-			$editMode = true;
-			onDisabled = true;
-			offDisabled = false;
-		} else if (btnValue == 'off') {
-			$editMode = false;
-			offDisabled = true;
-			onDisabled = false;
-		}
-	};
+	const editMode = getEditMode();
+
+	// The store is the single source of truth: no local mirror to fall out of
+	// step with it when something else flips edit mode.
+	let hint = $derived($editMode ? m.EDIT_MODE_DISABLE() : m.EDIT_MODE_ENABLE());
 </script>
 
-<div class="flex justify-end variant-ringed h-10 w-min p-2 gap-2 items-center">
-{#if icon}
-<div><Fa icon={icon}/></div>
-{/if}
-{#if label}
-<div>{label}</div>
-{/if}
-<div class="flex w-min gap-1 justify-end">
-<button class="btn btn-sm variant-ringed" disabled={onDisabled} value="on" onclick={toggleEdit}>On</button>
-<button class="btn btn-sm variant-ringed" disabled={offDisabled} value="off" onclick={toggleEdit}>Off</button>
-</div>
-</div>
+<!--
+	The pencil carries the state on its own — filled and coloured while editing,
+	greyed and outlined while reading — so nothing is printed on screen. The
+	wording still exists as a tooltip and an aria-label, and role="switch" plus
+	aria-checked means assistive tech hears the on/off state.
+
+	Both states differ in shape as well as colour (filled disc vs outlined ring)
+	so the distinction survives without colour vision.
+
+	Covered by features/edit-mode-toggle.feature.
+-->
+<button
+	type="button"
+	role="switch"
+	aria-checked={$editMode}
+	aria-label={hint}
+	title={hint}
+	onclick={() => ($editMode = !$editMode)}
+	class="flex h-10 w-10 items-center justify-center rounded-full shadow transition-colors
+		{$editMode
+			? 'variant-filled-primary'
+			: 'bg-surface-100-800-token/90 text-surface-400-500-token backdrop-blur variant-ringed-surface hover:text-primary-500'}"
+>
+	<!--
+		size="lg" rather than the default: the pencil's thin strokes render
+		lighter in Firefox than in Chromium, so at 16px it reads noticeably
+		smaller there. A larger glyph fills the 40px button and looks the same
+		in both.
+	-->
+	<Fa {icon} size="lg" />
+</button>

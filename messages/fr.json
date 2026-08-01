@@ -22,7 +22,21 @@
   "SITES_SINGULAR": "Site",
   "SITES_PLURAL": "Sites",
   "SITES_ALL": "Tous les sites",
-  "SITE_COUNT": [{"declarations":["input count","local countPlural = count: plural"],"selectors":["countPlural"],"match":{"countPlural=one":"site","countPlural=other":"sites"}}],
+  "SITE_COUNT": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "site",
+        "countPlural=other": "sites"
+      }
+    }
+  ],
   "SEARCH": "Recherche",
   "ADDRESSBOOK_A11Y_PROFILE_PIC_OF": "Photo de profil de",
   "ADDRESSBOOK_TITLE": "Annuaire",
@@ -178,8 +192,36 @@
       }
     }
   ],
-  "FACILITY": [{"declarations":["input count","local countPlural = count: plural"],"selectors":["countPlural"],"match":{"countPlural=one":"établissement","countPlural=other":"établissements"}}],
-  "OUR_FACILITIES": [{"declarations":["input count","local countPlural = count: plural"],"selectors":["countPlural"],"match":{"countPlural=one":"Notre établissement","countPlural=other":"Nos {count} établissements"}}],
+  "FACILITY": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "établissement",
+        "countPlural=other": "établissements"
+      }
+    }
+  ],
+  "OUR_FACILITIES": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "Notre établissement",
+        "countPlural=other": "Nos {count} établissements"
+      }
+    }
+  ],
   "CREATE": "Créer",
   "EDIT": "Modifier",
   "DELETE": "Supprimer",
@@ -544,5 +586,8 @@
   "NO_BOARD_MEMBER": "Aucun membre du conseil d'administration.",
   "JOIN": "Adhérer",
   "signin_cta": "Pour tester, connectez-vous !",
-  "FACILITIES_ALL": "Tous les établissements"
+  "FACILITIES_ALL": "Tous les établissements",
+  "EDIT_MODE_TOGGLE": "Mode édition",
+  "EDIT_MODE_ENABLE": "Activer le mode édition",
+  "EDIT_MODE_DISABLE": "Quitter le mode édition"
 }

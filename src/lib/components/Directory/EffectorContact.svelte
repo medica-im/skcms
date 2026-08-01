@@ -80,7 +80,7 @@
 		<div
 			id="sticky-banner"
 			tabindex="-1"
-			class="sticky top-0 right-10 w-full flex justify-end z-100 h-0 overflow-visible"
+			class="sticky top-0 right-10 w-full flex justify-end z-50 h-0 overflow-visible pt-2 pr-2"
 		>
 			<Switch icon={faPenToSquare} />
 		</div>
