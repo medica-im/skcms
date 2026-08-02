@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import * as m from '$msgs';
 	import { updateFacility } from '../../../facility.remote.ts';
@@ -8,7 +8,7 @@
 	import Fa from 'svelte-fa';
 	import { JsonView } from '@zerodevx/svelte-json-view';
 	import Dialog from '$lib/Web/Dialog.svelte';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter, slugify } from '$lib/helpers/stringHelpers';
 	import type { LngLatLike } from 'svelte-maplibre';
 	import type { AddressFeature } from '$lib/store/directoryStoreInterface';
 	import AddMarkerMap from '$lib/MapLibre/AddMarkerMap.svelte';
@@ -194,6 +194,14 @@
 							bind:value={name}
 							onchange={() => {
 								validateName(name, inputClass, isRequired, validateForm);
+								// The URL is built from the slug, so a rename that keeps the old
+								// slug lets two facilities claim the same /sites/<slug> address.
+								// Only follow the name while the slug still matches it: a slug
+								// edited by hand is left alone.
+								if (name && slug === slugify(facility.name ?? '')) {
+									slug = slugify(name);
+									validateSlug(slug, inputClass, isRequired, validateForm);
+								}
 							}}
 						/>
 					</label>
@@ -386,10 +394,17 @@
 					<button
 						type="button"
 						class="variant-filled-error btn w-min"
-						onclick={() => {
+						onclick={async () => {
 							dialog?.close();
-							if (formResult?.success && page.url.pathname.startsWith('/web')) {
+							if (formResult?.success) {
+								// Update the bound facility wherever the dialog was opened from,
+								// not only under /web: the page that hosts it shows this name.
 								facility = formResult.data;
+								// Other pages (the home page facility list, /sites) read their
+								// own load data, which is still the pre-rename copy. Re-running
+								// the loads is what makes the new name show up there without a
+								// manual reload.
+								await invalidateAll();
 							}
 							page.url.searchParams.set('success', 'false');
 							goto(`?${page.url.searchParams.toString()}`);
