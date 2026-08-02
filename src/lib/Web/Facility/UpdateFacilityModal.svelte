@@ -151,7 +151,11 @@
 	><span><Fa icon={faPenToSquare} /></span><span class="whitespace-normal text-left">Modifier l'établissement</span></button
 >
 
-<Dialog bind:dialog classProp="w-full">
+<!--
+	overflow="" so the dialog's own overflow-y-auto applies: this form is taller
+	than a phone screen and has to scroll to its buttons.
+-->
+<Dialog bind:dialog classProp="w-full" overflow="">
 	<div class="rounded-lg w-full p-4 variant-ghost-secondary items-center place-items-center">
 		<h3 class="h3 text-center">Modifier l'établissement</h3>
 		<form
@@ -176,14 +180,14 @@
 						placeholder=""
 						bind:checked={redirect}
 					/>
-					<label class="flex label place-self-start place-items-center space-x-2 w-full">
+					<label class="label flex w-full flex-col items-start gap-1 place-self-start sm:flex-row sm:items-center sm:gap-2">
 						<span>Nom</span>
 						{#each updateFacility.for(uid).fields.name.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<input
 							oninput={() => {}}
-							class="input {inputClass.name}"
+							class="input w-full {inputClass.name}"
 							name="name"
 							type="text"
 							placeholder=""
@@ -193,14 +197,14 @@
 							}}
 						/>
 					</label>
-					<label class="flex label place-self-start place-items-center space-x-2 w-full">
+					<label class="label flex w-full flex-col items-start gap-1 place-self-start sm:flex-row sm:items-center sm:gap-2">
 						<span>Label</span>
 						{#each updateFacility.for(uid).fields.label.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<input
 							oninput={() => {}}
-							class="input {inputClass.label}"
+							class="input w-full {inputClass.label}"
 							name="label"
 							type="text"
 							placeholder=""
@@ -210,14 +214,14 @@
 							}}
 						/>
 					</label>
-					<label class="flex label place-self-start place-items-center space-x-2 w-full">
+					<label class="label flex w-full flex-col items-start gap-1 place-self-start sm:flex-row sm:items-center sm:gap-2">
 						<span>Slug</span>
 						{#each updateFacility.for(uid).fields.slug.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<input
 							oninput={() => {}}
-							class="input {inputClass.slug}"
+							class="input w-full {inputClass.slug}"
 							name="slug"
 							type="text"
 							placeholder=""
@@ -252,28 +256,28 @@
 						placeholder=""
 						bind:value={ban_banId}
 					/>
-					<label class="flex label place-self-start place-items-center space-x-2 w-full">
+					<label class="label flex w-full flex-col items-start gap-1 place-self-start sm:flex-row sm:items-center sm:gap-2">
 						<span>Bâtiment</span>
 						{#each updateFacility.for(uid).fields.building.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<input
 							oninput={() => {}}
-							class="input {inputClass.building}"
+							class="input w-full {inputClass.building}"
 							name="building"
 							type="text"
 							placeholder=""
 							bind:value={building}
 						/>
 					</label>
-					<label class="flex label place-self-start place-items-center space-x-2 w-full">
+					<label class="label flex w-full flex-col items-start gap-1 place-self-start sm:flex-row sm:items-center sm:gap-2">
 						<span>Rue</span>
 						{#each updateFacility.for(uid).fields.street.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<input
 							oninput={() => {}}
-							class="input {inputClass.street}"
+							class="input w-full {inputClass.street}"
 							name="street"
 							type="text"
 							placeholder=""
@@ -284,28 +288,28 @@
 						/>
 					</label>
 
-					<label class="flex label place-self-start place-items-center space-x-2 w-full">
+					<label class="label flex w-full flex-col items-start gap-1 place-self-start sm:flex-row sm:items-center sm:gap-2">
 						<span>Complément géographique</span>
 						{#each updateFacility.for(uid).fields.geographical_complement.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<input
 							oninput={() => {}}
-							class="input {inputClass.geographical_complement}"
+							class="input w-full {inputClass.geographical_complement}"
 							name="geographical_complement"
 							type="text"
 							placeholder=""
 							bind:value={geographical_complement}
 						/>
 					</label>
-					<label class="flex label place-self-start place-items-center space-x-2">
+					<label class="label flex w-full flex-col items-start gap-1 place-self-start sm:flex-row sm:items-center sm:gap-2">
 						<span>Code postal</span>
 						{#each updateFacility.for(uid).fields.zip.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<input
 							oninput={() => {}}
-							class="input {inputClass.zip}"
+							class="input w-full {inputClass.zip}"
 							name="zip"
 							type="text"
 							placeholder=""
@@ -315,7 +319,7 @@
 							}}
 						/>
 					</label>
-					<label class="flex label place-self-start place-items-center space-x-2 w-full">
+					<label class="label flex w-full flex-col items-start gap-1 place-self-start sm:flex-row sm:items-center sm:gap-2">
 						<span>Commune</span>
 						<input
 							disabled
@@ -327,14 +331,14 @@
 					</label>
 				</div>
 				<div class="p-2 space-y-2 w-full h-full">
-					<label class="flex label place-self-start place-items-center space-x-2">
+					<label class="label flex w-full flex-col items-start gap-1 place-self-start sm:flex-row sm:items-center sm:gap-2">
 						<span>Zoom</span>
 						{#each updateFacility.for(uid).fields.zoom.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 						<input
 							oninput={() => {}}
-							class="input {inputClass.zoom}"
+							class="input w-full {inputClass.zoom}"
 							name="zoom"
 							type="number"
 							min="0"
@@ -347,17 +351,17 @@
 						/>
 					</label>
 					<AddMarkerMap bind:lng bind:lat bind:zoom />
-					<label class="flex label place-self-start place-items-center space-x-2">
+					<label class="label flex w-full flex-col items-start gap-1 place-self-start sm:flex-row sm:items-center sm:gap-2">
 						<span>Latitude</span>
-						<input name="latitude" class="input" bind:value={lat} />
+						<input name="latitude" class="input w-full" bind:value={lat} />
 						{#each updateFacility.for(uid).fields.latitude.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
 					</label>
-					<label class="flex label place-self-start place-items-center space-x-2">
+					<label class="label flex w-full flex-col items-start gap-1 place-self-start sm:flex-row sm:items-center sm:gap-2">
 						<span>Longitude</span>
 
-						<input name="longitude" class="input" bind:value={lng} />
+						<input name="longitude" class="input w-full" bind:value={lng} />
 						{#each updateFacility.for(uid).fields.longitude.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
