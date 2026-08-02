@@ -10,8 +10,10 @@ Feature: Avatar access level
   Enforcement is server-side (api.utils.scrub_avatar), so a restricted picture
   is never sent to an unauthorized viewer.
 
+  # The entry is taken from the site under test rather than named: the app
+  # serves several datasets and a hardcoded slug only exists in one of them.
   Background:
-    Given the entry "isabelle-dubuis-orthoptiste-69" has an avatar
+    Given an entry of this site has an avatar
 
   Scenario Outline: A public visitor only sees avatars allowed to the public
     Given the avatar access level is "<access>"

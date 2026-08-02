@@ -7,12 +7,18 @@ intended role for each browser session.
 
 Run inside the backend's django container:
     python manage.py shell < tests/fixtures/seed_test_users.py
+
+The site must match the one the frontend under test talks to (PUBLIC_ORIGIN in
+its .env): roles are scoped to that site's organization Entry, so seeding the
+wrong site leaves every write authorized as "anonymous" and returning 403.
+Override with SEED_SITE_DOMAIN when they differ.
 """
+import os
 from neomodel import db
 from django.contrib.sites.models import Site
 from facility.models import Organization
 
-SITE_DOMAIN = "dev.santelyon3.fr"
+SITE_DOMAIN = os.environ.get("SEED_SITE_DOMAIN", "dev.sante-gadagne.fr")
 
 # sub values are arbitrary but must be stable: the fixture signs them into JWTs.
 TEST_USERS = [

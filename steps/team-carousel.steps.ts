@@ -4,22 +4,27 @@ import { addSessionCookie, djangoShell } from './common.steps';
 
 const { Given, When, Then } = createBdd();
 
-const API_ORIGIN = 'http://dev.santelyon3.fr';
+/** Backend of the site under test — must match PUBLIC_ORIGIN in .env. */
+const API_ORIGIN = process.env.PUBLIC_ORIGIN ?? 'http://dev.sante-gadagne.fr';
 
 /**
- * Other scenarios restrict this avatar, so set it explicitly rather than relying
- * on whatever the previous test left behind.
+ * Picks an entry of the site under test rather than naming one — a hardcoded
+ * slug only exists in the dataset it was written against — and sets its avatar
+ * public explicitly, since other scenarios restrict avatars and the carousel
+ * needs at least one visible picture to have anything to show.
  */
-Given('the entry {string} avatar is public', async ({}, slug: string) => {
-	const response = await fetch(`${API_ORIGIN}/api/v2/fullentries/slug/${slug}`, {
+Given('an entry of this site has a public avatar', async ({}) => {
+	const response = await fetch(`${API_ORIGIN}/api/v2/entries`, {
 		headers: { Accept: 'application/json' }
 	});
-	expect(response.ok, `GET entry ${slug} -> ${response.status}`).toBeTruthy();
-	const { uid } = await response.json();
-	expect(uid, `entry ${slug} not found`).toBeTruthy();
+	expect(response.ok, `GET entries -> ${response.status}`).toBeTruthy();
+	const entries = (await response.json()) as { uid?: string; avatar?: unknown }[];
+	const candidate = entries.find((e) => e.avatar && e.uid);
+	expect(candidate, 'this site has no entry with an avatar').toBeTruthy();
+
 	const out = await djangoShell(`
 from addressbook.models import Contact
-c = Contact.objects.get(neomodel_uid="${uid}")
+c = Contact.objects.get(neomodel_uid="${candidate!.uid}")
 c.avatar_access = "anonymous"
 c.save()
 print("ACCESS_SET", c.avatar_access)

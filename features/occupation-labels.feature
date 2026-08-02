@@ -42,11 +42,22 @@ Feature: Occupation button labels
       Then the button shows "podologues"
       And its tooltip shows "podologue"
 
-  # End to end: the acronym is authored on the graph node, survives the API's
-  # gendered replacement as raw_label, and reaches the rendered button.
+  # End to end: an acronym authored on the graph node survives the API's
+  # gendered replacement as raw_label and reaches the rendered button.
+  #
+  # The scenario creates the effector type it needs and deletes it afterwards.
+  # The app serves CPTS, MSP and professional organisations alike, so asserting
+  # on whatever a dataset happens to contain would make coverage depend on the
+  # client — and could not test the case where no acronym exists at all.
   Rule: the Team component shows the acronym
 
-    Scenario: The CPTS button is abbreviated on the team page
-      Given the home page team section is displayed
-      Then an occupation button shows "CPTS"
-      And that button's tooltip is "communauté professionnelle territoriale de santé"
+    Scenario: An acronym is shown abbreviated with its full name in the tooltip
+      Given the site has an effector type named "syndicat test de professionnels" labelled "STP"
+      When the home page team section is displayed
+      Then the occupation button shows "STP"
+      And the button's tooltip shows "syndicat test de professionnels"
+
+    Scenario: A type without an acronym keeps its full label
+      Given the site has an effector type named "podologue test" labelled "podologue test"
+      When the home page team section is displayed
+      Then no occupation button shows an abbreviation for "podologue test"

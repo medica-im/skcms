@@ -50,7 +50,7 @@
 	import * as m from '$msgs';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	
-	const dirPath = page.data.directory.setting.path || "/";
+	const dirPath = page.data?.directory?.setting?.path || "/";
 	const drawerStore = getDrawerStore();
 	const modalStore = getModalStore();
 	const isMSP = page.data?.organization?.category?.name == "msp";

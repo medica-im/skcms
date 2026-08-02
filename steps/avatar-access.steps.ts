@@ -3,17 +3,55 @@ import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
 import { SESSION_COOKIE, type TestRole } from '../tests/fixtures/session';
 import { addSessionCookie } from './common.steps';
+import { seedAvatar, removeSeededAvatar, SEED_TAG } from './seed';
 
-const { Given, When, Then } = createBdd();
+const { Given, When, Then, After } = createBdd();
+
+/** Set when this run gave an entry a picture, so teardown can take it away. */
+let seededAvatarUid: string | null = null;
+
+/**
+ * These scenarios change avatar_access to prove each level, so without this the
+ * dataset is left restricted and the *next* run finds no visible avatar at all.
+ */
+After(async () => {
+	if (ctx.uid) {
+		await djangoShell(`
+from addressbook.models import Contact
+c = Contact.objects.get(neomodel_uid="${ctx.uid}")
+c.avatar_access = "anonymous"
+c.save()
+print("ACCESS_RESTORED")
+`);
+	}
+	if (seededAvatarUid) {
+		const uid = seededAvatarUid;
+		seededAvatarUid = null;
+		await removeSeededAvatar(uid);
+	}
+});
 
 const BACKEND_DIR = new URL('../../backend', import.meta.url).pathname;
 const COMPOSE_FILE = 'docker-compose-development.yml';
 // Must be the real hostname: the backend resolves the Site from it, and Node's
 // fetch refuses to override the Host header (a manual one yields 403).
-const API_ORIGIN = 'http://dev.santelyon3.fr';
+/**
+ * The backend of the site this checkout is configured against — must match
+ * PUBLIC_ORIGIN in .env. Hardcoding one site's domain makes every scenario
+ * read another dataset's entries and fail on data that is simply elsewhere.
+ */
+const API_ORIGIN = process.env.PUBLIC_ORIGIN ?? 'http://dev.sante-gadagne.fr';
 
-/** Per-scenario state. */
-const ctx: { slug: string; uid?: string; avatar?: unknown } = { slug: '' };
+/**
+ * Per-scenario state.
+ *
+ * `imageStem` is the file name the entry's picture is stored under, without any
+ * thumbnailer suffix — the one thing every rendition of that picture has in
+ * common. It is read from the API rather than derived from the uid: uploaded
+ * files are named after the person ("florence_senechal-viennot.jpg"), so a
+ * locator built from the uid matches nothing outside of seeded avatars.
+ */
+const ctx: { slug: string; uid?: string; avatar?: unknown; imageStem?: string } = { slug: '' };
 
 /** Run Python in the backend's Django shell (the only way to set avatar_access). */
 function djangoShell(code: string): Promise<string> {
@@ -42,20 +80,76 @@ async function apiGet(path: string) {
 /** Avatar presence never changes during a run; check it once (each shell call is ~10s). */
 const avatarChecked = new Set<string>();
 
-Given('the entry {string} has an avatar', async ({}, slug: string) => {
-	ctx.slug = slug;
-	const entry = await apiGet(`/api/v2/fullentries/slug/${slug}`);
-	expect(entry.uid, `entry ${slug} not found`).toBeTruthy();
+/**
+ * Records the stored file name of an entry's picture, so the carousel can be
+ * searched for it later.
+ *
+ * The API returns the same image in several renditions — "raw" is the uploaded
+ * file, "sm" and "lg" append a thumbnailer suffix to it
+ * ("…/x.jpg.256x256_q85_crop-smart.jpg"). Keeping the raw basename therefore
+ * matches whichever rendition the carousel happens to render.
+ *
+ * A restricted avatar is absent from the payload entirely, so a missing one
+ * leaves the previous stem in place rather than clearing it: the scenarios that
+ * restrict access still need to know what to look for when asserting it is gone.
+ */
+function rememberImageStem(avatar: unknown): void {
+	const urls = avatar as { raw?: string; sm?: string; lg?: string } | null | undefined;
+	const raw = urls?.raw ?? urls?.sm ?? urls?.lg;
+	if (!raw) return;
+	ctx.imageStem = raw.split('/').pop();
+}
+
+/**
+ * Picks an entry of the site under test that has a picture, instead of naming
+ * one: the app serves several datasets and a hardcoded slug only exists in the
+ * one it was written against.
+ *
+ * The entry must also appear in the team carousel, which lists members of the
+ * site's organization — otherwise the carousel scenarios have nothing to look
+ * for even though the entry exists.
+ */
+Given('an entry of this site has an avatar', async ({}) => {
+	const organization = await apiGet('/api/v2/organization');
+	const entries = (await apiGet('/api/v2/entries')) as {
+		entrySlug?: string;
+		uid?: string;
+		avatar?: unknown;
+		active?: boolean;
+		memberships?: string[];
+	}[];
+
+	// The entry must belong to the site's organization: the team carousel only
+	// shows members, so a non-member would make the carousel scenarios fail on
+	// data rather than on behaviour. Inactive entries are listed but 404 on
+	// /fullentries/slug, so they are excluded too.
+	const members = entries.filter(
+		(e) => e.active && e.entrySlug && e.memberships?.includes(organization.uid)
+	);
+	expect(members.length, 'this site has no active entry in its organization').toBeGreaterThan(0);
+
+	// Prefer one that already has a picture; otherwise give one a seeded avatar
+	// so the scenarios do not depend on the dataset containing a photo.
+	const candidate = members.find((e) => e.avatar) ?? members[0];
+	ctx.slug = candidate.entrySlug!;
+
+	const entry = await apiGet(`/api/v2/fullentries/slug/${ctx.slug}`);
+	expect(entry.uid, `entry ${ctx.slug} not found`).toBeTruthy();
 	ctx.uid = entry.uid;
+	rememberImageStem(entry.avatar);
 
 	if (avatarChecked.has(entry.uid)) return;
-	// The avatar must exist regardless of its current access level, so read the DB.
 	const out = await djangoShell(`
 from addressbook.models import Contact
 c = Contact.objects.get(neomodel_uid="${entry.uid}")
 print("HAS_AVATAR", bool(c.profile_image))
 `);
-	expect(out, `entry ${slug} has no profile image`).toContain('HAS_AVATAR True');
+	if (!out.includes('HAS_AVATAR True')) {
+		await seedAvatar({ entryUid: entry.uid, access: 'anonymous' });
+		seededAvatarUid = entry.uid;
+		// Seeding names the file itself, and the payload read above predates it.
+		ctx.imageStem = `${SEED_TAG}-${entry.uid}.png`;
+	}
 	avatarChecked.add(entry.uid);
 });
 
@@ -112,9 +206,17 @@ Then('no profile picture is rendered on the page', async ({ page }) => {
 
 // --- Team carousel (home page) ----------------------------------------------
 
-/** The carousel renders <img src="/media/profile_images/<uid>...">. */
-const carouselPicture = (page: import('@playwright/test').Page) =>
-	page.locator(`img[src*="/media/profile_images/${ctx.uid}"]`);
+/**
+ * The entry's picture wherever the carousel renders it.
+ *
+ * Matched on the stored file name rather than the entry uid: uploaded pictures
+ * are named after the person, so a uid-based selector matches nothing and makes
+ * the negative assertions pass vacuously.
+ */
+const carouselPicture = (page: import('@playwright/test').Page) => {
+	expect(ctx.imageStem, 'no avatar file name recorded for this entry').toBeTruthy();
+	return page.locator(`img[src*="${ctx.imageStem}"]`);
+};
 
 Given('a signed-out visitor is on the home page', async ({ context, page }) => {
 	await context.clearCookies();

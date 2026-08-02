@@ -53,16 +53,24 @@ Then('the list of invitees is not rendered', async ({ page }) => {
 	await expect(page.getByRole('button', { name: /Créer une invitation/i })).toHaveCount(0);
 });
 
+/**
+ * The site footer carries its own "Accueil" link, so an unscoped locator matches
+ * two elements and Playwright's strict mode rejects it. The scenario is about the
+ * way out that the error page itself offers, so look only inside that page.
+ */
+const errorPage = (page: import('@playwright/test').Page) =>
+	page.locator('.section-container').filter({ has: page.getByRole('heading', { level: 1 }) });
+
 Then('I see a link to the home page', async ({ page }) => {
-	await expect(page.getByRole('link', { name: /Accueil/i })).toBeVisible();
+	await expect(errorPage(page).getByRole('link', { name: /Accueil/i })).toBeVisible();
 });
 
 // The Back button is added by an $effect after hydration, so wait for the page
 // to settle before asserting either way — otherwise the negative assertion can
 // pass simply because hydration has not run yet.
 async function backButton(page: import('@playwright/test').Page) {
-	await expect(page.getByRole('link', { name: /Accueil/i })).toBeVisible();
-	return page.getByRole('button', { name: /Retour/i });
+	await expect(errorPage(page).getByRole('link', { name: /Accueil/i })).toBeVisible();
+	return errorPage(page).getByRole('button', { name: /Retour/i });
 }
 
 Then('I see a {string} control', async ({ page }, label: string) => {

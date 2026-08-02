@@ -49,7 +49,7 @@ Feature: Team carousel navigation
   # signing out; otherwise there would be nothing to navigate and the scenario
   # would pass vacuously.
   Scenario Outline: The carousel stays navigable after the number of avatars changes
-    Given the entry "isabelle-dubuis-orthoptiste-69" avatar is public
+    Given an entry of this site has a public avatar
     And I am signed in with the role "superuser"
     And I open the home page
     And the carousel is "<advanced>"
