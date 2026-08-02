@@ -1,18 +1,13 @@
 import { writable } from 'svelte/store';
 import { variables } from '$lib/utils/constants.ts';
 import { browser } from "$app/environment";
-import { handleRequestsWithPermissions } from '$lib/utils/requestUtils.ts';
 import { PUBLIC_EFFECTOR_TYPE_LABELS_TTL } from '$env/static/public';
 import { ORIGIN } from '$lib/utils/origin.ts';
 import haversine from 'haversine-distance';
-import { isExpired } from '$lib/utils/utils.ts';
-import { setLocalStorage } from '$lib/utils/storage.ts';
 import type { Situation } from '$lib/store/directoryStoreInterface.ts';
 import { uniq } from '$lib/utils/utils.ts';
 import type { Writable } from 'svelte/store';
 import type { Entry, AddressFeature, DistanceEffectors, CategorizedEntries, Type } from './directoryStoreInterface.ts';
-import type { Tastypie } from '$lib/interfaces/api.interface.ts';
-import type { CustomError } from '$lib/interfaces/error.interface.ts';
 import type { Organization } from '$lib/interfaces/organization.ts';
 import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
 import type { SelectType } from '$lib/interfaces/select';
@@ -65,31 +60,6 @@ export const effectorTypeLabels = async () => {
 		}
 	}
 };
-
-export async function fetchElements(path: string, next: string, limit: number | null = null): Promise<[any[], string | null]> {
-	const limit_qs: string = limit ? `?limit=${limit}` : '';
-	const url = `${ORIGIN}/api/v1/${path}/${limit_qs}${next || ""}`;
-	const [data, err]: [Tastypie, CustomError] = await handleRequestsWithPermissions(fetch, url);
-	const _next = data?.meta?.next;
-	const objects = data[path] as any[];
-	return [objects, _next]
-};
-
-export async function downloadElements(path: string, limit: number = 100,) {
-	let hasMore = true;
-	let data: any[] = [];
-	let next = "";
-	while (hasMore) {
-		const [_elements, _next] = await fetchElements(path, next, limit);
-		data = [...data, ..._elements];
-		if (!_next) {
-			hasMore = false;
-		} else {
-			next = _next
-		}
-	}
-	return data
-}
 
 export interface Timestamps {
 	"v1:facilities": number,
