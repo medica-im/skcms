@@ -214,6 +214,10 @@ suite_bdd() {
     else
         info "no dev server at $DEV_SERVER_URL; Playwright will start one"
     fi
+    # The specs under .features-gen are generated from features/*.feature and are
+    # not in git, so a fresh checkout has none and Playwright reports "No tests
+    # found". Regenerating is also what picks up edits to the feature files.
+    (cd "$FRONTEND_DIR" && npx bddgen) || return 1
     (cd "$FRONTEND_DIR" && npx playwright test)
 }
 
