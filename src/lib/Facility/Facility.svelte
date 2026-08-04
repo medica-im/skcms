@@ -22,11 +22,13 @@
 	const allLabel = $derived(isMsp ? m.SITES_ALL() : m.FACILITIES_ALL());
 
 	const lgCols = carousel ? 3 : 2;
+	/**
+	 * Only facilities with a picture belong in the carousel — an empty frame
+	 * says nothing. Either kind counts: the wide photograph of the place, or
+	 * the older square avatar for those not yet migrated.
+	 */
 	function filterFacilities(facilities: Facility[]) {
-		const f = facilities.filter((facility) =>
-			facility.avatar !== null
-		);
-		return f;
+		return facilities.filter((facility) => facility.image != null || facility.avatar != null);
 	}
 
 	const carouselFacilities = $derived(filterFacilities(data));
@@ -61,7 +63,9 @@
 	</div>
 	{#if carouselFacilities.length && carousel}
 		<div class="place-items-center items-center justify-center content-center">
-			<FacilityCarousel data={data.filter((f: Facility)=>{return f.avatar!==null})} />
+			<!-- The same list the {#if} above tested, rather than a second filter
+			     that could drift out of step with it. -->
+			<FacilityCarousel data={carouselFacilities} />
 		</div>
 	{/if}
 </div>

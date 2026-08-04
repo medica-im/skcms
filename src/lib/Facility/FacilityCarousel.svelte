@@ -1,53 +1,118 @@
 <script lang="ts">
-	import Carousel from 'svelte-carousel';
+	import Carousel from 'svelte-light-carousel';
 	import { browser } from '$app/environment';
+	import Fa from 'svelte-fa';
+	import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+	import { variables } from '$lib/utils/constants';
 	import type { Facility } from '$lib/interfaces/facility.interface';
 
-	export let data;
-	function compareFn(a:Facility, b:Facility) {
-		return b.entries.length - a.entries.length
+	let { data }: { data: Facility[] } = $props();
+
+	// svelte-light-carousel takes autoPlay in SECONDS (it does `autoPlay * 1000`
+	// internally), unlike the old carousel's milliseconds.
+	const AUTOPLAY_SECONDS = 5;
+
+	// The library caches the slide count and geometry in its dragScroll action,
+	// recomputing only on mount and on window resize. Remounting on a count
+	// change keeps the arrows from going inert when the list changes size.
+	const slideCount = $derived(data.length);
+
+	/** Most-used facilities first, so the busiest address leads the carousel. */
+	const slides = $derived([...data].sort((a, b) => b.entries.length - a.entries.length));
+
+	/**
+	 * The wide photograph of the place if there is one, else the square avatar.
+	 * Mirrors FacilityPage: a facility may carry either, and the newer place
+	 * image is the better picture of a building.
+	 */
+	function pictureSrc(facility: Facility) {
+		const place = facility.image?.lg ?? facility.image?.raw;
+		if (place) return `${variables.BASE_URI}${place}`;
+		return facility.avatar?.raw ?? undefined;
+	}
+
+	function pictureAlt(facility: Facility) {
+		return facility.image?.alt || facility.name;
 	}
 </script>
 
-<div class="flex justify-center shrink place-content-center content-center mx-auto w-80 lg:w-96">
+<div class="flex justify-center shrink place-content-center content-center mx-auto max-w-full">
 	{#if browser}
-		<Carousel autoplay autoplayDuration={5000} duration={1000} dots={false}>
-			{#each data.sort(compareFn) as facility}
-				<div class="mx-auto">
-					<figure class="mx-auto w-64 lg:w-80">
-						<a href="/sites/{facility.slug}" class="flex m-2">
+		<!--
+			Same arrangement as the team carousel: a three-column flex row of prev,
+			track and next, laid out by the container. `order` puts the arrows
+			either side of the track (the library renders its snippets after it),
+			and only the track flexes.
+
+			Rendered client-side only, like the team carousel: the library measures
+			the track when its action attaches, and measuring before the pictures
+			have an intrinsic size makes it conclude there is nothing to scroll.
+		-->
+		{#key slideCount}
+			<Carousel
+				{slides}
+				key="uid"
+				autoPlay={slides.length > 1 ? AUTOPLAY_SECONDS : 0}
+				pauseOnHover
+				containerClass="!flex-row !min-w-0 w-fit items-center justify-center gap-2 sm:gap-4"
+				class="!p-0 w-64 lg:w-80 shrink-0"
+			>
+				{#snippet slide({ slide }: { slide: Facility })}
+					<figure class="mx-auto w-full text-center">
+						<a href="/sites/{slide.slug}" class="block">
 							<img
-								class="h-auto w-fit"
-								src="{facility.avatar.raw}"
-								alt={facility.name}
+								class="mx-auto h-auto max-w-full"
+								src={pictureSrc(slide)}
+								alt={pictureAlt(slide)}
 							/>
 						</a>
-
-						<figcaption class="text-center w-64 lg:w-80">
-							<a
-								href="/sites/{facility.slug}"
-								class="anchor flex shrink"
-								><div class="mx-auto text-primary">
-									{facility.name}
-								</div></a
-							>
+						<figcaption class="mt-2">
+							<a href="/sites/{slide.slug}" class="anchor text-primary">
+								{slide.name}
+							</a>
 						</figcaption>
 					</figure>
-				</div>
-			{/each}
-		</Carousel>
+				{/snippet}
+
+				{#snippet prev({ canScrollPrev, prev, a11y })}
+					<button
+						type="button"
+						class="carousel-arrow order-first"
+						onclick={prev}
+						disabled={!canScrollPrev}
+						{...a11y}
+					>
+						<Fa icon={faChevronLeft} />
+					</button>
+				{/snippet}
+
+				{#snippet next({ canScrollNext, next, a11y })}
+					<button
+						type="button"
+						class="carousel-arrow order-last"
+						onclick={next}
+						disabled={!canScrollNext}
+						{...a11y}
+					>
+						<Fa icon={faChevronRight} />
+					</button>
+				{/snippet}
+			</Carousel>
+		{/key}
 	{:else}
-		{@const facility = data.sort(compareFn)[0]}
-		<figure class="content-center shrink mx-auto w-64 lg:w-80">
-			<a href="/sites/{facility.slug}" class="flex m-2">
-				<img class="h-auto w-fit" src="{facility.avatar.raw}" alt={facility.name} />
+		{@const facility = slides[0]}
+		<!--
+			Mirrors what the carousel produces for a slide, so the picture is the
+			same size before and after hydration. Keep the two in step.
+		-->
+		<figure class="mx-auto w-64 lg:w-80 max-w-full px-5 text-center">
+			<a href="/sites/{facility.slug}" class="block">
+				<img class="mx-auto h-auto max-w-full" src={pictureSrc(facility)} alt={pictureAlt(facility)} />
 			</a>
-			<figcaption class="text-center w-64 lg:w-80">
-				<a href="/sites/{facility.slug}" class="anchor"
-					><div class="mx-auto text-primary underline">
-						{facility.name}
-					</div></a
-				>
+			<figcaption class="mt-2">
+				<a href="/sites/{facility.slug}" class="anchor text-primary">
+					{facility.name}
+				</a>
 			</figcaption>
 		</figure>
 	{/if}
@@ -56,5 +121,15 @@
 <style lang="postcss">
 	.anchor {
 		@apply underline underline-offset-4;
+	}
+	.carousel-arrow {
+		/* Flex sibling of the slide track (see containerClass), so no absolute
+		   positioning is needed and the arrows cannot overlap the picture or
+		   escape over neighbouring content. */
+		@apply shrink-0 rounded-full p-2;
+		@apply bg-surface-100-800-token shadow hover:variant-soft-primary;
+	}
+	.carousel-arrow:disabled {
+		@apply cursor-not-allowed opacity-30;
 	}
 </style>
