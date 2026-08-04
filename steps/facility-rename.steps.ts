@@ -1,6 +1,7 @@
 import { execFile } from 'node:child_process';
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
+import { enterEditMode } from './facilityContext';
 
 const { Given, When, Then, After } = createBdd();
 
@@ -115,6 +116,8 @@ Given('I open the facility page for {string}', async ({ page }, name: string) =>
 // playwright-bdd matches on step text regardless of the keyword.
 
 When('I rename the facility to {string}', async ({ page }, newName: string) => {
+	// The button lives behind edit mode, so the pencil comes first.
+	await enterEditMode(page);
 	await editButton(page).click();
 	await expect(dialog(page)).toBeVisible({ timeout: 10_000 });
 	const nameField = dialog(page).locator('input[name="name"]');

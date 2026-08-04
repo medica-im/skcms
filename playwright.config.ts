@@ -9,6 +9,10 @@ const testDir = defineBddConfig({
 
 export default defineConfig({
 	testDir,
+	// After hooks do not run when a run is interrupted, and what they leave
+	// behind can make later scenarios pass while proving the opposite of their
+	// name (see tests/globalSetup.ts).
+	globalSetup: './tests/globalSetup.ts',
 	// Some steps drive the backend through `manage.py shell` in Docker, which
 	// costs ~10s per call, so the default 30s is too tight.
 	timeout: 120_000,

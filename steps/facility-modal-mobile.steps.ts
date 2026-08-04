@@ -1,7 +1,9 @@
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
+import { enterEditMode } from './facilityContext';
+import { djangoShell, clearApiCache } from './seed';
 
-const { Given, When, Then } = createBdd();
+const { Given, When, Then, After } = createBdd();
 
 /** A facility of the site this checkout is configured for (see PUBLIC_ORIGIN). */
 const FACILITY_SLUG = 'pharmacie-des-felibres';
@@ -26,22 +28,57 @@ Given('I open a facility page', async ({ page }) => {
 });
 
 /**
- * The frontend only gates on "is there a session"; the real check is
- * server-side, where the facility's entry owners and creators are passed to
- * authorize_api. Owning an entry is therefore about backend state, not about
- * anything the browser does.
+ * Establishes the ownership rather than assuming it.
+ *
+ * Owning an entry is backend state, not anything the browser does: the page
+ * asks the server whether this visitor may edit, and the server answers from
+ * the facility's entry owners and creators.
+ *
+ * This used to do nothing, trusting that the staff user already owned an entry
+ * here — which held only because an earlier run had left the link behind.
+ * Cleaning that up (tests/globalSetup.ts) removed the very thing the scenario
+ * depended on, so it now creates what it claims.
  */
 Given('I own an entry linked to the facility', async ({}) => {
-	// The seeded staff user owns an entry on this facility; nothing to set up
-	// in the browser. Kept as an explicit step so the scenario states the
-	// precondition it depends on.
+	const out = await djangoShell(`
+from neomodel import db
+
+rows, _ = db.cypher_query("""
+MATCH (e:Entry)-[:HAS_FACILITY]->(f:Facility {slug: $slug})
+WITH e LIMIT 1
+MATCH (u:User)-[:HAS_ACCOUNT]->(:Account {sub: "e2e-sub-staff"})
+MERGE (e)-[:OWNED_BY]->(u)
+RETURN e.uid
+""", {"slug": ${JSON.stringify(FACILITY_SLUG)}})
+assert rows, "no entry at this facility, or no staff test user"
+print("OWNER_LINKED", rows[0][0])
+`);
+	if (!out.includes('OWNER_LINKED')) throw new Error(`could not link owner: ${out}`);
+	await clearApiCache();
+});
+
+/** Undoes the ownership above, so the next run starts from a known state. */
+After(async () => {
+	await djangoShell(`
+from neomodel import db
+db.cypher_query("""
+MATCH (e:Entry)-[:HAS_FACILITY]->(f:Facility {slug: $slug})
+MATCH (e)-[r:OWNED_BY]->(u:User {sub: "e2e-sub-staff"})
+DELETE r
+""", {"slug": ${JSON.stringify(FACILITY_SLUG)}})
+print("OWNERSHIP_RESTORED")
+`);
+	await clearApiCache();
 });
 
 Then('the facility edit button is shown', async ({ page }) => {
+	// The button lives behind edit mode, so the pencil comes first.
+	await enterEditMode(page);
 	await expect(editButton(page)).toBeVisible({ timeout: 20_000 });
 });
 
 Given('I open the facility edit dialog', async ({ page }) => {
+	await enterEditMode(page);
 	await editButton(page).click();
 	await expect(dialog(page)).toBeVisible({ timeout: 10_000 });
 });
@@ -54,6 +91,7 @@ Given(/^the screen is (a phone|a short phone|a desktop)$/, async ({ page }, scre
 	// Resizing can close a native <dialog>; reopen it so the scenario measures
 	// the dialog at the requested size rather than an empty page.
 	if ((await dialog(page).count()) === 0) {
+		await enterEditMode(page);
 		await editButton(page).click();
 		await expect(dialog(page)).toBeVisible({ timeout: 10_000 });
 		await page.waitForTimeout(300);
