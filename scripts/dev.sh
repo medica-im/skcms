@@ -72,7 +72,13 @@ echo "==> [$NAME] Checking backend services in $BACKEND_DIR"
         echo -e "${GREEN}==> Backend services are already running and healthy${NC}"
     else
         echo "==> Starting backend services (this may take a while)..."
-        docker compose -f "$BACKEND_COMPOSE_FILE" up -d --wait
+        # --build because some services (the non-root postgres) are built from a
+        # local Dockerfile rather than pulled: without it a machine that has
+        # never built them tries to pull a name that exists on no registry.
+        # USER_ID/GROUP_ID are the build args that keep the database files owned
+        # by the invoking user instead of root.
+        USER_ID="${USER_ID:-$(id -u)}" GROUP_ID="${GROUP_ID:-$(id -g)}" \
+            docker compose -f "$BACKEND_COMPOSE_FILE" up -d --build --wait
         echo -e "${GREEN}==> Backend services are running and healthy${NC}"
     fi
 )
