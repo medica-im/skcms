@@ -34,7 +34,7 @@
 	class="flex h-10 w-10 items-center justify-center rounded-full shadow transition-colors
 		{$editMode
 			? 'variant-filled-primary'
-			: 'bg-surface-100-800-token/90 text-surface-400-500-token backdrop-blur variant-ringed-surface hover:text-primary-500'}"
+			: 'bg-surface-100-800-token opacity-90 text-surface-400-500-token backdrop-blur variant-ringed-surface hover:text-primary-500'}"
 >
 	<!--
 		size="lg" rather than the default: the pencil's thin strokes render

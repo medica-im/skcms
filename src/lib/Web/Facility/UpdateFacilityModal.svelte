@@ -146,7 +146,7 @@
 		slugSuccess = false;
 		dialog?.showModal();
 	}}
-	class="btn variant-ghost-surface"
+	class="btn bg-surface-100-800-token text-surface-900-50-token variant-ringed-surface shadow opacity-90 hover:opacity-100 transition-opacity"
 	title="Créer"
 	><span><Fa icon={faPenToSquare} /></span><span class="whitespace-normal text-left">Modifier l'établissement</span></button
 >
