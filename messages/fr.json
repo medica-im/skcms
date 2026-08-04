@@ -1,162 +1,5 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
-  "CANCEL": "Annuler",
-  "CONFIRM": "Valider",
-  "LOADING": "Chargement...",
-  "HOME_TITLE": "Accueil",
-  "HOME_WELCOME": "Bienvenue dans",
-  "HOME_TEAM_TITLE": "Équipe",
-  "HOME_TEAM_TEXT": "Notre équipe pluriprofessionnelle s'engage pour votre santé et celle de vos proches.",
-  "HOME_COMMUNITY_TITLE": "Communauté",
-  "HOME_COMMUNITY_TEXT": "Notre communauté professionnelle s'engage pour votre santé.",
-  "HOME_FOOTER_WIP": "Site en construction. Contacter le développeur:",
-  "CONTACT_TITLE": "Contact",
-  "CALENDAR": "Calendrier",
-  "CALENDAR_TODAY": "Aujourd'hui",
-  "CALENDAR_MONTH": "Mois",
-  "CALENDAR_LIST": "Liste",
-  "FULLSCREEN": "Plein écran",
-  "EXIT_FULLSCREEN": "Quitter le plein écran",
-  "CONTACT_CALL_US": "Appelez-nous",
-  "SITES_TITLE": "Sites",
-  "SITES_SINGULAR": "Site",
-  "SITES_PLURAL": "Sites",
-  "SITES_ALL": "Tous les sites",
-  "SITE_COUNT": [
-    {
-      "declarations": [
-        "input count",
-        "local countPlural = count: plural"
-      ],
-      "selectors": [
-        "countPlural"
-      ],
-      "match": {
-        "countPlural=one": "site",
-        "countPlural=other": "sites"
-      }
-    }
-  ],
-  "SEARCH": "Recherche",
-  "ADDRESSBOOK_A11Y_PROFILE_PIC_OF": "Photo de profil de",
-  "ADDRESSBOOK_TITLE": "Annuaire",
-  "ADDRESSBOOK_GEOCODER_PLACEHOLDER": "Entrer l'adresse de la personne...",
-  "ADDRESSBOOK_GEOCODER_ARIA_LABEL": "Recherche de l'adresse de la personne",
-  "ADDRESSBOOK_OCCUPATIONS_PLACEHOLDER": "Sélectionner par profession...",
-  "ADDRESSBOOK_COMMUNES_PLACEHOLDER": "Sélectionner par commune...",
-  "ADDRESSBOOK_FACILITIES_PLACEHOLDER": "Sélectionner par établissement...",
-  "ADDRESSBOOK_CATEGORIES_PLACEHOLDER": "Sélectionner par catégorie....",
-  "ADDRESSBOOK_CATEGORIES_ALL": "Toutes catégories",
-  "ADDRESSBOOK_SITUATIONS_PLACEHOLDER": "Sélectionner par situation...",
-  "ADDRESSBOOK_SEARCH_LABEL": "Nom ou prénom",
-  "ADDRESSBOOK_SEARCH_PLACEHOLDER": "Nom ou prénom...",
-  "ADDRESSBOOK_SEARCH_ARIA_LABEL": "Recherche par nom ou prénom",
-  "ADDRESSBOOK_GOTOADDRESSBOOK": "Retourner vers l'annuaire",
-  "ADDRESSBOOK_GOTOSEARCH": "Retourner aux résultats de recherche",
-  "ADDRESSBOOK_GOTOSITE": "Retourner au site",
-  "ADDRESSBOOK_APPOINTMENT_LABEL": "Prendre rendez-vous",
-  "ADDRESSBOOK_LOCATION": "Lieu d'exercice",
-  "ADDRESSBOOK_SPECIALTY": "Spécialité",
-  "ADDRESSBOOK_CLEAR": "Effacer",
-  "ADDRESSBOOK_PAYMENT_METHODS": "Moyens de paiement",
-  "ADDRESSBOOK_PAYMENT_METHOD": "Moyen de paiement",
-  "ADDRESSBOOK_COSTS_AND_REIMBURSEMENTS": "Tarifs et remboursements",
-  "ADDRESSBOOK_THIRD_PARTY_PAYER": "Tiers payant",
-  "ADDRESSBOOK_SOMED": "Réseaux sociaux",
-  "ADDRESSBOOK_SPOKEN_LANGUAGE": "langue parlée",
-  "ADDRESSBOOK_SPOKEN_LANGUAGES": "langues parlées",
-  "ADDRESSBOOK_INFORMATIONS": "informations",
-  "NAVBAR_ADDRESSBOOK": "Annuaire",
-  "NAVBAR_LOGIN": "Se connecter",
-  "NAVBAR_HI": "Salut",
-  "NAVBAR_REGISTER": "S'enregistrer",
-  "NAVBAR_LOGOUT": "Se déconnecter",
-  "NAVBAR_ABOUT": "À propos",
-  "NAVBAR_TIMELINE": "Chronologie",
-  "NAVBAR_HEALTH_PROJECT": "Projet de santé",
-  "NAVBAR_LANGUAGE": "Langue",
-  "NAVBAR_NAVIGATE": "Naviguer",
-  "NAVBAR_GO_HOME": "Aller à l'accueil",
-  "NAVBAR_THEME": "Thème",
-  "LOGIN": "Connexion",
-  "RESET": "Réinitialiser",
-  "RESET_PASSWORD": "Réinitialiser votre mot de passe",
-  "RESET_SUCCESSFUL": "L'e-mail de réinitialisation du mot de passe a été envoyé.",
-  "TOLOGIN": "Se connecter",
-  "NOACCOUNT": "Pas encore de compte?",
-  "SIGNINGIN": "Connexion en cours...",
-  "CREATEACCOUNT": "Créer un compte",
-  "LOGIN_SUCCESSFUL": "Connexion réussie...",
-  "LOGOUT_SUCCESSFUL": "Déconnexion réussie...",
-  "REGISTRATION_SUCCESSFUL": "Inscription réussie. Connexion en cours...",
-  "ERROR404_OOPS": "Oups!",
-  "ERROR404_PAGENOTFOUND": "Page non trouvée.",
-  "ERROR404_DOESNOTEXIST": "La page que vous cherchez n'existe pas.",
-  "ERROR404_HOME": "Retourner à l'accueil",
-  "ERROR404_BACK": "Revenir en arrière",
-  "EMAILADDRESS": "Adresse e-mail",
-  "TIMELINE_TITLE": "Chronologie",
-  "PASSWORD": "Password",
-  "USER_PROFILE": "Profil de {userName}",
-  "USER_ROLE": "Rôle",
-  "FIELD_UPDATE_SUCCESS": "{fieldName} a été modifié avec succès.",
-  "OUTPATIENT_CLINIC": "Maison de santé",
-  "READMORE": "Lire la suite",
-  "OUTPATIENT_CLINIC_MDT_MEETING": "réunion de concertation pluriprofessionnelle",
-  "OUTPATIENT_CLINIC_TPE": "éducation thérapeutique du patient",
-  "OUTPATIENT_CLINIC_PROGRAMS": "programmes",
-  "OUTPATIENT_CLINIC_OUR_PROGRAM": "notre programme",
-  "OUTPATIENT_CLINIC_OUR_PROGRAMS": "nos programmes",
-  "OUTPATIENT_CLINIC_OUR_OTHER_PROGRAM": "notre autre programme",
-  "OUTPATIENT_CLINIC_OUR_OTHER_PROGRAMS": "nos autres programmes",
-  "DIABETES": "diabète",
-  "CANCER": "cancer",
-  "APNEA": "syndrome d'apnées du sommeil",
-  "CHILDHOOD_OBESITY": "obésité infantile",
-  "SCREENING_HYPERTENSION": "dépistage de l'hypertension artérielle'",
-  "SCREENING_COLORECTAL_CANCER": "cancer colorectal",
-  "SCREENING_CERVICAL_CANCER": "cancer du col de l'utérus",
-  "WEBSITE": "site web",
-  "LEARN_MORE": "En savoir plus",
-  "LEXICON": "lexique",
-  "HEALTH_RECORD": "dossier patient",
-  "HEALTH_EDUCATION": "éducation pour la santé",
-  "HEALTH_SERVICES": "offre de soins",
-  "PREVENTION": "prévention",
-  "PREVENTIVE_HEALTHCARE": "prévention en santé",
-  "MULTI_PROFESSIONAL_PATHWAYS": "parcours pluriprofessionnels",
-  "BURNOUT": "syndrôme d'épuisement professionnel",
-  "EATING": "Alimentation",
-  "PRIVACY_POLICY": "politique de confidentialité",
-  "LEGAL_NOTICES": "mentions légales",
-  "RESOURCES": "ressources",
-  "LEGAL": "légal",
-  "PHONE": "téléphone",
-  "PHONE_NUMBER": "numéro de téléphone",
-  "DIRECTION": "itinéraire",
-  "YES": "oui",
-  "NO": "non",
-  "AND": "et",
-  "SKELETON_AUTOCOMPLETE_EMPTY_STATE": "Aucun résultat trouvé",
-  "ROLE": {
-    "ADMINISTRATOR": "Administrateur",
-    "ADMINISTRATOR_SHORT": "Admin",
-    "SUPERUSER": "Super-utilisateur",
-    "SUPERUSER_SHORT": "Super",
-    "STAFF": "Équipier",
-    "STAFF_SHORT": "Équipier",
-    "REGISTERED": "Utilisateur enregistré",
-    "REGISTERED_SHORT": "Inscrit",
-    "ANONYMOUS": "Anonyme",
-    "ANONYMOUS_SHORT": "Anon"
-  },
-  "PHONE_TYPE": {
-    "M": "Mobile personnel",
-    "MW": "Mobile professionnel",
-    "W": "Téléphone fixe",
-    "F": "Fax",
-    "AS": "Secrétariat à distance"
-  },
   "ACCESS": {
     "CHOICES": {
       "PUBLIC": "Public",
@@ -177,87 +20,156 @@
     },
     "ACCESS_CONTROL": "Visibilité de l'entrée"
   },
-  "MEMBERSHIP": [
-    {
-      "declarations": [
-        "input count",
-        "local countPlural = count: plural"
-      ],
-      "selectors": [
-        "countPlural"
-      ],
-      "match": {
-        "countPlural=one": "affiliation",
-        "countPlural=other": "affiliations"
-      }
-    }
-  ],
-  "FACILITY": [
-    {
-      "declarations": [
-        "input count",
-        "local countPlural = count: plural"
-      ],
-      "selectors": [
-        "countPlural"
-      ],
-      "match": {
-        "countPlural=one": "établissement",
-        "countPlural=other": "établissements"
-      }
-    }
-  ],
-  "OUR_FACILITIES": [
-    {
-      "declarations": [
-        "input count",
-        "local countPlural = count: plural"
-      ],
-      "selectors": [
-        "countPlural"
-      ],
-      "match": {
-        "countPlural=one": "Notre établissement",
-        "countPlural=other": "Nos {count} établissements"
-      }
-    }
-  ],
+  "ADDRESSBOOK_A11Y_PROFILE_PIC_OF": "Photo de profil de",
+  "ADDRESSBOOK_APPOINTMENT_LABEL": "Prendre rendez-vous",
+  "ADDRESSBOOK_CATEGORIES_ALL": "Toutes catégories",
+  "ADDRESSBOOK_CATEGORIES_PLACEHOLDER": "Sélectionner par catégorie....",
+  "ADDRESSBOOK_CLEAR": "Effacer",
+  "ADDRESSBOOK_COMMUNES_PLACEHOLDER": "Sélectionner par commune...",
+  "ADDRESSBOOK_COSTS_AND_REIMBURSEMENTS": "Tarifs et remboursements",
+  "ADDRESSBOOK_DEPARTMENTS_PLACEHOLDER": "Sélectionner par département...",
+  "ADDRESSBOOK_FACILITIES_PLACEHOLDER": "Sélectionner par établissement...",
+  "ADDRESSBOOK_GEOCODER_ARIA_LABEL": "Recherche de l'adresse de la personne",
+  "ADDRESSBOOK_GEOCODER_PLACEHOLDER": "Entrer l'adresse de la personne...",
+  "ADDRESSBOOK_GOTOADDRESSBOOK": "Retourner vers l'annuaire",
+  "ADDRESSBOOK_GOTOSEARCH": "Retourner aux résultats de recherche",
+  "ADDRESSBOOK_GOTOSITE": "Retourner au site",
+  "ADDRESSBOOK_INFORMATIONS": "informations",
+  "ADDRESSBOOK_LOCATION": "Lieu d'exercice",
+  "ADDRESSBOOK_OCCUPATIONS_PLACEHOLDER": "Sélectionner par profession...",
+  "ADDRESSBOOK_PAYMENT_METHOD": "Moyen de paiement",
+  "ADDRESSBOOK_PAYMENT_METHODS": "Moyens de paiement",
+  "ADDRESSBOOK_SEARCH_ARIA_LABEL": "Recherche par nom ou prénom",
+  "ADDRESSBOOK_SEARCH_LABEL": "Nom ou prénom",
+  "ADDRESSBOOK_SEARCH_PLACEHOLDER": "Nom ou prénom...",
+  "ADDRESSBOOK_SITUATIONS_PLACEHOLDER": "Sélectionner par situation...",
+  "ADDRESSBOOK_SOMED": "Réseaux sociaux",
+  "ADDRESSBOOK_SPECIALTY": "Spécialité",
+  "ADDRESSBOOK_SPOKEN_LANGUAGE": "langue parlée",
+  "ADDRESSBOOK_SPOKEN_LANGUAGES": "langues parlées",
+  "ADDRESSBOOK_THIRD_PARTY_PAYER": "Tiers payant",
+  "ADDRESSBOOK_TITLE": "Annuaire",
+  "ADMIN_ACCESS_RESTRICTED": "Accès restreint aux super-utilisateurs et administrateurs.",
+  "AFFILIATED_MEMBERS": "Membres affiliés",
+  "AND": "et",
+  "APNEA": "syndrome d'apnées du sommeil",
+  "APPOINTMENT": "Rendez-vous",
+  "ASSOCIATION_TITLE": "Association",
+  "AVATAR_ACCESS_ADMIN": "Cette photo est visible uniquement par les administrateurs de l'organisation authentifiés.",
+  "AVATAR_ACCESS_LABEL": "Qui peut voir cette photo ?",
+  "AVATAR_ACCESS_PUBLIC": "Cette photo est visible par tous les visiteurs du site.",
+  "AVATAR_ACCESS_SAVED": "Visibilité mise à jour",
+  "AVATAR_ACCESS_TEAM": "Cette photo est visible uniquement par les membres de l'organisation authentifiés.",
+  "AVATAR_BROWSE": "Parcourir",
+  "AVATAR_CHANGE": "Modifier la photo",
+  "AVATAR_CROP_TITLE": "Photo de profil",
+  "AVATAR_DELETE": "Supprimer la photo",
+  "AVATAR_NO_FILE": "Aucun fichier sélectionné",
+  "AVATAR_SELECT_FILE": "Sélectionner une image",
+  "AVATAR_UPLOAD": "Ajouter une photo",
+  "AVATAR_UPLOADING": "Envoi en cours...",
+  "AVATAR_UPLOAD_BTN": "Envoyer",
+  "AVATAR_UPLOAD_SUCCESS": "Photo mise à jour",
+  "BATCH_INVITEE_BACK": "Retour aux invitations",
+  "BATCH_INVITEE_BUTTON": "Invitations en masse (Excel)",
+  "BATCH_INVITEE_BUTTON_TITLE": "Créer des invitations en masse via un fichier Excel",
+  "BATCH_INVITEE_CANCEL": "Annuler",
+  "BATCH_INVITEE_CANCELLED": "Création en masse annulée",
+  "BATCH_INVITEE_CANCEL_JOB": "Annuler le traitement",
+  "BATCH_INVITEE_CHANGE_FILE": "Changer de fichier",
+  "BATCH_INVITEE_COLUMN_MAPPING": "Association des colonnes",
+  "BATCH_INVITEE_COMPLETED": "Création en masse terminée",
+  "BATCH_INVITEE_CONFIRM": "Lancer la création en masse",
+  "BATCH_INVITEE_CREATED": "Créées",
+  "BATCH_INVITEE_EMAIL_COLUMN": "Colonne email",
+  "BATCH_INVITEE_EMAIL_ERRORS": "Erreurs d'envoi d'email",
+  "BATCH_INVITEE_FAILED": "Échouées",
+  "BATCH_INVITEE_FIRST_NAME_COLUMN": "Colonne prénom",
+  "BATCH_INVITEE_LAST_NAME_COLUMN": "Colonne nom de famille",
+  "BATCH_INVITEE_LOGS": "Historique des créations en masse",
+  "BATCH_INVITEE_NAME_COLUMN": "Colonne nom",
+  "BATCH_INVITEE_NAME_SPLIT": "Le prénom et le nom sont-ils dans des colonnes séparées ?",
+  "BATCH_INVITEE_NO_COLUMN": "-- Aucune --",
+  "BATCH_INVITEE_PREVIEW": "Aperçu (2 premières lignes)",
+  "BATCH_INVITEE_PROCESSING": "Traitement en cours...",
+  "BATCH_INVITEE_PROGRESS": "Progression",
+  "BATCH_INVITEE_ROLE": "Rôle pour tous les invités",
+  "BATCH_INVITEE_ROW": "Ligne",
+  "BATCH_INVITEE_SELECT_COLUMN": "Sélectionner une colonne",
+  "BATCH_INVITEE_SELECT_FILE": "Sélectionner un fichier",
+  "BATCH_INVITEE_SEND_EMAILS": "Envoyer les emails d'invitation",
+  "BATCH_INVITEE_SKIPPED_ACTIVE": "Ignorées (même nom, utilisateur actif)",
+  "BATCH_INVITEE_SKIPPED_DUPLICATE": "Ignorées (email en double)",
+  "BATCH_INVITEE_STATUS": "Statut",
+  "BATCH_INVITEE_SUBTITLE": "Importez un fichier pour créer plusieurs invitations à la fois.",
+  "BATCH_INVITEE_SUMMARY": "Résumé",
+  "BATCH_INVITEE_SUPPORTED_FORMATS": "Formats supportés : .xlsx (Excel), .csv, .ods (LibreOffice)",
+  "BATCH_INVITEE_TITLE": "Création d'invitations en masse",
+  "BATCH_INVITEE_VIEW_EXISTING": "Voir l'invitation existante",
+  "BATCH_INVITEE_VIEW_INVITEES": "Voir les invitations créées",
+  "BATCH_INVITEE_WARNING_NAME": "Attention : correspondance de nom avec une invitation existante",
+  "BOARD_MEMBER": "Membre du conseil d'administration",
+  "BOARD_MEMBERS": "Membres du conseil d'administration",
+  "BOARD_MEMBERS_SHORT": "CA",
+  "BOARD_MEMBER_CREATE": "Ajouter un membre du CA",
+  "BOARD_MEMBER_DELETE": "Supprimer le membre du CA",
+  "BOARD_MEMBER_DELETE_CONFIRM": "Définir une date de fin pour ce membre du bureau ?",
+  "BOARD_MEMBER_UPDATE": "Modifier le membre du CA",
+  "BURNOUT": "syndrôme d'épuisement professionnel",
+  "CALENDAR": "Calendrier",
+  "CALENDAR_LIST": "Liste",
+  "CALENDAR_MONTH": "Mois",
+  "CALENDAR_TODAY": "Aujourd'hui",
+  "CANCEL": "Annuler",
+  "CANCER": "cancer",
+  "CATEGORIES": "Catégories",
+  "CHANGE_PASSWORD": "Changer le mot de passe",
+  "CHANGE_PASSWORD_SUCCESS": "Mot de passe changé avec succès!",
+  "CHARACTER_PLURAL": "caractères",
+  "CHARACTER_SINGULAR": "caractère",
+  "CHILDHOOD_OBESITY": "obésité infantile",
+  "CLOSE": "Fermer",
+  "COL_ACTIONS": "Actions",
+  "COL_CATEGORY": "Collège",
+  "COL_EFFECTOR": "Effecteur",
+  "COL_LABEL": "Libellé",
+  "COL_ROLE": "Rôle",
+  "COL_START": "Début",
+  "COL_STOP": "Fin",
+  "CONFIRM": "Valider",
+  "CONFIRM_PASSWORD": "Confirmer le mot de passe",
+  "CONTACT_CALL_US": "Appelez-nous",
+  "CONTACT_TITLE": "Contact",
   "CREATE": "Créer",
-  "EDIT": "Modifier",
+  "CREATEACCOUNT": "Créer un compte",
   "DELETE": "Supprimer",
   "DELETE_CONFIRM": "Êtes-vous sûr de vouloir supprimer cet élément?",
-  "CHARACTER_SINGULAR": "caractère",
-  "CHARACTER_PLURAL": "caractères",
-  "signout": "Se déconnecter",
-  "with": "avec",
-  "from": "de",
-  "CLOSE": "Fermer",
-  "APPOINTMENT": "Rendez-vous",
-  "WEB_ADDRESS": "Adresse web",
-  "USER_GUIDE": "guide utilisateur",
-  "CHANGE_PASSWORD": "Changer le mot de passe",
-  "CONFIRM_PASSWORD": "Confirmer le mot de passe",
+  "DIABETES": "diabète",
+  "DIRECTION": "itinéraire",
+  "EATING": "Alimentation",
+  "EDIT": "Modifier",
+  "EDIT_MODE_DISABLE": "Quitter le mode édition",
+  "EDIT_MODE_ENABLE": "Activer le mode édition",
+  "EDIT_MODE_TOGGLE": "Mode édition",
+  "EFFECTOR_TYPE_COL_ACTIONS": "Actions",
+  "EFFECTOR_TYPE_COL_LABEL": "Libellé",
+  "EFFECTOR_TYPE_COL_LABELS": "Labels",
+  "EFFECTOR_TYPE_COL_NAME": "Nom",
+  "EFFECTOR_TYPE_COL_PARENT": "Parent",
+  "EFFECTOR_TYPE_COL_SYNONYMS": "Synonymes",
+  "EFFECTOR_TYPE_CONCEPT": "Concept",
+  "EFFECTOR_TYPE_CREATE": "Créer un type d'effecteur",
+  "EFFECTOR_TYPE_DEFINITION": "Définition",
+  "EFFECTOR_TYPE_DELETE": "Supprimer le type d'effecteur",
+  "EFFECTOR_TYPE_DELETE_CONFIRM": "Êtes-vous sûr de vouloir supprimer le type d'effecteur",
+  "EFFECTOR_TYPE_EDIT": "Modifier le type d'effecteur",
+  "EFFECTOR_TYPE_MESH_UNIQUE_ID": "MeSH unique ID",
+  "EFFECTOR_TYPE_NO_PARENT": "Aucun parent",
+  "EFFECTOR_TYPE_PARENT_PLACEHOLDER": "Sélectionner un parent...",
+  "EFFECTOR_TYPE_SLUG": "Permalien",
+  "EFFECTOR_TYPE_TITLE": "Types d'effecteur",
+  "EMAILADDRESS": "Adresse e-mail",
   "ENTER_PASSWORD": "Entrer le mot de passe",
-  "SET_NEW_PASSWORD": "Créer un nouveau mot de passe",
-  "CHANGE_PASSWORD_SUCCESS": "Mot de passe changé avec succès!",
-  "PASSWORD_FORGOTTEN": "Avez-vous oublié votre mot de passe?",
-  "SIGNIN": "Se connecter",
-  "ERROR": "Erreur",
-  "mention_ipa": [
-    {
-      "declarations": [
-        "input count",
-        "local countPlural = count: plural"
-      ],
-      "selectors": [
-        "countPlural"
-      ],
-      "match": {
-        "countPlural=one": "mention",
-        "countPlural=other": "mentions"
-      }
-    }
-  ],
   "ENTRIES": [
     {
       "declarations": [
@@ -273,65 +185,28 @@
       }
     }
   ],
-  "tag": [
-    {
-      "declarations": [
-        "input count",
-        "local countPlural = count: plural"
-      ],
-      "selectors": [
-        "countPlural"
-      ],
-      "match": {
-        "countPlural=one": "étiquette",
-        "countPlural=other": "étiquettes"
-      }
-    }
-  ],
-  "category": [
-    {
-      "declarations": [
-        "input count",
-        "local countPlural = count: plural"
-      ],
-      "selectors": [
-        "countPlural"
-      ],
-      "match": {
-        "countPlural=one": "catégorie",
-        "countPlural=other": "catégories"
-      }
-    }
-  ],
-  "ADDRESSBOOK_DEPARTMENTS_PLACEHOLDER": "Sélectionner par département...",
-  "slug": "permalien",
-  "INACTIVE": "Inactive",
-  "ENTRY_INACTIVE": "Cette entrée est inactive",
   "ENTRY_DELETE": "Supprimer l'entrée",
-  "ENTRY_DELETE_TITLE": "Suppression",
   "ENTRY_DELETE_CONFIRM": "Supprimer cette entrée de l'annuaire?",
   "ENTRY_DELETE_DESCRIPTION": "La fiche n'apparaîtra plus dans l'annuaire. Sa suppression n'entraîne pas la suppression de la personne ou de l'établissement. Les coordonnées sont également conservées. Vous pourrez recréer rapidement l'entrée en sélectionnant la même personne, la même catégorie et le même établissement dans l'interface de création.",
-  "ENTRY_REACTIVATE": "Réactiver l'entrée",
-  "ENTRY_REACTIVATE_TITLE": "Réactivation",
-  "ENTRY_REACTIVATE_CONFIRM": "Réactiver cette entrée dans l'annuaire?",
-  "ENTRY_REACTIVATE_DESCRIPTION": "L'entrée apparaîtra de nouveau dans l'annuaire.",
-  "ENTRY_IS_OWNER": "Propriétaire de l'entrée",
-  "REDEEM_EMAIL": "Email de réclamation",
+  "ENTRY_DELETE_TITLE": "Suppression",
   "ENTRY_DIRECTORIES": "Annuaires",
   "ENTRY_DIRECTORIES_NONE": "Aucun annuaire",
   "ENTRY_DIRECTORIES_REQUIRED": "Une entrée doit être rattachée à au moins un annuaire.",
-  "INVITEE_BACK_TO_LIST": "Retour aux invitations",
-  "INVITEE_REDEEMED_ON": "utilisée le",
-  "INVITEE_COL_NAME": "Nom",
-  "INVITEE_COL_EMAIL": "Email",
-  "INVITEE_COL_ROLE": "Rôle",
-  "INVITEE_COL_CREATED": "Créée",
-  "INVITEE_COL_REDEEMED": "Utilisée",
-  "INVITEE_COL_STATUS": "Statut",
-  "INVITEE_COL_ACTIONS": "Actions",
-  "INVITEE_PAGE_TITLE": "Invitations",
-  "INVITEE_CREATE_BUTTON": "Créer une invitation",
-  "invitee_noun": [
+  "ENTRY_INACTIVE": "Cette entrée est inactive",
+  "ENTRY_IS_OWNER": "Propriétaire de l'entrée",
+  "ENTRY_REACTIVATE": "Réactiver l'entrée",
+  "ENTRY_REACTIVATE_CONFIRM": "Réactiver cette entrée dans l'annuaire?",
+  "ENTRY_REACTIVATE_DESCRIPTION": "L'entrée apparaîtra de nouveau dans l'annuaire.",
+  "ENTRY_REACTIVATE_TITLE": "Réactivation",
+  "ERROR": "Erreur",
+  "ERROR404_BACK": "Revenir en arrière",
+  "ERROR404_DOESNOTEXIST": "La page que vous cherchez n'existe pas.",
+  "ERROR404_HOME": "Retourner à l'accueil",
+  "ERROR404_OOPS": "Oups!",
+  "ERROR404_PAGENOTFOUND": "Page non trouvée.",
+  "EXIT_FULLSCREEN": "Quitter le plein écran",
+  "FACILITIES_ALL": "Tous les établissements",
+  "FACILITY": [
     {
       "declarations": [
         "input count",
@@ -341,11 +216,38 @@
         "countPlural"
       ],
       "match": {
-        "countPlural=one": "invitation",
-        "countPlural=other": "invitations"
+        "countPlural=one": "établissement",
+        "countPlural=other": "établissements"
       }
     }
   ],
+  "FIELD_UPDATE_SUCCESS": "{fieldName} a été modifié avec succès.",
+  "FILTER_ALL": "Tous",
+  "FULLSCREEN": "Plein écran",
+  "GO_BACK": "Retour",
+  "HEALTH_EDUCATION": "éducation pour la santé",
+  "HEALTH_RECORD": "dossier patient",
+  "HEALTH_SERVICES": "offre de soins",
+  "HOME_COMMUNITY_TEXT": "Notre communauté professionnelle s'engage pour votre santé.",
+  "HOME_COMMUNITY_TITLE": "Communauté",
+  "HOME_FOOTER_WIP": "Site en construction. Contacter le développeur:",
+  "HOME_TEAM_TEXT": "Notre équipe pluriprofessionnelle s'engage pour votre santé et celle de vos proches.",
+  "HOME_TEAM_TITLE": "Équipe",
+  "HOME_TITLE": "Accueil",
+  "HOME_WELCOME": "Bienvenue dans",
+  "INACTIVE": "Inactive",
+  "INVITEES_FORBIDDEN_CONTACT": "Si vous pensez devoir y accéder, contactez un administrateur de l'organisation.",
+  "INVITEES_FORBIDDEN_TEXT": "La gestion des invitations est réservée aux administrateurs de l'organisation. Votre compte ne dispose pas de ce niveau d'accès.",
+  "INVITEES_FORBIDDEN_TITLE": "Page réservée aux administrateurs",
+  "INVITEE_BACK_TO_LIST": "Retour aux invitations",
+  "INVITEE_COL_ACTIONS": "Actions",
+  "INVITEE_COL_CREATED": "Créée",
+  "INVITEE_COL_EMAIL": "Email",
+  "INVITEE_COL_NAME": "Nom",
+  "INVITEE_COL_REDEEMED": "Utilisée",
+  "INVITEE_COL_ROLE": "Rôle",
+  "INVITEE_COL_STATUS": "Statut",
+  "INVITEE_CREATE_BUTTON": "Créer une invitation",
   "INVITEE_EXPORT_SELECTION": [
     {
       "declarations": [
@@ -361,44 +263,230 @@
       }
     }
   ],
-  "BATCH_INVITEE_BUTTON": "Invitations en masse (Excel)",
-  "BATCH_INVITEE_BUTTON_TITLE": "Créer des invitations en masse via un fichier Excel",
-  "BATCH_INVITEE_TITLE": "Création d'invitations en masse",
-  "BATCH_INVITEE_SUBTITLE": "Importez un fichier pour créer plusieurs invitations à la fois.",
-  "BATCH_INVITEE_SUPPORTED_FORMATS": "Formats supportés : .xlsx (Excel), .csv, .ods (LibreOffice)",
-  "BATCH_INVITEE_SELECT_FILE": "Sélectionner un fichier",
-  "BATCH_INVITEE_CHANGE_FILE": "Changer de fichier",
-  "BATCH_INVITEE_COLUMN_MAPPING": "Association des colonnes",
-  "BATCH_INVITEE_EMAIL_COLUMN": "Colonne email",
-  "BATCH_INVITEE_NAME_SPLIT": "Le prénom et le nom sont-ils dans des colonnes séparées ?",
-  "BATCH_INVITEE_NAME_COLUMN": "Colonne nom",
-  "BATCH_INVITEE_FIRST_NAME_COLUMN": "Colonne prénom",
-  "BATCH_INVITEE_LAST_NAME_COLUMN": "Colonne nom de famille",
-  "BATCH_INVITEE_PREVIEW": "Aperçu (2 premières lignes)",
-  "BATCH_INVITEE_ROLE": "Rôle pour tous les invités",
-  "BATCH_INVITEE_SEND_EMAILS": "Envoyer les emails d'invitation",
-  "BATCH_INVITEE_CONFIRM": "Lancer la création en masse",
-  "BATCH_INVITEE_CANCEL": "Annuler",
-  "BATCH_INVITEE_PROCESSING": "Traitement en cours...",
-  "BATCH_INVITEE_PROGRESS": "Progression",
-  "BATCH_INVITEE_CREATED": "Créées",
-  "BATCH_INVITEE_FAILED": "Échouées",
-  "BATCH_INVITEE_SKIPPED_DUPLICATE": "Ignorées (email en double)",
-  "BATCH_INVITEE_SKIPPED_ACTIVE": "Ignorées (même nom, utilisateur actif)",
-  "BATCH_INVITEE_EMAIL_ERRORS": "Erreurs d'envoi d'email",
-  "BATCH_INVITEE_COMPLETED": "Création en masse terminée",
-  "BATCH_INVITEE_CANCELLED": "Création en masse annulée",
-  "BATCH_INVITEE_CANCEL_JOB": "Annuler le traitement",
-  "BATCH_INVITEE_SUMMARY": "Résumé",
-  "BATCH_INVITEE_VIEW_INVITEES": "Voir les invitations créées",
-  "BATCH_INVITEE_BACK": "Retour aux invitations",
-  "BATCH_INVITEE_LOGS": "Historique des créations en masse",
-  "BATCH_INVITEE_WARNING_NAME": "Attention : correspondance de nom avec une invitation existante",
-  "BATCH_INVITEE_ROW": "Ligne",
-  "BATCH_INVITEE_STATUS": "Statut",
-  "BATCH_INVITEE_VIEW_EXISTING": "Voir l'invitation existante",
-  "BATCH_INVITEE_NO_COLUMN": "-- Aucune --",
-  "BATCH_INVITEE_SELECT_COLUMN": "Sélectionner une colonne",
+  "INVITEE_PAGE_TITLE": "Invitations",
+  "INVITEE_REDEEMED_ON": "utilisée le",
+  "JOIN": "Adhérer",
+  "LEARN_MORE": "En savoir plus",
+  "LEGAL": "légal",
+  "LEGAL_NOTICES": "mentions légales",
+  "LEXICON": "lexique",
+  "LOADING": "Chargement...",
+  "LOGIN": "Connexion",
+  "LOGIN_SUCCESSFUL": "Connexion réussie...",
+  "LOGOUT_SUCCESSFUL": "Déconnexion réussie...",
+  "MEMBERSHIP": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "affiliation",
+        "countPlural=other": "affiliations"
+      }
+    }
+  ],
+  "MEMBERSHIP_CATEGORY": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "collège",
+        "countPlural=other": "collèges"
+      }
+    }
+  ],
+  "MEMBERSHIP_CATEGORY_CREATE": "Ajouter un collège",
+  "MEMBERSHIP_CATEGORY_DELETE": "Supprimer le collège",
+  "MEMBERSHIP_CATEGORY_DELETE_CONFIRM": "Êtes-vous sûr de vouloir supprimer ce collège ?",
+  "MEMBERSHIP_CATEGORY_DELETE_CONFLICT": "Ce collège ne peut pas être supprimé car il est lié à des membres du conseil.",
+  "MEMBERSHIP_CATEGORY_UPDATE": "Modifier le collège",
+  "MULTI_PROFESSIONAL_PATHWAYS": "parcours pluriprofessionnels",
+  "NAVBAR_ABOUT": "À propos",
+  "NAVBAR_ADDRESSBOOK": "Annuaire",
+  "NAVBAR_GO_HOME": "Aller à l'accueil",
+  "NAVBAR_HEALTH_PROJECT": "Projet de santé",
+  "NAVBAR_HI": "Salut",
+  "NAVBAR_LANGUAGE": "Langue",
+  "NAVBAR_LOGIN": "Se connecter",
+  "NAVBAR_LOGOUT": "Se déconnecter",
+  "NAVBAR_NAVIGATE": "Naviguer",
+  "NAVBAR_REGISTER": "S'enregistrer",
+  "NAVBAR_THEME": "Thème",
+  "NAVBAR_TIMELINE": "Chronologie",
+  "NO": "non",
+  "NOACCOUNT": "Pas encore de compte?",
+  "NO_BOARD_MEMBER": "Aucun membre du conseil d'administration.",
+  "NO_OFFICER": "Aucun membre du bureau.",
+  "NO_OPTIONS": "Aucune option",
+  "OFFICER": "Membre du bureau",
+  "OFFICERS": "Membres du bureau",
+  "OFFICERS_SHORT": "Bureau",
+  "OFFICER_CREATE": "Ajouter un membre du bureau",
+  "OFFICER_DELETE": "Supprimer le membre du bureau",
+  "OFFICER_UPDATE": "Modifier le membre du bureau",
+  "ORGANIZATION_ROLE": "Rôle de l'organisation",
+  "ORGANIZATION_ROLES": "Rôles de l'organisation",
+  "ORG_ROLE_CREATE": "Créer un rôle",
+  "ORG_ROLE_DELETE": "Supprimer le rôle",
+  "ORG_ROLE_DELETE_CONFIRM": "Êtes-vous sûr de vouloir supprimer ce rôle ?",
+  "ORG_ROLE_DELETE_CONFLICT": "Ce rôle ne peut pas être supprimé car il est lié à des responsables.",
+  "ORG_ROLE_UPDATE": "Modifier le rôle",
+  "OUR_FACILITIES": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "Notre établissement",
+        "countPlural=other": "Nos {count} établissements"
+      }
+    }
+  ],
+  "OUTPATIENT_CLINIC": "Maison de santé",
+  "OUTPATIENT_CLINIC_MDT_MEETING": "réunion de concertation pluriprofessionnelle",
+  "OUTPATIENT_CLINIC_OUR_OTHER_PROGRAM": "notre autre programme",
+  "OUTPATIENT_CLINIC_OUR_OTHER_PROGRAMS": "nos autres programmes",
+  "OUTPATIENT_CLINIC_OUR_PROGRAM": "notre programme",
+  "OUTPATIENT_CLINIC_OUR_PROGRAMS": "nos programmes",
+  "OUTPATIENT_CLINIC_PROGRAMS": "programmes",
+  "OUTPATIENT_CLINIC_TPE": "éducation thérapeutique du patient",
+  "PASSWORD": "Password",
+  "PASSWORD_FORGOTTEN": "Avez-vous oublié votre mot de passe?",
+  "PHONE": "téléphone",
+  "PHONE_NUMBER": "numéro de téléphone",
+  "PHONE_TYPE": {
+    "M": "Mobile personnel",
+    "MW": "Mobile professionnel",
+    "W": "Téléphone fixe",
+    "F": "Fax",
+    "AS": "Secrétariat à distance"
+  },
+  "PLACE_IMAGE_ADD": "Ajouter une photo du lieu",
+  "PLACE_IMAGE_ALT_HELP": "Décrit la photo aux personnes qui ne peuvent pas la voir.",
+  "PLACE_IMAGE_ALT_LABEL": "Description de l'image",
+  "PLACE_IMAGE_CHANGE": "Modifier la photo du lieu",
+  "PLACE_IMAGE_DELETE": "Supprimer la photo du lieu",
+  "PLACE_IMAGE_DELETED": "Photo du lieu supprimée",
+  "PLACE_IMAGE_GUIDANCE": "Photographiez le bâtiment ou l'entrée du cabinet, de face et en plein jour, de façon que les patients le reconnaissent en arrivant. Le cadrage est panoramique (16:9).",
+  "PLACE_IMAGE_TITLE": "Photo du lieu",
+  "PLACE_IMAGE_UPLOAD_SUCCESS": "Photo du lieu mise à jour",
+  "PREVENTION": "prévention",
+  "PREVENTIVE_HEALTHCARE": "prévention en santé",
+  "PRIVACY_POLICY": "politique de confidentialité",
+  "READMORE": "Lire la suite",
+  "REDEEM_EMAIL": "Email de réclamation",
+  "REGISTRATION_SUCCESSFUL": "Inscription réussie. Connexion en cours...",
+  "RESET": "Réinitialiser",
+  "RESET_PASSWORD": "Réinitialiser votre mot de passe",
+  "RESET_SUCCESSFUL": "L'e-mail de réinitialisation du mot de passe a été envoyé.",
+  "RESOURCES": "ressources",
+  "ROLE": {
+    "ADMINISTRATOR": "Administrateur",
+    "ADMINISTRATOR_SHORT": "Admin",
+    "SUPERUSER": "Super-utilisateur",
+    "SUPERUSER_SHORT": "Super",
+    "STAFF": "Équipier",
+    "STAFF_SHORT": "Équipier",
+    "REGISTERED": "Utilisateur enregistré",
+    "REGISTERED_SHORT": "Inscrit",
+    "ANONYMOUS": "Anonyme",
+    "ANONYMOUS_SHORT": "Anon"
+  },
+  "ROLE_LABEL": "Libellé du rôle",
+  "SCREENING_CERVICAL_CANCER": "cancer du col de l'utérus",
+  "SCREENING_COLORECTAL_CANCER": "cancer colorectal",
+  "SCREENING_HYPERTENSION": "dépistage de l'hypertension artérielle'",
+  "SEARCH": "Recherche",
+  "SELECT_CATEGORY": "Sélectionner un collège",
+  "SELECT_EFFECTOR": "Sélectionner un effecteur",
+  "SELECT_ROLE": "Sélectionner un rôle",
+  "SET_NEW_PASSWORD": "Créer un nouveau mot de passe",
+  "SIGNIN": "Se connecter",
+  "SIGNINGIN": "Connexion en cours...",
+  "SITES_ALL": "Tous les sites",
+  "SITES_PLURAL": "Sites",
+  "SITES_SINGULAR": "Site",
+  "SITES_TITLE": "Sites",
+  "SITE_COUNT": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "site",
+        "countPlural=other": "sites"
+      }
+    }
+  ],
+  "SKELETON_AUTOCOMPLETE_EMPTY_STATE": "Aucun résultat trouvé",
+  "STATUS_ACTIVE": "Actif",
+  "STATUS_ENDED": "Terminé",
+  "TIMELINE_TITLE": "Chronologie",
+  "TOLOGIN": "Se connecter",
+  "USERS_ACCESS_RESTRICTED": "Accès restreint aux super-utilisateurs et administrateurs.",
+  "USERS_DESELECT_ALL": "Tout désélectionner",
+  "USERS_EXPORTING": "Export en cours…",
+  "USERS_EXPORT_LISTMONK_TOGGLE": "Exporter vers Listmonk",
+  "USERS_EXPORT_SELECTION": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "Exporter {count} utilisateur",
+        "countPlural=other": "Exporter {count} utilisateurs"
+      }
+    }
+  ],
+  "USERS_SELECTED_COUNT": "{selected} / {total} sélectionné(s)",
+  "USERS_SELECT_ALL": "Tout sélectionner",
+  "USER_GUIDE": "guide utilisateur",
+  "USER_PROFILE": "Profil de {userName}",
+  "USER_ROLE": "Rôle",
+  "VACANT": "Vacant.",
+  "WEBSITE": "site web",
+  "WEB_ADDRESS": "Adresse web",
+  "YES": "oui",
+  "batch_email": "e-mail groupé",
+  "category": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "catégorie",
+        "countPlural=other": "catégories"
+      }
+    }
+  ],
+  "create_entry_cta": "Créer votre entrée!",
+  "creator": "Créateur",
+  "from": "de",
   "invitation": [
     {
       "declarations": [
@@ -411,6 +499,87 @@
       "match": {
         "countPlural=one": "invitation",
         "countPlural=other": "invitations"
+      }
+    }
+  ],
+  "invitee_noun": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "invitation",
+        "countPlural=other": "invitations"
+      }
+    }
+  ],
+  "mention_ipa": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "mention",
+        "countPlural=other": "mentions"
+      }
+    }
+  ],
+  "my_entries": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "mon entrée",
+        "countPlural=other": "mes entrées"
+      }
+    }
+  ],
+  "no_entry": "Aucune entrée.",
+  "owner": "Propriétaire",
+  "selected": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "sélectionné",
+        "countPlural=other": "sélectionnés"
+      }
+    }
+  ],
+  "sent_emails": "e-mails envoyés",
+  "signin_cta": "Pour tester, connectez-vous !",
+  "signout": "Se déconnecter",
+  "slug": "permalien",
+  "tag": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "étiquette",
+        "countPlural=other": "étiquettes"
       }
     }
   ],
@@ -429,165 +598,5 @@
       }
     }
   ],
-  "USERS_EXPORT_LISTMONK_TOGGLE": "Exporter vers Listmonk",
-  "USERS_SELECT_ALL": "Tout sélectionner",
-  "USERS_DESELECT_ALL": "Tout désélectionner",
-  "USERS_SELECTED_COUNT": "{selected} / {total} sélectionné(s)",
-  "USERS_EXPORTING": "Export en cours…",
-  "USERS_EXPORT_SELECTION": [
-    {
-      "declarations": [
-        "input count",
-        "local countPlural = count: plural"
-      ],
-      "selectors": [
-        "countPlural"
-      ],
-      "match": {
-        "countPlural=one": "Exporter {count} utilisateur",
-        "countPlural=other": "Exporter {count} utilisateurs"
-      }
-    }
-  ],
-  "USERS_ACCESS_RESTRICTED": "Accès restreint aux super-utilisateurs et administrateurs.",
-  "my_entries": [
-    {
-      "declarations": [
-        "input count",
-        "local countPlural = count: plural"
-      ],
-      "selectors": [
-        "countPlural"
-      ],
-      "match": {
-        "countPlural=one": "mon entrée",
-        "countPlural=other": "mes entrées"
-      }
-    }
-  ],
-  "creator": "Créateur",
-  "owner": "Propriétaire",
-  "no_entry": "Aucune entrée.",
-  "create_entry_cta": "Créer votre entrée!",
-  "NO_OPTIONS": "Aucune option",
-  "AVATAR_UPLOAD": "Ajouter une photo",
-  "AVATAR_CHANGE": "Modifier la photo",
-  "AVATAR_DELETE": "Supprimer la photo",
-  "AVATAR_CROP_TITLE": "Photo de profil",
-  "AVATAR_SELECT_FILE": "Sélectionner une image",
-  "AVATAR_UPLOADING": "Envoi en cours...",
-  "AVATAR_UPLOAD_BTN": "Envoyer",
-  "AVATAR_UPLOAD_SUCCESS": "Photo mise à jour",
-  "AVATAR_BROWSE": "Parcourir",
-  "AVATAR_NO_FILE": "Aucun fichier sélectionné",
-  "AVATAR_ACCESS_LABEL": "Qui peut voir cette photo ?",
-  "AVATAR_ACCESS_PUBLIC": "Cette photo est visible par tous les visiteurs du site.",
-  "AVATAR_ACCESS_TEAM": "Cette photo est visible uniquement par les membres de l'organisation authentifiés.",
-  "AVATAR_ACCESS_ADMIN": "Cette photo est visible uniquement par les administrateurs de l'organisation authentifiés.",
-  "AVATAR_ACCESS_SAVED": "Visibilité mise à jour",
-  "batch_email": "e-mail groupé",
-  "sent_emails": "e-mails envoyés",
-  "CATEGORIES": "Catégories",
-  "EFFECTOR_TYPE_TITLE": "Types d'effecteur",
-  "EFFECTOR_TYPE_CREATE": "Créer un type d'effecteur",
-  "EFFECTOR_TYPE_EDIT": "Modifier le type d'effecteur",
-  "EFFECTOR_TYPE_DELETE": "Supprimer le type d'effecteur",
-  "EFFECTOR_TYPE_COL_NAME": "Nom",
-  "EFFECTOR_TYPE_COL_LABEL": "Libellé",
-  "EFFECTOR_TYPE_COL_SYNONYMS": "Synonymes",
-  "EFFECTOR_TYPE_COL_PARENT": "Parent",
-  "EFFECTOR_TYPE_COL_LABELS": "Labels",
-  "EFFECTOR_TYPE_COL_ACTIONS": "Actions",
-  "EFFECTOR_TYPE_DELETE_CONFIRM": "Êtes-vous sûr de vouloir supprimer le type d'effecteur",
-  "EFFECTOR_TYPE_NO_PARENT": "Aucun parent",
-  "EFFECTOR_TYPE_DEFINITION": "Définition",
-  "EFFECTOR_TYPE_SLUG": "Permalien",
-  "EFFECTOR_TYPE_PARENT_PLACEHOLDER": "Sélectionner un parent...",
-  "EFFECTOR_TYPE_MESH_UNIQUE_ID": "MeSH unique ID",
-  "EFFECTOR_TYPE_CONCEPT": "Concept",
-  "selected": [
-    {
-      "declarations": [
-        "input count",
-        "local countPlural = count: plural"
-      ],
-      "selectors": [
-        "countPlural"
-      ],
-      "match": {
-        "countPlural=one": "sélectionné",
-        "countPlural=other": "sélectionnés"
-      }
-    }
-  ],
-  "ASSOCIATION_TITLE": "Association",
-  "AFFILIATED_MEMBERS": "Membres affiliés",
-  "BOARD_MEMBERS": "Membres du conseil d'administration",
-  "BOARD_MEMBERS_SHORT": "CA",
-  "BOARD_MEMBER": "Membre du conseil d'administration",
-  "OFFICERS": "Membres du bureau",
-  "OFFICERS_SHORT": "Bureau",
-  "OFFICER": "Membre du bureau",
-  "ORGANIZATION_ROLES": "Rôles de l'organisation",
-  "ORGANIZATION_ROLE": "Rôle de l'organisation",
-  "ADMIN_ACCESS_RESTRICTED": "Accès restreint aux super-utilisateurs et administrateurs.",
-  "INVITEES_FORBIDDEN_TITLE": "Page réservée aux administrateurs",
-  "INVITEES_FORBIDDEN_TEXT": "La gestion des invitations est réservée aux administrateurs de l'organisation. Votre compte ne dispose pas de ce niveau d'accès.",
-  "INVITEES_FORBIDDEN_CONTACT": "Si vous pensez devoir y accéder, contactez un administrateur de l'organisation.",
-  "GO_BACK": "Retour",
-  "COL_EFFECTOR": "Effecteur",
-  "COL_ROLE": "Rôle",
-  "COL_START": "Début",
-  "COL_STOP": "Fin",
-  "COL_ACTIONS": "Actions",
-  "COL_LABEL": "Libellé",
-  "STATUS_ACTIVE": "Actif",
-  "STATUS_ENDED": "Terminé",
-  "BOARD_MEMBER_CREATE": "Ajouter un membre du CA",
-  "BOARD_MEMBER_UPDATE": "Modifier le membre du CA",
-  "BOARD_MEMBER_DELETE": "Supprimer le membre du CA",
-  "BOARD_MEMBER_DELETE_CONFIRM": "Définir une date de fin pour ce membre du bureau ?",
-  "OFFICER_CREATE": "Ajouter un membre du bureau",
-  "OFFICER_UPDATE": "Modifier le membre du bureau",
-  "OFFICER_DELETE": "Supprimer le membre du bureau",
-  "ORG_ROLE_CREATE": "Créer un rôle",
-  "ORG_ROLE_UPDATE": "Modifier le rôle",
-  "ORG_ROLE_DELETE": "Supprimer le rôle",
-  "ORG_ROLE_DELETE_CONFIRM": "Êtes-vous sûr de vouloir supprimer ce rôle ?",
-  "ORG_ROLE_DELETE_CONFLICT": "Ce rôle ne peut pas être supprimé car il est lié à des responsables.",
-  "SELECT_EFFECTOR": "Sélectionner un effecteur",
-  "SELECT_ROLE": "Sélectionner un rôle",
-  "ROLE_LABEL": "Libellé du rôle",
-  "MEMBERSHIP_CATEGORY": [
-    {
-      "declarations": [
-        "input count",
-        "local countPlural = count: plural"
-      ],
-      "selectors": [
-        "countPlural"
-      ],
-      "match": {
-        "countPlural=one": "collège",
-        "countPlural=other": "collèges"
-      }
-    }
-  ],
-  "MEMBERSHIP_CATEGORY_CREATE": "Ajouter un collège",
-  "MEMBERSHIP_CATEGORY_UPDATE": "Modifier le collège",
-  "MEMBERSHIP_CATEGORY_DELETE": "Supprimer le collège",
-  "MEMBERSHIP_CATEGORY_DELETE_CONFIRM": "Êtes-vous sûr de vouloir supprimer ce collège ?",
-  "MEMBERSHIP_CATEGORY_DELETE_CONFLICT": "Ce collège ne peut pas être supprimé car il est lié à des membres du conseil.",
-  "COL_CATEGORY": "Collège",
-  "FILTER_ALL": "Tous",
-  "SELECT_CATEGORY": "Sélectionner un collège",
-  "VACANT": "Vacant.",
-  "NO_OFFICER": "Aucun membre du bureau.",
-  "NO_BOARD_MEMBER": "Aucun membre du conseil d'administration.",
-  "JOIN": "Adhérer",
-  "signin_cta": "Pour tester, connectez-vous !",
-  "FACILITIES_ALL": "Tous les établissements",
-  "EDIT_MODE_TOGGLE": "Mode édition",
-  "EDIT_MODE_ENABLE": "Activer le mode édition",
-  "EDIT_MODE_DISABLE": "Quitter le mode édition"
+  "with": "avec"
 }
