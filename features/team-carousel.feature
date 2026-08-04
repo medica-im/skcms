@@ -7,6 +7,11 @@ Feature: Team carousel navigation
 
   Avatar visibility itself is covered by features/avatar-access.feature.
 
+  The home page carries a second carousel for the facilities, built from the
+  same library. Everything below is about the team one, so the steps address it
+  through its own section rather than through the library's markers, which both
+  carousels emit.
+
   Scenario: Both navigation buttons are shown when the carousel has several slides
     Given the home page carousel has more than one slide
     Then a previous and a next button are visible

@@ -32,10 +32,24 @@ print("ACCESS_SET", c.avatar_access)
 	expect(out).toContain('ACCESS_SET anonymous');
 });
 
-/** Horizontal scroll offset of the carousel track. */
+/**
+ * The home page carries two carousels — the team and the facilities — and since
+ * both use svelte-light-carousel they share every marker the library emits
+ * (`data-carousel-slide`, `data-carousel-slider`) as well as the arrow classes
+ * this project styles them with. An unscoped locator therefore matches both and
+ * Playwright's strict mode rejects it.
+ *
+ * These scenarios are about the team carousel, so every locator below is scoped
+ * to its section. Before the facility carousel was migrated it used a different
+ * library with different markup, which made the unscoped locators unique by
+ * accident; that is no longer true.
+ */
+const teamCarousel = (page: import('@playwright/test').Page) => page.locator('#team');
+
+/** Horizontal scroll offset of the team carousel's track. */
 async function trackOffset(page: import('@playwright/test').Page) {
 	return page.evaluate(() => {
-		const track = document.querySelector('[data-carousel-slide]')?.parentElement;
+		const track = document.querySelector('#team [data-carousel-slider]');
 		return track ? Math.round(track.scrollLeft) : -1;
 	});
 }
@@ -43,21 +57,19 @@ async function trackOffset(page: import('@playwright/test').Page) {
 // The arrows are flex siblings ordered around the track, not absolutely
 // positioned, so they are identified by their order class.
 const prevButton = (page: import('@playwright/test').Page) =>
-	page.locator('.carousel-arrow.order-first');
+	teamCarousel(page).locator('.carousel-arrow.order-first');
 const nextButton = (page: import('@playwright/test').Page) =>
-	page.locator('.carousel-arrow.order-last');
+	teamCarousel(page).locator('.carousel-arrow.order-last');
 
 Given('the home page carousel has more than one slide', async ({ page, context, baseURL }) => {
 	// A superuser sees every avatar, which guarantees several slides regardless
 	// of the access levels currently set on the test data.
 	await addSessionCookie(context, 'superuser', baseURL);
 	await page.goto('/', { waitUntil: 'networkidle' });
-	const slides = page.locator('[data-carousel-slide]');
+	const slides = teamCarousel(page).locator('[data-carousel-slide]');
 	await expect(slides.first()).toBeAttached({ timeout: 20_000 });
 	expect(await slides.count(), 'expected more than one carousel slide').toBeGreaterThan(1);
-	// Autoplay would move the carousel under the test; hovering pauses it.
-	await page.locator('figure').first().hover();
-	await page.waitForTimeout(1000);
+	await pauseAutoplay(page);
 });
 
 Then('a previous and a next button are visible', async ({ page }) => {
@@ -98,7 +110,7 @@ Then('the carousel has moved to another slide', async ({ page }) => {
  * the image inside still resizes.
  */
 async function avatarBox(page: import('@playwright/test').Page) {
-	const image = page.locator('figure img').first();
+	const image = teamCarousel(page).locator('figure img').first();
 	await image.waitFor({ timeout: 20_000 });
 	return image.evaluate((img) => {
 		const rect = img.getBoundingClientRect();
@@ -126,7 +138,7 @@ Given('I load the home page without JavaScript', async ({ browser, baseURL }) =>
 	});
 	// An avatar is intrinsically sized, so its box only means anything once the
 	// image has actually loaded.
-	await page.locator('figure img').first().waitFor({ timeout: 20_000 });
+	await teamCarousel(page).locator('figure img').first().waitFor({ timeout: 20_000 });
 	await page.waitForTimeout(500);
 	ssrBox = (await avatarBox(page)) as Box | null;
 	await context.close();
@@ -138,7 +150,7 @@ Given('I note the size of the first avatar', async ({}) => {
 
 When('I load the home page with JavaScript', async ({ page }) => {
 	await page.goto('/', { waitUntil: 'networkidle' });
-	await page.locator('[data-carousel-slide]').first().waitFor({ timeout: 20_000 });
+	await teamCarousel(page).locator('[data-carousel-slide]').first().waitFor({ timeout: 20_000 });
 	await pauseAutoplay(page);
 	hydratedBox = (await avatarBox(page)) as Box | null;
 });
@@ -164,9 +176,13 @@ Then('the avatar has not moved horizontally', async ({}) => {
 	).toBeLessThanOrEqual(1);
 });
 
-/** Autoplay would move the carousel under the assertions; hovering pauses it. */
+/**
+ * Autoplay would move the carousel under the assertions; hovering pauses it.
+ * Scoped to the team section — hovering the facility carousel would pause that
+ * one instead and leave this one still moving.
+ */
 async function pauseAutoplay(page: import('@playwright/test').Page) {
-	await page.locator('figure').first().hover();
+	await teamCarousel(page).locator('figure').first().hover();
 	await page.waitForTimeout(800);
 }
 
