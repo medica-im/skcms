@@ -5,12 +5,54 @@
 	import SitesLink from '$lib/components/Sites/SitesLink.svelte';
 	import { page } from '$app/state';
 	import UpdateFacilityModal from '$lib/Web/Facility/UpdateFacilityModal.svelte';
+	import PlaceImageUploadModal from '$lib/Web/Facility/PlaceImageUploadModal.svelte';
+	import Switch from '$lib/Switch/Switch.svelte';
+	import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+	import { setEditMode, getEditMode } from '$lib/components/Directory/context';
 	import Back from '$lib/components/Directory/Back.svelte';
 	import type { FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 	import type { Facility } from '$lib/interfaces/facility.interface';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
+
+	// Same store the entry page uses, so the pencil behaves identically here.
+	setEditMode();
+	const editMode = getEditMode();
+
+	/**
+	 * Whether this visitor may change this facility.
+	 *
+	 * Asked of the server rather than inferred from the session: being signed in
+	 * says nothing about being connected to *this* facility, and a staff member
+	 * of the organisation who has no entry here may not edit it. Gating on the
+	 * session alone offered the controls to everyone with an account and left
+	 * the server to refuse them on save.
+	 *
+	 * Starts false so the controls never flash into view before the answer
+	 * arrives.
+	 */
+	let canEdit = $state(false);
+
+	$effect(() => {
+		const uid = dataV2?.uid;
+		if (!uid || !page?.data?.session) {
+			canEdit = false;
+			return;
+		}
+		let current = true;
+		fetch(`/api/facility/${uid}/can-edit`)
+			.then((response) => (response.ok ? response.json() : { can_edit: false }))
+			.then((body) => {
+				if (current) canEdit = body.can_edit === true;
+			})
+			.catch(() => {
+				if (current) canEdit = false;
+			});
+		return () => {
+			current = false;
+		};
+	});
 
 	let dataV2 = $derived(data.facility ? getFacilityV2(data.facility) : undefined);
 	function getFacilityV2(facility: Facility): FacilityV2 {
@@ -50,7 +92,10 @@
 			zip: facility.address.zip,
 			effectors: null,
 			ban_id: null,
-			ban_banId: null
+			ban_banId: null,
+			// Carried through so the button can offer to modify an existing
+			// picture rather than to add a first one.
+			image: facility.image ?? null
 		};
 	}
 
@@ -65,17 +110,61 @@
 	</title>
 </svelte:head>
 
-<header id="hero" class="bg-surface-100-800-token hero-gradient">
+<header id="hero" class="bg-surface-100-800-token hero-gradient relative">
 	<div class="mx-0 flex flex-col items-center justify-center p-4 py-6">
 		<h2 class="h2">{data.facility?.name}</h2>
 	</div>
+	<!--
+		The pencil overlays the title band rather than the content below it, which
+		keeps it clear of the buttons it reveals: when they appeared directly
+		underneath, pressing the pencil a second time landed on "edit facility"
+		and edit mode could not be turned off.
+
+		Absolutely positioned, so it claims no space and the title stays centred.
+	-->
+	{#if canEdit && dataV2}
+		<!--
+			Inset grows with the screen: 12px keeps the pencil clear of the edge
+			on a phone without crowding the title, 16px gives it room to breathe
+			once there is room to spare.
+		-->
+		<div class="absolute top-3 right-3 sm:top-4 sm:right-4 z-50">
+			<Switch icon={faPenToSquare} />
+		</div>
+		{#if $editMode}
+			<!--
+				Tucked just under the pencil — top-14 clears its 40px plus the 8px
+				offset — and absolutely positioned so revealing them moves nothing
+				on the page. They may hang past the header; overflow stays visible.
+			-->
+			<!--
+				The transparency lives on the buttons themselves (a translucent
+				surface token plus backdrop-blur, so it reads dark-on-light or
+				light-on-dark with the theme). No opacity here, which would dim
+				them a second time and wash out the text.
+			-->
+			<!--
+				Sits one pencil-height plus a gap below it, tracking the inset
+				above so the two stay aligned: 12+40+8 on a phone, 16+40+8 once
+				there is room. (Tailwind 3 has no top-15, hence the explicit
+				values.)
+			-->
+			<div
+				class="absolute top-[60px] right-3 sm:top-16 sm:right-4 z-40 flex flex-col items-end gap-2"
+			>
+				<UpdateFacilityModal facility={dataV2} />
+				<PlaceImageUploadModal
+					facilityUid={dataV2.uid}
+					hasImage={!!dataV2.image}
+					alt={dataV2.image?.alt ?? ''}
+				/>
+			</div>
+		{/if}
+	{/if}
 </header>
-{#if page?.data?.session && dataV2}
-	<div id="sticky-banner" tabindex="-1" class="sticky top-0 right-10 w-full flex justify-end z-100">
-		<UpdateFacilityModal facility={dataV2} />
-	</div>
-{/if}
-<div class="mx-0 flex flex-col items-center justify-center p-4 py-6">
+<!-- Breathing room at the sides grows with the screen: on a wide monitor the
+     columns would otherwise run almost to the edges of the window. -->
+<div class="mx-0 flex flex-col items-center justify-center p-4 py-6 lg:px-8 xl:px-12 2xl:px-20">
 	<div class="grid grid-cols-1 w-full gap-4 mx-auto justify-items-center">
 		<FacilityPage facility={data.facility} entries={data.entryMap} />
 		<SitesLink />

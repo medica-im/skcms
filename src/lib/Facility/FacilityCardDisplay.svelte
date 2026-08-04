@@ -8,6 +8,7 @@
 	import Navigation from '$lib/Navigation/Navigation.svelte';
 	import { createMapData2 } from '$lib/components/Map/mapData.ts';
 	import UpdateFacilityModal from '$lib/Web/Facility/UpdateFacilityModal.svelte';
+	import PlaceImageUploadModal from '$lib/Web/Facility/PlaceImageUploadModal.svelte';
 	import type { FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 	import type { Facility } from '$lib/interfaces/v2/facility.ts';
 
@@ -44,7 +45,14 @@
 		<div class="overflow-hidden m-1 p-1">
 			<div class="p-2 space-y-2">
 				{#if update}
-					<UpdateFacilityModal bind:facility={data} />
+					<div class="flex flex-col items-start gap-2">
+						<UpdateFacilityModal bind:facility={data} />
+						<PlaceImageUploadModal
+							facilityUid={data.uid}
+							hasImage={!!data.image}
+							alt={data.image?.alt ?? ''}
+						/>
+					</div>
 				{/if}
 				<div class="flex items-center text-wrap space-x-2">
 					<!--span class="badge variant-filled">Nom</span-->

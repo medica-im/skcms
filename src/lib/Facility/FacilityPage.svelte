@@ -31,17 +31,21 @@
 		return facilityGeoData;
 	};
 
-	function lgGridCols() {
-		if (facility?.avatar?.raw) {
-			return '3';
-		} else {
-			return '2';
-		}
-	}
+	// The column count used to be computed here and interpolated into class
+	// names, which Tailwind cannot see at build time. The row is now a flex
+	// layout whose items share the space evenly, so the count is implicit:
+	// whichever of the three columns exist divide the row between them.
 </script>
 
-<div class="grid grid-cols-1 md:flex md:flex-wrap lg:grid-cols-{lgGridCols()} gap-8 w-full mx-auto justify-items-center lg:justify-items-stretch self-items-center ">
-	<div class="space-y-4 mx-auto lg:w-{lgGridCols()=='2' ? '1/2' : '1/3'}">
+<!--
+	A flex row from lg up, with each column given a basis rather than a width:
+	`gap-8` sits between the items, so three thirds would overflow and the
+	columns would overlap. `flex-1` lets them share what the gaps leave over.
+-->
+<div
+	class="flex flex-col lg:flex-row lg:flex-nowrap gap-8 w-full mx-auto items-center lg:items-start"
+>
+	<div class="space-y-4 w-full max-w-lg lg:max-w-none lg:flex-1 lg:min-w-0">
 		<Address data={facility} />
 		{#if facility?.emails}
 			{#each facility?.emails as email}
@@ -74,15 +78,47 @@
 				<UuidHyphen data={facility.uid}/>
 			</div>
 		{/if}
-		<div class="lg:max-w-{lgGridCols()=='2' ? 'lg' : 'sm'}">
+		<div class="w-full">
 			<Types
 				data={entries}
 				displayEntries={true}
 			/>
 		</div>
 	</div>
-	{#if facility?.avatar?.raw}
-		<div class="mx-auto lg:w-1/3">
+	<!--
+		The photograph of the place, shown to every visitor: it is what lets a
+		patient recognize the building on arrival. Wide (16:9) on purpose — the
+		square frame below belongs to personal avatars and would crop the facade.
+	-->
+	{#if facility?.image?.lg || facility?.image?.raw}
+		<!--
+			The row is a flex container from md up (md:flex overrides the grid),
+			so items size to their content unless given a width. Hence the
+			explicit basis rather than leaving it to a grid track.
+		-->
+		<div class="mx-auto w-full max-w-lg lg:max-w-none lg:flex-1 lg:min-w-0">
+			<!--
+				Fills its share of the row rather than sitting at the avatar's
+				fixed 320px: a wide photograph of a building is unreadable at
+				that size. The aspect ratio is pinned so the row keeps its
+				height while the image loads.
+			-->
+			<figure class="mx-auto w-full">
+				<img
+					class="w-full h-auto aspect-video object-cover rounded-container-token"
+					src="{variables.BASE_URI}{facility.image.lg ?? facility.image.raw}"
+					alt={facility.image.alt || facility.name}
+				/>
+				<figcaption class="text-center w-full">
+					<div class="mx-auto text-primary">
+						{facility.name}
+					</div>
+				</figcaption>
+			</figure>
+		</div>
+	{:else if facility?.avatar?.raw}
+		<div class="mx-auto w-full max-w-lg lg:max-w-none lg:flex-1 lg:min-w-0">
+			<!-- Square, so it keeps its modest fixed size inside the column. -->
 			<figure class="content-center shrink mx-auto w-64 lg:w-80">
 				<img
 					class="h-auto w-fit"
@@ -97,8 +133,14 @@
 			</figure>
 		</div>
 	{/if}
+	<!--
+		The map fills its column instead of sitting at a fixed 384px: on a wide
+		screen that left ~200px of the column empty, and because the element was
+		also centred the leftover showed up as an outsized gap next to the
+		photograph. Height stays fixed — only the width follows the column.
+	-->
 	{#if facility.address.longitude && facility.address.latitude}
-		<div class="h-64 w-64 lg:w-96 lg:h-96 z-0 mx-auto lg:w-{lgGridCols()=='2' ? '1/2' : '1/3'}">
+		<div class="h-64 lg:h-96 z-0 mx-auto w-full max-w-lg lg:max-w-none lg:flex-1 lg:min-w-0">
 			<MapLibre data={createFacilitiesMapData([facility])} showTooltip={false} target={null} />
 		</div>
 	{/if}
