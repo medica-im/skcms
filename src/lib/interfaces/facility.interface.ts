@@ -27,6 +27,17 @@ export interface Avatar {
     access?: string
 }
 
+/**
+ * A wide (16:9) photograph of the place, as opposed to the square avatar.
+ * Carries no access level: a picture of a building is public.
+ */
+export interface PlaceImage {
+    sm: string|null,
+    lg: string|null,
+    raw: string|null,
+    alt: string
+}
+
 export interface Facility {
     uid: string;
     address: Address;
@@ -41,6 +52,7 @@ export interface Facility {
     socialnetworks: SocialNetwork[]|null;
     websites: Website[]|null;
     avatar: Avatar|null;
+    image: PlaceImage|null;
     emails: Email[]|null;
     phones: Phone[]|null;
     entries: string[];
