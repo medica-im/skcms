@@ -10,8 +10,11 @@ Feature: Avatar access level
   Enforcement is server-side (api.utils.scrub_avatar), so a restricted picture
   is never sent to an unauthorized viewer.
 
-  # The entry is taken from the site under test rather than named: the app
-  # serves several datasets and a hardcoded slug only exists in one of them.
+  # Each scenario gets a throwaway copy of one of the site's entries, with a
+  # picture of its own, rather than borrowing a real one: these scenarios
+  # restrict the avatar to prove each level, and mutating a shared entry let
+  # other features reset it mid-assertion. Copying also avoids naming an entry,
+  # which would only exist in the dataset it was written against.
   Background:
     Given an entry of this site has an avatar
 

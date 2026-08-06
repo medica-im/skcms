@@ -1,14 +1,20 @@
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
-import { djangoShell, clearApiCache } from './seed';
+import { djangoShell, clearApiCache, SEED_TAG } from './seed';
 import { addSessionCookie } from './common.steps';
 import { facilityCtx, enterEditMode } from './facilityContext';
-import type { TestRole } from '../tests/fixtures/session';
+import { apiOrigin, type TestRole } from '../tests/fixtures/session';
 
 const { Given, When, Then, After } = createBdd();
 
-/** Backend of the site under test — must match PUBLIC_ORIGIN in .env. */
-const API_ORIGIN = process.env.PUBLIC_ORIGIN ?? 'http://dev.sante-gadagne.fr';
+/** Backend of the site under test, read from PUBLIC_ORIGIN in .env. */
+const API_ORIGIN = apiOrigin();
+
+/**
+ * The Django Site this checkout is configured against — the host of the same
+ * origin, so switching context with scripts/dev.sh moves both together.
+ */
+const SITE_DOMAIN = process.env.SEED_SITE_DOMAIN ?? new URL(API_ORIGIN).hostname;
 
 const addPictureButton = (page: import('@playwright/test').Page) =>
 	page.getByRole('button', { name: /photo du lieu/i }).first();
@@ -28,6 +34,13 @@ const ctx: typeof facilityCtx & {
 	ownershipLinked?: boolean;
 	/** Set when a scenario made the staff test user creator of the facility. */
 	creatorLinked?: boolean;
+	/**
+	 * Set when aFacility() seeded the facility ctx.uid points to, so After
+	 * knows it is this file's own throwaway facility to delete — not one
+	 * ctx.uid inherited from another feature's step, which facilityCtx is
+	 * deliberately shared with.
+	 */
+	seededFacility?: boolean;
 } = facilityCtx;
 
 /**
@@ -53,7 +66,15 @@ async function makeImage(
 	);
 }
 
-/** Picks a facility of the site under test rather than naming one. */
+/**
+ * Creates a facility of our own rather than picking one of the site's: these
+ * scenarios make the staff test user its owner and give it a picture, and
+ * under parallel workers a facility borrowed from the real, shared dataset
+ * gets fought over — one worker's teardown (After, below) revokes ownership
+ * or removes the picture out from under a sibling worker still mid-scenario.
+ * Tagged with the worker-scoped SEED_TAG so cleanup only ever touches this
+ * worker's own facility. Mirrors seedFacility in facility-deletion.steps.ts.
+ */
 async function aFacility() {
 	// Once a scenario has settled on a facility — typically by making the signed
 	// in user answerable for it — every later step must stay with that one.
@@ -63,14 +84,65 @@ async function aFacility() {
 		return { uid: ctx.uid, slug: ctx.slug };
 	}
 
-	const response = await fetch(`${API_ORIGIN}/api/v2/public/facilities`, {
-		headers: { Accept: 'application/json', 'Cache-Control': 'no-cache' }
-	});
-	expect(response.ok, `GET public/facilities -> ${response.status}`).toBeTruthy();
-	const facilities = (await response.json()) as { uid: string; slug: string; image?: unknown }[];
-	const candidate = facilities.find((f) => f.slug);
-	expect(candidate, 'this site has no facility with a slug').toBeTruthy();
-	return candidate!;
+	// randomUUID() gives the facility and entry unique identity on its own;
+	// this suffix only keeps the human-readable slug from colliding too.
+	const worker = process.env.TEST_PARALLEL_INDEX ?? '0';
+
+	const out = await djangoShell(`
+from neomodel import db
+from directory.models.core import Directory
+from django.contrib.sites.models import Site
+
+site = Site.objects.get(domain=${JSON.stringify(SITE_DOMAIN)})
+directory = Directory.objects.filter(site=site).first()
+assert directory, "no directory for site"
+
+# public/facilities (api/routers/public_facilities.py) requires the full chain
+# (Directory)-[:HAS_ENTRY]->(Entry)-[:HAS_EFFECTOR]->(Effector), plus
+# (Entry)-[:HAS_FACILITY]->(Facility)-[:LOCATED_IN_THE_ADMINISTRATIVE_TERRITORIAL_ENTITY*]->(Country)
+# and Entry.active = true — a facility that only exists as a bare node with an
+# entry pointing at it, as an earlier version of this seed did, 404s from that
+# endpoint even though it exists via the plain /facilities/{uid} lookup.
+rows, _ = db.cypher_query("""
+MATCH (f:Facility)-[:LOCATED_IN_THE_ADMINISTRATIVE_TERRITORIAL_ENTITY]->(:Commune)-[:LOCATED_IN_THE_ADMINISTRATIVE_TERRITORIAL_ENTITY*]->(:Country)
+RETURN f.uid LIMIT 1
+""")
+assert rows, "no facility with a full geography chain to model the seeded one on"
+model_uid = rows[0][0]
+
+rows, _ = db.cypher_query("""
+MATCH (e:Effector) RETURN e.uid LIMIT 1
+""")
+assert rows, "no effector to attach the seeded entry to"
+effector_uid = rows[0][0]
+
+rows, _ = db.cypher_query("""
+MATCH (model:Facility {uid: $model})-[:LOCATED_IN_THE_ADMINISTRATIVE_TERRITORIAL_ENTITY]->(commune:Commune)
+CREATE (f:Facility {uid: randomUUID(), name: 'e2e place image facility',
+                    slug: $facilitySlug, location: model.location, ${SEED_TAG}: true})
+MERGE (f)-[:LOCATED_IN_THE_ADMINISTRATIVE_TERRITORIAL_ENTITY]->(commune)
+RETURN f.uid, f.slug
+""", {"model": model_uid, "facilitySlug": "e2e-place-image-facility-${worker}"})
+facility_uid, facility_slug = rows[0]
+
+db.cypher_query("""
+MATCH (d:Directory {name: $dir})
+MATCH (f:Facility {uid: $facility})
+MATCH (ef:Effector {uid: $effector})
+CREATE (e:Entry {uid: randomUUID(), slug: $entrySlug, active: true, ${SEED_TAG}: true})
+CREATE (e)-[:HAS_FACILITY]->(f)
+CREATE (e)-[:HAS_EFFECTOR]->(ef)
+MERGE (d)-[:HAS_ENTRY]->(e)
+""", {"dir": directory.name, "facility": facility_uid, "effector": effector_uid,
+      "entrySlug": "e2e-place-image-entry-${worker}"})
+
+print("FACILITY_SEEDED", facility_uid, facility_slug)
+`);
+	const match = out.match(/FACILITY_SEEDED (\S+) (\S+)/);
+	if (!match) throw new Error(`seeding facility failed: ${out}`);
+	await clearApiCache();
+	ctx.seededFacility = true;
+	return { uid: match[1], slug: match[2] };
 }
 
 /**
@@ -146,6 +218,22 @@ MATCH (f:Facility {uid: $facility})-[r:CREATED_BY]->(u:User {sub: "e2e-sub-staff
 DELETE r
 """, {"facility": "${uid}"})
 print("CREATOR_RESTORED")
+`);
+		await clearApiCache();
+	}
+	// The facility itself was ours, not one borrowed from the real dataset:
+	// delete it outright rather than trying to undo individual relationships.
+	if (ctx.seededFacility && ctx.uid) {
+		const uid = ctx.uid;
+		ctx.seededFacility = false;
+		await djangoShell(`
+from neomodel import db
+db.cypher_query("""
+MATCH (f:Facility {uid: $facility})
+OPTIONAL MATCH (f)<-[:HAS_FACILITY]-(e:Entry)
+DETACH DELETE f, e
+""", {"facility": "${uid}"})
+print("SEEDED_FACILITY_REMOVED")
 `);
 		await clearApiCache();
 	}

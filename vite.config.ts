@@ -38,6 +38,20 @@ export default defineConfig(({ mode }) => {
 		},
 		server: {
 			host: true,
+			// Vite rejects requests whose Host header it doesn't recognize
+			// (DNS-rebinding protection). Nginx forwards the real
+			// dev.<site> Host through, so that hostname must be allowed —
+			// derived from API_URL rather than hardcoded so every
+			// scripts/dev.sh context keeps working.
+			//
+			// '.dev.medica.im' additionally allows every subdomain of it (Vite
+			// treats a leading dot as a suffix match), which is what the BDD
+			// suite's per-worker hosts w0…wN.dev.medica.im need: each Playwright
+			// worker browses its own hostname so the backend resolves it to its
+			// own Site, and workers stop contending over one dataset. All of
+			// them are served by this single dev server, so one entry covers any
+			// number of workers — see scripts/nginx/e2e-workers.conf.
+			allowedHosts: [new URL(API_URL).hostname, '.dev.medica.im'],
 			watch: {
 				ignored: [
 					'**/node_modules/**',

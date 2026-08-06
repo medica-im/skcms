@@ -1,38 +1,30 @@
-import { execFile } from 'node:child_process';
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
-import { SESSION_COOKIE, type TestRole } from '../tests/fixtures/session';
+import { apiOrigin, sessionCookieName, type TestRole } from '../tests/fixtures/session';
 import { addSessionCookie } from './common.steps';
-import { seedAvatar, removeSeededAvatar, SEED_TAG } from './seed';
+import { seedAvatar, cloneEntry, removeClonedEntry, djangoShell, SEED_TAG } from './seed';
 
 const { Given, When, Then, After } = createBdd();
 
-/** Set when this run gave an entry a picture, so teardown can take it away. */
-let seededAvatarUid: string | null = null;
+/** The throwaway entry this scenario created, so teardown can delete it. */
+let clonedUid: string | null = null;
 
 /**
- * These scenarios change avatar_access to prove each level, so without this the
- * dataset is left restricted and the *next* run finds no visible avatar at all.
+ * Deletes the clone, which takes its avatar and its access level with it.
+ *
+ * Nothing needs restoring: the scenarios no longer touch any entry that existed
+ * before them, so there is no state to put back.
  */
 After(async () => {
-	if (ctx.uid) {
-		await djangoShell(`
-from addressbook.models import Contact
-c = Contact.objects.get(neomodel_uid="${ctx.uid}")
-c.avatar_access = "anonymous"
-c.save()
-print("ACCESS_RESTORED")
-`);
-	}
-	if (seededAvatarUid) {
-		const uid = seededAvatarUid;
-		seededAvatarUid = null;
-		await removeSeededAvatar(uid);
-	}
+	if (!clonedUid) return;
+	const uid = clonedUid;
+	clonedUid = null;
+	ctx.uid = undefined;
+	ctx.slug = '';
+	ctx.imageStem = undefined;
+	await removeClonedEntry(uid);
 });
 
-const BACKEND_DIR = new URL('../../backend', import.meta.url).pathname;
-const COMPOSE_FILE = 'docker-compose-development.yml';
 // Must be the real hostname: the backend resolves the Site from it, and Node's
 // fetch refuses to override the Host header (a manual one yields 403).
 /**
@@ -40,34 +32,18 @@ const COMPOSE_FILE = 'docker-compose-development.yml';
  * PUBLIC_ORIGIN in .env. Hardcoding one site's domain makes every scenario
  * read another dataset's entries and fail on data that is simply elsewhere.
  */
-const API_ORIGIN = process.env.PUBLIC_ORIGIN ?? 'http://dev.sante-gadagne.fr';
+const API_ORIGIN = apiOrigin();
 
 /**
  * Per-scenario state.
  *
- * `imageStem` is the file name the entry's picture is stored under, without any
+ * `imageStem` is the file name the picture is stored under, without any
  * thumbnailer suffix — the one thing every rendition of that picture has in
- * common. It is read from the API rather than derived from the uid: uploaded
- * files are named after the person ("florence_senechal-viennot.jpg"), so a
- * locator built from the uid matches nothing outside of seeded avatars.
+ * common, so a locator built from it matches whichever the page renders.
+ * Since the avatar is always one this file seeded onto its own clone, the name
+ * is known up front rather than read back from the API.
  */
 const ctx: { slug: string; uid?: string; avatar?: unknown; imageStem?: string } = { slug: '' };
-
-/** Run Python in the backend's Django shell (the only way to set avatar_access). */
-function djangoShell(code: string): Promise<string> {
-	return new Promise((resolve, reject) => {
-		const child = execFile(
-			'docker',
-			['compose', '-f', COMPOSE_FILE, 'exec', '-T', 'django', 'python', 'manage.py', 'shell'],
-			{ cwd: BACKEND_DIR, timeout: 60_000 },
-			(error, stdout, stderr) => {
-				if (error) return reject(new Error(`django shell failed: ${stderr || error.message}`));
-				resolve(stdout);
-			}
-		);
-		child.stdin?.end(code);
-	});
-}
 
 async function apiGet(path: string) {
 	const response = await fetch(`${API_ORIGIN}${path}`, {
@@ -77,37 +53,22 @@ async function apiGet(path: string) {
 	return response.json();
 }
 
-/** Avatar presence never changes during a run; check it once (each shell call is ~10s). */
-const avatarChecked = new Set<string>();
-
 /**
- * Records the stored file name of an entry's picture, so the carousel can be
- * searched for it later.
+ * Gives the scenario an entry of its own, with an avatar of its own.
  *
- * The API returns the same image in several renditions — "raw" is the uploaded
- * file, "sm" and "lg" append a thumbnailer suffix to it
- * ("…/x.jpg.256x256_q85_crop-smart.jpg"). Keeping the raw basename therefore
- * matches whichever rendition the carousel happens to render.
+ * A *clone* rather than a borrowed entry, and this is the whole point: these
+ * scenarios restrict avatar_access to prove each level, and the previous
+ * version mutated a real entry that other features were reading at the same
+ * time. That produced a long tail of failures which looked like races but were
+ * plain interference — team-carousel resetting this row to "anonymous" on
+ * another worker, a memo that skipped re-seeding so a scenario inherited state
+ * it never established, an avatar left permanently public after a crashed run.
+ * An entry nobody else can see cannot be interfered with, so none of that
+ * bookkeeping is needed any more.
  *
- * A restricted avatar is absent from the payload entirely, so a missing one
- * leaves the previous stem in place rather than clearing it: the scenarios that
- * restrict access still need to know what to look for when asserting it is gone.
- */
-function rememberImageStem(avatar: unknown): void {
-	const urls = avatar as { raw?: string; sm?: string; lg?: string } | null | undefined;
-	const raw = urls?.raw ?? urls?.sm ?? urls?.lg;
-	if (!raw) return;
-	ctx.imageStem = raw.split('/').pop();
-}
-
-/**
- * Picks an entry of the site under test that has a picture, instead of naming
- * one: the app serves several datasets and a hardcoded slug only exists in the
- * one it was written against.
- *
- * The entry must also appear in the team carousel, which lists members of the
- * site's organization — otherwise the carousel scenarios have nothing to look
- * for even though the entry exists.
+ * The clone shares its type, facility, commune and organization with its
+ * source, so it appears in the directory listing and the team carousel exactly
+ * as the entry it was copied from would.
  */
 Given('an entry of this site has an avatar', async ({}) => {
 	const organization = await apiGet('/api/v2/organization');
@@ -119,38 +80,24 @@ Given('an entry of this site has an avatar', async ({}) => {
 		memberships?: string[];
 	}[];
 
-	// The entry must belong to the site's organization: the team carousel only
-	// shows members, so a non-member would make the carousel scenarios fail on
-	// data rather than on behaviour. Inactive entries are listed but 404 on
-	// /fullentries/slug, so they are excluded too.
+	// Copy a member of the site's organization: the team carousel only shows
+	// members, so cloning a non-member would make the carousel scenarios fail on
+	// data rather than on behaviour.
 	const members = entries.filter(
-		(e) => e.active && e.entrySlug && e.memberships?.includes(organization.uid)
+		(e) => e.uid && e.active && e.entrySlug && e.memberships?.includes(organization.uid)
 	);
 	expect(members.length, 'this site has no active entry in its organization').toBeGreaterThan(0);
 
-	// Prefer one that already has a picture; otherwise give one a seeded avatar
-	// so the scenarios do not depend on the dataset containing a photo.
-	const candidate = members.find((e) => e.avatar) ?? members[0];
-	ctx.slug = candidate.entrySlug!;
+	const clone = await cloneEntry({ sourceUid: members[0].uid! });
+	clonedUid = clone.uid;
+	ctx.uid = clone.uid;
+	ctx.slug = clone.slug;
 
-	const entry = await apiGet(`/api/v2/fullentries/slug/${ctx.slug}`);
-	expect(entry.uid, `entry ${ctx.slug} not found`).toBeTruthy();
-	ctx.uid = entry.uid;
-	rememberImageStem(entry.avatar);
-
-	if (avatarChecked.has(entry.uid)) return;
-	const out = await djangoShell(`
-from addressbook.models import Contact
-c = Contact.objects.get(neomodel_uid="${entry.uid}")
-print("HAS_AVATAR", bool(c.profile_image))
-`);
-	if (!out.includes('HAS_AVATAR True')) {
-		await seedAvatar({ entryUid: entry.uid, access: 'anonymous' });
-		seededAvatarUid = entry.uid;
-		// Seeding names the file itself, and the payload read above predates it.
-		ctx.imageStem = `${SEED_TAG}-${entry.uid}.png`;
-	}
-	avatarChecked.add(entry.uid);
+	// The clone is created without an image file, so the picture these scenarios
+	// hide and reveal is always one of ours: a tagged file whose name we know,
+	// never a real person's photograph.
+	await seedAvatar({ entryUid: clone.uid, access: 'anonymous' });
+	ctx.imageStem = `${SEED_TAG}-${clone.uid}.png`;
 });
 
 Given('the avatar access level is {string}', async ({}, access: string) => {
@@ -161,6 +108,10 @@ c.avatar_access = "${access}"
 c.save()
 print("ACCESS_SET", c.avatar_access)
 `);
+	// djangoShell drops the cached payloads itself. It has to: seeding the
+	// clone's avatar just before this warms the cache with the level it was
+	// created at, so a read served from that copy would show the picture to a
+	// scenario asserting it is hidden.
 	expect(out).toContain(`ACCESS_SET ${access}`);
 });
 
@@ -276,7 +227,8 @@ When('I sign out', async ({ page, context }) => {
 	// so wait for the cookie to disappear rather than for a navigation.
 	await expect
 		.poll(
-			async () => (await context.cookies()).some((c) => c.name === SESSION_COOKIE && c.value),
+			async () =>
+				(await context.cookies()).some((c) => c.name === sessionCookieName(API_ORIGIN) && c.value),
 			{ timeout: 30_000, message: 'session cookie was not cleared' }
 		)
 		.toBe(false);
@@ -297,7 +249,8 @@ When('I sign out from the app bar', async ({ page, context }) => {
 		.click();
 	await expect
 		.poll(
-			async () => (await context.cookies()).some((c) => c.name === SESSION_COOKIE && c.value),
+			async () =>
+				(await context.cookies()).some((c) => c.name === sessionCookieName(API_ORIGIN) && c.value),
 			{ timeout: 30_000, message: 'session cookie was not cleared' }
 		)
 		.toBe(false);

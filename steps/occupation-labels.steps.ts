@@ -1,7 +1,8 @@
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
 import { buttonLabel, tooltipLabel } from '../src/lib/Organization/occupationLabel.js';
-import { seedEffectorType, removeSeededData } from './seed';
+import { seedEffectorType, removeSeededEffectorType } from './seed';
+import { apiOrigin } from '../tests/fixtures/session';
 
 const { Given, Then, After } = createBdd();
 
@@ -14,28 +15,35 @@ Given('the home page team section is displayed', async ({ page }) => {
 	await expect(occupationButtons(page).first()).toBeVisible({ timeout: 20_000 });
 });
 
-/** The site this checkout is configured against (see PUBLIC_ORIGIN in .env). */
-const SITE_DOMAIN = process.env.SEED_SITE_DOMAIN ?? 'dev.sante-gadagne.fr';
+/**
+ * The Django Site this checkout is configured against — the host of
+ * PUBLIC_ORIGIN, so switching context with scripts/dev.sh moves both together.
+ */
+const SITE_DOMAIN = process.env.SEED_SITE_DOMAIN ?? new URL(apiOrigin()).hostname;
 
-let seeded = false;
+/**
+ * The slug this scenario seeded, so teardown removes exactly that one.
+ *
+ * Not a boolean plus removeSeededData(): the seed tag is per worker, so wiping
+ * everything tagged also deleted the type the *other* scenario in this feature
+ * was still using when they shared a worker.
+ */
+let seededSlug: string | null = null;
 
 Given(
 	'the site has an effector type named {string} labelled {string}',
 	async ({}, name: string, label: string) => {
-		await seedEffectorType({
-			siteDomain: SITE_DOMAIN,
-			name,
-			label,
-			slug: `e2e-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`
-		});
-		seeded = true;
+		const slug = `e2e-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+		await seedEffectorType({ siteDomain: SITE_DOMAIN, name, label, slug });
+		seededSlug = slug;
 	}
 );
 
 After(async () => {
-	if (!seeded) return;
-	seeded = false;
-	await removeSeededData();
+	if (!seededSlug) return;
+	const slug = seededSlug;
+	seededSlug = null;
+	await removeSeededEffectorType(slug);
 });
 
 Then('the occupation button shows {string}', async ({ page }, expected: string) => {
