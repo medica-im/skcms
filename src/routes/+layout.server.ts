@@ -1,10 +1,12 @@
 import { ORIGIN } from '$lib/utils/origin.ts';
 import { authReq } from '$lib/utils/request';
 import { getEntries } from '$lib/api.ts';
+import { getSituationsV2 } from '$lib/store/directoryStore';
 import type { Organization } from '$lib/interfaces/organization.ts';
 import type { LayoutServerLoad } from "./$types"
 import type { User } from "$lib/interfaces/user.interface";
 import type { Entry } from '$lib/store/directoryStoreInterface';
+import type { Situation } from '$lib/store/directoryStoreInterface.ts';
 import type { Labels } from '$lib/interfaces/label.interace.ts';
 import type { Directory } from '$lib/interfaces/directory.interface.ts';
 
@@ -70,6 +72,14 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch, depends }
     console.error(`labels from layout.server.ts ${error.message}`);
   }
 
+  // globalThis.fetch, not SvelteKit's event fetch, for the same reason as
+  // entries above: the event fetch's same-origin check compares against the
+  // scheme Vite itself sees, which does not account for TLS terminated by a
+  // proxy in front of it.
+  let situations: Situation[] | undefined = directory?.inputField.situation
+    ? await getSituationsV2(globalThis.fetch)
+    : undefined;
+
   return {
     user: user,
     session: await locals.auth(),
@@ -77,5 +87,6 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch, depends }
     directory: directory,
     entries: entries,
     labels: labels,
+    situations: situations,
   }
 }

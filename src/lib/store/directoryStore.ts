@@ -96,7 +96,7 @@ export const getSituationsV2 = async (fetch: Fetch): Promise<Situation[] | undef
 		}
 		situations = await response.json() as Situation[];
 	} catch (error: any) {
-		console.error('There was an error while retrieving entries from layout.ts', error.message);
+		console.error('There was an error while retrieving situations', error.message);
 	}
 	return situations
 };

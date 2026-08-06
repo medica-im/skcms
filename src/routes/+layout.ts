@@ -3,6 +3,7 @@ import { checkVersion } from '$lib/version';
 import { getSituationsV2 } from '$lib/store/directoryStore';
 import type { User } from "$lib/interfaces/user.interface";
 import type { Entry } from '$lib/store/directoryStoreInterface';
+import type { Situation } from '$lib/store/directoryStoreInterface.ts';
 import type { LayoutLoad } from './$types';
 import { browser } from "$app/environment"
 
@@ -56,8 +57,13 @@ export const load: LayoutLoad = async ({ fetch, data, depends }) => {
     }
   }
 
+  let situations: Situation[] | undefined;
+  if ( browser && import.meta.env.PROD && data.directory?.inputField.situation ) {
+    situations = await getSituationsV2(fetch);
+  }
+
   return {
-    situations: data.directory?.inputField.situation ? await getSituationsV2(fetch) : undefined,
+    situations: situations || data.situations,
     directory: data.directory,
     session: data.session,
     user: user || data.user,
