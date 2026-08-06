@@ -39,3 +39,8 @@ __screenshots__
 # (needed because the broad `.env.*` rule above would hide it).
 .env.test-all
 !.env.test-all.example
+
+# Personal working notes (review lists, scratch analysis). Untracked on
+# purpose: they are a snapshot of one moment's opinion, not project
+# documentation, so they would go stale in review rather than being updated.
+docs/
