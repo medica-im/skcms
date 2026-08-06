@@ -15,6 +15,32 @@ export const handleError: HandleServerError = async ({ error }) => {
     return { message: 'Une erreur inattendue est survenue.' };
 };
 
+/**
+ * Vite's dev server always sees plain HTTP from nginx, which terminates TLS
+ * in front of it — nothing tells SvelteKit the original request was HTTPS.
+ * event.url then disagrees with PUBLIC_ORIGIN (which is https://), and
+ * anything that compares the two breaks: Auth.js's PKCE cookie is encrypted
+ * with a salt derived from the cookie name, which itself depends on whether
+ * Auth.js believes the request is secure — a mismatch between the /signin
+ * request and the callback request makes decryption fail even though the
+ * cookie arrives intact (InvalidCheck: value could not be parsed). The same
+ * mismatch also broke SSR fetches back to PUBLIC_ORIGIN, simulating a CORS
+ * failure server-side.
+ *
+ * Only rewrites when x-forwarded-proto disagrees with what event.url already
+ * has, so this is a no-op both in production behind a proxy configured the
+ * same way and when running without one (e.g. `vite preview`).
+ */
+const trustForwardedProto: Handle = async ({ event, resolve }) => {
+	const proto = event.request.headers.get('x-forwarded-proto');
+	if (proto && event.url.protocol !== `${proto}:`) {
+		const url = new URL(event.url);
+		url.protocol = proto;
+		event.request = new Request(url, event.request);
+	}
+	return resolve(event);
+};
+
 const handleDebug: Handle = async ({ event, resolve }) => {
     if (env.DEBUG_MODE === 'true') {
         console.log(`[DEBUG] Requête reçue : ${event.request.method} ${event.url.pathname}`);
@@ -49,6 +75,7 @@ const paraglideHandle: Handle = ({ event, resolve }) =>
 	});
 
 export const handle = sequence(
+	trustForwardedProto,
 	handleDebug,
 	handleAuth,
 	paraglideHandle,
