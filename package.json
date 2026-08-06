@@ -15,14 +15,14 @@
 		"test:all": "./scripts/test-all.sh",
 		"test:bdd": "playwright test",
 		"test:bdd:ui": "playwright test --ui",
-		"test:bdd:seed": "docker compose -f ../backend/docker-compose-development.yml exec -T django python manage.py shell < tests/fixtures/seed_test_users.py",
+		"test:bdd:seed": "SEED_SITE_DOMAIN=${SEED_SITE_DOMAIN:-$(sed -n 's|^PUBLIC_ORIGIN=\"\\?https\\?://\\([^\"/]*\\).*|\\1|p' .env)} sh -c 'docker compose -f ../backend/docker-compose-development.yml exec -T -e SEED_SITE_DOMAIN=$SEED_SITE_DOMAIN django python manage.py shell' < tests/fixtures/seed_test_users.py",
 		"lint": "prettier --check .",
 		"format": "prettier --write ."
 	},
 	"devDependencies": {
 		"@cucumber/cucumber": "^13.2.0",
 		"@inlang/paraglide-js": "2.7.0",
-		"@playwright/test": "^1.57.0",
+		"@playwright/test": "^1.62.1",
 		"@skeletonlabs/skeleton": "^2.11.0",
 		"@skeletonlabs/tw-plugin": "^0.4.1",
 		"@sveltejs/adapter-node": "^5.5.7",

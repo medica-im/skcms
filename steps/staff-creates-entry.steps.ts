@@ -2,11 +2,12 @@ import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
 import { djangoShell, clearApiCache, SEED_TAG } from './seed';
 import { facilityCtx, enterEditMode } from './facilityContext';
+import { apiOrigin } from '../tests/fixtures/session';
 
 const { Given, When, Then, After } = createBdd();
 
-/** Backend of the site under test — must match PUBLIC_ORIGIN in .env. */
-const API_ORIGIN = process.env.PUBLIC_ORIGIN ?? 'http://dev.sante-gadagne.fr';
+/** Backend of the site under test, read from PUBLIC_ORIGIN in .env. */
+const API_ORIGIN = apiOrigin();
 
 /** Shared, so the facility page steps defined elsewhere find what we created. */
 const ctx: typeof facilityCtx & { created?: boolean } = facilityCtx;

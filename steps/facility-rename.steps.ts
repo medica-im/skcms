@@ -2,6 +2,7 @@ import { execFile } from 'node:child_process';
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
 import { enterEditMode } from './facilityContext';
+import { apiOrigin } from '../tests/fixtures/session';
 
 const { Given, When, Then, After } = createBdd();
 
@@ -20,7 +21,8 @@ const editButton = (page: import('@playwright/test').Page) =>
  */
 let original: { uid: string; name: string; slug: string } | null = null;
 
-const API_ORIGIN = 'http://dev.sante-gadagne.fr';
+/** Backend of the site under test, read from PUBLIC_ORIGIN in .env. */
+const API_ORIGIN = apiOrigin();
 
 /**
  * Facility slugs are looked up by name so scenarios can read naturally.

@@ -37,16 +37,50 @@ export const TEST_ACCOUNTS: Record<TestRole, { sub: string; email: string; name:
 	}
 };
 
-/** Non-secure cookie name: the dev server runs over plain http. */
-export const SESSION_COOKIE = 'authjs.session-token';
+/**
+ * Auth.js — and fastapi_nextauth_jwt on the backend, which derives its
+ * decryption key from this same name as the HKDF salt — switches to the
+ * "__Secure-" prefixed cookie whenever the site is served over https://. A
+ * cookie minted under the wrong name is encrypted with the wrong salt, so it
+ * fails to decrypt no matter how correct its claims are. See PUBLIC_ORIGIN
+ * in .env for which scheme the site under test actually uses.
+ */
+export function sessionCookieName(origin: string): string {
+	return origin.startsWith('https://') ? '__Secure-authjs.session-token' : 'authjs.session-token';
+}
+
+/**
+ * Reads a variable from the process environment, falling back to the .env the
+ * dev server itself was started with.
+ *
+ * Nothing loads .env into the Playwright process — no dotenv dependency, and
+ * `pnpm dev` reads it through Vite, which the test runner never goes through.
+ * A bare `process.env.X ?? 'some default'` in a step file therefore always
+ * takes the default, silently testing a different site than the one
+ * scripts/dev.sh selected.
+ */
+function readEnv(name: string): string | undefined {
+	if (process.env[name]) return process.env[name];
+	const env = readFileSync(new URL('../../.env', import.meta.url), 'utf8');
+	const match = env.match(new RegExp(`^${name}\\s*=\\s*"?([^"\\n#]+)"?`, 'm'));
+	return match?.[1].trim();
+}
 
 function readAuthSecret(): string {
-	if (process.env.AUTH_SECRET) return process.env.AUTH_SECRET;
-	// Fall back to the .env the dev server itself was started with.
-	const env = readFileSync(new URL('../../.env', import.meta.url), 'utf8');
-	const match = env.match(/^AUTH_SECRET\s*=\s*"?([^"\n#]+)"?/m);
-	if (!match) throw new Error('AUTH_SECRET not found in environment or .env');
-	return match[1].trim();
+	const secret = readEnv('AUTH_SECRET');
+	if (!secret) throw new Error('AUTH_SECRET not found in environment or .env');
+	return secret;
+}
+
+/**
+ * The site under test, scheme included — the single place every step file
+ * should get it from, so they cannot disagree about which site (or which
+ * scheme, which decides the cookie name above) they are exercising.
+ */
+export function apiOrigin(): string {
+	const origin = readEnv('PUBLIC_ORIGIN');
+	if (!origin) throw new Error('PUBLIC_ORIGIN not found in environment or .env');
+	return origin.replace(/\/$/, '');
 }
 
 /** Auth.js v5 key derivation (see fastapi_nextauth_jwt: HKDF-SHA256, salt = cookie name). */
@@ -61,9 +95,12 @@ async function derivedKey(secret: string, salt: string): Promise<Buffer> {
 	return Buffer.from(key as ArrayBuffer);
 }
 
-export async function createSessionCookie(role: TestRole): Promise<string> {
+export async function createSessionCookie(
+	role: TestRole,
+	origin = apiOrigin()
+): Promise<string> {
 	const account = TEST_ACCOUNTS[role];
-	const key = await derivedKey(readAuthSecret(), SESSION_COOKIE);
+	const key = await derivedKey(readAuthSecret(), sessionCookieName(origin));
 	const now = Math.floor(Date.now() / 1000);
 
 	const payload = JSON.stringify({
@@ -102,18 +139,18 @@ export async function createSessionCookie(role: TestRole): Promise<string> {
 
 /** Playwright storageState for a role, usable via browser.newContext(). */
 export async function storageStateForRole(role: TestRole, origin: string) {
-	const token = await createSessionCookie(role);
-	const { hostname } = new URL(origin);
+	const token = await createSessionCookie(role, origin);
+	const { hostname, protocol } = new URL(origin);
 	return {
 		cookies: [
 			{
-				name: SESSION_COOKIE,
+				name: sessionCookieName(origin),
 				value: token,
 				domain: hostname,
 				path: '/',
 				expires: Math.floor(Date.now() / 1000) + 3600,
 				httpOnly: true,
-				secure: false,
+				secure: protocol === 'https:',
 				sameSite: 'Lax' as const
 			}
 		],

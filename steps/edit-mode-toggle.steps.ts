@@ -1,21 +1,37 @@
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
+import { apiOrigin } from '../tests/fixtures/session';
 
 const { Given, When, Then } = createBdd();
 
-/**
- * Any entry page will do — the button is part of the shared contact layout, not
- * of one particular entry.
- */
-const ENTRY_SLUG = 'isabelle-dubuis-orthoptiste-69';
+/** Backend of the site under test, read from PUBLIC_ORIGIN in .env. */
+const API_ORIGIN = apiOrigin();
 
 const editButton = (page: import('@playwright/test').Page) =>
 	page.getByRole('switch').first();
 
+/**
+ * Any entry page will do — the button is part of the shared contact layout, not
+ * of one particular entry. Picked live rather than named: the app serves
+ * several datasets and a hardcoded slug only exists in the one it was written
+ * against.
+ */
+async function anyEntrySlug(): Promise<string> {
+	const response = await fetch(`${API_ORIGIN}/api/v2/entries`, {
+		headers: { Accept: 'application/json', 'Cache-Control': 'no-cache' }
+	});
+	expect(response.ok, `GET entries -> ${response.status}`).toBeTruthy();
+	const entries = (await response.json()) as { entrySlug?: string; active?: boolean }[];
+	const candidate = entries.find((e) => e.active && e.entrySlug);
+	expect(candidate, 'this site has no active entry').toBeTruthy();
+	return candidate!.entrySlug!;
+}
+
 // playwright-bdd matches on step text regardless of the Given/When keyword, so
 // each step is defined exactly once even when the feature uses both.
 Given('I open an entry page', async ({ page }) => {
-	await page.goto(`/e/${ENTRY_SLUG}`, { waitUntil: 'networkidle' });
+	const slug = await anyEntrySlug();
+	await page.goto(`/e/${slug}`, { waitUntil: 'networkidle' });
 });
 
 Then('no edit mode button is shown', async ({ page }) => {
