@@ -22,7 +22,9 @@ usage() {
     echo "  --dry-run    print what would run, without touching the server"
     echo
     echo "Environment:"
-    echo "  COMPOSE_FILE   compose file on the server (default: $COMPOSE_FILE)"
+    echo "  COMPOSE_FILE   fallback compose file on the server (default:"
+    echo "                 $COMPOSE_FILE). An image's own"
+    echo "                 compose_file: in $(basename "$IMAGES_FILE") wins over this."
 }
 
 if ! command -v yq >/dev/null 2>&1; then
@@ -77,11 +79,17 @@ for NAME in "${NAMES[@]}"; do
     HOST=$(jq -r '.host' <<<"$ENTRY")
     DIR=$(jq -r '.dir' <<<"$ENTRY")
     TAG=$(jq -r '.tag' <<<"$ENTRY")
+    # Per-image, because it is a property of the deployment and not of the run:
+    # a staging target defines its own service name and port
+    # (nodeserver_staging, NODE_PORT_EXTERNAL_STAGING) and adds a healthcheck,
+    # so deploying it with the production file starts the wrong service.
+    ENTRY_COMPOSE_FILE=$(jq -r '.compose_file // empty' <<<"$ENTRY")
+    ENTRY_COMPOSE_FILE="${ENTRY_COMPOSE_FILE:-$COMPOSE_FILE}"
 
-    echo "==> [$NAME] $TAG -> $HOST:$DIR"
+    echo "==> [$NAME] $TAG -> $HOST:$DIR ($ENTRY_COMPOSE_FILE)"
 
     if [[ $DRY_RUN -eq 1 ]]; then
-        echo "    (dry run) ssh $HOST: cd $DIR && docker compose -f $COMPOSE_FILE pull && up -d"
+        echo "    (dry run) ssh $HOST: cd $DIR && docker compose -f $ENTRY_COMPOSE_FILE pull && up -d"
         continue
     fi
 
@@ -93,13 +101,16 @@ cd "$DIR"
 export DOCKER_IMAGE_NAME="$TAG"
 
 echo "    pulling $TAG"
-docker compose -f "$COMPOSE_FILE" pull
+# --quiet: stdout here is a pipe, not a terminal, so Docker's progress bars
+# degrade to one line per frame — thousands of "Extracting 47.19MB" lines for
+# a single layer. Errors are still reported.
+docker compose -f "$ENTRY_COMPOSE_FILE" pull --quiet
 
 echo "    restarting"
-docker compose -f "$COMPOSE_FILE" up -d --remove-orphans
+docker compose -f "$ENTRY_COMPOSE_FILE" up -d --remove-orphans --quiet-pull
 
 echo "    running:"
-docker compose -f "$COMPOSE_FILE" ps --format '      {{.Service}}  {{.Status}}'
+docker compose -f "$ENTRY_COMPOSE_FILE" ps --format '      {{.Service}}  {{.Status}}'
 
 # Untagged layers from previous deploys add up on small servers.
 docker image prune -f >/dev/null
