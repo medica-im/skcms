@@ -73,14 +73,47 @@ function readAuthSecret(): string {
 }
 
 /**
+ * Hostname pattern for the per-worker sites. `{i}` is the worker index.
+ *
+ * Must agree with three other places or the suite silently tests the wrong
+ * thing: the nginx vhost (scripts/nginx/e2e-workers.conf, a `w\d+` regex),
+ * vite's allowedHosts (`.dev.medica.im` in vite.config.ts) and the seeder
+ * (WORKER_DOMAIN_TEMPLATE in tests/fixtures/seed_worker_sites.py).
+ */
+const WORKER_DOMAIN = process.env.E2E_WORKER_DOMAIN ?? 'w{i}.dev.medica.im';
+
+/**
  * The site under test, scheme included — the single place every step file
  * should get it from, so they cannot disagree about which site (or which
  * scheme, which decides the cookie name above) they are exercising.
+ *
+ * **Each worker gets its own site, not the one in .env.** The backend resolves
+ * which Site a request belongs to from the request hostname, so one hostname
+ * meant one shared dataset and four workers fighting over it: a scenario
+ * restricting an avatar and a sibling resetting it collided, and
+ * clearApiCache() — a global Redis flush — dropped one worker's payload between
+ * another's write and its read. Those failures looked like races but were plain
+ * interference, and no amount of per-scenario cloning removes a shared
+ * resource. A hostname per worker gives each its own Site, Directory,
+ * Organization and entries, so there is nothing left to contend over.
+ *
+ * It also decouples the suite from `scripts/dev.sh`: which site you happen to
+ * be developing no longer decides what the tests exercise, and a run cannot
+ * mutate the dataset you are looking at in the browser.
+ *
+ * TEST_PARALLEL_INDEX is set by Playwright in each worker process and is stable
+ * for its lifetime. It is absent in the main process — where playwright.config
+ * is evaluated — so callers that need the origin before workers exist (the
+ * `webServer` readiness check) must not rely on this.
+ *
+ * https, always: Auth.js derives the session-cookie name *and* its encryption
+ * salt from whether the request looks secure, and the backend's
+ * fastapi_nextauth_jwt derives the same salt independently. Serve these over
+ * plain http and every authenticated scenario 401s.
  */
-export function apiOrigin(): string {
-	const origin = readEnv('PUBLIC_ORIGIN');
-	if (!origin) throw new Error('PUBLIC_ORIGIN not found in environment or .env');
-	return origin.replace(/\/$/, '');
+export function apiOrigin(workerIndex?: number): string {
+	const index = workerIndex ?? Number(process.env.TEST_PARALLEL_INDEX ?? 0);
+	return `https://${WORKER_DOMAIN.replace('{i}', String(index))}`;
 }
 
 /** Auth.js v5 key derivation (see fastapi_nextauth_jwt: HKDF-SHA256, salt = cookie name). */

@@ -36,9 +36,18 @@ RETURN count(n)
 """)
 
 # Facilities created by the scenarios that make one from scratch.
+#
+# The worker sites' own facilities are excluded: they are named e2e-wN-facility
+# and so match the same prefix, but they are *fixtures*, seeded once by
+# seed_worker_sites.py and expected to outlive the run. Deleting them detached
+# every entry from its facility, which drops the whole site out of
+# /api/v2/entries (the query walks Entry->Facility->Commune->Department->
+# Country) — the API answered 200 with an empty list and every scenario failed
+# on "this site has no active entry", pointing nowhere near here.
 facilities, _ = db.cypher_query("""
 MATCH (f:Facility)
-WHERE f.slug STARTS WITH 'e2e-' OR f.name STARTS WITH 'e2e '
+WHERE (f.slug STARTS WITH 'e2e-' OR f.name STARTS WITH 'e2e ')
+  AND coalesce(f.e2eWorkerSite, false) = false
 DETACH DELETE f
 RETURN count(f)
 """)

@@ -1,10 +1,11 @@
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
+import { test } from './fixtures';
 import { djangoShell, clearApiCache } from './seed';
 import { facilityCtx } from './facilityContext';
 import { apiOrigin } from '../tests/fixtures/session';
 
-const { Given, Then } = createBdd();
+const { Given, Then } = createBdd(test);
 
 /** Backend of the site under test, read from PUBLIC_ORIGIN in .env. */
 const API_ORIGIN = apiOrigin();

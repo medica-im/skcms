@@ -1,9 +1,10 @@
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
+import { test } from './fixtures';
 import { enterEditMode } from './facilityContext';
 import { djangoShell, clearApiCache } from './seed';
 
-const { Given, When, Then, After } = createBdd();
+const { Given, When, Then, After } = createBdd(test);
 
 /** A facility of the site this checkout is configured for (see PUBLIC_ORIGIN). */
 const FACILITY_SLUG = 'pharmacie-des-felibres';

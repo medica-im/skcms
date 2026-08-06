@@ -12,14 +12,22 @@ const testDir = defineBddConfig({
  * Auth.js decides which session-cookie name/salt to use — both in SvelteKit's
  * own handler and independently in the backend's fastapi_nextauth_jwt — from
  * whether the request looks like https://. Browsing through localhost:3000
- * directly means Chromium only ever sees plain http, while the backend at
- * PUBLIC_ORIGIN is reached over real TLS: the two disagree and no cookie can
- * satisfy both. nginx already terminates TLS for every dev.yml context on
- * this box and forwards X-Forwarded-Proto (see hooks.server.ts's
- * trustForwardedProto), so routing the browser through PUBLIC_ORIGIN instead
- * of straight to Vite makes the scheme agree end-to-end.
+ * directly means Chromium only ever sees plain http, while the site is reached
+ * over real TLS: the two disagree and no cookie can satisfy both. nginx
+ * terminates TLS for the worker hostnames and forwards X-Forwarded-Proto (see
+ * hooks.server.ts's trustForwardedProto), so routing the browser through nginx
+ * makes the scheme agree end-to-end.
+ *
+ * **Per worker, not one origin for the run.** Each Playwright worker browses
+ * its own wN.dev.medica.im, which the backend resolves to its own Site and
+ * therefore its own dataset — see apiOrigin() in tests/fixtures/session.ts for
+ * why sharing one was untenable.
+ *
+ * baseURL has to be a *fixture* rather than a plain value: this file is
+ * evaluated once in the main process, where TEST_PARALLEL_INDEX does not exist
+ * yet. Reading it here would give every worker w0. The fixture below is
+ * evaluated inside each worker, where the index is set.
  */
-const baseURL = apiOrigin();
 
 export default defineConfig({
 	testDir,
@@ -30,17 +38,22 @@ export default defineConfig({
 	// Some steps drive the backend through `manage.py shell` in Docker, which
 	// costs ~10s per call, so the default 30s is too tight.
 	timeout: 120_000,
-	webServer: {
-		// Run against the dev server for fast BDD-driven development.
-		// Swap for `pnpm build && pnpm preview` (port 4173) for a prod-like run.
-		// Only the readiness check needs the local port — the browser itself
-		// goes through nginx (see baseURL above).
-		command: 'pnpm dev',
-		port: 3000,
-		reuseExistingServer: true
-	},
+	// No webServer: the suite needs one dev server *per worker*, each with its
+	// own .env and its own site, which a single command cannot express. They are
+	// started beforehand by
+	//
+	//     scripts/e2e-workers.sh start
+	//
+	// and nginx routes wN.dev.medica.im to the matching port. A webServer entry
+	// here would additionally start a fifth Vite on :3000 that contends with
+	// them over the shared pre-bundling cache in node_modules/.vite, and its
+	// `port` form would silently override the per-worker baseURL besides.
 	use: {
-		baseURL,
+		// Worker 0's site, and the value the baseURL fixture in steps/fixtures.ts
+		// shadows per worker. It has to be declared here all the same: the
+		// fixture overrides an *option*, and an option absent from the config is
+		// not one the `page` fixture resolves against.
+		baseURL: apiOrigin(0),
 		trace: 'on-first-retry'
 	},
 	projects: [

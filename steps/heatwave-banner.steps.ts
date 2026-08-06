@@ -1,7 +1,8 @@
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
+import { test } from './fixtures';
 
-const { Given, When, Then } = createBdd();
+const { Given, When, Then } = createBdd(test);
 
 const DISMISSED_KEY = 'heatwave-alert-dismissed-until';
 

@@ -1,10 +1,11 @@
 import { execFile } from 'node:child_process';
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
+import { test } from './fixtures';
 import { enterEditMode } from './facilityContext';
 import { apiOrigin } from '../tests/fixtures/session';
 
-const { Given, When, Then, After } = createBdd();
+const { Given, When, Then, After } = createBdd(test);
 
 const BACKEND_DIR = new URL('../../backend', import.meta.url).pathname;
 const COMPOSE_FILE = 'docker-compose-development.yml';

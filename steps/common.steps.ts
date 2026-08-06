@@ -1,4 +1,5 @@
 import { createBdd } from 'playwright-bdd';
+import { test } from './fixtures';
 import {
 	apiOrigin,
 	createSessionCookie,
@@ -6,7 +7,7 @@ import {
 	type TestRole
 } from '../tests/fixtures/session';
 
-const { Given } = createBdd();
+const { Given } = createBdd(test);
 
 /**
  * Run Python in the backend's Django shell. Some state (avatar_access) has no

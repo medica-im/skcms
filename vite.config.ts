@@ -7,6 +7,10 @@ import 'vitest/config';
 import { playwright } from '@vitest/browser-playwright';
 import * as path from 'path';
 
+// Where the compiled i18n messages go. Per dev server when several run from
+// this checkout at once — see the note on the plugin's outdir below.
+const PARAGLIDE_OUT_DIR = process.env.PARAGLIDE_OUT_DIR || './src/paraglide';
+
 export default defineConfig(({ mode }) => {
 	const env = loadEnv(mode, process.cwd());
 	const API_URL = `${env.VITE_BASE_URI_DEV ?? 'http://localhost:3000'}`;
@@ -18,7 +22,14 @@ export default defineConfig(({ mode }) => {
 			paraglideVitePlugin(
 				{
 					project: './project.inlang',
-					outdir: './src/paraglide',
+					// Normally ./src/paraglide. Overridable because the plugin
+					// *clears* this directory before writing, and the BDD suite
+					// runs one dev server per Playwright worker from this single
+					// checkout (scripts/e2e-workers.sh): sharing the outdir has
+					// them deleting each other's messages mid-write, leaving
+					// src/paraglide/messages empty and every page 500ing on
+					// "Cannot find module '$msgs'".
+					outdir: PARAGLIDE_OUT_DIR,
 					strategy: ['baseLocale'],
 				}
 			)
@@ -63,8 +74,10 @@ export default defineConfig(({ mode }) => {
 		resolve: {
 			alias: {
 				'$': path.resolve(__dirname, 'src'),
-				'$msgs': path.resolve('./src/paraglide/messages/_index.js'),
-				'$prgld': path.resolve('./src/paraglide/'),
+				// Follow PARAGLIDE_OUT_DIR, or these resolve to a directory the
+				// plugin is not writing to.
+				'$msgs': path.resolve(`${PARAGLIDE_OUT_DIR}/messages/_index.js`),
+				'$prgld': path.resolve(PARAGLIDE_OUT_DIR),
 				'$var': path.resolve('./src/var')
 			}
 		},

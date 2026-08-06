@@ -3,6 +3,12 @@ node_modules
 /build
 static
 /.svelte-kit
+# One dev server per Playwright worker (scripts/e2e-workers.sh) — each needs
+# its own build output, compiled messages and .env, all generated on start.
+/.svelte-kit-w*
+/src/paraglide-w*
+/.e2e-workers
+.env.test.w*
 /package
 .env
 .env.*

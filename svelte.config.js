@@ -1,6 +1,10 @@
 import adapter from '@sveltejs/adapter-node';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
+// Kept in step with vite.config.ts, which passes the same value to
+// paraglideVitePlugin's outdir.
+const PARAGLIDE_OUT_DIR = process.env.PARAGLIDE_OUT_DIR || './src/paraglide';
+
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	// Consult https://kit.svelte.dev/docs/integrations#preprocessors
@@ -9,14 +13,23 @@ const config = {
 		vitePreprocess({ script: true }),
 	],
 	kit: {
+		// Normally .svelte-kit. Overridable so several dev servers can run from
+		// this one checkout at once: the BDD suite gives each Playwright worker
+		// its own Vite instance (scripts/e2e-workers.sh), and they would
+		// otherwise overwrite each other's generated types and manifest in the
+		// shared directory — every request 500s with ENOENT on proxy+layout.
+		outDir: process.env.SVELTEKIT_OUT_DIR || '.svelte-kit',
 		version: {
 			pollInterval: 30000
         },
 		adapter: adapter(),
 		alias: {
 			$assets: './src/assets',
-			$msgs: './src/paraglide/messages/_index.js',
-			$prgld: './src/paraglide/',
+			// Follow PARAGLIDE_OUT_DIR like vite.config.ts does: several dev
+			// servers run from this checkout during the BDD suite and each
+			// compiles its messages to its own directory.
+			$msgs: `${PARAGLIDE_OUT_DIR}/messages/_index.js`,
+			$prgld: `${PARAGLIDE_OUT_DIR}/`,
 			$var: './src/routes/(skvar)/(var)',
 			$svlt: './src/routes/(skvar)/(svlt)',
 			'$routes': './src/routes',

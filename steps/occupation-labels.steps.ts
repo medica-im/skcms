@@ -1,10 +1,11 @@
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
+import { test } from './fixtures';
 import { buttonLabel, tooltipLabel } from '../src/lib/Organization/occupationLabel.js';
 import { seedEffectorType, removeSeededEffectorType } from './seed';
 import { apiOrigin } from '../tests/fixtures/session';
 
-const { Given, Then, After } = createBdd();
+const { Given, Then, After } = createBdd(test);
 
 /** The occupation buttons rendered by Occupations.svelte. */
 const occupationButtons = (page: import('@playwright/test').Page) =>

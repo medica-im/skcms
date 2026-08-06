@@ -1,10 +1,11 @@
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
+import { test } from './fixtures';
 import { apiOrigin, sessionCookieName, type TestRole } from '../tests/fixtures/session';
 import { addSessionCookie } from './common.steps';
 import { seedAvatar, cloneEntry, removeClonedEntry, djangoShell, SEED_TAG } from './seed';
 
-const { Given, When, Then, After } = createBdd();
+const { Given, When, Then, After } = createBdd(test);
 
 /** The throwaway entry this scenario created, so teardown can delete it. */
 let clonedUid: string | null = null;

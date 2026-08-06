@@ -1,8 +1,9 @@
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
+import { test } from './fixtures';
 import { addSessionCookie, djangoShell } from './common.steps';
 
-const { Given, When, Then } = createBdd();
+const { Given, When, Then } = createBdd(test);
 
 /** Backend of the site under test — must match PUBLIC_ORIGIN in .env. */
 const API_ORIGIN = process.env.PUBLIC_ORIGIN ?? 'http://dev.sante-gadagne.fr';

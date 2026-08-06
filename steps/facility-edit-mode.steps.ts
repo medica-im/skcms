@@ -1,10 +1,11 @@
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
+import { test } from './fixtures';
 import { facilityCtx } from './facilityContext';
 import { djangoShell, clearApiCache } from './seed';
 import { addSessionCookie } from './common.steps';
 
-const { Given, When, Then, After } = createBdd();
+const { Given, When, Then, After } = createBdd(test);
 
 /** Shared with the other facility features so "that facility" means one thing. */
 const ctx = facilityCtx;
