@@ -31,6 +31,10 @@ playwright-report
 blob-report
 .playwright
 
+# Vitest browser mode: screenshots and attachments written on failure only.
+.vitest-attachments
+__screenshots__
+
 # Local test-runner overrides; the .example template stays tracked
 # (needed because the broad `.env.*` rule above would hide it).
 .env.test-all

@@ -4,6 +4,7 @@ import { defineConfig, loadEnv } from 'vite';
 import { purgeCss } from 'vite-plugin-tailwind-purgecss';
 import devtoolsJson from 'vite-plugin-devtools-json';
 import 'vitest/config';
+import { playwright } from '@vitest/browser-playwright';
 import * as path from 'path';
 
 export default defineConfig(({ mode }) => {
@@ -23,10 +24,41 @@ export default defineConfig(({ mode }) => {
 			)
 		],
 		test: {
-			// Unit tests live in src/. Everything under tests/, features/ and
-			// .features-gen/ belongs to Playwright and must not be run by vitest.
-			include: ['src/**/*.{test,spec}.{js,ts}'],
-			exclude: ['**/node_modules/**', '.features-gen/**', 'tests/**', 'features/**']
+			// Two projects, split by what they need to run.
+			//
+			// Everything under tests/, features/ and .features-gen/ belongs to
+			// Playwright and must not be run by vitest in either project.
+			projects: [
+				{
+					// Plain logic: pure functions, no component, no DOM. Milliseconds.
+					extends: true,
+					test: {
+						name: 'unit',
+						environment: 'node',
+						include: ['src/**/*.{test,spec}.{js,ts}'],
+						// .svelte.test.ts files mount components and belong to the
+						// browser project below.
+						exclude: ['**/node_modules/**', 'src/**/*.svelte.{test,spec}.{js,ts}']
+					}
+				},
+				{
+					// Mounted components. A real browser rather than jsdom: Skeleton
+					// components and anything asserting on computed style or layout
+					// do not behave faithfully under a DOM shim.
+					extends: true,
+					test: {
+						name: 'component',
+						include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
+						exclude: ['**/node_modules/**'],
+						browser: {
+							enabled: true,
+							provider: playwright(),
+							headless: true,
+							instances: [{ browser: 'chromium' }]
+						}
+					}
+				}
+			]
 		},
 		resolve: {
 			alias: {
