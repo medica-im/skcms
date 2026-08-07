@@ -331,6 +331,28 @@ for i in range(WORKERS):
     if not organization.company_name:
         organization.company_name = f"E2E WORKER {i}"
         organization.save(update_fields=["company_name"])
+    # The display names, which are *not* the Contact's field of the same name:
+    # the home page titles itself
+    # `capitalizeFirstLetter(organization.formatted_name)` and the hero greets
+    # the visitor with formatted_name_definite_article, both read straight off
+    # this row. Left empty they render a literally empty <title> and a hero
+    # missing its subject, on a page that is otherwise a healthy 200.
+    #
+    # Repaired here rather than in the defaults above, which only apply when the
+    # row is created: the worker sites already exist, so a site seeded by an
+    # earlier version of this script would keep its empty names however often
+    # this is re-run. The article is lower-case and French because it is
+    # rendered mid-sentence ("la maison de santé de Gadagne").
+    display_names = {
+        "formatted_name": f"E2E worker {i}",
+        "formatted_name_short": f"E2E w{i}",
+        "formatted_name_definite_article": f"l'établissement E2E worker {i}",
+    }
+    stale = [f for f, v in display_names.items() if not getattr(organization, f)]
+    if stale:
+        for field in stale:
+            setattr(organization, field, display_names[field])
+        organization.save(update_fields=stale)
 
     # The organization's Contact — the Django half of the org, keyed on the same
     # entry uid as the graph node. OrganizationSerializer reads the address,
