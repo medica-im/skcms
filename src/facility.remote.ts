@@ -1,8 +1,13 @@
 import { error, redirect } from '@sveltejs/kit';
-import { getRequestEvent, query, form, command } from '$app/server';
+import { getRequestEvent, form, command } from '$app/server';
 import * as z from "zod";
 import { authReq } from '$lib/utils/request.ts';
 import { variables } from '$lib/utils/constants.ts';
+
+// Whether someone may edit a facility is asked in sites/[slug]/+page.server.ts,
+// not here. As a remote query it had to be awaited in the component, where the
+// answer arrived after rendering on a client-side navigation and the editing
+// controls stayed hidden until the page was reloaded.
 
 const postFacility = z.object({
 	name: z.string(),

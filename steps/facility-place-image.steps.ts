@@ -588,14 +588,21 @@ Then('the facility picture carries that description', async ({ page }) => {
 });
 
 /**
- * Asks the endpoint the page itself uses to decide whether to offer the
- * editing controls. Run through the browser so the session cookie is sent
- * exactly as it would be for a real visitor.
+ * Asks the backend the same question the page asks before offering the editing
+ * controls — the server load in sites/[slug]/+page.server.ts calls this very
+ * endpoint.
+ *
+ * Run through the browser so the session cookie is sent exactly as it would be
+ * for a real visitor. Root-relative, so nginx routes it to the backend on
+ * whichever worker host this scenario is browsing.
  */
 async function askCanEdit(page: import('@playwright/test').Page, uid: string) {
 	await page.goto('/', { waitUntil: 'domcontentloaded' });
 	return page.evaluate(async (facilityUid) => {
-		const response = await fetch(`/api/facility/${facilityUid}/can-edit`);
+		const response = await fetch(`/api/v2/facilities/${facilityUid}/can-edit`, {
+			headers: { Accept: 'application/json' }
+		});
+		if (!response.ok) return { can_edit: false };
 		return (await response.json()) as { can_edit?: boolean };
 	}, uid);
 }

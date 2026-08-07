@@ -20,6 +20,8 @@
 	setEditMode();
 	const editMode = getEditMode();
 
+	let dataV2 = $derived(data.facility ? getFacilityV2(data.facility) : undefined);
+
 	/**
 	 * Whether this visitor may change this facility.
 	 *
@@ -29,32 +31,12 @@
 	 * session alone offered the controls to everyone with an account and left
 	 * the server to refuse them on save.
 	 *
-	 * Starts false so the controls never flash into view before the answer
-	 * arrives.
+	 * Answered in the load function, so it arrives with the page data on a
+	 * client-side navigation as well as on a reload. Awaiting it here instead
+	 * left it unresolved when the page was reached by following a link, and the
+	 * controls appeared only after a reload.
 	 */
-	let canEdit = $state(false);
-
-	$effect(() => {
-		const uid = dataV2?.uid;
-		if (!uid || !page?.data?.session) {
-			canEdit = false;
-			return;
-		}
-		let current = true;
-		fetch(`/api/facility/${uid}/can-edit`)
-			.then((response) => (response.ok ? response.json() : { can_edit: false }))
-			.then((body) => {
-				if (current) canEdit = body.can_edit === true;
-			})
-			.catch(() => {
-				if (current) canEdit = false;
-			});
-		return () => {
-			current = false;
-		};
-	});
-
-	let dataV2 = $derived(data.facility ? getFacilityV2(data.facility) : undefined);
+	let canEdit = $derived(data.canEdit === true);
 	function getFacilityV2(facility: Facility): FacilityV2 {
 		let location = null;
 		const latitude = facility.address.latitude;

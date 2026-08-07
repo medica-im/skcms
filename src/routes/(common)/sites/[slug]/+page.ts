@@ -1,44 +1,21 @@
-import { ORIGIN } from '$lib/utils/origin.ts';
 import { facilityEntries } from '$lib/components/Directory/sites.ts';
-import { error } from '@sveltejs/kit';
-import type { Facility } from '$lib/interfaces/facility.interface.ts';
 import type { PageLoad } from './$types';
 
-function isHexUUID(h: string) {
-    return h.match(/^[a-f0-9]{32}$/i) !== null;
-}
-
-export const load: PageLoad = async ({ params, fetch, parent }) => {
-    const { entries } = await parent();
-    if (entries===undefined) throw new Error("entries undefined")
-    const { labels } = await parent();
-    if ( labels === undefined ) throw new Error("labels undefined")
-    let facility: Facility;
-    const slug = params.slug;
-    if (!slug) {
-        error(404, 'Slug manquant.');
-    }
-    const endpoint = isHexUUID(slug) ? 'public/facilitiesuid' : 'public/facilities';
-    const url = `${ORIGIN}/api/v2/${endpoint}/${slug}`;
-    const response = await fetch(url,
-        {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'content-type': 'application/json'
-            }
-        });
-    if (!response.ok) {
-        console.error(`sites/[slug] PageLoad fetch ${url} response status: ${response.status}`);
-        error(response.status, {
-                    message: 'Une erreur est survenue.',
-                    code: response.status,
-                    type: 'site'
-                });
-    }
-    facility = await response.json() as Facility;
+/**
+ * The facility and `canEdit` come from the server load: the latter needs the
+ * session cookie, which only the server can read.
+ *
+ * What stays here is `entryMap`, and deliberately so. It is built from the
+ * layout's `entries`, which the universal layout re-fetches in the browser and
+ * only falls back to the server's copy — reading them through a server load
+ * would see the server copy alone, which comes back empty on staging.
+ */
+export const load: PageLoad = async ({ data, parent }) => {
+    const { entries, labels } = await parent();
+    if (entries === undefined) throw new Error("entries undefined")
+    if (labels === undefined) throw new Error("labels undefined")
     return {
-        facility: facility,
-        entryMap: facilityEntries(entries, facility?.uid, labels)
+        ...data,
+        entryMap: facilityEntries(entries, data.facility?.uid, labels)
     };
 }
