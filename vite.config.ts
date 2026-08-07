@@ -11,11 +11,21 @@ import * as path from 'path';
 // this checkout at once — see the note on the plugin's outdir below.
 const PARAGLIDE_OUT_DIR = process.env.PARAGLIDE_OUT_DIR || './src/paraglide';
 
+// Where dependency pre-bundling is cached. Per dev server for the same reason
+// as the outdir above: four servers optimizing deps into the default shared
+// node_modules/.vite invalidate each other's module graph mid-flight, and the
+// losers' SSR module requests never resolve — every route then 500s with
+// "transport invoke timed out" until they are restarted.
+const CACHE_DIR = process.env.VITE_CACHE_DIR;
+
 export default defineConfig(({ mode }) => {
 	const env = loadEnv(mode, process.cwd());
 	const API_URL = `${env.VITE_BASE_URI_DEV ?? 'http://localhost:3000'}`;
 	console.log("API_URL", API_URL);
 	return {
+		// Spread rather than set outright, so an ordinary `vite dev` keeps
+		// Vite's own default (node_modules/.vite) instead of an undefined.
+		...(CACHE_DIR ? { cacheDir: CACHE_DIR } : {}),
 		plugins: [
 			devtoolsJson(),
 			sveltekit(),

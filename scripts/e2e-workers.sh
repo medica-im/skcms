@@ -104,15 +104,32 @@ start() {
         # plugin *clears* its outdir before writing, so a shared one has four
         # servers deleting each other's compiled messages and every page 500s
         # with "Cannot find module '$msgs'".
+        # VITE_CACHE_DIR completes the set: dependency pre-bundling defaults to
+        # the shared node_modules/.vite, and four servers optimizing deps into
+        # one directory invalidate each other's module graph mid-flight. The
+        # loser's SSR fetchModule never resolves, so every request dies after
+        # 60s with "transport invoke timed out ... /src/app.postcss". It lands
+        # on +layout.svelte, so *every* route 500s, and the SvelteKit error page
+        # shows only "Internal Error" — the cause is visible solely in
+        # .e2e-workers/wN.log. The first server to boot wins the cache and
+        # behaves, which is what made this look like "w0 works, the rest are
+        # broken" rather than a shared-resource race.
+        #
+        # An env var read by vite.config.ts, not a --cacheDir flag: Vite 7 has
+        # no such CLI option and exits with "Unknown option `--cacheDir`".
         SVELTEKIT_OUT_DIR=".svelte-kit-w$i" \
         PARAGLIDE_OUT_DIR="./src/paraglide-w$i" \
+        VITE_CACHE_DIR=".vite-w$i" \
         nohup npx vite --port "$port" --strictPort --mode "test.w$i" \
             > "$RUN_DIR/w$i.log" 2>&1 &
         echo $! > "$RUN_DIR/w$i.pid"
         echo "  w$i -> https://$domain (vite :$port, pid $!, env $env_file)"
-        # Staggered: each instance still touches shared state on boot (the
-        # paraglide outdir above, dependency pre-bundling in node_modules/.vite),
-        # and starting them in lockstep is what turns that sharing into a race.
+        # Staggered so four cold Vite boots do not contend for the same cores.
+        # This is a courtesy now, not the thing keeping the servers correct:
+        # the out dirs and the dep cache above are per-worker, so a lockstep
+        # start is merely slower rather than racy. It used to be load-bearing
+        # for the dep cache, and was not sufficient — three of four servers
+        # still lost the race and served 500s for a whole run.
         sleep 3
     done
 

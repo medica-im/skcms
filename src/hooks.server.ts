@@ -37,6 +37,22 @@ const trustForwardedProto: Handle = async ({ event, resolve }) => {
 		const url = new URL(event.url);
 		url.protocol = proto;
 		event.request = new Request(url, event.request);
+		// event.url is its own property, derived when SvelteKit built the event
+		// — replacing event.request above does *not* update it. It is what the
+		// enhanced fetch compares a target URL against to decide same-origin, so
+		// leaving it on http:// while PUBLIC_ORIGIN is https:// makes every SSR
+		// fetch back to our own API look cross-origin and fail with a CORS
+		// error that never left the process (curl against the same URL returns
+		// the right Access-Control-Allow-Origin, which is what makes this so
+		// confusing to diagnose).
+		try {
+			Object.defineProperty(event, 'url', { value: url, configurable: true });
+		} catch {
+			// Older SvelteKit versions expose url as a non-configurable getter.
+			// Nothing to do but let the request through: the mismatch only
+			// affects absolute same-origin fetches, which the callers can avoid
+			// by using a root-relative path instead.
+		}
 	}
 	return resolve(event);
 };
