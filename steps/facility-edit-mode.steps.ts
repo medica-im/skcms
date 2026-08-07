@@ -34,6 +34,42 @@ const before: {
 	mapPresent?: boolean;
 } = {};
 
+/**
+ * Reaches the facility page by clicking a link, rather than by loading its URL.
+ * That is the case this scenario is about: a client-side navigation renders the
+ * page in the browser, so anything the page needs must arrive with its data —
+ * worked out in the component instead, the answer comes too late to be
+ * rendered and only a reload brings it back.
+ *
+ * The anchor is planted rather than found on a listing. The seeded facility is
+ * this worker's own and is not among the ones /sites lists, so looking for it
+ * there fails on the fixture rather than on the behaviour under test. What the
+ * scenario needs is a real click on a real anchor handled by the router, and a
+ * planted one is exactly that.
+ *
+ * A marker on the window proves it stayed client-side: a full page load would
+ * wipe it, and the scenario would be exercising a reload — precisely what it
+ * must not do.
+ */
+When('I reach the facility page by following a link to that facility', async ({ page }) => {
+	await page.goto('/', { waitUntil: 'networkidle' });
+
+	await page.evaluate((slug) => {
+		(window as any).__clientSideNav = true;
+		const anchor = document.createElement('a');
+		anchor.href = `/sites/${slug}`;
+		anchor.textContent = 'to the facility';
+		anchor.id = 'e2e-facility-link';
+		document.body.prepend(anchor);
+	}, ctx.slug);
+
+	await page.locator('#e2e-facility-link').click();
+	await page.waitForURL(`**/sites/${ctx.slug}`, { timeout: 20_000 });
+
+	const stayed = await page.evaluate(() => (window as any).__clientSideNav === true);
+	expect(stayed, 'the link caused a full page load, not a client-side navigation').toBe(true);
+});
+
 Then('I see the edit mode pencil', async ({ page }) => {
 	await expect(pencil(page)).toBeVisible({ timeout: 20_000 });
 });

@@ -22,6 +22,16 @@ Feature: Edit mode on the facility page
       And I open the facility page for a facility of this site
       Then I do not see the edit mode pencil
 
+    # Reaching the page by following a link inside the application is the
+    # ordinary way in, and it renders in the browser rather than on the server.
+    # Whether someone may edit has to travel with the page data: worked out in
+    # the component instead, the answer arrived too late to be rendered and the
+    # pencil showed up only once the page was reloaded.
+    Scenario: The pencil is shown after following a link to the facility
+      Given I am signed in as the owner of an entry at a facility of this site
+      When I reach the facility page by following a link to that facility
+      Then I see the edit mode pencil
+
   Rule: the editing buttons appear only in edit mode
 
     Scenario: The buttons are hidden until the pencil is pressed
