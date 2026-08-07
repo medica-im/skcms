@@ -3,11 +3,40 @@ import { createBdd } from 'playwright-bdd';
 import { test } from './fixtures';
 import { enterEditMode } from './facilityContext';
 import { djangoShell, clearApiCache } from './seed';
+import { apiOrigin } from '../tests/fixtures/session';
 
 const { Given, When, Then, After } = createBdd(test);
 
-/** A facility of the site this checkout is configured for (see PUBLIC_ORIGIN). */
-const FACILITY_SLUG = 'pharmacie-des-felibres';
+const API_ORIGIN = apiOrigin();
+
+/**
+ * The facility these scenarios work on, resolved once per scenario.
+ *
+ * Discovered rather than named. This used to be a hardcoded
+ * 'pharmacie-des-felibres', from before the suite gave each Playwright worker
+ * its own site: a worker site's facilities are *clones*, whose slugs carry the
+ * worker's own suffix ('e2e-w0-entry-1-facility'), so the constant resolved to
+ * a 404 on every worker and no edit button could ever appear. The whole feature
+ * failed on a page that was never loaded.
+ *
+ * Nothing here depends on *which* facility it is — the feature is about how the
+ * dialog behaves on a small screen — so any facility of the site under test
+ * will do, and asking the API for one keeps it right on every worker.
+ */
+const facilityCtx: { slug?: string } = {};
+
+async function facilitySlug(): Promise<string> {
+	if (facilityCtx.slug) return facilityCtx.slug;
+	const response = await fetch(`${API_ORIGIN}/api/v2/public/facilities`, {
+		headers: { Accept: 'application/json', 'Cache-Control': 'no-cache' }
+	});
+	expect(response.ok, `GET public/facilities -> ${response.status}`).toBeTruthy();
+	const facilities = (await response.json()) as { slug?: string }[];
+	const candidate = facilities.find((f) => f.slug);
+	expect(candidate, 'no facility with a slug on this site').toBeTruthy();
+	facilityCtx.slug = candidate!.slug;
+	return facilityCtx.slug!;
+}
 
 /** Viewport presets: a common phone, a short phone, and a laptop. */
 const SCREENS: Record<string, { width: number; height: number }> = {
@@ -25,7 +54,7 @@ const cancelButton = (page: import('@playwright/test').Page) =>
 	dialog(page).getByRole('button', { name: /Annuler|Fermer/ });
 
 Given('I open a facility page', async ({ page }) => {
-	await page.goto(`/sites/${FACILITY_SLUG}`, { waitUntil: 'networkidle' });
+	await page.goto(`/sites/${await facilitySlug()}`, { waitUntil: 'networkidle' });
 });
 
 /**
@@ -41,6 +70,7 @@ Given('I open a facility page', async ({ page }) => {
  * depended on, so it now creates what it claims.
  */
 Given('I own an entry linked to the facility', async ({}) => {
+	const slug = await facilitySlug();
 	const out = await djangoShell(`
 from neomodel import db
 
@@ -50,7 +80,7 @@ WITH e LIMIT 1
 MATCH (u:User)-[:HAS_ACCOUNT]->(:Account {sub: "e2e-sub-staff"})
 MERGE (e)-[:OWNED_BY]->(u)
 RETURN e.uid
-""", {"slug": ${JSON.stringify(FACILITY_SLUG)}})
+""", {"slug": ${JSON.stringify(slug)}})
 assert rows, "no entry at this facility, or no staff test user"
 print("OWNER_LINKED", rows[0][0])
 `);
@@ -60,13 +90,21 @@ print("OWNER_LINKED", rows[0][0])
 
 /** Undoes the ownership above, so the next run starts from a known state. */
 After(async () => {
+	// Only when a scenario actually resolved a facility: most of them never
+	// call the ownership step, and running the query against an undefined slug
+	// would pay for a ~10s django shell to delete nothing.
+	const slug = facilityCtx.slug;
+	// Cleared so the next scenario resolves the facility for its own worker
+	// site rather than inheriting this one's.
+	facilityCtx.slug = undefined;
+	if (!slug) return;
 	await djangoShell(`
 from neomodel import db
 db.cypher_query("""
 MATCH (e:Entry)-[:HAS_FACILITY]->(f:Facility {slug: $slug})
 MATCH (e)-[r:OWNED_BY]->(u:User {sub: "e2e-sub-staff"})
 DELETE r
-""", {"slug": ${JSON.stringify(FACILITY_SLUG)}})
+""", {"slug": ${JSON.stringify(slug)}})
 print("OWNERSHIP_RESTORED")
 `);
 	await clearApiCache();
