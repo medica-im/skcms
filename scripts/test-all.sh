@@ -34,8 +34,19 @@ BACKEND_WORKDIR="${BACKEND_WORKDIR:-/app}"
 NEO4J_SERVICE="${NEO4J_SERVICE:-neo4j}"
 NEO4J_CONTAINER="${NEO4J_CONTAINER:-backend-neo4j-1}"
 
-# Frontend dev server used by the Playwright/BDD suite.
-DEV_SERVER_URL="${DEV_SERVER_URL:-http://localhost:3000}"
+# Frontend dev servers used by the Playwright/BDD suite: one per worker, each
+# serving its own site over https through nginx (scripts/e2e-workers.sh).
+#
+# Deliberately not a single localhost:3000 server. Auth.js derives the session
+# cookie's name *and* its encryption salt from whether the request looks secure,
+# and the backend's fastapi_nextauth_jwt derives the same salt independently, so
+# a plain-http origin 401s every authenticated scenario. playwright.config.ts
+# carries no webServer entry for the same reason — nothing starts these but the
+# helper below.
+E2E_WORKERS="${E2E_WORKERS:-4}"
+# Left running after the suite by default: a cold Vite boot per worker costs
+# more than the whole BDD run, and the next invocation reuses them.
+E2E_STOP_AFTER="${E2E_STOP_AFTER:-0}"
 PKG_MANAGER="${PKG_MANAGER:-pnpm}"
 
 # Neo4j is slow to become healthy; `compose up --wait` alone gives up too early.
@@ -102,7 +113,7 @@ Key variables (override via env or $FRONTEND_DIR/.env.test-all):
   BACKEND_DIR=$BACKEND_DIR
   COMPOSE_FILE=$COMPOSE_FILE
   BACKEND_TEST_SERVICE=$BACKEND_TEST_SERVICE
-  DEV_SERVER_URL=$DEV_SERVER_URL
+  E2E_WORKERS=$E2E_WORKERS  E2E_STOP_AFTER=$E2E_STOP_AFTER
   SKIP_BACKEND=$SKIP_BACKEND  SKIP_FRONTEND=$SKIP_FRONTEND  SEED_BDD_USERS=$SEED_BDD_USERS
 EOF
 }
@@ -159,6 +170,56 @@ ensure_stack() {
     ok "backend stack healthy"
 }
 
+# --- Frontend dev servers for the BDD suite ----------------------------------
+# The hostname each worker is browsed at, mirroring worker_domain() in
+# e2e-workers.sh. Overridable together with E2E_WORKER_DOMAIN, which that script
+# already honours.
+#
+# The default is assigned separately rather than inline as
+# ${E2E_WORKER_DOMAIN:-w{i}.dev.medica.im}: bash reads the '}' of '{i}' as the
+# end of the parameter expansion, so that form yields "w{i.dev.medica.im}" and
+# every worker is probed at a hostname that does not resolve. The same trap is
+# documented in e2e-workers.sh, which solves it the same way.
+E2E_WORKER_DOMAIN_TEMPLATE="w{i}.dev.medica.im"
+[[ -n "${E2E_WORKER_DOMAIN:-}" ]] && E2E_WORKER_DOMAIN_TEMPLATE="$E2E_WORKER_DOMAIN"
+
+e2e_worker_origin() {
+    printf 'https://%s' "$(printf '%s' "$E2E_WORKER_DOMAIN_TEMPLATE" | sed "s/{i}/$1/")"
+}
+
+# Checked through nginx rather than on 127.0.0.1:<port>: a Vite process can be
+# up and bound while nginx still answers 502, and that combination is what makes
+# every scenario fail on a page the app never rendered. The suite browses these
+# origins, so these are what must answer.
+e2e_workers_ready() {
+    local i origin
+    for ((i = 0; i < E2E_WORKERS; i++)); do
+        origin="$(e2e_worker_origin "$i")"
+        curl -skf -o /dev/null --max-time 10 "$origin/" || return 1
+    done
+}
+
+ensure_e2e_workers() {
+    if e2e_workers_ready; then
+        info "reusing $E2E_WORKERS worker dev server(s)"
+        return 0
+    fi
+    info "starting $E2E_WORKERS worker dev server(s) (cold Vite boots take ~30s)..."
+    "$FRONTEND_DIR/scripts/e2e-workers.sh" start "$E2E_WORKERS" || {
+        fail "could not start the worker dev servers"; return 1
+    }
+    # e2e-workers.sh waits on 127.0.0.1:<port>; nginx needs a moment longer to
+    # route to a server that has only just begun answering.
+    local waited=0
+    while (( waited < 60 )); do
+        e2e_workers_ready && { ok "worker dev servers answering through nginx"; return 0; }
+        sleep 5; waited=$((waited + 5))
+    done
+    fail "worker dev servers did not answer through nginx in ${waited}s"
+    "$FRONTEND_DIR/scripts/e2e-workers.sh" status || true
+    return 1
+}
+
 # --- Suites ------------------------------------------------------------------
 suite_typecheck() {
     local out count
@@ -209,16 +270,18 @@ suite_bdd() {
             warn "could not seed test users; role-based scenarios may fail"
         fi
     fi
-    if curl -sf -o /dev/null --max-time 5 "$DEV_SERVER_URL"; then
-        info "reusing dev server at $DEV_SERVER_URL"
-    else
-        info "no dev server at $DEV_SERVER_URL; Playwright will start one"
-    fi
+    ensure_e2e_workers || return 1
     # The specs under .features-gen are generated from features/*.feature and are
     # not in git, so a fresh checkout has none and Playwright reports "No tests
     # found". Regenerating is also what picks up edits to the feature files.
     (cd "$FRONTEND_DIR" && npx bddgen) || return 1
-    (cd "$FRONTEND_DIR" && npx playwright test)
+    local rc=0
+    (cd "$FRONTEND_DIR" && npx playwright test) || rc=$?
+    if [[ "$E2E_STOP_AFTER" == "1" ]]; then
+        info "stopping worker dev servers"
+        "$FRONTEND_DIR/scripts/e2e-workers.sh" stop >/dev/null 2>&1 || true
+    fi
+    return "$rc"
 }
 
 # --- Argument parsing --------------------------------------------------------
