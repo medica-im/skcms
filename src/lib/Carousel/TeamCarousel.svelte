@@ -123,21 +123,42 @@
 	{:else}
 		{@const entry = data[0]}
 		<!--
-			Mirrors what the carousel produces for a slide: a w-64 box (its `class`
-			prop above) with the library's own 20px horizontal gap inside, so the
-			avatar is displayed at the same size before and after hydration.
-			Keep the two in step.
+			Mirrors what the carousel produces, so the avatar is displayed at the
+			same size *and in the same place* before and after hydration. Keep the
+			two in step.
+
+			Both parts matter. The figure reproduces a slide: a w-64 box (the
+			`class` prop above) with the library's own 20px horizontal gap inside.
+			The two spacers reproduce the arrows, which are flex siblings of the
+			track (see containerClass) and so take real width in the row: without
+			them the row is 340px narrower than the hydrated one, and centring it
+			puts the avatar 64px to the right of where hydration lands it — a
+			visible sideways jump the moment the page becomes interactive.
+
+			Spacers rather than real buttons: there is nothing to scroll before
+			hydration, and a disabled button would still be announced. aria-hidden
+			keeps them out of the accessibility tree, so they are pure geometry.
 		-->
-		<figure class="mx-auto w-64 max-w-full px-5 text-center">
-			<a href={getLink(entry)} class="block">
-				<img class="mx-auto h-auto max-w-full" src={avatarSrc(entry)} alt={entry.name} />
-			</a>
-			<figcaption class="mt-2">
-				<a href={getLink(entry)} class="anchor text-primary">
-					{displayName(entry)}, {getLabels(entry)}
+		<div
+			class="!flex-row !min-w-0 flex w-fit items-center justify-center gap-2 mx-auto sm:gap-4"
+		>
+			<div class="carousel-arrow invisible" aria-hidden="true">
+				<Fa icon={faChevronLeft} />
+			</div>
+			<figure class="mx-auto w-64 max-w-full shrink-0 px-5 text-center">
+				<a href={getLink(entry)} class="block">
+					<img class="mx-auto h-auto max-w-full" src={avatarSrc(entry)} alt={entry.name} />
 				</a>
-			</figcaption>
-		</figure>
+				<figcaption class="mt-2">
+					<a href={getLink(entry)} class="anchor text-primary">
+						{displayName(entry)}, {getLabels(entry)}
+					</a>
+				</figcaption>
+			</figure>
+			<div class="carousel-arrow invisible" aria-hidden="true">
+				<Fa icon={faChevronRight} />
+			</div>
+		</div>
 	{/if}
 </div>
 
