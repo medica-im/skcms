@@ -1,6 +1,8 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { execFileSync } from 'node:child_process';
-import { resolve } from 'node:path';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
 
 /**
  * The immutable tag a build stamps alongside :latest.
@@ -68,5 +70,85 @@ describe('the immutable image tag', () => {
 			const tag = tagFor({ ...CLEAN, IMAGE_TAG_DIRTY: dirty });
 			expect(tag).toMatch(/^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$/);
 		}
+	});
+});
+
+/**
+ * Whether a tree counts as dirty, decided against real repositories rather than
+ * injected. The tests above hand the answer in, so none of them exercised the
+ * detection — and the detection was wrong: it called every build dirty.
+ */
+describe('deciding that a tree is dirty', () => {
+	let parent: string;
+	let sub: string;
+	const git = (cwd: string, ...args: string[]) =>
+		execFileSync('git', args, { cwd, encoding: 'utf8' }).trim();
+
+	beforeEach(() => {
+		// A submodule, and a parent that embeds it, so the pointer can move the
+		// way a build moves it.
+		sub = mkdtempSync(join(tmpdir(), 'sub-'));
+		git(sub, 'init', '-q', '-b', 'main');
+		git(sub, 'config', 'user.email', 't@t.test');
+		git(sub, 'config', 'user.name', 'test');
+		writeFileSync(join(sub, 'a'), '1');
+		git(sub, 'add', '.');
+		git(sub, 'commit', '-qm', 'one');
+
+		parent = mkdtempSync(join(tmpdir(), 'parent-'));
+		git(parent, 'init', '-q', '-b', 'main');
+		git(parent, 'config', 'user.email', 't@t.test');
+		git(parent, 'config', 'user.name', 'test');
+		git(parent, '-c', 'protocol.file.allow=always', 'submodule', 'add', '-q', sub, 'sub');
+		writeFileSync(join(parent, 'top'), '1');
+		git(parent, 'add', '.');
+		git(parent, 'commit', '-qm', 'parent');
+	});
+
+	afterEach(() => {
+		rmSync(parent, { recursive: true, force: true });
+		rmSync(sub, { recursive: true, force: true });
+	});
+
+	/** The script, run inside the fake parent with the fake submodule path. */
+	const tagIn = (cwd: string) =>
+		execFileSync('bash', [SCRIPT], {
+			cwd,
+			env: { ...process.env, IMAGE_TAG_SUBMODULE_PATH: 'sub' },
+			encoding: 'utf8'
+		}).trim();
+
+	it('is not dirty when nothing has been edited', () => {
+		expect(tagIn(parent)).not.toMatch(/-dirty$/);
+	});
+
+	it('is not dirty merely because the submodule moved', () => {
+		// What every build does: check out the site's branch in the submodule.
+		// The pointer then differs from the commit the parent records, and
+		// `git status` reports " M sub" — but nothing has been *edited*, and the
+		// submodule's own commit is already named in the tag. Counting this as
+		// dirty put a -dirty suffix on every build there has ever been.
+		// The submodule inside the parent is its own clone, so it does not carry
+		// the identity configured on the original.
+		git(join(parent, 'sub'), 'config', 'user.email', 't@t.test');
+		git(join(parent, 'sub'), 'config', 'user.name', 'test');
+		git(join(parent, 'sub'), 'checkout', '-qb', 'other');
+		writeFileSync(join(parent, 'sub', 'b'), '2');
+		git(join(parent, 'sub'), 'add', '.');
+		git(join(parent, 'sub'), 'commit', '-qm', 'another site');
+
+		expect(git(parent, 'status', '--porcelain')).toContain('sub');
+		expect(tagIn(parent)).not.toMatch(/-dirty$/);
+	});
+
+	it('is dirty when a tracked file in the parent was edited', () => {
+		writeFileSync(join(parent, 'top'), 'changed');
+		expect(tagIn(parent)).toMatch(/-dirty$/);
+	});
+
+	it('is dirty when a file inside the submodule was edited', () => {
+		// This one really is uncommitted content that ends up in the image.
+		writeFileSync(join(parent, 'sub', 'a'), 'changed');
+		expect(tagIn(parent)).toMatch(/-dirty$/);
 	});
 });

@@ -21,7 +21,7 @@
 #   IMAGE_TAG_GIT_SHA, IMAGE_TAG_SUBMODULE_SHA, IMAGE_TAG_DIRTY (0|1)
 set -euo pipefail
 
-SUBMODULE_PATH="src/routes/(skvar)"
+SUBMODULE_PATH="${IMAGE_TAG_SUBMODULE_PATH:-src/routes/(skvar)}"
 
 if [[ -n "${IMAGE_TAG_GIT_SHA:-}" ]]; then
     GIT_SHA="$IMAGE_TAG_GIT_SHA"
@@ -38,10 +38,19 @@ fi
 if [[ -n "${IMAGE_TAG_DIRTY:-}" ]]; then
     DIRTY="$IMAGE_TAG_DIRTY"
 else
-    # Either repository counts: the submodule is compiled into the image just as
-    # much as this one is.
+    # Edited files in either repository, since the submodule is compiled into
+    # the image just as much as this one is.
+    #
+    # --ignore-submodules=all, and that is the point: a build checks out the
+    # site's skvar branch, so the submodule pointer always differs from the
+    # commit this repository records and `git status` always reports " M
+    # src/routes/(skvar)". Counting that put -dirty on every image ever built,
+    # which says nothing and trains you to ignore the warning. The submodule's
+    # own commit is already in the tag, so where it points is described, not
+    # unknown. What -dirty has to mean is that something was edited and is in
+    # neither commit — checked inside the submodule on the line below.
     DIRTY=0
-    [[ -n "$(git status --porcelain 2>/dev/null)" ]] && DIRTY=1
+    [[ -n "$(git status --porcelain --ignore-submodules=all 2>/dev/null)" ]] && DIRTY=1
     [[ -n "$(git -C "$SUBMODULE_PATH" status --porcelain 2>/dev/null)" ]] && DIRTY=1
 fi
 
