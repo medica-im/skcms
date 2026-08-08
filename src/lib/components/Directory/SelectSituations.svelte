@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Select from 'svelte-select';
+	import Select from '$lib/Web/Select.svelte';
 	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';

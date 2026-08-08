@@ -3,7 +3,7 @@
 	import { goto } from '$app/navigation';
 	import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
 	import type { SelectType } from '$lib/interfaces/select';
-	import Select from 'svelte-select';
+	import Select from '$lib/Web/Select.svelte';
 	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import { getSelectFacility, getFacilityChoice } from './context.ts';
 	import * as m from '$msgs';
@@ -69,7 +69,7 @@
 <!--facilityChoice: {JSON.stringify(facilityChoice)}<br>
 	selectFacility: {$selectFacility}<br />
 	facilityOf: {JSON.stringify(facilityOf)} ({facilityOf.length})-->
-<div class="text-surface-700 z-auto svelte-select">
+<div class="text-surface-700 svelte-select">
 	{#if !facilityOf}
 		<Select loading={true} placeholder={m.ADDRESSBOOK_FACILITIES_PLACEHOLDER()} />
 	{:else}

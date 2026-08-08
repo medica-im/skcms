@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Select from 'svelte-select';
+	import Select from '$lib/Web/Select.svelte';
 	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import * as m from '$msgs';
 	import { goto } from '$app/navigation';
@@ -111,7 +111,7 @@
 		<Select loading={true} placeholder={m.ADDRESSBOOK_CATEGORIES_PLACEHOLDER()} />
 	</div>
 {:else}
-	<div class="text-surface-700 z-auto svelte-select">
+	<div class="text-surface-700 svelte-select">
 		<Select
 			{itemFilter}
 			{label}

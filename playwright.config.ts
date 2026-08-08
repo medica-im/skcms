@@ -59,6 +59,19 @@ export default defineConfig({
 	projects: [
 		{
 			name: 'chromium',
+			testDir,
+			use: { ...devices['Desktop Chrome'] }
+		},
+		{
+			// Plain Playwright specs, alongside the generated Gherkin ones. Some
+			// behaviour is not a rule about the domain and reads badly as a
+			// scenario — that a dropdown is drawn where a click can reach it is a
+			// fact about a library's positioning, not something the business would
+			// recognise. Those live here, sharing the suite's per-worker baseURL
+			// and its globalSetup.
+			name: 'specs',
+			testDir: './tests',
+			testMatch: '*.spec.ts',
 			use: { ...devices['Desktop Chrome'] }
 		}
 	]

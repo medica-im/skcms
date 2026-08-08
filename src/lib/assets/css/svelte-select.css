@@ -1,4 +1,19 @@
 .svelte-select {
+    /*
+        Above the map's own furniture.
+
+        svelte-select gives its list `z-index: 2` by default, and maplibre gives
+        its control containers (.maplibregl-ctrl-top-left and friends) exactly
+        the same 2. Equal z-index is resolved by document order, and the map
+        comes after the filters on the address book, so the zoom and compass
+        buttons were painted over the open list and swallowed the clicks meant
+        for the options beneath them.
+
+        A modest value rather than 9999: it only has to clear the map, and
+        staying low leaves the modal and drawer layers above it where they
+        belong.
+    */
+    --list-z-index: 50;
     --border-radius: var(--theme-rounded-container);
     --border-color: rgb(var(--color-surface-400));
     --border-focused: 1px solid rgb(var(--color-primary-500));
