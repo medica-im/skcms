@@ -6,13 +6,17 @@ IMAGES_FILE="${IMAGES_FILE:-$REPO_ROOT/images.yml}"
 SUBMODULE_PATH="src/routes/(skvar)"
 
 usage() {
-    echo "Usage: $0 <name>"
+    echo "Usage: $0 [--keep-skvar] <name>"
     echo "       $0 --list"
     echo
     echo "Builds and pushes the frontend Docker image described by <name> in $IMAGES_FILE."
-    echo "Checks out the entry's skvar_branch in $SUBMODULE_PATH before building."
+    echo "Checks out the entry's skvar_branch in $SUBMODULE_PATH before building,"
+    echo "and puts the submodule back where it found it afterwards."
     echo
-    echo "  --list    print the available image names and exit"
+    echo "  --list         print the available image names and exit"
+    echo "  --keep-skvar   leave the submodule on the branch that was built."
+    echo "                 For a caller building several sites in a row that"
+    echo "                 restores once at the end itself."
 }
 
 if ! command -v yq >/dev/null 2>&1; then
@@ -20,20 +24,31 @@ if ! command -v yq >/dev/null 2>&1; then
     exit 1
 fi
 
-if [[ $# -lt 1 ]]; then
-    usage
+KEEP_SKVAR=0
+NAME=""
+for arg in "$@"; do
+    case "$arg" in
+        --list)
+            yq -r '.images[].name' "$IMAGES_FILE"
+            exit 0
+            ;;
+        -h|--help) usage; exit 0 ;;
+        --keep-skvar) KEEP_SKVAR=1 ;;
+        -*) echo "error: unknown option $arg" >&2; usage >&2; exit 1 ;;
+        *)
+            if [[ -n "$NAME" ]]; then
+                echo "error: build one image at a time (got '$NAME' and '$arg')" >&2
+                exit 1
+            fi
+            NAME="$arg"
+            ;;
+    esac
+done
+
+if [[ -z "$NAME" ]]; then
+    usage >&2
     exit 1
 fi
-
-case "$1" in
-    --list)
-        yq -r '.images[].name' "$IMAGES_FILE"
-        exit 0
-        ;;
-    -h|--help) usage; exit 0 ;;
-esac
-
-NAME="$1"
 
 ENTRY=$(yq -o=json -r ".images[] | select(.name == \"$NAME\")" "$IMAGES_FILE")
 if [[ -z "$ENTRY" || "$ENTRY" == "null" ]]; then
@@ -49,6 +64,27 @@ ENV_FILE=$(jq -r '.env_file' <<<"$ENTRY")
 TAG=$(jq -r '.tag' <<<"$ENTRY")
 
 cd "$REPO_ROOT"
+
+# Where the submodule was before this build moved it.
+#
+# Recorded as a commit, not just a branch name: the pull below advances the
+# branch, so putting the same branch back can still land on a newer commit than
+# the parent repository records — and `git status` goes on reporting
+# "(new commits)" against a tree nobody edited. Committing that pointer would
+# change which skvar the whole repository builds from; it once left the tree on
+# another site's production branch.
+#
+# From a trap, so an interrupted or failed build cleans up too.
+if [[ $KEEP_SKVAR -eq 0 ]]; then
+    ORIGINAL_SKVAR_COMMIT="$(git -C "$SUBMODULE_PATH" rev-parse HEAD 2>/dev/null || true)"
+    ORIGINAL_SKVAR_BRANCH="$(git -C "$SUBMODULE_PATH" symbolic-ref -q --short HEAD || true)"
+    restore_skvar() {
+        [[ -n "${ORIGINAL_SKVAR_COMMIT:-}" ]] || return 0
+        "$REPO_ROOT/scripts/skvar-restore.sh" \
+            "$SUBMODULE_PATH" "$ORIGINAL_SKVAR_COMMIT" "$ORIGINAL_SKVAR_BRANCH" || true
+    }
+    trap restore_skvar EXIT
+fi
 
 echo "==> [$NAME] Checking out skvar branch: $SKVAR_BRANCH"
 git -C "$SUBMODULE_PATH" fetch origin "$SKVAR_BRANCH"

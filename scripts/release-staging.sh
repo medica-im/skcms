@@ -135,9 +135,12 @@ for n in "${NAMES[@]}"; do info "$n"; done
 
 for NAME in "${NAMES[@]}"; do
     step "$NAME: build"
+    # --keep-skvar: build-image.sh would otherwise put the submodule back after
+    # every site, only for the next one to check its own branch out again. The
+    # trap above restores once, at the end.
     if [[ $DRY_RUN -eq 1 ]]; then
-        info "(dry run) $BUILD $NAME"
-    elif ! "$BUILD" "$NAME"; then
+        info "(dry run) $BUILD --keep-skvar $NAME"
+    elif ! "$BUILD" --keep-skvar "$NAME"; then
         FAILED_NAMES+=("$NAME"); FAILED_AT+=("build")
         warn "build failed — not deploying $NAME"
         continue
