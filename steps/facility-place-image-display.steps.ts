@@ -46,8 +46,29 @@ Given('a facility of this site has no place picture', async ({}) => {
 
 	// Avatars are excluded too: the page falls back to the square picture when
 	// there is no place image, which would satisfy a naive "an image is shown".
-	const candidate = facilities.find((f) => f.slug && !f.image && !f.avatar);
-	expect(candidate, 'every facility of this site has a picture').toBeTruthy();
+	//
+	// The picture feature's own fixture is excluded, and that exclusion is
+	// load-bearing. facility-place-image.steps.ts creates
+	// `e2e-place-image-facility-N` and then attaches a picture to it; in the
+	// window between those two steps the facility looks pictureless, so this step
+	// would adopt it and — a few lines below — delete the PlaceImage a scenario
+	// in a sibling worker was about to assert on. That surfaced as "the button
+	// offers to add a picture rather than modify one", blaming the wrong feature
+	// entirely, and only ever in a parallel run.
+	//
+	// Matched on that one slug rather than on the `e2e-` prefix: on a worker site
+	// every facility is seeded, so excluding them all leaves no candidate at all
+	// and the step fails outright instead of racing.
+	//
+	// A scenario that mutates data owns it: what this one needs is a facility of
+	// the site proper, not another feature's fixture.
+	const candidate = facilities.find(
+		(f) => f.slug && !f.image && !f.avatar && !f.slug.startsWith('e2e-place-image-facility')
+	);
+	expect(
+		candidate,
+		'this site has no facility without a picture to show the empty state with'
+	).toBeTruthy();
 
 	// Make sure nothing is left over from a previous run of these scenarios.
 	await djangoShell(`
