@@ -20,6 +20,12 @@ usage() {
     echo
     echo "  --list       print deployable names and their targets"
     echo "  --dry-run    print what would run, without touching the server"
+    echo "  --tag TAG    deploy this tag instead of the one in $(basename "$IMAGES_FILE")."
+    echo "               Either a full reference or just the tag part, so the"
+    echo "               immutable tags build-image.sh pushes can be named"
+    echo "               directly: --tag 4370998-a1b2c3d. This is the rollback"
+    echo "               path — with only one name it can be given once for a"
+    echo "               single site."
     echo
     echo "Environment:"
     echo "  COMPOSE_FILE   fallback compose file on the server (default:"
@@ -33,10 +39,19 @@ if ! command -v yq >/dev/null 2>&1; then
 fi
 
 DRY_RUN=0
+TAG_OVERRIDE=""
+EXPECT_TAG=0
 NAMES=()
 for arg in "$@"; do
+    if [[ $EXPECT_TAG -eq 1 ]]; then
+        TAG_OVERRIDE="$arg"
+        EXPECT_TAG=0
+        continue
+    fi
     case "$arg" in
         -h|--help) usage; exit 0 ;;
+        --tag) EXPECT_TAG=1 ;;
+        --tag=*) TAG_OVERRIDE="${arg#--tag=}" ;;
         --list)
             printf '%-32s %-12s %s\n' NAME HOST DIR
             yq -r '.images[] | [.name, (.host // "-"), (.dir // "-")] | @tsv' "$IMAGES_FILE" |
@@ -48,8 +63,21 @@ for arg in "$@"; do
     esac
 done
 
+if [[ $EXPECT_TAG -eq 1 ]]; then
+    echo "error: --tag needs a value" >&2
+    exit 1
+fi
+
 if [[ ${#NAMES[@]} -eq 0 ]]; then
     usage >&2
+    exit 1
+fi
+
+# One tag cannot describe several images: each site has its own repository, so
+# deploying two names with one --tag would point both at whatever that string
+# happens to mean for each. Rolling back is a per-site act anyway.
+if [[ -n "$TAG_OVERRIDE" && ${#NAMES[@]} -gt 1 ]]; then
+    echo "error: --tag applies to a single site; ${#NAMES[@]} were named." >&2
     exit 1
 fi
 
@@ -79,6 +107,17 @@ for NAME in "${NAMES[@]}"; do
     HOST=$(jq -r '.host' <<<"$ENTRY")
     DIR=$(jq -r '.dir' <<<"$ENTRY")
     TAG=$(jq -r '.tag' <<<"$ENTRY")
+    # A bare tag ("4370998-a1b2c3d") is joined to this image's own repository,
+    # so a rollback names only the tag it read from the build output. A full
+    # reference is taken as given, for the rare cross-repository case.
+    if [[ -n "$TAG_OVERRIDE" ]]; then
+        if [[ "$TAG_OVERRIDE" == *:* ]]; then
+            TAG="$TAG_OVERRIDE"
+        else
+            TAG="${TAG%:*}:$TAG_OVERRIDE"
+        fi
+        echo "==> [$NAME] tag overridden: $TAG"
+    fi
     # Per-image, because it is a property of the deployment and not of the run:
     # a staging target defines its own service name and port
     # (nodeserver_staging, NODE_PORT_EXTERNAL_STAGING) and adds a healthcheck,

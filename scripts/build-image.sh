@@ -58,16 +58,40 @@ git -C "$SUBMODULE_PATH" pull origin "$SKVAR_BRANCH"
 GIT_SHA=$(git rev-parse HEAD)
 SUBMODULE_SHA=$(git -C "$SUBMODULE_PATH" rev-parse HEAD)
 
-echo "==> [$NAME] Building target=$TARGET env_file=$ENV_FILE tag=$TAG"
+# The moving tag from images.yml, plus one that never moves.
+#
+# :latest alone left nothing to roll back to — pushing moves that single
+# pointer, and deploy-image.sh prunes the image it displaced. The commit was
+# recorded as a label, but a label cannot be used to ask a registry for an
+# image; only a tag can. Both are pushed, so nothing downstream changes and a
+# bad deploy is now recoverable:
+#
+#   scripts/deploy-image.sh <name> --tag <previous-sha-tag>
+IMMUTABLE_TAG="${TAG%:*}:$("$REPO_ROOT/scripts/image-tag.sh")"
+
+case "$IMMUTABLE_TAG" in
+    *-dirty)
+        echo "==> [$NAME] WARNING: building with uncommitted changes." >&2
+        echo "    $IMMUTABLE_TAG is tagged -dirty: its sha names a commit that" >&2
+        echo "    does not contain what is in this image." >&2
+        ;;
+esac
+
+echo "==> [$NAME] Building target=$TARGET env_file=$ENV_FILE"
+echo "    tags: $TAG"
+echo "          $IMMUTABLE_TAG"
 docker build \
     --target "$TARGET" \
     --build-arg ENV_FILE="$ENV_FILE" \
     --build-arg GIT_SHA="$GIT_SHA" \
     --build-arg SUBMODULE_SHA="$SUBMODULE_SHA" \
     -t "$TAG" \
+    -t "$IMMUTABLE_TAG" \
     .
 
 echo "==> [$NAME] Pushing $TAG"
 docker push "$TAG"
+echo "==> [$NAME] Pushing $IMMUTABLE_TAG"
+docker push "$IMMUTABLE_TAG"
 
-echo "==> [$NAME] Done: $TAG"
+echo "==> [$NAME] Done: $TAG ($IMMUTABLE_TAG)"
