@@ -108,17 +108,20 @@ if [[ $LIST -eq 1 ]]; then
 fi
 
 # --- Leave the submodule where it was found ----------------------------------
-# build-image.sh checks out each entry's skvar_branch, so a loop ends on
-# whichever site ran last and the next dev session silently starts there.
+# build-image.sh checks out each entry's skvar_branch and pulls it, so a loop
+# ends on whichever site ran last — once on another site's *production* branch,
+# where committing the pointer would have made that skvar the repository's
+# default.
+#
+# The commit is recorded, not just the branch: a pull advances the branch, so
+# putting the same branch back can still land on a newer commit than the parent
+# repository records, and `git status` goes on reporting "(new commits)".
+ORIGINAL_SKVAR_COMMIT="$(git -C "$SUBMODULE_PATH" rev-parse HEAD 2>/dev/null || true)"
 ORIGINAL_SKVAR_BRANCH="$(git -C "$SUBMODULE_PATH" symbolic-ref -q --short HEAD || true)"
 restore_skvar() {
-    [[ -n "$ORIGINAL_SKVAR_BRANCH" ]] || return 0
-    local current
-    current="$(git -C "$SUBMODULE_PATH" symbolic-ref -q --short HEAD || true)"
-    [[ "$current" == "$ORIGINAL_SKVAR_BRANCH" ]] && return 0
-    info "restoring $SUBMODULE_PATH to $ORIGINAL_SKVAR_BRANCH"
-    git -C "$SUBMODULE_PATH" checkout --quiet "$ORIGINAL_SKVAR_BRANCH" || \
-        warn "could not restore $SUBMODULE_PATH to $ORIGINAL_SKVAR_BRANCH"
+    [[ -n "$ORIGINAL_SKVAR_COMMIT" ]] || return 0
+    "$REPO_ROOT/scripts/skvar-restore.sh" \
+        "$SUBMODULE_PATH" "$ORIGINAL_SKVAR_COMMIT" "$ORIGINAL_SKVAR_BRANCH" || true
 }
 # Also on Ctrl-C: an interrupted release should not leave the tree elsewhere.
 trap restore_skvar EXIT
