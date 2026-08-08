@@ -61,7 +61,7 @@ SEED_BDD_USERS="${SEED_BDD_USERS:-1}"
 # The codebase carries a backlog of pre-existing svelte-check errors, so the
 # typecheck suite fails on the *count* rising above this baseline rather than on
 # any error at all. Lower it as the backlog is paid down.
-TYPECHECK_BASELINE="${TYPECHECK_BASELINE:-205}"
+TYPECHECK_BASELINE="${TYPECHECK_BASELINE:-195}"
 
 ALL_SUITES=(typecheck unit backend bdd)
 
