@@ -14,7 +14,7 @@
 	import Fa from 'svelte-fa';
 	import { JsonView } from '@zerodevx/svelte-json-view';
 	import type { Email } from '$lib/interfaces/email.interface.ts';
-	import Select from 'svelte-select';
+	import Select from '$lib/Web/Select.svelte';
 	import Dialog from '../Dialog.svelte';
 	import { getEffectorUid } from '$lib/components/Directory/context';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';

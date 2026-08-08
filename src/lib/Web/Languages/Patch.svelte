@@ -9,7 +9,7 @@
 		faExclamationCircle
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import Select from 'svelte-select';
+	import Select from '$lib/Web/Select.svelte';
 	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import Dialog from '$lib/Web/Dialog.svelte';
 	import { getEffectorUid } from '$lib/components/Directory/context';

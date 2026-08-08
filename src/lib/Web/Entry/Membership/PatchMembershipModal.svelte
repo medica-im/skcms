@@ -14,7 +14,7 @@
 		faCheck,
 		faExclamationCircle
 	} from '@fortawesome/free-solid-svg-icons';
-	import Select from 'svelte-select';
+	import Select from '$lib/Web/Select.svelte';
 	import { areArraysEqualSets } from '$lib/utils/utils.ts';
 	import { mspNeo4j, cptsNeo4j } from '$lib/constants.ts';
 	import type { SelectType } from '$lib/interfaces/select';

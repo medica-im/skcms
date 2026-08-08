@@ -5,7 +5,7 @@
 	import { invalidate } from '$app/navigation';
 	import { faCheck, faExclamationCircle, faPlus } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import Select from 'svelte-select';
+	import Select from '$lib/Web/Select.svelte';
 	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import Dialog from '../Dialog.svelte';
 	import type { OrganizationRole } from '$lib/interfaces/v2/association';

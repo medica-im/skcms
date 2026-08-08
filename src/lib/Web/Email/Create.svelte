@@ -13,7 +13,7 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import type { Email } from '$lib/interfaces/email.interface.ts';
-	import Select from 'svelte-select';
+	import Select from '$lib/Web/Select.svelte';
 	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import Dialog from '../Dialog.svelte';
 	import { copy } from 'svelte-copy';
@@ -64,7 +64,13 @@
 >
 
 <Dialog bind:dialog on:close={() => console.log('closed')}>
-	<div class="rounded-lg h-64 p-4 variant-ghost-secondary gap-2 items-center place-items-center">
+	<!--
+		No fixed height: pinned to h-64 the box was shorter than its own content,
+		so the access dropdown had no room to open downwards and svelte-select
+		flipped it above the input — where it ran past the top of the dialog and
+		the first choice could not be seen or clicked.
+	-->
+	<div class="rounded-lg p-4 variant-ghost-secondary gap-2 items-center place-items-center">
 		<form
 			{...createEmail.enhance(async ({ submit }) => {
 				try {

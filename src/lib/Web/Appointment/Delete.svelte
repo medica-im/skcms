@@ -12,7 +12,7 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import type { Email } from '$lib/interfaces/email.interface.ts';
-	import Select from 'svelte-select';
+	import Select from '$lib/Web/Select.svelte';
 	import Dialog from '$lib/Web/Dialog.svelte';
 	import { getEntryUid } from '$lib/components/Directory/context';
 	import Payment from '$lib/Addressbook/Payment/Payment.svelte';

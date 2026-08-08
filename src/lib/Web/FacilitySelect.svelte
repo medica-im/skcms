@@ -2,7 +2,7 @@
 	import * as m from '$msgs';
 	import { page } from '$app/state';
 	import { onMount } from 'svelte';
-	import Select from 'svelte-select';
+	import Select from '$lib/Web/Select.svelte';
 	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import type { SelectType } from '$lib/interfaces/select.ts';
 	import type { Commune, DepartmentOfFrance, FacilityV2 } from '$lib/interfaces/v2/facility.ts';

@@ -14,7 +14,7 @@
 		faExternalLinkAlt,
 		faClockRotateLeft
 	} from '@fortawesome/free-solid-svg-icons';
-	import Select from 'svelte-select';
+	import Select from '$lib/Web/Select.svelte';
 	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import * as m from '$msgs';
 	import type { Role } from '$lib/interfaces/v2/invitee';

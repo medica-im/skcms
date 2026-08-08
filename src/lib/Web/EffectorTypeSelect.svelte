@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import * as m from '$msgs';
-	import Select from 'svelte-select';
+	import Select from '$lib/Web/Select.svelte';
 	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import { getEffectorTypes } from './data';
 	import { getTypeItems } from '$lib/components/Directory/SelectCategory.ts';

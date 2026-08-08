@@ -8,7 +8,7 @@
 	import Dialog from '$lib/Web/Dialog.svelte';
 	import Fa from 'svelte-fa';
 	import { faPlus, faCheck, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
-	import Select from 'svelte-select';
+	import Select from '$lib/Web/Select.svelte';
 	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import OrganizationRadio from './../OrganizationRadio.svelte';
 	import { slugify } from '$lib/helpers/stringHelpers';

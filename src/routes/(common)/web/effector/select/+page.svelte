@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import * as m from '$msgs';
-	import Select from 'svelte-select';
+	import Select from '$lib/Web/Select.svelte';
 	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import EffectorTypeSelect from '$lib/Web/EffectorTypeSelect.svelte';
 	import FacilitySelect from '$lib/Web/FacilitySelect.svelte';
