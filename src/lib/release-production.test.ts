@@ -1,6 +1,8 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { execFileSync } from 'node:child_process';
-import { resolve } from 'node:path';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
 
 /**
  * Which sites release-production.sh treats as production.
@@ -83,5 +85,89 @@ describe('release-production.sh', () => {
 	it('does not deploy anything on a dry run', () => {
 		const { out } = run('--dry-run', '--yes');
 		expect(out).toContain('dry run');
+	});
+});
+
+/**
+ * What happens to the rest of the run when one site fails.
+ *
+ * Staging carries on: one broken env file should not cost the other three, and
+ * nobody is looking at those sites anyway. Production stops. A build or deploy
+ * failing there is a reason to find out why before pushing the same change to
+ * four more live sites — and continuing would bury the failure among later
+ * output, so it is read after the damage rather than before.
+ */
+describe('release-production.sh when a site fails', () => {
+	let dir: string;
+
+	/** Stubs build-image.sh and deploy-image.sh so no image is ever built. */
+	beforeEach(() => {
+		dir = mkdtempSync(join(tmpdir(), 'relprod-'));
+	});
+	afterEach(() => rmSync(dir, { recursive: true, force: true }));
+
+	/**
+	 * Runs the real script with the two it calls replaced. `failOn` names the
+	 * site whose build should fail; every other call succeeds.
+	 */
+	function runWithStubs(failOn: string, ...args: string[]) {
+		const scripts = resolve(__dirname, '../../scripts');
+		const stubbed = join(dir, 'release-production.sh');
+		const body = readFileSync(join(scripts, 'release-production.sh'), 'utf8')
+			.replace(/^BUILD=.*$/m, `BUILD="${join(dir, 'build.sh')}"`)
+			.replace(/^DEPLOY=.*$/m, `DEPLOY="${join(dir, 'deploy.sh')}"`);
+		writeFileSync(stubbed, body, { mode: 0o755 });
+
+		writeFileSync(
+			join(dir, 'build.sh'),
+			`#!/usr/bin/env bash\nfor a in "$@"; do [[ "$a" == "${failOn}" ]] && { echo "BUILD-FAIL $a"; exit 1; }; done\necho "BUILT $*"\n`,
+			{ mode: 0o755 }
+		);
+		writeFileSync(join(dir, 'deploy.sh'), `#!/usr/bin/env bash\necho "DEPLOYED $*"\n`, {
+			mode: 0o755
+		});
+
+		try {
+			return {
+				out: execFileSync('bash', [stubbed, ...args], { encoding: 'utf8' }),
+				status: 0
+			};
+		} catch (e: unknown) {
+			const err = e as { stdout?: string; stderr?: string; status?: number };
+			return { out: (err.stdout ?? '') + (err.stderr ?? ''), status: err.status ?? 1 };
+		}
+	}
+
+	it('stops at the first failure instead of carrying on', () => {
+		// santelyon3.fr is second in images.yml, so the two sites after it must
+		// never be touched.
+		const { out, status } = runWithStubs('santelyon3.fr', '--yes');
+		expect(status).not.toBe(0);
+		expect(out).toContain('BUILD-FAIL santelyon3.fr');
+		expect(out, 'a later site was built after a failure').not.toContain(
+			'BUILT --keep-skvar sante-gadagne.fr'
+		);
+		expect(out, 'a later site was deployed after a failure').not.toContain(
+			'DEPLOYED ipa.medica.im'
+		);
+	});
+
+	it('does not deploy the site whose build failed', () => {
+		const { out } = runWithStubs('santelyon3.fr', '--yes');
+		expect(out).not.toContain('DEPLOYED santelyon3.fr');
+	});
+
+	it('still reports what had already succeeded', () => {
+		// The first site is released before the failure, and saying so is what
+		// tells you how far production actually got.
+		const { out } = runWithStubs('santelyon3.fr', '--yes');
+		expect(out).toContain('annuaire.medica.im');
+		expect(out).toMatch(/stopped|FAIL/i);
+	});
+
+	it('releases everything when nothing fails', () => {
+		const { out, status } = runWithStubs('none-of-them', '--yes');
+		expect(status).toBe(0);
+		expect(out).toContain('DEPLOYED ipa.medica.im');
 	});
 });

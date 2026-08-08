@@ -173,6 +173,14 @@ SECONDS=0
 printf '%sReleasing %d production site(s)%s\n' "$BOLD" "${#NAMES[@]}" "$NC"
 for n in "${NAMES[@]}"; do info "$n"; done
 
+# The run stops at the first failure, which is where production differs from
+# staging. Staging carries on because one broken env file should not cost the
+# other three and nobody is watching those sites. A production build or deploy
+# that fails is a reason to find out why before pushing the same change to four
+# more live sites — and carrying on would bury the failure among the output of
+# everything after it, so it gets read after the damage rather than before.
+STOPPED_AFTER=""
+
 for NAME in "${NAMES[@]}"; do
     step "$NAME: build"
     if [[ $DRY_RUN -eq 1 ]]; then
@@ -180,7 +188,8 @@ for NAME in "${NAMES[@]}"; do
     elif ! "$BUILD" --keep-skvar "$NAME"; then
         FAILED_NAMES+=("$NAME"); FAILED_AT+=("build")
         warn "build failed — not deploying $NAME"
-        continue
+        STOPPED_AFTER="$NAME"
+        break
     fi
 
     if [[ $BUILD_ONLY -eq 1 ]]; then
@@ -194,7 +203,8 @@ for NAME in "${NAMES[@]}"; do
     elif ! "$DEPLOY" "$NAME"; then
         FAILED_NAMES+=("$NAME"); FAILED_AT+=("deploy")
         warn "deploy failed for $NAME"
-        continue
+        STOPPED_AFTER="$NAME"
+        break
     fi
 
     OK_NAMES+=("$NAME")
@@ -208,6 +218,26 @@ done
 for i in "${!FAILED_NAMES[@]}"; do
     printf '  %sFAIL%s  %s (%s)\n' "$RED" "$NC" "${FAILED_NAMES[$i]}" "${FAILED_AT[$i]}"
 done
+
+# Everything after the failure was never attempted. Saying so is the difference
+# between "the release is done, one site is broken" and "the release stopped
+# half way" — which are very different things to walk away from.
+if [[ -n "$STOPPED_AFTER" ]]; then
+    skipped=0
+    reached=0
+    for n in "${NAMES[@]}"; do
+        if [[ $reached -eq 1 ]]; then
+            printf '  %sSKIP%s  %s (not attempted)\n' "$YELLOW" "$NC" "$n"
+            skipped=$((skipped + 1))
+        fi
+        [[ "$n" == "$STOPPED_AFTER" ]] && reached=1
+    done
+    printf '\n  %sStopped at %s. %d site(s) not attempted.%s\n' \
+        "$YELLOW" "$STOPPED_AFTER" "$skipped" "$NC"
+    printf '  %sFix it, then re-run — sites already released are rebuilt and%s\n' "$DIM" "$NC"
+    printf '  %sredeployed unchanged, or name the remaining ones directly.%s\n' "$DIM" "$NC"
+fi
+
 printf '  %s%d ok, %d failed in %dm %ds%s\n' \
     "$DIM" "${#OK_NAMES[@]}" "${#FAILED_NAMES[@]}" "$((SECONDS / 60))" "$((SECONDS % 60))" "$NC"
 
