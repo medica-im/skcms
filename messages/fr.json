@@ -163,7 +163,7 @@
   "EFFECTOR_TYPE_DELETE": "Supprimer le type d'effecteur",
   "EFFECTOR_TYPE_DELETE_CONFIRM": "Êtes-vous sûr de vouloir supprimer le type d'effecteur",
   "EFFECTOR_TYPE_EDIT": "Modifier le type d'effecteur",
-  "EFFECTOR_TYPE_MESH_UNIQUE_ID": "MeSH unique ID",
+  "EFFECTOR_TYPE_MESH_UNIQUE_ID": "Identifiant unique MeSH",
   "EFFECTOR_TYPE_NO_PARENT": "Aucun parent",
   "EFFECTOR_TYPE_PARENT_PLACEHOLDER": "Sélectionner un parent...",
   "EFFECTOR_TYPE_SLUG": "Permalien",
