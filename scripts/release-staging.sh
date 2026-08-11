@@ -41,6 +41,7 @@ Options:
   --list         print the sites this would release, and exit
   --dry-run      print what would run, without building or deploying
   --build-only   build and push, skip the deploy
+  --no-linkcheck do not crawl the deployed site for broken links
   -h, --help     this help
 
 A site whose build fails is not deployed; the others carry on. The exit status
@@ -62,6 +63,7 @@ warn() { printf '%s    %s%s\n' "$YELLOW" "$1" "$NC"; }
 DRY_RUN=0
 BUILD_ONLY=0
 LIST=0
+SKIP_LINKCHECK=0
 NAMES=()
 for arg in "$@"; do
     case "$arg" in
@@ -69,6 +71,7 @@ for arg in "$@"; do
         --list) LIST=1 ;;
         --dry-run) DRY_RUN=1 ;;
         --build-only) BUILD_ONLY=1 ;;
+        --no-linkcheck) SKIP_LINKCHECK=1 ;;
         -*) echo "error: unknown option $arg" >&2; usage >&2; exit 1 ;;
         *) NAMES+=("$arg") ;;
     esac
@@ -126,6 +129,42 @@ restore_skvar() {
 # Also on Ctrl-C: an interrupted release should not leave the tree elsewhere.
 trap restore_skvar EXIT
 
+# --- Link check --------------------------------------------------------------
+# muffet crawls the deployed site; scripts/linkcheck-classify.sh decides which
+# findings are ours. Run through Docker so the release needs no muffet on the
+# host, and from here rather than on the server so the output lands in the
+# release log where it will be read.
+LINKCHECK_IMAGE="${LINKCHECK_IMAGE:-raviqqe/muffet:latest}"
+
+linkcheck_site() {
+    local name="$1" origin
+    origin="$(yq -r ".images[] | select(.name == \"$name\") | .origin // \"\"" "$IMAGES_FILE")"
+    # Not in images.yml yet: fall back to the name, which is the hostname for
+    # every entry there today.
+    [[ -z "$origin" ]] && origin="https://$name"
+
+    if ! command -v docker >/dev/null 2>&1; then
+        warn "docker not available; skipping the link check"
+        return 0
+    fi
+
+    # Each site crawls with its own flags, kept in its .env file next to
+    # everything else that varies per site.
+    local -a flags=()
+    readarray -t flags < <("$REPO_ROOT/scripts/linkcheck-flags.sh" "$name")
+
+    local json
+    if ! json="$(docker run --rm "$LINKCHECK_IMAGE" \
+            "${flags[@]}" "$origin/" 2>/dev/null)"; then
+        # muffet exits non-zero whenever it found anything, which is not by
+        # itself a failure — the classifier decides. An empty result is handled
+        # there too.
+        :
+    fi
+
+    "$REPO_ROOT/scripts/linkcheck-classify.sh" "$origin" <<<"$json"
+}
+
 # --- Release -----------------------------------------------------------------
 declare -a OK_NAMES=() FAILED_NAMES=() FAILED_AT=()
 SECONDS=0
@@ -158,6 +197,26 @@ for NAME in "${NAMES[@]}"; do
         FAILED_NAMES+=("$NAME"); FAILED_AT+=("deploy")
         warn "deploy failed for $NAME"
         continue
+    fi
+
+    # Crawl what was just deployed. The site has to be up to be crawled, so
+    # this can only run here — and running it here is the point: a page that
+    # answers 404 is found at release time rather than by somebody browsing to
+    # it later, which is how a contact page whose facility slug did not resolve
+    # sat broken on staging.
+    #
+    # Only our own broken links fail the release. Somebody else's site going
+    # down is not a reason to stop deploying, and a check that cries wolf over
+    # openstreetmap rate-limiting a crawler stops being read.
+    if [[ $SKIP_LINKCHECK -eq 0 ]]; then
+        step "$NAME: link check"
+        if [[ $DRY_RUN -eq 1 ]]; then
+            info "(dry run) crawl $NAME and classify the findings"
+        elif ! linkcheck_site "$NAME"; then
+            FAILED_NAMES+=("$NAME"); FAILED_AT+=("linkcheck")
+            warn "broken links on $NAME"
+            continue
+        fi
     fi
 
     OK_NAMES+=("$NAME")
