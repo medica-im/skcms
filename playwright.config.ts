@@ -69,8 +69,31 @@ export default defineConfig({
 			// fact about a library's positioning, not something the business would
 			// recognise. Those live here, sharing the suite's per-worker baseURL
 			// and its globalSetup.
+			//
+			// testMatch is anchored to this directory so tests/sites/ below is not
+			// swept in: those specs are about one site and would fail against a
+			// worker serving another.
 			name: 'specs',
 			testDir: './tests',
+			testMatch: /tests\/[^/]+\.spec\.ts$/,
+			use: { ...devices['Desktop Chrome'] }
+		},
+		{
+			// Specs about one site in particular.
+			//
+			// Most of the suite is site-agnostic, but this is a multi-tenant
+			// codebase and some pages exist for a single tenant: the contact page
+			// is in Lyon 3's skvar branch and sante-gadagne has no such route. A
+			// spec here names its site and browses that site's origin, so it is
+			// never measured against whichever worker happens to be running.
+			//
+			// Deliberately no baseURL: each spec resolves its own from
+			// tests/sites/sites.ts, and inheriting the worker's would silently
+			// point it at the wrong tenant.
+			//
+			//     pnpm exec playwright test --project=sites
+			name: 'sites',
+			testDir: './tests/sites',
 			testMatch: '*.spec.ts',
 			use: { ...devices['Desktop Chrome'] }
 		}
