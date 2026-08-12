@@ -38,6 +38,16 @@ export default defineConfig({
 	// Some steps drive the backend through `manage.py shell` in Docker, which
 	// costs ~10s per call, so the default 30s is too tight.
 	timeout: 120_000,
+	// Four browsers, four Vite servers and a Dockerised backend share one 15GB
+	// box, and a renderer that loses that race dies mid-step: the failure reads
+	// as "Target crashed", or as an assertion whose Received is `undefined`
+	// rather than a count — the query never came back. That is not a fact about
+	// the app, so it should not fail the run on its own.
+	//
+	// This is also what makes `trace: 'on-first-retry'` below produce anything:
+	// with no retries there is never a first retry, so the suite has been
+	// discarding the traces of exactly the failures that most need them.
+	retries: 1,
 	// No webServer: the suite needs one dev server *per worker*, each with its
 	// own .env and its own site, which a single command cannot express. They are
 	// started beforehand by

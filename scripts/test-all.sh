@@ -47,6 +47,29 @@ E2E_WORKERS="${E2E_WORKERS:-4}"
 # Left running after the suite by default: a cold Vite boot per worker costs
 # more than the whole BDD run, and the next invocation reuses them.
 E2E_STOP_AFTER="${E2E_STOP_AFTER:-0}"
+
+# The `pnpm dev` server on :3000. Off by default: do not stop it.
+#
+# It looks like pure overhead during a BDD run — a fifth Vite worth ~700MB on
+# top of the four the suite starts, contending for the same cores. It is not.
+# nginx routes the real dev.<site> hostnames to it, and the `sites` Playwright
+# project browses those fixed hostnames rather than a per-worker wN origin
+# (playwright.config.ts explains why: those specs are about one tenant's pages,
+# so they cannot be measured against whichever site a worker happens to serve).
+#
+# Stopping it therefore does not cost memory, it costs coverage, and silently:
+# a route whose server is down falls back to src/routes/(common)/[fallback],
+# which answers 200 with a different page. tests/sites/santelyon3-contact-layout
+# spec fails 11 times over with "no layout grid — either this site has no
+# contact page of its own and is serving the generic fallback", which reads as a
+# broken contact page rather than a missing server.
+#
+# Set to 1 to stop it for the run and start it again afterwards (genuinely
+# terminated, not SIGSTOPped: a stopped-but-resident process keeps every page of
+# its RSS). Only worth it when running the bdd project alone, never with
+# `sites`. STOP stops it without restarting.
+DEV_SERVER_PORT="${DEV_SERVER_PORT:-3000}"
+E2E_STOP_DEV_SERVER="${E2E_STOP_DEV_SERVER:-0}"
 PKG_MANAGER="${PKG_MANAGER:-pnpm}"
 
 # Neo4j is slow to become healthy; `compose up --wait` alone gives up too early.
@@ -114,6 +137,7 @@ Key variables (override via env or $FRONTEND_DIR/.env.test-all):
   COMPOSE_FILE=$COMPOSE_FILE
   BACKEND_TEST_SERVICE=$BACKEND_TEST_SERVICE
   E2E_WORKERS=$E2E_WORKERS  E2E_STOP_AFTER=$E2E_STOP_AFTER
+  DEV_SERVER_PORT=$DEV_SERVER_PORT  E2E_STOP_DEV_SERVER=$E2E_STOP_DEV_SERVER  (0 leave it alone — it serves dev.<site> for the sites project)
   SKIP_BACKEND=$SKIP_BACKEND  SKIP_FRONTEND=$SKIP_FRONTEND  SEED_BDD_USERS=$SEED_BDD_USERS
 EOF
 }
@@ -199,6 +223,61 @@ e2e_workers_ready() {
     done
 }
 
+# Set when this script stopped the dev server, so only a server we paused is
+# ever restarted — never one the user started after we looked.
+DEV_SERVER_WAS_RUNNING=0
+
+dev_server_pid() {
+    # Matched on the vite.js child rather than the npx wrapper that may have
+    # spawned it: killing the wrapper orphans the child, which keeps the port
+    # bound (the same trap e2e-workers.sh documents in stop()).
+    pgrep -f "vite\.js .*--port $DEV_SERVER_PORT( |$)" 2>/dev/null | head -1
+}
+
+stop_dev_server() {
+    [[ "$E2E_STOP_DEV_SERVER" == "0" ]] && return 0
+    local pid; pid="$(dev_server_pid)"
+    [[ -z "$pid" ]] && return 0
+
+    # A worker must never be the thing we stop. They are :3100+ and this is
+    # :3000 by default, but DEV_SERVER_PORT is overridable and a mistake here
+    # would take down the suite it is meant to help.
+    local i
+    for ((i = 0; i < E2E_WORKERS; i++)); do
+        if [[ "$DEV_SERVER_PORT" == "$((${E2E_BASE_PORT:-3100} + i))" ]]; then
+            warn "DEV_SERVER_PORT=$DEV_SERVER_PORT is worker w$i's port; not touching it"
+            return 0
+        fi
+    done
+
+    info "stopping the dev server on :$DEV_SERVER_PORT (pid $pid) to free memory for the browsers"
+    kill "$pid" 2>/dev/null || return 0
+    DEV_SERVER_WAS_RUNNING=1
+    local waited=0
+    while (( waited < 10 )) && kill -0 "$pid" 2>/dev/null; do
+        sleep 1; waited=$((waited + 1))
+    done
+    kill -0 "$pid" 2>/dev/null && kill -9 "$pid" 2>/dev/null
+    return 0
+}
+
+start_dev_server() {
+    (( DEV_SERVER_WAS_RUNNING )) || return 0
+    DEV_SERVER_WAS_RUNNING=0
+    [[ "$E2E_STOP_DEV_SERVER" == "STOP" ]] && { info "leaving the dev server stopped"; return 0; }
+    if [[ -n "$(dev_server_pid)" ]]; then
+        info "a dev server is on :$DEV_SERVER_PORT again; leaving it"
+        return 0
+    fi
+    info "restarting the dev server on :$DEV_SERVER_PORT"
+    (cd "$FRONTEND_DIR" && nohup "$PKG_MANAGER" dev --port "$DEV_SERVER_PORT" \
+        > "$FRONTEND_DIR/.e2e-workers/devserver.log" 2>&1 &) || \
+        warn "could not restart the dev server; start it yourself with '$PKG_MANAGER dev'"
+}
+
+# Interrupting the run must not cost the user their dev server.
+trap 'start_dev_server' EXIT INT TERM
+
 ensure_e2e_workers() {
     if e2e_workers_ready; then
         info "reusing $E2E_WORKERS worker dev server(s)"
@@ -270,7 +349,8 @@ suite_bdd() {
             warn "could not seed test users; role-based scenarios may fail"
         fi
     fi
-    ensure_e2e_workers || return 1
+    stop_dev_server
+    ensure_e2e_workers || { start_dev_server; return 1; }
     # The specs under .features-gen are generated from features/*.feature and are
     # not in git, so a fresh checkout has none and Playwright reports "No tests
     # found". Regenerating is also what picks up edits to the feature files.
@@ -281,6 +361,7 @@ suite_bdd() {
         info "stopping worker dev servers"
         "$FRONTEND_DIR/scripts/e2e-workers.sh" stop >/dev/null 2>&1 || true
     fi
+    start_dev_server
     return "$rc"
 }
 
