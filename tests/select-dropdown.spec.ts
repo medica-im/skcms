@@ -87,6 +87,18 @@ test.describe('select dropdowns inside a modal', () => {
 			for (let s = 0; s < count; s++) {
 				await selects.nth(s).click();
 				await expect(page.locator('.svelte-select-list')).toBeVisible({ timeout: 5000 });
+				// Wait for the list to be *positioned*, not merely present.
+				// svelte-select renders it, then hands it to floating-ui and
+				// clears `.prefloat` once the coordinates are in — the class is
+				// `opacity: 0; pointer-events: none`, i.e. its own "not ready"
+				// flag. Measuring before it clears reads the pre-positioning
+				// coordinates: the list sits hundreds of pixels above the input,
+				// off the top of the viewport, and every option looks
+				// unreachable. That is what made this test fail while the
+				// dropdown was fine in a real browser.
+				await expect(page.locator('.svelte-select-list.prefloat')).toHaveCount(0, {
+					timeout: 5000
+				});
 				expect(
 					await unreachableOptions(page),
 					`options in ${section.name} select #${s} are drawn where a click cannot reach them`
