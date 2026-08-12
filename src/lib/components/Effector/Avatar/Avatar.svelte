@@ -2,21 +2,14 @@
 	import { variables } from '$lib/utils/constants';
 	import * as m from '$msgs';
 	import type { Avatar } from '$src/lib/interfaces/facility.interface';
-	
-	type AvatarSize = "lg" | "sm";
+	import { avatarSrc, type AvatarSize } from './avatarUrl.ts';
 
 	let { avatar, name, size }: { avatar: Avatar; name: string; size: AvatarSize; } = $props();
 
-	let avatarUrl = $derived.by(() => {
-		if ( size=="lg" && avatar?.lg ) {
-			return variables.BASE_URI + avatar.lg;
-		} else if ( size=="sm" && avatar?.sm ) {
-			return variables.BASE_URI + avatar.sm;
-		} else if ( avatar?.raw ) {
-			return variables.BASE_URI + avatar.raw;
-		}
-		return `/media/profile_images/default_profile_picture.png`;
-	});
+	// No cache-busting here: each upload is stored under its own filename
+	// (api/routers/avatar.py), so a replaced picture arrives with a URL of its
+	// own and ordinary caching does the right thing.
+	let avatarUrl = $derived(avatarSrc(avatar, size, variables.BASE_URI));
 </script>
 
 <img
