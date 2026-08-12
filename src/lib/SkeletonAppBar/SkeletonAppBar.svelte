@@ -49,7 +49,18 @@
 	import { getDrawerStore } from '@skeletonlabs/skeleton';
 	import * as m from '$msgs';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	
+	import { appBarTitle } from '$lib/SkeletonAppBar/appBarTitle.ts';
+
+	// A connected user already knows which site they are on, and the trail fills
+	// up with their account controls — so they get the shorter label when the
+	// organisation has one. See appBarTitle.test.ts for the full rule.
+	const title = $derived(
+		capitalizeFirstLetter(
+			appBarTitle(page.data.organization, Boolean(page.data.session?.user)),
+			variables.DEFAULT_LANGUAGE
+		)
+	);
+
 	const dirPath = page.data?.directory?.setting?.path || "/";
 	const drawerStore = getDrawerStore();
 	const modalStore = getModalStore();
@@ -146,14 +157,11 @@
 				{/if}
 			</div>
 			<div class="block lg:hidden">
-				{capitalizeFirstLetter(
-					page.data.organization?.formatted_name_short || page.data.organization?.formatted_name,
-					variables.DEFAULT_LANGUAGE
-				)}
+				{title}
 			</div>
 			<span class="max-lg:hidden"
 				><h4 class="h4">
-					{capitalizeFirstLetter(page.data.organization.formatted_name, variables.DEFAULT_LANGUAGE)}
+					{title}
 				</h4>
 			</span>
 		</div>

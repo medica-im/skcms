@@ -11,6 +11,10 @@ export interface Organization {
     company_name: string
     language: string
     formatted_name: string
+    // Optional short label ("MSP Gadagne" for "maison de santé de Gadagne").
+    // Most organisations have none, so every reader must fall back to
+    // formatted_name — see $lib/SkeletonAppBar/appBarTitle.ts.
+    formatted_name_short?: string
     formatted_name_definite_article: string
     website_title: string
     website_description: string
