@@ -3,18 +3,17 @@
 	import Emails from '$lib/Email/Emails.svelte';
 	import { FacilityLink } from '$lib';
 	import AvatarList from '$lib/components/Effector/Avatar/AvatarList.svelte';
-	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import { entryPageUrl } from '$lib/utils/utils';
+	import { entrySlugPageUrl } from '$lib/utils/utils';
 	import type { EntryFull } from '$lib/store/directoryStoreInterface';
-	import type { Entry } from '$lib/store/directoryStoreInterface';
 	export let entry: EntryFull;
 	export let avatar: boolean;
 
 	const goTo = () => {
-		const _entry: Entry = page.data.entries.find((e: Entry)=>e.uid==entry.uid);
-		const url = entryPageUrl(_entry, page.data.organization.category.name);
-		goto(url, { replaceState: false });
+		// EntryFull carries entrySlug itself. The lookup that used to stand here
+		// existed only to reach the commune the old /<type>/<commune>/<person>
+		// URL was composed from, and EntryFull does not carry one.
+		goto(entrySlugPageUrl(entry), { replaceState: false });
 	};
 </script>
 

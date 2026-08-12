@@ -1,4 +1,4 @@
-import { entryPageUrl } from '$lib/utils/utils.ts';
+import { entrySlugPageUrl } from '$lib/utils/utils.ts';
 import type { MapData } from '$lib/interfaces/mapData.interface.ts';
 import type { Facility, Address } from '$lib/interfaces/facility.interface.ts';
 import type { Facility as FacilityV1, FacilityV2 } from '$lib/interfaces/v2/facility.ts';
@@ -96,10 +96,21 @@ export const createEntriesMapData = (entries: Entry[], tooltip = false, target: 
         <b>${entry.address?.tooltip_text || entry.name}</b>
         <br>
         ${entry.effector_type.name}<br>`
+        // Linked by the entry's own unique slug, the same way the list beside
+        // the map links it. This used to compose a URL out of the entry's parts
+        // via entryPageUrl() — /<type>/<commune>/<person>, or
+        // /<facility>/<type>/<person> for an `msp` — and nothing serves the
+        // first shape, so every marker on a non-msp site led to a 404.
+        //
+        // An entry with no slug gets a popup with no link rather than one
+        // pointing at /e/undefined: a marker that says who it is beats a marker
+        // that promises a page and 404s.
+        const label = entry.address?.tooltip_text || entry.name;
+        const link = entry.entrySlug
+            ? `<a class="anchor" href="${entrySlugPageUrl(entry)}">${label}</a>`
+            : label;
         let popupHtml = `
-        <a class="anchor" href="${entryPageUrl(entry, org_category)}">
-        ${entry.address?.tooltip_text || entry.name}
-        </a>
+        ${link}
         <br>
         <span style="color:#000000;">${entry.effector_type.name}</span>`
 

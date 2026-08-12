@@ -2,15 +2,13 @@
 	import Phones from '$lib/Directory/Phone/Phones.svelte';
 	import { FacilityLink } from '$lib';
 	import AvatarList from '$lib/components/Effector/Avatar/AvatarList.svelte';
-	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import { entryPageUrl } from '$lib/utils/utils.ts';
+	import { entrySlugPageUrl } from '$lib/utils/utils.ts';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 	let { entry, avatar }: { entry: Entry; avatar: boolean } = $props();
 
 	const goTo = () => {
-		const url = entryPageUrl(entry,page.data.organization.category.name);
-		goto(url, { replaceState: false });
+		goto(entrySlugPageUrl(entry), { replaceState: false });
 	};
 </script>
 

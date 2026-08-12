@@ -96,7 +96,10 @@ export const entryPageUrl = (entry: Entry, org_category: string | null = null): 
 	return `/${typeSlug}/${communeSlug}/${nameSlug}`;
 }
 
-export const entrySlugPageUrl = (entry: Entry) => {
+// Typed on the one field it reads rather than on Entry, so an EntryFull — which
+// carries entrySlug too, but not commune or department — can be linked without
+// first looking the shorter Entry up just to satisfy the signature.
+export const entrySlugPageUrl = (entry: Pick<Entry, 'entrySlug'>) => {
 	return `/e/${entry.entrySlug}`;
 }
 
