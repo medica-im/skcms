@@ -84,7 +84,13 @@ SEED_BDD_USERS="${SEED_BDD_USERS:-1}"
 # The codebase carries a backlog of pre-existing svelte-check errors, so the
 # typecheck suite fails on the *count* rising above this baseline rather than on
 # any error at all. Lower it as the backlog is paid down.
-TYPECHECK_BASELINE="${TYPECHECK_BASELINE:-195}"
+#
+# Measured, not guessed: a baseline above the real count admits that many new
+# errors without failing. 197 as of 2026-08-12, and it had been 195 here while
+# a git-ignored .env.test-all quietly overrode it with 203 — six errors of slack
+# nobody could see in a diff. Keep the number here and re-measure when lowering
+# it; the run prints the real count beside the baseline on every invocation.
+TYPECHECK_BASELINE="${TYPECHECK_BASELINE:-197}"
 
 ALL_SUITES=(typecheck unit backend bdd)
 
