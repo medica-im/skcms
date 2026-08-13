@@ -129,6 +129,71 @@ restore_skvar() {
 # Also on Ctrl-C: an interrupted release should not leave the tree elsewhere.
 trap restore_skvar EXIT
 
+# --- Backend -----------------------------------------------------------------
+# Every staging site talks to one backend, on the same host. Both steps below
+# assume it answers: the compose healthcheck fetches a page through nginx, and
+# the link check crawls the rendered site. With the backend down the site 500s,
+# so the healthcheck fails eighteen times with an empty Output and the release
+# stalls ~150s before reporting the *frontend* container unhealthy — nothing in
+# that output points at the backend. Hence checking here, where the failure can
+# be named.
+#
+# Started rather than reported: a backend that is merely down is not a decision
+# worth interrupting a release for.
+BACKEND_HOST="${BACKEND_HOST:-staging}"
+BACKEND_DIR="${BACKEND_DIR:-/opt/dev.medica.im/backend}"
+BACKEND_COMPOSE="${BACKEND_COMPOSE:-docker-compose-production.yml}"
+# How long to wait for `up -d` to bring every service to healthy. The chain is
+# serialised by depends_on (database and neo4j, then django, then fastapi and
+# celery), so this is the sum of several start_periods, not one.
+BACKEND_TIMEOUT="${BACKEND_TIMEOUT:-300}"
+
+# Prints the services that are not both running and healthy, one per line.
+# A service with no healthcheck is judged on running alone; "starting" is not
+# healthy yet, so a backend mid-boot is waited for rather than released against.
+#
+# Compared against `config --services` rather than reported alone: with nothing
+# up, `ps -a` returns no rows at all, and a bare scan of them finds nothing
+# wrong with a backend that is entirely dead — which is the exact state this
+# check exists to catch.
+backend_unhealthy() {
+    ssh "$BACKEND_HOST" bash -s <<EOF 2>/dev/null
+cd '$BACKEND_DIR' || exit 1
+docker compose -f '$BACKEND_COMPOSE' config --services | sort > /tmp/.rs-declared
+docker compose -f '$BACKEND_COMPOSE' ps -a \
+    --format '{{.Service}}\t{{.State}}\t{{.Health}}' |
+    awk -F'\t' '\$2 == "running" && (\$3 == "healthy" || \$3 == "") { print \$1 }' |
+    sort > /tmp/.rs-ok
+comm -23 /tmp/.rs-declared /tmp/.rs-ok
+rm -f /tmp/.rs-declared /tmp/.rs-ok
+EOF
+}
+
+ensure_backend() {
+    local down
+    down="$(backend_unhealthy)"
+    if [[ -z "$down" ]]; then
+        info "backend: all services healthy"
+        return 0
+    fi
+
+    warn "backend: not ready ($(tr '\n' ' ' <<<"$down"))"
+    info "starting $BACKEND_HOST:$BACKEND_DIR"
+    if ! ssh "$BACKEND_HOST" \
+            "cd '$BACKEND_DIR' && docker compose -f '$BACKEND_COMPOSE' up -d --wait \
+             --wait-timeout $BACKEND_TIMEOUT" >/dev/null 2>&1; then
+        # --wait already waited; a failure here means something is wrong with
+        # the backend itself, and no amount of retrying from a frontend release
+        # will fix it.
+        echo "error: the staging backend did not come up healthy." >&2
+        down="$(backend_unhealthy)"
+        [[ -n "$down" ]] && echo "       not healthy: $(tr '\n' ' ' <<<"$down")" >&2
+        echo "       ssh $BACKEND_HOST 'cd $BACKEND_DIR && docker compose -f $BACKEND_COMPOSE logs --tail 50'" >&2
+        return 1
+    fi
+    info "backend: started, all services healthy"
+}
+
 # --- Link check --------------------------------------------------------------
 # muffet crawls the deployed site; scripts/linkcheck-classify.sh decides which
 # findings are ours. Run through Docker so the release needs no muffet on the
@@ -171,6 +236,16 @@ SECONDS=0
 
 printf '%sReleasing %d staging site(s)%s\n' "$BOLD" "${#NAMES[@]}" "$NC"
 for n in "${NAMES[@]}"; do info "$n"; done
+
+# Once, before anything is built: every site shares the one backend, and a
+# build that cannot be deployed is wasted. Skipped for --build-only and
+# --dry-run, which never reach the site.
+if [[ $BUILD_ONLY -eq 0 && $DRY_RUN -eq 0 ]]; then
+    step "backend"
+    if ! ensure_backend; then
+        exit 1
+    fi
+fi
 
 for NAME in "${NAMES[@]}"; do
     step "$NAME: build"
