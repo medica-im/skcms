@@ -34,7 +34,7 @@
 	class="flex h-10 w-10 items-center justify-center rounded-full shadow transition-colors
 		{$editMode
 			? 'variant-filled-primary'
-			: 'bg-surface-100-800-token opacity-90 text-surface-400-500-token backdrop-blur variant-ringed-surface hover:text-primary-500'}"
+			: 'read-mode bg-surface-100-800-token opacity-90 text-surface-400-500-token backdrop-blur variant-ringed-surface'}"
 >
 	<!--
 		size="lg" rather than the default: the pencil's thin strokes render
@@ -44,3 +44,18 @@
 	-->
 	<Fa {icon} size="lg" />
 </button>
+
+<style lang="postcss">
+	/* Only real pointers get the hover tint. A touch device has no pointer to
+	   move away, so an unguarded `hover:` latches after a tap. That matters more
+	   here than on an ordinary button: colour is what distinguishes edit mode
+	   from read mode, so a latched tint leaves the pencil primary-coloured after
+	   edit mode is switched back off — the control then contradicts its own
+	   state. :global because the class is applied from the class: expression
+	   above, which Svelte's scoper does not see. */
+	@media (hover: hover) {
+		:global(.read-mode:hover) {
+			@apply text-primary-500;
+		}
+	}
+</style>
