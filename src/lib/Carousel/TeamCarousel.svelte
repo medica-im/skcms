@@ -1,8 +1,7 @@
 <script lang="ts">
 	import Carousel from 'svelte-light-carousel';
 	import { browser } from '$app/environment';
-	import Fa from 'svelte-fa';
-	import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+	import CarouselArrow from './CarouselArrow.svelte';
 	import type { Entry } from '$lib/store/directoryStoreInterface.js';
 
 	let { data }: { data: Entry[] } = $props();
@@ -94,29 +93,28 @@
 				Arrows are opt-in snippets; nothing renders without them. The library
 				renders them after the track, so flex `order` puts prev on the left
 				and next on the right without absolute positioning.
+
+				CarouselArrow owns the styling, and the spacers below render through it
+				too so the two cannot drift apart.
 			-->
 			{#snippet prev({ canScrollPrev, prev, a11y })}
-				<button
-					type="button"
-					class="carousel-arrow order-first"
+				<CarouselArrow
+					direction="prev"
+					class="order-first"
 					onclick={prev}
 					disabled={!canScrollPrev}
 					{...a11y}
-				>
-					<Fa icon={faChevronLeft} />
-				</button>
+				/>
 			{/snippet}
 
 			{#snippet next({ canScrollNext, next, a11y })}
-				<button
-					type="button"
-					class="carousel-arrow order-last"
+				<CarouselArrow
+					direction="next"
+					class="order-last"
 					onclick={next}
 					disabled={!canScrollNext}
 					{...a11y}
-				>
-					<Fa icon={faChevronRight} />
-				</button>
+				/>
 			{/snippet}
 		</Carousel>
 		{/key}
@@ -135,16 +133,14 @@
 			puts the avatar 64px to the right of where hydration lands it — a
 			visible sideways jump the moment the page becomes interactive.
 
-			Spacers rather than real buttons: there is nothing to scroll before
-			hydration, and a disabled button would still be announced. aria-hidden
-			keeps them out of the accessibility tree, so they are pure geometry.
+			The spacers are the same CarouselArrow the hydrated carousel renders,
+			in its `decorative` form — inert and aria-hidden, but identical in
+			size by construction rather than by keeping two copies in step.
 		-->
 		<div
 			class="!flex-row !min-w-0 flex w-fit items-center justify-center gap-2 mx-auto sm:gap-4"
 		>
-			<div class="carousel-arrow invisible" aria-hidden="true">
-				<Fa icon={faChevronLeft} />
-			</div>
+			<CarouselArrow direction="prev" decorative />
 			<figure class="mx-auto w-64 max-w-full shrink-0 px-5 text-center">
 				<a href={getLink(entry)} class="block">
 					<img class="mx-auto h-auto max-w-full" src={avatarSrc(entry)} alt={entry.name} />
@@ -155,9 +151,7 @@
 					</a>
 				</figcaption>
 			</figure>
-			<div class="carousel-arrow invisible" aria-hidden="true">
-				<Fa icon={faChevronRight} />
-			</div>
+			<CarouselArrow direction="next" decorative />
 		</div>
 	{/if}
 </div>
@@ -165,15 +159,5 @@
 <style lang="postcss">
 	.anchor {
 		@apply underline underline-offset-4;
-	}
-	.carousel-arrow {
-		/* Flex sibling of the slide track (see containerClass), so no absolute
-		   positioning is needed and the arrows cannot overlap the picture or
-		   escape over neighbouring content. */
-		@apply shrink-0 rounded-full p-2;
-		@apply bg-surface-100-800-token shadow hover:variant-soft-primary;
-	}
-	.carousel-arrow:disabled {
-		@apply cursor-not-allowed opacity-30;
 	}
 </style>

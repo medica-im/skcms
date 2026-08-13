@@ -1,8 +1,7 @@
 <script lang="ts">
 	import Carousel from 'svelte-light-carousel';
 	import { browser } from '$app/environment';
-	import Fa from 'svelte-fa';
-	import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+	import CarouselArrow from '$lib/Carousel/CarouselArrow.svelte';
 	import { variables } from '$lib/utils/constants';
 	import type { Facility } from '$lib/interfaces/facility.interface';
 
@@ -75,27 +74,23 @@
 				{/snippet}
 
 				{#snippet prev({ canScrollPrev, prev, a11y })}
-					<button
-						type="button"
-						class="carousel-arrow order-first"
+					<CarouselArrow
+						direction="prev"
+						class="order-first"
 						onclick={prev}
 						disabled={!canScrollPrev}
 						{...a11y}
-					>
-						<Fa icon={faChevronLeft} />
-					</button>
+					/>
 				{/snippet}
 
 				{#snippet next({ canScrollNext, next, a11y })}
-					<button
-						type="button"
-						class="carousel-arrow order-last"
+					<CarouselArrow
+						direction="next"
+						class="order-last"
 						onclick={next}
 						disabled={!canScrollNext}
 						{...a11y}
-					>
-						<Fa icon={faChevronRight} />
-					</button>
+					/>
 				{/snippet}
 			</Carousel>
 		{/key}
@@ -121,15 +116,5 @@
 <style lang="postcss">
 	.anchor {
 		@apply underline underline-offset-4;
-	}
-	.carousel-arrow {
-		/* Flex sibling of the slide track (see containerClass), so no absolute
-		   positioning is needed and the arrows cannot overlap the picture or
-		   escape over neighbouring content. */
-		@apply shrink-0 rounded-full p-2;
-		@apply bg-surface-100-800-token shadow hover:variant-soft-primary;
-	}
-	.carousel-arrow:disabled {
-		@apply cursor-not-allowed opacity-30;
 	}
 </style>
