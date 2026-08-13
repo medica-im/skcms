@@ -44,7 +44,7 @@
 
 <div class="flex flex-wrap gap-2 w-full">
 	{#each addressOptions as addressOption}
-		<button class="chip variant-soft hover:variant-filled" onclick={() => onClick(addressOption)}>
+		<button class="chip variant-soft hover-filled" onclick={() => onClick(addressOption)}>
 			<span><MapPinHouse /></span>
 			<span>{addressOption.label}</span>
 		</button>

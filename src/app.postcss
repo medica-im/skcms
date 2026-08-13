@@ -23,6 +23,20 @@
 	@apply space-y-4;
 }
 
+/* Hover Styles */
+/* Use instead of a bare `hover:` on anything a finger can reach. A touch
+   device has no pointer to move away, so an unguarded hover state latches
+   after a tap and stays until something else is touched — the control then
+   looks active, or worse, contradicts its own state. */
+@media (hover: hover) {
+	.hover-soft-primary:hover:not(:disabled) {
+		@apply variant-soft-primary;
+	}
+	.hover-filled:hover:not(:disabled) {
+		@apply variant-filled;
+	}
+}
+
 html, body { @apply h-full overflow-hidden; }
 body {
 	background-image:

@@ -274,7 +274,7 @@
 
 		<!-- trigger-->
 		<button
-			class="btn-sm lg:btn-md btn hover:variant-soft-primary"
+			class="btn-sm lg:btn-md btn hover-soft-primary"
 			use:popup={{ event: 'click', target: 'theme' }}
 		>
 			<span class="2xl:hidden">
