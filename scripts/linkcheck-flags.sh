@@ -33,7 +33,17 @@ IMAGES_FILE="${IMAGES_FILE:-$REPO_ROOT/images.yml}"
 # What to crawl with when the site says nothing. Deliberately conservative:
 # these have to be safe for a site nobody has tuned yet.
 DEFAULT_FLAGS=(
-    --timeout=20 --max-connections=16 --max-connections-per-host=8
+    # Gentle on purpose. Every page here is server-rendered and most of them
+    # query Neo4j, so a crawler is not fetching files — it is asking the site
+    # to do real work as fast as it can accept it. At 8 connections per host a
+    # release against a freshly started server reported 66 "timeout" links that
+    # all answered in under a second when fetched one at a time: the crawl
+    # created the failure it then reported, and buried one genuine 500 in it.
+    #
+    # 4 per host with a 45s timeout leaves headroom for a cold cache. A link
+    # check that cries wolf stops being read, which costs more than the extra
+    # minute it takes to crawl politely.
+    --timeout=45 --max-connections=8 --max-connections-per-host=4
     --max-redirections=5
     --exclude='^mailto:' --exclude='^tel:'
     # Rate-limits crawlers rather than being broken.

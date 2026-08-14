@@ -82,6 +82,36 @@ if ! command -v yq >/dev/null 2>&1; then
     exit 1
 fi
 
+# --- SSH agent ---------------------------------------------------------------
+# There is no key on this machine: git and the deploys reach GitHub and the
+# server through an agent forwarded from the laptop. Two things then go wrong
+# over a release long enough to outlive a login.
+#
+# ~/.ssh/agent.sock is a symlink that every new login re-points at its own
+# socket. A release that kept reading the symlink would follow it to another
+# session's agent mid-run, and start failing the moment that session ended —
+# which is how a release built the first site and then lost authentication for
+# the remaining three. Resolve it once here and hold the real path.
+#
+# An inherited SSH_AUTH_SOCK that already works is left alone: it is either a
+# real agent or a deliberate override, and both outrank the symlink.
+if ! ssh-add -l >/dev/null 2>&1 && [[ -L "$HOME/.ssh/agent.sock" ]]; then
+    resolved="$(readlink -f "$HOME/.ssh/agent.sock" 2>/dev/null || true)"
+    [[ -S "$resolved" ]] && export SSH_AUTH_SOCK="$resolved"
+    unset resolved
+fi
+
+# And check it holds a key before building anything. Without this the run finds
+# out site by site, after a full image build each time: ten minutes to learn
+# what one call answers now. The message says what to do, because "Permission
+# denied (publickey)" reads as a wrong key rather than a dropped agent.
+if ! ssh-add -l >/dev/null 2>&1; then
+    echo "error: no SSH agent with a usable key (SSH_AUTH_SOCK=${SSH_AUTH_SOCK:-unset})." >&2
+    echo "       This machine has no key of its own; the laptop forwards one." >&2
+    echo "       Reconnect with agent forwarding (ssh dev) and run this again." >&2
+    exit 1
+fi
+
 # Default to every staging entry, in the order images.yml lists them.
 if [[ ${#NAMES[@]} -eq 0 ]]; then
     while IFS= read -r name; do
@@ -141,7 +171,11 @@ trap restore_skvar EXIT
 # Started rather than reported: a backend that is merely down is not a decision
 # worth interrupting a release for.
 BACKEND_HOST="${BACKEND_HOST:-staging}"
-BACKEND_DIR="${BACKEND_DIR:-/opt/dev.medica.im/backend}"
+# /opt/backend on the staging server since the 2026-08 move. The old path was
+# /opt/dev.medica.im/backend, named after a host that had not been called that
+# for years; the new server flattens every deploy directory to /opt/<what it
+# is>.
+BACKEND_DIR="${BACKEND_DIR:-/opt/backend}"
 BACKEND_COMPOSE="${BACKEND_COMPOSE:-docker-compose-production.yml}"
 # How long to wait for `up -d` to bring every service to healthy. The chain is
 # serialised by depends_on (database and neo4j, then django, then fastapi and
