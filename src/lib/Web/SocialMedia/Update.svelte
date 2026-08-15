@@ -31,12 +31,12 @@
 
 	let dialog: HTMLDialogElement|undefined = $state();
 	let somedTypesItems: SelectType[]|undefined = $state();
-	let roles: string[] = $derived(data.roles.map((e) => e.name));
+	let roles: string[] = $derived(data.roles);
 	let _url: string = $state(data.url);
 	let selectedType: SelectType | undefined = $state({value: data.type, label: data.type_display});
 	let _type: string = $derived(selectedType.value);
 	let selectedAccess: SelectType | undefined = $derived(
-		getSelectedAccess(data.roles.map((e) => e.name))
+		getSelectedAccess(data.roles)
 	);
 	let _roles: string[] | undefined = $derived(getRoles(selectedAccess?.value));
 	let uuid: string = $state(crypto.randomUUID());

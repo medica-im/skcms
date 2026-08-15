@@ -26,13 +26,13 @@
 
 	let dialog: HTMLDialogElement;
 
-	let roles: string[] = $derived(data.roles.map((e) => e.name));
+	let roles: string[] = $derived(data.roles);
 	let formResult = $derived(updateEmail.for(data.id.toString()).result);
 
 	let result: FormResult | undefined = $state();
 	let _email: string = $state(data.email);
 	let selectedAccess: SelectType | undefined = $state(
-		getSelectedAccess(data.roles.map((e) => e.name))
+		getSelectedAccess(data.roles)
 	);
 	let _roles: string[] | undefined = $derived(getRoles(selectedAccess?.value));
 

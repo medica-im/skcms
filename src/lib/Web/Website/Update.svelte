@@ -28,10 +28,10 @@
 
 	let dialog: HTMLDialogElement|undefined = $state();
 
-	let roles: string[] = $derived(data.roles.map((e) => e.name));
+	let roles: string[] = $derived(data.roles);
 	let _url: string = $state(data.url);
 	let selectedAccess: SelectType | undefined = $derived(
-		getSelectedAccess(data.roles.map((e) => e.name))
+		getSelectedAccess(data.roles)
 	);
 	let _roles: string[] | undefined = $derived(getRoles(selectedAccess?.value));
 	let uuid: string = $state(crypto.randomUUID());

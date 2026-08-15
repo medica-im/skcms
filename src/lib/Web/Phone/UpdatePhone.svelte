@@ -27,7 +27,7 @@
 
 	let dialog: HTMLDialogElement | undefined = $state();
 
-	let roles: string[] | undefined = $derived(data.roles?.map((e) => e.name));
+	let roles: string[] | undefined = $derived(data.roles);
 
 	const getItems = () => {
 		const items = [];
@@ -43,7 +43,7 @@
 	});
 	let _type: string = $derived(selectedType.value);
 	let selectedAccess: SelectType | undefined = $state(
-		getSelectedAccess(data.roles?.map((e) => e.name))
+		getSelectedAccess(data.roles)
 	);
 	let _roles: string[] | undefined = $derived(getRoles(selectedAccess?.value));
 	let result = $derived(updatePhone.for(data.id.toString()).result);
@@ -58,7 +58,7 @@
 		_phone = data.phone;
 		//_type=data.type;
 		selectedType = { label: phoneTypes[data.type], value: data.type };
-		selectedAccess = getSelectedAccess(data.roles?.map((e) => e.name));
+		selectedAccess = getSelectedAccess(data.roles);
 		result = undefined;
 	}
 	let uuid: string = $state(crypto.randomUUID());
