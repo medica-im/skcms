@@ -447,3 +447,34 @@ DETACH DELETE t, e, ef
 print("CLEANED", ${JSON.stringify(slug)})
 `);
 }
+
+/**
+ * Gives an entry a phone number, so the edit and delete controls render.
+ *
+ * The e2e dataset has no contact rows at all — every entry comes back with
+ * `phones: null` — so a scenario about the phone dialogs has to create one
+ * rather than go looking for it. The roles decide who sees the number
+ * (api/utils.py scrub() filters on them); all five are attached so the row is
+ * visible whichever role the scenario browses as.
+ */
+export async function seedPhone(options: {
+	entryUid: string;
+	phone?: string;
+	type?: string;
+}): Promise<void> {
+	const { entryUid, phone = '0102030405', type = 'W' } = options;
+	const out = await djangoShell(`
+from addressbook.models import Contact, PhoneNumber
+from access.models import Role
+
+c = Contact.objects.get(neomodel_uid="${entryUid}")
+p, _ = PhoneNumber.objects.get_or_create(
+    contact=c, phone="${phone}", type="${type}",
+    defaults={"public_visible": True, "contact_visible": True},
+)
+p.roles.set(Role.objects.all())
+p.save()
+print("PHONE_SET", p.pk, p.phone, p.roles.count())
+`);
+	if (!out.includes('PHONE_SET')) throw new Error(`seeding phone failed: ${out}`);
+}

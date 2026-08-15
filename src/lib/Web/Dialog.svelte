@@ -12,8 +12,30 @@
 	area it should not give up — the avatar cropper keeps its 450px canvas, so
 	it asks for more of the screen rather than a smaller area to crop in.
 -->
+<!--
+	!m-auto is what centres these dialogs.
+
+	A modal <dialog> is centred by the UA stylesheet: it gets `inset: 0` and
+	`margin: auto`, and the auto margins share out the space left over. Tailwind's
+	preflight resets `margin: 0` on every element, which removes that — the box
+	then sits at the start of the inset area, measured here as
+	`margin-left: 16px; margin-right: 0`.
+
+	The `!` is not decoration. Setting `margin: auto` in this component's scoped
+	<style> below does not work: the rule is in the cascade (verified) but
+	preflight's reset lands after it, so the computed margin stays 16px/0. Only an
+	important utility wins.
+
+	Why it looked like only some dialogs were broken: a dialog that nearly fills
+	the viewport has little room to be off-centre in, so create-phone — which asks
+	for `w-[90vw] sm:w-[28rem]` — looked fine, while edit-phone and delete-phone,
+	which set no width and shrink to their content, sat visibly against the edge
+	at 16px left against 866px right. All of them were equally uncentred; only the
+	narrow ones showed it. features/modal-centering.feature measures every dialog
+	on an entry page rather than trusting the eye.
+-->
 <dialog
-	class="rounded-lg {maxHeight} overflow-y-auto overscroll-contain {overflow} {classProp}"
+	class="rounded-lg !m-auto {maxHeight} overflow-y-auto overscroll-contain {overflow} {classProp}"
 	bind:this={dialog}
 >
 	<slot/>
