@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import type { Invitee, Role } from '$lib/interfaces/v2/invitee';
+	import type { Invitee } from '$lib/interfaces/v2/invitee';
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faEnvelope, faUser, faCircle, faEye, faPenToSquare, faTrash, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 	import { onMount } from 'svelte';
+	import RoleBadge from '$lib/RoleBadge.svelte';
 
 	let { invitee, showLink = true, highlighted = false, onEdit, onDelete }: { invitee: Invitee; showLink?: boolean; highlighted?: boolean; onEdit?: (invitee: Invitee) => void; onDelete?: (invitee: Invitee) => void } = $props();
 
@@ -16,22 +17,6 @@
 	});
 
 	let showDetailLink = $derived(showLink && (import.meta.env.DEV || page.data?.user?.role === 'superuser'));
-
-	const roleLabels: Record<Role, string> = {
-		superuser: m['ROLE.SUPERUSER_SHORT'](),
-		administrator: m['ROLE.ADMINISTRATOR_SHORT'](),
-		staff: m['ROLE.STAFF_SHORT'](),
-		registered: m['ROLE.REGISTERED_SHORT'](),
-		anonymous: m['ROLE.ANONYMOUS_SHORT']()
-	};
-
-	const roleVariants: Record<Role, string> = {
-		superuser: 'variant-filled-error',
-		administrator: 'variant-filled-warning',
-		staff: 'variant-filled-primary',
-		registered: 'variant-filled-secondary',
-		anonymous: 'variant-ghost-surface'
-	};
 
 	function formatDate(dateString: string | null): string {
 		if (!dateString) return '';
@@ -73,9 +58,7 @@
 	</div>
 
 	<!-- Role Badge -->
-	<span class="badge {roleVariants[invitee.role]} badge-sm w-fit">
-		{roleLabels[invitee.role]}
-	</span>
+	<RoleBadge role={invitee.role} uniform />
 
 	<!-- Date -->
 	<span class="text-sm text-surface-500">

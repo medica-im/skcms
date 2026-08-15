@@ -19,6 +19,7 @@
 	import * as m from '$msgs';
 	import type { Role } from '$lib/interfaces/v2/invitee';
 	import type { PageData } from './$types';
+	import { roleLabels } from '$lib/roles';
 
 	let { data }: { data: PageData } = $props();
 
@@ -47,10 +48,10 @@
 
 	// Role & options
 	const roleOptions = [
-		{ value: 'staff', label: m['ROLE.STAFF']() },
-		{ value: 'administrator', label: m['ROLE.ADMINISTRATOR']() }
+		{ value: 'staff', label: roleLabels.staff },
+		{ value: 'administrator', label: roleLabels.administrator }
 	];
-	const superUserRole = { value: 'superuser', label: m['ROLE.SUPERUSER']() };
+	const superUserRole = { value: 'superuser', label: roleLabels.superuser };
 	const isSuperUser = $derived(page.data?.user?.role == 'superuser');
 	const getRoleOptions = $derived(() => {
 		if (isSuperUser) return [...roleOptions, superUserRole];

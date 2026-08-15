@@ -2,11 +2,11 @@
     import { page } from '$app/state';
     import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
     import { UserCard, UserEntries } from '$lib/User';
-    import type { Role } from '$lib/interfaces/v2/invitee';
     import * as m from '$msgs';
     import Fa from 'svelte-fa';
-    import { faArrowLeft, faKey, faShieldHalved, faClipboardList } from '@fortawesome/free-solid-svg-icons';
+    import { faArrowLeft, faKey, faShieldHalved, faClipboardList, faCircle } from '@fortawesome/free-solid-svg-icons';
     import type { PageData } from './$types';
+    import RoleBadge from '$lib/RoleBadge.svelte';
 
     let { data }: { data: PageData } = $props();
     let userDetail = $derived(data.userDetail);
@@ -14,22 +14,6 @@
     const isAuthorized = $derived(
         page.data?.user?.role === 'superuser' || page.data?.user?.role === 'administrator'
     );
-
-    const roleLabels: Record<Role, string> = {
-        superuser: m['ROLE.SUPERUSER'](),
-        administrator: m['ROLE.ADMINISTRATOR'](),
-        staff: m['ROLE.STAFF'](),
-        registered: m['ROLE.REGISTERED'](),
-        anonymous: m['ROLE.ANONYMOUS']()
-    };
-
-    const roleVariants: Record<Role, string> = {
-        superuser: 'variant-filled-error',
-        administrator: 'variant-filled-warning',
-        staff: 'variant-filled-primary',
-        registered: 'variant-filled-secondary',
-        anonymous: 'variant-ghost-surface'
-    };
 
     function formatDateTime(timestamp: number | null): string {
         if (!timestamp) return '—';
@@ -109,14 +93,23 @@
                                     <div>
                                         <span class="text-sm text-surface-500">Rôle</span>
                                         <p>
-                                            <span class="badge {roleVariants[access.role as Role]} badge-sm">
-                                                {roleLabels[access.role as Role] ?? access.role}
-                                            </span>
+                                            <RoleBadge role={access.role} full />
                                         </p>
                                     </div>
                                     <div>
                                         <span class="text-sm text-surface-500">Statut</span>
-                                        <p class={access.active ? 'text-success-500' : 'text-error-500'}>
+                                        <!-- Colour on the dot, not the words. Green text on the
+                                             card background is close to unreadable — success-500
+                                             is a mid-green chosen to sit under white badge text,
+                                             not to be read as text itself. The icon carries the
+                                             signal and the label stays at the default contrast.
+                                             Same pattern as the invitee status. -->
+                                        <p class="flex items-center gap-1">
+                                            <Fa
+                                                icon={faCircle}
+                                                size="sm"
+                                                class={access.active ? 'text-success-500' : 'text-surface-400'}
+                                            />
                                             {access.active ? 'Actif' : 'Inactif'}
                                         </p>
                                     </div>

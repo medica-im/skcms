@@ -9,6 +9,7 @@
 	import type { Role, Invitee } from '$lib/interfaces/v2/invitee';
 	import type { PageData } from './$types';
 	import type { SelectType } from '$src/lib/interfaces/select';
+	import { roleLabels } from '$lib/roles';
 
 	interface Props {
 		data: {
@@ -22,8 +23,8 @@
 	let invitee = $derived(data.invitee);
 
 	const roleOptions = [
-		{ value: 'staff', label: m['ROLE.STAFF']() },
-		{ value: 'administrator', label: m['ROLE.ADMINISTRATOR']() }
+		{ value: 'staff', label: roleLabels.staff },
+		{ value: 'administrator', label: roleLabels.administrator }
 	] as SelectType[];
 
 	let email = $state(data.invitee?.email || '');

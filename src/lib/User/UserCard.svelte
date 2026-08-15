@@ -1,27 +1,11 @@
 <script lang="ts">
 	import type { User } from '$lib/interfaces/v2/user';
 	import type { Role } from '$lib/interfaces/v2/invitee';
-	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faEnvelope, faUser, faEye } from '@fortawesome/free-solid-svg-icons';
+	import RoleBadge from '$lib/RoleBadge.svelte';
 
 	let { user, showLink = true }: { user: User; showLink?: boolean } = $props();
-
-	const roleLabels: Record<Role, string> = {
-		superuser: m['ROLE.SUPERUSER'](),
-		administrator: m['ROLE.ADMINISTRATOR'](),
-		staff: m['ROLE.STAFF'](),
-		registered: m['ROLE.REGISTERED'](),
-		anonymous: m['ROLE.ANONYMOUS']()
-	};
-
-	const roleVariants: Record<Role, string> = {
-		superuser: 'variant-filled-error',
-		administrator: 'variant-filled-warning',
-		staff: 'variant-filled-primary',
-		registered: 'variant-filled-secondary',
-		anonymous: 'variant-ghost-surface'
-	};
 
 	function formatDate(timestamp: number | null): string {
 		if (!timestamp) return '—';
@@ -55,9 +39,7 @@
 	</div>
 
 	<!-- Role Badge -->
-	<span class="badge {roleVariants[primaryRole]} badge-sm w-fit">
-		{roleLabels[primaryRole]}
-	</span>
+	<RoleBadge role={primaryRole} uniform />
 
 	<!-- Created Date -->
 	<span class="text-sm text-surface-500">

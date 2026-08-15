@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faInfo, faUser, faQuestion, faXmark } from '@fortawesome/free-solid-svg-icons';
 	import { JsonView } from '@zerodevx/svelte-json-view';
 	import { providers } from '$lib/Auth/data.ts';
+	import { roleLabel } from '$lib/roles';
 	import UnknownEmail from '$lib/Auth/UnknownEmail.svelte';
 	import defaultProfilePicture from '$assets/images/profile/default_profile_picture.png';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
@@ -16,12 +16,6 @@
 
 	let user = $derived(page.data.user);
 
-	const role = {
-		administrator: m['ROLE.ADMINISTRATOR'](),
-		superuser: m['ROLE.SUPERUSER'](),
-		staff: m['ROLE.STAFF'](),
-		anonymous: m['ROLE.ANONYMOUS']()
-	};
 </script>
 
 <!--session?.user {session?.user}<br>
@@ -96,7 +90,7 @@ page.data?.user?.role {page.data?.user?.role}<br>
 				</div>
 				<div class="flex items-center mt-4 text-gray-700">
 					<h1 class="px-2 text-sm">
-						Rôle: {role[page.data?.user?.role as keyof object] || m['ROLE.ANONYMOUS']()}
+						Rôle: {roleLabel(page.data?.user?.role ?? 'anonymous')}
 					</h1>
 				</div>
 			</div>

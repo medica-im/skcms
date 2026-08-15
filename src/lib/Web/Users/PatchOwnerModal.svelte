@@ -3,6 +3,7 @@
 	import { invalidateAll } from '$app/navigation';
 	import { patchCommand } from '../../../entry.remote';
 	import { getUsers } from '../../../user.remote';
+	import RoleBadge from '$lib/RoleBadge.svelte';
 	import Dialog from '$lib/Web/Dialog.svelte';
 	import Fa from 'svelte-fa';
 	import {
@@ -24,27 +25,10 @@
 	import type { User } from '$lib/interfaces/v2/user.ts';
 	import type { Role } from '$lib/interfaces/v2/invitee.ts';
 	import type { FormResult } from '$lib/interfaces/v2/form';
-	import * as m from '$msgs';
 
 	let { currentOwners }: { currentOwners: string[] | null } = $props();
 
 	const entryUid = getEntryUid();
-
-	const roleLabels: Record<Role, string> = {
-		superuser: m['ROLE.SUPERUSER'](),
-		administrator: m['ROLE.ADMINISTRATOR'](),
-		staff: m['ROLE.STAFF'](),
-		registered: m['ROLE.REGISTERED'](),
-		anonymous: m['ROLE.ANONYMOUS']()
-	};
-
-	const roleVariants: Record<Role, string> = {
-		superuser: 'variant-filled-error',
-		administrator: 'variant-filled-warning',
-		staff: 'variant-filled-primary',
-		registered: 'variant-filled-secondary',
-		anonymous: 'variant-ghost-surface'
-	};
 
 	const rolePriority: Record<Role, number> = {
 		superuser: 0,
@@ -192,9 +176,7 @@
 										<p class="font-semibold text-sm truncate">{user.name || '—'}</p>
 										<p class="text-xs text-surface-500 truncate">{user.email || '—'}</p>
 									</div>
-									<span class="badge {roleVariants[role]} badge-sm flex-shrink-0">
-										{roleLabels[role]}
-									</span>
+									<RoleBadge {role} class="flex-shrink-0" />
 								</div>
 								<button
 									class="btn-icon btn-icon-sm variant-ghost-error flex-shrink-0"
@@ -282,9 +264,7 @@
 									<p class="font-semibold text-sm truncate">{user.name || '—'}</p>
 									<p class="text-xs text-surface-500 truncate">{user.email || '—'}</p>
 								</div>
-								<span class="badge {roleVariants[role]} badge-sm flex-shrink-0">
-									{roleLabels[role]}
-								</span>
+								<RoleBadge {role} class="flex-shrink-0" />
 								<span class="text-xs text-surface-400 hidden lg:block flex-shrink-0">
 									{formatDate(user.createdAt)}
 								</span>

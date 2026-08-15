@@ -9,6 +9,7 @@
 	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import type { Role } from '$lib/interfaces/v2/invitee';
 	import type { PageData } from './$types';
+	import { roleLabels } from '$lib/roles';
 
 	let { data, onclose }: { data: PageData; onclose?: () => void } = $props();
 
@@ -18,11 +19,13 @@
 	let organization = $derived(data.organization);
 	let session = $derived(data.session);
 
+	// Full labels: a select has room, and this is where somebody learns what a
+	// role is called. The short ones are for badges.
 	const roleOptions = [
-		{ value: 'staff', label: m['ROLE.STAFF']() },
-		{ value: 'administrator', label: m['ROLE.ADMINISTRATOR']() }
+		{ value: 'staff', label: roleLabels.staff },
+		{ value: 'administrator', label: roleLabels.administrator }
 	];
-	const superUserRole = { value: 'superuser', label: m['ROLE.SUPERUSER']() };
+	const superUserRole = { value: 'superuser', label: roleLabels.superuser };
 	const isSuperUser = $derived(page.data?.user?.role == 'superuser');
 	const getRoleOptions = $derived(() => {
 		if (isSuperUser) {

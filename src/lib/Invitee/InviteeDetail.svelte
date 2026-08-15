@@ -1,31 +1,16 @@
 <script lang="ts">
-	import type { Invitee, Role } from '$lib/interfaces/v2/invitee';
+	import type { Invitee } from '$lib/interfaces/v2/invitee';
 	import type { User } from '$lib/interfaces/v2/user';
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faEnvelope, faUser, faCircle, faPenToSquare, faTrash, faUserPlus, faClock, faShieldHalved, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import FileJson from '@lucide/svelte/icons/file-json';
+	import RoleBadge from '$lib/RoleBadge.svelte';
 
 	let { invitee, createdByUser, onEdit, onDelete }: { invitee: Invitee; createdByUser?: User; onEdit?: (invitee: Invitee) => void; onDelete?: (invitee: Invitee) => void } = $props();
 
 	let isRedeemed = $derived(invitee.redeemedAt != null);
-
-	const roleLabels: Record<Role, string> = {
-		superuser: m['ROLE.SUPERUSER_SHORT'](),
-		administrator: m['ROLE.ADMINISTRATOR_SHORT'](),
-		staff: m['ROLE.STAFF_SHORT'](),
-		registered: m['ROLE.REGISTERED_SHORT'](),
-		anonymous: m['ROLE.ANONYMOUS_SHORT']()
-	};
-
-	const roleVariants: Record<Role, string> = {
-		superuser: 'variant-filled-error',
-		administrator: 'variant-filled-warning',
-		staff: 'variant-filled-primary',
-		registered: 'variant-filled-secondary',
-		anonymous: 'variant-ghost-surface'
-	};
 
 	function formatFullDateTime(dateString: string | number | null): string {
 		if (!dateString) return '—';
@@ -71,9 +56,7 @@
 				Rôle
 			</span>
 			<p class="mt-1">
-				<span class="badge {roleVariants[invitee.role]} badge-sm">
-					{roleLabels[invitee.role]}
-				</span>
+				<RoleBadge role={invitee.role} full />
 			</p>
 		</div>
 

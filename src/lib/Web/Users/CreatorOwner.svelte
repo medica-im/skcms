@@ -6,6 +6,7 @@
 	import type { User } from '$lib/interfaces/v2/user.ts';
 	import type { Role } from '$lib/interfaces/v2/invitee.ts';
 	import { getEditMode } from '$lib/components/Directory/context';
+	import RoleBadge from '$lib/RoleBadge.svelte';
 	import PatchOwnerModal from './PatchOwnerModal.svelte';
 
 	let { owner, creator }: { owner: string[] | null; creator: string[] | null } = $props();
@@ -18,22 +19,6 @@
 
 	let users: UserWithRoles[] = $state([]);
 	let loading: boolean = $state(true);
-
-	const roleLabels: Record<Role, string> = {
-		superuser: m['ROLE.SUPERUSER'](),
-		administrator: m['ROLE.ADMINISTRATOR'](),
-		staff: m['ROLE.STAFF'](),
-		registered: m['ROLE.REGISTERED'](),
-		anonymous: m['ROLE.ANONYMOUS']()
-	};
-
-	const roleVariants: Record<Role, string> = {
-		superuser: 'variant-filled-error',
-		administrator: 'variant-filled-warning',
-		staff: 'variant-filled-primary',
-		registered: 'variant-filled-secondary',
-		anonymous: 'variant-ghost-surface'
-	};
 
 	function getPrimaryRole(user: User): Role {
 		return user.access.length > 0 ? (user.access[0].role as Role) : ('anonymous' as Role);
@@ -122,9 +107,7 @@
 							<span class="text-sm text-surface-500 truncate">{user.email || '—'}</span>
 
 							<!-- Role Badge -->
-							<span class="badge {roleVariants[role]} badge-sm w-fit">
-								{roleLabels[role]}
-							</span>
+							<RoleBadge {role} uniform />
 
 							<!-- Creator check -->
 							<div class="hidden sm:flex justify-center">
