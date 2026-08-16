@@ -1,5 +1,4 @@
 import { describe, it, expect, vi } from 'vitest';
-import { load } from '../routes/(skvar)/contact/+page.ts';
 
 /**
  * What the contact page's load does when the facility cannot be fetched.
@@ -17,6 +16,13 @@ import { load } from '../routes/(skvar)/contact/+page.ts';
  * Lives here rather than beside the page: that page is in the skvar submodule,
  * which is a separate repository per site and carries no test setup.
  *
+ * That submodule is one branch per tenant, and only Lyon 3's has a /contact
+ * route — three of the five contexts in dev.yml sit on dev.annuaire.medica.im,
+ * which does not. The import is therefore dynamic and the suite skips when the
+ * route is absent: as a static import it failed with "Cannot find module",
+ * which reads as a broken test rather than as a page belonging to a site the
+ * checkout is not currently on.
+ *
  * The load runs on the server at build time now that the page is prerendered,
  * so throwing here fails the build rather than the visitor's request — which
  * is the point. These tests pin the throwing, not the prerendering.
@@ -31,10 +37,20 @@ const fetchReturning = (status: number, body: unknown = {}) =>
 		})
 	) as unknown as typeof fetch;
 
-/** load() only ever uses `fetch`, so the rest of the event is not needed. */
-const run = (fetch: typeof fetch) => (load as any)({ fetch });
+/**
+ * The page's load, or null on a tenant whose skvar branch has no /contact.
+ *
+ * Resolved once, at module scope, so the skip is decided before any test runs
+ * rather than each of them failing on the same missing import.
+ */
+const contactLoad = await import('../routes/(skvar)/contact/+page.ts')
+	.then((m) => m.load)
+	.catch(() => null);
 
-describe('the contact page load', () => {
+/** load() only ever uses `fetch`, so the rest of the event is not needed. */
+const run = (fetch: typeof fetch) => (contactLoad as any)({ fetch });
+
+describe.skipIf(contactLoad === null)('the contact page load', () => {
 	it('returns the facility when the slug resolves', async () => {
 		const facility = { uid: 'abc', name: 'Coordination', slug: 'coordination-cpts-lyon-3' };
 		const result = await run(fetchReturning(200, facility));
