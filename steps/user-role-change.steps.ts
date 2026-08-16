@@ -2,7 +2,13 @@ import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
 import { test } from './fixtures';
 import { djangoShell } from './seed';
-import { TEST_ACCOUNTS, apiOrigin, type TestRole } from '../tests/fixtures/session';
+import {
+	TEST_ACCOUNTS,
+	apiOrigin,
+	createSessionCookie,
+	sessionCookieName,
+	type TestRole
+} from '../tests/fixtures/session';
 
 const { Given, When, Then, After } = createBdd(test);
 
@@ -279,4 +285,45 @@ When('I open the dashboard', async ({ page }) => {
 
 Then('I am told my access is suspended', async ({ page }) => {
 	await expect(page.getByTestId('suspended-banner')).toBeVisible({ timeout: 15_000 });
+});
+
+Given(
+	'I am signed in with an email nobody has been invited with',
+	async ({ context, baseURL }) => {
+		// Not seeded anywhere, and deliberately so: this is the visitor the
+		// unknown-email warning was written for, and the only way to be that
+		// person is to be unknown to the graph.
+		const origin = baseURL ?? apiOrigin();
+		await context.addCookies([
+			{
+				name: sessionCookieName(origin),
+				value: await createSessionCookie(
+					{
+						sub: 'e2e-sub-stranger',
+						email: 'e2e-stranger@example.test',
+						name: 'E2E Stranger'
+					},
+					origin
+				),
+				domain: new URL(origin).hostname,
+				path: '/',
+				expires: Math.floor(Date.now() / 1000) + 3600,
+				httpOnly: true,
+				secure: new URL(origin).protocol === 'https:',
+				sameSite: 'Lax'
+			}
+		]);
+	}
+);
+
+Then('I am told my email is unknown', async ({ page }) => {
+	await expect(page.getByTestId('unknown-email')).toBeVisible({ timeout: 15_000 });
+});
+
+Then('I am not told my email is unknown', async ({ page }) => {
+	// The dashboard is already rendered by the time this runs — the suspension
+	// banner is what says so — so an absent warning here is an absence, not a
+	// page that has yet to paint.
+	await expect(page.getByTestId('suspended-banner')).toBeVisible({ timeout: 15_000 });
+	await expect(page.getByTestId('unknown-email')).toHaveCount(0);
 });

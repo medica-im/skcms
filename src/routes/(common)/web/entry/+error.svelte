@@ -8,7 +8,11 @@
 
 	let visible: boolean = $state(true);
 	let session = $derived(page.data.session);
-	const unknownRole = $derived(!page.data?.user?.role);
+	// A suspended user has no role — that is what suspension does — but is not
+	// unknown, so the "we do not recognise your email" wording is wrong for
+	// them here for the same reason it is wrong on the dashboard. They are
+	// shown the ordinary error instead, which at least does not misdirect.
+	const unknownRole = $derived(!page.data?.user?.role && !page.data?.user?.suspended);
 </script>
 
 <section class="section-container">

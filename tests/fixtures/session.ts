@@ -128,11 +128,17 @@ async function derivedKey(secret: string, salt: string): Promise<Buffer> {
 	return Buffer.from(key as ArrayBuffer);
 }
 
+/** An identity the graph has never heard of, for the signed-in-but-unknown case. */
+export type TestIdentity = { sub: string; email: string; name: string };
+
 export async function createSessionCookie(
-	role: TestRole,
+	role: TestRole | TestIdentity,
 	origin = apiOrigin()
 ): Promise<string> {
-	const account = TEST_ACCOUNTS[role];
+	// A scenario about somebody the service does not recognise cannot use one of
+	// the seeded accounts — they are all known by construction — so an identity
+	// may be passed in whole rather than looked up by role.
+	const account = typeof role === 'string' ? TEST_ACCOUNTS[role] : role;
 	const key = await derivedKey(readAuthSecret(), sessionCookieName(origin));
 	const now = Math.floor(Date.now() / 1000);
 

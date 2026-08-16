@@ -72,3 +72,27 @@ Feature: Changing a user's role
       And my access has been suspended
       When I open the dashboard
       Then I am told my access is suspended
+
+    # The dashboard warns a visitor whose email it does not recognise that they
+    # may have signed up under another address. A suspended user is not that
+    # person: they are known, they were granted a role, and it was taken away
+    # on purpose. Telling them their email is unrecognised sends them to
+    # support with the wrong question, and hides the one fact that would
+    # explain their afternoon.
+    #
+    # The two cases look alike from the page's side because suspension
+    # withholds the role — which is what strips the privileges — so "no role"
+    # alone cannot tell "suspended" from "never granted anything". Only the
+    # suspension flag separates them.
+    Scenario: A suspended user is not told their email is unknown
+      Given I am signed in with the role "administrator"
+      And my access has been suspended
+      When I open the dashboard
+      Then I am not told my email is unknown
+
+    # The warning still has to appear for the person it was written for,
+    # or removing it for the suspended case would simply have deleted it.
+    Scenario: A genuinely unknown visitor is still told
+      Given I am signed in with an email nobody has been invited with
+      When I open the dashboard
+      Then I am told my email is unknown

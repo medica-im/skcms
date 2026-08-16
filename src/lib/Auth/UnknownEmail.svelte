@@ -3,7 +3,7 @@
 	let { session }: { session: Session | null | undefined } = $props();
 </script>
 
-<div class="alert-message">
+<div class="alert-message" data-testid="unknown-email">
 	<h3 class="h3">Bonjour {session?.user?.name}!</h3>
 	<p>
 		Merci de votre visite. Votre email <q>{session?.user?.email}</q> ne figure pas dans la liste

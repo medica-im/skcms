@@ -16,6 +16,18 @@
 
 	let user = $derived(page.data.user);
 
+	/**
+	 * Whether this visitor is somebody the service has never heard of.
+	 *
+	 * Not simply "has no role": suspension withholds the role — that is what
+	 * strips the privileges — so a suspended user reaches this page looking
+	 * exactly like a stranger. Telling them their email is unrecognised sends
+	 * them to support with the wrong question and hides the one fact that would
+	 * explain their afternoon. They are known, they were granted a role, and it
+	 * was taken away on purpose; the suspension notice is their answer.
+	 */
+	let unknownEmail = $derived(!page.data?.user?.role && !page.data?.user?.suspended);
+
 </script>
 
 <!--session?.user {session?.user}<br>
@@ -28,7 +40,7 @@ page.data?.user?.role {page.data?.user?.role}<br>
 !page.data?.user?.role {!page.data?.user?.role}-->
 <section class="section-container">
 	<div class="grid grid-cols-1 gap-6 place-items-center">
-		{#if !page.data?.user?.role}
+		{#if unknownEmail}
 			{#if visible}
 				<aside class="alert variant-ghost">
 					<!-- Icon -->
