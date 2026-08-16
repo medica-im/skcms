@@ -96,6 +96,44 @@ TYPECHECK_BASELINE="${TYPECHECK_BASELINE:-197}"
 
 ALL_SUITES=(typecheck unit backend bdd)
 
+# --- One run at a time -------------------------------------------------------
+# The suite owns shared, machine-wide state while it runs: the four worker dev
+# servers, the site dev server, the skvar checkout and the .env symlink. Two
+# runs at once do not merely queue — the second stops servers the first is
+# mid-scenario against, and moves the checkout under it, so both fail in ways
+# that look like product bugs and neither is reproducible.
+#
+# Held for the whole run and released when the process exits, however it exits.
+# Non-blocking on purpose: waiting would leave somebody staring at a silent
+# terminal for seven minutes, so a second run says what is already running and
+# stops. TEST_ALL_LOCK=0 opts out for the rare case of deliberately running two
+# disjoint suites at once.
+LOCK_FILE="${TEST_ALL_LOCK_FILE:-${TMPDIR:-/tmp}/test-all.$(id -u).lock}"
+if [[ "${TEST_ALL_LOCK:-1}" == "1" ]]; then
+    # Opened >> rather than >: `>` truncates on open, which happens *before*
+    # flock decides who wins — so the losing run would wipe the holder's pid and
+    # then read the empty file it had just emptied, and could never name who to
+    # wait for.
+    exec {LOCK_FD}>>"$LOCK_FILE" || true
+    if [[ -n "${LOCK_FD:-}" ]] && ! flock -n "$LOCK_FD"; then
+        holder="$(head -1 "$LOCK_FILE" 2>/dev/null)"
+        # A pid is only worth printing if it is still there: a stale file from a
+        # run killed mid-flight would otherwise send somebody chasing a pid that
+        # belongs to something else entirely by now.
+        [[ -n "$holder" ]] && ! kill -0 "$holder" 2>/dev/null && holder=""
+        echo "error: another test run is in progress${holder:+ (pid $holder)}." >&2
+        echo "       wait for it, or stop it, before starting another." >&2
+        echo "       TEST_ALL_LOCK=0 overrides this." >&2
+        exit 1
+    fi
+    # Won the lock: replace the file's contents with this run's pid. Truncated
+    # here, under the lock, where no other run can be reading it.
+    if [[ -n "${LOCK_FD:-}" ]]; then
+        : >"$LOCK_FILE"
+        printf '%s\n' "$$" >"$LOCK_FILE"
+    fi
+fi
+
 # --- Output helpers ----------------------------------------------------------
 if [[ -t 1 ]]; then
     BOLD=$'\e[1m'; RED=$'\e[31m'; GREEN=$'\e[32m'; YELLOW=$'\e[33m'; DIM=$'\e[2m'; NC=$'\e[0m'
@@ -499,17 +537,28 @@ info "sites:    ${CONTEXTS[*]}"
 
 # Which stages depend on the tenant that is checked out.
 #
-#   unit — src/lib/santelyon3-contact-load.test.ts imports a page from the
-#          skvar submodule, which is one branch per tenant. On a tenant whose
-#          branch lacks that page the suite skips, so running unit once covers
-#          those tests on one tenant and silently not on the others.
-#   bdd  — the `sites` Playwright project browses fixed dev.<site> hostnames
-#          (see playwright.config.ts), and one site server runs at a time.
+# Only `unit`. src/lib/santelyon3-contact-load.test.ts imports a page from the
+# skvar submodule, which is one branch per tenant; on a tenant whose branch
+# lacks that page the suite skips, so running unit once covers those tests on
+# one tenant and silently not on the others. Vitest reads the .env symlink, so
+# moving the checkout is all it takes — no server, nothing to wait for.
 #
-# typecheck and backend are not: the backend has no tenant at all, and
-# svelte-check is judged against a single error baseline that cannot be
-# meaningfully compared across five different submodule branches. Both run once.
-suite_is_per_site() { [[ "$1" == "unit" || "$1" == "bdd" ]]; }
+# `bdd` is deliberately *not* per-tenant, though it looks like it should be:
+#
+#   * its scenarios browse the per-worker origins w0-w3.dev.medica.im, whose
+#     servers are built from a fixed template (E2E_TEMPLATE_ENV in
+#     e2e-workers.sh) into their own .env.test.wN files. Those do not follow
+#     the checkout, so looping would rerun identical scenarios five times.
+#   * its `sites` project names the tenant each spec is about
+#     (tests/sites/sites.ts) and skips when that site is not being served, so
+#     it already covers what a loop would have covered.
+#
+# Looping it therefore bought nothing and cost a dev-server restart per tenant
+# — and, worse, tore down the site server the `sites` specs were mid-way
+# through using. typecheck and backend are single-pass too: the backend has no
+# tenant, and svelte-check is judged against one error baseline that cannot
+# mean anything across five submodule branches at once.
+suite_is_per_site() { [[ "$1" == "unit" ]]; }
 
 # Point the checkout at a context: dev.sh switches the skvar branch and the .env
 # symlink together, which is what makes the per-tenant stages test that tenant
@@ -552,13 +601,23 @@ switch_context() {
         # checkout under it: Vite watches .env, sees it change, restarts, and
         # dev.sh's own restore puts *its* branch and symlink back — so the run
         # silently tests that tenant several times over and finishes with the
-        # checkout on a site nobody asked for. Warned rather than killed: it is
-        # someone's dev server, and stopping it is not this script's call.
-        local stray
-        stray="$(pgrep -f "vite\.js .*--port 301[0-9]( |$)" 2>/dev/null | head -1)"
-        if [[ -n "$stray" ]]; then
-            warn "a site dev server is running (pid $stray); it may revert the checkout mid-run"
-            warn "stop it first for a clean per-tenant run: kill $stray"
+        # checkout on a site nobody asked for. That is worse than a failure,
+        # because every pass is green and the summary names five tenants that
+        # were never actually tested.
+        #
+        # Settling first, then verifying, is what makes that detectable: the
+        # revert takes a moment, so an immediate check would read the value this
+        # function just wrote and confirm its own work.
+        sleep 2
+        local now_host
+        now_host="$(current_env_host)"
+        if [[ "$now_host" != "$host" ]]; then
+            local stray
+            stray="$(pgrep -f "vite\.js .*--port 301[0-9]( |$)" 2>/dev/null | head -1)"
+            warn "the checkout moved back to ${now_host:-unknown} while switching to $ctx"
+            [[ -n "$stray" ]] && \
+                warn "a site dev server (pid $stray) is watching .env; stop it: kill $stray"
+            return 1
         fi
         return 0
     fi
@@ -613,25 +672,40 @@ for suite in "${SUITES[@]}"; do
     esac
 done
 
+# Which site the `sites` specs are served from, fixed before the per-tenant loop
+# runs. That loop used to assign SITE_CONTEXT per iteration, which left it
+# pointing at whichever tenant happened to be last — so bdd then started
+# *sandbox* and every spec that browses lyon3 or annuaire failed on a 502, two
+# minutes at a time. The loop only needs the checkout moved; it has no business
+# deciding which site gets a server.
+SITES_CONTEXT="$SITE_CONTEXT"
+
 for suite in "${SUITES[@]}"; do
     if suite_is_per_site "$suite"; then
         for ctx in "${CONTEXTS[@]}"; do
-            SITE_CONTEXT="$ctx"
-            # Only bdd browses the site; unit just imports files, so it needs
-            # the checkout moved and nothing listening.
-            local_needs_server=0
-            [[ "$suite" == "bdd" ]] && local_needs_server=1
-            switch_context "$ctx" "$local_needs_server" \
+            # Checkout only (second arg 0): unit imports files, it does not
+            # browse, so no server is started and none is torn down.
+            switch_context "$ctx" 0 \
                 || { record "$suite ($ctx)" fail 0; continue; }
             case "$suite" in
                 unit) [[ "$SKIP_FRONTEND" == "1" ]] || run_suite "unit ($ctx)" suite_unit ;;
-                bdd)  [[ "$SKIP_FRONTEND" == "1" ]] || run_suite "bdd ($ctx)" suite_bdd ;;
+                *) fail "no per-site handler for suite: $suite"; record "$suite ($ctx)" fail 0 ;;
             esac
         done
+        # Put the checkout back where the sites specs expect it, so a bdd stage
+        # after unit is not left on the last tenant of the loop.
+        SITE_CONTEXT="$SITES_CONTEXT"
+        switch_context "$SITES_CONTEXT" 0 || true
     else
         case "$suite" in
             typecheck) [[ "$SKIP_FRONTEND" == "1" ]] || run_suite typecheck suite_typecheck ;;
             backend)   [[ "$SKIP_BACKEND"  == "1" ]] || run_suite backend suite_backend ;;
+            bdd)       [[ "$SKIP_FRONTEND" == "1" ]] || run_suite bdd suite_bdd ;;
+            # Every suite must be handled here or in the per-site branch above.
+            # A name that falls through matches nothing, runs nothing, and
+            # reports nothing — the summary simply omits it, which reads as a
+            # suite that passed rather than one that never ran.
+            *) fail "no handler for suite: $suite"; record "$suite" fail 0 ;;
         esac
     fi
 done
