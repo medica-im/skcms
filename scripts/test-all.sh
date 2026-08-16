@@ -127,7 +127,7 @@ run_suite() {
 
 usage() {
     cat <<EOF
-Usage: $(basename "$0") [suite ...]
+Usage: $(basename "$0") [suite ...] [site ...]
 
 Suites: ${ALL_SUITES[*]}
   typecheck  svelte-check on the frontend
@@ -135,8 +135,19 @@ Suites: ${ALL_SUITES[*]}
   backend    pytest inside the $BACKEND_TEST_SERVICE container
   bdd        Playwright + Gherkin end-to-end tests
 
+Sites: $(all_contexts | tr '\n' ' ')
+  Named by their dev.yml name (lyon3) or the host they serve
+  (dev.santelyon3.fr). With none named, the stages that depend on which
+  tenant is checked out — unit and bdd — run once per site, because a page
+  or a spec belonging to one tenant is skipped on the others. typecheck and
+  backend run once: the backend has no tenant, and svelte-check is judged
+  against a single error baseline.
+
+  Each site is switched to with dev.sh, which moves the skvar branch and the
+  .env symlink together, so the checkout is left on whichever site ran last.
+
 Options:
-  --list     list suites and exit
+  --list     list suites and sites, and exit
   -h|--help  this help
 
 Key variables (override via env or $FRONTEND_DIR/.env.test-all):
@@ -428,17 +439,55 @@ suite_bdd() {
     return "$rc"
 }
 
+# --- Sites -------------------------------------------------------------------
+# Every dev.yml context, in the order that file lists them.
+all_contexts() { "${YQ:-yq}" -r '.contexts[].name' "$FRONTEND_DIR/dev.yml" 2>/dev/null; }
+
+# The context a name refers to, by its dev.yml name ("lyon3") or by the hostname
+# it serves ("dev.santelyon3.fr"). Both are how people refer to a site — the
+# short name is what dev.sh takes, the hostname is what you type in a browser —
+# and requiring the one the config happens to key on is a rule nobody remembers.
+# Prints the context name, or nothing if it matches neither.
+resolve_context() {
+    "${YQ:-yq}" -r \
+        ".contexts[] | select(.name == \"$1\" or .env_file == \".env.$1\") | .name" \
+        "$FRONTEND_DIR/dev.yml" 2>/dev/null | head -1
+}
+
 # --- Argument parsing --------------------------------------------------------
+# An argument is a suite (typecheck, unit, …) or a site (lyon3,
+# dev.santelyon3.fr). Naming sites narrows which tenants the site-dependent
+# stages run against; naming none means all of them, because a script called
+# test-all that quietly covers one tenant is not testing all.
 SUITES=()
+CONTEXTS=()
 for arg in "$@"; do
     case "$arg" in
-        --list) printf '%s\n' "${ALL_SUITES[@]}"; exit 0 ;;
+        --list)
+            printf 'suites: %s\n' "${ALL_SUITES[*]}"
+            printf 'sites:  %s\n' "$(all_contexts | tr '\n' ' ')"
+            exit 0
+            ;;
         -h|--help) usage; exit 0 ;;
         -*) usage; exit 1 ;;
-        *) SUITES+=("$arg") ;;
+        *)
+            resolved="$(resolve_context "$arg")"
+            if [[ -n "$resolved" ]]; then
+                CONTEXTS+=("$resolved")
+            else
+                SUITES+=("$arg")
+            fi
+            ;;
     esac
 done
 [[ ${#SUITES[@]} -eq 0 ]] && SUITES=("${ALL_SUITES[@]}")
+# No site named: every tenant. Each has its own skvar branch, and a test that
+# imports a page only one tenant carries is skipped on the others — so a run
+# that visits one context has genuinely not run those tests.
+if [[ ${#CONTEXTS[@]} -eq 0 ]]; then
+    mapfile -t CONTEXTS < <(all_contexts)
+fi
+[[ ${#CONTEXTS[@]} -eq 0 ]] && { fail "no contexts found in dev.yml"; exit 1; }
 
 # --- Run ---------------------------------------------------------------------
 TOTAL_START=$SECONDS
@@ -446,14 +495,145 @@ printf '%sRunning tests%s\n' "$BOLD" "$NC"
 info "frontend: $FRONTEND_DIR"
 info "backend:  $BACKEND_DIR"
 
+info "sites:    ${CONTEXTS[*]}"
+
+# Which stages depend on the tenant that is checked out.
+#
+#   unit — src/lib/santelyon3-contact-load.test.ts imports a page from the
+#          skvar submodule, which is one branch per tenant. On a tenant whose
+#          branch lacks that page the suite skips, so running unit once covers
+#          those tests on one tenant and silently not on the others.
+#   bdd  — the `sites` Playwright project browses fixed dev.<site> hostnames
+#          (see playwright.config.ts), and one site server runs at a time.
+#
+# typecheck and backend are not: the backend has no tenant at all, and
+# svelte-check is judged against a single error baseline that cannot be
+# meaningfully compared across five different submodule branches. Both run once.
+suite_is_per_site() { [[ "$1" == "unit" || "$1" == "bdd" ]]; }
+
+# Point the checkout at a context: dev.sh switches the skvar branch and the .env
+# symlink together, which is what makes the per-tenant stages test that tenant
+# rather than the last one someone happened to leave checked out.
+#
+# --restart because it also brings that site's dev server up, which the `sites`
+# specs need; ensure_site_server below is then a no-op for the context already
+# running.
+#
+# `with_server` decides how much of dev.sh's work is needed. Only the bdd stage
+# browses the site; unit merely imports files, so it needs the checkout moved
+# and nothing listening. That distinction matters: dev.sh refuses to start while
+# another site server is up (it would serve the route manifest of the branch it
+# booted with), so starting one per tenant in a loop means stopping and starting
+# five servers to run five vitest passes that never make a request.
+switch_context() {
+    local ctx="$1" with_server="${2:-0}" host waited=0
+    host="$(SITE_CONTEXT="$ctx" site_host)"
+
+    if [[ "$with_server" == "0" ]]; then
+        # Checkout only: move the skvar branch and the .env symlink, leaving any
+        # running server alone. `dev.sh --checkout` would be the natural home
+        # for this, but it has no such flag, so the two moves are done here —
+        # deliberately the same two dev.sh makes, and no more.
+        local branch env_file
+        branch="$("${YQ:-yq}" -r ".contexts[] | select(.name == \"$ctx\") | .development_skvar_branch" \
+            "$FRONTEND_DIR/dev.yml" 2>/dev/null)"
+        env_file="$("${YQ:-yq}" -r ".contexts[] | select(.name == \"$ctx\") | .env_file" \
+            "$FRONTEND_DIR/dev.yml" 2>/dev/null)"
+        [[ -z "$branch" || -z "$env_file" ]] && { warn "no dev.yml entry for $ctx"; return 1; }
+
+        if ! git -C "$FRONTEND_DIR/src/routes/(skvar)" checkout -q "$branch" 2>/dev/null; then
+            warn "could not check out $branch in the skvar submodule"
+            return 1
+        fi
+        ln -sfn "$env_file" "$FRONTEND_DIR/.env"
+        info "checked out $ctx ($branch)"
+
+        # A site dev server left running is not inert while this loop moves the
+        # checkout under it: Vite watches .env, sees it change, restarts, and
+        # dev.sh's own restore puts *its* branch and symlink back — so the run
+        # silently tests that tenant several times over and finishes with the
+        # checkout on a site nobody asked for. Warned rather than killed: it is
+        # someone's dev server, and stopping it is not this script's call.
+        local stray
+        stray="$(pgrep -f "vite\.js .*--port 301[0-9]( |$)" 2>/dev/null | head -1)"
+        if [[ -n "$stray" ]]; then
+            warn "a site dev server is running (pid $stray); it may revert the checkout mid-run"
+            warn "stop it first for a clean per-tenant run: kill $stray"
+        fi
+        return 0
+    fi
+
+    [[ "$host" == "$(current_env_host)" ]] \
+        && curl -skfL -o /dev/null --max-time 5 "$(site_origin "$host")/" 2>/dev/null \
+        && { info "already serving $ctx"; return 0; }
+
+    info "starting the $ctx dev server"
+    mkdir -p "$FRONTEND_DIR/.e2e-workers"
+    # Backgrounded, and waited for by polling. dev.sh ends in `exec vite`, so it
+    # *becomes* the dev server and never returns — calling it synchronously
+    # hangs the run forever, with the site up and healthy and nothing to show
+    # for it.
+    (cd "$FRONTEND_DIR" && nohup ./scripts/dev.sh --restart "$ctx" \
+        > "$FRONTEND_DIR/.e2e-workers/site-$ctx.log" 2>&1 &)
+
+    while (( waited < 120 )); do
+        sleep 3; waited=$((waited + 3))
+        if [[ "$(current_env_host)" == "$host" ]] \
+           && curl -skfL -o /dev/null --max-time 5 "$(site_origin "$host")/" 2>/dev/null; then
+            ok "$ctx ready (${waited}s)"
+            return 0
+        fi
+    done
+    warn "$ctx did not come up in ${waited}s; see .e2e-workers/site-$ctx.log"
+    return 1
+}
+
+# A site's origin, scheme included, from its own .env: dev.santelyon3.fr is
+# https and dev.annuaire.medica.im is http, so a hardcoded scheme polls an
+# origin that will never answer and times out on half the tenants.
+site_origin() {
+    local origin
+    origin="$(sed -n 's/^PUBLIC_ORIGIN="\?\([^"]*\)"\?/\1/p' \
+        "$FRONTEND_DIR/.env.$1" 2>/dev/null | head -1)"
+    printf '%s' "${origin:-https://$1}"
+}
+
+# The hostname the .env symlink currently points at, i.e. which tenant is
+# checked out right now.
+current_env_host() {
+    local target
+    target="$(readlink -f "$FRONTEND_DIR/.env" 2>/dev/null)"
+    [[ -n "$target" ]] && basename "$target" | sed 's/^\.env\.//'
+}
+
 for suite in "${SUITES[@]}"; do
     case "$suite" in
-        typecheck) [[ "$SKIP_FRONTEND" == "1" ]] || run_suite typecheck suite_typecheck ;;
-        unit)      [[ "$SKIP_FRONTEND" == "1" ]] || run_suite unit suite_unit ;;
-        backend)   [[ "$SKIP_BACKEND"  == "1" ]] || run_suite backend suite_backend ;;
-        bdd)       [[ "$SKIP_FRONTEND" == "1" ]] || run_suite bdd suite_bdd ;;
+        typecheck|unit|backend|bdd) ;;
         *) fail "unknown suite: $suite (see --list)"; exit 1 ;;
     esac
+done
+
+for suite in "${SUITES[@]}"; do
+    if suite_is_per_site "$suite"; then
+        for ctx in "${CONTEXTS[@]}"; do
+            SITE_CONTEXT="$ctx"
+            # Only bdd browses the site; unit just imports files, so it needs
+            # the checkout moved and nothing listening.
+            local_needs_server=0
+            [[ "$suite" == "bdd" ]] && local_needs_server=1
+            switch_context "$ctx" "$local_needs_server" \
+                || { record "$suite ($ctx)" fail 0; continue; }
+            case "$suite" in
+                unit) [[ "$SKIP_FRONTEND" == "1" ]] || run_suite "unit ($ctx)" suite_unit ;;
+                bdd)  [[ "$SKIP_FRONTEND" == "1" ]] || run_suite "bdd ($ctx)" suite_bdd ;;
+            esac
+        done
+    else
+        case "$suite" in
+            typecheck) [[ "$SKIP_FRONTEND" == "1" ]] || run_suite typecheck suite_typecheck ;;
+            backend)   [[ "$SKIP_BACKEND"  == "1" ]] || run_suite backend suite_backend ;;
+        esac
+    fi
 done
 
 # --- Summary -----------------------------------------------------------------
