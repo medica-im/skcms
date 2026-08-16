@@ -48,27 +48,29 @@ E2E_WORKERS="${E2E_WORKERS:-4}"
 # more than the whole BDD run, and the next invocation reuses them.
 E2E_STOP_AFTER="${E2E_STOP_AFTER:-0}"
 
-# The `pnpm dev` server on :3000. Off by default: do not stop it.
+# The site dev server the `sites` Playwright project browses.
 #
 # It looks like pure overhead during a BDD run — a fifth Vite worth ~700MB on
 # top of the four the suite starts, contending for the same cores. It is not.
-# nginx routes the real dev.<site> hostnames to it, and the `sites` Playwright
-# project browses those fixed hostnames rather than a per-worker wN origin
+# nginx routes the real dev.<site> hostnames to it, and the `sites` project
+# browses those fixed hostnames rather than a per-worker wN origin
 # (playwright.config.ts explains why: those specs are about one tenant's pages,
 # so they cannot be measured against whichever site a worker happens to serve).
 #
-# Stopping it therefore does not cost memory, it costs coverage, and silently:
-# a route whose server is down falls back to src/routes/(common)/[fallback],
-# which answers 200 with a different page. tests/sites/santelyon3-contact-layout
-# spec fails 11 times over with "no layout grid — either this site has no
-# contact page of its own and is serving the generic fallback", which reads as a
-# broken contact page rather than a missing server.
+# Without it the specs do not skip, they fail: a route whose server is down
+# leaves nginx answering 502, and tests/sites/santelyon3-contact-layout fails 11
+# times over with "no layout grid — either this site has no contact page of its
+# own and is serving the generic fallback", which reads as a broken contact page
+# rather than a missing server. Hence ensure_site_server below, which starts it
+# when it is absent instead of leaving the run to fail that way.
 #
-# Set to 1 to stop it for the run and start it again afterwards (genuinely
-# terminated, not SIGSTOPped: a stopped-but-resident process keeps every page of
-# its RSS). Only worth it when running the bdd project alone, never with
-# `sites`. STOP stops it without restarting.
-DEV_SERVER_PORT="${DEV_SERVER_PORT:-3000}"
+# SITE_CONTEXT names the dev.yml context to serve; its port comes from there
+# too. Do NOT reintroduce a hardcoded default port: this file carried
+# DEV_SERVER_PORT=3000 long after each site moved to its own port (3010-3019,
+# scripts/nginx/dev-site-ports.conf), so every check silently probed a port
+# nothing had bound since — the guard above was dead code and the 11 failures it
+# describes came back.
+SITE_CONTEXT="${SITE_CONTEXT:-lyon3}"
 E2E_STOP_DEV_SERVER="${E2E_STOP_DEV_SERVER:-0}"
 PKG_MANAGER="${PKG_MANAGER:-pnpm}"
 
@@ -143,7 +145,8 @@ Key variables (override via env or $FRONTEND_DIR/.env.test-all):
   COMPOSE_FILE=$COMPOSE_FILE
   BACKEND_TEST_SERVICE=$BACKEND_TEST_SERVICE
   E2E_WORKERS=$E2E_WORKERS  E2E_STOP_AFTER=$E2E_STOP_AFTER
-  DEV_SERVER_PORT=$DEV_SERVER_PORT  E2E_STOP_DEV_SERVER=$E2E_STOP_DEV_SERVER  (0 leave it alone — it serves dev.<site> for the sites project)
+  SITE_CONTEXT=$SITE_CONTEXT  (dev.yml context serving dev.<site> for the sites project; started if absent)
+  E2E_STOP_DEV_SERVER=$E2E_STOP_DEV_SERVER  (0 keep the site server up; 1 stop it for the run; STOP leave it stopped)
   SKIP_BACKEND=$SKIP_BACKEND  SKIP_FRONTEND=$SKIP_FRONTEND  SEED_BDD_USERS=$SEED_BDD_USERS
 EOF
 }
@@ -229,34 +232,50 @@ e2e_workers_ready() {
     done
 }
 
-# Set when this script stopped the dev server, so only a server we paused is
-# ever restarted — never one the user started after we looked.
-DEV_SERVER_WAS_RUNNING=0
+# The port and hostname SITE_CONTEXT is served on, read from dev.yml so this
+# script cannot drift from the map dev.sh and nginx already agree on.
+site_field() {
+    "${YQ:-yq}" -r ".contexts[] | select(.name == \"$SITE_CONTEXT\") | $1" \
+        "$FRONTEND_DIR/dev.yml" 2>/dev/null | head -1
+}
 
-dev_server_pid() {
+site_port() { site_field '.port'; }
+
+# The hostname is the env_file's suffix — .env.dev.santelyon3.fr serves
+# dev.santelyon3.fr — which is also how dev.sh derives it.
+site_host() { site_field '.env_file' | sed 's/^\.env\.//'; }
+
+site_server_pid() {
+    local port="$1"
     # Matched on the vite.js child rather than the npx wrapper that may have
     # spawned it: killing the wrapper orphans the child, which keeps the port
     # bound (the same trap e2e-workers.sh documents in stop()).
-    pgrep -f "vite\.js .*--port $DEV_SERVER_PORT( |$)" 2>/dev/null | head -1
+    pgrep -f "vite\.js .*--port $port( |$)" 2>/dev/null | head -1
 }
+
+# Set when this script stopped the site server, so only a server we paused is
+# ever restarted — never one the user started after we looked.
+DEV_SERVER_WAS_RUNNING=0
 
 stop_dev_server() {
     [[ "$E2E_STOP_DEV_SERVER" == "0" ]] && return 0
-    local pid; pid="$(dev_server_pid)"
+    local port; port="$(site_port)"
+    [[ -z "$port" ]] && return 0
+    local pid; pid="$(site_server_pid "$port")"
     [[ -z "$pid" ]] && return 0
 
-    # A worker must never be the thing we stop. They are :3100+ and this is
-    # :3000 by default, but DEV_SERVER_PORT is overridable and a mistake here
-    # would take down the suite it is meant to help.
+    # A worker must never be the thing we stop. They are :3100+ and the sites
+    # are :3010-3019, but both are overridable and a mistake here would take
+    # down the suite it is meant to help.
     local i
     for ((i = 0; i < E2E_WORKERS; i++)); do
-        if [[ "$DEV_SERVER_PORT" == "$((${E2E_BASE_PORT:-3100} + i))" ]]; then
-            warn "DEV_SERVER_PORT=$DEV_SERVER_PORT is worker w$i's port; not touching it"
+        if [[ "$port" == "$((${E2E_BASE_PORT:-3100} + i))" ]]; then
+            warn "$SITE_CONTEXT is on worker w$i's port ($port); not touching it"
             return 0
         fi
     done
 
-    info "stopping the dev server on :$DEV_SERVER_PORT (pid $pid) to free memory for the browsers"
+    info "stopping the $SITE_CONTEXT dev server on :$port (pid $pid) to free memory for the browsers"
     kill "$pid" 2>/dev/null || return 0
     DEV_SERVER_WAS_RUNNING=1
     local waited=0
@@ -271,14 +290,47 @@ start_dev_server() {
     (( DEV_SERVER_WAS_RUNNING )) || return 0
     DEV_SERVER_WAS_RUNNING=0
     [[ "$E2E_STOP_DEV_SERVER" == "STOP" ]] && { info "leaving the dev server stopped"; return 0; }
-    if [[ -n "$(dev_server_pid)" ]]; then
-        info "a dev server is on :$DEV_SERVER_PORT again; leaving it"
+    ensure_site_server
+}
+
+# Bring up the site server the `sites` project needs, if it is not already
+# answering through nginx.
+#
+# Checked through nginx rather than on 127.0.0.1:<port>, for the same reason as
+# the workers: Vite can be bound while nginx still answers 502, and that pairing
+# is exactly what makes the specs fail on a page the app never rendered.
+ensure_site_server() {
+    local port host origin
+    port="$(site_port)"; host="$(site_host)"
+    if [[ -z "$port" || -z "$host" ]]; then
+        warn "no dev.yml entry for SITE_CONTEXT=$SITE_CONTEXT; the sites specs may fail"
         return 0
     fi
-    info "restarting the dev server on :$DEV_SERVER_PORT"
-    (cd "$FRONTEND_DIR" && nohup "$PKG_MANAGER" dev --port "$DEV_SERVER_PORT" \
-        > "$FRONTEND_DIR/.e2e-workers/devserver.log" 2>&1 &) || \
-        warn "could not restart the dev server; start it yourself with '$PKG_MANAGER dev'"
+    origin="https://$host"
+
+    if curl -skf -o /dev/null --max-time 10 "$origin/"; then
+        info "$host is answering (:$port)"
+        return 0
+    fi
+
+    info "starting the $SITE_CONTEXT dev server for $host (:$port)..."
+    mkdir -p "$FRONTEND_DIR/.e2e-workers"
+    # Through dev.sh rather than a bare `pnpm dev`: it also points the .env
+    # symlink and the skvar submodule at this context, and a server started
+    # without those renders a different tenant — which is the failure this is
+    # here to prevent, one layer down.
+    (cd "$FRONTEND_DIR" && nohup ./scripts/dev.sh --restart "$SITE_CONTEXT" \
+        > "$FRONTEND_DIR/.e2e-workers/site-$SITE_CONTEXT.log" 2>&1 &)
+
+    local waited=0
+    while (( waited < 90 )); do
+        sleep 5; waited=$((waited + 5))
+        curl -skf -o /dev/null --max-time 10 "$origin/" && {
+            ok "$host answering through nginx (${waited}s)"; return 0
+        }
+    done
+    warn "$host did not answer in ${waited}s; the sites specs will fail"
+    return 0
 }
 
 # Interrupting the run must not cost the user their dev server.
@@ -357,6 +409,11 @@ suite_bdd() {
     fi
     stop_dev_server
     ensure_e2e_workers || { start_dev_server; return 1; }
+    # The `sites` project browses the real dev.<site> hostname, not a worker
+    # origin, so the worker servers above do not cover it. Started after them
+    # because dev.sh refuses to run while another *site* server is up, and
+    # before Playwright because a 502 here reads as a broken page.
+    [[ "$E2E_STOP_DEV_SERVER" == "0" ]] && ensure_site_server
     # The specs under .features-gen are generated from features/*.feature and are
     # not in git, so a fresh checkout has none and Playwright reports "No tests
     # found". Regenerating is also what picks up edits to the feature files.
