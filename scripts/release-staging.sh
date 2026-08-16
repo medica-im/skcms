@@ -46,6 +46,11 @@ Options:
 
 A site whose build fails is not deployed; the others carry on. The exit status
 is non-zero if any site failed.
+
+The cached API payloads are dropped once, after the backend is healthy and
+before any site is deployed: a release that changes the shape of a serialised
+payload would otherwise leave the new code reading pickles written by the old,
+and every site 500s while looking healthy. CLEAR_CACHE=0 skips it.
 EOF
 }
 
@@ -228,6 +233,53 @@ ensure_backend() {
     info "backend: started, all services healthy"
 }
 
+# Drop the cached API payloads, once, after the backend is up and before any
+# site is deployed.
+#
+# The cache outlives the container, so a release that changes the *shape* of a
+# serialised payload leaves Redis holding pickles written by the old code and
+# read back by the new. Nothing reconciles the two: the entries endpoint
+# validates what it read, fails, and every site 500s while the containers look
+# perfectly healthy and the image is minutes old.
+#
+# That is not hypothetical. "Send a role as its name rather than as an object"
+# (backend 3d90ddf) turned each role from {id, name, description} into its name;
+# the cached payloads still held objects, so staging answered 500 on three of
+# four sites with thousands of pydantic enum errors — one per role per phone per
+# entry — over data the frontend had never read. The image was correct. The
+# cache was not.
+#
+# Scoped to the v2 payload keys, never FLUSHDB or FLUSHALL: CACHES and
+# CELERY_RESULT_BACKEND both default to redis db 0 (backend/settings.py), so a
+# blunt flush would discard the results of tasks still in flight.
+#
+# Matched as '*v2:*' rather than 'v2:*': Django prefixes every key with its
+# version (":1:v2:entries:…"), so an anchored pattern silently matches nothing
+# and the release looks like it cleared a cache it never touched. The same trap
+# is documented in steps/seed.ts, which solves it the same way.
+#
+# Unconditional because it is cheap and the alternative is unreliable: the keys
+# are rebuilt on the next request, while deciding *whether* a given release
+# changed a payload shape means reading the diff of an image someone else built.
+# A cold cache costs one slow page; a stale one costs the whole site.
+CLEAR_CACHE="${CLEAR_CACHE:-1}"
+
+clear_backend_cache() {
+    [[ "$CLEAR_CACHE" == "1" ]] || { info "cache: left alone (CLEAR_CACHE=$CLEAR_CACHE)"; return 0; }
+    local n
+    n="$(ssh "$BACKEND_HOST" \
+        "cd '$BACKEND_DIR' && docker compose -f '$BACKEND_COMPOSE' exec -T redis sh -c \
+         \"redis-cli --scan --pattern '*v2:*' | xargs -r redis-cli DEL\"" 2>/dev/null | tail -1)"
+    # A failure here is not worth stopping a release for: the cache is a
+    # performance layer, and the worst case is the stale-payload 500 this exists
+    # to prevent — which is visible immediately, in the link check below.
+    if [[ -z "$n" ]]; then
+        warn "cache: could not clear (is redis up?); a shape change may serve stale payloads"
+        return 0
+    fi
+    info "cache: dropped $n cached payload(s)"
+}
+
 # --- Link check --------------------------------------------------------------
 # muffet crawls the deployed site; scripts/linkcheck-classify.sh decides which
 # findings are ours. Run through Docker so the release needs no muffet on the
@@ -279,6 +331,10 @@ if [[ $BUILD_ONLY -eq 0 && $DRY_RUN -eq 0 ]]; then
     if ! ensure_backend; then
         exit 1
     fi
+    # After the backend is healthy — the containers have to be up to reach
+    # redis — and before any site is deployed, so no site is ever served from a
+    # payload the new code cannot read.
+    clear_backend_cache
 fi
 
 for NAME in "${NAMES[@]}"; do
