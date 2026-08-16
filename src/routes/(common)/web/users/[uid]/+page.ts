@@ -22,6 +22,7 @@ export const load: PageLoad = async ({ data, params, fetch }) => {
         }
     }
     return {
-        userDetail: userDetail || data.userDetail
+        userDetail: userDetail || data.userDetail,
+        accessHistory: data.accessHistory ?? []
     }
 }

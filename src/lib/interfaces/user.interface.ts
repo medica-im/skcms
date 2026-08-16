@@ -24,6 +24,14 @@ export interface User {
 	role: string;
 	effector: string|null;
 	gender: string|null;
+	/**
+	 * Suspension withholds privileges without ending the identity: signing in
+	 * still works and `role` comes back null, which on its own is
+	 * indistinguishable from an account that was never granted anything. This
+	 * is what lets the dashboard tell the two apart and explain itself.
+	 */
+	suspended?: boolean;
+	suspensionReason?: string|null;
 }
 
 export interface UserResponse {
