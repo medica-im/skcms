@@ -424,6 +424,7 @@
   "ROLE_CHANGE_HISTORY_BY": "par",
   "ROLE_CHANGE_HISTORY_CURRENT": "Rôle actuel",
   "ROLE_CHANGE_HISTORY_EMPTY": "Aucun changement de rôle enregistré.",
+  "ROLE_CHANGE_HISTORY_ERROR": "L'historique des rôles n'a pas pu être chargé. Il n'est pas vide, il est indisponible ; rechargez la page pour réessayer.",
   "ROLE_CHANGE_HISTORY_UNTIL": "jusqu'au",
   "ROLE_CHANGE_NEW_ROLE": "Nouveau rôle",
   "ROLE_CHANGE_SUBMIT": "Changer le rôle",

@@ -21,7 +21,11 @@
 	// client-only (`ssr = false`), and a remote query issued from such a page
 	// reaches the server without its argument — refused by the schema before
 	// the handler runs. The loader fetches it beside the user it belongs to.
-	let { rows = [] }: { rows?: AccessHistory[] } = $props();
+	//
+	// `undefined` means the fetch failed and is not the same as `[]`, which
+	// means this user's role has genuinely never changed. Collapsing the two
+	// is how a broken audit trail spent a release reading as an empty one.
+	let { rows }: { rows?: AccessHistory[] } = $props();
 
 	function formatDateTime(timestamp: number | null): string {
 		if (!timestamp) return '—';
@@ -93,6 +97,10 @@
 					</div>
 				{/each}
 			</div>
+		{:else if rows === undefined}
+			<p class="text-warning-700-200-token" data-testid="history-error">
+				{m.ROLE_CHANGE_HISTORY_ERROR()}
+			</p>
 		{:else}
 			<p class="text-surface-500">{m.ROLE_CHANGE_HISTORY_EMPTY()}</p>
 		{/if}

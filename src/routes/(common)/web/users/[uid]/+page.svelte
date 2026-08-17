@@ -209,7 +209,7 @@
                 <UserEntries userUid={userDetail.uid} />
             </section>
 
-            <AccessHistory rows={data.accessHistory ?? []} />
+            <AccessHistory rows={data.accessHistory} />
         {:else}
             <div class="alert variant-filled-warning">
                 <p>Utilisateur introuvable.</p>
