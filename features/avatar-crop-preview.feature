@@ -82,6 +82,34 @@ Feature: Reviewing an avatar crop before uploading it
       When I drag a corner handle well beyond the photograph
       Then the crop selection is still inside the photograph
 
+  # Every scenario above uses a landscape photograph, and for a long time so did
+  # every scenario here — which is how a portrait one came to be unccroppable
+  # without a single test failing.
+  #
+  # The cropper's initial selection is a fraction of its *canvas*. While the
+  # canvas was a fixed height, a tall photograph was letterboxed inside it and
+  # the selection was still measured against the full canvas width: a square
+  # wider than the picture, already outside the bounds it would be clamped to.
+  # It could then be neither dragged nor resized, and a portrait is exactly what
+  # someone uploads as a portrait photograph.
+  #
+  # Phones shoot portrait by default, so this is the common case, not the
+  # exotic one.
+  Rule: a photograph of any shape can be cropped
+
+    Scenario Outline: The crop starts inside a <shape> photograph and can be moved
+      Given I am signed in as an administrator, on an entry of this site
+      And I open the avatar dialog for that entry
+      When I choose a <shape> photograph to use as the avatar
+      Then the crop selection is inside the photograph
+      And the crop selection can be moved
+
+      Examples:
+        | shape     |
+        | landscape |
+        | portrait  |
+        | square    |
+
   # A dialog whose buttons sit below the fold is a dead end: the crop cannot be
   # validated and the upload cannot be confirmed, whatever the rest of the flow
   # does. 720 tall is a laptop, not a contrived size.

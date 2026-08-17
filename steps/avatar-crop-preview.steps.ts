@@ -290,6 +290,93 @@ When('I drag a corner handle well beyond the photograph', async ({ page }) => {
 	);
 });
 
+/**
+ * Dimensions per shape, in the proportions people actually upload.
+ *
+ * 3:4 for the portrait rather than something square-ish: a phone's default,
+ * and tall enough that a canvas of fixed height letterboxes it noticeably —
+ * which is the condition the bug needed.
+ */
+const SHAPES: Record<string, [number, number]> = {
+	landscape: [1200, 800],
+	portrait: [900, 1200],
+	square: [1000, 1000]
+};
+
+When(
+	'I choose a {word} photograph to use as the avatar',
+	async ({ page }, shape: string) => {
+		const size = SHAPES[shape];
+		expect(size, `unknown photograph shape "${shape}"`).toBeTruthy();
+		const dataUrl = await makeImage(page, size[0], size[1]);
+		const buffer = Buffer.from(dataUrl.split(',')[1], 'base64');
+		await openDialog(page)
+			.locator('input[type="file"]')
+			.setInputFiles({ name: 'avatar.jpg', mimeType: 'image/jpeg', buffer });
+		await expect(cropper(page)).toBeVisible({ timeout: 15_000 });
+		// The cropper sizes its canvas from the image, which is laid out a frame
+		// or two after the element appears.
+		await page.waitForTimeout(1200);
+	}
+);
+
+/** Same comparison as "still inside", read once for the initial placement. */
+async function selectionAndImage(page: import('@playwright/test').Page) {
+	return openDialog(page).evaluate((root) => {
+		const rect = (el: Element | null) => {
+			if (!el) return null;
+			const r = el.getBoundingClientRect();
+			return { left: r.left, top: r.top, right: r.right, bottom: r.bottom };
+		};
+		return {
+			selection: rect(root.querySelector('cropper-selection')),
+			image: rect(root.querySelector('cropper-image'))
+		};
+	});
+}
+
+Then('the crop selection is inside the photograph', async ({ page }) => {
+	const { selection, image } = await selectionAndImage(page);
+	expect(selection, 'no crop selection').not.toBeNull();
+	expect(image, 'no image in the cropper').not.toBeNull();
+
+	const slack = 1;
+	expect(selection!.left, 'starts past the left edge').toBeGreaterThanOrEqual(image!.left - slack);
+	expect(selection!.top, 'starts past the top edge').toBeGreaterThanOrEqual(image!.top - slack);
+	expect(selection!.right, 'starts past the right edge').toBeLessThanOrEqual(image!.right + slack);
+	expect(selection!.bottom, 'starts past the bottom edge').toBeLessThanOrEqual(
+		image!.bottom + slack
+	);
+});
+
+Then('the crop selection can be moved', async ({ page }) => {
+	// A selection that begins outside the picture cannot be dragged anywhere
+	// legal, so it does not move at all — which is what a portrait photograph
+	// used to do, and what reads as a broken handle rather than a bad initial
+	// size. Moved through the cropper's own API: what is under test is whether
+	// the geometry allows a move, not whether a synthetic drag lands on a
+	// 15-pixel handle.
+	const before = await selectionAndImage(page);
+	await openDialog(page).evaluate((root) => {
+		const selection = root.querySelector('cropper-selection') as any;
+		selection?.$moveTo(selection.x + 20, selection.y + 15);
+	});
+	await page.waitForTimeout(300);
+	const after = await selectionAndImage(page);
+
+	expect(
+		after.selection!.left !== before.selection!.left ||
+			after.selection!.top !== before.selection!.top,
+		'the selection did not move; it probably started outside the photograph'
+	).toBe(true);
+
+	// ...and it is still inside afterwards: moving must not be bought by
+	// escaping the picture.
+	const slack = 1;
+	expect(after.selection!.left).toBeGreaterThanOrEqual(after.image!.left - slack);
+	expect(after.selection!.right).toBeLessThanOrEqual(after.image!.right + slack);
+});
+
 Then('the crop selection is still inside the photograph', async ({ page }) => {
 	// Compared as rendered rectangles rather than through the cropper's own
 	// numbers: what matters is that no part of the selection covers anything but
