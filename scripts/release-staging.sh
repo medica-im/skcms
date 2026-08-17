@@ -25,17 +25,23 @@ SUBMODULE_PATH="src/routes/(skvar)"
 BUILD="$REPO_ROOT/scripts/build-image.sh"
 DEPLOY="$REPO_ROOT/scripts/deploy-image.sh"
 
-# Which names count as staging. Production sites are deliberately not reachable
-# from this script at all: releasing every site at once is a staging habit, and
-# production wants deploy-image.sh named site by site.
-STAGING_PREFIX="${STAGING_PREFIX:-staging.}"
+# Which sites count as staging is read from their compose file, not from their
+# name — the same rule release-production.sh uses, and for the same reason. A
+# name is not the discriminator it appears to be: annuaire.medica.im is a
+# *production* site that runs on the staging machine, and carries neither
+# "staging" nor "production" in its name. The compose file is what actually
+# differs, and images.yml already records it.
+#
+# Production sites stay unreachable from this script: releasing every site at
+# once is a staging habit, and production wants naming a site deliberately.
+STAGING_COMPOSE="${STAGING_COMPOSE:-docker-compose-staging.yml}"
 
 usage() {
     cat <<EOF
 Usage: $(basename "$0") [options] [<name> ...]
 
 Builds, pushes and deploys the staging sites listed in $(basename "$IMAGES_FILE").
-With no names, every image whose name begins with "$STAGING_PREFIX".
+With no names, every image whose compose_file is $STAGING_COMPOSE.
 
 Options:
   --list         print the sites this would release, and exit
@@ -47,10 +53,11 @@ Options:
 A site whose build fails is not deployed; the others carry on. The exit status
 is non-zero if any site failed.
 
-The cached API payloads are dropped once, after the backend is healthy and
-before any site is deployed: a release that changes the shape of a serialised
-payload would otherwise leave the new code reading pickles written by the old,
-and every site 500s while looking healthy. CLEAR_CACHE=0 skips it.
+Each site's cached API payloads are dropped just before that site is rebuilt.
+A release that changes the shape of a serialised payload would otherwise leave
+the new code reading pickles written by the old, and the site 500s while looking
+healthy. Per site rather than all at once, so a site is degraded only for its
+own build. CLEAR_CACHE=0 skips it.
 EOF
 }
 
@@ -120,22 +127,39 @@ fi
 # Default to every staging entry, in the order images.yml lists them.
 if [[ ${#NAMES[@]} -eq 0 ]]; then
     while IFS= read -r name; do
-        [[ "$name" == "$STAGING_PREFIX"* ]] && NAMES+=("$name")
-    done < <(yq -r '.images[].name' "$IMAGES_FILE")
+        [[ -n "$name" ]] && NAMES+=("$name")
+    done < <(yq -r ".images[] | select((.compose_file // \"\") == \"$STAGING_COMPOSE\") | .name" "$IMAGES_FILE")
 fi
 
 if [[ ${#NAMES[@]} -eq 0 ]]; then
-    echo "error: no image in $IMAGES_FILE starts with '$STAGING_PREFIX'" >&2
+    echo "error: no image in $IMAGES_FILE uses $STAGING_COMPOSE" >&2
     exit 1
 fi
 
 # A name given explicitly is still checked: this script only ever releases
 # staging, so a production name here is a mistake worth stopping for rather
-# than quietly obeying.
+# than quietly obeying. Checked against the list images.yml yields, not against
+# the name, so a staging site that is not called "staging.something" is still
+# accepted and a production one is still refused.
+STAGING_NAMES=()
+while IFS= read -r name; do
+    [[ -n "$name" ]] && STAGING_NAMES+=("$name")
+done < <(yq -r ".images[] | select((.compose_file // \"\") == \"$STAGING_COMPOSE\") | .name" "$IMAGES_FILE")
+
+is_staging() {
+    local candidate="$1" n
+    for n in "${STAGING_NAMES[@]}"; do
+        [[ "$n" == "$candidate" ]] && return 0
+    done
+    return 1
+}
+
 for name in "${NAMES[@]}"; do
-    if [[ "$name" != "$STAGING_PREFIX"* ]]; then
-        echo "error: '$name' is not a staging site (expected a '$STAGING_PREFIX' prefix)." >&2
-        echo "       Deploy production one site at a time with scripts/deploy-image.sh." >&2
+    if ! is_staging "$name"; then
+        echo "error: '$name' is not a staging site." >&2
+        echo "       Staging sites are:" >&2
+        printf '         %s\n' "${STAGING_NAMES[@]}" >&2
+        echo "       Production is released with scripts/release-production.sh." >&2
         exit 1
     fi
 done
@@ -264,20 +288,33 @@ ensure_backend() {
 # A cold cache costs one slow page; a stale one costs the whole site.
 CLEAR_CACHE="${CLEAR_CACHE:-1}"
 
-clear_backend_cache() {
+# Drop one site's cached payloads.
+#
+# Per site rather than all at once: the keys carry the site's own hostname
+# (":1:v2:entries:staging.santelyon3.fr:santelyon3:anonymous"), so they can be
+# selected one site at a time. Clearing the lot up front would leave every site
+# degraded from the first build until its own deploy — for whichever site is
+# released last, the whole run. Clearing only the site about to be rebuilt keeps
+# each outage to that site's own build.
+clear_site_cache() {
+    local name="$1" n
     [[ "$CLEAR_CACHE" == "1" ]] || { info "cache: left alone (CLEAR_CACHE=$CLEAR_CACHE)"; return 0; }
-    local n
+
+    # Doubly wildcarded: Django prefixes the key with its cache version (":1:")
+    # and the endpoint, and suffixes it with directory and role, so the hostname
+    # sits in the middle.
     n="$(ssh "$BACKEND_HOST" \
         "cd '$BACKEND_DIR' && docker compose -f '$BACKEND_COMPOSE' exec -T redis sh -c \
-         \"redis-cli --scan --pattern '*v2:*' | xargs -r redis-cli DEL\"" 2>/dev/null | tail -1)"
+         \"redis-cli --scan --pattern '*v2:*$name*' | xargs -r redis-cli DEL\"" 2>/dev/null | tail -1)"
+
     # A failure here is not worth stopping a release for: the cache is a
     # performance layer, and the worst case is the stale-payload 500 this exists
     # to prevent — which is visible immediately, in the link check below.
     if [[ -z "$n" ]]; then
-        warn "cache: could not clear (is redis up?); a shape change may serve stale payloads"
+        warn "cache: could not clear $name (is redis up?); a shape change may serve stale payloads"
         return 0
     fi
-    info "cache: dropped $n cached payload(s)"
+    info "cache: dropped $n payload(s) for $name"
 }
 
 # --- Link check --------------------------------------------------------------
@@ -331,13 +368,26 @@ if [[ $BUILD_ONLY -eq 0 && $DRY_RUN -eq 0 ]]; then
     if ! ensure_backend; then
         exit 1
     fi
-    # After the backend is healthy — the containers have to be up to reach
-    # redis — and before any site is deployed, so no site is ever served from a
-    # payload the new code cannot read.
-    clear_backend_cache
 fi
 
 for NAME in "${NAMES[@]}"; do
+    # Immediately before this site's build, not before the whole run.
+    #
+    # The backend has already been deployed by the time a frontend release runs,
+    # so the API answers in the new shape while the old frontend container is
+    # still serving — and that container keeps working only because the cache
+    # still holds payloads in the shape it understands. Clearing therefore
+    # begins this site's cutover, and the site is degraded from here until its
+    # own deploy finishes: its build, not everybody's.
+    #
+    # It cannot be deferred past the build: the images cannot be built until the
+    # new backend is up, and once this site's build starts it is committed to
+    # the cutover regardless.
+    if [[ $DRY_RUN -eq 0 && $BUILD_ONLY -eq 0 ]]; then
+        step "$NAME: cache"
+        clear_site_cache "$NAME"
+    fi
+
     step "$NAME: build"
     # --keep-skvar: build-image.sh would otherwise put the submodule back after
     # every site, only for the next one to check its own branch out again. The

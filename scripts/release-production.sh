@@ -152,6 +152,91 @@ if [[ $ASSUME_YES -eq 0 && $DRY_RUN -eq 0 ]]; then
     esac
 fi
 
+# --- Cached API payloads ------------------------------------------------------
+# Dropped once, before the first image is built.
+#
+# The cache outlives the containers, so a release that changes the *shape* of a
+# serialised payload leaves redis holding pickles written by the old code and
+# read back by the new. Nothing reconciles the two: the endpoint validates what
+# it read, fails, and the site 500s while every container looks healthy and the
+# image is minutes old.
+#
+# That is not hypothetical. "Send a role as its name rather than as an object"
+# (backend 3d90ddf) turned each role from {id, name, description} into its name;
+# the cached payloads still held objects, so staging answered 500 on three of
+# four sites with thousands of pydantic enum errors over a field the frontend
+# had never read. The image was correct; the cache was not.
+#
+# The order of a release is what makes the timing what it is:
+#
+#   backend deployed   ->  the API already answers in the new shape
+#   old frontends up   ->  they keep working *because* the cache still holds
+#                          payloads in the old shape
+#   cache cleared      ->  here: the cutover begins
+#   images built, deployed
+#
+# So this is the start of the cutover, not cleanup after one. It cannot be
+# deferred any later: the images cannot be built until the new backend is up,
+# and once the builds begin the release is committed to the cutover anyway.
+#
+# Production spans more than one machine — annuaire.medica.im is a production
+# site that runs on the *staging* box (see the header) — so the hosts are read
+# from images.yml rather than assumed, and each one's cache is cleared once.
+#
+# Scoped to the v2 payload keys, never FLUSHDB: CACHES and
+# CELERY_RESULT_BACKEND share redis db 0 (backend/settings.py), so a blunt flush
+# would discard the results of tasks still in flight. Matched as '*v2:*' rather
+# than 'v2:*' because Django prefixes every key with its cache version
+# (":1:v2:entries:…") — the anchored form silently matches nothing, the same
+# trap steps/seed.ts documents.
+CLEAR_CACHE="${CLEAR_CACHE:-1}"
+BACKEND_COMPOSE="${BACKEND_COMPOSE:-docker-compose-production.yml}"
+
+# Where each host keeps its backend. Overridable per host from the environment,
+# since these paths are historical and differ between the two machines.
+backend_dir_for() {
+    case "$1" in
+        production)  echo "${BACKEND_DIR_PRODUCTION:-/opt/annuaire.medica.im/backend}" ;;
+        old-staging) echo "${BACKEND_DIR_OLD_STAGING:-/opt/dev.medica.im/backend}" ;;
+        *)           echo "${BACKEND_DIR_DEFAULT:-/opt/backend}" ;;
+    esac
+}
+
+
+# Drop one site's cached payloads, on the host that serves it.
+#
+# Per site rather than all at once, because the cache keys carry the site's
+# domain (":1:v2:entries:santelyon3.fr:santelyon3:anonymous") and so can be
+# selected one site at a time. Clearing the lot up front would break every site
+# from the first build until its own deploy — for the sites released last, the
+# whole run. Clearing only the site about to be rebuilt keeps each outage to
+# that site's own build.
+clear_site_cache() {
+    local name="$1" host dir n
+    [[ "$CLEAR_CACHE" == "1" ]] || { info "cache: left alone (CLEAR_CACHE=$CLEAR_CACHE)"; return 0; }
+
+    host="$(yq -r ".images[] | select(.name == \"$name\") | .host // \"\"" "$IMAGES_FILE")"
+    [[ -z "$host" ]] && { warn "cache: no host for $name in $(basename "$IMAGES_FILE")"; return 0; }
+    dir="$(backend_dir_for "$host")"
+
+    # Matched on the site's own name: the key is prefixed by Django's cache
+    # version (":1:") and the endpoint, and suffixed by directory and role, so
+    # the domain sits in the middle and only a doubly-wildcarded pattern finds
+    # it.
+    n="$(ssh "$host" \
+        "cd '$dir' && docker compose -f '$BACKEND_COMPOSE' exec -T redis sh -c \
+         \"redis-cli --scan --pattern '*v2:*$name*' | xargs -r redis-cli DEL\"" 2>/dev/null | tail -1)"
+
+    # Never fatal: the cache is a performance layer, and the worst case is the
+    # stale-payload 500 this exists to prevent — which the link check would
+    # surface anyway, on a site that is still serving.
+    if [[ -z "$n" ]]; then
+        warn "cache: could not clear $name on $host (is redis up at $dir?)"
+    else
+        info "cache: dropped $n payload(s) for $name on $host"
+    fi
+}
+
 # --- Leave the submodule where it was found ----------------------------------
 # build-image.sh restores after each site on its own, but it is told not to
 # below so the loop does not check the branch back and forth between sites. The
@@ -182,6 +267,22 @@ for n in "${NAMES[@]}"; do info "$n"; done
 STOPPED_AFTER=""
 
 for NAME in "${NAMES[@]}"; do
+    # Immediately before this site's build, not before the whole run.
+    #
+    # By the time a frontend release runs, the backend has already been deployed
+    # and answers in the new shape; the old frontend container keeps working
+    # only because the cache still holds payloads in the shape it understands.
+    # Clearing therefore begins this site's cutover, and the site is degraded
+    # from here until its own deploy finishes — its build, not everybody's.
+    #
+    # It cannot be deferred past the build: the images cannot be built until the
+    # new backend is up, and once this site's build starts it is committed to
+    # the cutover regardless.
+    if [[ $DRY_RUN -eq 0 && $BUILD_ONLY -eq 0 ]]; then
+        step "$NAME: cache"
+        clear_site_cache "$NAME"
+    fi
+
     step "$NAME: build"
     if [[ $DRY_RUN -eq 1 ]]; then
         info "(dry run) $BUILD --keep-skvar $NAME"
