@@ -89,6 +89,40 @@ if ! command -v yq >/dev/null 2>&1; then
     exit 1
 fi
 
+# --- SSH agent ---------------------------------------------------------------
+# Verbatim from release-staging.sh, where it was written after a release built
+# the first site and lost authentication for the rest. It matters more here:
+# these are live sites, and a partial release leaves some of them on new code
+# and some on old.
+#
+# There is no key on this machine: git and the deploys reach GitHub and the
+# servers through an agent forwarded from the laptop. Two things then go wrong
+# over a release long enough to outlive a login.
+#
+# ~/.ssh/agent.sock is a symlink that every new login re-points at its own
+# socket. A release that kept reading the symlink would follow it to another
+# session's agent mid-run, and start failing the moment that session ended.
+# Resolve it once here and hold the real path.
+#
+# An inherited SSH_AUTH_SOCK that already works is left alone: it is either a
+# real agent or a deliberate override, and both outrank the symlink.
+if ! ssh-add -l >/dev/null 2>&1 && [[ -L "$HOME/.ssh/agent.sock" ]]; then
+    resolved="$(readlink -f "$HOME/.ssh/agent.sock" 2>/dev/null || true)"
+    [[ -S "$resolved" ]] && export SSH_AUTH_SOCK="$resolved"
+    unset resolved
+fi
+
+# And check it holds a key before building anything. Without this the run finds
+# out site by site, after a full image build each time: ten minutes to learn
+# what one call answers now. The message says what to do, because "Permission
+# denied (publickey)" reads as a wrong key rather than a dropped agent.
+if ! ssh-add -l >/dev/null 2>&1; then
+    echo "error: no SSH agent with a usable key (SSH_AUTH_SOCK=${SSH_AUTH_SOCK:-unset})." >&2
+    echo "       This machine has no key of its own; the laptop forwards one." >&2
+    echo "       Reconnect with agent forwarding (ssh dev) and run this again." >&2
+    exit 1
+fi
+
 # Every production entry, in the order images.yml lists them.
 PRODUCTION_NAMES=()
 while IFS= read -r name; do
