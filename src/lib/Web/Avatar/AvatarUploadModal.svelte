@@ -69,12 +69,37 @@
 		reader.readAsDataURL(file);
 	}
 
+	/** Tallest the cropper may get, so its buttons stay on a 720px-high laptop. */
+	const MAX_CANVAS_HEIGHT = 450;
+
 	async function initCropper(img: HTMLImageElement) {
 		cropper?.destroy();
 		const { default: Cropper } = await import('cropperjs');
+
+		// The canvas takes the photograph's own shape, rather than a fixed 450px
+		// height that every picture is letterboxed into.
+		//
+		// Letterboxing is what made the crop escapable: the image occupied part of
+		// the canvas and the selection was free to roam the empty bands above and
+		// below it, so it had to be policed back in by hand. With the canvas the
+		// same shape as the picture, the picture fills it — "inside the canvas"
+		// and "inside the photograph" become the same thing, and cropper.js's own
+		// bounds do the work that constrainSelectionToImage was doing badly.
+		//
+		// It is also what broke portraits. `initial-coverage` is a fraction of the
+		// canvas, so for a tall photograph 0.8 of a 512-wide canvas is a square
+		// wider than the picture — a selection that cannot be dragged anywhere or
+		// resized, because it is already outside its own bounds.
+		const ratio = img.naturalWidth / img.naturalHeight || 1;
+		const width = cropperContainer?.clientWidth || 512;
+		const height = Math.min(Math.round(width / ratio), MAX_CANVAS_HEIGHT);
+		// A portrait taller than the cap would otherwise overflow it: give back
+		// the width instead, so the picture still fills the canvas exactly.
+		const canvasWidth = Math.min(width, Math.round(height * ratio));
+
 		cropper = new Cropper(img, {
 			container: cropperContainer,
-			template: `<cropper-canvas background style="width:100%;height:450px;">
+			template: `<cropper-canvas background style="width:${canvasWidth}px;height:${height}px;margin:0 auto;">
 				<cropper-image scalable translatable></cropper-image>
 				<cropper-shade hidden></cropper-shade>
 				<cropper-handle action="select" plain></cropper-handle>
@@ -117,6 +142,9 @@
 		const image = cropper?.getCropperImage();
 		if (!selection || !image) return;
 
+		/** Set while this listener is re-applying its own clamped geometry. */
+		let reentrant = false;
+
 		selection.addEventListener('change', (event: any) => {
 			const { x, y, width, height } = event.detail ?? {};
 			if ([x, y, width, height].some((v) => typeof v !== 'number')) return;
@@ -145,8 +173,27 @@
 				return;
 			}
 
+			// Reject the out-of-bounds geometry and apply the clamped one instead.
+			//
+			// The `change` event is cropper.js v2's only extension point for this:
+			// there is no containment option on the selection or the canvas
+			// (checked against cropperjs 2.1.0's own source), and the library's
+			// examples constrain the crop exactly this way.
+			//
+			// `reentrant` is what makes it safe. $change re-emits this event, so
+			// the call below re-enters the listener; without the guard that is an
+			// infinite loop, and deferring it instead (queueMicrotask) escapes the
+			// guard and loops just the same. The second pass is already inside the
+			// image, so it clamps to itself and returns at the equality check above
+			// — but only if it is allowed to run at all.
 			event.preventDefault();
-			selection.$change(clampedX, clampedY, side, side);
+			if (reentrant) return;
+			reentrant = true;
+			try {
+				selection.$change(clampedX, clampedY, side, side);
+			} finally {
+				reentrant = false;
+			}
 		});
 	}
 

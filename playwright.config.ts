@@ -89,6 +89,28 @@ export default defineConfig({
 			use: { ...devices['Desktop Chrome'] }
 		},
 		{
+			// The avatar cropper, in Firefox.
+			//
+			// Everything else runs in Chromium only, which is a deliberate
+			// trade: the suite takes ~8 minutes as it is, and a second browser
+			// across all of it would double that on a machine that is also
+			// somebody's workstation. The cropper is the exception because it is
+			// the one feature built on a third-party web component that measures
+			// and drags real layout boxes — cropperjs positions its selection
+			// from getBoundingClientRect and moves it by pointer events, which is
+			// exactly the class of thing engines disagree about. A crop that is
+			// the wrong size, or handles that will not drag, is invisible to a
+			// Chromium-only suite.
+			//
+			// Scoped to this one feature by testMatch so it costs about a minute.
+			// Run it alone with:
+			//     pnpm exec playwright test --project=firefox-cropper
+			name: 'firefox-cropper',
+			testDir,
+			testMatch: /avatar-crop-preview\.feature\.spec\.js$/,
+			use: { ...devices['Desktop Firefox'] }
+		},
+		{
 			// Specs about one site in particular.
 			//
 			// Most of the suite is site-agnostic, but this is a multi-tenant
