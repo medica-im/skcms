@@ -76,10 +76,20 @@ async function entrySlugFor(kind: string): Promise<string | null> {
 
 for (const kind of CARE_HOME_SLUGS) {
 	test(`a ${kind} entry page renders`, async ({ page }) => {
-		test.skip(!(await siteIsServed()), `${ORIGIN} is not being served`);
+		// Not skipped when the site is down: a skip is a test that did not run
+		// wearing the colour of one that passed, and this spec skipped on every
+		// full run for as long as only one site server was started. test-all.sh
+		// now serves every tenant the sites project names, so a site that is not
+		// answering is a fault to report, not a condition to tiptoe around.
+		expect(
+			await siteIsServed(),
+			`${ORIGIN} is not being served — start it, or run through ./scripts/test-all.sh bdd`
+		).toBe(true);
 
 		const slug = await entrySlugFor(kind);
-		test.skip(slug === null, `no active ${kind} entry on this site`);
+		// A site with no entry of this kind is a fact about the data, not about
+		// the code, and there is nothing to assert against — but say so loudly.
+		test.skip(slug === null, `no active ${kind} entry on ${ORIGIN}`);
 
 		// The status of the *final* response: this origin redirects to its
 		// canonical host, and reading the 301 would tell us nothing about

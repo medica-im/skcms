@@ -109,6 +109,15 @@ ALL_SUITES=(typecheck unit backend bdd)
 # stops. TEST_ALL_LOCK=0 opts out for the rare case of deliberately running two
 # disjoint suites at once.
 LOCK_FILE="${TEST_ALL_LOCK_FILE:-${TMPDIR:-/tmp}/test-all.$(id -u).lock}"
+
+# --help and --list run nothing and touch nothing, so they must never be
+# refused: being unable to read the help because a run is in progress — or
+# because a lock leaked — leaves you with an error and no way to learn the
+# option that clears it.
+case " $* " in
+    *" -h "*|*" --help "*|*" --list "*) TEST_ALL_LOCK=0 ;;
+esac
+
 if [[ "${TEST_ALL_LOCK:-1}" == "1" ]]; then
     # Opened >> rather than >: `>` truncates on open, which happens *before*
     # flock decides who wins — so the losing run would wipe the holder's pid and
@@ -121,9 +130,23 @@ if [[ "${TEST_ALL_LOCK:-1}" == "1" ]]; then
         # run killed mid-flight would otherwise send somebody chasing a pid that
         # belongs to something else entirely by now.
         [[ -n "$holder" ]] && ! kill -0 "$holder" 2>/dev/null && holder=""
-        echo "error: another test run is in progress${holder:+ (pid $holder)}." >&2
-        echo "       wait for it, or stop it, before starting another." >&2
-        echo "       TEST_ALL_LOCK=0 overrides this." >&2
+
+        echo "error: the test lock is held." >&2
+        if [[ -n "$holder" ]]; then
+            echo "       A run is in progress (pid $holder):" >&2
+            echo "         $(ps -o cmd= -p "$holder" 2>/dev/null | cut -c1-70)" >&2
+            echo "       Wait for it, or stop it with:  kill $holder" >&2
+        else
+            # No live holder, yet the lock is taken: something inherited the file
+            # descriptor. The worker dev servers are the usual culprits — they are
+            # started by a run and deliberately outlive it, so without O_CLOEXEC
+            # they hold the lock for as long as they are up, which is forever.
+            echo "       No run is active, so a stopped one leaked it — usually the" >&2
+            echo "       worker dev servers, which outlive the run that started them." >&2
+            echo "       Free it with:" >&2
+            echo "         ./scripts/e2e-workers.sh stop && rm -f '$LOCK_FILE'" >&2
+        fi
+        echo "       Or bypass the lock entirely:  TEST_ALL_LOCK=0 $0 $*" >&2
         exit 1
     fi
     # Won the lock: replace the file's contents with this run's pid. Truncated
@@ -140,6 +163,21 @@ if [[ -t 1 ]]; then
 else
     BOLD=''; RED=''; GREEN=''; YELLOW=''; DIM=''; NC=''
 fi
+
+# Runs a command with the lock file descriptor closed.
+#
+# Anything started here that outlives the run — the worker dev servers most of
+# all, which are deliberately left up so the next run reuses them — would
+# otherwise inherit the descriptor and hold the lock after this process exits.
+# The lock then belongs to a pid that is long gone, and every later invocation
+# is refused by a run that is not happening.
+without_lock() {
+    if [[ -n "${LOCK_FD:-}" ]]; then
+        eval "\"\$@\" ${LOCK_FD}>&-"
+    else
+        "$@"
+    fi
+}
 
 step() { printf '\n%s==> %s%s\n' "$BOLD" "$1" "$NC"; }
 info() { printf '%s    %s%s\n' "$DIM" "$1" "$NC"; }
@@ -368,7 +406,7 @@ ensure_site_server() {
     # symlink and the skvar submodule at this context, and a server started
     # without those renders a different tenant — which is the failure this is
     # here to prevent, one layer down.
-    (cd "$FRONTEND_DIR" && nohup ./scripts/dev.sh --restart "$SITE_CONTEXT" \
+    (cd "$FRONTEND_DIR" && without_lock nohup ./scripts/dev.sh --restart "$SITE_CONTEXT" \
         > "$FRONTEND_DIR/.e2e-workers/site-$SITE_CONTEXT.log" 2>&1 &)
 
     local waited=0
@@ -382,6 +420,100 @@ ensure_site_server() {
     return 0
 }
 
+# Every tenant the `sites` project browses, from the specs themselves.
+#
+# Read rather than listed, so a spec added for a new site is served without
+# anyone remembering to update this script — the alternative is a spec that
+# skips silently, which is a test that did not run wearing the colour of one
+# that passed.
+sites_project_hosts() {
+    local names
+    names="$(grep -rhoE "originFor\('[^']+'\)" "$FRONTEND_DIR/tests/sites" 2>/dev/null |
+        sed -E "s/originFor\('([^']+)'\)/\1/" | sort -u)"
+    # santelyon3-contact-layout resolves its site through a SITE constant.
+    names+=$'\n'"$(grep -rhoE "^const SITE = '[^']+'" "$FRONTEND_DIR/tests/sites" 2>/dev/null |
+        sed -E "s/^const SITE = '([^']+)'/\1/")"
+    printf '%s\n' "$names" | grep -v '^$' | sort -u
+}
+
+# Map a site name as the specs write it (santelyon3.fr) to its dev.yml context.
+context_for_site() {
+    "${YQ:-yq}" -r \
+        ".contexts[] | select(.env_file == \".env.dev.$1\") | .name" \
+        "$FRONTEND_DIR/dev.yml" 2>/dev/null | head -1
+}
+
+# Bring up *every* site the sites project needs, not only SITE_CONTEXT.
+#
+# Two specs currently name two different tenants, and only one of them was ever
+# served — so the other skipped, every run, and its coverage silently did not
+# exist. They can coexist: each context has its own port and its own hostname
+# (dev.yml, scripts/nginx/dev-site-ports.conf), and Vite is pointed at the right
+# tenant per server with --mode, exactly as the e2e workers already do for four
+# servers at once.
+ensure_all_site_servers() {
+    local site ctx started=0
+    while read -r site; do
+        [[ -z "$site" ]] && continue
+        ctx="$(context_for_site "$site")"
+        if [[ -z "$ctx" ]]; then
+            warn "no dev.yml context serves '$site'; its specs will fail"
+            continue
+        fi
+        SITE_CONTEXT="$ctx" ensure_site_server_for "$ctx" && started=$((started + 1))
+    done < <(sites_project_hosts)
+    (( started )) || warn "no site servers started; the sites specs will fail"
+}
+
+# ensure_site_server for a named context, leaving any other site server up.
+#
+# dev.sh refuses to start while another site server is running — a server
+# outlives a branch switch and would then serve the route manifest of the branch
+# it booted with. That is the right rule for a person switching contexts by
+# hand, and the wrong one here: these servers are started for the length of a
+# run, against tenants whose branches are not being switched under them.
+ensure_site_server_for() {
+    local ctx="$1" port host origin env_file branch
+    port="$(SITE_CONTEXT="$ctx" site_port)"
+    host="$(SITE_CONTEXT="$ctx" site_host)"
+    [[ -z "$port" || -z "$host" ]] && { warn "no dev.yml entry for $ctx"; return 1; }
+    origin="$(site_origin "$host")"
+
+    if curl -skfL -o /dev/null --max-time 10 "$origin/"; then
+        info "$host is answering (:$port)"
+        return 0
+    fi
+
+    env_file="$("${YQ:-yq}" -r ".contexts[] | select(.name == \"$ctx\") | .env_file" \
+        "$FRONTEND_DIR/dev.yml" 2>/dev/null)"
+    branch="$("${YQ:-yq}" -r ".contexts[] | select(.name == \"$ctx\") | .development_skvar_branch" \
+        "$FRONTEND_DIR/dev.yml" 2>/dev/null)"
+    [[ -z "$env_file" ]] && { warn "no env_file for $ctx"; return 1; }
+
+    info "starting the $ctx dev server for $host (:$port)..."
+    mkdir -p "$FRONTEND_DIR/.e2e-workers"
+    # --mode <ctx> makes Vite load .env.<ctx> instead of the .env symlink, so
+    # this server serves its own tenant no matter which one the symlink points
+    # at. That is what lets several site servers run at once; without it the
+    # second would serve the first one's site on a different port.
+    local mode_env="$FRONTEND_DIR/.env.site.$ctx"
+    cp "$FRONTEND_DIR/$env_file" "$mode_env" 2>/dev/null || return 1
+    (cd "$FRONTEND_DIR" && without_lock nohup npx vite \
+        --port "$port" --strictPort --mode "site.$ctx" \
+        > "$FRONTEND_DIR/.e2e-workers/site-$ctx.log" 2>&1 &)
+
+    local waited=0
+    while (( waited < 90 )); do
+        sleep 5; waited=$((waited + 5))
+        curl -skfL -o /dev/null --max-time 10 "$origin/" && {
+            ok "$host answering through nginx (${waited}s)"
+            return 0
+        }
+    done
+    warn "$host did not answer in ${waited}s; see .e2e-workers/site-$ctx.log"
+    return 1
+}
+
 # Interrupting the run must not cost the user their dev server.
 trap 'start_dev_server' EXIT INT TERM
 
@@ -391,7 +523,7 @@ ensure_e2e_workers() {
         return 0
     fi
     info "starting $E2E_WORKERS worker dev server(s) (cold Vite boots take ~30s)..."
-    "$FRONTEND_DIR/scripts/e2e-workers.sh" start "$E2E_WORKERS" || {
+    without_lock "$FRONTEND_DIR/scripts/e2e-workers.sh" start "$E2E_WORKERS" || {
         fail "could not start the worker dev servers"; return 1
     }
     # e2e-workers.sh waits on 127.0.0.1:<port>; nginx needs a moment longer to
@@ -462,13 +594,32 @@ suite_bdd() {
     # origin, so the worker servers above do not cover it. Started after them
     # because dev.sh refuses to run while another *site* server is up, and
     # before Playwright because a 502 here reads as a broken page.
-    [[ "$E2E_STOP_DEV_SERVER" == "0" ]] && ensure_site_server
+    # Every tenant the sites project names, not just one: with a single server
+    # the specs for the other site skipped, so a "full" run quietly omitted them.
+    [[ "$E2E_STOP_DEV_SERVER" == "0" ]] && ensure_all_site_servers
     # The specs under .features-gen are generated from features/*.feature and are
     # not in git, so a fresh checkout has none and Playwright reports "No tests
     # found". Regenerating is also what picks up edits to the feature files.
     (cd "$FRONTEND_DIR" && npx bddgen) || return 1
     local rc=0
-    (cd "$FRONTEND_DIR" && npx playwright test) || rc=$?
+    # Under xvfb when it is available, because the firefox-cropper project needs
+    # a display to get WebGL at all.
+    #
+    # Headless Chromium ships its own software renderer; headless Firefox does
+    # not, and without one MapLibre throws while the entry page hydrates. The
+    # page then renders but never becomes interactive — the edit-mode switch
+    # stays aria-checked="false" — so every scenario fails on a missing control
+    # rather than on anything it was written to check. Chromium is unaffected by
+    # running under a display, so this is applied to the whole run rather than
+    # to one project.
+    local runner=(npx playwright test)
+    if command -v xvfb-run >/dev/null 2>&1; then
+        runner=(xvfb-run -a npx playwright test)
+    else
+        warn "xvfb-run not found; Firefox scenarios will fail without a display"
+        info "install it with: sudo apt-get install xvfb"
+    fi
+    (cd "$FRONTEND_DIR" && "${runner[@]}") || rc=$?
     if [[ "$E2E_STOP_AFTER" == "1" ]]; then
         info "stopping worker dev servers"
         "$FRONTEND_DIR/scripts/e2e-workers.sh" stop >/dev/null 2>&1 || true
@@ -632,7 +783,7 @@ switch_context() {
     # *becomes* the dev server and never returns — calling it synchronously
     # hangs the run forever, with the site up and healthy and nothing to show
     # for it.
-    (cd "$FRONTEND_DIR" && nohup ./scripts/dev.sh --restart "$ctx" \
+    (cd "$FRONTEND_DIR" && without_lock nohup ./scripts/dev.sh --restart "$ctx" \
         > "$FRONTEND_DIR/.e2e-workers/site-$ctx.log" 2>&1 &)
 
     while (( waited < 120 )); do
