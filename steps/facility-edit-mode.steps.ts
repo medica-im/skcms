@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
 import { test } from './fixtures';
-import { facilityCtx } from './facilityContext';
+import { facilityCtx, setSwitch } from './facilityContext';
 import { djangoShell, clearApiCache } from './seed';
 import { addSessionCookie } from './common.steps';
 
@@ -100,19 +100,17 @@ When('I turn edit mode on', async ({ page }) => {
 		if (box) before.map = { x: Math.round(box.x), y: Math.round(box.y) };
 	}
 
-	await pencil(page).click();
-	await expect(pencil(page)).toHaveAttribute('aria-checked', 'true');
+	await setSwitch(pencil(page), true);
 });
 
 When('I turn edit mode off', async ({ page }) => {
 	// The buttons that appeared when edit mode came on animate their opacity,
-	// and a click landing mid-transition can be swallowed. Wait for the pencil
-	// to be settled and actionable before pressing it again.
+	// and a click landing mid-transition can be swallowed — the same shape of
+	// problem setSwitch handles for hydration, and the same answer: press again
+	// rather than press harder.
 	const button = pencil(page);
 	await expect(button).toHaveAttribute('aria-checked', 'true');
-	await button.click({ trial: true });
-	await button.click();
-	await expect(button).toHaveAttribute('aria-checked', 'false');
+	await setSwitch(button, false);
 });
 
 // "I see the edit facility button" lives in staff-creates-entry.steps.ts and is

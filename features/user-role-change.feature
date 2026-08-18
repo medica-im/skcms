@@ -60,6 +60,12 @@ Feature: Changing a user's role
       And I change their role to "administrator"
       Then their role is "administrator"
       And the history shows a change from "staff" to "administrator" by me
+      # Where the history is fetched from decides whether it arrives at all
+      # once the frontend runs in a container: a server-side fetch forwards a
+      # session cookie that does not survive the trip out to the public
+      # hostname, and the 401 comes back as an empty section rather than an
+      # error. Indistinguishable in the DOM, so it is asserted on the request.
+      And the history was fetched by the browser
 
   Rule: a suspended user is told why they cannot do anything
 

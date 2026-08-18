@@ -2,6 +2,7 @@ import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
 import { test } from './fixtures';
 import { djangoShell } from './seed';
+import { setSwitch } from './facilityContext';
 import {
 	TEST_ACCOUNTS,
 	apiOrigin,
@@ -23,7 +24,12 @@ const { Given, When, Then, After } = createBdd(test);
  */
 
 /** Per-scenario state: the throwaway user a scenario acts on. */
-const ctx: { targetUid?: string; targetRole?: string } = {};
+const ctx: {
+	targetUid?: string;
+	targetRole?: string;
+	/** Every /access-history URL the browser itself requested, in order. */
+	historyRequests?: string[];
+} = {};
 
 /**
  * Create a disposable user with a given role, and return its uid.
@@ -136,6 +142,16 @@ const roleSelect = (page: import('@playwright/test').Page) =>
 	page.getByTestId('role-select');
 
 async function openUserPage(page: import('@playwright/test').Page, uid: string) {
+	// Watch for the history fetch leaving the *browser*, which is the whole
+	// point of the assertion below — see "the history was fetched by the
+	// browser". Attached before the navigation so the load's own requests are
+	// counted.
+	ctx.historyRequests = [];
+	page.on('request', (request) => {
+		if (request.url().includes('/access-history')) {
+			ctx.historyRequests?.push(request.url());
+		}
+	});
 	await page.goto(`/web/users/${uid}`, { waitUntil: 'networkidle' });
 }
 
@@ -167,12 +183,11 @@ Then('no role change control is shown', async ({ page }) => {
 
 When('I turn on edit mode', async ({ page }) => {
 	const button = editButton(page);
-	// Painted before hydration finishes, so an early click lands before the
-	// handler is attached — the same wait the edit-mode steps use.
+	// Visible is not the same as hydrated, and waiting longer does not help:
+	// setSwitch re-clicks until the state actually changes. See its comment in
+	// facilityContext.ts for why a single click silently does nothing.
 	await expect(button).toBeVisible({ timeout: 20_000 });
-	await expect(button).toBeEnabled();
-	await button.click();
-	await page.waitForTimeout(500);
+	await setSwitch(button, true);
 });
 
 Then('a role change control is shown', async ({ page }) => {
@@ -256,6 +271,39 @@ Then(
 		expect(actorRoles, `no actor recorded on the newest access`).toContain('superuser');
 	}
 );
+
+Then('the history was fetched by the browser', async ({ page }) => {
+	// Where this request comes from is not an implementation detail, it is the
+	// bug. Fetched from the SvelteKit server it works only where that server
+	// shares a host with the backend — true on dev, false in every
+	// containerised deployment, where the forwarded session cookie did not
+	// survive the trip out to the public hostname and back. The endpoint
+	// answered 401, the loader turned that into an empty list, and the section
+	// rendered "no role change recorded" for a user whose role had just
+	// changed.
+	//
+	// Nothing in the DOM can tell the two apart: both leave the section blank
+	// on failure and populated on success, and the browser-side path is only
+	// observably different in the environment where it matters. So this
+	// asserts on the request itself, which is the one signal that distinguishes
+	// them here on dev — where the server-side version would still pass every
+	// other check in this scenario.
+	expect(
+		ctx.historyRequests ?? [],
+		'the page never requested /access-history from the browser — a server-side ' +
+			'fetch renders identically on dev and breaks everywhere else'
+	).not.toHaveLength(0);
+
+	// And it has to have succeeded: a 401 that the loader swallows into `[]` is
+	// exactly what this scenario is here to stop being invisible.
+	const response = await page.request.get(
+		`${apiOrigin()}/api/v2/users/${ctx.targetUid}/access-history`
+	);
+	expect(
+		response.status(),
+		`the history endpoint answered ${response.status()}`
+	).toBe(200);
+});
 
 Given('my access has been suspended', async ({ context, baseURL }) => {
 	// Suspends the signed-in test account itself, which is the only way to see

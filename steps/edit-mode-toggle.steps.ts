@@ -53,13 +53,36 @@ Then('the edit mode button is on', async ({ page }) => {
 
 When('I press the edit mode button', async ({ page }) => {
 	const button = editButton(page);
-	// The button is painted before the page finishes hydrating, so an early
-	// click can land before the handler is attached. Waiting for it to be
-	// enabled and stable is what makes the press actually register.
 	await expect(button).toBeVisible({ timeout: 20_000 });
 	await expect(button).toBeEnabled();
-	await button.click();
-	await page.waitForTimeout(500);
+
+	// One press, and it has to be one: this feature asserts the button is on
+	// after an odd number of presses and off after an even one, so a helper
+	// that re-clicked towards a wanted state would make the scenario pass
+	// whatever the toggle did.
+	//
+	// What has to be waited for instead is hydration. The button is painted
+	// server-side with its handler still missing (src/lib/Switch/Switch.svelte
+	// attaches onclick on hydrate), and toBeVisible/toBeEnabled are both
+	// already true in that window — so the press this step exists to make
+	// would land on nothing and the scenario would fail on a toggle that works.
+	//
+	// The flip itself is the only honest signal that the listener is attached,
+	// so the first click doubles as the probe: if the state does not change, no
+	// handler was there to receive it and nothing was toggled, so pressing
+	// again is not a second press — it is the first one, retried.
+	const before = await button.getAttribute('aria-checked');
+	const flipped = before === 'true' ? 'false' : 'true';
+	const deadline = Date.now() + 20_000;
+	for (;;) {
+		await button.click();
+		try {
+			await expect(button).toHaveAttribute('aria-checked', flipped, { timeout: 2_000 });
+			return;
+		} catch (e) {
+			if (Date.now() >= deadline) throw e;
+		}
+	}
 });
 
 /**
