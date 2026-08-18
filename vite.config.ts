@@ -59,7 +59,13 @@ export default defineConfig(({ mode }) => {
 						include: ['src/**/*.{test,spec}.{js,ts}'],
 						// .svelte.test.ts files mount components and belong to the
 						// browser project below.
-						exclude: ['**/node_modules/**', 'src/**/*.svelte.{test,spec}.{js,ts}']
+						exclude: ['**/node_modules/**', 'src/**/*.svelte.{test,spec}.{js,ts}'],
+						// Blocks ssh/scp/rsync/docker for every unit test, not just
+						// the one that was found reaching production. See the file
+						// for what went wrong and why a PATH fake is what catches
+						// it — vitest cannot intercept a subprocess, and the tests
+						// that reached out were shelling out to a real script.
+						setupFiles: ['./src/lib/test-sandbox.ts']
 					}
 				},
 				{

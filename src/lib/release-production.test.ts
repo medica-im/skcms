@@ -19,10 +19,26 @@ import { join, resolve } from 'node:path';
 
 const SCRIPT = resolve(__dirname, '../../scripts/release-production.sh');
 
+/**
+ * The environment every run below gets.
+ *
+ * `process.env` already carries the sandbox: src/lib/test-sandbox.ts runs as a
+ * setup file for the whole unit project and has put fakes for ssh, scp, rsync
+ * and docker at the front of PATH, plus CLEAR_CACHE=0. Passing it through
+ * explicitly is what hands that to the child `bash`, which is the process that
+ * would otherwise reach a real machine.
+ */
+function sandboxEnv() {
+	return { ...process.env };
+}
+
 function run(...args: string[]): { out: string; status: number } {
 	try {
 		return {
-			out: execFileSync('bash', [SCRIPT, ...args], { encoding: 'utf8' }),
+			out: execFileSync('bash', [SCRIPT, ...args], {
+				encoding: 'utf8',
+				env: sandboxEnv()
+			}),
 			status: 0
 		};
 	} catch (e: unknown) {
@@ -129,7 +145,10 @@ describe('release-production.sh when a site fails', () => {
 
 		try {
 			return {
-				out: execFileSync('bash', [stubbed, ...args], { encoding: 'utf8' }),
+				out: execFileSync('bash', [stubbed, ...args], {
+					encoding: 'utf8',
+					env: sandboxEnv()
+				}),
 				status: 0
 			};
 		} catch (e: unknown) {
@@ -157,17 +176,49 @@ describe('release-production.sh when a site fails', () => {
 		expect(out).not.toContain('DEPLOYED santelyon3.fr');
 	});
 
-	it('still reports what had already succeeded', () => {
-		// The first site is released before the failure, and saying so is what
-		// tells you how far production actually got.
+	it('names the sites it never attempted, apart from the one that failed', () => {
+		// The distinction the summary exists for. "3 ok, 1 failed" reads like a
+		// finished release with one casualty; what actually happened is a
+		// release that stopped half way and left three live sites on the old
+		// image. A site released, a site failed and a site never attempted are
+		// three different states, and only the third tells you there is work
+		// left to do.
+		//
+		// Asserted on the site names and their state rather than on the wording
+		// around them: the previous test here matched /stopped|FAIL/i, which
+		// passed on almost any output and was the one test that had to run a
+		// site through to completion — the reason it reached old-staging over
+		// ssh and timed out.
 		const { out } = runWithStubs('santelyon3.fr', '--yes');
-		expect(out).toContain('annuaire.medica.im');
-		expect(out).toMatch(/stopped|FAIL/i);
+		expect(out).toMatch(/FAIL\s+santelyon3\.fr/);
+		for (const later of ['sante-gadagne.fr', 'annuaire.cptsopalesud.fr', 'ipa.medica.im']) {
+			expect(out, `${later} came after the failure and should be marked skipped`).toMatch(
+				new RegExp(`SKIP\\s+${later.replace(/\./g, '\\.')}`)
+			);
+		}
 	});
 
 	it('releases everything when nothing fails', () => {
 		const { out, status } = runWithStubs('none-of-them', '--yes');
 		expect(status).toBe(0);
 		expect(out).toContain('DEPLOYED ipa.medica.im');
+	});
+
+	it('never reaches a real host', () => {
+		// The one that matters. This suite used to clear the Redis cache on
+		// production and old-staging over ssh — five live connections for the
+		// case where nothing fails, deleting cached payloads on sites that were
+		// serving users, and leaving the run's duration at the mercy of the
+		// network.
+		//
+		// Asserted on the sandbox's own refusal (src/lib/test-sandbox.ts prints
+		// BLOCKED and exits 97) rather than on the absence of a side effect: a
+		// test cannot prove it did not open a connection, but it can prove the
+		// script never asked to.
+		const { out } = runWithStubs('none-of-them', '--yes');
+		expect(out, 'the suite tried to reach a real machine').not.toContain('BLOCKED:');
+		// ...and it skipped the cache step by agreement rather than by being
+		// blocked, which is what keeps the run quiet as well as safe.
+		expect(out).toContain('cache: left alone');
 	});
 });
