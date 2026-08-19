@@ -23,12 +23,13 @@
 	// creator, owner and deactivation fields only this page shows — so the
 	// selectors and the table read the same rows.
 	//
-	// Not the public feed. That endpoint does fetch inactive entries — it asks
-	// for active=None — but it then scrubs each caller's copy by access level,
-	// so a viewer only receives the entries at or below their own. On this
-	// site that is 19 of 22 for an anonymous caller: three are staff-only.
-	// An administrative table has to show all of them, and /admin/entries is
-	// uncached and role-gated rather than access-filtered.
+	// A separate endpoint from the public feed, which would have served this
+	// page's data perfectly well — an administrator sees every access level
+	// and a superuser is not filtered at all. The reasons are the other two:
+	// the public feed is cached per role for an hour, and an audit table
+	// showing hour-old ownership misleads the person reading it; and adding
+	// creator and owner names to a payload anonymous visitors can fetch puts
+	// them one scrub-list omission away from being published.
 	//
 	// The map keyed by uid is what turns a filtered row back into its
 	// administrative form.
