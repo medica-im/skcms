@@ -63,7 +63,7 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch, depends }
 
   let labels;
   try {
-    response = await fetch(`${ORIGIN}/api/v1/directory/effector_type_labels/`);
+    response = await fetch(`${ORIGIN}/api/v2/effector-type-labels`);
     if (!response.ok) {
       throw new Error(`Response status: ${response.status}`);
     }
