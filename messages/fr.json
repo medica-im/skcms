@@ -627,5 +627,24 @@
       }
     }
   ],
-  "with": "avec"
+  "with": "avec",
+  "admin_entries_title": "Fiches",
+  "admin_entries_subtitle": "Toutes les fiches de l'annuaire, actives et inactives",
+  "admin_entries_total": "fiches",
+  "admin_entries_active": "actives",
+  "admin_entries_inactive": "inactives",
+  "admin_entries_without_owner": "sans propriétaire",
+  "admin_entries_col_person": "Personne",
+  "admin_entries_col_type": "Type",
+  "admin_entries_col_facility": "Structure",
+  "admin_entries_col_state": "État",
+  "admin_entries_col_created": "Création",
+  "admin_entries_col_modified": "Modification",
+  "admin_entries_col_creator": "Créée par",
+  "admin_entries_col_owner": "Propriétaire",
+  "admin_entries_col_access": "Accès",
+  "admin_entries_col_directories": "Annuaires",
+  "admin_entries_none": "Aucune fiche",
+  "admin_entries_no_owner": "aucun",
+  "admin_entries_deactivated_on": "Désactivée le"
 }

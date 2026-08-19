@@ -627,5 +627,24 @@
       }
     }
   ],
-  "with": "with"
+  "with": "with",
+  "admin_entries_title": "Entries",
+  "admin_entries_subtitle": "Every entry in the directory, active and inactive",
+  "admin_entries_total": "entries",
+  "admin_entries_active": "active",
+  "admin_entries_inactive": "inactive",
+  "admin_entries_without_owner": "without owner",
+  "admin_entries_col_person": "Person",
+  "admin_entries_col_type": "Type",
+  "admin_entries_col_facility": "Facility",
+  "admin_entries_col_state": "State",
+  "admin_entries_col_created": "Created",
+  "admin_entries_col_modified": "Modified",
+  "admin_entries_col_creator": "Created by",
+  "admin_entries_col_owner": "Owner",
+  "admin_entries_col_access": "Access",
+  "admin_entries_col_directories": "Directories",
+  "admin_entries_none": "No entries",
+  "admin_entries_no_owner": "none",
+  "admin_entries_deactivated_on": "Deactivated on"
 }

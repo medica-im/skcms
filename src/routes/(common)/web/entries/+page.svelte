@@ -2,56 +2,56 @@
 	import { variables } from '$src/lib/utils/constants';
 	import { page } from '$app/state';
 	import * as m from '$msgs';
-	
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import EntriesTable from '$lib/Web/Entries/EntriesTable.svelte';
 	import type { PageProps } from './$types';
-	import Directory from '$lib/components/Directory/CtxDirectory.svelte';
-	
+
 	let { data }: PageProps = $props();
-   
-	const log = (obj: Map<string,object>) => {
-		let _str = "";
-		_str+=(`${obj}:\n`);
-		for (let [key, value] of obj) {
-			_str+=(key + ' = ' + JSON.stringify(value)+ '\n');
-		}
-		return _str
-	};
+
+	// The endpoint refuses anyone below administrator, so this only decides
+	// what the page says — it is not the access control. A viewer who reaches
+	// here without the role gets the refusal below rather than an empty table,
+	// which would read as an empty directory.
+	const isAuthorized = $derived(
+		page.data?.user?.role === 'superuser' || page.data?.user?.role === 'administrator'
+	);
 </script>
 
-<!--LDTag schema={data.websiteSchema} /-->
 <svelte:head>
 	<title>
-		Entrées - {capitalizeFirstLetter(page.data.organization.formatted_name, variables.DEFAULT_LANGUAGE)}
+		{m.admin_entries_title()} - {capitalizeFirstLetter(
+			page.data.organization.formatted_name,
+			variables.DEFAULT_LANGUAGE
+		)}
 	</title>
 </svelte:head>
-	<!-- hero -->
-	<header id="hero" class="hero-gradient">
-		<div class="flex flex-col items-center p-4 py-6 space-y-2">
-			<h2 class="h2">
-				{capitalizeFirstLetter(m.ENTRIES( {count: 2} ))}
-			</h2>
-		</div>
-	</header>
-	<div>
-			<Directory
-				data={data?.entries}
-				propCurrentOrg={null}
-				displayCommune={true}
-				displayGeocoder={false}
-				displayCategory={true}
-				displaySituation={false}
-				avatar={false}
-				setRedirect={false}
-				active={null}
-			/>
+
+<header id="hero" class="hero-gradient">
+	<div class="flex flex-col items-center p-4 py-6 space-y-2">
+		<h2 class="h2">{m.admin_entries_title()}</h2>
+		<p class="opacity-70 text-sm">{m.admin_entries_subtitle()}</p>
 	</div>
+</header>
+
+<div class="section-container">
+	{#if !isAuthorized}
+		<aside class="alert variant-ghost-error">
+			<div class="alert-message"><p>403</p></div>
+		</aside>
+	{:else if data.entries === undefined}
+		<!-- The loader logged the reason; an empty table here would be a lie. -->
+		<aside class="alert variant-ghost-warning">
+			<div class="alert-message"><p>{m.admin_entries_none()}</p></div>
+		</aside>
+	{:else}
+		<EntriesTable entries={data.entries} />
+	{/if}
+</div>
 
 <style lang="postcss">
 	.section-container {
 		@apply mx-auto w-full max-w-7xl p-4 py-8 md:py-10;
 	}
-	/* Hero Gradient */
 	/* prettier-ignore */
 	.hero-gradient {
 		background-image:
