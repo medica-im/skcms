@@ -23,9 +23,15 @@
 	// creator, owner and deactivation fields only this page shows — so the
 	// selectors and the table read the same rows.
 	//
-	// Not the public feed: it omits inactive entries, which are precisely what
-	// an administrator opens this page to find. The map keyed by uid is what
-	// turns a filtered row back into its administrative form.
+	// Not the public feed. That endpoint does fetch inactive entries — it asks
+	// for active=None — but it then scrubs each caller's copy by access level,
+	// so a viewer only receives the entries at or below their own. On this
+	// site that is 19 of 22 for an anonymous caller: three are staff-only.
+	// An administrative table has to show all of them, and /admin/entries is
+	// uncached and role-gated rather than access-filtered.
+	//
+	// The map keyed by uid is what turns a filtered row back into its
+	// administrative form.
 	const adminByUid = $derived(
 		new Map((data.entries ?? []).map((e: AdminEntry) => [e.uid, e]))
 	);
