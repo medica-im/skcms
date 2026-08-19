@@ -74,6 +74,7 @@
 		avatar = true,
 		active = true,
 		displaySelector = false,
+		results = undefined,
 		geojson = null,
 	}: {
 		data?: any;
@@ -93,6 +94,8 @@
 		avatar?: boolean;
 		active?: boolean | null;
 		displaySelector?: boolean;
+		/** Renders the filtered outcome instead of the default card list. */
+		results?: import('svelte').Snippet<[any[]]>;
 		geojson?: any;
 	} = $props();
 
@@ -247,5 +250,7 @@
 		{tagOf}
 		rCCFE={rCardinalCategorizedFilteredEntries}
 		rCFFE={rCategorizedFullFilteredEntries}
+		rFFE={rFullFilteredEntries}
+		{results}
 		{geojson}
 	/>

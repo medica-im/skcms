@@ -91,7 +91,9 @@
 							<td>{entry.effector_type?.name ?? '—'}</td>
 							<td>
 								{#if entry.facility?.slug}
-									<a class="anchor" href="/web/facility/{entry.facility.slug}">
+									<!-- /sites/, not /web/facility/: the latter has only a
+									     create/ subroute and 404s for any slug. -->
+									<a class="anchor" href="/sites/{entry.facility.slug}">
 										{entry.facility.name}
 									</a>
 								{:else}

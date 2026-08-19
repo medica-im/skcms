@@ -39,6 +39,8 @@
 		tagOf,
 		rCCFE,
 		rCFFE,
+		rFFE = [],
+		results = undefined,
 		geojson = null,
 	}: {
 		data: any;
@@ -58,6 +60,10 @@
 		categoryOf: Type[];
 		facilityOf: FacilityOf[];
 		tagOf: Tag[];
+		/** The flat filtered entries, for a `results` snippet that wants a list. */
+		rFFE?: any[];
+		/** Renders the outcome instead of the default card list. */
+		results?: import('svelte').Snippet<[any[]]>;
 		rCCFE: Map<any,any[]>;
 		rCFFE: Map<any,any[]>;
 		geojson?: any;
@@ -114,7 +120,16 @@
 						</div>
 					{/if}
 				{:then}-->
-					<List data={rCCFE} {avatar} {displaySelector} {geojson} />
+					{#if results}
+						<!-- The selectors, the filtering and the context above are
+						     the same whatever renders the outcome; only the view
+						     differs. /web/entries passes a table snippet here so
+						     the administrative list gets every filter the public
+						     directory has without a second copy of them. -->
+						{@render results(rFFE)}
+					{:else}
+						<List data={rCCFE} {avatar} {displaySelector} {geojson} />
+					{/if}
 				<!--{/await}-->
 			</div>
 		</div>

@@ -97,14 +97,14 @@ describe('EntriesTable', () => {
 			]
 		});
 
-		await expect.element(page.getByText('3 fiches')).toBeVisible();
+		await expect.element(page.getByText('3 entrées')).toBeVisible();
 		await expect.element(page.getByText('1 sans propriétaire')).toBeVisible();
 	});
 
 	it('says nothing rather than showing an empty grid', async () => {
 		render(EntriesTable, { entries: [] });
 
-		await expect.element(page.getByText('Aucune fiche')).toBeVisible();
+		await expect.element(page.getByText('Aucune entrée')).toBeVisible();
 	});
 
 	it('reorders when a header is clicked, and says which way', async () => {

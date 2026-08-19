@@ -628,9 +628,9 @@
     }
   ],
   "with": "avec",
-  "admin_entries_title": "Fiches",
-  "admin_entries_subtitle": "Toutes les fiches de l'annuaire, actives et inactives",
-  "admin_entries_total": "fiches",
+  "admin_entries_title": "Entrées",
+  "admin_entries_subtitle": "Toutes les entrées de l'annuaire, actives et inactives",
+  "admin_entries_total": "entrées",
   "admin_entries_active": "actives",
   "admin_entries_inactive": "inactives",
   "admin_entries_without_owner": "sans propriétaire",
@@ -644,7 +644,7 @@
   "admin_entries_col_owner": "Propriétaire",
   "admin_entries_col_access": "Accès",
   "admin_entries_col_directories": "Annuaires",
-  "admin_entries_none": "Aucune fiche",
+  "admin_entries_none": "Aucune entrée",
   "admin_entries_no_owner": "aucun",
   "admin_entries_deactivated_on": "Désactivée le"
 }
