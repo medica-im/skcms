@@ -1,7 +1,4 @@
 import { writable } from 'svelte/store';
-import { variables } from '$lib/utils/constants.ts';
-import { browser } from "$app/environment";
-import { PUBLIC_EFFECTOR_TYPE_LABELS_TTL } from '$env/static/public';
 import { ORIGIN } from '$lib/utils/origin.ts';
 import haversine from 'haversine-distance';
 import type { Situation } from '$lib/store/directoryStoreInterface.ts';
@@ -20,53 +17,6 @@ export const term: Writable<string> = writable("");
 function normalize(x: string) {
 	return x.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
 }
-
-export const effectorTypeLabels = async () => {
-	var cachelife = parseInt(PUBLIC_EFFECTOR_TYPE_LABELS_TTL);
-	const cacheName = "effector_type_labels";
-	let cachedData;
-	let expired: boolean = true;
-	let empty: boolean = true;
-	if (browser) {
-		cachedData = localStorage.getItem(`${cacheName}`);
-	}
-	if (cachedData) {
-		cachedData = JSON.parse(cachedData);
-		let elapsed = Date.now() - cachedData.cachetime;
-		expired = elapsed > cachelife * 1000;
-		if ('data' in cachedData) {
-			if (cachedData.data) {
-				empty = false;
-			}
-		}
-	}
-	if (cachedData && !expired && !empty) {
-		return cachedData.data;
-	} else {
-		const url = `${ORIGIN}/api/v1/directory/effector_type_labels/`;
-		const response = await fetch(url);
-		try {
-			if (!response.ok) {
-				throw new Error(`Response status: ${response.status}`);
-			}
-			let data = await response.json();
-			if (browser) {
-				let json = { data: data, cachetime: Date.now() }
-				localStorage.setItem(`${cacheName}`, JSON.stringify(json));
-			}
-			return data;
-		} catch (error: any) {
-			console.error(error.message);
-		}
-	}
-};
-
-export interface Timestamps {
-	"v1:facilities": number,
-	"v1:effector_type_labels": number,
-	"v1:entries": number,
-}
-
 export const distanceEffectorsF = (entries: Entry[], addressFeature: AddressFeature | null) => {
 	const targetGeoJSON = addressFeature?.geometry?.coordinates;
 	if (!targetGeoJSON) {
