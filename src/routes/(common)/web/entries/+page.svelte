@@ -5,7 +5,7 @@
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import Directory from '$lib/components/Directory/CtxDirectory.svelte';
 	import EntriesTable from '$lib/Web/Entries/EntriesTable.svelte';
-	import type { AdminEntry } from '$lib/Web/Entries/entriesTable';
+	import { mergeAdmin, type AdminEntry, type AdminFields } from '$lib/Web/Entries/entriesTable';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -18,27 +18,25 @@
 		page.data?.user?.role === 'superuser' || page.data?.user?.role === 'administrator'
 	);
 
-	// One payload, two uses. /admin/entries carries the commune, department,
-	// effector type, facility and tags the selectors filter on, alongside the
-	// creator, owner and deactivation fields only this page shows — so the
-	// selectors and the table read the same rows.
+	// Two sources, joined by uid.
 	//
-	// A separate endpoint from the public feed, which would have served this
-	// page's data perfectly well — an administrator sees every access level
-	// and a superuser is not filtered at all. The reasons are the other two:
-	// the public feed is cached per role for an hour, and an audit table
-	// showing hour-old ownership misleads the person reading it; and adding
-	// creator and owner names to a payload anonymous visitors can fetch puts
-	// them one scrub-list omission away from being published.
+	// The selectors filter page.data.entries — the cached payload the root
+	// layout already fetched, which for an administrator is every entry, since
+	// access filtering does not apply above staff. That cache is what keeps
+	// the rest of the site fast for them, so this page reads it rather than
+	// asking for the same rows again.
 	//
-	// The map keyed by uid is what turns a filtered row back into its
-	// administrative form.
+	// /admin/entries adds only what that payload lacks: the creation date, the
+	// contact timestamp, why an entry was deactivated, and the names behind
+	// the creator and owner uids. It is uncached — five people use it — and
+	// separate because deactivation reasons and maintainer names have no place
+	// in a response anonymous visitors can fetch.
 	const adminByUid = $derived(
-		new Map((data.entries ?? []).map((e: AdminEntry) => [e.uid, e]))
+		new Map((data.entries ?? []).map((f: AdminFields) => [f.uid, f]))
 	);
 
-	const toAdmin = (filtered: any[]): AdminEntry[] =>
-		filtered.map((e) => adminByUid.get(e.uid)).filter((e): e is AdminEntry => e !== undefined);
+	const rows = (filtered: any[]): AdminEntry[] =>
+		filtered.map((e) => mergeAdmin(e, adminByUid.get(e.uid)));
 </script>
 
 <svelte:head>
@@ -78,7 +76,7 @@
 	     the results snippet replaces the card list that would have carried
 	     them. -->
 	<Directory
-		data={data.entries}
+		data={page.data.entries}
 		propCurrentOrg={null}
 		displayCommune={true}
 		displayGeocoder={false}
@@ -92,7 +90,7 @@
 {/if}
 
 {#snippet tableResults(filtered: any[])}
-	<EntriesTable entries={toAdmin(filtered)} />
+	<EntriesTable entries={rows(filtered)} />
 {/snippet}
 
 <style lang="postcss">

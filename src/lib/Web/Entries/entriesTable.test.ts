@@ -3,6 +3,7 @@ import {
 	sortEntries,
 	summarise,
 	lastModifiedOf,
+	mergeAdmin,
 	type AdminEntry
 } from './entriesTable';
 
@@ -173,5 +174,64 @@ describe('summarise', () => {
 
 	it('answers zeroes for an empty directory rather than dividing by nothing', () => {
 		expect(summarise([])).toEqual({ total: 0, active: 0, inactive: 0, withoutOwner: 0 });
+	});
+});
+
+describe('mergeAdmin', () => {
+	const publicEntry = {
+		uid: 'uid-1',
+		entrySlug: 'jean-dupont-mg-69',
+		name: 'Jean Dupont',
+		active: true,
+		updatedAt: 1_000,
+		access: 'staff',
+		effector_type: { uid: 'et-1', name: 'médecin généraliste', slug: 'mg' },
+		facility: { uid: 'f-1', name: 'Cabinet du Centre', slug: 'cabinet' },
+		directories: ['santelyon3']
+	};
+
+	it('takes the display fields from the public entry', () => {
+		const row = mergeAdmin(publicEntry, undefined);
+
+		expect(row.name).toBe('Jean Dupont');
+		expect(row.slug).toBe('jean-dupont-mg-69');
+		expect(row.access).toBe('staff');
+		expect(row.effector_type?.name).toBe('médecin généraliste');
+	});
+
+	it('takes the administrative fields from the admin row', () => {
+		const row = mergeAdmin(publicEntry, {
+			uid: 'uid-1',
+			createdAt: 5_000,
+			contactUpdatedAt: 9_000,
+			deactivation_reason: 'Retraite',
+			deactivation_datetime: '2026-03-01',
+			creators: [{ uid: 'u-1', name: 'Marie' }],
+			owners: []
+		});
+
+		expect(row.createdAt).toBe(5_000);
+		expect(row.deactivation_reason).toBe('Retraite');
+		expect(row.creators[0].name).toBe('Marie');
+	});
+
+	it('still renders an entry the admin endpoint did not return', () => {
+		// The two fetches can disagree — different directory resolution, a
+		// row created between them. Dropping the entry would hide a real one
+		// from the person auditing the directory; showing it with dashes
+		// says plainly that its administrative data is missing.
+		const row = mergeAdmin(publicEntry, undefined);
+
+		expect(row.uid).toBe('uid-1');
+		expect(row.createdAt).toBeNull();
+		expect(row.owners).toEqual([]);
+	});
+
+	it('uses the entry slug the public feed publishes', () => {
+		// entrySlug, not slug: the public payload carries both, and `slug` is
+		// the effector's, which 404s under /e/.
+		expect(mergeAdmin({ ...publicEntry, slug: 'jean-dupont' }, undefined).slug).toBe(
+			'jean-dupont-mg-69'
+		);
 	});
 });

@@ -12,26 +12,71 @@ export type AdminUser = {
 	name: string | null;
 };
 
-export type AdminEntry = {
+/**
+ * What /api/v2/admin/entries adds, keyed by uid.
+ *
+ * Only the fields the public feed lacks. An administrator already receives
+ * every entry from /api/v2/entries — access filtering does not apply above
+ * staff — and the root layout has fetched it before this page renders, so
+ * repeating name, type, facility, commune or tags here would be a second copy
+ * of data the browser is already holding.
+ */
+export type AdminFields = {
 	uid: string;
-	slug: string | null;
-	name: string | null;
-	active: boolean;
 	/** Milliseconds since the epoch, like every timestamp in this project. */
 	createdAt: number | null;
-	/** The graph node's own last write: access level, tags, memberships… */
-	updatedAt: number | null;
 	/** The most recent edit to the Postgres contact rows: phones, emails… */
 	contactUpdatedAt: number | null;
 	deactivation_reason: string | null;
 	deactivation_datetime: string | null;
+	creators: AdminUser[];
+	owners: AdminUser[];
+};
+
+/**
+ * One table row: a public entry with its administrative fields merged in.
+ *
+ * The two halves are joined by uid in the page. Keeping them separate up to
+ * that point is what lets the admin endpoint stay small.
+ */
+export type AdminEntry = AdminFields & {
+	slug: string | null;
+	name: string | null;
+	active: boolean;
+	/** The graph node's own last write: access level, tags, memberships… */
+	updatedAt: number | null;
 	access: string;
 	effector_type: { uid: string; name: string | null; slug: string | null } | null;
 	facility: { uid: string; name: string | null; slug: string | null } | null;
 	directories: string[];
-	creators: AdminUser[];
-	owners: AdminUser[];
 };
+
+/**
+ * Merge a public entry with its administrative row.
+ *
+ * An entry with no administrative row still renders — it is a real entry the
+ * administrator should see — with empty people and no dates, which the table
+ * shows as dashes rather than as blanks that read like a loading state.
+ */
+export function mergeAdmin(entry: any, fields: AdminFields | undefined): AdminEntry {
+	return {
+		uid: entry.uid,
+		slug: entry.entrySlug ?? entry.slug ?? null,
+		name: entry.name ?? entry.label ?? null,
+		active: entry.active ?? true,
+		updatedAt: entry.updatedAt ?? null,
+		access: entry.access ?? 'anonymous',
+		effector_type: entry.effector_type ?? null,
+		facility: entry.facility ?? null,
+		directories: entry.directories ?? [],
+		createdAt: fields?.createdAt ?? null,
+		contactUpdatedAt: fields?.contactUpdatedAt ?? null,
+		deactivation_reason: fields?.deactivation_reason ?? null,
+		deactivation_datetime: fields?.deactivation_datetime ?? null,
+		creators: fields?.creators ?? [],
+		owners: fields?.owners ?? []
+	};
+}
 
 export type SortColumn = 'name' | 'createdAt' | 'lastModified' | 'active' | 'type' | 'facility';
 export type SortDirection = 'asc' | 'desc';
