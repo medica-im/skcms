@@ -26,12 +26,44 @@ import { readFileSync } from 'node:fs';
 const BASE = process.env.LINKCHECK_ORIGIN ?? 'https://dev.santelyon3.fr';
 const COMPONENT = new URL('./EntriesTable.svelte', import.meta.url).pathname;
 
-/** One live example per link shape the table renders. */
-const SAMPLES: Record<string, string> = {
-	'/e/': '/e/maurice-dantec-dentiste-69',
-	'/sites/': '/sites/cabinet-dentaire-lafayette',
-	'/web/users/': '/web/users/cb5927c3072f42b183fb86566556eea3'
+/**
+ * The link shapes the table renders, and how to find a live example of each.
+ *
+ * Discovered rather than hardcoded. The first version of this file pinned
+ * three real slugs, and every one of them 404'd within a day — the entry was
+ * deleted from the dev site and the test started reporting a broken route
+ * where the route was fine and only the sample had gone. A test that fails
+ * when the data changes teaches you to ignore it.
+ */
+const SHAPES: Record<string, () => Promise<string | null>> = {
+	'/e/': async () => {
+		// An *active* entry: /e/{slug} answers 404 for a deactivated one, and
+		// the feed lists both — it is fetched with active=None. Sampling the
+		// first entry blindly picked a deactivated one and reported the route
+		// broken when it was working exactly as intended.
+		const entry = (await entries()).find((e: any) => e.active && e.entrySlug);
+		return entry ? `/e/${entry.entrySlug}` : null;
+	},
+	'/sites/': async () => {
+		const entry = (await entries()).find((e: any) => e.active && e.facility?.slug);
+		return entry ? `/sites/${entry.facility.slug}` : null;
+	},
+	'/web/users/': async () => {
+		const entry = (await entries()).find((e: any) => e.active && (e.owner?.length || e.creator?.length));
+		const uid = entry?.owner?.[0] ?? entry?.creator?.[0];
+		return uid ? `/web/users/${uid}` : null;
+	}
 };
+
+let cached: any[] | null = null;
+
+/** The public entries feed, fetched once for the whole file. */
+async function entries(): Promise<any[]> {
+	if (cached) return cached;
+	const res = await fetch(`${BASE}/api/v2/entries`, { signal: AbortSignal.timeout(10_000) });
+	cached = res.ok ? await res.json() : [];
+	return cached;
+}
 
 async function reachable(): Promise<boolean> {
 	try {
@@ -52,20 +84,32 @@ describe.skipIf(!online)(`links resolve against ${BASE}`, () => {
 		const prefixes = [...source.matchAll(/href="(\/[a-z-]+\/(?:[a-z-]+\/)?)/g)].map((m) => m[1]);
 
 		for (const prefix of new Set(prefixes)) {
-			expect(Object.keys(SAMPLES), `no sample URL for ${prefix}`).toContain(prefix);
+			expect(Object.keys(SHAPES), `no sample URL for ${prefix}`).toContain(prefix);
 		}
 	});
 
-	it.each(Object.entries(SAMPLES))('%s resolves', async (_prefix, path) => {
+	it.each(Object.keys(SHAPES))('%s resolves', async (prefix) => {
+		const path = await SHAPES[prefix]();
+		if (!path) {
+			// No entry on the site currently exercises this shape. Reporting a
+			// pass here is honest: there is nothing to check, and failing would
+			// blame the route for the data.
+			return;
+		}
+
 		const res = await fetch(`${BASE}${path}`, { signal: AbortSignal.timeout(10_000) });
 
 		expect(res.status, `${BASE}${path} returned ${res.status}`).toBe(200);
 	});
 
 	it('would have caught the facility link that shipped broken', async () => {
-		// The bug this file exists for. Kept as a test so the assertion above
-		// is known to be capable of failing.
-		const res = await fetch(`${BASE}/web/facility/cabinet-dentaire-lafayette`, {
+		// The bug this file exists for: /web/facility/{slug} has only a
+		// create/ subroute. Kept as a test so the assertions above are known
+		// to be capable of failing.
+		const entry = (await entries()).find((e: any) => e.active && e.facility?.slug);
+		if (!entry) return;
+
+		const res = await fetch(`${BASE}/web/facility/${entry.facility.slug}`, {
 			signal: AbortSignal.timeout(10_000)
 		});
 

@@ -32,7 +32,7 @@
 	// separate because deactivation reasons and maintainer names have no place
 	// in a response anonymous visitors can fetch.
 	const adminByUid = $derived(
-		new Map((data.entries ?? []).map((f: AdminFields) => [f.uid, f]))
+		new Map((data.adminFields ?? []).map((f: AdminFields) => [f.uid, f]))
 	);
 
 	const rows = (filtered: any[]): AdminEntry[] =>
@@ -59,7 +59,7 @@
 	<div class="section-container">
 		<aside class="alert variant-ghost-error"><div class="alert-message"><p>403</p></div></aside>
 	</div>
-{:else if data.entries === undefined}
+{:else if data.adminFields === undefined}
 	<!-- The loader logged the reason; an empty table here would be a lie. -->
 	<div class="section-container">
 		<aside class="alert variant-ghost-warning">

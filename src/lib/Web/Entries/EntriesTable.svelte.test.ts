@@ -88,6 +88,19 @@ describe('EntriesTable', () => {
 		await expect.element(badge).toHaveAttribute('title', expect.stringContaining('2026-03-01'));
 	});
 
+	it('describes one entry in the singular and the count in the plural', async () => {
+		// The same word in two grammatical numbers: the badge in a row says
+		// what that entry is ("active"), the figure above says how many there
+		// are ("2 actives"). Sharing one message key gave every row the plural.
+		render(EntriesTable, {
+			entries: [entry({ uid: '1', active: true }), entry({ uid: '2', active: true })]
+		});
+
+		await expect.element(page.getByText('2 actives')).toBeVisible();
+		await expect.element(page.getByRole('cell', { name: 'active', exact: true }).first())
+			.toBeVisible();
+	});
+
 	it('counts what is on the page', async () => {
 		render(EntriesTable, {
 			entries: [

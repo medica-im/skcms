@@ -646,5 +646,7 @@
   "admin_entries_col_directories": "Annuaires",
   "admin_entries_none": "Aucune entrée",
   "admin_entries_no_owner": "aucun",
-  "admin_entries_deactivated_on": "Désactivée le"
+  "admin_entries_deactivated_on": "Désactivée le",
+  "admin_entries_state_active": "active",
+  "admin_entries_state_inactive": "inactive"
 }

@@ -250,7 +250,7 @@
 		{tagOf}
 		rCCFE={rCardinalCategorizedFilteredEntries}
 		rCFFE={rCategorizedFullFilteredEntries}
-		rFFE={rFullFilteredEntries}
+		rFFE={rFilteredEntries}
 		{results}
 		{geojson}
 	/>

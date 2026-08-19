@@ -60,7 +60,15 @@
 		categoryOf: Type[];
 		facilityOf: FacilityOf[];
 		tagOf: Tag[];
-		/** The flat filtered entries, for a `results` snippet that wants a list. */
+		/**
+		 * The entries after every selector has been applied — categories,
+		 * department, communes, facility, search term and tags — for a
+		 * `results` snippet that renders a flat list.
+		 *
+		 * Not rFullFilteredEntries, which is only filtered by situation,
+		 * organisation and active state: a snippet given that one renders the
+		 * whole directory and ignores every selector above it.
+		 */
 		rFFE?: any[];
 		/** Renders the outcome instead of the default card list. */
 		results?: import('svelte').Snippet<[any[]]>;

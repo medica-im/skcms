@@ -102,7 +102,9 @@
 							</td>
 							<td>
 								{#if entry.active}
-									<span class="badge variant-soft-success">{m.admin_entries_active()}</span>
+									<!-- Singular: this badge describes one entry, while the
+									     summary above counts many. -->
+									<span class="badge variant-soft-success">{m.admin_entries_state_active()}</span>
 								{:else}
 									<!-- Why it is inactive is the first question an
 									     administrator asks, so the reason travels with
@@ -118,7 +120,7 @@
 											.filter(Boolean)
 											.join(' — ')}
 									>
-										{m.admin_entries_inactive()}
+										{m.admin_entries_state_inactive()}
 									</span>
 								{/if}
 							</td>

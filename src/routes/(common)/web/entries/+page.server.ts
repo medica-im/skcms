@@ -23,7 +23,7 @@ export const load: PageServerLoad = async ({ url, cookies, locals, fetch }) => {
 	// there is no load worth amortising. /entries stays cached for them — that
 	// cache is what keeps the rest of the site fast — and is invalidated on
 	// every write, so neither payload is ever stale.
-	let entries: AdminFields[] | undefined;
+	let adminFields: AdminFields[] | undefined;
 	const endpoint = `${variables.BASE_URI}/api/v2/admin/entries`;
 	try {
 		const response = await fetch(authReq(endpoint, 'GET', cookies));
@@ -32,10 +32,14 @@ export const load: PageServerLoad = async ({ url, cookies, locals, fetch }) => {
 			// rather than an empty table that looks like an empty directory.
 			throw new Error(`Response status: ${response.status}`);
 		}
-		entries = (await response.json()) as AdminFields[];
+		adminFields = (await response.json()) as AdminFields[];
 	} catch (error: any) {
 		console.error(`admin entries from +page.server.ts: ${error.message}`);
 	}
 
-	return { session, entries };
+	// `adminFields`, not `entries`: page.data merges this route's data over the
+	// layout's, so returning `entries` here replaced the layout's public feed
+	// with these seven-field rows — and every selector that reads
+	// commune, effector_type or facility crashed on undefined.
+	return { session, adminFields };
 };
