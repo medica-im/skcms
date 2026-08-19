@@ -4,6 +4,7 @@ import {
 	summarise,
 	lastModifiedOf,
 	mergeAdmin,
+	filterByState,
 	type AdminEntry
 } from './entriesTable';
 
@@ -233,5 +234,30 @@ describe('mergeAdmin', () => {
 		expect(mergeAdmin({ ...publicEntry, slug: 'jean-dupont' }, undefined).slug).toBe(
 			'jean-dupont-mg-69'
 		);
+	});
+});
+
+describe('filterByState', () => {
+	const active = entry({ uid: 'a', active: true });
+	const inactive = entry({ uid: 'i', active: false });
+
+	it('shows everything by default', () => {
+		expect(filterByState([active, inactive], 'all').map((e) => e.uid)).toEqual(['a', 'i']);
+	});
+
+	it('isolates the inactive entries', () => {
+		// The reason the control exists: a deactivated entry is invisible on
+		// the public site, so this page is the only place to find one.
+		expect(filterByState([active, inactive], 'inactive').map((e) => e.uid)).toEqual(['i']);
+	});
+
+	it('isolates the active entries', () => {
+		expect(filterByState([active, inactive], 'active').map((e) => e.uid)).toEqual(['a']);
+	});
+
+	it('does not mutate the array it was given', () => {
+		const entries = [active, inactive];
+		filterByState(entries, 'active');
+		expect(entries).toHaveLength(2);
 	});
 });

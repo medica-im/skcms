@@ -35,6 +35,7 @@ const keys = (o: Record<string, unknown>) =>
 const SAME_IN_BOTH = new Set([
 	// Words French and English spell the same way.
 	'ADDRESSBOOK_INFORMATIONS',
+	'admin_entries_col_type',
 	'ASSOCIATION_TITLE',
 	'CANCER',
 	'COL_ACTIONS',

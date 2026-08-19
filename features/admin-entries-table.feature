@@ -46,3 +46,15 @@ Feature: The administrative entries table loads
     Given I am signed in with the role "administrator"
     When I open "/web/entries"
     Then the summary shows a total count
+
+  Scenario: The counts filter the table by state
+    # A deactivated entry appears nowhere on the public site, so this page is
+    # the only place to find one. The counts above the table are the control:
+    # clicking one narrows the table to it, clicking it again goes back. No
+    # separate segmented control, which would have repeated the same three
+    # figures in a second row.
+    Given I am signed in with the role "administrator"
+    When I open "/web/entries"
+    And I click the "actives" count
+    Then the state filter shows it is active
+    And the table lists at least one entry

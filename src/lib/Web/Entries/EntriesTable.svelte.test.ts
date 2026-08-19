@@ -88,6 +88,17 @@ describe('EntriesTable', () => {
 		await expect.element(badge).toHaveAttribute('title', expect.stringContaining('2026-03-01'));
 	});
 
+	it('agrees in number with the count, in the feminine', async () => {
+		// "1 active" / "2 actives", not "1 actives". The agreement is feminine
+		// throughout because the noun is *une entrée* — a translator reaching
+		// for actif/actifs would be applying the masculine form of the right
+		// word to the wrong noun.
+		render(EntriesTable, { entries: [entry({ uid: '1', active: true })] });
+
+		await expect.element(page.getByRole('button', { name: '1 active' })).toBeVisible();
+		await expect.element(page.getByRole('button', { name: '1 entrée' })).toBeVisible();
+	});
+
 	it('describes one entry in the singular and the count in the plural', async () => {
 		// The same word in two grammatical numbers: the badge in a row says
 		// what that entry is ("active"), the figure above says how many there
@@ -96,7 +107,7 @@ describe('EntriesTable', () => {
 			entries: [entry({ uid: '1', active: true }), entry({ uid: '2', active: true })]
 		});
 
-		await expect.element(page.getByText('2 actives')).toBeVisible();
+		await expect.element(page.getByRole('button', { name: '2 actives' })).toBeVisible();
 		await expect.element(page.getByRole('cell', { name: 'active', exact: true }).first())
 			.toBeVisible();
 	});
@@ -110,8 +121,59 @@ describe('EntriesTable', () => {
 			]
 		});
 
-		await expect.element(page.getByText('3 entrées')).toBeVisible();
+		await expect.element(page.getByRole('button', { name: '3 entrées' })).toBeVisible();
 		await expect.element(page.getByText('1 sans propriétaire')).toBeVisible();
+	});
+
+	it('narrows the table to the inactive entries when their count is clicked', async () => {
+		// The control exists because a deactivated entry appears nowhere on the
+		// public site: this page is the only way to find one.
+		render(EntriesTable, {
+			entries: [
+				entry({ uid: 'a', name: 'Active Person', active: true }),
+				entry({ uid: 'i', name: 'Retired Person', active: false })
+			]
+		});
+
+		await page.getByRole('button', { name: /inactive/ }).click();
+
+		await expect.element(page.getByText('Retired Person')).toBeVisible();
+		await expect.element(page.getByText('Active Person')).not.toBeInTheDocument();
+	});
+
+	it('goes back to everything when the same count is clicked again', async () => {
+		// No separate "Toutes" step: the filter is a toggle, so the way out is
+		// the control you came in by.
+		render(EntriesTable, {
+			entries: [
+				entry({ uid: 'a', name: 'Active Person', active: true }),
+				entry({ uid: 'i', name: 'Retired Person', active: false })
+			]
+		});
+
+		const inactive = page.getByRole('button', { name: /inactive/ });
+		await inactive.click();
+		await inactive.click();
+
+		await expect.element(page.getByText('Active Person')).toBeVisible();
+		await expect.element(page.getByText('Retired Person')).toBeVisible();
+	});
+
+	it('keeps the counts describing everything while filtered', async () => {
+		// Otherwise clicking "1 inactive" would leave "0 actives" beside it and
+		// the numbers would describe the view rather than the directory.
+		render(EntriesTable, {
+			entries: [
+				entry({ uid: 'a', active: true }),
+				entry({ uid: 'i', active: false })
+			]
+		});
+
+		await page.getByRole('button', { name: /inactive/ }).click();
+
+		// "1 active", singular — the count drives the plural form, and the
+		// agreement is feminine because it describes une entrée.
+		await expect.element(page.getByRole('button', { name: '1 active' })).toBeVisible();
 	});
 
 	it('says nothing rather than showing an empty grid', async () => {

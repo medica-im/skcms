@@ -630,10 +630,66 @@
   "with": "with",
   "admin_entries_title": "Entries",
   "admin_entries_subtitle": "Every entry in the directory, active and inactive",
-  "admin_entries_total": "entries",
-  "admin_entries_active": "active",
-  "admin_entries_inactive": "inactive",
-  "admin_entries_without_owner": "without owner",
+  "admin_entries_total": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "entry",
+        "countPlural=other": "entries"
+      }
+    }
+  ],
+  "admin_entries_active": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "active",
+        "countPlural=other": "active"
+      }
+    }
+  ],
+  "admin_entries_inactive": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "inactive",
+        "countPlural=other": "inactive"
+      }
+    }
+  ],
+  "admin_entries_without_owner": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "without owner",
+        "countPlural=other": "without owner"
+      }
+    }
+  ],
   "admin_entries_col_person": "Person",
   "admin_entries_col_type": "Type",
   "admin_entries_col_facility": "Facility",
@@ -647,6 +703,5 @@
   "admin_entries_none": "No entries",
   "admin_entries_no_owner": "none",
   "admin_entries_deactivated_on": "Deactivated on",
-  "admin_entries_state_active": "active",
-  "admin_entries_state_inactive": "inactive"
+  "admin_entries_filter_state": "Filter by state"
 }

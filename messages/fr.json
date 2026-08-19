@@ -630,10 +630,66 @@
   "with": "avec",
   "admin_entries_title": "Entrées",
   "admin_entries_subtitle": "Toutes les entrées de l'annuaire, actives et inactives",
-  "admin_entries_total": "entrées",
-  "admin_entries_active": "actives",
-  "admin_entries_inactive": "inactives",
-  "admin_entries_without_owner": "sans propriétaire",
+  "admin_entries_total": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "entrée",
+        "countPlural=other": "entrées"
+      }
+    }
+  ],
+  "admin_entries_active": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "active",
+        "countPlural=other": "actives"
+      }
+    }
+  ],
+  "admin_entries_inactive": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "inactive",
+        "countPlural=other": "inactives"
+      }
+    }
+  ],
+  "admin_entries_without_owner": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "sans propriétaire",
+        "countPlural=other": "sans propriétaire"
+      }
+    }
+  ],
   "admin_entries_col_person": "Personne",
   "admin_entries_col_type": "Type",
   "admin_entries_col_facility": "Structure",
@@ -647,6 +703,5 @@
   "admin_entries_none": "Aucune entrée",
   "admin_entries_no_owner": "aucun",
   "admin_entries_deactivated_on": "Désactivée le",
-  "admin_entries_state_active": "active",
-  "admin_entries_state_inactive": "inactive"
+  "admin_entries_filter_state": "Filtrer par état"
 }

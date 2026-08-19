@@ -168,6 +168,22 @@ export function sortEntries(
 	});
 }
 
+/** Which entries the table is showing. */
+export type StateFilter = 'all' | 'active' | 'inactive';
+
+/**
+ * Narrow the rows to one state.
+ *
+ * Separate from the selectors in CtxDirectory on purpose: those filter the
+ * directory the public site also filters, while active/inactive is a
+ * distinction only this page draws — the addressbook never shows a deactivated
+ * entry at all.
+ */
+export function filterByState(entries: AdminEntry[], state: StateFilter): AdminEntry[] {
+	if (state === 'all') return entries;
+	return entries.filter((e) => (state === 'active' ? e.active : !e.active));
+}
+
 export type Summary = {
 	total: number;
 	active: number;
