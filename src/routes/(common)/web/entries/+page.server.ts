@@ -1,45 +1,23 @@
 import { redirect } from '@sveltejs/kit';
-import { authReq } from '$lib/utils/request.ts';
-import { variables } from '$lib/utils/constants.ts';
-import type { AdminFields } from '$lib/Web/Entries/entriesTable';
 import type { PageServerLoad } from './$types';
 
-// Server-side only. The payload names who created and owns every entry in the
-// directory, so it is fetched with the caller's cookie and never handed to a
-// client load that would refetch it from the browser.
-export const ssr = false;
-
-export const load: PageServerLoad = async ({ url, cookies, locals, fetch }) => {
+// The gate, and only the gate.
+//
+// It lives on the server so an unauthenticated visitor is turned away with a
+// 303 on the first request, before any of the application is sent. In the
+// +page.ts beside this file the same check could only run once the browser had
+// booted, which means shipping the page to someone who may not sign in and
+// showing them a flash of it before the redirect. locals.auth() is server-only
+// in any case.
+//
+// The admin payload itself is fetched in +page.ts: in the browser the session
+// cookie rides along on a relative request on its own, whereas fetching it
+// here would have to hand-set a cookie header that SvelteKit's event fetch
+// then strips whenever it reads the request as same-origin.
+export const load: PageServerLoad = async ({ url, locals }) => {
 	const session = await locals.auth();
 	if (!session) {
 		redirect(303, `/signin?redirect=${url.pathname}`);
 	}
-
-	// /admin/entries carries only what page.data.entries lacks — the creation
-	// date, the contact timestamp, the deactivation fields and the names
-	// behind the creator/owner uids. The page merges the two by uid.
-	//
-	// Uncached, unlike /entries: five people hold a role that can read it, so
-	// there is no load worth amortising. /entries stays cached for them — that
-	// cache is what keeps the rest of the site fast — and is invalidated on
-	// every write, so neither payload is ever stale.
-	let adminFields: AdminFields[] | undefined;
-	const endpoint = `${variables.BASE_URI}/api/v2/admin/entries`;
-	try {
-		const response = await fetch(authReq(endpoint, 'GET', cookies));
-		if (!response.ok) {
-			// A 403 here is the endpoint working: the page renders its refusal
-			// rather than an empty table that looks like an empty directory.
-			throw new Error(`Response status: ${response.status}`);
-		}
-		adminFields = (await response.json()) as AdminFields[];
-	} catch (error: any) {
-		console.error(`admin entries from +page.server.ts: ${error.message}`);
-	}
-
-	// `adminFields`, not `entries`: page.data merges this route's data over the
-	// layout's, so returning `entries` here replaced the layout's public feed
-	// with these seven-field rows — and every selector that reads
-	// commune, effector_type or facility crashed on undefined.
-	return { session, adminFields };
+	return { session };
 };
