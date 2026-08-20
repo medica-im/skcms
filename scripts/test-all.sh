@@ -84,15 +84,45 @@ SKIP_FRONTEND="${SKIP_FRONTEND:-0}"
 SEED_BDD_USERS="${SEED_BDD_USERS:-1}"
 
 # The codebase carries a backlog of pre-existing svelte-check errors, so the
-# typecheck suite fails on the *count* rising above this baseline rather than on
-# any error at all. Lower it as the backlog is paid down.
+# typecheck suite fails on the *count* rising above a baseline rather than on
+# any error at all. Lower these as the backlog is paid down.
+#
+# One baseline per site, because the count is a property of the site and not of
+# the parent code. Each context checks out its own skvar branch, and the routes
+# under (skvar) are typechecked with everything else — so the same parent commit
+# measures 195 on annuaire and 206 on gadagne. A single number cannot describe
+# both: set high enough for gadagne it admits eleven new errors on annuaire, and
+# set for annuaire it fails gadagne on work nobody did. That second case is what
+# happened — a global 197 against gadagne's real 206 reported "error count rose
+# above the baseline" on a release that had changed none of it.
 #
 # Measured, not guessed: a baseline above the real count admits that many new
-# errors without failing. 197 as of 2026-08-12, and it had been 195 here while
-# a git-ignored .env.test-all quietly overrode it with 203 — six errors of slack
-# nobody could see in a diff. Keep the number here and re-measure when lowering
-# it; the run prints the real count beside the baseline on every invocation.
-TYPECHECK_BASELINE="${TYPECHECK_BASELINE:-197}"
+# errors without failing. Measured 2026-08-20 with `typecheck-baselines.sh`,
+# which prints exactly these lines; re-run it when lowering them. The run prints
+# each real count beside its baseline on every invocation.
+TYPECHECK_BASELINE_annuaire="${TYPECHECK_BASELINE_annuaire:-195}"
+TYPECHECK_BASELINE_lyon3="${TYPECHECK_BASELINE_lyon3:-205}"
+TYPECHECK_BASELINE_gadagne="${TYPECHECK_BASELINE_gadagne:-206}"
+TYPECHECK_BASELINE_ipa="${TYPECHECK_BASELINE_ipa:-195}"
+TYPECHECK_BASELINE_sandbox="${TYPECHECK_BASELINE_sandbox:-195}"
+
+# The fallback for a context with no line above — a new site added to dev.yml
+# reaches this rather than silently typechecking against zero. Deliberately the
+# highest of the measured numbers: a new site fails on being worse than the
+# worst known, not on inheriting a stricter site's budget.
+TYPECHECK_BASELINE_DEFAULT="${TYPECHECK_BASELINE_DEFAULT:-206}"
+
+# Per-site baseline lookup, with the old global name still honoured: anyone who
+# exports TYPECHECK_BASELINE means "this number, for whatever I am running".
+typecheck_baseline() {
+    local ctx="$1" var val
+    if [[ -n "${TYPECHECK_BASELINE:-}" ]]; then
+        printf '%s\n' "$TYPECHECK_BASELINE"; return
+    fi
+    var="TYPECHECK_BASELINE_${ctx}"
+    val="${!var:-}"
+    printf '%s\n' "${val:-$TYPECHECK_BASELINE_DEFAULT}"
+}
 
 ALL_SUITES=(typecheck unit backend bdd)
 
@@ -540,7 +570,8 @@ ensure_e2e_workers() {
 
 # --- Suites ------------------------------------------------------------------
 suite_typecheck() {
-    local out count
+    local ctx="${1:-$SITE_CONTEXT}" out count baseline
+    baseline="$(typecheck_baseline "$ctx")"
     (cd "$FRONTEND_DIR" && npx svelte-kit sync >/dev/null 2>&1)
     # --output machine keeps the summary line stable; svelte-check otherwise
     # switches to a human summary ("found N errors") when attached to a TTY.
@@ -558,14 +589,16 @@ suite_typecheck() {
         printf '%s\n' "$out" | tail -8
         fail "could not parse svelte-check output"; return 1
     fi
-    info "svelte-check errors: $count (baseline $TYPECHECK_BASELINE)"
-    if (( count > TYPECHECK_BASELINE )); then
+    info "svelte-check errors: $count (baseline $baseline for $ctx)"
+    if (( count > baseline )); then
+        # Only the errors in files this site owns are worth printing: the
+        # backlog is long, and the new ones are what the reader needs.
         printf '%s\n' "$out" | grep -E 'ERROR' | head -20
-        warn "error count rose above the baseline"
+        warn "error count rose above the baseline for $ctx"
         return 1
     fi
-    (( count < TYPECHECK_BASELINE )) && \
-        info "below baseline — consider lowering TYPECHECK_BASELINE to $count"
+    (( count < baseline )) && \
+        info "below baseline — consider lowering TYPECHECK_BASELINE_$ctx to $count"
     return 0
 }
 
@@ -709,7 +742,10 @@ info "sites:    ${CONTEXTS[*]}"
 # through using. typecheck and backend are single-pass too: the backend has no
 # tenant, and svelte-check is judged against one error baseline that cannot
 # mean anything across five submodule branches at once.
-suite_is_per_site() { [[ "$1" == "unit" ]]; }
+# typecheck is per-site for the same reason unit is: each context checks out its
+# own skvar branch, so a single run measures one tenant's routes and says
+# nothing about the others.
+suite_is_per_site() { [[ "$1" == "unit" || "$1" == "typecheck" ]]; }
 
 # Point the checkout at a context: dev.sh switches the skvar branch and the .env
 # symlink together, which is what makes the per-tenant stages test that tenant
@@ -840,6 +876,7 @@ for suite in "${SUITES[@]}"; do
                 || { record "$suite ($ctx)" fail 0; continue; }
             case "$suite" in
                 unit) [[ "$SKIP_FRONTEND" == "1" ]] || run_suite "unit ($ctx)" suite_unit ;;
+                typecheck) [[ "$SKIP_FRONTEND" == "1" ]] || run_suite "typecheck ($ctx)" suite_typecheck "$ctx" ;;
                 *) fail "no per-site handler for suite: $suite"; record "$suite ($ctx)" fail 0 ;;
             esac
         done
@@ -849,7 +886,6 @@ for suite in "${SUITES[@]}"; do
         switch_context "$SITES_CONTEXT" 0 || true
     else
         case "$suite" in
-            typecheck) [[ "$SKIP_FRONTEND" == "1" ]] || run_suite typecheck suite_typecheck ;;
             backend)   [[ "$SKIP_BACKEND"  == "1" ]] || run_suite backend suite_backend ;;
             bdd)       [[ "$SKIP_FRONTEND" == "1" ]] || run_suite bdd suite_bdd ;;
             # Every suite must be handled here or in the per-site branch above.

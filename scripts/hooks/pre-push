@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+#
+# Typecheck the site being pushed, before it can reach staging.
+#
+# Install with: ./scripts/install-hooks.sh
+#
+# Scoped to the site currently checked out, not all of them: a pre-push hook
+# that switches the skvar branch five times would move the working tree under
+# whoever is pushing, and take minutes doing it. `test-all.sh typecheck` covers
+# every site and is the thing to run before a release; this catches the common
+# case — the site you are working on — at the moment it would otherwise escape.
+#
+# Skip a one-off push with:  git push --no-verify
+set -uo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+[[ "${SKIP_TYPECHECK:-0}" == "1" ]] && exit 0
+
+# Which site is checked out: the .env symlink names it, the same way dev.sh
+# leaves it. Without one there is nothing to look a baseline up by.
+env_file="$(readlink .env 2>/dev/null || true)"
+ctx="$(yq -r ".contexts[] | select(.env_file == \"$env_file\") | .name" dev.yml 2>/dev/null | head -1)"
+if [[ -z "$ctx" ]]; then
+    echo "pre-push: no site checked out (.env is not a dev.yml env_file); skipping typecheck" >&2
+    exit 0
+fi
+
+# The baseline for that site, read from test-all.sh so there is one source of
+# truth. A site with no line falls back the same way test-all.sh does.
+baseline="$(sed -nE "s/^TYPECHECK_BASELINE_${ctx}=\"\\\$\{TYPECHECK_BASELINE_${ctx}:-([0-9]+)\}\".*/\1/p" \
+    scripts/test-all.sh | head -1)"
+[[ -z "$baseline" ]] && baseline="$(sed -nE 's/^TYPECHECK_BASELINE_DEFAULT="\$\{TYPECHECK_BASELINE_DEFAULT:-([0-9]+)\}".*/\1/p' \
+    scripts/test-all.sh | head -1)"
+[[ -z "$baseline" ]] && { echo "pre-push: no baseline found; skipping typecheck" >&2; exit 0; }
+
+echo "pre-push: typechecking $ctx (baseline $baseline)..."
+npx svelte-kit sync >/dev/null 2>&1
+out="$(npx svelte-check --output machine --threshold error 2>&1)"
+count="$(sed -nE 's/.*COMPLETED [0-9]+ FILES ([0-9]+) ERRORS.*/\1/p' <<<"$out" | tail -1)"
+
+if [[ -z "$count" ]]; then
+    echo "pre-push: could not parse svelte-check output; not blocking the push" >&2
+    exit 0
+fi
+
+if (( count > baseline )); then
+    grep -E 'ERROR' <<<"$out" | head -20
+    echo >&2
+    echo "pre-push: $count errors on $ctx, above the baseline of $baseline." >&2
+    echo "          Fix them, or push with --no-verify if they are not yours." >&2
+    exit 1
+fi
+
+echo "pre-push: $count errors on $ctx (baseline $baseline) — ok"
+if (( count < baseline )); then
+    echo "pre-push: below baseline; consider lowering TYPECHECK_BASELINE_$ctx to $count"
+fi
+exit 0
