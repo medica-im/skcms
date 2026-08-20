@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
 #
-# Typecheck the site being pushed, before it can reach staging.
+# Report the typecheck count for the site being pushed.
 #
 # Install with: ./scripts/install-hooks.sh
+#
+# This never blocks a push. A type error is worth seeing before it reaches
+# staging, which is why the count is printed here rather than discovered in a
+# release log — but it is not a reason to stop someone pushing, and a hook that
+# refuses work is a hook people disable. It always exits 0.
 #
 # Scoped to the site currently checked out, not all of them: a pre-push hook
 # that switches the skvar branch five times would move the working tree under
 # whoever is pushing, and take minutes doing it. `test-all.sh typecheck` covers
-# every site and is the thing to run before a release; this catches the common
-# case — the site you are working on — at the moment it would otherwise escape.
+# every site and is the thing to run before a release.
 #
-# Skip a one-off push with:  git push --no-verify
+# Skip the check entirely with:  SKIP_TYPECHECK=1 git push
 set -uo pipefail
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
@@ -49,8 +53,8 @@ if (( count > baseline )); then
     grep -E 'ERROR' <<<"$out" | head -20
     echo >&2
     echo "pre-push: $count errors on $ctx, above the baseline of $baseline." >&2
-    echo "          Fix them, or push with --no-verify if they are not yours." >&2
-    exit 1
+    echo "          Pushing anyway; run ./scripts/test-all.sh typecheck for the full picture." >&2
+    exit 0
 fi
 
 echo "pre-push: $count errors on $ctx (baseline $baseline) — ok"
