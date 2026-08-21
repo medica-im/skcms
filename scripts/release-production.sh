@@ -226,14 +226,24 @@ fi
 CLEAR_CACHE="${CLEAR_CACHE:-1}"
 BACKEND_COMPOSE="${BACKEND_COMPOSE:-docker-compose-production.yml}"
 
-# Where each host keeps its backend. Overridable per host from the environment,
-# since these paths are historical and differ between the two machines.
+# Where each host keeps its backend: /opt/backend on all of them.
+#
+# This used to special-case `production` as /opt/annuaire.medica.im/backend and
+# `old-staging` as /opt/dev.medica.im/backend, both from before the machines
+# were renamed. Neither path exists any more, so `cd` failed, the cache was
+# never cleared, and every site reported
+#
+#   cache: could not clear <site> on production (is redis up at ...?)
+#
+# on every release — a warning that read as redis being down rather than as a
+# path that had not existed for some time. Still overridable per host, since a
+# machine added later may not follow the convention.
 backend_dir_for() {
-    case "$1" in
-        production)  echo "${BACKEND_DIR_PRODUCTION:-/opt/annuaire.medica.im/backend}" ;;
-        old-staging) echo "${BACKEND_DIR_OLD_STAGING:-/opt/dev.medica.im/backend}" ;;
-        *)           echo "${BACKEND_DIR_DEFAULT:-/opt/backend}" ;;
-    esac
+    local host="$1" var
+    # BACKEND_DIR_<HOST>, with the punctuation a shell variable cannot carry
+    # folded to underscores: BACKEND_DIR_ANNUAIRE_MEDICA_IM.
+    var="BACKEND_DIR_$(printf '%s' "$host" | tr '[:lower:].-' '[:upper:]__')"
+    echo "${!var:-${BACKEND_DIR_DEFAULT:-/opt/backend}}"
 }
 
 
