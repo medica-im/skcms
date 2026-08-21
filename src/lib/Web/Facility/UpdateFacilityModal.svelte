@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { goto, invalidateAll } from '$app/navigation';
+	import { goto, invalidate, invalidateAll } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import * as m from '$msgs';
 	import { updateFacility } from '../../../facility.remote.ts';
@@ -162,6 +162,19 @@
 			{...updateFacility.for(uid).enhance(async ({ submit }) => {
 				try {
 					await submit();
+					// The directory map plots each entry's own coordinates, and those
+					// entries come from the root layout's load. Without this the
+					// facility page shows the new position while every pin on the
+					// annuaire stays where it was, until that load runs again for
+					// some other reason. Same signal AvatarUploadModal and
+					// AccessControl use after a write.
+					//
+					// After submit(), not in the Fermer handler where the only
+					// refresh used to live: a user who saves and navigates away
+					// never presses it.
+					if (updateFacility.for(uid).result?.success) {
+						await invalidate('app:entries');
+					}
 				} catch (error) {
 					console.error(`Oh no! Something went wrong:${error}`);
 				}
