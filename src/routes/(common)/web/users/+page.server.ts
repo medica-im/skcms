@@ -3,13 +3,14 @@ import { authReq } from '$lib/utils/request.ts';
 import { variables } from '$lib/utils/constants.ts';
 import type { User } from '$src/lib/interfaces/v2/user';
 import type { PageServerLoad } from "./$types"
+import { base } from '$app/paths';
 
 export const ssr = false;
 
 export const load: PageServerLoad = async ({ url, cookies, locals, fetch }) => {
    const session = await locals.auth();
    if (!session) {
-      redirect(303, `/signin?redirect=${url.pathname}`);
+      redirect(303, `${base}/signin?redirect=${url.pathname}`);
    }
 
    let users: User[] | undefined;

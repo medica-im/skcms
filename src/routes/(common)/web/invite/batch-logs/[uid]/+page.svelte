@@ -10,6 +10,7 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
 	import type { PageData } from './$types';
+	import { base } from '$app/paths';
 
 	let { data }: { data: PageData } = $props();
 	let job = $derived(data.job);
@@ -76,7 +77,7 @@
 
 <div class="container mx-auto p-4 max-w-4xl">
 	<header class="mb-6">
-		<a href="/web/invite/batch-logs" class="btn btn-sm variant-ghost mb-4">
+		<a href="{base}/web/invite/batch-logs" class="btn btn-sm variant-ghost mb-4">
 			<Fa icon={faArrowLeft} class="mr-2" />
 			{m.BATCH_INVITEE_LOGS()}
 		</a>
@@ -160,7 +161,7 @@
 								<td>
 									{#if row.existing_invitee_uid}
 										<a
-											href="/web/invite/invitees/{row.existing_invitee_uid}"
+											href="{base}/web/invite/invitees/{row.existing_invitee_uid}"
 											target="_blank"
 											rel="noopener noreferrer"
 											class="btn btn-sm variant-ghost-warning"
@@ -179,7 +180,7 @@
 
 		<!-- Actions -->
 		<div class="flex gap-4 justify-end mt-6">
-			<a href="/web/invite/invitees" class="btn variant-filled-primary">
+			<a href="{base}/web/invite/invitees" class="btn variant-filled-primary">
 				{m.BATCH_INVITEE_VIEW_INVITEES()}
 			</a>
 		</div>

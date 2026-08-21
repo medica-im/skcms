@@ -11,6 +11,7 @@
 	import PlaceImageUploadModal from '$lib/Web/Facility/PlaceImageUploadModal.svelte';
 	import type { FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 	import type { Facility } from '$lib/interfaces/v2/facility.ts';
+	import { base } from '$app/paths';
 
 	let {
 		data,
@@ -58,7 +59,7 @@
 					<!--span class="badge variant-filled">Nom</span-->
 					<h6 class="h6">
 						{#if anchor}
-						<a href="/sites/{data.slug}" class="anchor" data-sveltekit-preload-data="hover"
+						<a href="{base}/sites/{data.slug}" class="anchor" data-sveltekit-preload-data="hover"
 							>{data.name}</a
 						>
 						{:else}

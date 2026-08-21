@@ -7,6 +7,7 @@
 		faCircleQuestion
 	} from '@fortawesome/free-regular-svg-icons';
 	import { removeSpaces } from '$lib/helpers/stringHelpers';
+	import { base } from '$app/paths';
 	export let w: string;
 
 	let randString = Math.random().toString(36).substring(2);
@@ -37,7 +38,7 @@
 			<br>
 			{dict[dict[w][0]][0]}
 			{#if dict[dict[w][0]][1]}
-		<br><a data-sveltekit-reload href="/maison-de-sante/lexique#{removeSpaces(dict[w][0])}">{m.LEARN_MORE()}</a>
+		<br><a data-sveltekit-reload href="{base}/maison-de-sante/lexique#{removeSpaces(dict[w][0])}">{m.LEARN_MORE()}</a>
 		{/if}
 		</h4>
 	{:else}
@@ -46,7 +47,7 @@
 		<br>
 	    {dict[w][0]}
 		{#if dict[w][1]}
-		<br><a data-sveltekit-reload href="/maison-de-sante/lexique#{removeSpaces(w)}">{m.LEARN_MORE()}</a>
+		<br><a data-sveltekit-reload href="{base}/maison-de-sante/lexique#{removeSpaces(w)}">{m.LEARN_MORE()}</a>
 		{/if}
 	</h4>
 	{/if}

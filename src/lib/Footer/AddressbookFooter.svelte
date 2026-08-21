@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { page } from '$app/state';
 	import { getLocale } from "$prgld/runtime.js";
 	import * as m from "$msgs";
@@ -13,7 +14,7 @@
 		<!-- Row 1 -->
 		<div class="md:flex md:justify-between">
 			<div class="mb-6 md:mb-0">
-				<a data-sveltekit-preload-data="off" href="/" title={m.NAVBAR_GO_HOME()}>
+				<a data-sveltekit-preload-data="off" href="{base}/" title={m.NAVBAR_GO_HOME()}>
 					<div class="flex space-x-2 lg:space-x-4">
 						<span class="flex w-8 h-8 lg:w-12 lg:h-12"></span>
                         <div>
@@ -33,7 +34,7 @@
 					</h6>
 					<ul class="font-medium">
 						<!--li class="mb-4">
-							<a data-sveltekit-preload-data="off" href="/">
+							<a data-sveltekit-preload-data="off" href="{base}/">
 								{m.HOME_TITLE()}
 							</a>
 						</li-->
@@ -41,15 +42,15 @@
 							<a href={page.data.directory.setting.path || '/'}>{m.ADDRESSBOOK_TITLE()}</a>
 						</li>
 						<!--li class="mb-4">
-							<a href="/sites"> Sites </a>
+							<a href="{base}/sites"> Sites </a>
 						</li-->
 						{#if page.data.organization.google_calendar_id && page.data.organization.google_calendar_api_key}
 							<li class="mb-4">
-								<a href="/calendrier"> {m.CALENDAR()} </a>
+								<a href="{base}/calendrier"> {m.CALENDAR()} </a>
 							</li>
 						{/if}
 						<li class="mb-4">
-							<a href="/contact"> Contact </a>
+							<a href="{base}/contact"> Contact </a>
 						</li>
 					</ul>
 				</div>
@@ -59,12 +60,12 @@
 					</h6>
 					<ul class="font-medium">
 						<!--li class="mb-4">
-							<a href="/politique-de-confidentialite" class="hover:underline"
+							<a href="{base}/politique-de-confidentialite" class="hover:underline"
 								>{capitalizeFirstLetter(m.PRIVACY_POLICY(), variables.DEFAULT_LANGUAGE)}</a
 							>
 						</li-->
 						<li class="mb-4">
-							<a href="/mentions-legales" class="hover:underline"
+							<a href="{base}/mentions-legales" class="hover:underline"
 								>{capitalizeFirstLetter(m.LEGAL_NOTICES(), variables.DEFAULT_LANGUAGE)}</a
 							>
 						</li>
@@ -76,7 +77,7 @@
 		<!-- Row 2 -->
 		<div class="flex justify-between items-center">
 			<div class="text-sm"
-				>© {new Date().getFullYear()} <a href="/" class="hover:underline">{page.data.organization.company_name}</a>.
+				>© {new Date().getFullYear()} <a href="{base}/" class="hover:underline">{page.data.organization.company_name}</a>.
 		</div>
 			<div class="flex space-x-6 justify-center">
 				{#if page.data.organization?.contact?.socialnetworks}

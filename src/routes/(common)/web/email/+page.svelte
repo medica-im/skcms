@@ -6,6 +6,7 @@
 	import BatchEmailCard from '$lib/Web/Email/BatchEmailCard.svelte';
 	import Fa from 'svelte-fa';
 	import { faSort, faSortUp, faSortDown, faSearch, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+	import { base } from '$app/paths';
 
 	let { data }: { data: PageData } = $props();
 	let emails = $derived(data.emails as BatchEmailMessage[] | undefined);
@@ -65,7 +66,7 @@
 				{filteredEmails.length} message{filteredEmails.length !== 1 ? 's' : ''}
 			</p>
 		</div>
-		<a href="/web/email/send" class="btn variant-filled-primary">
+		<a href="{base}/web/email/send" class="btn variant-filled-primary">
 			<Fa icon={faPaperPlane} class="mr-2" />
 			Nouveau message
 		</a>

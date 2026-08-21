@@ -8,6 +8,7 @@
 	import { getEditMode } from '$lib/components/Directory/context';
 	import RoleBadge from '$lib/RoleBadge.svelte';
 	import PatchOwnerModal from './PatchOwnerModal.svelte';
+	import { base } from '$app/paths';
 
 	let { owner, creator }: { owner: string[] | null; creator: string[] | null } = $props();
 	const editMode = getEditMode();
@@ -124,7 +125,7 @@
 							</div>
 
 							<!-- Link to user detail -->
-							<a href="/web/users/{user.uid}" class="btn-icon btn-icon-sm variant-ghost-primary">
+							<a href="{base}/web/users/{user.uid}" class="btn-icon btn-icon-sm variant-ghost-primary">
 								<Fa icon={faEye} />
 							</a>
 

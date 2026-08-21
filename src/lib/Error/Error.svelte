@@ -4,6 +4,7 @@
 	import { page } from '$app/state';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import type { SveltekitError } from '$lib/interfaces/error.interface.ts';
+	import { base } from '$app/paths';
 
 	let { data }: { data: SveltekitError } = $props();
 	console.log(getLocale());
@@ -43,11 +44,11 @@
 				à aucun site. Peut-être a-t-il été supprimé?
 			</p>
 			<div>
-			<a href="/" title="Sites" class="btn variant-ghost-primary">Sites</a>
+			<a href="{base}/" title="Sites" class="btn variant-ghost-primary">Sites</a>
 			</div>
 	{/if}
 	<div>
-		<a href="/contact" title="Contact" class="btn variant-ghost-primary">Contact</a>
+		<a href="{base}/contact" title="Contact" class="btn variant-ghost-primary">Contact</a>
 	</div>
 </div>
 

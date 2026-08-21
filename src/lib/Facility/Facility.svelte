@@ -9,6 +9,7 @@
 	import { faBuilding } from '@fortawesome/free-regular-svg-icons';
 	import { page } from '$app/state';
 	import type { Facility } from '$lib/interfaces/facility.interface.js';
+	import { base } from '$app/paths';
 
 	let { data, carousel=true, geojson=null }: { data: Facility[]; carousel?: boolean; geojson?: any } = $props();
 
@@ -46,13 +47,13 @@
 	<div class="flex flex-wrap items-center gap-4 text-center">
 		{#each data.sort(compareFn) as facility}
 				<a
-					href="/sites/{facility.slug||facility.uid}"
+					href="{base}/sites/{facility.slug||facility.uid}"
 					title={facility.name}
 					class="btn btn-sm variant-ghost-primary w-fit">{facility.label || facility.name}</a
 				>
 		{/each}
 		{#if data.length > 1}
-			<a href="/sites" class="btn variant-ghost-surface" data-sveltekit-preload-data="hover">
+			<a href="{base}/sites" class="btn variant-ghost-surface" data-sveltekit-preload-data="hover">
 				<span><Fa icon={faBuilding} /></span><span>{allLabel}</span>
 			</a>
 		{/if}

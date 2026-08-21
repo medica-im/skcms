@@ -6,6 +6,7 @@
 	import { faEnvelope, faUser, faCircle, faEye, faPenToSquare, faTrash, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 	import { onMount } from 'svelte';
 	import RoleBadge from '$lib/RoleBadge.svelte';
+	import { base } from '$app/paths';
 
 	let { invitee, showLink = true, highlighted = false, onEdit, onDelete }: { invitee: Invitee; showLink?: boolean; highlighted?: boolean; onEdit?: (invitee: Invitee) => void; onDelete?: (invitee: Invitee) => void } = $props();
 
@@ -110,7 +111,7 @@
 		{/if}
 
 		{#if showDetailLink}
-			<a href="/web/invite/invitees/{invitee.uid}" class="btn-icon btn-icon-sm variant-ghost-primary">
+			<a href="{base}/web/invite/invitees/{invitee.uid}" class="btn-icon btn-icon-sm variant-ghost-primary">
 				<Fa icon={faEye} />
 			</a>
 		{/if}

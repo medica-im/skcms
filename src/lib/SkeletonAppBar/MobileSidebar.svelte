@@ -12,6 +12,7 @@
 	import { faBlog, faCalendar } from '@fortawesome/free-solid-svg-icons';
 	import BookUser from '@lucide/svelte/icons/book-user';
 	import { menuNavCats } from '$var/variables.ts';
+	import { base } from '$app/paths';
 
 	let {
 		currentRailCategory = $bindable(),
@@ -45,7 +46,7 @@
 	<AppRail background="!bg-transparent" border="border-r border-surface-500/30">
 		<AppRailAnchor
 			data-sveltekit-preload-data="off"
-			href="/"
+			href="{base}/"
 			selected={page.url.pathname == '/' && !currentRailCategory}
 			class="lg:hidden"
 			on:click={() => {
@@ -73,7 +74,7 @@
 			</AppRailAnchor>
 		{/if}
 		<AppRailAnchor
-			href="/sites"
+			href="{base}/sites"
 			selected={page.url.pathname == '/sites' && !currentRailCategory}
 			class="lg:hidden"
 			on:click={() => {
@@ -87,7 +88,7 @@
 		</AppRailAnchor>
 		{#if page.data.organization.google_calendar_id && page.data.organization.google_calendar_api_key}
 			<AppRailAnchor
-				href="/calendrier"
+				href="{base}/calendrier"
 				selected={page.url.pathname == '/calendrier' && !currentRailCategory}
 				class="lg:hidden"
 				on:click={() => {
@@ -135,7 +136,7 @@
 			{/each}
 		{/if}
 		<AppRailAnchor
-			href="/contact"
+			href="{base}/contact"
 			selected={page.url.pathname == '/contact' && !currentRailCategory}
 			class="lg:hidden"
 			on:click={() => {

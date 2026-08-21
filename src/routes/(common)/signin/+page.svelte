@@ -5,13 +5,14 @@
 	import Fa from 'svelte-fa';
 	import { providers } from '$lib/Auth/data.ts'; 
 	import { SignIn } from '@auth/sveltekit/components';
+	import { base } from '$app/paths';
 	const redirectParam = page.url.searchParams.get('redirect');
 	const redirect = redirectParam ? redirectParam : '/dashboard';
 	const redirectTo = encodeURI(`${redirect}`);
 </script>
 
 <svelte:head>
-	<link rel="canonical" href="/signin" />
+	<link rel="canonical" href="{base}/signin" />
 </svelte:head>
 	<header>
 		<div class="section-container">

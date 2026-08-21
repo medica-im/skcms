@@ -26,6 +26,7 @@
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
 	import type { User } from '$lib/interfaces/user.interface.ts';
+	import { base } from '$app/paths';
 
 	let {
 		user,
@@ -178,7 +179,7 @@ membershipsDone: {membershipsDone}
 					{/if}
 					{#if effectors?.length}
 					<a
-						href="/web/effector/select"
+						href="{base}/web/effector/select"
 						onclick={async (e) => {
 							if (
 								e.shiftKey || // or the link is opened in a new window

@@ -13,6 +13,7 @@
     import RoleChangeModal from '$lib/User/RoleChangeModal.svelte';
     import SuspensionModal from '$lib/User/SuspensionModal.svelte';
     import AccessHistory from '$lib/User/AccessHistory.svelte';
+    import { base } from '$app/paths';
 
     let { data }: { data: PageData } = $props();
     let userDetail = $derived(data.userDetail);
@@ -55,7 +56,7 @@
 {#if isAuthorized}
     <div class="container mx-auto p-4">
         <header class="mb-6">
-            <a href="/web/users" class="btn variant-ghost-primary mb-4">
+            <a href="{base}/web/users" class="btn variant-ghost-primary mb-4">
                 <span class="badge variant-filled-primary"><Fa icon={faArrowLeft} /></span>
                 <span>Retour à la liste</span>
             </a>

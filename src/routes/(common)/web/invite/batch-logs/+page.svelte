@@ -12,6 +12,7 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
 	import type { PageData } from './$types';
+	import { base } from '$app/paths';
 
 	let { data }: { data: PageData } = $props();
 	let jobs = $derived(data.jobs ?? []);
@@ -60,7 +61,7 @@
 
 <div class="container mx-auto p-4 max-w-4xl">
 	<header class="mb-6">
-		<a href="/web/invite/invitees" class="btn btn-sm variant-ghost mb-4">
+		<a href="{base}/web/invite/invitees" class="btn btn-sm variant-ghost mb-4">
 			<Fa icon={faArrowLeft} class="mr-2" />
 			{m.BATCH_INVITEE_BACK()}
 		</a>
@@ -102,7 +103,7 @@
 							<td class="text-center text-surface-500">{job.skipped_duplicate_email_count + job.skipped_active_user_count}</td>
 							<td class="text-center text-error-500">{job.failed_count}</td>
 							<td>
-								<a href="/web/invite/batch-logs/{job.uid}" class="btn btn-sm variant-ghost-primary">
+								<a href="{base}/web/invite/batch-logs/{job.uid}" class="btn btn-sm variant-ghost-primary">
 									<Fa icon={faEye} />
 								</a>
 							</td>

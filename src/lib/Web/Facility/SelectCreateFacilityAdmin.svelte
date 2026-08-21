@@ -7,6 +7,7 @@
 	import CreateFacilityModal from './CreateFacilityModal.svelte';
 	import CreateFacility from '$routes/(common)/web/facility/create/+page.svelte';
 	import type { SelectType } from '$lib/interfaces/select.ts';
+	import { base } from '$app/paths';
 
 	let {
 		facility = $bindable(),
@@ -55,7 +56,7 @@
 	<p>{facilityLabel()}</p>
 	{#if !facility && selectedCommune}
 		<a
-			href="/web/facility/create"
+			href="{base}/web/facility/create"
 			onclick={async (e) => {
 				if (e.shiftKey || e.metaKey || e.ctrlKey) return;
 

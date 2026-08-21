@@ -19,6 +19,7 @@
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import { TableOfContents, tocCrawler } from '@skeletonlabs/skeleton';
 	import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
+	import { base } from '$app/paths';
 
 	let top: Element;
 	let showOnPx = 600;
@@ -134,7 +135,7 @@
 				</p>
 
 				<h3 class="h3">Créer une entrée</h3>
-				<p>Après connexion, le menu utilisateur apparaît en haut et à droite: {@render inlineIcon(faUser)}. Un clic déroule plusieurs choix dont "<a class="anchor" href="/web/entry" >Créer une entrée</a>".</p>
+				<p>Après connexion, le menu utilisateur apparaît en haut et à droite: {@render inlineIcon(faUser)}. Un clic déroule plusieurs choix dont "<a class="anchor" href="{base}/web/entry" >Créer une entrée</a>".</p>
 
 				<h4 class="h4">1. Sélectionner ou créer un établissement</h4>
 				<p>

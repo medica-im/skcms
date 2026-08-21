@@ -4,6 +4,7 @@
 	import CarouselArrow from '$lib/Carousel/CarouselArrow.svelte';
 	import { variables } from '$lib/utils/constants';
 	import type { Facility } from '$lib/interfaces/facility.interface';
+	import { base } from '$app/paths';
 
 	let { data }: { data: Facility[] } = $props();
 
@@ -58,7 +59,7 @@
 			>
 				{#snippet slide({ slide }: { slide: Facility })}
 					<figure class="mx-auto w-full text-center">
-						<a href="/sites/{slide.slug}" class="block">
+						<a href="{base}/sites/{slide.slug}" class="block">
 							<img
 								class="mx-auto h-auto max-w-full"
 								src={pictureSrc(slide)}
@@ -66,7 +67,7 @@
 							/>
 						</a>
 						<figcaption class="mt-2">
-							<a href="/sites/{slide.slug}" class="anchor text-primary">
+							<a href="{base}/sites/{slide.slug}" class="anchor text-primary">
 								{slide.name}
 							</a>
 						</figcaption>
@@ -101,11 +102,11 @@
 			same size before and after hydration. Keep the two in step.
 		-->
 		<figure class="mx-auto w-64 lg:w-80 max-w-full px-5 text-center">
-			<a href="/sites/{facility.slug}" class="block">
+			<a href="{base}/sites/{facility.slug}" class="block">
 				<img class="mx-auto h-auto max-w-full" src={pictureSrc(facility)} alt={pictureAlt(facility)} />
 			</a>
 			<figcaption class="mt-2">
-				<a href="/sites/{facility.slug}" class="anchor text-primary">
+				<a href="{base}/sites/{facility.slug}" class="anchor text-primary">
 					{facility.name}
 				</a>
 			</figcaption>

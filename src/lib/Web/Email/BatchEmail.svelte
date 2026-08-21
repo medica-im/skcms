@@ -11,6 +11,7 @@
 	import type { OwnerInfo } from '$lib/components/Directory/context';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import * as m from '$msgs';
+	import { base } from '$app/paths';
 
 	setSelectedOwners();
 
@@ -73,7 +74,7 @@
 				onclick={validateSelection}
 			>Valider
 			</button>
-			<a href="/web/email" class="btn variant-ghost-surface p-2">
+			<a href="{base}/web/email" class="btn variant-ghost-surface p-2">
 				<Fa icon={faEnvelopeOpenText} class="mr-1" />
 				{capitalizeFirstLetter(m.sent_emails())}
 			</a>

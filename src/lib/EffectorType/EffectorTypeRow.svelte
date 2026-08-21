@@ -4,6 +4,7 @@
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
+	import { base } from '$app/paths';
 
 	let { effectorType, highlighted = false, onEdit, onDelete }: {
 		effectorType: EffectorType;
@@ -27,7 +28,7 @@
 	<!-- Name -->
 	<span class="font-semibold truncate">
 		<span class="lg:hidden text-sm text-surface-500">{m.EFFECTOR_TYPE_COL_NAME()}: </span>
-		<a href="/web/effector-types/{effectorType.uid}" class="anchor">{effectorType.name_fr}</a>
+		<a href="{base}/web/effector-types/{effectorType.uid}" class="anchor">{effectorType.name_fr}</a>
 	</span>
 
 	<!-- Label -->

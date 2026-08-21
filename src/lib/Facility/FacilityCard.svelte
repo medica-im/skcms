@@ -18,6 +18,7 @@
 	import type { Facility } from '$lib/interfaces/facility.interface.ts';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 	import type { SvelteSet } from 'svelte/reactivity';
+	import { base } from '$app/paths';
 
 	let { facility, entries, intersecting } : { facility: Facility; entries: Entry[]|undefined; intersecting: SvelteSet<string> } = $props();
 
@@ -47,11 +48,11 @@
 			<!-- Body -->
 			<div class="space-y-2 space-x-2">
 				{#if !isUUID(facility.name)}
-				<a href="/sites/{facility.slug||facility.uid}" class="anchor" data-sveltekit-preload-data="hover">
+				<a href="{base}/sites/{facility.slug||facility.uid}" class="anchor" data-sveltekit-preload-data="hover">
 					<h4 class="h4">{facility.name}</h4>
 					</a>
 				{/if}
-				<a href="/sites/{facility.slug||facility.uid}" class="px-2 py-1 btn btn-sm variant-ghost-primary">
+				<a href="{base}/sites/{facility.slug||facility.uid}" class="px-2 py-1 btn btn-sm variant-ghost-primary">
 					<span class=""><Fa icon={faMagnifyingGlass} size="sm"/></span><span>En détail</span>
 				</a>
 				<div class="space-x-2">
@@ -100,7 +101,7 @@
 
 	<!--div class="mx-0">
 		{#if $page.url.pathname == '/sites'}
-			<a href="/sites/{facility.slug}" class="" data-sveltekit-preload-data="hover">
+			<a href="{base}/sites/{facility.slug}" class="" data-sveltekit-preload-data="hover">
 				<div class="flex items-center justify-around p-4 w-fit rounded-full variant-filled-primary hover:bg-primary-400">
 					<div class="inline-flex flex-shrink-0 justify-center items-center w-4 h-4">
 						<Fa icon={faMagnifyingGlassLocation} size="lg" />

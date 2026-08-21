@@ -9,6 +9,7 @@
 	import UuidHex from '$lib/Uuid/UuidHex.svelte';
 	import type { EffectorType } from '$lib/interfaces/v2/effector';
 	import type { PageData } from './$types';
+	import { base } from '$app/paths';
 
 	let { data }: { data: PageData } = $props();
 	let et: EffectorType = $derived(data.effectorType);
@@ -19,7 +20,7 @@
 
 <div class="max-w-screen-lg mx-auto p-4">
 	<!-- Back link -->
-	<a href="/web/effector-types" class="btn btn-sm variant-ghost-surface mb-4">
+	<a href="{base}/web/effector-types" class="btn btn-sm variant-ghost-surface mb-4">
 		<Fa icon={faArrowLeft} class="mr-2" />
 		{m.EFFECTOR_TYPE_TITLE()}
 	</a>
@@ -103,7 +104,7 @@
 				<dt class="text-sm font-semibold text-surface-500">{m.EFFECTOR_TYPE_COL_PARENT()}</dt>
 				<dd>
 					{#if et.effector_type_uid && et.effector_type_label_fr}
-						<a href="/web/effector-types/{et.effector_type_uid}" class="anchor">
+						<a href="{base}/web/effector-types/{et.effector_type_uid}" class="anchor">
 							{et.effector_type_label_fr}
 						</a>
 					{:else}

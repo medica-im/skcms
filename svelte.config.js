@@ -13,6 +13,21 @@ const config = {
 		vitePreprocess({ script: true }),
 	],
 	kit: {
+		paths: {
+			// Opt-in, per build. Unset — which is every site served at the root
+			// of its own domain — gives '', SvelteKit's default, and every
+			// `${base}` prefix in the source is then a literal no-op: the
+			// emitted string is byte-identical to before.
+			//
+			// Set to '/annuaire' for the instance proxied under
+			// unipa.fr/annuaire, whose pages would otherwise emit root-absolute
+			// URLs that escape the prefix and land on WordPress. Must start
+			// with '/' and not end with one.
+			//
+			// The nginx side and the build must always agree: prefix stripped
+			// <=> built for root, prefix preserved <=> built with BASE_PATH.
+			base: process.env.BASE_PATH || ''
+		},
 		// Normally .svelte-kit. Overridable so several dev servers can run from
 		// this one checkout at once: the BDD suite gives each Playwright worker
 		// its own Vite instance (scripts/e2e-workers.sh), and they would

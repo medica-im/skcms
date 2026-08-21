@@ -6,6 +6,7 @@ import { variables } from '$lib/utils/constants.ts';
 import { slugify } from '$lib/helpers/stringHelpers';
 import { redirect } from '@sveltejs/kit';
 import type { EntryFull } from './lib/store/directoryStoreInterface';
+import { base } from '$app/paths';
 
 const RoleEnum = z.enum(['anonymous', 'staff', 'administrator', 'superuser']);
 
@@ -47,7 +48,7 @@ export const createEntry = form(postEntry, async (data, issue) => {
 		const json = await response.json() as EntryFull;
 		console.log(`Success! Status: ${response.status} Status text: ${response.statusText}`);
 		console.log(json);
-		const redirectPath = `/e/${json.entrySlug}`;
+		const redirectPath = `${base}/e/${json.entrySlug}`;
 		const redirectURL = `${redirectPath}?invalidateEntries`;
 		redirect(303, redirectURL)
 		/*return {

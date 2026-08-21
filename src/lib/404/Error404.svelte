@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import * as m from "$msgs";
 </script>
 
@@ -13,7 +14,7 @@
 			<p>
 				{m.ERROR404_DOESNOTEXIST()}
 			</p>
-			<a href="/" class="btn variant-ghost-primary w-min">{m.ERROR404_HOME()}</a>
+			<a href="{base}/" class="btn variant-ghost-primary w-min">{m.ERROR404_HOME()}</a>
 		</div>
 	</div>
 </div>

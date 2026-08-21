@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import * as m from '$msgs';
 	import {
 		sortEntries,
@@ -106,7 +107,7 @@
 						<tr>
 							<td>
 								{#if entry.slug}
-									<a class="anchor" href="/e/{entry.slug}">{entry.name ?? entry.slug}</a>
+									<a class="anchor" href="{base}/e/{entry.slug}">{entry.name ?? entry.slug}</a>
 								{:else}
 									{entry.name ?? entry.uid}
 								{/if}
@@ -116,7 +117,7 @@
 								{#if entry.facility?.slug}
 									<!-- /sites/, not /web/facility/: the latter has only a
 									     create/ subroute and 404s for any slug. -->
-									<a class="anchor" href="/sites/{entry.facility.slug}">
+									<a class="anchor" href="{base}/sites/{entry.facility.slug}">
 										{entry.facility.name}
 									</a>
 								{:else}
@@ -155,7 +156,7 @@
 							<td>
 								{#each entry.creators as user, i}
 									{#if i > 0},&nbsp;{/if}
-									<a class="anchor" href="/web/users/{user.uid}">{user.name ?? user.uid}</a>
+									<a class="anchor" href="{base}/web/users/{user.uid}">{user.name ?? user.uid}</a>
 								{:else}
 									—
 								{/each}
@@ -163,7 +164,7 @@
 							<td>
 								{#each entry.owners as user, i}
 									{#if i > 0},&nbsp;{/if}
-									<a class="anchor" href="/web/users/{user.uid}">{user.name ?? user.uid}</a>
+									<a class="anchor" href="{base}/web/users/{user.uid}">{user.name ?? user.uid}</a>
 								{:else}
 									<span class="badge variant-soft-error">{m.admin_entries_no_owner()}</span>
 								{/each}

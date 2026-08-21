@@ -3,6 +3,7 @@ import { variables } from '$lib/utils/constants.ts';
 import { authReq } from '$lib/utils/request.ts';
 import type { Entry, EntryFull } from '$lib/store/directoryStoreInterface';
 import type { Cookies } from '@sveltejs/kit';
+import { base } from '$app/paths';
 
 /**
  * Find an entrySlug from the entries array using old commune-based URL params.
@@ -81,7 +82,7 @@ export async function redirectToEntrySlugByCommune(
 		);
 	}
 	if (entrySlug) {
-		redirect(301, `/e/${entrySlug}${search}`);
+		redirect(301, `${base}/e/${entrySlug}${search}`);
 	}
 	return false;
 }
@@ -111,7 +112,7 @@ export async function redirectToEntrySlugByFacility(
 		);
 	}
 	if (entrySlug) {
-		redirect(301, `/e/${entrySlug}${search}`);
+		redirect(301, `${base}/e/${entrySlug}${search}`);
 	}
 	return false;
 }

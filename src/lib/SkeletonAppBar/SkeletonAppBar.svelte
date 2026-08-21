@@ -50,6 +50,7 @@
 	import * as m from '$msgs';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import { appBarTitle } from '$lib/SkeletonAppBar/appBarTitle.ts';
+	import { base } from '$app/paths';
 
 	// A connected user already knows which site they are on, and the trail fills
 	// up with their account controls — so they get the shorter label when the
@@ -139,7 +140,7 @@
 		</button>
 	</svelte:fragment>
 	<!-- Logo -->
-	<a data-sveltekit-preload-data="off" href="/" title={m.NAVBAR_GO_HOME()}>
+	<a data-sveltekit-preload-data="off" href="{base}/" title={m.NAVBAR_GO_HOME()}>
 		<div class="flex items-center gap-2">
 			<div class="lg:hidden flex-none">
 				{#if page.data?.organization?.category?.name == 'msp'}<div class="w-5 h-5">
@@ -193,7 +194,7 @@
 					<ul>
 						{#if dirPath !== "/"}
 						<li>
-							<a data-sveltekit-preload-data="off" href="/">
+							<a data-sveltekit-preload-data="off" href="{base}/">
 								<span class="w-6 text-center"><Fa icon={faHouse} /></span>
 								<span>{m.HOME_TITLE()}</span>
 							</a>
@@ -206,21 +207,21 @@
 							</a>
 						</li>
 						<li>
-							<a href="/sites">
+							<a href="{base}/sites">
 								<span class="w-6 text-center"><Fa icon={faMapLocationDot} /></span>
 								<span>Sites</span>
 							</a>
 						</li>
 						{#if page.data.organization.google_calendar_id && page.data.organization.google_calendar_api_key}
 						<li>
-							<a href="/calendrier">
+							<a href="{base}/calendrier">
 								<span class="w-6 text-center"><Fa icon={faCalendar} /></span>
 								<span>{m.CALENDAR()}</span>
 							</a>
 						</li>
 						{/if}
 						<li>
-							<a href="/contact">
+							<a href="{base}/contact">
 								<span class="w-6 text-center"><Fa icon={faEnvelope} /></span>
 								<span>Contact</span>
 							</a>

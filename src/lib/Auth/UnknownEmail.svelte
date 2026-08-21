@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Session } from '@auth/sveltekit';
+	import { base } from '$app/paths';
 	let { session }: { session: Session | null | undefined } = $props();
 </script>
 
@@ -10,6 +11,6 @@
 		des utilisateurs connus de ce service. Peut-être avons-nous enregistré une autre
 		adresse de courrier électronique au moment de votre inscription? Si vous pensez qu'il
 		s'agit d'une erreur, merci de nous
-		<a href="/contact" class="anchor">contacter</a>.
+		<a href="{base}/contact" class="anchor">contacter</a>.
 	</p>
 </div>

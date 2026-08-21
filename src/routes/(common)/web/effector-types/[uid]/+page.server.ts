@@ -3,11 +3,12 @@ import { authReq } from '$lib/utils/request.ts';
 import { variables } from '$lib/utils/constants.ts';
 import type { EffectorType } from '$lib/interfaces/v2/effector';
 import type { PageServerLoad } from "./$types"
+import { base } from '$app/paths';
 
 export const load: PageServerLoad = async ({ url, cookies, locals, fetch, params }) => {
    const session = await locals.auth();
    if (!session) {
-      redirect(303, `/signin?redirect=${url.pathname}`);
+      redirect(303, `${base}/signin?redirect=${url.pathname}`);
    }
 
    const endpointUrl = `${variables.BASE_URI}/api/v2/effector-types/${params.uid}`;

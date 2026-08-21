@@ -5,6 +5,7 @@
 	import { faQuestion, faXmark } from '@fortawesome/free-solid-svg-icons';
 	import UnknownEmail from '$lib/Auth/UnknownEmail.svelte';
 	import { emojis } from '$lib/Error/error';
+	import { base } from '$app/paths';
 
 	let visible: boolean = $state(true);
 	let session = $derived(page.data.session);
@@ -38,8 +39,8 @@
 			</div>
 		{/if}
 		<div class="flex gap-4 mt-6">
-			<a href="/" title={m.ADDRESSBOOK_TITLE()} class="btn variant-ghost-primary">{m.ADDRESSBOOK_TITLE()}</a>
-			<a href="/contact" title="Contact" class="btn variant-ghost-primary">Contact</a>
+			<a href="{base}/" title={m.ADDRESSBOOK_TITLE()} class="btn variant-ghost-primary">{m.ADDRESSBOOK_TITLE()}</a>
+			<a href="{base}/contact" title="Contact" class="btn variant-ghost-primary">Contact</a>
 		</div>
 	{/if}
 </section>

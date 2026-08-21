@@ -1,12 +1,13 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import { base } from '$app/paths';
 
 export const ssr = false;
 
 export const load: PageServerLoad = async ({ url, locals, parent }) => {
 	const session = await locals.auth();
 	if (!session) {
-		redirect(303, `/signin?redirect=${url.pathname}`);
+		redirect(303, `${base}/signin?redirect=${url.pathname}`);
 	}
 	const { user } = await parent();
 	if (!user || 'superuser' !== user.role) {

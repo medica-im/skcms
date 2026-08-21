@@ -7,6 +7,7 @@
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import FileJson from '@lucide/svelte/icons/file-json';
 	import RoleBadge from '$lib/RoleBadge.svelte';
+	import { base } from '$app/paths';
 
 	let { invitee, createdByUser, onEdit, onDelete }: { invitee: Invitee; createdByUser?: User; onEdit?: (invitee: Invitee) => void; onDelete?: (invitee: Invitee) => void } = $props();
 
@@ -91,7 +92,7 @@
 				Créé par
 			</span>
 			<p class="font-semibold">
-				<a href="/web/users/{invitee.createdBy}" class="anchor">{createdByUser?.name || createdByUser?.email || invitee.createdBy}</a>
+				<a href="{base}/web/users/{invitee.createdBy}" class="anchor">{createdByUser?.name || createdByUser?.email || invitee.createdBy}</a>
 			</p>
 		</div>
 

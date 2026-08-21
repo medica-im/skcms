@@ -13,6 +13,7 @@
 	import { normalize } from '$lib/helpers/stringHelpers.ts';
 	import { ORIGIN } from '$lib/utils/origin.ts';
 	import type { PageData } from './$types';
+	import { base } from '$app/paths';
 
 	let { data }: { data: PageData } = $props();
 	let invitees = $derived(data.invitees);
@@ -107,14 +108,14 @@
 				</p>
 			</div>
 			<div class="flex gap-2">
-				<a href="/web/invite/batch">
+				<a href="{base}/web/invite/batch">
 					<button class="btn variant-filled-secondary" title={m.BATCH_INVITEE_BUTTON_TITLE()}>
 						<span><Fa icon={faFileLines} /></span>
 						<span class="hidden lg:block">{m.BATCH_INVITEE_BUTTON()}</span>
 					</button>
 				</a>
 				<a
-					href="/web/invite/create"
+					href="{base}/web/invite/create"
 					onclick={async (e) => {
 						if (e.shiftKey || e.metaKey || e.ctrlKey) return;
 

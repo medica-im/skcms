@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { ORIGIN } from '$lib/utils/origin.ts';
 	import * as m from '$msgs';
 	import { Avatar } from '@skeletonlabs/skeleton';
@@ -25,7 +26,7 @@
 			<p>{count} personne{count > 1 ? 's' : ''} de cette catégorie dans cet établissement:</p>
 			<div class="flex flex-wrap gap-4">
 				{#each data as effector}
-					<a href="/" class="anchor">
+					<a href="{base}/" class="anchor">
 						<div class="btn variant-ghost p-2 w-min">
 							<Avatar src="" width="w-10">
 								<Fa icon={faUser} />

@@ -3,6 +3,7 @@
 	import { browser } from '$app/environment';
 	import CarouselArrow from './CarouselArrow.svelte';
 	import type { Entry } from '$lib/store/directoryStoreInterface.js';
+	import { base } from '$app/paths';
 
 	let { data }: { data: Entry[] } = $props();
 
@@ -35,7 +36,7 @@
 		return entry.name;
 	}
 	function getLink(entry: Entry) {
-		return `/e/${entry.entrySlug}`;
+		return `${base}/e/${entry.entrySlug}`;
 	}
 	function avatarSrc(entry: Entry) {
 		return entry.avatar?.lg || entry.avatar?.sm || entry.avatar?.raw;

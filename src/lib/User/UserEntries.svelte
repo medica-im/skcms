@@ -7,6 +7,7 @@
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import * as m from '$msgs';
+	import { base } from '$app/paths';
 
 	let { userUid }: { userUid: string } = $props();
 
@@ -123,7 +124,7 @@
 	</div>
 {:else if userUid==user.uid}
 	<div class="flex justify-center py-4">
-		<a href="/web/entry" class="btn btn-lg variant-ghost-primary text-lg font-semibold px-8 py-4 shadow-md hover:shadow-lg transition-shadow">{m.create_entry_cta()}</a>
+		<a href="{base}/web/entry" class="btn btn-lg variant-ghost-primary text-lg font-semibold px-8 py-4 shadow-md hover:shadow-lg transition-shadow">{m.create_entry_cta()}</a>
 	</div>
 	{:else}
 	<p>Cet utilisateur n'a aucune entrée dans l'annuaire.</p>

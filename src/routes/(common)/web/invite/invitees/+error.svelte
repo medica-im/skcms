@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { page } from '$app/state';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import * as m from '$msgs';
@@ -52,7 +53,7 @@
 				<span>{m.GO_BACK()}</span>
 			</button>
 		{/if}
-		<a href="/" class="btn variant-filled-primary" title={m.HOME_TITLE()}>
+		<a href="{base}/" class="btn variant-filled-primary" title={m.HOME_TITLE()}>
 			<span><Fa icon={faHouse} /></span>
 			<span>{m.HOME_TITLE()}</span>
 		</a>

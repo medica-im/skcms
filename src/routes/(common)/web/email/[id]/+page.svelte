@@ -4,6 +4,7 @@
 	import type { User } from '$lib/interfaces/v2/user';
 	import Fa from 'svelte-fa';
 	import { faArrowLeft, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
+	import { base } from '$app/paths';
 
 	let { data }: { data: PageData } = $props();
 	let email = $derived(data.email as BatchEmailMessageDetail | undefined);
@@ -29,7 +30,7 @@
 {#if email}
 	<div class="container mx-auto p-4 max-w-4xl space-y-4">
 		<!-- Back button -->
-		<a href="/web/email" class="btn btn-sm variant-ghost-surface">
+		<a href="{base}/web/email" class="btn btn-sm variant-ghost-surface">
 			<Fa icon={faArrowLeft} class="mr-2" />
 			Retour
 		</a>
@@ -56,7 +57,7 @@
 				<!-- From -->
 				<div class="flex gap-2">
 					<span class="font-semibold text-surface-500 w-12">De</span>
-					<a href="/web/users/{email.author_uid}" class="anchor">
+					<a href="{base}/web/users/{email.author_uid}" class="anchor">
 						{getUserName(email.author_uid)}
 					</a>
 				</div>
@@ -72,7 +73,7 @@
 					<span class="font-semibold text-surface-500 w-12 flex-shrink-0 pt-1">À</span>
 					<div class="max-h-48 overflow-y-auto flex flex-wrap gap-1">
 						{#each email.recipient_uids as uid (uid)}
-							<a href="/web/users/{uid}" class="chip variant-filled hover:variant-soft-primary transition-colors no-underline">
+							<a href="{base}/web/users/{uid}" class="chip variant-filled hover:variant-soft-primary transition-colors no-underline">
 								{getUserName(uid)}
 							</a>
 						{/each}

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import * as m from '$msgs';
 	import { page } from '$app/state';
 	import { userRoles } from '$lib/auth/roles';
@@ -91,48 +92,48 @@
 				<ul>
 
 					<li>
-						<a href="/dashboard"
+						<a href="{base}/dashboard"
 						title={session.user.name}
 						>
 							<span class="w-6 text-center"><Fa icon={faUser} /></span>
 							<span>{session.user.name}</span>
 						</a>
-						<a href="/web/guide-utilisation">
+						<a href="{base}/web/guide-utilisation">
 							<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
 							<span>Guide d'utilisation</span>
 						</a>
 						{#if isStaffOrHigher}
-						<a href="/web/entry">
+						<a href="{base}/web/entry">
 							<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
 							<span>Créer une entrée</span>
 						</a>
 						{/if}
 						{#if isAdmin}
-						<a href="/web/entries">
+						<a href="{base}/web/entries">
 							<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
 							<span>Toutes les entrées</span>
 						</a>
-						<a href="/web/invite/invitees">
+						<a href="{base}/web/invite/invitees">
 							<span class="w-6 text-center"><Fa icon={faEnvelope} /></span>
 							<span class="capitalize">{m.invitation({ count: 2 })}</span>
 						</a>
-							<a href="/web/users">
+							<a href="{base}/web/users">
 								<span class="w-6 text-center"><Fa icon={faUsers} /></span>
 								<span>Utilisateurs</span>
 							</a>
 						{/if}
 						{#if isAdmin}
-						<a href="/web/association">
+						<a href="{base}/web/association">
 							<span class="w-6 text-center"><BookUser size={16} /></span>
 							<span>{m.ASSOCIATION_TITLE()}</span>
 						</a>
 						{/if}
 						{#if r.SuperUser}
-						<a href="/web/effector-types">
+						<a href="{base}/web/effector-types">
 							<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
 							<span>{m.CATEGORIES()}</span>
 						</a>
-						<a href="/web/email">
+						<a href="{base}/web/email">
 							<span class="w-6 text-center"><Fa icon={faAt} /></span>
 							<span>Email</span>
 						</a>

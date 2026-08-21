@@ -4,6 +4,7 @@ import { authReq } from '$lib/utils/request';
 import type { User } from '$src/lib/interfaces/user.interface';
 import type { Effector } from '$src/lib/interfaces/v2/effector';
 import type { PageServerLoad } from "./$types"
+import { base } from '$app/paths';
 
 export const ssr = false;
 
@@ -23,7 +24,7 @@ function getUrl(user: User, directoryName: string) {
 export const load: PageServerLoad = async ({ fetch, locals, params, cookies, parent, depends, url }) => {
    const session = await locals.auth();
    if (!session) {
-      redirect(303, `/signin?redirect=${url.pathname}`);
+      redirect(303, `${base}/signin?redirect=${url.pathname}`);
    }
    const { user } = await parent();
    if (user === undefined) error(403, "Utilisateur inconnu")

@@ -6,6 +6,7 @@ import type { BoardMember, MembershipCategory, Officer, OrganizationRole } from 
 import type { Effector } from '$lib/interfaces/v2/effector';
 import type { User } from '$lib/interfaces/user.interface';
 import type { PageServerLoad } from "./$types"
+import { base } from '$app/paths';
 
 function getEffectorsUrl(user: User) {
     if (user?.role === 'superuser') {
@@ -20,7 +21,7 @@ export const load: PageServerLoad = async ({ url, cookies, locals, parent, depen
     depends('association:data');
     const session = await locals.auth();
     if (!session) {
-        redirect(303, `/signin?redirect=${url.pathname}`);
+        redirect(303, `${base}/signin?redirect=${url.pathname}`);
     }
 
     const { user, organization } = await parent();

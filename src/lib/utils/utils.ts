@@ -1,3 +1,4 @@
+import { base } from '$app/paths';
 import { cptsPostgres, mspPostgres } from '$lib/constants';
 import type { Entry } from '$lib/store/directoryStoreInterface.ts';
 
@@ -91,16 +92,16 @@ export const entryPageUrl = (entry: Entry, org_category: string | null = null): 
 	const nameSlug = entry.slug;
 	const facilitySlug = entry.facility?.slug;
 	if (org_category == 'msp') {
-		return `/${facilitySlug}/${typeSlug}/${nameSlug}`;
+		return `${base}/${facilitySlug}/${typeSlug}/${nameSlug}`;
 	}
-	return `/${typeSlug}/${communeSlug}/${nameSlug}`;
+	return `${base}/${typeSlug}/${communeSlug}/${nameSlug}`;
 }
 
 // Typed on the one field it reads rather than on Entry, so an EntryFull — which
 // carries entrySlug too, but not commune or department — can be linked without
 // first looking the shorter Entry up just to satisfy the signature.
 export const entrySlugPageUrl = (entry: Pick<Entry, 'entrySlug'>) => {
-	return `/e/${entry.entrySlug}`;
+	return `${base}/e/${entry.entrySlug}`;
 }
 
 export function isExpired(ttl: number, cacheTime: number): boolean {
@@ -128,9 +129,9 @@ export function entryUrl(entry: Entry, org: string) {
 		const communeSlug = entry.commune.slug;
 		let nameSlug = entry.slug;
 		if ( mspPostgres === org ) {
-			return `/${facilitySlug}/${typeSlug}/${nameSlug}`;
+			return `${base}/${facilitySlug}/${typeSlug}/${nameSlug}`;
 		} else if ( cptsPostgres === org ) {
-			return `/${typeSlug}/${communeSlug}/${nameSlug}`;
+			return `${base}/${typeSlug}/${communeSlug}/${nameSlug}`;
 		}
 	}
 

@@ -11,6 +11,7 @@
 	import * as m from '$msgs';
 	import { normalize } from '$lib/helpers/stringHelpers.ts';
 	import type { PageData } from './$types';
+	import { base } from '$app/paths';
 
 	let { data }: { data: PageData } = $props();
 	let effectorTypes = $derived(data.effectorTypes);
@@ -39,7 +40,7 @@
 			</p>
 		</div>
 		<a
-			href="/web/effector-types/create"
+			href="{base}/web/effector-types/create"
 			onclick={async (e) => {
 				if (e.shiftKey || e.metaKey || e.ctrlKey) return;
 				e.preventDefault();

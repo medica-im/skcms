@@ -6,6 +6,7 @@
     import Fa from 'svelte-fa';
     import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
     import type { PageData } from './$types';
+    import { base } from '$app/paths';
 
     let { data }: { data: PageData } = $props();
     let invitee = $derived(data.invitee);
@@ -16,7 +17,7 @@
 
 <div class="container mx-auto p-4">
     <header class="mb-6">
-        <a href="/web/invite/invitees" class="btn variant-ghost-primary mb-4">
+        <a href="{base}/web/invite/invitees" class="btn variant-ghost-primary mb-4">
             <span class="badge variant-filled-primary"><Fa icon={faArrowLeft} /></span>
             <span>{m.INVITEE_BACK_TO_LIST()}</span>
         </a>

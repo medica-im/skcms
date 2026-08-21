@@ -4,13 +4,14 @@ import { variables } from '$lib/utils/constants.ts';
 import type { BatchEmailMessageDetail } from '$lib/interfaces/v2/batchEmail';
 import type { User } from '$lib/interfaces/v2/user';
 import type { PageServerLoad } from './$types';
+import { base } from '$app/paths';
 
 export const ssr = false;
 
 export const load: PageServerLoad = async ({ url, cookies, locals, fetch, parent, params }) => {
 	const session = await locals.auth();
 	if (!session) {
-		redirect(303, `/signin?redirect=${url.pathname}`);
+		redirect(303, `${base}/signin?redirect=${url.pathname}`);
 	}
 	const { user } = await parent();
 	if (!user || 'superuser' !== user.role) {

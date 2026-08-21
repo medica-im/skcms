@@ -2,6 +2,7 @@
 	import type { BatchEmailMessage } from '$lib/interfaces/v2/batchEmail';
 	import Fa from 'svelte-fa';
 	import { faCheck, faXmark, faEnvelope, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+	import { base } from '$app/paths';
 
 	let {
 		email,
@@ -26,7 +27,7 @@
 
 	<!-- Author -->
 	<div class="flex items-center gap-2 min-w-0">
-		<a href="/web/users/{authorUid}" class="anchor truncate">
+		<a href="{base}/web/users/{authorUid}" class="anchor truncate">
 			{authorName || authorUid.slice(0, 8) + '…'}
 		</a>
 	</div>
@@ -51,7 +52,7 @@
 			</span>
 		{/if}
 
-		<a href="/web/email/{email.id}" class="btn-icon btn-icon-sm variant-ghost-primary">
+		<a href="{base}/web/email/{email.id}" class="btn-icon btn-icon-sm variant-ghost-primary">
 			<Fa icon={faMagnifyingGlass} />
 		</a>
 	</div>

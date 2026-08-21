@@ -4,6 +4,7 @@
 	import Fa from 'svelte-fa';
 	import { faEnvelope, faUser, faEye } from '@fortawesome/free-solid-svg-icons';
 	import RoleBadge from '$lib/RoleBadge.svelte';
+	import { base } from '$app/paths';
 
 	let { user, showLink = true }: { user: User; showLink?: boolean } = $props();
 
@@ -48,7 +49,7 @@
 
 	<!-- Detail Link -->
 	{#if showLink}
-		<a href="/web/users/{user.uid}" class="btn-icon btn-icon-sm variant-ghost-primary">
+		<a href="{base}/web/users/{user.uid}" class="btn-icon btn-icon-sm variant-ghost-primary">
 			<Fa icon={faEye} />
 		</a>
 	{/if}

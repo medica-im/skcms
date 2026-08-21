@@ -4,6 +4,7 @@ import { variables } from '$lib/utils/constants.ts';
 import type { Invitee } from '$src/lib/interfaces/v2/invitee';
 import type { User } from '$src/lib/interfaces/v2/user';
 import type { PageServerLoad } from "./$types"
+import { base } from '$app/paths';
 
 export const ssr = false;
 
@@ -12,7 +13,7 @@ const ALLOWED_ROLES = ['administrator', 'superuser'];
 export const load: PageServerLoad = async ({ url, cookies, locals, fetch, params, parent }) => {
    const session = await locals.auth();
    if (!session) {
-      redirect(303, `/signin?redirect=${url.pathname}`);
+      redirect(303, `${base}/signin?redirect=${url.pathname}`);
    }
 
    const { user } = await parent();
