@@ -1,5 +1,11 @@
 <script lang="ts">
 	import { base } from '$app/paths';
+
+	// SignOut builds action={`/${signOutPage}`} with no base path, so left at
+	// the default this form posts to the DOMAIN root — WordPress, on unipa.fr —
+	// and the HTML 404 that comes back fails as "Unexpected token '<'".
+	// `base` is '' for a site at its own root, so this stays "signout" there.
+	const signOutPath = base ? `${base.slice(1)}/signout` : 'signout';
 	import * as m from '$msgs';
 	import { page } from '$app/state';
 	import { userRoles } from '$lib/auth/roles';
@@ -70,6 +76,7 @@
 			<span class="opacity-50"><Fa icon={faCaretDown} /></span>
 		</button>
 		<SignOut
+			signOutPage={signOutPath}
 			options={{
 				redirect: true,
 				redirectTo: decodeURIComponent(page.url.pathname)

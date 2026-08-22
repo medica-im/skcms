@@ -5,6 +5,15 @@
 	import Fa from 'svelte-fa';
 	import { providers } from '$lib/Auth/data.ts'; 
 	import { SignOut } from '@auth/sveltekit/components';
+	import { base } from '$app/paths';
+
+	// SignOut builds action={`/${signOutPage}`} with no base path, exactly like
+	// SignIn. On an instance served under one the form posts to the site root —
+	// WordPress, on unipa.fr — and the HTML 404 that comes back is what fails
+	// as "Unexpected token '<' ... is not valid JSON".
+	//
+	// `base` is '' for a site at its own root, so this stays "signout" there.
+	const signOutPath = base ? `${base.slice(1)}/signout` : 'signout';
 
 	let session = $derived(page.data.session);
     let provider = providers.find(e=>e.name==session?.user?.provider)
@@ -23,8 +32,8 @@
 		<div class="section-container">
 			<div class="grid cols-1 gap-6">
 					<SignOut
+						signOutPage={signOutPath}
 						provider={provider?.name}
-						signOutPage="signout"
 						class="gap-2 p-4 variant-ghost w-fit"
 					>
 						<div class="flex gap-2 place-items-center" slot="submitButton">

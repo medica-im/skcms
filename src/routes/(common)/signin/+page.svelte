@@ -6,6 +6,15 @@
 	import { providers } from '$lib/Auth/data.ts'; 
 	import { SignIn } from '@auth/sveltekit/components';
 	import { base } from '$app/paths';
+
+	// SignIn builds action={`/${signInPage}`} with no base path, so on an
+	// instance served under one the form posts to the site root — WordPress, on
+	// unipa.fr — rather than to the app. This prop is the only hook the library
+	// offers, hence the leading slash being stripped back off here.
+	//
+	// `base` is '' for every site served at its own root, so this is exactly
+	// "signin" there and the emitted action stays "/signin".
+	const signInPath = base ? `${base.slice(1)}/signin` : 'signin';
 	const redirectParam = page.url.searchParams.get('redirect');
 	const redirect = redirectParam ? redirectParam : '/dashboard';
 	const redirectTo = encodeURI(`${redirect}`);
@@ -33,7 +42,7 @@
 							redirectTo: redirectTo
 						}}
 						provider={provider.name}
-						signInPage="signin"
+						signInPage={signInPath}
 					>
 						<div class="btn variant-filled-primary flex gap-2 place-items-center" slot="submitButton">
 							<Fa icon={provider.icon} />
