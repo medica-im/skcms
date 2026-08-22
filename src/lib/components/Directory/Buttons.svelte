@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { page } from '$app/state';
 	import Entries from './Entries.svelte';
 	export let data;
@@ -8,7 +9,7 @@
 		const types = `["${value[0].effector_type.uid}"]`;
 		const encodedTypes = encodeURIComponent(JSON.stringify(types));
 		const encodedFacility = `${value[0].facility.uid}`;
-		const rawPath = page.data.directory.setting.path || "/";
+		const rawPath = `${base}${page.data.directory.setting.path || "/"}`;
 		const path = rawPath.startsWith("/") ? rawPath : `/${rawPath}`;
 		return `${path}?types=${encodedTypes}&facility=${encodedFacility}`;
 	};

@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { base } from '$app/paths';
 import { createEntriesMapData } from './mapData';
 
 /**
@@ -39,14 +40,14 @@ const popupFor = (e: ReturnType<typeof entry>, orgCategory: string | null = null
 
 describe('the address book map links to entries by their unique slug', () => {
 	it('points a marker at /e/<entrySlug>', () => {
-		expect(popupFor(entry())).toBe('/e/paul-bartoli-mg-69');
+		expect(popupFor(entry())).toBe(`${base}/e/paul-bartoli-mg-69`);
 	});
 
 	// The organization category used to pick between two URL shapes. It has no
 	// bearing on where an entry lives, so the same entry gets the same link
 	// whoever is asking.
 	it.each([['cpts'], ['msp'], [null]])('is the same link for a %s organization', (category) => {
-		expect(popupFor(entry(), category as string | null)).toBe('/e/paul-bartoli-mg-69');
+		expect(popupFor(entry(), category as string | null)).toBe(`${base}/e/paul-bartoli-mg-69`);
 	});
 
 	// The parts the old scheme was composed from are all still on the entry, so

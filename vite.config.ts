@@ -75,6 +75,23 @@ export default defineConfig(({ mode }) => {
 					extends: true,
 					test: {
 						name: 'component',
+						// Run with BASE_PATH empty:
+						//
+						//     BASE_PATH= pnpm exec vitest run --project component
+						//
+						// kit serves the app under paths.base, while vitest's
+						// browser runner connects to the server root, so a
+						// context whose env file sets BASE_PATH=/annuaire makes
+						// every file die with "Failed to connect to the browser
+						// session within the timeout" — a hang, not an
+						// assertion, which reads like a broken suite.
+						//
+						// Emptying the variable is enough; nothing about these
+						// tests depends on the base path, since they mount
+						// components directly rather than navigating. The unit
+						// project needs no such treatment and covers both
+						// values, its tests importing `base` rather than
+						// assuming a literal.
 						include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
 						exclude: ['**/node_modules/**'],
 						browser: {

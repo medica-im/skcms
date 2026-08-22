@@ -602,7 +602,19 @@ suite_typecheck() {
     return 0
 }
 
-suite_unit() { (cd "$FRONTEND_DIR" && npx vitest run); }
+# BASE_PATH= for the browser project's sake, not the unit project's.
+#
+# vitest's browser runner connects to the server root while kit serves the app
+# under paths.base, so on a context whose env file sets BASE_PATH (today only
+# unipa) every .svelte.test.ts file dies on "Failed to connect to the browser
+# session within the timeout". The run then *passes*: the unit files are green
+# and the browser files are simply absent from the totals — 22 of 27 collected,
+# with nothing in the summary saying which five went missing.
+#
+# Emptying it costs the unit project nothing: its tests import `base` and assert
+# the relationship rather than a literal, so they hold at either value, and
+# scripts/typecheck-baselines.sh still exercises the real one per site.
+suite_unit() { (cd "$FRONTEND_DIR" && BASE_PATH= npx vitest run); }
 
 suite_backend() {
     ensure_stack || return 1

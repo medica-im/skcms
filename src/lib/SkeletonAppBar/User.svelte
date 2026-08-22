@@ -41,7 +41,7 @@
 	}
 	let session = $derived(page.data.session);
 
-	let signin = $derived(encodeURI(`/signin?redirect=${page.url.pathname}`));
+	let signin = $derived(encodeURI(`${base}/signin?redirect=${page.url.pathname}`));
 	const r = $derived(userRoles(page.data?.user?.role));
 	let isAdmin = $derived(
 		page.data?.user?.role === 'superuser' || page.data?.user?.role === 'administrator'

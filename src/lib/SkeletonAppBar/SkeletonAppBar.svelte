@@ -62,7 +62,7 @@
 		)
 	);
 
-	const dirPath = page.data?.directory?.setting?.path || "/";
+	const dirPath = `${base}${page.data?.directory?.setting?.path || "/"}`;
 	const drawerStore = getDrawerStore();
 	const modalStore = getModalStore();
 	const isMSP = page.data?.organization?.category?.name == "msp";
@@ -247,18 +247,18 @@
 					<ul>
 						{#if page.data?.organization?.category?.name == "msp"}
 						<li>
-							<a href="/{ page.data.organization.category.slug }/a-propos">
+							<a href="{base}/{ page.data.organization.category.slug }/a-propos">
 								<span class="w-6 text-center"><Fa icon={faInfo} /></span>
 								<span>{m.NAVBAR_ABOUT()}</span>
 							</a>
 							{#if variables.TIMELINE}
-							<a href="/{ page.data.organization.category.slug }/chronologie">
+							<a href="{base}/{ page.data.organization.category.slug }/chronologie">
 								<span class="w-6 text-center"><Fa icon={faTimeline} /></span>
 								<span>{m.NAVBAR_TIMELINE()}</span>
 							</a>
 							{/if}
 							<!--hr class="my-4"-->
-							<a href="/{page.data.organization.category.slug }/projet-de-sante">
+							<a href="{base}/{page.data.organization.category.slug }/projet-de-sante">
 								<span class="w-6 text-center"><Fa icon={faBookMedical} /></span>
 								<span>{m.NAVBAR_HEALTH_PROJECT()}</span>
 							</a>
@@ -293,7 +293,7 @@
 				</section>
 				<hr class="my-4" />
 				<nav class="list-nav p-4 -m-4 max-h-64 lg:max-h-[500px] overflow-y-auto">
-					<form action="/?/setTheme" method="POST" use:enhance={setTheme}>
+					<form action="{base}/?/setTheme" method="POST" use:enhance={setTheme}>
 						<ul>
 							{#each themes as { icon, name, type }}
 								<li>

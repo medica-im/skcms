@@ -9,6 +9,13 @@
 	import * as m from '$msgs';
 	import { base } from '$app/paths';
 
+	// Prefix only a path that exists. An entry without a picture yields
+	// undefined from every branch above, and `${base}${undefined}` is the
+	// STRING "/annuaireundefined" — a src the browser dutifully requests and
+	// 404s on. Returning undefined keeps the original behaviour, which the
+	// Avatar component already handles by showing its own fallback.
+	const avatarPath = (p: string | undefined) => (p ? `${base}${p}` : undefined);
+
 	let { userUid }: { userUid: string } = $props();
 
 	function entriesHeading(): string {
@@ -49,7 +56,7 @@
 						<div class="grid lg:grid-cols-[10%_45%_45%] sm:grid-cols-1 flex flex-wrap p-1 items-center gap-3 transition-colors">
 							{#if entry.avatar?.lg || entry.avatar?.raw}
 								<Avatar
-									src={entry.avatar?.lg || entry.avatar?.raw}
+									src={avatarPath(entry.avatar?.lg || entry.avatar?.raw)}
 									width="w-10"
 									rounded="rounded-full"
 								/>

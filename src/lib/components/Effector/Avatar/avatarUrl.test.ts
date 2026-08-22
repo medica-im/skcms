@@ -11,6 +11,7 @@
  * that is where it can actually be broken.
  */
 import { describe, it, expect } from 'vitest';
+import { base } from '$app/paths';
 import { avatarSrc } from './avatarUrl.ts';
 
 const BASE = 'https://example.test';
@@ -23,13 +24,13 @@ const avatar = {
 
 describe('avatarSrc', () => {
 	it('uses the size asked for', () => {
-		expect(avatarSrc(avatar, 'lg', BASE)).toBe(`${BASE}${avatar.lg}`);
-		expect(avatarSrc(avatar, 'sm', BASE)).toBe(`${BASE}${avatar.sm}`);
+		expect(avatarSrc(avatar, 'lg', BASE)).toBe(`${BASE}${base}${avatar.lg}`);
+		expect(avatarSrc(avatar, 'sm', BASE)).toBe(`${BASE}${base}${avatar.sm}`);
 	});
 
 	it('falls back to the raw picture when that size is missing', () => {
 		const rawOnly = { raw: avatar.raw, lg: '', sm: '' };
-		expect(avatarSrc(rawOnly, 'lg', BASE)).toBe(`${BASE}${avatar.raw}`);
+		expect(avatarSrc(rawOnly, 'lg', BASE)).toBe(`${BASE}${base}${avatar.raw}`);
 	});
 
 	it('falls back to the placeholder when there is no picture', () => {

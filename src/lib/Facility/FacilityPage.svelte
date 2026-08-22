@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import Types from '$lib/components/Directory/Types.svelte';
 	import MapLibre from '$lib/MapLibre/MapLibre.svelte';
 	import Address from '$lib/Address/Address.svelte';
@@ -122,7 +123,7 @@
 			<figure class="content-center shrink mx-auto w-64 lg:w-80">
 				<img
 					class="h-auto w-fit"
-					src="{variables.BASE_URI}{facility.avatar.raw}"
+					src="{variables.BASE_URI}{base}{facility.avatar.raw}"
 					alt={facility.name}
 				/>
 				<figcaption class="text-center w-64 lg:w-80">

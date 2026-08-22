@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { page } from '$app/state';
 	import Occupations from '$lib/Organization/Occupations.svelte';
 	import Fa from 'svelte-fa';
@@ -7,7 +8,7 @@
 	import * as m from '$msgs';
 	export let data: any;
 
-	const dirPath = page.data.directory.setting.path || "/";
+	const dirPath = `${base}${page.data.directory.setting.path || "/"}`;
 
 	function displayTitle(): string|undefined {
 		if ( page.data.organization.category.name == 'msp' ) {

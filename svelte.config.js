@@ -1,5 +1,21 @@
 import adapter from '@sveltejs/adapter-node';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+import { loadEnv } from 'vite';
+
+// BASE_PATH comes from the env FILE, not only from the environment.
+//
+// This config is evaluated by node before vite has loaded anything, so a value
+// living in .env — which is how every context here is configured, and how the
+// Docker build passes its env_file — is not in process.env yet and the base
+// path silently stays ''. That failure is invisible: the build succeeds and
+// produces a root-mounted app, which looks exactly like the change not working.
+//
+// loadEnv reads the same .env vite would, with a real environment variable
+// still winning, so `BASE_PATH=/annuaire pnpm build` keeps working too. '' is
+// the third argument so no prefix filtering is applied — BASE_PATH is not a
+// PUBLIC_/VITE_ variable and would otherwise be dropped.
+const fileEnv = loadEnv(process.env.NODE_ENV || 'development', process.cwd(), '');
+const BASE_PATH = process.env.BASE_PATH ?? fileEnv.BASE_PATH ?? '';
 
 // Kept in step with vite.config.ts, which passes the same value to
 // paraglideVitePlugin's outdir.
@@ -26,7 +42,7 @@ const config = {
 			//
 			// The nginx side and the build must always agree: prefix stripped
 			// <=> built for root, prefix preserved <=> built with BASE_PATH.
-			base: process.env.BASE_PATH || ''
+			base: BASE_PATH
 		},
 		// Normally .svelte-kit. Overridable so several dev servers can run from
 		// this one checkout at once: the BDD suite gives each Playwright worker

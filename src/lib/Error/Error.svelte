@@ -9,7 +9,7 @@
 	let { data }: { data: SveltekitError } = $props();
 	console.log(getLocale());
 	const addressbookUrl = () => {
-		return page.data.directory.setting.path || '/'
+		return `${base}${page.data.directory.setting.path || '/'}`
 	};
 </script>
 

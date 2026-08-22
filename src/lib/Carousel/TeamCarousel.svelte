@@ -39,7 +39,11 @@
 		return `${base}/e/${entry.entrySlug}`;
 	}
 	function avatarSrc(entry: Entry) {
-		return entry.avatar?.lg || entry.avatar?.sm || entry.avatar?.raw;
+		// The payload's path is root-relative (/media/...), so it needs the
+		// prefix to stay inside this app's namespace rather than landing on
+		// whatever serves the site root.
+		const path = entry.avatar?.lg || entry.avatar?.sm || entry.avatar?.raw;
+		return path ? `${base}${path}` : path;
 	}
 </script>
 

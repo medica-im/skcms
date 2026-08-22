@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import Select from '$lib/Web/Select.svelte';
 	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import * as m from '$msgs';
@@ -15,7 +16,7 @@
 
 	let { categoryOf }: { categoryOf: Type[] } = $props();
 
-	const dirPath = page.data.directory.setting.path || "/";
+	const dirPath = `${base}${page.data.directory.setting.path || "/"}`;
 
 	const itemFilter = (label: any, filterText: any, option: any) => {
 		const normalizedFilterText = normalize(filterText);
