@@ -1,4 +1,4 @@
-import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
+import { APP_URL as ORIGIN } from '$lib/utils/appUrl';
 import type { Fetch } from '$lib/interfaces/fetch.ts';
 
 export const fetchCareHome = async (fetch: Fetch, uid: string) => {

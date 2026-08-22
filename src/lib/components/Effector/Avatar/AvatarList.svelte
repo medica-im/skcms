@@ -3,6 +3,7 @@
 	import * as m from "$msgs";
 	import type { EntryFull } from '$lib/store/directoryStoreInterface';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
+	import { PUBLIC_URL } from '$lib/utils/appUrl';
 	export let data: EntryFull|Entry;
 
 	/*if (import.meta.env.VITE_DEV == 'true') {
@@ -10,7 +11,7 @@
 	}*/
 
 	function getUrl(data: EntryFull|Entry) {
-			return `${variables.BASE_URI}${data.avatar?.sm || data.avatar?.lg || data.avatar?.raw || "/media/profile_images/default_profile_picture.png"}`;
+			return `${PUBLIC_URL}${data.avatar?.sm || data.avatar?.lg || data.avatar?.raw || "/media/profile_images/default_profile_picture.png"}`;
 	}
 </script>
 

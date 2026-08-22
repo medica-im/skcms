@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
+	import { APP_URL as ORIGIN } from '$lib/utils/appUrl';
 	import * as m from '$msgs';
 	import { page } from '$app/state';
 	import { variables } from '$lib/utils/constants.ts';

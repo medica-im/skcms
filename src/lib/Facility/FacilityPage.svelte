@@ -17,6 +17,7 @@
 	import UuidHyphen from '$lib/Uuid/UuidHyphen.svelte';
 	import type { Facility } from '$lib/interfaces/facility.interface.ts';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
+	import { PUBLIC_URL } from '$lib/utils/appUrl';
 
 	export let facility: Facility;
 	export let entries: Map<any, any>;
@@ -107,7 +108,7 @@
 			<figure class="mx-auto w-full">
 				<img
 					class="w-full h-auto aspect-video object-cover rounded-container-token"
-					src="{variables.BASE_URI}{facility.image.lg ?? facility.image.raw}"
+					src="{PUBLIC_URL}{facility.image.lg ?? facility.image.raw}"
 					alt={facility.image.alt || facility.name}
 				/>
 				<figcaption class="text-center w-full">
@@ -123,7 +124,7 @@
 			<figure class="content-center shrink mx-auto w-64 lg:w-80">
 				<img
 					class="h-auto w-fit"
-					src="{variables.BASE_URI}{base}{facility.avatar.raw}"
+					src="{PUBLIC_URL}{facility.avatar.raw}"
 					alt={facility.name}
 				/>
 				<figcaption class="text-center w-64 lg:w-80">

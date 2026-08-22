@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { PUBLIC_ORIGIN as ORIGIN } from '$env/static/public';
+	import { APP_URL as ORIGIN } from '$lib/utils/appUrl';
 	import { page } from '$app/state';
 	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';

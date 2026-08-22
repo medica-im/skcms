@@ -1,13 +1,15 @@
 import type { Variables } from '$lib/interfaces/variables.interface.ts';
 import { PUBLIC_INPUT_GEOCODER, PUBLIC_INPUT_CATEGORY, PUBLIC_INPUT_COMMUNE, PUBLIC_INPUT_FACILITY, PUBLIC_INPUT_SEARCH, PUBLIC_INPUT_SITUATION, PUBLIC_BLOG_URI, PUBLIC_VITE_TIMELINE, PUBLIC_ENTRIES_LIMIT, PUBLIC_SITUATIONS_TTL, PUBLIC_DEFAULT_LANGUAGE} from '$env/static/public';
+import { APP_URL } from '$lib/utils/appUrl';
 
 const BASE_CMS_API_URI: string = (import.meta.env.VITE_DEV == "true")
 	? import.meta.env.VITE_BASE_CMS_API_URI_DEV
 	: import.meta.env.VITE_BASE_CMS_API_URI_PROD;
 
-const BASE_URI: string = (import.meta.env.VITE_DEV == "true")
-	? import.meta.env.VITE_BASE_URI_DEV
-	: import.meta.env.VITE_BASE_URI_PROD;
+// The VITE_DEV / _DEV / _PROD triple is gone: all 34 env files set the two
+// variables to the same value, so the branch never once selected anything
+// different. See lib/utils/appUrl.ts for the split that does matter.
+const BASE_URI: string = APP_URL;
 
 const BLOG_URI: string = PUBLIC_BLOG_URI;
 
