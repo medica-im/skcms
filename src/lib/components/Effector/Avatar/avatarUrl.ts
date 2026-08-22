@@ -36,14 +36,10 @@ export function avatarSrc(
 	const path =
 		(size === 'lg' && avatar?.lg) || (size === 'sm' && avatar?.sm) || avatar?.raw || '';
 
-	// `${baseUri}${base}${path}`, in that order: baseUri is an absolute origin
-	// (variables.BASE_URI, e.g. https://unipa.fr) and the payload's path is
-	// root-relative (/media/profile_images/x.jpg), so the prefix belongs
-	// between them. Putting `base` first would yield "/annuairehttps://...".
-	//
-	// The prefix is needed because the file is fetched over the same hostname
-	// as the page: without it the URL is https://unipa.fr/media/..., which is
-	// WordPress's namespace rather than ours. nginx strips it again before
-	// forwarding, since the backend serves /media at its own root.
-	return path ? `${baseUri}${base}${path}` : placeholder();
+	// No `base` here: baseUri is variables.BASE_URI, which already carries the
+	// base path on an instance served under one (VITE_BASE_URI_* is set to
+	// https://host/annuaire there, because the 79 API call sites that build
+	// `${variables.BASE_URI}/api/...` need the prefix too). Adding it again
+	// would produce /annuaire/annuaire/media/...
+	return path ? `${baseUri}${path}` : placeholder();
 }
