@@ -62,7 +62,15 @@ write_env() {
     #
     # ORIGIN too, not just PUBLIC_ORIGIN: SvelteKit checks it on form actions,
     # and a mismatch with the browsing origin is rejected as cross-site.
+    #
+    # PUBLIC_APP_URL / PUBLIC_SSR_API_URL are the current names (see
+    # src/lib/utils/appUrl.ts); PUBLIC_ORIGIN is kept for any template still
+    # carrying it. Missing the SSR one is not a quiet degradation: it leaves
+    # every worker fetching the template's site server-side, so w3 renders w0's
+    # data and a fixture named after its own worker 404s.
     sed -E \
+        -e "s|^PUBLIC_APP_URL=.*|PUBLIC_APP_URL=\"https://${domain}\"|" \
+        -e "s|^PUBLIC_SSR_API_URL=.*|PUBLIC_SSR_API_URL=\"https://${domain}\"|" \
         -e "s|^PUBLIC_ORIGIN=.*|PUBLIC_ORIGIN=\"https://${domain}\"|" \
         -e "s|^ORIGIN=.*|ORIGIN=\"https://${domain}\"|" \
         -e "s|^VITE_BASE_URI=.*|VITE_BASE_URI=\"https://${domain}\"|" \
