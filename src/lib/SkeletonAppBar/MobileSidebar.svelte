@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { APP_URL as ORIGIN } from '$lib/utils/appUrl';
+
 	import * as m from '$msgs';
 	import { page } from '$app/state';
 	import { variables } from '$lib/utils/constants.ts';
@@ -130,7 +130,9 @@
 		{/if}
 		{#if page.data.organization.contact?.websites}
 			{#each page.data.organization.contact?.websites as website}
-				{#if website.url !== ORIGIN}
+				<!-- See SkeletonAppBar: hidden under a base path, where the
+				     organisation's site is the page hosting this one. -->
+				{#if !base}
 					<Website {website} appRail={true} />
 				{/if}
 			{/each}

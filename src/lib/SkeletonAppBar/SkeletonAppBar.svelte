@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { APP_URL as ORIGIN } from '$lib/utils/appUrl';
+
 	import { page } from '$app/state';
 	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
@@ -329,7 +329,11 @@
 			{/if}
 			{#if page.data.organization?.contact?.websites}
 			{#each page.data.organization?.contact?.websites as website}
-			{#if website.url!==ORIGIN}
+			<!-- Only when this instance is served at a domain root. Under a base
+			     path the app is a section of someone else's site — the
+			     organisation's own website is the page around it, so linking
+			     out to it from the toolbar sends a visitor in a circle. -->
+			{#if !base}
 			<Website {website} appBar={true} />
 			{/if}
 			{/each}
