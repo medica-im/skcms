@@ -52,3 +52,4 @@ __screenshots__
 # purpose: they are a snapshot of one moment's opinion, not project
 # documentation, so they would go stale in review rather than being updated.
 docs/
+scripts/unipa-annuaire-target.sh
