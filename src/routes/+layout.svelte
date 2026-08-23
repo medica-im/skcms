@@ -92,14 +92,15 @@
 	};
 
 	const queryClient = new QueryClient();
-	const dataDomain = () => {
-		const PREFIX = 'https://';
-		const baseURI = variables.BASE_URI;
-		if ( !baseURI.startsWith(PREFIX) ) {
-			throw new Error("Base URI must start with 'https://' !");
-		}
-		return baseURI.slice(PREFIX.length)
-	}
+	// Plausible wants the bare hostname this site is served on.
+	//
+	// From the request rather than from variables.BASE_URI: that is relative in
+	// the browser (see lib/utils/appUrl.ts), so slicing a scheme off it threw
+	// "Base URI must start with 'https://'" during hydration — which aborted
+	// the whole client render and left a page that painted from SSR and then
+	// vanished. page.url is the address actually being viewed, which is also
+	// the right answer when one build serves several hostnames.
+	const dataDomain = () => page.url.hostname;
 </script>
 
 <svelte:head>
