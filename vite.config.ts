@@ -98,7 +98,14 @@ export default defineConfig(({ mode }) => {
 							enabled: true,
 							provider: playwright(),
 							headless: true,
-							instances: [{ browser: 'chromium' }]
+							// Both engines, because a component test that measures
+							// resolved styles (colour, contrast, layout) can pass
+							// on one and fail on the other: they do not resolve
+							// every CSS variable, system colour or theme rule the
+							// same way. Whichever reads worst is what some visitor
+							// gets. Behavioural tests are unaffected by the second
+							// instance beyond taking a little longer.
+							instances: [{ browser: 'chromium' }, { browser: 'firefox' }]
 						}
 					}
 				}

@@ -104,6 +104,14 @@ export const entrySlugPageUrl = (entry: Pick<Entry, 'entrySlug'>) => {
 	return `${base}/e/${entry.entrySlug}`;
 }
 
+// Slug first, uid as the fallback: the address every other /sites/ link in the
+// app is written with, kept in one place so they cannot drift apart. Typed on
+// the two fields it reads, like entrySlugPageUrl above, so a FacilityOf or any
+// other trimmed shape can be linked without widening it to a full Facility.
+export const facilityPageUrl = (facility: { slug?: string | null; uid?: string | null }) => {
+	return `${base}/sites/${facility.slug || facility.uid}`;
+}
+
 export function isExpired(ttl: number, cacheTime: number): boolean {
 	const elapsed = Date.now() - cacheTime;
 	return elapsed > ttl * 1000;

@@ -11,7 +11,13 @@
 	import type { Facility } from '$lib/interfaces/facility.interface.js';
 	import { base } from '$app/paths';
 
-	let { data, carousel=true, geojson=null }: { data: Facility[]; carousel?: boolean; geojson?: any } = $props();
+	// mapAnchor: whether a map marker's popup links to the facility it marks.
+	// On by default because this component draws a *list* of facilities — the
+	// buttons above the map link each one, and a marker that names a place
+	// without reaching it is a dead end. A caller rendering the map on the
+	// facility's own page passes false, where the link would point at the page
+	// you are already reading.
+	let { data, carousel=true, geojson=null, mapAnchor=true }: { data: Facility[]; carousel?: boolean; geojson?: any; mapAnchor?: boolean } = $props();
 
 	const isMsp = $derived(page.data.organization?.category?.slug === 'msp');
 	const heading = $derived(
@@ -59,7 +65,7 @@
 		{/if}
 	</div>
 	<div in:scale class="h-64 z-0">
-		<Map data={createFacilitiesMapData(data, true)} showTooltip={true} {geojson} />
+		<Map data={createFacilitiesMapData(data, true, mapAnchor)} showTooltip={true} {geojson} />
 	</div>
 	{#if carouselFacilities.length && carousel}
 		<div class="place-items-center items-center justify-center content-center">

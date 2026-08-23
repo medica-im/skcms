@@ -1,4 +1,4 @@
-import { entrySlugPageUrl } from '$lib/utils/utils.ts';
+import { entrySlugPageUrl, facilityPageUrl } from '$lib/utils/utils.ts';
 import type { MapData } from '$lib/interfaces/mapData.interface.ts';
 import type { Facility, Address } from '$lib/interfaces/facility.interface.ts';
 import type { Facility as FacilityV1, FacilityV2 } from '$lib/interfaces/v2/facility.ts';
@@ -48,14 +48,25 @@ export const createMapData2 = (facility: FacilityV1 | FacilityV2) => {
 };
 
 
-export const createFacilitiesMapData = (facilities: Facility[], tooltip = false) => {
+export const createFacilitiesMapData = (facilities: Facility[], tooltip = false, anchor = false) => {
     const points: MapData[] = [];
     facilities.forEach((item: Facility) => {
+        // Opt-in, because the maps that draw a single facility do it on that
+        // facility's own page: a link there points at the page you are reading.
+        // Addressed slug-first and uid-second, the way every other /sites/ link
+        // in the app is written, and left unlinked when it has neither rather
+        // than promising a page that 404s — the rule createEntriesMapData
+        // follows for an entry with no slug.
+        const label = item.label || item.name;
+        const target = item.slug || item.uid;
+        const popupText = anchor && target
+            ? `<a class="anchor" href="${facilityPageUrl(item)}">${label}</a>`
+            : label;
         points.push({
             latLng: [Number(item.address?.latitude ?? 0), Number(item.address?.longitude ?? 0)],
             zoom: item?.address?.zoom ?? 0,
             popup: {
-                text: item.label || item.name
+                text: popupText
             },
             tooltip: {
                 text: item.address.tooltip_text || item.label || item.name,
