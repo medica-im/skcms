@@ -140,7 +140,7 @@
 		</button>
 	</svelte:fragment>
 	<!-- Logo -->
-	<a data-sveltekit-preload-data="off" href="{base}/" title={m.NAVBAR_GO_HOME()}>
+	<a data-sveltekit-preload-data="off" href="/" title={m.NAVBAR_GO_HOME()}>
 		<div class="flex items-center gap-2">
 			<div class="lg:hidden flex-none">
 				{#if page.data?.organization?.category?.name == 'msp'}<div class="w-5 h-5">
