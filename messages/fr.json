@@ -703,5 +703,7 @@
   "admin_entries_none": "Aucune entrée",
   "admin_entries_no_owner": "aucun",
   "admin_entries_deactivated_on": "Désactivée le",
-  "admin_entries_filter_state": "Filtrer par état"
+  "admin_entries_filter_state": "Filtrer par état",
+  "FACILITY_MAP_HINT_HOVER": "Survolez un établissement pour l’afficher seul sur la carte.",
+  "FACILITY_MAP_HINT_TOUCH": "Touchez un établissement pour l’afficher seul sur la carte, puis touchez-le à nouveau pour ouvrir sa page."
 }

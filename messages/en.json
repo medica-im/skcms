@@ -703,5 +703,7 @@
   "admin_entries_none": "No entries",
   "admin_entries_no_owner": "none",
   "admin_entries_deactivated_on": "Deactivated on",
-  "admin_entries_filter_state": "Filter by state"
+  "admin_entries_filter_state": "Filter by state",
+  "FACILITY_MAP_HINT_HOVER": "Hover a facility to show only it on the map.",
+  "FACILITY_MAP_HINT_TOUCH": "Tap a facility to show only it on the map, then tap it again to open its page."
 }

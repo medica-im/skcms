@@ -193,6 +193,10 @@ describe('Facility.svelte asks for linked markers by default', () => {
 	// never gets passed on would leave every marker unlinked and still pass the
 	// test above.
 	it('passes it through as the anchor argument', () => {
-		expect(source).toMatch(/createFacilitiesMapData\(data,\s*true,\s*mapAnchor\)/);
+		// The first argument is whatever list the component builds — it was
+		// `data`, and became `sorted` when hovering a button started
+		// emphasising a marker. What this pins is the third: that mapAnchor
+		// reaches the call rather than being a prop nothing reads.
+		expect(source).toMatch(/createFacilitiesMapData\([^)]*,\s*true,\s*mapAnchor\)/);
 	});
 });
