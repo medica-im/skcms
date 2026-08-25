@@ -54,6 +54,7 @@ export const preflight = command(preflightSchema, async (body) => {
 const executeSchema = z.object({
 	instance: z.string(),
 	token: z.string(),
+	source_org_entry: z.string().nullable().optional(),
 	resolutions: z.array(
 		z.object({
 			source_uid: z.string(),
@@ -99,9 +100,18 @@ export const mintExportToken = command(
 			} catch {
 				/* an error page rather than JSON */
 			}
-			return { ok: false, status: res.status, token: '', detail };
+			return { ok: false, status: res.status, token: '', orgEntry: '', detail };
 		}
 		const data = await res.json();
-		return { ok: true, status: 200, token: data.token as string, detail: '' };
+		return {
+			ok: true,
+			status: 200,
+			token: data.token as string,
+			// The source's own organization entry. Carried back so the target can
+			// remap a MEMBER_OF edge pointing at it — the token is opaque to the
+			// target, so this cannot travel inside it.
+			orgEntry: (data.org_entry ?? '') as string,
+			detail: ''
+		};
 	}
 );

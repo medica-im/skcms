@@ -143,7 +143,12 @@
 				facility_local_uid: p.facility.local_uid ?? null,
 				facility_slug_override: null
 			}));
-		const res = await executeClone({ instance, token: token!, resolutions });
+		const res = await executeClone({
+			instance,
+			token: token!,
+			source_org_entry: cloneToken.orgEntry || null,
+			resolutions
+		});
 		results = res.results;
 
 		// A clone writes an entry, and often a facility, into *this* instance.

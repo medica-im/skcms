@@ -19,9 +19,13 @@
 		}
 		// The fragment, not the query string: fragments never reach a server, do
 		// not land in access logs and do not survive in document.referrer.
+		// org_entry rides in the fragment beside the token, for the same reason:
+		// the target needs it to remap this organization's MEMBER_OF edges, and
+		// it cannot read it out of the token, which is signed with our key.
 		window.location.href =
 			`${data.target}${data.returnTo}#token=${encodeURIComponent(res.token)}` +
-			`&instance=${encodeURIComponent(data.instance)}`;
+			`&instance=${encodeURIComponent(data.instance)}` +
+			`&org=${encodeURIComponent(res.orgEntry ?? '')}`;
 	}
 </script>
 

@@ -21,6 +21,7 @@
 			const params = new URLSearchParams(hash.replace(/^#/, ''));
 			cloneToken.value = params.get('token');
 			cloneToken.instance = params.get('instance');
+			cloneToken.orgEntry = params.get('org');
 		}
 		// replaceState so Back does not return to a URL that once held a token.
 		goto(`${base}/web/clone`, { replaceState: true, noScroll: true });

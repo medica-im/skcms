@@ -13,9 +13,15 @@
  * thing done with it is to take it out of the address bar.
  */
 
-export const cloneToken = $state<{ value: string | null; instance: string | null }>({
+export const cloneToken = $state<{
+	value: string | null;
+	instance: string | null;
+	/** The source's organization Entry uid, for remapping MEMBER_OF edges. */
+	orgEntry: string | null;
+}>({
 	value: null,
-	instance: null
+	instance: null,
+	orgEntry: null
 });
 
 /**
@@ -33,6 +39,7 @@ export function takeTokenFromHash(loc?: { hash: string }, scrub?: () => void): b
 
 	cloneToken.value = token;
 	cloneToken.instance = params.get('instance');
+	cloneToken.orgEntry = params.get('org');
 
 	// Out of the address bar before anything can copy it, and before a
 	// screenshot or a shared link can carry it.
@@ -48,4 +55,5 @@ export function takeTokenFromHash(loc?: { hash: string }, scrub?: () => void): b
 export function clearToken() {
 	cloneToken.value = null;
 	cloneToken.instance = null;
+	cloneToken.orgEntry = null;
 }
