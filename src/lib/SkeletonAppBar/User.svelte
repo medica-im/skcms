@@ -20,6 +20,7 @@
 	import Fa from 'svelte-fa';
 	import {
 		faAt,
+	faCopy,
 		faBars,
 		faInfo,
 		faTimeline,
@@ -143,6 +144,10 @@
 						<a href="{base}/web/email">
 							<span class="w-6 text-center"><Fa icon={faAt} /></span>
 							<span>Email</span>
+						</a>
+						<a href="{base}/web/clone">
+							<span class="w-6 text-center"><Fa icon={faCopy} /></span>
+							<span>Cloner une fiche</span>
 						</a>
 						{/if}
 						<!--hr class="my-4"-->
