@@ -89,7 +89,24 @@ Given('an entry of this site has an avatar', async ({}) => {
 	);
 	expect(members.length, 'this site has no active entry in its organization').toBeGreaterThan(0);
 
-	const clone = await cloneEntry({ sourceUid: members[0].uid! });
+	// The entry the fixture designates for this family — ENTRY_ROLES in
+	// tests/fixtures/seed_worker_sites.py — rather than members[0].
+	//
+	// members[0] is whichever entry the API returns first, and the seeder leaves
+	// some entries deliberately without a Contact. On w1 the first happened to
+	// be one of those, cloneEntry copies a Contact only when the source has one,
+	// and seedAvatar's Contact.objects.get() then raised DoesNotExist: twelve
+	// scenarios failed on one worker and passed on the other three, from
+	// ordering alone. Asking for the entry by the role it was seeded for makes
+	// the choice deterministic, and names what is missing when it is.
+	const subject = members.find((e) => e.entrySlug?.endsWith('-entry-0'));
+	expect(
+		subject,
+		'no avatar-subject entry on this site: seed_worker_sites.py gives entry-0 ' +
+			'a Contact and a picture for this family — re-run the seeder'
+	).toBeTruthy();
+
+	const clone = await cloneEntry({ sourceUid: subject!.uid! });
 	clonedUid = clone.uid;
 	ctx.uid = clone.uid;
 	ctx.slug = clone.slug;

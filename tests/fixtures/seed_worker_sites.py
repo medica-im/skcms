@@ -69,6 +69,20 @@ FEATURE_FACILITY_NAMES = [
     "Cabinet de kinésithérapie du Bois",
 ]
 
+# People the .feature files name in their steps, for the same reason and with
+# the same guarantee — features/admin-entries-table.feature searches the table
+# for one and asserts the result narrows *and* is non-empty, which only holds if
+# the name is on the site.
+#
+# It was not. The scenario searched for "Rochoy", a real practitioner in the
+# development dataset who was never among the six entries a worker site clones,
+# so the search matched nothing, the table emptied, and "the table lists at
+# least one entry" failed — on every worker, every run. A name a feature depends
+# on has to be seeded like the facilities above, not hoped for.
+FEATURE_EFFECTOR_NAMES = [
+    "Michaël Rochoy",
+]
+
 # The per-role test accounts, defined once in seed_test_users.py.
 #
 # Duplicated here as a literal because both files are *piped* into
@@ -92,6 +106,47 @@ TEST_USERS = [
 # Each cloned entry brings its own facility, so this is also the floor for the
 # number of entries copied into a worker site.
 MIN_FACILITIES = 3
+
+
+# What each seeded entry is *for*, addressed by the slug it always gets.
+#
+# Every entry of a worker site is `{dir}-entry-N`, minted in order, so a role
+# pinned to a slug is a role pinned to one record — and a step that wants "an
+# entry with an avatar it may restrict" can ask for that entry by name.
+#
+# This replaces `if n % 3 == 2: continue`, which spread the same intent over
+# whatever order the graph happened to return. The intent was right and the
+# comment said so plainly — the carousel needs entries with pictures, other
+# scenarios need one without — but position is not identity: which record played
+# which part moved whenever the source data moved. avatar-access clones
+# `members[0]`, and on w1 that became entry-5, one of the two the rule left
+# without a Contact; `cloneEntry` creates a Contact only when the source has
+# one, so `seedAvatar` then failed on a hard `.get()`. Twelve scenarios failed
+# on worker 1 and passed on the other three, from data ordering alone.
+#
+# Roles rather than indices also let a fixture say what it guarantees. A family
+# that needs three pictured entries asserts that here, once, instead of every
+# scenario re-deriving it from whatever it was handed.
+ENTRY_ROLES = {
+    # features/avatar-access.feature clones this one and restricts its picture.
+    # It must have a Contact *and* an avatar for seedAvatar's get() to find.
+    0: "avatar-subject",
+    # features/team-carousel.feature needs enough pictured entries to make a
+    # carousel with a first, a middle and a last slide — the three button states.
+    1: "carousel-slide",
+    2: "carousel-slide",
+    3: "carousel-slide",
+    # Deliberately bare: `The entry page shows the placeholder when the avatar
+    # is restricted` and the facility scenarios need an entry with no picture.
+    4: "no-avatar",
+    5: "no-avatar",
+}
+
+# The entries that must end up with a Contact row carrying a picture.
+PICTURED_ROLES = {"avatar-subject", "carousel-slide"}
+
+# features/team-carousel.feature needs a first, a middle and a last slide.
+MIN_CAROUSEL_SLIDES = 3
 
 
 def source_entry_uids(limit=6):
@@ -157,6 +212,33 @@ def source_entry_uids(limit=6):
         uids.insert(0, uid)
     missing = set(FEATURE_FACILITY_NAMES) - {n for n, _ in named}
     assert not missing, f"facilities named in .feature files are absent: {missing}"
+
+    # The same for people a feature names — see FEATURE_EFFECTOR_NAMES. Pulled
+    # to the front for the same reason: `[:limit]` below keeps only the first
+    # few, and a guaranteed name that falls off the end is not guaranteed.
+    named_people, _ = db.cypher_query(
+        """
+        UNWIND $names AS wanted
+        MATCH (entry:Entry {active: true})-[:HAS_EFFECTOR]->(e:Effector {name_fr: wanted})
+        MATCH (entry)-[:HAS_FACILITY]->(f:Facility)
+        MATCH (f)-[]->(:Commune)
+              -[:LOCATED_IN_THE_ADMINISTRATIVE_TERRITORIAL_ENTITY]->(:DepartmentOfFrance)
+              -[:LOCATED_IN_THE_ADMINISTRATIVE_TERRITORIAL_ENTITY*]->(:Country)
+        MATCH (entry)-[:HAS_EFFECTOR_TYPE]->(:EffectorType)
+        WHERE f.location IS NOT NULL AND coalesce(entry.e2eWorkerSite, false) = false
+        RETURN DISTINCT wanted, collect(entry.uid)[0] AS uid
+        """,
+        {"names": FEATURE_EFFECTOR_NAMES},
+    )
+    for wanted, uid in named_people:
+        assert uid, f"no renderable entry for {wanted!r} to copy"
+        if uid in uids:
+            uids.remove(uid)
+        uids.insert(0, uid)
+    missing_people = set(FEATURE_EFFECTOR_NAMES) - {n for n, _ in named_people}
+    assert not missing_people, (
+        f"people named in .feature files are absent from the dataset: {missing_people}"
+    )
 
     while len(uids) < limit:
         uids.extend(r[0] for r in rows)
@@ -414,6 +496,15 @@ for i in range(WORKERS):
             // raises AttributeError inside the serializer and /api/v2/organization
             // 500s — the map simply not rendering would be the least of it.
             f.location = $location
+        // Replace, do not accumulate — same reasoning as the cloned facility
+        // below: this MERGE guarantees an edge to $commune but leaves any
+        // earlier one in place, and a facility standing in two communes makes
+        // the entries query emit its entries twice.
+        WITH f, commune
+        OPTIONAL MATCH (f)-[stale:LOCATED_IN_THE_ADMINISTRATIVE_TERRITORIAL_ENTITY]->(other:Commune)
+        WHERE other <> commune
+        DELETE stale
+        WITH f, commune
         MERGE (f)-[:LOCATED_IN_THE_ADMINISTRATIVE_TERRITORIAL_ENTITY]->(commune)
 
         WITH f
@@ -510,6 +601,25 @@ for i in range(WORKERS):
                         ef2.uid = """ + NEW_UID + """,
                         ef2.slug = spec.slug + '-facility'
         SET ef2.e2eWorkerSite = true
+        // Replace, do not accumulate. A facility stands in one commune
+        // (Facility.commune declares cardinality=One in agraph.py), but this
+        // MERGE only guarantees *an* edge to srcCommune — re-running against an
+        // existing facility whose source moved leaves the old edge in place
+        // too. Two commune edges make the entries query emit every entry at
+        // that facility twice, which doubles every count a page renders and
+        // empties the team carousel, because it keys slides on uid and Svelte
+        // drops duplicates. Guarded by
+        // backend/src/tests/test_facility_graph_model.py.
+        // Every binding the clauses below still need is carried through both
+        // WITHs. Dropping one does not error: Cypher treats the name as a fresh
+        // variable, so `MERGE (e)-[:HAS_FACILITY]->(ef2)` silently created a
+        // brand-new anonymous Entry instead of linking the one just built, and
+        // the site came out with no entries at all.
+        WITH f, d, org, e, src, spec, ef2, srcCommune
+        OPTIONAL MATCH (ef2)-[stale:LOCATED_IN_THE_ADMINISTRATIVE_TERRITORIAL_ENTITY]->(other:Commune)
+        WHERE other <> srcCommune
+        DELETE stale
+        WITH f, d, org, e, src, spec, ef2, srcCommune
         MERGE (ef2)-[:LOCATED_IN_THE_ADMINISTRATIVE_TERRITORIAL_ENTITY]->(srcCommune)
         MERGE (e)-[:HAS_FACILITY]->(ef2)
         MERGE (d)-[:HAS_ENTRY]->(e)
@@ -549,15 +659,46 @@ for i in range(WORKERS):
     avatars_set = 0
     if AVATARS:
         for n, entry_uid in enumerate(entry_uids):
-            # Two of every three entries get a picture; the rest stay bare.
-            if n % 3 == 2:
+            role = ENTRY_ROLES.get(n, "no-avatar")
+            if role not in PICTURED_ROLES:
+                # Left bare on purpose — see ENTRY_ROLES. Cleared rather than
+                # skipped so a site seeded by an older version of this script,
+                # which assigned pictures by position, converges to the roles
+                # instead of keeping whatever it happened to get.
+                Contact.objects.filter(neomodel_uid=entry_uid).update(
+                    profile_image="", avatar_access="anonymous"
+                )
                 continue
+            # A Contact for every pictured entry, whether or not it has an
+            # avatar yet: steps/seed.ts reads it with a hard
+            # Contact.objects.get(), and cloneEntry copies it only when the
+            # source has one, so an entry meant to be photographed without a
+            # Contact row fails the scenario rather than the assertion.
             contact, _ = Contact.objects.get_or_create(neomodel_uid=entry_uid)
             if not contact.profile_image:
                 contact.profile_image = f"profile_images/{AVATARS[n % len(AVATARS)]}"
             contact.avatar_access = "anonymous"
             contact.save()
             avatars_set += 1
+
+        # The fixture states what it guarantees, here, once. A family that finds
+        # too few pictured entries should learn it from the seeder naming the
+        # shortfall, not from a carousel assertion timing out on a missing slide.
+        # Asserted on what was actually written, not on how many roles exist.
+        #
+        # An earlier version counted `ENTRY_ROLES` entries over
+        # `range(len(entry_uids))`, which reads the *plan* rather than the
+        # result — and on a site whose entries had just been cleared for a
+        # rebuild, `entry_uids` was empty, so it reported "only 0 carry a
+        # picture" and aborted the run before the entries it was describing had
+        # been created. A guard that fires on a legitimate intermediate state is
+        # worse than no guard: it left every worker site empty.
+        assert avatars_set >= MIN_CAROUSEL_SLIDES, (
+            f"{dir_name}: {avatars_set} entries carry a picture, need at least "
+            f"{MIN_CAROUSEL_SLIDES}: the team carousel needs a first, a middle "
+            f"and a last slide to exercise all three button states "
+            f"({len(entry_uids)} entries on the site)"
+        )
 
     # A picture on the facility, so the facility scenarios have one to find and
     # the home page facility carousel has a slide.

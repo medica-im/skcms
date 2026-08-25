@@ -249,12 +249,18 @@ if extra:
 # The avatar lives on the Django side, keyed by the entry uid. Copied without
 # the image file: a scenario that wants a picture seeds one with seedAvatar(),
 # and copying the file would leave the clone sharing storage with the original.
+#
+# Always created, not only when the source has one. seedAvatar() reads the
+# clone's Contact with a hard .get(), so a clone of a source that happens to
+# have no Contact row used to raise DoesNotExist from inside the seeding step —
+# reported as a Django traceback rather than as "this entry cannot be given a
+# picture". The clone is ours and short-lived; giving it the row it will be
+# asked for costs nothing and removes the dependency on which source was picked.
 src_contact = Contact.objects.filter(neomodel_uid="${sourceUid}").first()
-if src_contact:
-    Contact.objects.create(
-        neomodel_uid=uid,
-        avatar_access=src_contact.avatar_access,
-    )
+Contact.objects.create(
+    neomodel_uid=uid,
+    avatar_access=src_contact.avatar_access if src_contact else "anonymous",
+)
 
 print("ENTRY_CLONED", uid, slug, name)
 `);
