@@ -1,6 +1,9 @@
 import { createBdd } from 'playwright-bdd';
 import { expect, type Page } from '@playwright/test';
 import { test } from './fixtures';
+// `with { type: 'json' }` because these steps run under Node's ESM loader
+// rather than Vite, and it refuses a JSON module without the attribute.
+import facilitiesFixture from '../src/routes/(common)/_test/map-cluster/facilities.fixture.json' with { type: 'json' };
 
 const { Given, When, Then } = createBdd(test);
 
@@ -63,11 +66,16 @@ async function mapBox(page: Page, sel: string) {
 
 /** Facilities as the page itself received them, so no fixture has to agree. */
 async function facilityExtent(page: Page) {
-	const origin = new URL(page.url()).origin;
-	const res = await page.request.get(`${origin}/api/v2/public/facilities`);
-	expect(res.ok(), 'could not read the facilities the map is drawing').toBeTruthy();
-	const body = await res.json();
-	const list = Array.isArray(body) ? body : (body.results ?? body.facilities ?? []);
+	// The fixture the page draws, not `${origin}/api/v2/public/facilities`.
+	//
+	// Those are two different datasets whenever the page is served by a site
+	// whose own directory is not Lyon 3 — under Playwright, always: the worker
+	// sites carry six seeded facilities scattered across France. Reading the API
+	// measured an 11.6 km span against a map drawing a 4 km one and reported the
+	// frame as too small, when the frame was right and the yardstick was wrong.
+	//
+	// _test/map-cluster/+page.server.ts imports this same file.
+	const list = facilitiesFixture as Array<Record<string, any>>;
 	const coords: [number, number][] = list
 		.map((f: Record<string, any>) => f.address ?? {})
 		.map((a: Record<string, any>) => [Number(a.longitude), Number(a.latitude)] as [number, number])

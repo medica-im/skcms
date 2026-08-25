@@ -287,7 +287,9 @@
 			<!-- The same two-column disposition <Facility> uses with carousel={false}:
 			     buttons on the left, map on the right. -->
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-start w-full">
-			<div class="flex flex-wrap items-center gap-4 text-center">
+			<!-- id so the BDD steps can scope to these buttons: they sit beside
+			     #map-clustered, not inside it, unlike <Facility>'s own layout. -->
+			<div id="map-clustered-buttons" class="flex flex-wrap items-center gap-4 text-center">
 				{#each sortedFacilities as facility, i}
 					<a
 						href="{base}/sites/{facility.slug || facility.uid}"

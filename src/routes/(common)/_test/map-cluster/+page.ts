@@ -1,35 +1,25 @@
 import { dev } from '$app/environment';
 import { error } from '@sveltejs/kit';
-import { browser } from '$app/environment';
 import type { PageLoad } from './$types';
-import { fetchFacilities } from '$lib/Facility/facility.ts';
-import { allFacilities } from '$lib/components/Directory/sites.ts';
 
 /**
- * The facilities this site's home page would draw, loaded the way it loads
- * them.
+ * The fixture the server load returns, passed through unchanged.
  *
- * Mirrors (skvar)/+page.ts: the same fetchFacilities on the client in
- * production, the server's payload otherwise, then the same allFacilities()
- * filter so the set matches what <Facility> is really given. `organization`
- * and `entries` come from the shared layout, exactly as they do there.
+ * This used to mirror (skvar)/+page.ts — refetch on the client under PROD, then
+ * allFacilities() to narrow the set to the ones this site's entries reference.
+ * Both steps are wrong for a fixture:
  *
- * The boundary is loaded the same way too: a dynamic import guarded by
- * try/catch, since it lives in the skvar submodule and is not present for
- * every instance.
+ *   - the refetch would replace the Lyon 3 dataset with whichever site is
+ *     serving the page, which under Playwright is a worker site;
+ *   - allFacilities() matches facility.entries against *this site's* entry
+ *     uids, and no Lyon uid appears in a worker site's entries, so the filter
+ *     would return an empty array and the map would draw nothing.
+ *
+ * The boundary still comes from the skvar submodule, guarded because it is not
+ * present for every instance.
  */
-export const load: PageLoad = async ({ data, parent, fetch }) => {
+export const load: PageLoad = async ({ data }) => {
 	if (!dev) error(404, 'Not found');
-
-	const { organization, entries } = await parent();
-
-	const fetched =
-		browser && import.meta.env.PROD ? await fetchFacilities(fetch) : data.facilities;
-
-	const facilities =
-		organization?.uid && entries
-			? allFacilities(fetched, entries, organization.uid, true)
-			: fetched;
 
 	let geojson = null;
 	try {
@@ -39,5 +29,5 @@ export const load: PageLoad = async ({ data, parent, fetch }) => {
 		// boundary.json not present for this instance
 	}
 
-	return { facilities, geojson };
+	return { facilities: data.facilities, geojson };
 };
