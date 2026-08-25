@@ -398,9 +398,8 @@
 		-->
 		<!--
 			clusterRadius 22 rather than MapLibre's default 50: the default merged
-			facilities that are plainly distinct at this zoom, and 22 was the
-			value the /_test/map-cluster comparison settled on for the Lyon 3
-			directory, where six pairs sit under 100m apart.
+			facilities that are plainly distinct at this zoom. 22 was settled on
+			against the Lyon 3 directory, where six pairs sit under 100m apart.
 		-->
 		<Map
 			bind:this={mapComponent}
