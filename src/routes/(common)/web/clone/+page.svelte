@@ -30,10 +30,21 @@
 	const auto = $derived(partition(plans).auto);
 
 	$effect(() => {
-		// The callback lands here with the token in the fragment; take it into
-		// memory and scrub the URL before anything can read it back.
+		// Two ways in, and both have to work.
+		//
+		// The callback route consumes the fragment and navigates here, so by the
+		// time this runs the hash is usually already empty — reading it again and
+		// stopping there is what sent an authorised superuser back to step one,
+		// looping forever between "choose an instance" and "authorize".
+		//
+		// So: take a token from the hash if one is still there (a direct landing,
+		// or a browser that skipped the callback), and otherwise trust what the
+		// callback already put in memory.
 		takeTokenFromHash();
-		if (cloneToken.value && step === 'instance') step = 'browse';
+		if (cloneToken.value && step === 'instance') {
+			if (cloneToken.instance) instance = cloneToken.instance;
+			step = 'browse';
+		}
 	});
 
 	async function loadInstances() {

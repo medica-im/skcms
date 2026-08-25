@@ -36,9 +36,12 @@ export function takeTokenFromHash(loc?: { hash: string }, scrub?: () => void): b
 
 	// Out of the address bar before anything can copy it, and before a
 	// screenshot or a shared link can carry it.
+	//
+	// The caller supplies the scrub: inside a SvelteKit page that means
+	// `goto(..., { replaceState: true })`, because the raw History API conflicts
+	// with the router — it warns, and then navigation misbehaves. Nothing is
+	// scrubbed here by default for that reason.
 	if (scrub) scrub();
-	else if (typeof history !== 'undefined')
-		history.replaceState(null, '', location.pathname + location.search);
 	return true;
 }
 
