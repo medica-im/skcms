@@ -53,3 +53,6 @@ __screenshots__
 # documentation, so they would go stale in review rather than being updated.
 docs/
 scripts/unipa-annuaire-target.sh
+
+# personal notes, not for the public repo
+TODO.md
