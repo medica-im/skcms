@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { invalidate } from '$app/navigation';
 	import { base } from '$app/paths';
 	import { userRoles } from '$lib/auth/roles.ts';
 	import { listInstances, listSourceEntries, preflight, executeClone } from '../../../../clone.remote.ts';
@@ -103,8 +104,22 @@
 				facility_slug_override: null
 			}));
 		const res = await executeClone({ instance, token: token!, resolutions });
-		busy = false;
 		results = res.results;
+
+		// A clone writes an entry, and often a facility, into *this* instance.
+		// The backend drops its own cached payloads, but this tab is still
+		// holding the entries and facilities it loaded before — so the new entry
+		// is absent from the directory, the map and the admin table until
+		// something forces a refetch. Invalidating here means the links in the
+		// results list below lead somewhere that already knows about them.
+		//
+		// Both keys: `app:entries` is declared by the root layout, and
+		// `app:facilities` by the home page, which is what draws the map.
+		if (res.results.some((x: { status: string }) => x.status === 'created')) {
+			await Promise.all([invalidate('app:entries'), invalidate('app:facilities')]);
+		}
+
+		busy = false;
 		step = 'done';
 	}
 </script>
