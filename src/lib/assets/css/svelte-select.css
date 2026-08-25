@@ -26,6 +26,21 @@
     --item-is-active-bg: rgb(var(--color-primary-500) / 0.25);
     --input-color: rgb(var(--color-surface-900));
     --placeholder-color: rgb(var(--color-surface-600));
+    /*
+        The chosen option, and the cross that clears it.
+
+        svelte-select defaults --selected-item-color to `inherit` and
+        --clear-select-color to --icons-color, which it leaves undefined
+        altogether. Unset, the cross inherited the control's own --background
+        and came out the same colour as the surface behind it: present in the
+        DOM, at 1:1 contrast, invisible. Stating both here means the selection
+        and the way to undo it are readable whatever the surface does.
+
+        Guarded by tests/sites/select-selection-visible.spec.ts.
+    */
+    --selected-item-color: rgb(var(--color-surface-900));
+    --icons-color: rgb(var(--color-surface-700));
+    --clear-select-color: rgb(var(--color-surface-700));
     --disabled-background: rgb(var(--color-surface-300));
     --disabled-color: rgb(var(--color-surface-600));
     --disabled-placeholder-color: rgb(var(--color-surface-400));
@@ -54,6 +69,10 @@
     --multi-item-color: rgb(var(--color-surface-50));
     --multi-item-outline: 1px solid rgb(var(--color-surface-400));
     --multi-item-clear-icon-color: rgb(var(--color-surface-200));
+    /* The single-select cross, which --multi-item-clear-icon-color above does
+       not reach: that one styles the × on each chip of a multi-select. */
+    --icons-color: rgb(var(--color-surface-200));
+    --clear-select-color: rgb(var(--color-surface-200));
 }
 
 .svelte-select-glow {
