@@ -32,6 +32,13 @@
 		<aside class="alert variant-ghost-error">
 			<div class="alert-message"><h3 class="h3">Réservé aux superutilisateurs</h3></div>
 		</aside>
+	{:else if data.targetError}
+		<aside class="alert variant-filled-error">
+			<div class="alert-message">
+				<h3 class="h3">Instance cible invalide</h3>
+				<p>{data.targetError}</p>
+			</div>
+		</aside>
 	{:else}
 		<div class="card variant-soft p-4 space-y-4">
 			<h1 class="h2">Autoriser la lecture de cet annuaire</h1>
