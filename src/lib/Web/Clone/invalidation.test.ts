@@ -17,6 +17,27 @@ import { readFileSync } from 'node:fs';
  */
 const source = readFileSync('src/routes/(common)/web/clone/+page.svelte', 'utf8');
 
+describe('the wizard is never a dead end', () => {
+	it('offers a way back from the verify step to the entry list', () => {
+		// The common reason to reach verify and be unable to continue is a
+		// blocker — "this person, occupation and place already exist here" — and
+		// the only useful response is to pick different entries.
+		expect(source).toMatch(/function backToBrowse\s*\(/);
+		expect(source).toMatch(/onclick=\{backToBrowse\}/);
+	});
+
+	it('offers a way back from the entry list to the instance picker', () => {
+		expect(source).toMatch(/function backToInstance\s*\(/);
+		expect(source).toMatch(/onclick=\{backToInstance\}/);
+	});
+
+	it('does not offer to clone when nothing can be cloned', () => {
+		// An all-blocked batch would otherwise report success having written
+		// nothing, which reads as "it worked".
+		expect(source).toMatch(/disabled=\{busy \|\| clonable === 0\}/);
+	});
+});
+
 describe('after a successful clone', () => {
 	it('invalidates the entries the layout loaded', () => {
 		// `app:entries` is declared by src/routes/+layout.server.ts and

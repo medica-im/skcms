@@ -29,6 +29,46 @@
 
 	const token = $derived(cloneToken.value);
 	const auto = $derived(partition(plans).auto);
+	/** Entries a blocker rules out entirely — nothing the superuser can decide. */
+	const blocked = $derived(partition(plans).blocked);
+	/** How many the "Cloner" button would actually write. */
+	const clonable = $derived(plans.filter((p) => p.blockers.length === 0).length);
+
+	/**
+	 * Back to the instance picker, dropping the fetched list.
+	 *
+	 * The token belongs to one source, so keeping entries from the previous one
+	 * while choosing another would show a list nothing can be cloned from. The
+	 * token itself is kept: it is still valid, and re-authorizing on the same
+	 * instance would be a pointless round trip.
+	 */
+	function backToInstance() {
+		entries = [];
+		selected = [];
+		plans = [];
+		queue = [];
+		error = null;
+		step = 'instance';
+	}
+
+	/**
+	 * Back to the entry list, keeping the entries already fetched.
+	 *
+	 * The common reason to be here is a blocker — most often "this person,
+	 * occupation and place already exist here" — and the only useful response is
+	 * to pick different entries. Without this the step was a dead end: one
+	 * button, labelled Cloner, that on an all-blocked batch would have cloned
+	 * nothing and reported success.
+	 *
+	 * The selection is kept rather than cleared, so correcting a batch of ten is
+	 * unticking one rather than starting again.
+	 */
+	function backToBrowse() {
+		plans = [];
+		queue = [];
+		error = null;
+		step = 'browse';
+	}
 
 	$effect(() => {
 		// Two ways in, and both have to work.
@@ -177,9 +217,18 @@
 							</li>
 						{/each}
 					</ul>
-					<button class="btn variant-filled-primary" disabled={!selected.length || busy} onclick={check}>
-						Vérifier {selected.length} fiche(s)
-					</button>
+					<div class="flex flex-wrap items-center gap-3">
+						<button class="btn variant-ghost" disabled={busy} onclick={backToInstance}>
+							← Changer d'instance
+						</button>
+						<button
+							class="btn variant-filled-primary"
+							disabled={!selected.length || busy}
+							onclick={check}
+						>
+							Vérifier {selected.length} fiche(s)
+						</button>
+					</div>
 				{/if}
 			</div>
 		{:else if step === 'verify'}
@@ -215,9 +264,28 @@
 						{#each p.warnings as w}<p class="text-sm opacity-75">ℹ {w}</p>{/each}
 					</div>
 				{/each}
-				<button class="btn variant-filled-primary" disabled={busy} onclick={run}>
-					{busy ? 'Clonage…' : 'Cloner'}
-				</button>
+				<div class="flex flex-wrap items-center gap-3">
+					<button class="btn variant-ghost" disabled={busy} onclick={backToBrowse}>
+						← Retour à la liste
+					</button>
+					<button
+						class="btn variant-filled-primary"
+						disabled={busy || clonable === 0}
+						onclick={run}
+					>
+						{busy ? 'Clonage…' : `Cloner ${clonable} fiche(s)`}
+					</button>
+					{#if clonable === 0}
+						<span class="text-sm text-error-500">
+							Aucune fiche ne peut être clonée : revenez à la liste pour en choisir
+							d'autres.
+						</span>
+					{:else if blocked.length}
+						<span class="text-sm opacity-75">
+							{blocked.length} fiche(s) ignorée(s).
+						</span>
+					{/if}
+				</div>
 			</div>
 		{:else}
 			<div class="card variant-soft p-4 space-y-3">
