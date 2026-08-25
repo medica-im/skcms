@@ -31,8 +31,18 @@ export const listSourceEntries = command(relaySchema, async ({ instance, token }
 		`${variables.BASE_URI}/api/v2/clone/relay/entries` +
 		`?instance=${encodeURIComponent(instance)}&token=${encodeURIComponent(token)}`;
 	const res = await fetch(authReq(url, 'GET', cookies));
-	if (!res.ok) return { ok: false, status: res.status, entries: [] };
-	return { ok: true, status: 200, entries: await res.json() };
+	if (!res.ok) return { ok: false, status: res.status, entries: [], alreadyHere: {}, origin: '' };
+	const data = await res.json();
+	return {
+		ok: true,
+		status: 200,
+		entries: data.entries ?? [],
+		// Source uid -> local slug for entries this instance already has, so the
+		// picker can grey them out rather than let preflight reject them later.
+		alreadyHere: (data.already_here ?? {}) as Record<string, string>,
+		// Avatar paths are relative to the source, not to us.
+		origin: (data.origin ?? '') as string
+	};
 });
 
 const preflightSchema = z.object({

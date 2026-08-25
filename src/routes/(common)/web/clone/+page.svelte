@@ -6,6 +6,8 @@
 	import { listInstances, listSourceEntries, preflight, executeClone } from '../../../../clone.remote.ts';
 	import { cloneToken, takeTokenFromHash } from '$lib/Web/Clone/token.svelte.ts';
 	import { partition, type Preflight } from '$lib/Web/Clone/cloneState.ts';
+	import CloneEntriesTable from '$lib/Web/Clone/CloneEntriesTable.svelte';
+	import { DEFAULT_PAGE_SIZE } from '$lib/Web/Clone/cloneTable.ts';
 
 	/**
 	 * Clone an entry from another deployment of this app.
@@ -20,6 +22,11 @@
 	let instances = $state<Array<{ name: string; display_name: string; origin: string }>>([]);
 	let instance = $state('');
 	let entries = $state<any[]>([]);
+	/** Source uid -> local slug, for entries this instance already has. */
+	let alreadyHere = $state<Record<string, string>>({});
+	/** The source's origin, so avatar paths resolve against it. */
+	let sourceOrigin = $state('');
+	let pageSize = $state(DEFAULT_PAGE_SIZE);
 	let selected = $state<string[]>([]);
 	let plans = $state<Preflight[]>([]);
 	let queue = $state<Preflight[]>([]);
@@ -114,6 +121,8 @@
 			return;
 		}
 		entries = res.entries;
+		alreadyHere = res.alreadyHere ?? {};
+		sourceOrigin = res.origin ?? '';
 		step = 'browse';
 	}
 
@@ -211,17 +220,10 @@
 						{busy ? 'Chargement…' : 'Charger les fiches'}
 					</button>
 				{:else}
-					<p class="text-sm opacity-75">{entries.length} fiches — {selected.length} sélectionnées</p>
-					<ul class="list max-h-96 overflow-y-auto">
-						{#each entries as e}
-							<li>
-								<label class="flex items-center gap-2">
-									<input type="checkbox" class="checkbox" value={e.uid} bind:group={selected} />
-									<span>{e.name} — {e.effector_type?.label ?? ''}</span>
-								</label>
-							</li>
-						{/each}
-					</ul>
+					<!-- Actions above the table: with a long list the controls would
+					     otherwise sit below the fold, and a superuser who has just
+					     ticked a row on page one would scroll past everything to
+					     reach them. -->
 					<div class="flex flex-wrap items-center gap-3">
 						<button class="btn variant-ghost" disabled={busy} onclick={backToInstance}>
 							← Changer d'instance
@@ -234,6 +236,13 @@
 							Vérifier {selected.length} fiche(s)
 						</button>
 					</div>
+					<CloneEntriesTable
+						{entries}
+						{alreadyHere}
+						origin={sourceOrigin}
+						bind:selected
+						bind:pageSize
+					/>
 				{/if}
 			</div>
 		{:else if step === 'verify'}
