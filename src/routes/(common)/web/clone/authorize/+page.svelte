@@ -14,7 +14,7 @@
 		const res = await mintExportToken({ target_origin: data.target });
 		busy = false;
 		if (!res.ok) {
-			error = `This instance refused the request (${res.status}).`;
+			error = res.detail || `This instance refused the request (${res.status}).`;
 			return;
 		}
 		// The fragment, not the query string: fragments never reach a server, do

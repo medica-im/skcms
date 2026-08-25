@@ -89,8 +89,19 @@ export const mintExportToken = command(
 				JSON.stringify({ target_origin, entry_uids: null })
 			)
 		);
-		if (!res.ok) return { ok: false, status: res.status, token: '' };
+		if (!res.ok) {
+			// Carry the backend's reason through. A bare status leaves the reader
+			// guessing between "wrong role" and "this peer is not registered
+			// here", which need completely different fixes.
+			let detail = '';
+			try {
+				detail = (await res.json())?.detail ?? '';
+			} catch {
+				/* an error page rather than JSON */
+			}
+			return { ok: false, status: res.status, token: '', detail };
+		}
 		const data = await res.json();
-		return { ok: true, status: 200, token: data.token as string };
+		return { ok: true, status: 200, token: data.token as string, detail: '' };
 	}
 );
