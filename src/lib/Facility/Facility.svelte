@@ -317,8 +317,8 @@
 
 <svelte:window onpointerdown={onWindowPointerDown} />
 
-<div class="grid grid-cols-1 lg:grid-cols-{lgCols} gap-6 lg:gap-10 items-start">
-	<div class="lg:col-span-3 text-center">
+<div class="facility-layout grid grid-cols-1 gap-6 lg:gap-10 items-start">
+	<div class="text-center">
 		<h2 class="h2">{heading}</h2>
 	<p>{m.OUR_FACILITIES({ count: data.length })}</p>
 	{#if isolateOnSelect && data.length > 1}
@@ -338,8 +338,31 @@
 		</p>
 	{/if}
 	</div>
-
-	<div class="flex flex-wrap items-center gap-4 text-center">
+<div in:scale class="facility-map z-0">
+		<!--
+			showTooltip is gone with the old map: it opened every popup at once,
+			which is what made a crowded directory unreadable and what clustering
+			replaces. Popups open on click here.
+		-->
+		<!--
+			clusterRadius 22 rather than MapLibre's default 50: the default merged
+			facilities that are plainly distinct at this zoom. 22 was settled on
+			against the Lyon 3 directory, where six pairs sit under 100m apart.
+		-->
+		<Map
+			bind:this={mapComponent}
+			data={mapPoints}
+			clusterRadius={22}
+			{highlight}
+			{geojson}
+			onfacilityclick={onMarkerClick}
+			onfacilityhover={onMarkerHover}
+			onmapbackgroundtap={onMapBackgroundTap}
+			openPickedPopup={selectedByTouch && selectionIsolates}
+		/>
+	</div>
+	
+	<div class="facility-buttons flex flex-wrap items-center gap-4 text-center">
 		{#each sorted as facility, i}
 				<a
 					href="{base}/sites/{facility.slug||facility.uid}"
@@ -390,29 +413,6 @@
 			</a>
 		{/if}
 	</div>
-	<div in:scale class="h-64 z-0">
-		<!--
-			showTooltip is gone with the old map: it opened every popup at once,
-			which is what made a crowded directory unreadable and what clustering
-			replaces. Popups open on click here.
-		-->
-		<!--
-			clusterRadius 22 rather than MapLibre's default 50: the default merged
-			facilities that are plainly distinct at this zoom. 22 was settled on
-			against the Lyon 3 directory, where six pairs sit under 100m apart.
-		-->
-		<Map
-			bind:this={mapComponent}
-			data={mapPoints}
-			clusterRadius={22}
-			{highlight}
-			{geojson}
-			onfacilityclick={onMarkerClick}
-			onfacilityhover={onMarkerHover}
-			onmapbackgroundtap={onMapBackgroundTap}
-			openPickedPopup={selectedByTouch && selectionIsolates}
-		/>
-	</div>
 	{#if isolateOnSelect}
 		<!--
 			Named by aria-describedby on the selected button, so a screen reader
@@ -434,6 +434,119 @@
 </div>
 
 <style lang="postcss">
+	/*
+	 * The map, sized for the screen it is on.
+	 *
+	 * h-80 everywhere is right on a desktop, where the map and the button list
+	 * sit side by side with room to spare. On a phone they stack, so a fixed map
+	 * height plus a list of thirteen buttons is taller than the viewport: the
+	 * reader scrolls the map out of sight to reach the buttons, taps one, and
+	 * has to scroll back to see what it did. The two halves of the interaction
+	 * cannot be seen at once, which is the whole point of picking a facility.
+	 */
+	.facility-map {
+		height: 20rem; /* h-80 */
+	}
+
+	/*
+	 * Below the lg breakpoint, split the viewport between the two.
+	 *
+	 * `40svh` rather than `40vh`: on mobile browsers `vh` is the height with the
+	 * URL bar *hidden*, so a viewport-sized element is taller than what is
+	 * actually visible until the reader scrolls, which is exactly the moment
+	 * this layout is meant to avoid. `svh` is the small viewport — the height
+	 * with the browser chrome showing — so the split holds from first paint.
+	 *
+	 * Not 50/50 of the whole screen: the heading and the hint sentence above
+	 * take their share, so each pane gets a little under half and the section
+	 * still fits without scrolling the page itself.
+	 *
+	 * Guarded on (hover: none) as well as width. A narrow desktop window is
+	 * still a mouse, still hovers, and does not have the problem this solves —
+	 * shrinking its map would be a regression for a reader who never asked.
+	 */
+	@media (max-width: 1023px) and (hover: none) {
+		/*
+		 * Let the grid divide the space, rather than subtracting a guess.
+		 *
+		 * An earlier version took `calc((100svh - 13rem) / 2)`, where 13rem was a
+		 * measured stand-in for the heading, the hint, the gaps and the section
+		 * padding. That is a constant pretending to be a measurement: on a short
+		 * phone it claims too large a share, on a tall one too small, and it
+		 * breaks the moment the heading wraps to another line or a site adds a
+		 * sentence.
+		 *
+		 * Sizing the *grid* to the viewport and giving the two panes `1fr` each
+		 * makes the browser do the subtraction. Whatever the heading actually
+		 * costs on this screen, in this language, at this font size, the two
+		 * panes split what remains — evenly, by construction.
+		 */
+		.facility-layout {
+			/*
+			 * `dvh`, not `svh` or `vh`.
+			 *
+			 * `vh` is the viewport with the URL bar hidden, so the section is
+			 * taller than what is visible until the reader scrolls. `svh` is the
+			 * opposite extreme and leaves a gap once the bar retracts. `dvh`
+			 * tracks the chrome as it comes and goes, which is what "fills the
+			 * screen" means to somebody scrolling a phone.
+			 *
+			 * The app bar is `relative` and scrolls away with the page rather than
+			 * overlaying it, so there is nothing to subtract: by the time this
+			 * section is on screen the bar is not.
+			 */
+			height: 100dvh;
+			/* The heading takes what it needs; the map and the buttons split the
+			   rest. `minmax(0, 1fr)` rather than `1fr`: a grid item's default
+			   min-height is auto, so a long button list would refuse to shrink and
+			   push the map off screen — the exact bug this replaces. */
+			grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr);
+			/*
+			 * A floor for the pair, so a phone held sideways does not squeeze the
+			 * map into a strip.
+			 *
+			 * In landscape the viewport is ~390px tall and the heading takes its
+			 * share regardless, leaving each pane around 130px — a map too short
+			 * to read and a button list showing two rows. Below this the section
+			 * gives up on fitting the screen and scrolls, which is the better of
+			 * the two failures.
+			 */
+			min-height: 32rem;
+			/* `items-start` in the markup sets align-items: start, which shrinks
+			   every item to its content and leaves the map at zero height. The
+			   panes have to stretch to fill the tracks the grid just sized. */
+			align-items: stretch;
+		}
+
+		.facility-map {
+			/* Fills its track; the track is what the grid decided. */
+			height: 100%;
+			min-height: 0;
+		}
+
+		/*
+		 * The buttons take the other half and scroll inside it.
+		 *
+		 * Scrolling the list rather than the page is what keeps the map on
+		 * screen while the reader works through a long directory — which is the
+		 * behaviour being asked for. `overscroll-contain` stops a flick that
+		 * reaches the end of the list from carrying on and scrolling the page
+		 * out from under the map.
+		 */
+		.facility-buttons {
+			/* Its track, not a height of its own. */
+			max-height: 100%;
+			overflow-y: auto;
+			overscroll-behavior: contain;
+			/* Wrapping centres its last row; align-content keeps a short list at
+			   the top of its pane instead of floating in the middle. */
+			align-content: flex-start;
+			/* Room for the focus ring and the selected halo, which a tight
+			   overflow box would otherwise clip. */
+			padding: 0.25rem;
+		}
+	}
+
 	/* Default to the touch wording: a device reporting neither (an older
 	   browser, a crawler) is better served by the instruction that works with
 	   any input, since tapping is what a click does too. */
