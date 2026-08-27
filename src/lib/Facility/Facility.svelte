@@ -321,22 +321,6 @@
 	<div class="text-center">
 		<h2 class="h2">{heading}</h2>
 	<p>{m.OUR_FACILITIES({ count: data.length })}</p>
-	{#if isolateOnSelect && data.length > 1}
-		<!--
-			Two sentences, one shown per input. A touch reader told to "hover"
-			has been handed an instruction they cannot follow, and a mouse reader
-			told about taps is being told about a mode they are not in.
-			`(hover: hover)` is the right test here, unlike in the event handlers:
-			this is a static statement about the device, not a decision about one
-			gesture.
-		-->
-		<p class="text-sm opacity-75 hint-hover">
-			{m.FACILITY_MAP_HINT_HOVER()}
-		</p>
-		<p class="text-sm opacity-75 hint-touch">
-			{m.FACILITY_MAP_HINT_TOUCH()}
-		</p>
-	{/if}
 	</div>
 <div in:scale class="facility-map z-0">
 		<!--
@@ -362,55 +346,79 @@
 		/>
 	</div>
 	
-	<div class="facility-buttons flex flex-wrap items-center gap-4 text-center">
-		{#each sorted as facility, i}
-				<a
-					href="{base}/sites/{facility.slug||facility.uid}"
-					title={facility.name}
-					data-facility-button
-					class="btn btn-sm w-fit"
-					class:variant-ghost-primary={!(isolateOnSelect &&
-						picked === mapPoints[i]?.popup?.text)}
-					class:variant-filled-primary={isolateOnSelect &&
-						picked === mapPoints[i]?.popup?.text}
-					class:facility-picked={isolateOnSelect &&
-						picked === mapPoints[i]?.popup?.text &&
-						selected !== mapPoints[i]?.popup?.text}
-					class:facility-selected={isolateOnSelect &&
-						selected === mapPoints[i]?.popup?.text}
-					aria-describedby={isolateOnSelect &&
-					selectedByTouch &&
-					selected === mapPoints[i]?.popup?.text
-						? facilityHintId
-						: undefined}
-					onmouseenter={() => onButtonEnter(mapPoints[i]?.popup?.text ?? null)}
-					onmouseleave={onButtonLeave}
-					onfocus={() => onButtonEnter(mapPoints[i]?.popup?.text ?? null)}
-					onblur={onButtonLeave}
-					onpointerdown={notePointerType}
-					onclick={(e) => onButtonClick(e, mapPoints[i]?.popup?.text ?? null)}
-				>
-					{facility.label || facility.name}
-					<!--
-						The second-tap affordance. Only on the one button whose
-						behaviour has just changed, and only when a finger made
-						the selection — a mouse click navigates directly, so an
-						arrow would promise a step that reader does not have.
+	<div class="facility-pane">
+		
+		<div class="facility-buttons flex flex-wrap items-center gap-4 text-center">
+			{#each sorted as facility, i}
+					<a
+						href="{base}/sites/{facility.slug||facility.uid}"
+						title={facility.name}
+						data-facility-button
+						class="btn btn-sm w-fit"
+						class:variant-ghost-primary={!(isolateOnSelect &&
+							picked === mapPoints[i]?.popup?.text)}
+						class:variant-filled-primary={isolateOnSelect &&
+							picked === mapPoints[i]?.popup?.text}
+						class:facility-picked={isolateOnSelect &&
+							picked === mapPoints[i]?.popup?.text &&
+							selected !== mapPoints[i]?.popup?.text}
+						class:facility-selected={isolateOnSelect &&
+							selected === mapPoints[i]?.popup?.text}
+						aria-describedby={isolateOnSelect &&
+						selectedByTouch &&
+						selected === mapPoints[i]?.popup?.text
+							? facilityHintId
+							: undefined}
+						onmouseenter={() => onButtonEnter(mapPoints[i]?.popup?.text ?? null)}
+						onmouseleave={onButtonLeave}
+						onfocus={() => onButtonEnter(mapPoints[i]?.popup?.text ?? null)}
+						onblur={onButtonLeave}
+						onpointerdown={notePointerType}
+						onclick={(e) => onButtonClick(e, mapPoints[i]?.popup?.text ?? null)}
+					>
+						{facility.label || facility.name}
+						<!--
+							The second-tap affordance. Only on the one button whose
+							behaviour has just changed, and only when a finger made
+							the selection — a mouse click navigates directly, so an
+							arrow would promise a step that reader does not have.
 
-						aria-hidden because the same thing is said in words by the
-						hint element that aria-describedby points at.
-					-->
-					{#if isolateOnSelect && selectedByTouch && selected === mapPoints[i]?.popup?.text}
-						<span class="facility-go" aria-hidden="true">
-							<Fa icon={faArrowRight} />
-						</span>
-					{/if}</a
-				>
-		{/each}
-		{#if data.length > 1}
-			<a href="{base}/sites" class="btn variant-ghost-surface" data-sveltekit-preload-data="hover">
-				<span><Fa icon={faBuilding} /></span><span>{allLabel}</span>
-			</a>
+							aria-hidden because the same thing is said in words by the
+							hint element that aria-describedby points at.
+						-->
+						{#if isolateOnSelect && selectedByTouch && selected === mapPoints[i]?.popup?.text}
+							<span class="facility-go" aria-hidden="true">
+								<Fa icon={faArrowRight} />
+							</span>
+						{/if}</a
+					>
+			{/each}
+			{#if data.length > 1}
+				<a href="{base}/sites" class="btn variant-ghost-surface" data-sveltekit-preload-data="hover">
+					<span><Fa icon={faBuilding} /></span><span>{allLabel}</span>
+				</a>
+			{/if}
+		</div>
+		{#if isolateOnSelect && data.length > 1}
+			<!--
+				The hint sits directly on top of the buttons it is about, not up by
+				the heading: the sentence describes what hovering or tapping one of
+				these does, and an instruction reads as an instruction when it is
+				next to the thing it instructs.
+
+				Two sentences, one shown per input. A touch reader told to "hover"
+				has been handed an instruction they cannot follow, and a mouse reader
+				told about taps is being told about a mode they are not in.
+				`(hover: hover)` is the right test here, unlike in the event handlers:
+				this is a static statement about the device, not a decision about one
+				gesture.
+			-->
+			<p class="text-sm opacity-75 text-center hint-hover">
+				{m.FACILITY_MAP_HINT_HOVER()}
+			</p>
+			<p class="text-sm opacity-75 text-center hint-touch">
+				{m.FACILITY_MAP_HINT_TOUCH()}
+			</p>
 		{/if}
 	</div>
 	{#if isolateOnSelect}
@@ -465,6 +473,23 @@
 	 * still a mouse, still hovers, and does not have the problem this solves —
 	 * shrinking its map would be a regression for a reader who never asked.
 	 */
+	/*
+	 * The hint and the buttons it describes, stacked with air between them.
+	 *
+	 * A grid rather than a bare block so the separation is a `row-gap` on the
+	 * container: the two hint paragraphs are swapped by media query, so a
+	 * margin would have to be written on each of them and kept in step. The gap
+	 * also collapses to nothing on its own when the {#if} drops the hint
+	 * entirely, which a margin below the sentence would not.
+	 *
+	 * Matches the `gap-4` between the buttons themselves, so the sentence sits
+	 * one rhythm step above the first row rather than at a distance of its own.
+	 */
+	.facility-pane {
+		display: grid;
+		row-gap: 1rem; /* gap-4 */
+	}
+
 	@media (max-width: 1023px) and (hover: none) {
 		/*
 		 * Let the grid divide the space, rather than subtracting a guess.
@@ -525,7 +550,19 @@
 		}
 
 		/*
-		 * The buttons take the other half and scroll inside it.
+		 * The list takes the remainder of the pane, rather than its content
+		 * height: `minmax(0, 1fr)` after the hint's `auto` row means the
+		 * sentence gets exactly the height it needs on this screen and the
+		 * buttons scroll in what is left — the same subtraction-free
+		 * arrangement as the outer grid.
+		 */
+		.facility-pane {
+			grid-template-rows: auto minmax(0, 1fr);
+			min-height: 0;
+		}
+
+		/*
+		 * The buttons take what the hint leaves and scroll inside it.
 		 *
 		 * Scrolling the list rather than the page is what keeps the map on
 		 * screen while the reader works through a long directory — which is the
