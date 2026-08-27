@@ -18,7 +18,6 @@
 		faMapLocationDot,
 		faAddressBook,
 		faEnvelope,
-		faBlog,
 		faRightToBracket,
 		faRightFromBracket,
 		faUserPlus,
@@ -323,8 +322,7 @@
 			{/if}
 			{#if variables.BLOG_URI}
 			<a href={variables.BLOG_URI} title={'blog'} class="btn hover:variant-soft-primary" target="_blank" rel="noreferrer">
-				<span><Fa icon={faBlog} size="lg" /></span>
-				<span class="hidden 2xl:inline-block">Blog</span>
+				<span>Blog</span>
 			</a>
 			{/if}
 			{#if page.data.organization?.contact?.websites}
