@@ -1,7 +1,69 @@
+/*
+ * Inter, self-hosted.
+ *
+ * Skeleton's `wintry` theme asks for `Inter, system-ui, sans-serif` on
+ * headings and a bare `system-ui` on body text, but nothing here ever loaded
+ * Inter — so both stacks fell through to `system-ui`, which is not a font but
+ * a request for "whatever this OS uses for its UI". Chromium and Firefox
+ * answer that differently (Firefox resolves it through fontconfig), so the
+ * same rem size rendered at a different x-height and advance width in each:
+ * measured on the app bar's site name, 324px against 338px for one string.
+ * Loading the font the theme already names removes that variance — the two
+ * engines then agree to within subpixel rounding.
+ *
+ * This is not what makes an app bar render larger in one browser than the
+ * other. That is the root font size, a per-browser preference (Chrome's
+ * Settings > Appearance > Font size / Minimum font size, or a per-site zoom),
+ * and it scales the em-sized icons along with the text — which a change of
+ * typeface cannot do. Nothing here pins a root size, so each browser applies
+ * its own; that is deliberate, since overriding it would break the reader's
+ * own accessibility setting.
+ *
+ * From the package rather than Google Fonts: no third-party request on every
+ * page load, nothing to leak to a CDN, and the version is pinned in
+ * package.json like any other dependency.
+ *
+ * One import for the whole face: the package ships a single stylesheet whose
+ * seven @font-face rules are already split by `unicode-range` (latin,
+ * latin-ext, cyrillic, greek, vietnamese). The browser fetches only the
+ * subsets a page actually renders, so an fr/en site pulls the latin files and
+ * leaves the rest untouched — no per-locale import to maintain.
+ *
+ * The default export is the weight axis (100-900), which is the one this
+ * theme varies. The package also ships an `opsz` build carrying the optical
+ * size axis; nothing here asks for it, so it stays unimported.
+ */
+@import '@fontsource-variable/inter';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 @tailwind variants;
+
+/*
+ * Point the theme's font tokens at the face we just loaded.
+ *
+ * Fontsource registers the family as `Inter Variable`, not `Inter`, so the
+ * import alone changes nothing: `wintry` asks for `Inter` on headings and gets
+ * a miss, then falls through to `system-ui` exactly as before. Both tokens are
+ * reassigned rather than only the heading one — body text was resolving
+ * through the same bare `system-ui`, so fixing headings alone would leave the
+ * two browsers disagreeing everywhere else.
+ *
+ * The selector has to be `:root [data-theme]`, not a bare `:root`. Skeleton
+ * emits each preset as `:root [data-theme='wintry']` — specificity (0,1,1) —
+ * and the attribute sits on <body>, so a plain `:root` rule at (0,1,0) loses
+ * and the tokens keep the theme's values. Matching the attribute selector
+ * without naming a theme ties this to whichever one is active, which is what
+ * a per-site theme cookie needs.
+ *
+ * `system-ui, sans-serif` stays behind Inter as the fallback for the moment
+ * before the woff2 arrives, and for anything Inter lacks.
+ */
+:root [data-theme] {
+	--theme-font-family-base: 'Inter Variable', system-ui, sans-serif;
+	--theme-font-family-heading: 'Inter Variable', system-ui, sans-serif;
+}
 
 /* Write your global styles here, in PostCSS syntax */
 
