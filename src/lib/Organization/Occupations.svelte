@@ -30,7 +30,7 @@
 	}
 </script>
 
-<div class="flex flex-wrap justify-center gap-2">
+<div class="flex flex-wrap justify-center gap-4">
 	{#each [...data] as [key, value]}
 		<a
 			href={getHref(value)}
