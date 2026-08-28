@@ -66,11 +66,21 @@
 </script>
 
 {#if session?.user}
-	<div class="flex flex-wrap gap-0">
+	<!--
+		The same gap the app bar's trail puts between its own children, so the
+		spacing across theme | user | sign-out is even.
+
+		This was `gap-0`, which made the row read as two clusters rather than
+		three controls: the theme button sat a trail `space-x` away while user
+		and sign-out were flush against each other, looking like one widget.
+		They are siblings here rather than in the trail, so the value has to be
+		repeated — keep it in step with `slotTrail` in SkeletonAppBar.svelte.
+	-->
+	<div class="flex flex-wrap gap-2 lg:gap-4">
 		<button
 			use:popup={{ event: 'click', target: 'user' }}
 			title={session.user.name}
-			class="{classesActive('/dashboard')} btn btn-sm hover:variant-soft-primary"
+			class="{classesActive('/dashboard')} btn btn-sm hover:variant-soft-primary min-h-11"
 			><span class="hidden lg:inline-block align-text-bottom"><Fa icon={faUser} size="lg" /></span
 			><span class="lg:hidden"><Fa icon={faUser} size="sm" /></span>
 			<span class="hidden lg:inline-block">{session.user.name}</span>
@@ -84,7 +94,7 @@
 			}}
 			className=""
 		>
-			<div slot="submitButton" class="btn btn-sm hover:variant-soft-primary lg:inline-block">
+			<div slot="submitButton" class="btn btn-sm hover:variant-soft-primary lg:inline-block min-h-11">
 				<span class="hidden lg:inline-block align-text-bottom"
 					><Fa icon={faRightFromBracket} size="lg" /></span
 				><span class="lg:hidden align-text-bottom"><Fa icon={faRightFromBracket} size="sm" /></span>
@@ -92,7 +102,13 @@
                 <input type="hidden" name="redirectTo" value={decodeURIComponent(page.url.pathname)} />
 			</div>
 		</SignOut>
-		<div class="">
+		<!--
+			`contents`, so the wrapper is not a third item in the flex row above.
+			The popup card it holds is positioned by Skeleton and takes no space,
+			but the wrapper itself did — harmless while the row was `gap-0`, an
+			extra gap's worth of dead space after sign-out now that it is not.
+		-->
+		<div class="contents">
 			<!-- popup -->
 			<!-- prettier-ignore -->
 			<div class="card p-4 w-60 shadow-xl" data-popup="user">
@@ -163,7 +179,7 @@
 	</div>
 {:else}
 	<a
-		class="{classesActive(signin)} btn btn-sm lg:btn-md hover:variant-soft-primary lg:inline-block"
+		class="{classesActive(signin)} btn btn-sm lg:btn-md hover:variant-soft-primary lg:inline-block min-h-11"
 		href={signin}
 		title={m.NAVBAR_LOGIN()}
 		><span class="hidden lg:inline-block align-text-bottom"
