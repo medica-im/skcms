@@ -35,6 +35,7 @@
 	 *     changes the `highlight` prop the parent owns.
 	 */
 	import { untrack } from 'svelte';
+	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faArrowsToCircle, faLocationDot } from '@fortawesome/free-solid-svg-icons';
 	import { bbox } from '@turf/bbox';
@@ -66,7 +67,8 @@
 		onfacilityclick = undefined,
 		onfacilityhover = undefined,
 		openPickedPopup = false,
-		onmapbackgroundtap = undefined
+		onmapbackgroundtap = undefined,
+		cooperativeGestures = true
 	}: {
 		data: MapData[];
 		/** Points closer than this many pixels are merged. MapLibre's default is 50. */
@@ -129,6 +131,27 @@
 		 * layers are known.
 		 */
 		onmapbackgroundtap?: () => void;
+		/**
+		 * Require two fingers to pan the map, and ctrl/⌘ to zoom the wheel.
+		 *
+		 * On by default because this map is normally *embedded in a page*, and a
+		 * full-width map inside a scrolling document is a scroll trap: a thumb
+		 * landing on it drags the map instead of the page, with no way to tell
+		 * beforehand. MapLibre's own answer is this flag — one finger scrolls
+		 * the page through the map, two fingers pan it, and an overlay says so
+		 * the first time a reader tries. Marker and popup taps are unaffected,
+		 * so nothing about picking a facility changes.
+		 *
+		 * A map that *is* the page — one the reader opened in order to pan —
+		 * passes false, where the second finger is a tax on the only thing they
+		 * came to do.
+		 *
+		 * Read once, when the Map is constructed: MapLibre takes it as a
+		 * constructor option and svelte-maplibre does not reapply it, so a value
+		 * that settles after mount will not take effect. It has to be right at
+		 * first render.
+		 */
+		cooperativeGestures?: boolean;
 	} = $props();
 
 	/**
@@ -216,6 +239,23 @@
 	const initialCenter = initial.center;
 
 	const FIT_OPTIONS = { padding: 40, duration: 450 };
+
+	/**
+	 * The cooperative-gestures overlay, in the reader's language.
+	 *
+	 * MapLibre ships these three strings in English only, and they are the one
+	 * part of the map that addresses the reader in a sentence — an English
+	 * instruction on a French page, at the moment somebody is already confused
+	 * about why the map will not move. Merged into MapLibre's table rather than
+	 * replacing it, so every other default string it holds stays as it is.
+	 *
+	 * Read once at construction, like `cooperativeGestures` itself.
+	 */
+	const mapLocale = {
+		'CooperativeGesturesHandler.MobileHelpText': m.MAP_GESTURE_TOUCH(),
+		'CooperativeGesturesHandler.WindowsHelpText': m.MAP_GESTURE_WINDOWS(),
+		'CooperativeGesturesHandler.MacHelpText': m.MAP_GESTURE_MAC()
+	};
 
 	let map: MapInstance | null = $state(null);
 
@@ -369,6 +409,8 @@
 	center={initialCenter}
 	zoom={initialZoom}
 	fitBoundsOptions={FIT_OPTIONS}
+	{cooperativeGestures}
+	locale={mapLocale}
 	standardControls
 >
 	{#if allBounds}

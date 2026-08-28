@@ -520,21 +520,72 @@
 			 * overlaying it, so there is nothing to subtract: by the time this
 			 * section is on screen the bar is not.
 			 */
-			height: 100dvh;
-			/* The heading takes what it needs; the map and the buttons split the
-			   rest. `minmax(0, 1fr)` rather than `1fr`: a grid item's default
-			   min-height is auto, so a long button list would refuse to shrink and
-			   push the map off screen — the exact bug this replaces. */
-			grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr);
 			/*
-			 * A floor for the pair, so a phone held sideways does not squeeze the
-			 * map into a strip.
+			 * 90, not 100: the last tenth is what tells the reader there is a
+			 * page under this.
+			 *
+			 * A section sized to exactly the viewport is indistinguishable from
+			 * the end of the document — nothing below the fold is visible, so
+			 * nothing suggests scrolling, and on a phone the two panes both take
+			 * their own gestures. Leaving a tenth of the screen showing puts the
+			 * top of the next section on screen, which both advertises that the
+			 * page continues and gives a thumb somewhere to push.
+			 *
+			 * A tenth of a phone viewport is roughly 80px — about a heading's
+			 * worth, enough to read as the start of something rather than as
+			 * padding. Less than that reads as a gap; much more starts costing
+			 * button rows for no further gain, since the strip only has to be
+			 * recognisable, not useful.
+			 */
+			height: 90dvh;
+			/*
+			 * The heading takes what it needs, the map takes a fixed share of the
+			 * screen, and the buttons take everything left over.
+			 *
+			 * The map was `1fr` too, so the two panes split the remainder evenly.
+			 * That is the right instinct but the wrong mechanism once the section
+			 * stops filling the screen: `1fr 1fr` divides whatever it is given, so
+			 * shortening the section takes half its height out of the map — and
+			 * the map is the pane with a floor on how small it can usefully be.
+			 * Pinning it hands the entire reduction to the button list, which
+			 * absorbs it by showing one row fewer and scrolling for the rest.
+			 *
+			 * 45dvh was what `1fr` had been giving the map, and the value started
+			 * there so the map came out of the change the same size it went in.
+			 * 42dvh trades about 24px of map for half a button row — the map is
+			 * unchanged to the eye at that difference, and the list is the pane
+			 * that runs out of room first.
+			 *
+			 * `minmax(0, 1fr)` on the buttons rather than `1fr`: a grid item's
+			 * default min-height is auto, so a long list would refuse to shrink
+			 * and push the map off screen — the exact bug this replaces.
+			 */
+			/*
+			 * `max(42dvh, 14rem)` rather than a bare percentage, so the landscape floor
+			 * below still reaches the map.
+			 *
+			 * `min-height: 32rem` keeps the *section* from collapsing, which used
+			 * to protect the map for free: as a `1fr` track it grew with whatever
+			 * the section ended up being. A track measured in dvh does not — in
+			 * landscape, 42dvh of a ~390px viewport is ~164px of map sitting
+			 * inside a 512px section, and the floor never touches it. The `max()`
+			 * restores the guarantee at the track itself, where it now has to
+			 * live.
+			 */
+			grid-template-rows: auto max(42dvh, 14rem) minmax(0, 1fr);
+			/*
+			 * A floor for the section, so a phone held sideways does not squeeze
+			 * the button list into two rows.
 			 *
 			 * In landscape the viewport is ~390px tall and the heading takes its
-			 * share regardless, leaving each pane around 130px — a map too short
-			 * to read and a button list showing two rows. Below this the section
-			 * gives up on fitting the screen and scrolls, which is the better of
-			 * the two failures.
+			 * share regardless, leaving the panes around 130px each — a map too
+			 * short to read and a list showing barely two rows. Below this the
+			 * section gives up on fitting the screen and scrolls, which is the
+			 * better of the two failures.
+			 *
+			 * This covers the button track only. The map has its own floor in the
+			 * `max()` above, because a dvh track does not grow with the section
+			 * the way the `1fr` it replaced did.
 			 */
 			min-height: 32rem;
 			/* `items-start` in the markup sets align-items: start, which shrinks
@@ -551,14 +602,48 @@
 
 		/*
 		 * The list takes the remainder of the pane, rather than its content
-		 * height: `minmax(0, 1fr)` after the hint's `auto` row means the
+		 * height: `minmax(0, 1fr)` before the hint's `auto` row means the
 		 * sentence gets exactly the height it needs on this screen and the
 		 * buttons scroll in what is left — the same subtraction-free
 		 * arrangement as the outer grid.
 		 */
 		.facility-pane {
-			grid-template-rows: auto minmax(0, 1fr);
+			/*
+			 * Buttons first, hint second — the order they appear in the markup.
+			 *
+			 * This was `auto minmax(0, 1fr)`, which is the same two tracks the
+			 * wrong way round: the buttons took the `auto` row and grew to their
+			 * full content height, and the hint was left whatever remained. With
+			 * thirteen facilities that remainder is nothing, so the sentence was
+			 * squeezed to zero and then clipped away by the `overflow: hidden`
+			 * below. The same mismatch is what let the pane overrun its track
+			 * onto the next section before the clipping was added.
+			 *
+			 * The hint is one short line and should always be readable, so it
+			 * takes its content height; the button list is the part that can be
+			 * any length, so it takes the remainder and scrolls inside it.
+			 */
+			grid-template-rows: minmax(0, 1fr) auto;
 			min-height: 0;
+			/*
+			 * The pane cannot spill past the track the outer grid gave it.
+			 *
+			 * The hint's row is `auto`, so it takes however many lines the
+			 * sentence wraps to, and the buttons take the rest. Without this the
+			 * pane could still overrun the track the outer grid gave it and print
+			 * over the section below — a layout that depends on a string being
+			 * short, in a component whose strings are translated and whose font
+			 * size is the reader's to set.
+			 *
+			 * Clipping makes the track the authority instead. Nothing is actually
+			 * lost: the hint is sized to its content, and the buttons — the only
+			 * part that can be any length — scroll in what is left.
+			 *
+			 * This is only safe because the hint is the `auto` track. When the
+			 * two were the other way round it clipped the sentence away entirely,
+			 * which is exactly the bug the row order above now prevents.
+			 */
+			overflow: hidden;
 		}
 
 		/*
@@ -566,15 +651,25 @@
 		 *
 		 * Scrolling the list rather than the page is what keeps the map on
 		 * screen while the reader works through a long directory — which is the
-		 * behaviour being asked for. `overscroll-contain` stops a flick that
-		 * reaches the end of the list from carrying on and scrolling the page
-		 * out from under the map.
+		 * behaviour being asked for.
+		 *
+		 * The scroll *chains*, though: reaching the end of the list carries on
+		 * into the page. This was `overscroll-behavior: contain`, which stopped
+		 * that, and the two together made the section a trap — the map took
+		 * every drag on its half, the list swallowed every flick on the other,
+		 * and a thumb had nowhere left to grab the page. The map half is fixed
+		 * separately, by cooperativeGestures on <Map>; this is the other half.
+		 *
+		 * The cost is real but small: a hard flick through a short list can
+		 * exhaust it and scroll the section away when the reader only wanted
+		 * the last row. That is recoverable in one gesture, where being trapped
+		 * is not, and chaining is what every native list does — so it is the
+		 * behaviour a thumb already expects.
 		 */
 		.facility-buttons {
 			/* Its track, not a height of its own. */
 			max-height: 100%;
 			overflow-y: auto;
-			overscroll-behavior: contain;
 			/* Wrapping centres its last row; align-content keeps a short list at
 			   the top of its pane instead of floating in the middle. */
 			align-content: flex-start;

@@ -704,6 +704,9 @@
   "admin_entries_no_owner": "aucun",
   "admin_entries_deactivated_on": "Désactivée le",
   "admin_entries_filter_state": "Filtrer par état",
-  "FACILITY_MAP_HINT_HOVER": "Survolez un établissement pour l’afficher seul sur la carte.",
-  "FACILITY_MAP_HINT_TOUCH": "Touchez un établissement pour l’afficher seul sur la carte, puis touchez-le à nouveau pour ouvrir sa page."
+  "FACILITY_MAP_HINT_HOVER": "Survolez pour situer, cliquez pour ouvrir.",
+  "FACILITY_MAP_HINT_TOUCH": "Touchez pour situer, à nouveau pour ouvrir.",
+  "MAP_GESTURE_TOUCH": "Utilisez deux doigts pour déplacer la carte",
+  "MAP_GESTURE_WINDOWS": "Utilisez Ctrl + défilement pour zoomer sur la carte",
+  "MAP_GESTURE_MAC": "Utilisez ⌘ + défilement pour zoomer sur la carte"
 }

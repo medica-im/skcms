@@ -704,6 +704,9 @@
   "admin_entries_no_owner": "none",
   "admin_entries_deactivated_on": "Deactivated on",
   "admin_entries_filter_state": "Filter by state",
-  "FACILITY_MAP_HINT_HOVER": "Hover a facility to show only it on the map.",
-  "FACILITY_MAP_HINT_TOUCH": "Tap a facility to show only it on the map, then tap it again to open its page."
+  "FACILITY_MAP_HINT_HOVER": "Hover to locate, click to open.",
+  "FACILITY_MAP_HINT_TOUCH": "Tap to locate, again to open.",
+  "MAP_GESTURE_TOUCH": "Use two fingers to move the map",
+  "MAP_GESTURE_WINDOWS": "Use Ctrl + scroll to zoom the map",
+  "MAP_GESTURE_MAC": "Use ⌘ + scroll to zoom the map"
 }
