@@ -4,6 +4,14 @@
 	import dayGridPlugin from '@fullcalendar/daygrid';
 	import listPlugin from '@fullcalendar/list';
 	import googleCalendarPlugin from '@fullcalendar/google-calendar';
+	// FullCalendar resolves `locale` against the locales it has been given, and
+	// falls back to its English defaults for a code it does not know. Passing
+	// 'fr' alone was doing exactly that — hence "No events to display" on an
+	// empty month, while the buttons looked translated because they are
+	// overridden by hand below. Registering the locale object translates
+	// everything else FullCalendar renders on its own, and sets the French week
+	// (Monday first) with it.
+	import frLocale from '@fullcalendar/core/locales/fr';
 	import { getLocale } from '$prgld/runtime.js';
 	import Dialog from '$lib/Web/Dialog.svelte';
 	import Fa from 'svelte-fa';
@@ -52,6 +60,9 @@
 					status = 'ok';
 				}
 			},
+			// Only French is registered: FullCalendar's built-in defaults are
+			// already English, so `locale: 'en'` resolves without an entry here.
+			locales: [frLocale],
 			locale,
 			contentHeight: 'auto' as const,
 			buttonText: {
