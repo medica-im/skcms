@@ -7,34 +7,38 @@
 	import { faCheck } from '@fortawesome/free-solid-svg-icons';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { uniq } from '$lib/utils/utils.ts';
+	import { variables } from '$lib/utils/constants.ts';
 	import type { Entry, CategorizedEntries, Type } from '$lib/store/directoryStoreInterface';
 	import type { EffectorType } from '$lib/interfaces/v2/effector';
 
 	let { rCFFE }: { rCFFE: CategorizedEntries } = $props();
 
-	const categories: EffectorType[] = uniq(
+	const categories: Type[] = uniq(
 		page.data.entries.map((e: Entry) => e.effector_type)
-	).sort(function (a, b) {
+	).sort(function (a: Type, b: Type) {
 		return a.uid.localeCompare(b.uid);
 	});
 
 	let selectCategories = getSelectCategories();
 
-	const baseUrl = '/api/v1/effector_types/';
+	const url = `${variables.BASE_URI}/api/v2/effector-types`;
 
-	async function downloadRecords() {
-		let records = [];
-		let initLimit = '?limit=100';
-		let next = '';
-		do {
-			if (next) initLimit = '';
-			const url = `${baseUrl}${initLimit}${next}`;
-			const res = await fetch(url);
-			const data = await res.json();
-			records.push(...data.effector_types);
-			next = data.meta.next;
-		} while (next);
-		return records;
+	async function downloadRecords(): Promise<Type[]> {
+		const res = await fetch(url);
+		if (!res.ok) {
+			throw new Error(`Response status: ${res.status}`);
+		}
+		const data: EffectorType[] = await res.json();
+		return data.map((t) => ({
+			uid: t.uid,
+			name: t.name_fr,
+			label: t.label_fr,
+			raw_label: t.label_fr,
+			synonyms: t.synonyms_fr,
+			definition: t.definition_fr,
+			slug: t.slug_fr ?? '',
+			labels: []
+		}));
 	}
 
 	const query = createQuery({
@@ -95,7 +99,7 @@
 				class="chip {categoryFromUrl === c ? 'variant-filled' : 'variant-soft'}"
 			>
 				{#if categoryFromUrl === c}<span><Fa icon={faCheck} /></span>{/if}
-				<span>{$query.data.find(x=>x.name==c).label}</span>
+				<span>{$query.data.find(x=>x.name==c)?.label ?? c}</span>
 			</span>
 			</button>
 		{/each}
