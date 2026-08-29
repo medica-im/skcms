@@ -43,6 +43,12 @@ blob-report
 .vitest-attachments
 __screenshots__
 
+# Scratch modules a test compiles at runtime (santelyon3-contact-load reads the
+# page from git when the skvar checkout is another tenant's). Inside the project
+# root because Vite only resolves imports from there, but out of src/ so the
+# tests that walk that tree cannot trip over a file appearing and vanishing.
+.vitest-scratch
+
 # Local test-runner overrides; the .example template stays tracked
 # (needed because the broad `.env.*` rule above would hide it).
 .env.test-all

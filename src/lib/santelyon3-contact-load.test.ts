@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
 /**
@@ -82,13 +82,26 @@ function contactPageSource(): string {
  * The page's `load`, compiled from that source.
  *
  * When the route is in the working tree it is imported where it lies. When it
- * has to come from git, the source is written to a scratch file *here* in
- * src/lib rather than into the routes tree: `+` is reserved by SvelteKit, which
- * rejects any unrecognised `+name` under src/routes — `+page.from-git.ts`
- * included — so a temporary file there breaks `svelte-kit sync` for the whole
- * repository, not just for this test. Nothing about the module needs to sit in
- * the routes tree anyway: it imports only `@sveltejs/kit` and `$lib/utils/
- * origin`, and both resolve the same from anywhere under src.
+ * has to come from git, the source is written to a scratch file under
+ * node_modules/, for two reasons.
+ *
+ * Not in src/routes: `+` is reserved by SvelteKit, which rejects any
+ * unrecognised `+name` there — `+page.from-git.ts` included — so a temporary
+ * file breaks `svelte-kit sync` for the whole repository, not just this test.
+ *
+ * Not in src/ at all, which is where this used to write: four tests walk that
+ * tree looking for source files (appUrl, roles, select-wrapper,
+ * authFormActions), vitest runs them in workers concurrent with this one, and a
+ * file that appears and is deleted mid-walk makes them fail with ENOENT on a
+ * path they had just listed. That failure names neither this test nor the rule
+ * the walker checks, so it reads as a bug in unrelated code.
+ *
+ * So: a gitignored scratch directory at the project root, alongside the other
+ * ones the suites already keep there (.features-gen, .vitest-attachments,
+ * test-results). Those walkers all root at src/ and never climb above it, so
+ * nothing there is in their way. It stays inside the project root rather than
+ * going to os.tmpdir() because Vite only serves files from within the root, and
+ * this module's `$lib` and `@sveltejs/kit` imports have to resolve.
  *
  * The specifier is built at runtime rather than written as a literal, so
  * svelte-check does not try to resolve a file that exists only while this test
@@ -102,7 +115,9 @@ async function loadContactPage() {
 
 	if (existsSync(real)) return (await import(spec(real))).load;
 
-	const temp = join(__dirname, `contact-page.from-git.${process.pid}.ts`);
+	const scratch = resolve(__dirname, '../../.vitest-scratch');
+	mkdirSync(scratch, { recursive: true });
+	const temp = join(scratch, `contact-page.from-git.${process.pid}.ts`);
 	writeFileSync(temp, contactPageSource());
 	try {
 		return (await import(spec(temp))).load;
