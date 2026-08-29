@@ -1,5 +1,5 @@
 import { test, expect, type Page, type Locator } from '@playwright/test';
-import { originFor } from './sites';
+import { directoryPathFor, originFor, requireSite, type SiteName } from './sites';
 
 /**
  * A chosen option, and the cross that clears it, stay readable in both themes.
@@ -29,8 +29,32 @@ import { originFor } from './sites';
  * walked up the tree, because svelte-select's inner element is transparent.
  */
 
-const SITE = 'santelyon3.fr';
+/**
+ * Which site this runs against, and where that site keeps its directory.
+ *
+ * Not a rule about this tenant: the stylesheet under test is shared by every
+ * site, and so is the component wearing it. Lyon 3 is only the site this suite
+ * serves by default, and SITE_UNDER_TEST points the same spec at any other —
+ * the sole per-site fact it needs is the path, which sites.ts holds.
+ *
+ * **One site on purpose.** This is a component-only spec (kind 2 in sites.ts):
+ * what it measures is colour, and the stylesheet has no URL, no `base` and no
+ * route in it, so the same control is painted identically wherever the
+ * directory is mounted. Running it across DIRECTORY_MOUNTS would triple its
+ * cost and could not produce a different answer. A spec that touched query
+ * parameters, entry links or canonical would be kind 3 and would have to.
+ */
+const SITE = (process.env.SITE_UNDER_TEST as SiteName) ?? 'santelyon3.fr';
 const ORIGIN = originFor(SITE);
+
+// requireSite not because the *rule* is tenant-specific, but because a 502
+// renders no controls at all: without it the spec skips on `renders no
+// svelte-select` and reports a site that was never served as coverage. The API
+// answers either way, so the path lookup cannot stand in for that check.
+test.beforeAll(async () => {
+	await requireSite(SITE);
+	directoryPath = await directoryPathFor(SITE);
+});
 
 /** Body text against its background. */
 const AA_TEXT = 4.5;
@@ -38,21 +62,27 @@ const AA_TEXT = 4.5;
 const AA_NON_TEXT = 3;
 
 /**
- * Pages that render selectors.
+ * The page that renders selectors: the directory, and deliberately only that.
  *
- * Only the annuaire, and deliberately only that: it is the one page reachable
- * without signing in that renders svelte-select — the category and facility
- * filters. /sites and /contact have none, and every /web/* page that does
- * (EffectorTypeSelect, FacilitySelect, the invite and effector-type forms)
- * renders nothing to a signed-out visitor, so listing them here would add
- * skips that look like coverage.
+ * It is the one page reachable without signing in that renders svelte-select —
+ * the category and facility filters. /sites and /contact have none, and every
+ * /web/* page that does (EffectorTypeSelect, FacilitySelect, the invite and
+ * effector-type forms) renders nothing to a signed-out visitor, so listing them
+ * here would add skips that look like coverage.
+ *
+ * Its path is asked of the site rather than written down, because it is a
+ * Postgres setting: `/annuaire` on one site, the root on another, changeable by
+ * an operator without touching this repo. Resolved in the beforeAll below
+ * because that lookup is a request.
  *
  * The rule this spec checks lives in one stylesheet, applied to every
- * svelte-select in the app, so two real controls exercise it as thoroughly as
- * twenty would. Extending to the authenticated selectors means a signed-in
- * fixture — worth doing, and a different change from this one.
+ * svelte-select in the app, so the controls on one page exercise it as
+ * thoroughly as twenty would — and how many appear is data too (`inputField`
+ * decides which filters exist per site), which is why nothing here asserts a
+ * count. Extending to the authenticated selectors means a signed-in fixture —
+ * worth doing, and a different change from this one.
  */
-const PAGES = [{ name: 'annuaire', path: '/annuaire' }];
+let directoryPath: string;
 
 type Rgb = [number, number, number];
 
@@ -143,17 +173,28 @@ async function paintedColours(select: Locator) {
 }
 
 for (const scheme of ['light', 'dark'] as const) {
-	test.describe(`${SITE}: a chosen option is readable in ${scheme} mode`, () => {
+	// The site is named because it is where the colours were measured, not
+	// because the rule is its own: the stylesheet is shared by every tenant.
+	test.describe(`a chosen option is readable in ${scheme} mode (on ${SITE})`, () => {
 		test.use({ colorScheme: scheme });
 
-		for (const { name, path } of PAGES) {
-			test(`${name}: the selection and its clear cross meet contrast`, async ({ page }) => {
+		test(`the directory: the selection and its clear cross meet contrast`, async ({ page }) => {
+			const path = directoryPath;
+			{
 				await page.goto(`${ORIGIN}${path}`, { waitUntil: 'networkidle' });
 				await page.waitForTimeout(2000);
 
 				const all = selects(page);
 				const count = await all.count();
-				test.skip(count === 0, `${path} renders no svelte-select control`);
+				// Not a skip: this site's own settings say the directory is here,
+				// and it renders svelte-select for every filter `inputField`
+				// enables. None at all means the page did not render, which is a
+				// fault to report rather than a condition to tiptoe around.
+				expect(
+					count,
+					`${ORIGIN}${path} renders no svelte-select control; the directory ` +
+						`should render one per enabled filter`
+				).toBeGreaterThan(0);
 
 				let checked = 0;
 				for (let i = 0; i < count; i++) {
@@ -192,7 +233,7 @@ for (const scheme of ['light', 'dark'] as const) {
 					`${path} (${scheme}): no select offered an option to choose, so nothing was ` +
 						`measured — the page has ${count} control(s) but none had items`
 				).toBeGreaterThan(0);
-			});
-		}
+			}
+		});
 	});
 }

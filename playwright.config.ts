@@ -1,6 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 import { defineBddConfig } from 'playwright-bdd';
 import { apiOrigin } from './tests/fixtures/session';
+import { SITE_CONTEXTS, specsBySite } from './tests/sites/sites';
+
+/** Where the per-tenant specs live; see siteProjects() at the foot of this file. */
+const SITES_DIR = './tests/sites';
 
 // Generates Playwright specs from Gherkin .feature files + step definitions.
 const testDir = defineBddConfig({
@@ -110,24 +114,87 @@ export default defineConfig({
 			testMatch: /avatar-crop-preview\.feature\.spec\.js$/,
 			use: { ...devices['Desktop Firefox'] }
 		},
-		{
-			// Specs about one site in particular.
-			//
-			// Most of the suite is site-agnostic, but this is a multi-tenant
-			// codebase and some pages exist for a single tenant: the contact page
-			// is in Lyon 3's skvar branch and sante-gadagne has no such route. A
-			// spec here names its site and browses that site's origin, so it is
-			// never measured against whichever worker happens to be running.
-			//
-			// Deliberately no baseURL: each spec resolves its own from
-			// tests/sites/sites.ts, and inheriting the worker's would silently
-			// point it at the wrong tenant.
-			//
-			//     pnpm exec playwright test --project=sites
-			name: 'sites',
-			testDir: './tests/sites',
-			testMatch: '*.spec.ts',
-			use: { ...devices['Desktop Chrome'] }
-		}
+		// Specs about one site in particular.
+		//
+		// Most of the suite is site-agnostic, but this is a multi-tenant
+		// codebase and some pages exist for a single tenant: the contact page
+		// is in Lyon 3's skvar branch and sante-gadagne has no such route. A
+		// spec here names its site and browses that site's origin, so it is
+		// never measured against whichever worker happens to be running.
+		//
+		// Deliberately no baseURL: each spec resolves its own from
+		// tests/sites/sites.ts, and inheriting the worker's would silently
+		// point it at the wrong tenant.
+		//
+		// Grouped one project per tenant, so each site's specs are a block
+		// addressed to one server rather than scattered through an
+		// alphabetical list:
+		//
+		//     pnpm exec playwright test --project=sites-lyon3     # one tenant
+		//     pnpm exec playwright test --project=sites-annuaire
+		//
+		// Run them all with the `sites` grep, which still names every spec:
+		//
+		//     pnpm exec playwright test --project=sites
+		...siteProjects()
 	]
 });
+
+/**
+ * The `sites` project, split one per tenant, plus `sites` itself over all of
+ * them.
+ *
+ * Named `sites-<dev.yml context>` (sites-lyon3), so a project is called what
+ * you would type at scripts/dev.sh to serve it — the two things you need
+ * together, since a tenant's specs can only run while its server is up.
+ *
+ * Grouping and parallelism answer different questions and are both wanted here.
+ * Grouping decides *which server* a block of specs belongs to, which is what
+ * makes one tenant runnable on its own and keeps a spec from being measured
+ * against another site. fullyParallel decides how fast each block runs once its
+ * server is up.
+ */
+function siteProjects() {
+	const chrome = { ...devices['Desktop Chrome'] };
+	// Every tenant's dev server runs at once — each has its own port and its own
+	// --mode (scripts/test-all.sh's ensure_all_site_servers) — so no spec is
+	// waiting for a server to be switched between tenants.
+	//
+	// fullyParallel on these projects and not on the suite as a whole, because
+	// the two halves are parallel for different reasons. The BDD projects are
+	// capped at one worker per dev server: a worker browses its own
+	// wN.dev.medica.im and owns that server's dataset (apiOrigin() in
+	// tests/fixtures/session.ts), so a fifth worker would have no server behind
+	// it. These specs resolve a fixed tenant origin instead, never apiOrigin,
+	// and only read — layout measurements, contrast readings, and clone requests
+	// that assert on a refusal — so any number can share one site server.
+	const common = { testDir: SITES_DIR, fullyParallel: true, use: chrome };
+
+	const perTenant = [...specsBySite(SITES_DIR)].map(([site, files]) => ({
+		...common,
+		name: `sites-${SITE_CONTEXTS[site]?.context ?? site}`,
+		// Anchored to the files this tenant owns, so no other tenant's spec can
+		// be swept in by a loose glob.
+		testMatch: new RegExp(`/(${files.map((f) => f.replace(/\./g, '\\.')).join('|')})$`)
+	}));
+
+	// `sites` kept as a name, because --project matches exactly and both the
+	// commands above and scripts/test-all.sh ask for it.
+	//
+	// It carries no tests of its own: matching *.spec.ts here would make it a
+	// second copy of every tenant's project, and a plain `playwright test` runs
+	// every project — so all 22 site specs would run twice, spending exactly the
+	// capacity the grouping is meant to free. `dependencies` makes asking for
+	// `sites` pull in each tenant's project instead, which is what asking for
+	// "the site specs" is supposed to mean.
+	return [
+		...perTenant,
+		{
+			...common,
+			name: 'sites',
+			dependencies: perTenant.map((p) => p.name),
+			// Matches nothing: this project is the name, its dependencies are the work.
+			testMatch: /(?!)/
+		}
+	];
+}

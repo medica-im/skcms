@@ -1,6 +1,6 @@
 import { test, expect, request } from '@playwright/test';
 import { createSessionCookie, sessionCookieName } from '../fixtures/session';
-import { originFor } from './sites';
+import { originFor, requireSite } from './sites';
 
 /**
  * The clone tool, end to end over HTTP.
@@ -15,7 +15,12 @@ import { originFor } from './sites';
  * that exists but is not registered, or a gate that never sees the identity.
  */
 
-const ORIGIN = originFor('santelyon3.fr');
+const SITE = 'santelyon3.fr';
+const ORIGIN = originFor(SITE);
+
+// About one tenant in particular: fail naming the server to start, rather than
+// measuring whatever else answers on this hostname.
+test.beforeAll(async () => await requireSite(SITE));
 
 async function ctx(role: 'superuser' | 'administrator' | 'staff' | null) {
 	const c = await request.newContext({ baseURL: ORIGIN });

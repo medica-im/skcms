@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { originFor } from './sites';
+import { originFor, requireSite } from './sites';
 
 /**
  * Every kind of care home entry renders.
@@ -22,28 +22,15 @@ import { originFor } from './sites';
  * exception is a 500, whatever the page would otherwise have looked like.
  */
 
-const ORIGIN = originFor('annuaire.medica.im');
+const SITE = 'annuaire.medica.im';
+const ORIGIN = originFor(SITE);
+
+// About one tenant in particular: fail naming the server to start, rather than
+// measuring whatever else answers on this hostname.
+test.beforeAll(async () => await requireSite(SITE));
 
 /** The care home slugs that get their own component in e/[slug]/+page.ts. */
 const CARE_HOME_SLUGS = ['ehpad', 'usld'] as const;
-
-/**
- * Whether this site is actually being served.
- *
- * One dev site runs at a time (scripts/dev.sh), so the machine may be serving
- * another one — nginx then answers 502 for the *page* while the API keeps
- * answering 200, because that is proxied to the backend and not to Vite.
- * Checking the API would therefore say "up" for a site with no server at all,
- * which is how a missing dev server gets reported as a broken page.
- */
-async function siteIsServed(): Promise<boolean> {
-	try {
-		const response = await fetch(`${ORIGIN}/`, { redirect: 'follow' });
-		return response.status !== 502 && response.status !== 503;
-	} catch {
-		return false;
-	}
-}
 
 /**
  * One live entry per care home slug, discovered rather than hardcoded.
@@ -76,16 +63,10 @@ async function entrySlugFor(kind: string): Promise<string | null> {
 
 for (const kind of CARE_HOME_SLUGS) {
 	test(`a ${kind} entry page renders`, async ({ page }) => {
-		// Not skipped when the site is down: a skip is a test that did not run
-		// wearing the colour of one that passed, and this spec skipped on every
-		// full run for as long as only one site server was started. test-all.sh
-		// now serves every tenant the sites project names, so a site that is not
-		// answering is a fault to report, not a condition to tiptoe around.
-		expect(
-			await siteIsServed(),
-			`${ORIGIN} is not being served — start it, or run through ./scripts/test-all.sh bdd`
-		).toBe(true);
-
+		// That the site is served at all is checked once in the beforeAll above,
+		// not skipped past here: a skip is a test that did not run wearing the
+		// colour of one that passed, and this spec skipped on every full run for
+		// as long as only one site server was started.
 		const slug = await entrySlugFor(kind);
 		// A site with no entry of this kind is a fact about the data, not about
 		// the code, and there is nothing to assert against — but say so loudly.

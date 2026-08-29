@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { originFor } from './sites';
+import { originFor, requireSite } from './sites';
 
 /**
  * How the Lyon 3 contact page lays its blocks out.
@@ -82,6 +82,10 @@ async function openContact(page: Page, width: number, height: number) {
 
 /** Distinct left edges, which is how many columns the blocks are sitting in. */
 const columnsOf = (children: Block[]) => [...new Set(children.map((c) => c.x))].sort((a, b) => a - b);
+
+// About one tenant in particular: fail naming the server to start, rather than
+// measuring whatever else answers on this hostname.
+test.beforeAll(async () => await requireSite(SITE));
 
 test.describe(`${SITE}: one column is the base case`, () => {
 	// Not just "one column on a phone": one column is what the page does before

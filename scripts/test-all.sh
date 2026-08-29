@@ -502,6 +502,57 @@ ensure_all_site_servers() {
 # it booted with. That is the right rule for a person switching contexts by
 # hand, and the wrong one here: these servers are started for the length of a
 # run, against tenants whose branches are not being switched under them.
+# The pid listening on a TCP port, or empty. Same implementation as dev.sh's;
+# duplicated rather than sourced because dev.sh runs `exec vite` at the end and
+# sourcing it would take this script with it.
+pid_on_port() { ss -ltnpH "sport = :$1" 2>/dev/null | grep -oP 'pid=\K[0-9]+' | head -1 || true; }
+
+# Where a running site server records what it was started for.
+#
+# A Vite process cannot be asked which tenant it serves: PUBLIC_ORIGIN is baked
+# in at boot and nothing exposes it. So the starter writes it down, and this is
+# the only way to tell "the right server" from "a server" without a request.
+site_stamp() { printf '%s/.e2e-workers/site-%s.started\n' "$FRONTEND_DIR" "$1"; }
+
+# Is the server on this port the one *this context* started, for *this* origin?
+#
+# The stamp is the fix for the failure that motivated it: a server started at
+# one moment, and a .env symlink pointed somewhere else a quarter of an hour
+# later, leaves a process whose allowedHosts no longer contains its own
+# hostname. It answers 403 to the host nginx forwards and keeps doing so until
+# it is restarted — and nothing about the process itself says so.
+#
+# Stale means: no stamp (started outside this script), a stamp naming a
+# different origin, or a stamp whose pid is no longer the one on the port.
+site_server_is_ours() {
+    local ctx="$1" port="$2" origin="$3" stamp pid_now stamped_origin stamped_pid
+    stamp="$(site_stamp "$ctx")"
+    [[ -f "$stamp" ]] || return 1
+    # shellcheck source=/dev/null
+    stamped_origin="$(sed -n '1p' "$stamp")"
+    stamped_pid="$(sed -n '2p' "$stamp")"
+    [[ "$stamped_origin" == "$origin" ]] || return 1
+    pid_now="$(pid_on_port "$port")"
+    [[ -n "$pid_now" && "$pid_now" == "$stamped_pid" ]]
+}
+
+# What the site actually says it is, over the API the app itself uses.
+#
+# The status code cannot answer this on its own. A 200 only proves *something*
+# answered: nginx routes each dev.<site> to a fixed port, so a server on the
+# right port serving the wrong tenant passes a status check while every spec
+# measured against it is measuring another site. /api/v1/directory/ names the
+# directory, so it distinguishes the two.
+#
+# Empty when the endpoint cannot be reached or parsed, which the caller treats
+# as "cannot confirm" rather than as a mismatch — the endpoint is proxied to the
+# backend, so it can be up while the page server is not.
+site_reports_slug() {
+    local origin="$1"
+    curl -skfL --max-time 15 "$origin/api/v1/directory/" 2>/dev/null |
+        "${JQ:-jq}" -r '.slug // empty' 2>/dev/null
+}
+
 ensure_site_server_for() {
     local ctx="$1" port host origin env_file branch
     port="$(SITE_CONTEXT="$ctx" site_port)"
@@ -509,9 +560,33 @@ ensure_site_server_for() {
     [[ -z "$port" || -z "$host" ]] && { warn "no dev.yml entry for $ctx"; return 1; }
     origin="$(site_origin "$host")"
 
+    # Answering *and* answering as the right tenant, and started by this script
+    # for this origin. Any one of the three alone lets a wrong server through:
+    #
+    #   * a status check passes for a server on the right port serving another
+    #     site, which is what nginx's fixed host->port map makes possible;
+    #   * the stamp alone cannot see a server that has since gone wrong;
+    #   * the slug alone cannot see a server started before a .env switch, whose
+    #     403 the status check catches but whose cause it cannot name.
     if curl -skfL -o /dev/null --max-time 10 "$origin/"; then
-        info "$host is answering (:$port)"
-        return 0
+        local serving
+        serving="$(site_reports_slug "$origin")"
+        if [[ -z "$serving" ]]; then
+            # The API is proxied to the backend, so it can be unreachable while
+            # the page server is fine. Not enough to condemn a server that is
+            # answering, so the status check stands.
+            info "$host is answering (:$port; could not confirm which directory)"
+            return 0
+        fi
+        if site_server_is_ours "$ctx" "$port" "$origin"; then
+            info "$host is answering (:$port, directory '$serving')"
+            return 0
+        fi
+        # Answering as something, but not a server this run started for this
+        # origin. Restarted below rather than trusted: the specs about to run
+        # would otherwise measure whichever tenant it happens to serve.
+        warn "$host answers on :$port but was not started by this run for $origin"
+        warn "  (it reports directory '$serving'; restarting it so the tenant is known)"
     fi
 
     env_file="$("${YQ:-yq}" -r ".contexts[] | select(.name == \"$ctx\") | .env_file" \
@@ -519,6 +594,39 @@ ensure_site_server_for() {
     branch="$("${YQ:-yq}" -r ".contexts[] | select(.name == \"$ctx\") | .development_skvar_branch" \
         "$FRONTEND_DIR/dev.yml" 2>/dev/null)"
     [[ -z "$env_file" ]] && { warn "no env_file for $ctx"; return 1; }
+
+    # A server already on this port that did not answer the check above is a
+    # *foreign* one: same port, different tenant. Vite bakes PUBLIC_ORIGIN in at
+    # startup and derives allowedHosts from it, so one started while the .env
+    # symlink pointed elsewhere refuses this hostname with 403 and keeps
+    # refusing until it is restarted. Starting over it cannot work either —
+    # --strictPort makes the new process exit with "Port N is already in use"
+    # within a second, after which this function would wait the full 90s for a
+    # server that is already dead, then let the specs run against the 403.
+    #
+    # Named and stopped here rather than reported, because the run cannot
+    # proceed without the port and the stale process is by definition not
+    # serving anyone correctly.
+    local squatter
+    squatter="$(pid_on_port "$port" 2>/dev/null)"
+    if [[ -n "$squatter" ]]; then
+        warn ":$port is held by pid $squatter, which is not this run's $ctx server"
+        warn "  (a server started for another tenant refuses this Host with 403)"
+        info "stopping it so $ctx can have its own port"
+        kill "$squatter" 2>/dev/null
+        # Waited on the *port*, not the pid: --strictPort fails if the kernel has
+        # not released it yet, which happens a moment after the process is gone.
+        # 20s because a Vite mid-boot finishes what it is doing before it exits.
+        local freed=0
+        for _ in $(seq 200); do
+            if ! ss -ltnH "sport = :$port" 2>/dev/null | grep -q .; then freed=1; break; fi
+            sleep 0.1
+        done
+        if (( ! freed )); then
+            fail "pid $squatter still holds :$port; stop it and re-run"
+            return 1
+        fi
+    fi
 
     info "starting the $ctx dev server for $host (:$port)..."
     mkdir -p "$FRONTEND_DIR/.e2e-workers"
@@ -528,6 +636,7 @@ ensure_site_server_for() {
     # second would serve the first one's site on a different port.
     local mode_env="$FRONTEND_DIR/.env.site.$ctx"
     cp "$FRONTEND_DIR/$env_file" "$mode_env" 2>/dev/null || return 1
+    rm -f "$(site_stamp "$ctx")"
     (cd "$FRONTEND_DIR" && without_lock nohup npx vite \
         --port "$port" --strictPort --mode "site.$ctx" \
         > "$FRONTEND_DIR/.e2e-workers/site-$ctx.log" 2>&1 &)
@@ -536,11 +645,19 @@ ensure_site_server_for() {
     while (( waited < 90 )); do
         sleep 5; waited=$((waited + 5))
         curl -skfL -o /dev/null --max-time 10 "$origin/" && {
+            # Stamped only once it actually answers, and with the pid that ended
+            # up on the port rather than the one the subshell forked: `nohup npx
+            # vite` is a launcher, and the server is its child.
+            printf '%s\n%s\n' "$origin" "$(pid_on_port "$port")" > "$(site_stamp "$ctx")"
             ok "$host answering through nginx (${waited}s)"
             return 0
         }
     done
-    warn "$host did not answer in ${waited}s; see .e2e-workers/site-$ctx.log"
+    # The log rather than a pointer to it: a server that failed to boot says why
+    # in its first few lines, and "see this file" is a step nobody takes while
+    # reading a summary that already blames the wrong thing.
+    warn "$host did not answer in ${waited}s:"
+    tail -5 "$FRONTEND_DIR/.e2e-workers/site-$ctx.log" 2>/dev/null | sed 's/^/      /' >&2
     return 1
 }
 
