@@ -76,7 +76,14 @@
 		They are siblings here rather than in the trail, so the value has to be
 		repeated — keep it in step with `slotTrail` in SkeletonAppBar.svelte.
 	-->
-	<div class="flex flex-wrap gap-2 lg:gap-4">
+	<!--
+		No `flex-wrap`: the row is narrower than the two controls need once the
+		user's name is shown, so wrapping dropped sign-out onto a second line
+		60px below the user menu, where it read as a control knocked out of
+		alignment. They are one group and belong on one line; `items-center`
+		keeps them level whatever their individual heights.
+	-->
+	<div class="flex items-center gap-2 lg:gap-4">
 		<button
 			use:popup={{ event: 'click', target: 'user' }}
 			title={session.user.name}
@@ -94,7 +101,7 @@
 			}}
 			className=""
 		>
-			<div slot="submitButton" class="btn btn-sm hover:variant-soft-primary lg:inline-block min-h-11">
+			<div slot="submitButton" class="btn btn-sm hover:variant-soft-primary min-h-11">
 				<span class="hidden lg:inline-block align-text-bottom"
 					><Fa icon={faRightFromBracket} size="lg" /></span
 				><span class="lg:hidden align-text-bottom"><Fa icon={faRightFromBracket} size="sm" /></span>
@@ -179,7 +186,7 @@
 	</div>
 {:else}
 	<a
-		class="{classesActive(signin)} btn btn-sm lg:btn-md hover:variant-soft-primary lg:inline-block min-h-11"
+		class="{classesActive(signin)} btn btn-sm lg:btn-md hover:variant-soft-primary min-h-11"
 		href={signin}
 		title={m.NAVBAR_LOGIN()}
 		><span class="hidden lg:inline-block align-text-bottom"
