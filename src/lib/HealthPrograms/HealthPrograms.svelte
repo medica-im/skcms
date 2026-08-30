@@ -1,23 +1,53 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { variables } from '$src/lib/utils/constants';
-	import * as m from "$msgs";
 	import Fa from 'svelte-fa';
 	import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 	import { getProgram } from '$lib/links.ts';
+	import { programsCopy } from './copy.ts';
 	import type { ProgramsNavLinks } from '$lib/interfaces/variables.interface.ts';
 
 	export let programsNavLinks: ProgramsNavLinks;
+	// Pass "" to drop the paragraph under the heading; leave it out to keep the
+	// wording that goes with the organization's category.
+	export let lead: string | undefined = undefined;
+
+	const copy = programsCopy(
+		page.data.organization?.category?.name,
+		page.data.organization.formatted_name_definite_article,
+		lead
+	);
+
+	// Tailwind only generates classes it can read in the source, so the column
+	// count cannot be interpolated into the class name.
+	const columns: Record<number, string> = {
+		1: 'lg:grid-cols-1',
+		2: 'lg:grid-cols-2',
+		3: 'lg:grid-cols-3',
+		4: 'lg:grid-cols-4'
+	};
+	$: categoryCount = Object.keys(programsNavLinks).length;
+	$: gridColumns = columns[categoryCount] ?? 'lg:grid-cols-4';
 </script>
 
 <div class="space-y-4 md:space-y-10">
 	<!-- Info -->
-	<div class="space-y-4 text-center">
-		<h2 class="h2">Actions santé</h2>
-		<p>En plus des habituelles séances et consultations, les professionnels de {page.data.organization.formatted_name_definite_article} agissent pour votre santé en vous proposant un ensemble de services et de programmes dédiés au dépistage, à la prévention et aux soins.</p>
+	<!-- space-y only when there is a second child: an empty <p> would still
+	     take the gap below the heading and leave the section top-heavy. -->
+	<div class="text-center {copy.lead ? 'space-y-4' : ''}">
+		<h2 class="h2">{copy.title}</h2>
+		{#if copy.lead}
+			<p>{copy.lead}</p>
+		{/if}
 	</div>
 	<!-- Grid -->
-	<div class="grid grid-cols-1 lg:grid-cols-{Object.keys(programsNavLinks).length} gap-4 align-top justify-items-center">
+	<!--
+		justify-items-stretch, not -center: centred, each card shrank to the width
+		of its own title, so the three sat at three different widths with ragged
+		edges — most visible stacked in one column on a phone, where "Prévention
+		en santé" was 231px against "Parcours pluriprofessionnels" at 300px.
+	-->
+	<div class="grid grid-cols-1 {gridColumns} gap-4 align-top justify-items-stretch">
 		<!-- Loop -->
 		{#each Object.values(programsNavLinks) as progCat}
 			{@const program = getProgram(progCat.href, programsNavLinks)}
