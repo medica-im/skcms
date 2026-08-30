@@ -7,6 +7,8 @@
 	import SocialNetworks from '../SoMed/SoMed.svelte';
 	import BlogIconLink from '$lib/Ghost/BlogIconLink.svelte';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { programsNavLinks } from '$var/variables.ts';
+	import { programsHeading } from '$lib/HealthPrograms/copy.ts';
 </script>
 
 <footer class="page-footer text-xs md:text-base">
@@ -54,6 +56,30 @@
 						</li>
 					</ul>
 				</div>
+				<!--
+					Built from programsNavLinks rather than listed here, so a mission
+					added to the site's nav data reaches the footer at the same time
+					as the app bar and the home page, instead of being remembered here.
+				-->
+				{#if Object.keys(programsNavLinks).length > 0}
+					<div>
+						<h6 class="mb-6 text-sm font-semibold uppercase">
+							{capitalizeFirstLetter(
+								programsHeading(page.data.organization?.category?.name),
+								getLocale()
+							)}
+						</h6>
+						<ul class="font-medium">
+							{#each Object.values(programsNavLinks) as navLink}
+								<li class="mb-4">
+									<a href={navLink.href} class="hover:underline"
+										>{navLink.title[variables.DEFAULT_LANGUAGE as keyof object]}</a
+									>
+								</li>
+							{/each}
+						</ul>
+					</div>
+				{/if}
 				<div>
 					<h6 class="mb-6 text-sm font-semibold uppercase">
 						{capitalizeFirstLetter(m.LEGAL(), variables.DEFAULT_LANGUAGE)}
