@@ -1,10 +1,15 @@
 import type { ProgramsNavLinks } from './interfaces/variables.interface';
 
+// A route may legitimately be absent from programsNavLinks: a site keeps a
+// page it has not filled in yet, or inherits one from the skvar it was forked
+// from. These helpers only feed a footer-level "see also" list, so an unlisted
+// path means "no siblings to show", never a reason to fail the whole page.
+
 export const programCount = (path: string, programsNavLinks: ProgramsNavLinks
 ) => {
 	const cat = Object.values(programsNavLinks).find(e => e.href == path);
 	if (!cat) {
-		throw new Error(`Nav link ${path} not found!`);
+		return 0;
 	}
 	const count = cat.list.filter(e => e.active != false && e.category == 'program').length;
 	return count
@@ -14,7 +19,7 @@ export const getIsOther = (url: string, programsNavLinks: ProgramsNavLinks) => {
 	const rootPath = "/" + url.split("/")[1]
 	const prog = Object.values(programsNavLinks).find(e => e.href === rootPath);
 	if (!prog) {
-		throw new Error(`Nav link ${rootPath} not found!`);
+		return false;
 	}
 	const progArray = prog.list.filter((e) => e.href == url && e.category == "program");
 	if (typeof progArray != "undefined"
@@ -30,7 +35,7 @@ export const getProgram = (url: string, programsNavLinks: ProgramsNavLinks) => {
 	const rootPath = "/" + url.split("/")[1]
 	const prog = Object.values(programsNavLinks).find(e => e.href === rootPath);
 	if (!prog) {
-		throw new Error(`Nav link ${rootPath} not found!`);
+		return { id: '', title: {}, list: [] };
 	}
 	const dict = {
 		id: prog.id,
