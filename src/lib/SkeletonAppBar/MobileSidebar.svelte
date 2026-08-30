@@ -156,9 +156,18 @@
 		<section class="p-4 pb-20 space-y-4 overflow-y-auto w-[360px]">
 			{#each navLinks as { id, title, href, list }, i}
 				{#if list.filter((e: any) => e.active != false).length > 0}
-					<!-- Title -->
+					<!-- Title: also the link to the category's landing page -->
 					<div {id} class="text-primary-700 dark:text-primary-500 font-bold uppercase px-4">
-						{title[variables.DEFAULT_LANGUAGE]}
+						<a
+							{href}
+							class="hover:underline"
+							data-sveltekit-preload-data="hover"
+							onclick={() => {
+								onListItemClick();
+							}}
+						>
+							{title[variables.DEFAULT_LANGUAGE]}
+						</a>
 					</div>
 					<!-- Navigation List -->
 					<nav class="list-nav">
