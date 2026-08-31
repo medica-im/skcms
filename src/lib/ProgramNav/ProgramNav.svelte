@@ -6,11 +6,14 @@
 	import Fa from "svelte-fa";
 	import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
-	export let pathname;
-	export let programsNavLinks;
+	let { pathname, programsNavLinks } = $props();
 
-	const program = getProgram(pathname, programsNavLinks);
-	const isOther = getIsOther(pathname, programsNavLinks);
+	// $derived, not a plain const: this used to be mounted afresh by each page,
+	// so computing once was harmless. Rendered from the layout it now survives
+	// navigation, and a const would keep listing the programmes of whichever
+	// category the reader happened to arrive on first.
+	const program = $derived(getProgram(pathname, programsNavLinks));
+	const isOther = $derived(getIsOther(pathname, programsNavLinks));
 
 	function preposition(name: string) {
 		const vowels = ['a', 'e', 'i', 'o', 'u'];
@@ -36,8 +39,7 @@
 		}
 	}
 </script>
-{#if getProgram(pathname, programsNavLinks).list.length > 0}
-{@const program = getProgram(pathname, programsNavLinks)}
+{#if program.list.length > 0}
 <div class="card bg-initial w-fit my-2 py-2">
 	<header class="card-header">
 		<h3 class="h3">
