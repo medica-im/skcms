@@ -30,13 +30,18 @@ export const programTrail = (
 	const path = pathname.split('?')[0].replace(/\/+$/, '');
 	const rootPath = '/' + path.split('/')[1];
 
+	// A category's href is optional — a section that is only a heading over its
+	// pages has none. Such a category can never match rootPath, so anything
+	// found here has a real href; the local const is what says so to the type
+	// checker, which cannot narrow through the find.
 	const category = Object.values(programsNavLinks).find((c) => c.href === rootPath);
-	if (!category) return trail;
+	if (!category?.href) return trail;
+	const categoryHref = category.href;
 
 	trail.push({
 		label: category.title[lang as keyof typeof category.title],
-		href: category.href,
-		current: path === category.href
+		href: categoryHref,
+		current: path === categoryHref
 	});
 
 	if (path === rootPath) return trail;

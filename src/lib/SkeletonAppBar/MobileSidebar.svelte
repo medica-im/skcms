@@ -165,21 +165,31 @@
 		<section class="min-w-0 space-y-4 overflow-y-auto p-4 pb-20">
 			{#each navLinks as { id, title, href, list }, i}
 				{#if list.filter((e: any) => e.active != false).length > 0}
-					<!-- Title: also the link to the category's landing page -->
+					<!--
+						Title: a link to the category's landing page, when it has one.
+
+						A category without an href is a heading over pages that explain
+						themselves, not a place of its own. Linking it regardless is what
+						put a dead /maison-de-sante on every page of that section.
+					-->
 					<div
 					{id}
 					class="whitespace-normal px-4 font-bold uppercase text-primary-700 dark:text-primary-500"
 				>
-						<a
-							{href}
-							class="hover:underline"
-							data-sveltekit-preload-data="hover"
-							onclick={() => {
-								onListItemClick();
-							}}
-						>
+						{#if href}
+							<a
+								{href}
+								class="hover:underline"
+								data-sveltekit-preload-data="hover"
+								onclick={() => {
+									onListItemClick();
+								}}
+							>
+								{title[variables.DEFAULT_LANGUAGE]}
+							</a>
+						{:else}
 							{title[variables.DEFAULT_LANGUAGE]}
-						</a>
+						{/if}
 					</div>
 					<!-- Navigation List -->
 					<nav class="list-nav">

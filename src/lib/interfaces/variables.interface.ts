@@ -49,7 +49,20 @@ export interface Nav {
 		en: string,
 	    fr: string
 	},
-	href: string,
+	/**
+	 * The category's own landing page, when it has one.
+	 *
+	 * Optional because not every category is a place. A programme category has
+	 * a page introducing it and listing its programmes; a section like "Maison
+	 * de santé" is only a heading over pages that explain themselves, and what
+	 * an MSP is belongs on its "À propos" page rather than a second page above
+	 * it. Given an href the heading is a link; without one it is plain text.
+	 *
+	 * A category that names an href it has no route for is the failure this
+	 * replaces: the menu rendered a link on every page of the section, and all
+	 * of them 404ed.
+	 */
+	href?: string,
 	icon?: IconDefinition,
 	list: Link[]
 };
