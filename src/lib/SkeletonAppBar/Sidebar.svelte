@@ -45,11 +45,22 @@
 			<section class="p-4 pb-20 space-y-4 overflow-y-auto w-[360px]">
 				{#each navLinks as { id, title, href, list }, i}
 					{#if list.filter((e) => e.active != false).length > 0}
-						<!-- Title: also the link to the category's landing page -->
+						<!--
+							Title: a link to the category's landing page, when it has one.
+
+							Without an href this is a heading over pages that explain
+							themselves, so it is plain text — not a link, and not underlined
+							on hover, which would promise somewhere to go. The same rule as
+							the mobile drawer.
+						-->
 						<div {id} class="text-primary-700 dark:text-primary-500 font-bold uppercase px-4">
-							<a {href} class="hover:underline" data-sveltekit-preload-data="hover">
+							{#if href}
+								<a {href} class="hover:underline" data-sveltekit-preload-data="hover">
+									{title[variables.DEFAULT_LANGUAGE]}
+								</a>
+							{:else}
 								{title[variables.DEFAULT_LANGUAGE]}
-							</a>
+							{/if}
 						</div>
 						<!-- Navigation List -->
 						<nav class="list-nav">
