@@ -20,7 +20,7 @@
 				La prise de rendez-vous par SMS est&nbsp;
 			<span class="inline-flex items-baseline">
 			{#await publicHolidays(page.data.organization)}
-			<Fa icon={faSync} size="3x" spin />
+			<Fa style="font-size:3em" icon={faSync} spin />
 			{:then holidays}
 			<span>
 				{isServiceAvailable('phoneAppointment', $dateTime, holidays)

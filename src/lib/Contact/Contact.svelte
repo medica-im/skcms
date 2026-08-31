@@ -35,7 +35,7 @@
 						<div
 							class="p-4 bg-primary-500 rounded-md shadow-md w-14 h-14 flex items-center justify-center"
 						>
-							<Fa icon={faLocationDot} size="2x" />
+							<Fa style="font-size:2em" icon={faLocationDot} />
 						</div>
 					</div>
 					<div class="text-center lg:text-left lg:ml-6">

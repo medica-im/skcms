@@ -92,7 +92,7 @@ hasErrors: {hasErrors}-->
 			<h3 class="h3">Valider ou annuler la création de l'entrée</h3>
 			{#each createEntry.for(uid).fields.allIssues() ?? [] as issue}
 				<aside class="alert variant-filled-error">
-					<span class="badge-icon"><Fa size="2x" icon={faExclamationTriangle} /></span>
+					<span class="badge-icon"><Fa style="font-size:2em" icon={faExclamationTriangle} /></span>
 					<div class="alert-message">
 						<h3 class="h3">Erreur</h3>
 						<p>{issue.message === 'One active Entry object with same effector, effector_type and facility already exists.'

@@ -169,14 +169,14 @@
 			{#if formResult?.success}
 				<div class="flex justify-center">
 					<div class="w-16 h-16 rounded-full variant-filled-success flex items-center justify-center">
-						<Fa icon={faCheck} size="2x" />
+						<Fa style="font-size:2em" icon={faCheck} />
 					</div>
 				</div>
 				<p class="text-lg">{formResult?.data?.message || 'Emails envoyés avec succès.'}</p>
 			{:else}
 				<div class="flex justify-center">
 					<div class="w-16 h-16 rounded-full variant-filled-error flex items-center justify-center">
-						<Fa icon={faXmark} size="2x" />
+						<Fa style="font-size:2em" icon={faXmark} />
 					</div>
 				</div>
 				<p class="text-lg">Erreur: {formResult?.text}</p>

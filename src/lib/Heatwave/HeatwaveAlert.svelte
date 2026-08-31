@@ -125,7 +125,7 @@
 			>
 			<!-- Icon -->
 			<div class="hidden lg:block">
-				<Fa icon={faTemperatureHigh} color={riskColor(alert)} size="3x" />
+				<Fa style="font-size:3em" icon={faTemperatureHigh} color={riskColor(alert)} />
 			</div>
 			<!-- Message -->
 			<div class="alert-message">

@@ -109,3 +109,24 @@ body {
 	background-repeat: no-repeat;
 	background-size: cover;
 }
+/* svelte-fa 4.0.4 marks .svelte-fa-base and -fw :global, but leaves the size
+   rules scoped to its own component. The class is in the server-rendered
+   markup while the stylesheet defining it only arrives with the component's
+   JS, so every sized icon paints at 1em and then snaps to its real size —
+   visible as a jump on each reload. Redeclaring them here, with the package's
+   own values, puts the size in the first paint.
+
+   Only the keyword sizes can be fixed this way. Numeric ones (size="2x")
+   are applied by a JS call on the mounted element, so they cannot be
+   server-rendered at all; prefer a keyword, or size the icon's container. */
+.svelte-fa-size-lg {
+	font-size: 1.33333em;
+	line-height: 0.75em;
+	vertical-align: -0.225em;
+}
+.svelte-fa-size-sm {
+	font-size: 0.875em;
+}
+.svelte-fa-size-xs {
+	font-size: 0.75em;
+}

@@ -191,7 +191,7 @@
 				{#if page.data?.organization?.category?.name == 'msp'}
 					<div class="w-6 h-6"><OutpatientClinicLogo /></div>
 				{:else if page.data?.organization?.category?.name == 'cpts'}
-					<Fa icon={faAddressBook} size="2x" class="align-middle" />
+					<Fa style="font-size:2em" icon={faAddressBook} class="align-middle" />
 				{/if}
 			</div>
 			<div class="block lg:hidden">

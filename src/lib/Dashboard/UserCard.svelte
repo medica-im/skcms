@@ -44,7 +44,7 @@ page.data?.user?.role {page.data?.user?.role}<br>
 			{#if visible}
 				<aside class="alert variant-ghost">
 					<!-- Icon -->
-					<div><Fa icon={faQuestion} size="3x" /></div>
+					<div><Fa style="font-size:3em" icon={faQuestion} /></div>
 					<!-- Message -->
 					<UnknownEmail {session} />
 					<!-- Actions -->
@@ -53,7 +53,7 @@ page.data?.user?.role {page.data?.user?.role}<br>
 							onclick={() => {
 								visible = false;
 							}}
-							class="btn-icon"><Fa icon={faXmark} size="2x" /></button
+							class="btn-icon"><Fa style="font-size:2em" icon={faXmark} /></button
 						>
 					</div>
 				</aside>

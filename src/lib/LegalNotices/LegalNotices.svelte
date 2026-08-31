@@ -23,7 +23,7 @@
 						<div
 							class="p-4 bg-primary-500 rounded-md shadow-md w-14 h-14 flex items-center justify-center"
 						>
-							<Fa icon={faBuilding} size="2x" />
+							<Fa style="font-size:2em" icon={faBuilding} />
 						</div>
 					</div>
 					<div class="grow ml-6">
@@ -38,7 +38,7 @@
 						<div
 							class="p-4 bg-primary-500 rounded-md shadow-md w-14 h-14 flex items-center justify-center"
 						>
-							<Fa icon={faLocationDot} size="2x" />
+							<Fa style="font-size:2em" icon={faLocationDot} />
 						</div>
 					</div>
 					<div class="grow ml-6">
@@ -55,7 +55,7 @@
 						<div
 							class="p-4 bg-primary-500 rounded-md shadow-md w-14 h-14 flex items-center justify-center"
 						>
-							<Fa icon={faServer} size="2x" />
+							<Fa style="font-size:2em" icon={faServer} />
 						</div>
 					</div>
 					<div class="grow ml-6">
