@@ -153,11 +153,22 @@
 	</AppRail>
 	{#if navLinks?.length}
 		<!-- Nav Links -->
-		<section class="p-4 pb-20 space-y-4 overflow-y-auto w-[360px]">
+		<!--
+			The panel takes whatever the rail leaves, and no fixed width: it was
+			w-[360px] after an 80px rail, so on a 360px phone the list ran to 440
+			and everything past the screen edge was unreachable. The drawer's own
+			width is capped in Drawer.svelte, which is what reserves the strip of
+			backdrop you tap to close. min-w-0 lets this shrink inside that cap,
+			and the names then have to wrap — several are longer than a phone.
+		-->
+		<section class="min-w-0 flex-1 space-y-4 overflow-y-auto p-4 pb-20">
 			{#each navLinks as { id, title, href, list }, i}
 				{#if list.filter((e: any) => e.active != false).length > 0}
 					<!-- Title: also the link to the category's landing page -->
-					<div {id} class="text-primary-700 dark:text-primary-500 font-bold uppercase px-4">
+					<div
+					{id}
+					class="whitespace-normal px-4 font-bold uppercase text-primary-700 dark:text-primary-500"
+				>
 						<a
 							{href}
 							class="hover:underline"
@@ -182,7 +193,7 @@
 											onListItemClick();
 										}}
 									>
-										<span class="flex-auto">{@html label}</span>
+										<span class="flex-auto whitespace-normal">{@html label}</span>
 										{#if badge}<span class="badge variant-filled-secondary">{badge}</span>{/if}
 									</a>
 								</li>
