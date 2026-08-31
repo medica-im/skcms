@@ -158,10 +158,11 @@
 			w-[360px] after an 80px rail, so on a 360px phone the list ran to 440
 			and everything past the screen edge was unreachable. The drawer's own
 			width is capped in Drawer.svelte, which is what reserves the strip of
-			backdrop you tap to close. min-w-0 lets this shrink inside that cap,
-			and the names then have to wrap — several are longer than a phone.
+			backdrop you tap to close. min-w-0 lets this shrink inside the 1fr
+			track instead of forcing it wider, and the names then have to wrap —
+			several are longer than a phone.
 		-->
-		<section class="min-w-0 flex-1 space-y-4 overflow-y-auto p-4 pb-20">
+		<section class="min-w-0 space-y-4 overflow-y-auto p-4 pb-20">
 			{#each navLinks as { id, title, href, list }, i}
 				{#if list.filter((e: any) => e.active != false).length > 0}
 					<!-- Title: also the link to the category's landing page -->
