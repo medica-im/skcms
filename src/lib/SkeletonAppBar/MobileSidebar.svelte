@@ -39,8 +39,16 @@
 	};
 </script>
 
+<!--
+	Two columns only when there is a second thing to put in one. A category with
+	no links leaves the rail alone in the drawer, and a standing `1fr` track
+	would hold open a band of empty panel beside it — which is what the
+	hamburger showed on any page outside the menu, the home page included.
+-->
 <div
-	class="grid grid-cols-[auto_1fr] h-full bg-surface-50-900-token border-r border-surface-500/30"
+	class="grid h-full bg-surface-50-900-token border-r border-surface-500/30 {navLinks?.length
+		? 'grid-cols-[auto_1fr]'
+		: 'grid-cols-[auto]'}"
 >
 	<!-- App Rail -->
 	<AppRail background="!bg-transparent" border="border-r border-surface-500/30">

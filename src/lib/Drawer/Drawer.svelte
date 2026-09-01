@@ -17,25 +17,26 @@
 	let navLinks = $derived(
 		menuNavCats.find((cat) => cat.id === currentRailCategory)?.list
 	);
-	// One width, in both states: a constant share of the screen.
+	// The drawer is only as wide as it has something to show.
 	//
-	// The drawer used to size itself per state, and the two states drifted
-	// apart. The rail-only state passed `w-[80]`, which is not a real Tailwind
-	// class — it emitted no CSS, but Skeleton only falls back to its own
-	// `w-[90%]` when the string is empty, so a truthy non-class left the drawer
-	// with no width at all and it sized to its contents by accident. Replacing
-	// it with a real `max-w-[80px]` did what it said instead, pinning the whole
-	// drawer to the 80px rail: tapping the hamburger showed a column of icons
-	// and no menu.
+	// With a category open it holds the rail plus that category's links, and
+	// takes a share of the screen: 85% leaves 15% of backdrop beside it, which
+	// is the only way to dismiss it by tapping — 48px on the narrowest phone
+	// worth supporting, above the 44px minimum this project holds itself to.
+	// max-w-sm stops it sprawling on a tablet, where 85% is far more than the
+	// links need.
 	//
-	// A percentage avoids that whole class of bug — it does not depend on what
-	// is inside the drawer, so neither state can quietly stop matching the
-	// other. 85% also keeps the dismiss target honest: the strip of backdrop
-	// beside the panel is the only way to close the drawer by tapping, and 15%
-	// of the narrowest phone worth supporting is 48px, above the 44px minimum
-	// this project holds itself to. max-w-sm stops it sprawling on a tablet,
-	// where 85% would be far more than the links need.
-	const widthSetting = 'w-[85%] max-w-sm';
+	// With no category open there is nothing but the rail of icons, so the
+	// drawer sizes to it. A fixed share here held open a band of empty panel
+	// beside the icons — which is what the hamburger showed on the home page,
+	// since a page outside the menu selects no category.
+	//
+	// w-auto, not a width that merely looks small: the previous version of this
+	// passed `w-[80]`, not a real Tailwind class, so it emitted no CSS while
+	// still being truthy enough to suppress Skeleton's own `w-[90%]` default.
+	// It sized to content by accident, and the accident broke the moment it was
+	// replaced with a class that meant something.
+	const widthSetting = $derived(navLinks?.length ? 'w-[85%] max-w-sm' : 'w-auto');
 </script>
 
 <Drawer width={widthSetting}>

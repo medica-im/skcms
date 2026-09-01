@@ -52,9 +52,13 @@ async function readDrawer(page: Page) {
 		const panel = document.querySelector('[data-testid="drawer"]');
 		if (!panel) return null;
 		const r = panel.getBoundingClientRect();
+		const rail = panel.querySelector('.app-rail');
 		return {
 			width: Math.round(r.width),
 			right: Math.round(r.right),
+			// The rail of icons: the drawer's whole content when no category is
+			// open, and what "no empty space beside it" is measured against.
+			rail: rail ? Math.round(rail.getBoundingClientRect().width) : 0,
 			// Is a category's link list showing, or is this the rail alone?
 			hasLinks: !!panel.querySelector('section'),
 			viewport: document.documentElement.clientWidth
@@ -77,51 +81,77 @@ async function openMenu(page: Page, width: number, url = ORIGIN) {
 }
 
 /**
- * Both states, one width. The home page is not a menu entry, so it opens on
- * the rail alone — the state that regressed; a programme page opens with its
- * category's links showing.
+ * Two states, two rules — they are not the same drawer.
+ *
+ * The home page is not a menu entry, so no category is current and the drawer
+ * holds nothing but the rail of icons. It must then be exactly as wide as that
+ * rail: a share of the screen here draws a blank panel beside the icons, which
+ * is what the hamburger showed on every page outside the menu.
+ *
+ * A programme page opens with its category's links, which need room — and there
+ * the share matters, because the strip of backdrop beside the panel is the only
+ * way to dismiss the drawer by tapping.
  */
 const STATES = [
 	{ name: 'showing just the rail', path: '', links: false },
 	{ name: 'showing a category', path: '/prevention', links: true }
 ] as const;
 
+for (const width of PHONES) {
+	test(`the menu is only as wide as the rail at ${width}px, with no category open`, async ({
+		page
+	}) => {
+		const m = await openMenu(page, width, ORIGIN);
+
+		// Guards the premise: if the home page ever gained a menu entry this
+		// state would stop being reachable and the assertion below would pass
+		// without testing anything.
+		expect(m.hasLinks, `expected no category open at ${ORIGIN}`).toBe(false);
+		expect(m.rail, 'the drawer rendered no rail').toBeGreaterThan(0);
+
+		// The whole rule: nothing beside the icons. Measured against the rail
+		// rather than a fixed number, because the rail's own width is Skeleton's
+		// to choose and may change.
+		const beside = m.width - m.rail;
+		expect(
+			beside,
+			`the drawer is ${m.width}px around an ${m.rail}px rail, so ${beside}px ` +
+				`of empty panel is held open beside the icons`
+		).toBeLessThanOrEqual(2);
+	});
+
+	test(`the menu takes ${SHARE * 100}% of a ${width}px screen showing a category`, async ({
+		page
+	}) => {
+		const m = await openMenu(page, width, `${ORIGIN}/prevention`);
+
+		expect(m.hasLinks, `expected a category open at ${ORIGIN}/prevention`).toBe(true);
+
+		const share = m.width / m.viewport;
+		expect(
+			share,
+			`the menu is ${m.width}px of a ${m.viewport}px screen — ` +
+				`${(share * 100).toFixed(0)}%, not ${SHARE * 100}%`
+		).toBeCloseTo(SHARE, 1);
+		expect(Math.abs(share - SHARE)).toBeLessThanOrEqual(TOLERANCE);
+	});
+
+	test(`enough backdrop is left to tap the menu closed at ${width}px showing a category`, async ({
+		page
+	}) => {
+		const m = await openMenu(page, width, `${ORIGIN}/prevention`);
+		const gap = m.viewport - m.width;
+		expect(
+			gap,
+			`the menu is ${m.width}px of a ${m.viewport}px screen, leaving ` +
+				`${gap}px of backdrop — under the ${MIN_TAP}px a finger needs`
+		).toBeGreaterThanOrEqual(MIN_TAP);
+	});
+}
+
 for (const state of STATES) {
 	for (const width of PHONES) {
-		test(`the menu takes ${SHARE * 100}% of a ${width}px screen ${state.name}`, async ({
-			page
-		}) => {
-			const m = await openMenu(page, width, `${ORIGIN}${state.path}`);
-
-			// Guards the premise: if this state stopped being reachable the
-			// width assertion below would pass without testing anything.
-			expect(
-				m.hasLinks,
-				`expected the drawer ${state.name} at ${ORIGIN}${state.path}`
-			).toBe(state.links);
-
-			const share = m.width / m.viewport;
-			expect(
-				share,
-				`the menu is ${m.width}px of a ${m.viewport}px screen — ` +
-					`${(share * 100).toFixed(0)}%, not ${SHARE * 100}%`
-			).toBeCloseTo(SHARE, 1);
-			expect(Math.abs(share - SHARE)).toBeLessThanOrEqual(TOLERANCE);
-		});
-
-		test(`enough backdrop is left to tap the menu closed at ${width}px ${state.name}`, async ({
-			page
-		}) => {
-			const m = await openMenu(page, width, `${ORIGIN}${state.path}`);
-			const gap = m.viewport - m.width;
-			expect(
-				gap,
-				`the menu is ${m.width}px of a ${m.viewport}px screen, leaving ` +
-					`${gap}px of backdrop — under the ${MIN_TAP}px a finger needs`
-			).toBeGreaterThanOrEqual(MIN_TAP);
-		});
-
-		test(`the menu does not overflow a ${width}px screen ${state.name}`, async ({ page }) => {
+	test(`the menu does not overflow a ${width}px screen ${state.name}`, async ({ page }) => {
 			const m = await openMenu(page, width, `${ORIGIN}${state.path}`);
 			expect(
 				m.right,

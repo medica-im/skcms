@@ -25,7 +25,13 @@
 	});
 </script>
 
-{#if navLinks}
+<!--
+	navLinks?.length, not navLinks: an empty array is truthy, so a category that
+	lists nothing would still draw the sidebar and hold open its 1fr column.
+	The same rule the mobile drawer follows — the second column exists only when
+	there is a second thing to put in it.
+-->
+{#if navLinks?.length}
 	<div class="hidden lg:block h-full">
 		<div
 			class="grid grid-cols-[auto_1fr] h-full bg-surface-50-900-token border-r border-surface-500/30"
