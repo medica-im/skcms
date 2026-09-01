@@ -275,10 +275,25 @@ MEDIA_EXCLUDES=(--exclude='*.bak' --exclude='*.bak-*' --exclude='*.padded-bak'
 # Where /shared/ is served from on a given host. Production keeps it under
 # /srv/annuaire.medica.im — the same root its /media/ alias already uses —
 # rather than a name matching the environment.
+#
+# Set to the empty string for a host that has no shared media, and the sync is
+# skipped rather than performed against a path nothing serves. annuaire.medica.im
+# is such a host: it runs on the old box, which has neither the directory nor an
+# nginx /shared/ location, so a sync there would create the directory, copy
+# 175MB into it, and serve none of it. No page on that site references /shared/.
+MEDIA_DIR_ANNUAIRE_MEDICA_IM="${MEDIA_DIR_ANNUAIRE_MEDICA_IM-}"
+
 media_dir_for() {
     local host="$1" var
     var="MEDIA_DIR_$(printf '%s' "$host" | tr '[:lower:].-' '[:upper:]__')"
-    echo "${!var:-${MEDIA_DIR_DEFAULT:-/srv/annuaire.medica.im/shared/}}"
+    # ${!var+set} rather than ${!var:-default}: the latter cannot tell an empty
+    # value from an absent one, so a host deliberately set to "" would silently
+    # get the default and be synced anyway.
+    if [[ -n "${!var+set}" ]]; then
+        echo "${!var}"
+    else
+        echo "${MEDIA_DIR_DEFAULT:-/srv/annuaire.medica.im/shared/}"
+    fi
 }
 
 sync_media() {
@@ -289,6 +304,7 @@ sync_media() {
     host="$(yq -r ".images[] | select(.name == \"$name\") | .host // \"\"" "$IMAGES_FILE")"
     [[ -z "$host" ]] && { warn "media: no host for $name in $(basename "$IMAGES_FILE")"; return 0; }
     dir="$(media_dir_for "$host")"
+    [[ -z "$dir" ]] && { info "media: $host serves no shared media — skipped"; return 0; }
 
     if [[ $DRY_RUN -eq 1 ]]; then
         info "(dry run) rsync $MEDIA_SRC -> $host:$dir"
