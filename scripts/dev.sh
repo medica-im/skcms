@@ -137,7 +137,18 @@ cd "$REPO_ROOT"
 echo "==> [$NAME] Checking out skvar branch: $DEV_BRANCH"
 git -C "$SUBMODULE_PATH" fetch origin "$DEV_BRANCH"
 git -C "$SUBMODULE_PATH" checkout "$DEV_BRANCH"
-git -C "$SUBMODULE_PATH" pull origin "$DEV_BRANCH"
+
+# --ff-only rather than a bare pull: switching sites takes what the remote
+# holds and should never merge. A bare `git pull` asks git to reconcile, and
+# git refuses outright when neither pull.rebase nor pull.ff is configured —
+# "Need to specify how to reconcile divergent branches" — which is a confusing
+# way to fail at what is meant to be a one-word site switch.
+if ! git -C "$SUBMODULE_PATH" merge --ff-only "origin/$DEV_BRANCH"; then
+    echo "error: skvar $DEV_BRANCH cannot fast-forward to origin/$DEV_BRANCH." >&2
+    echo "       The local branch has commits the remote does not — push them," >&2
+    echo "       or reset if they are not wanted, then run this again." >&2
+    exit 1
+fi
 
 echo "==> [$NAME] Checking $PROD_BRANCH against $DEV_BRANCH"
 git -C "$SUBMODULE_PATH" fetch origin "$PROD_BRANCH"

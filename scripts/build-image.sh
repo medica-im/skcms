@@ -89,7 +89,22 @@ fi
 echo "==> [$NAME] Checking out skvar branch: $SKVAR_BRANCH"
 git -C "$SUBMODULE_PATH" fetch origin "$SKVAR_BRANCH"
 git -C "$SUBMODULE_PATH" checkout "$SKVAR_BRANCH"
-git -C "$SUBMODULE_PATH" pull origin "$SKVAR_BRANCH"
+
+# --ff-only, not a bare pull. A build takes what the remote holds; it has no
+# business merging, and no way to resolve a conflict if it tried. A bare `git
+# pull` asks git to reconcile, and git refuses outright when no pull.rebase or
+# pull.ff is configured — which stopped a five-site release on its first site
+# with "Need to specify how to reconcile divergent branches", after an earlier
+# build in the same run had left the submodule on another branch.
+#
+# If this cannot fast-forward, the local branch has commits the remote does not:
+# say so and stop, rather than inventing a merge inside a release.
+if ! git -C "$SUBMODULE_PATH" merge --ff-only "origin/$SKVAR_BRANCH"; then
+    echo "error: skvar $SKVAR_BRANCH cannot fast-forward to origin/$SKVAR_BRANCH." >&2
+    echo "       The local branch has commits the remote does not. Push or reset" >&2
+    echo "       it, then run this again — a release will not merge for you." >&2
+    exit 1
+fi
 
 GIT_SHA=$(git rev-parse HEAD)
 SUBMODULE_SHA=$(git -C "$SUBMODULE_PATH" rev-parse HEAD)
