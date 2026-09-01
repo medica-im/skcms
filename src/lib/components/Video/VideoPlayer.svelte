@@ -60,6 +60,23 @@
 				super(player, options);
 				this.controlText('Qualité');
 				this.addClass('vjs-quality-selector');
+
+				// A label, not an icon. A video.js button draws its glyph from an
+				// icon class, and this one has no glyph of its own — without
+				// something to paint it collapsed to 0x0 and could not be clicked
+				// at all, however correct the menu behind it was.
+				//
+				// The label doubles as the readout: it says which rendition is
+				// playing, which "Auto" alone would not.
+				this.label = document.createElement('span');
+				this.label.className = 'vjs-quality-label';
+				this.label.textContent = 'Auto';
+				this.el().insertBefore(this.label, this.menu.el());
+			}
+
+			/** Called whenever the player settles on a rendition. */
+			setLabel(text: string) {
+				if (this.label) this.label.textContent = text;
 			}
 			createItems() {
 				const make = (label: string, height: number | null) => {
@@ -71,6 +88,7 @@
 						enabledFor(heights, height).forEach((on, i) => {
 							levels[i].enabled = on;
 						});
+						this.setLabel(label);
 					};
 					return item;
 				};
@@ -81,9 +99,19 @@
 		}
 
 		videojs.registerComponent('QualityButton', QualityButton);
+
 		// Before the fullscreen button, where a viewer expects to find it.
-		p.getChild('controlBar')?.addChild('QualityButton', {}, 
-			p.getChild('controlBar')?.children().length - 1);
+		const bar = p.getChild('controlBar');
+		const button = bar?.addChild('QualityButton', {}, bar.children().length - 1);
+
+		// On Auto the label follows what the player chose, so a reader can see
+		// the stream step down on a weak connection rather than guess at it.
+		levels.on('change', () => {
+			const selected = button?.items?.find((i: any) => i.isSelected_);
+			if (selected && selected.options_.label !== 'Auto') return;
+			const current = levels[levels.selectedIndex];
+			if (current) button?.setLabel(`Auto (${current.height}p)`);
+		});
 	}
 
 	onMount(() => {
@@ -111,3 +139,79 @@
 <video bind:this={el} class="video-js" controls preload="auto">
 	<track kind="captions" />
 </video>
+
+<!--
+	:global because these elements are video.js's, created after mount, so
+	Svelte's scoping never reaches them.
+
+	Deliberately not themed light/dark: the control bar sits ON the video, where
+	the background is the footage rather than the page. White on the player's own
+	translucent black reads the same in both modes, and following the page theme
+	would put light-grey text over a bright frame in light mode.
+-->
+<style lang="postcss">
+	/* The label is the button's only visible content — without a width it
+	   collapses to 0x0 and cannot be clicked. */
+	:global(.video-js .vjs-quality-selector) {
+		width: auto !important;
+		min-width: 4rem;
+		padding: 0 0.5rem;
+	}
+
+	:global(.video-js .vjs-quality-label) {
+		display: inline-block;
+		line-height: 3em;
+		font-size: 1em;
+		color: #fff;
+		white-space: nowrap;
+	}
+
+	/*
+		Every rule below is prefixed .video-js and marked !important, because
+		video.js's own stylesheet is more specific than a plain class and wins
+		otherwise: its defaults paint the menu #2B333F text on a 35%-white panel,
+		which over pale footage came out dark-grey on near-white and was
+		effectively unreadable — the selected item worst of all, white on white.
+
+		Solid dark panel, white text. Not themed to the page: the menu sits ON the
+		video, where the backdrop is the footage rather than the page background,
+		so following the page theme would put pale text over a bright frame in
+		light mode. This reads the same either way.
+	*/
+	:global(.video-js .vjs-quality-selector .vjs-menu-content) {
+		background-color: rgb(15 17 21 / 0.95) !important;
+		border-radius: 0.25rem;
+		overflow: hidden;
+	}
+
+	:global(.video-js .vjs-quality-selector .vjs-menu-item) {
+		color: #fff !important;
+		background-color: transparent !important;
+		font-size: 1em;
+		padding: 0.6em 1.2em;
+		text-transform: none;
+	}
+
+	:global(.video-js .vjs-quality-selector .vjs-menu-item:hover),
+	:global(.video-js .vjs-quality-selector .vjs-menu-item:focus) {
+		background-color: rgb(255 255 255 / 0.2) !important;
+		color: #fff !important;
+	}
+
+	/* The current choice. Video.js marks it only with a faint tint, which is
+	   not enough to find at a glance. */
+	:global(.video-js .vjs-quality-selector .vjs-menu-item.vjs-selected) {
+		background-color: rgb(255 255 255 / 0.16) !important;
+		color: #fff !important;
+		font-weight: 700;
+	}
+
+	/* Its screen-reader suffix ("Auto, selected") must not print on screen. */
+	:global(.video-js .vjs-quality-selector .vjs-menu-item .vjs-control-text) {
+		position: absolute !important;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
+	}
+</style>
