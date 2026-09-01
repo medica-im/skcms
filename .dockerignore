@@ -10,3 +10,21 @@ docker-compose*
 public
 .svelte-kit
 build
+
+# Not part of the image, and excluded so editing them does not rebuild it.
+#
+# The Dockerfile does `COPY . .` into the builder, so every file in the context
+# is an input to that layer: a one-line change to a release script invalidated
+# it and forced a full pnpm build, for files the runtime stage never copies —
+# it takes only package.json, pnpm-lock.yaml, patches/ and build/.
+#
+# Kept out of the context rather than reordered in the Dockerfile because they
+# are not build inputs at all. The build reads none of them; only test and
+# release tooling does, and that runs on the host.
+scripts
+tests
+features
+.features-gen
+docs
+playwright.config.ts
+vitest-setup*
