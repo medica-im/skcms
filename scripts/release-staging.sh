@@ -288,6 +288,53 @@ ensure_backend() {
 # A cold cache costs one slow page; a stale one costs the whole site.
 CLEAR_CACHE="${CLEAR_CACHE:-1}"
 
+# --- Shared media ----------------------------------------------------------
+# The videos a programme page embeds live outside the image, under /shared/ on
+# the host, because they are large, identical across the sites on a box, and
+# change on their own schedule rather than with the code.
+#
+# Synced here rather than copied by hand because nothing in git tracks these
+# files: a page that starts referencing a new recording would otherwise ship to
+# a host that does not have it and 404 for every reader. Before the build, so
+# the file is in place before any page can ask for it.
+#
+# Dev is the source of truth: build-hls.sh writes its ladders into
+# /srv/dev.medica.im/shared, and every other host is a copy.
+#
+# Backups and working files are excluded: /shared/ is served straight to the
+# public, so a *.bak left beside a video is a 14MB download anyone can find.
+#
+# rsync, so a release where nothing changed sends nothing. No --delete: a file
+# this release does not know about may belong to a site released separately.
+MEDIA_SRC="${MEDIA_SRC:-/srv/dev.medica.im/shared/}"
+MEDIA_DIR="${MEDIA_DIR:-/srv/staging.medica.im/shared/}"
+SYNC_MEDIA="${SYNC_MEDIA:-1}"
+MEDIA_EXCLUDES=(--exclude='*.bak' --exclude='*.bak-*' --exclude='*.padded-bak'
+                --exclude='*.tmp' --exclude='.*')
+
+sync_media() {
+    local sent
+    [[ "$SYNC_MEDIA" == "1" ]] || { info "media: left alone (SYNC_MEDIA=$SYNC_MEDIA)"; return 0; }
+    [[ -d "$MEDIA_SRC" ]] || { warn "media: no source at $MEDIA_SRC — skipped"; return 0; }
+
+    if [[ $DRY_RUN -eq 1 ]]; then
+        info "(dry run) rsync $MEDIA_SRC -> $BACKEND_HOST:$MEDIA_DIR"
+        return 0
+    fi
+
+    # Never fatal: a release that stops because a video did not copy is worse
+    # than one that ships with the video it already had.
+    sent="$(rsync -a --info=stats2 "${MEDIA_EXCLUDES[@]}" "$MEDIA_SRC" "$BACKEND_HOST:$MEDIA_DIR" 2>/dev/null |
+            grep -oP 'Number of regular files transferred: \K[0-9,]+' || true)"
+    if [[ -z "$sent" ]]; then
+        warn "media: could not sync to $BACKEND_HOST:$MEDIA_DIR (is it reachable?)"
+    elif [[ "$sent" == "0" ]]; then
+        info "media: already up to date"
+    else
+        info "media: $sent file(s) copied to $MEDIA_DIR"
+    fi
+}
+
 # Drop one site's cached payloads.
 #
 # Per site rather than all at once: the keys carry the site's own hostname
@@ -383,6 +430,13 @@ for NAME in "${NAMES[@]}"; do
     # It cannot be deferred past the build: the images cannot be built until the
     # new backend is up, and once this site's build starts it is committed to
     # the cutover regardless.
+    # Outside the cache guard below, and run for --build-only too: the media has
+    # to be in place for any build that will be deployed, and unlike the cache
+    # clear it changes nothing a site is currently serving. Its own dry-run
+    # branch prints what it would copy.
+    step "$NAME: media"
+    sync_media
+
     if [[ $DRY_RUN -eq 0 && $BUILD_ONLY -eq 0 ]]; then
         step "$NAME: cache"
         clear_site_cache "$NAME"
