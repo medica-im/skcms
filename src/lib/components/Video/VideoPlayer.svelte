@@ -68,10 +68,15 @@
 				//
 				// The label doubles as the readout: it says which rendition is
 				// playing, which "Auto" alone would not.
+				// Into the <button> video.js creates, not the wrapping <div>. The
+				// wrapper also holds the pop-up menu, so a span appended there
+				// landed after it — laid out 32px BELOW the 30px control bar, in
+				// 10px type, over the video. Present, visible, and impossible to
+				// see.
 				this.label = document.createElement('span');
 				this.label.className = 'vjs-quality-label';
 				this.label.textContent = 'Auto';
-				this.el().insertBefore(this.label, this.menu.el());
+				(this.el().querySelector('button') ?? this.el()).appendChild(this.label);
 			}
 
 			/** Called whenever the player settles on a rendition. */
@@ -158,12 +163,18 @@
 		padding: 0 0.5rem;
 	}
 
+	/* Sized in px against the bar's own 30px height, not in em: the button
+	   inherits a 10px font from video.js, so `1em` was 10px type and
+	   `line-height: 3em` pushed the text clear of the bar. */
 	:global(.video-js .vjs-quality-label) {
 		display: inline-block;
-		line-height: 3em;
-		font-size: 1em;
+		line-height: 30px;
+		font-size: 13px;
+		font-weight: 600;
 		color: #fff;
 		white-space: nowrap;
+		/* Legible over a translucent bar with bright footage behind it. */
+		text-shadow: 0 1px 2px rgb(0 0 0 / 0.9);
 	}
 
 	/*
