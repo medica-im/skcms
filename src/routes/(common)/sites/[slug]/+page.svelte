@@ -92,7 +92,17 @@
 	</title>
 </svelte:head>
 
-<header id="hero" class="bg-surface-100-800-token hero-gradient relative">
+<!--
+	No background of its own. Wintry already paints a gradient on the body, in
+	these very colours and anchored to the top of the viewport; a band repeating
+	them inside its own box drew them twice at two scales and left a seam where
+	it ended, which is what made the title read as a separate container. The
+	title now sits on the page's own background and the content below carries
+	the structure.
+
+	`relative` stays: the edit pencil is positioned against this element.
+-->
+<header id="hero" class="relative">
 	<div class="mx-0 flex flex-col items-center justify-center p-4 py-6">
 		<h2 class="h2">{data.facility?.name}</h2>
 	</div>
@@ -153,16 +163,3 @@
 		<Back />
 	</div>
 </div>
-
-<style lang="postcss">
-	.section-container {
-		@apply p-4 py-8;
-	}
-	/* Hero Gradient */
-	/* prettier-ignore */
-	.hero-gradient {
-		background-image:
-			radial-gradient(at 0% 0%, rgba(var(--color-secondary-500) / 0.33) 0px, transparent 50%),
-			radial-gradient(at 98% 1%, rgba(var(--color-error-500) / 0.33) 0px, transparent 50%);
-	}
-</style>

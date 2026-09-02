@@ -48,7 +48,12 @@
 	</title>
 </svelte:head>
 
-<header id="hero" class="hero-gradient">
+<!--
+	No background of its own: Wintry already paints a gradient at the top of the
+	viewport, and a band repeating those colours in its own box drew them twice
+	at two scales, leaving a seam where it ended.
+-->
+<header id="hero">
 	<div class="flex flex-col items-center p-4 py-6 space-y-2">
 		<h2 class="h2">{m.admin_entries_title()}</h2>
 		<p class="opacity-70 text-sm">{m.admin_entries_subtitle()}</p>
@@ -96,11 +101,5 @@
 <style lang="postcss">
 	.section-container {
 		@apply mx-auto w-full max-w-7xl p-4 py-8 md:py-10;
-	}
-	/* prettier-ignore */
-	.hero-gradient {
-		background-image:
-			radial-gradient(at 0% 0%, rgba(var(--color-secondary-500) / 0.33) 0px, transparent 50%),
-			radial-gradient(at 98% 1%, rgba(var(--color-error-500) / 0.33) 0px, transparent 50%);
 	}
 </style>

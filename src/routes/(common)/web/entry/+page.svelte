@@ -13,7 +13,12 @@
 	</title>
 </svelte:head>
 
-<header id="hero" class="hero-gradient">
+<!--
+	No background of its own: Wintry already paints a gradient at the top of the
+	viewport, and a band repeating those colours in its own box drew them twice
+	at two scales, leaving a seam where it ended.
+-->
+<header id="hero">
 	<div class="mx-0 flex flex-col items-center justify-center p-4 py-6 space-y-2">
 		<h2 class="h2">Créer une entrée</h2>
 		{#if browser && data.user}
@@ -21,16 +26,3 @@
 		{/if}
 	</div>
 </header>
-
-<style lang="postcss">
-	.section-container {
-		@apply mx-auto flex w-full max-w-7xl items-center justify-center p-4 py-8;
-	}
-	/* Hero Gradient */
-	/* prettier-ignore */
-	.hero-gradient {
-		background-image:
-			radial-gradient(at 0% 0%, rgba(var(--color-secondary-500) / 0.33) 0px, transparent 50%),
-			radial-gradient(at 98% 1%, rgba(var(--color-error-500) / 0.33) 0px, transparent 50%);
-	}
-</style>
