@@ -46,7 +46,6 @@ export const SITE_ORIGINS = {
 	'annuaire.medica.im': 'http://dev.annuaire.medica.im',
 	'ipa.medica.im': 'http://dev.ipa.medica.im',
 	'sandbox.medica.im': 'http://dev.sandbox.medica.im',
-	'ssc.medica.im': 'http://dev.ssc.medica.im',
 	// WordPress at the root with only /annuaire proxied to the app; see
 	// BASE_PATHS below, and directoryPathFor for why that is not the same thing
 	// as santelyon3's /annuaire.
@@ -178,8 +177,7 @@ export const SITE_CONTEXTS: Record<SiteName, { context: string; port: number } |
 	'annuaire.medica.im': { context: 'annuaire', port: 3010 },
 	'sandbox.medica.im': { context: 'sandbox', port: 3014 },
 	'unipa.fr': { context: 'unipa', port: 3015 },
-	'ipa.medica.im': undefined,
-	'ssc.medica.im': undefined
+	'ipa.medica.im': undefined
 };
 
 /**
