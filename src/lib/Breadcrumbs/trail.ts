@@ -5,9 +5,10 @@ export interface Crumb {
 	label: string;
 	href: string;
 	/**
-	 * True only for the page actually being read. A sub-page's trail ends at
-	 * the programme above it, and that crumb is a parent — it has to stay
-	 * clickable, because it is the way back up.
+	 * True only for the page actually being read. An undeclared sub-page's
+	 * trail ends at the programme above it, and that crumb is a parent — it
+	 * has to stay clickable, because it is the way back up. So the last crumb
+	 * is not always the current page.
 	 */
 	current: boolean;
 }
@@ -18,8 +19,9 @@ export interface Crumb {
  * Built from programsNavLinks rather than from the URL segments, so every
  * crumb carries the name the rest of the site uses for that page — rename a
  * programme in variables.ts and the breadcrumb renames with it. A segment the
- * nav data does not know about (the deeper pages under vaccins and
- * sante-mentale) ends the trail instead of being guessed at from its slug.
+ * nav data does not know about (the deeper pages under vaccins) ends the trail
+ * instead of being guessed at from its slug; a sub-page that wants its own
+ * crumb declares it in the programme's `subPages`, which is nav data too.
  */
 export const programTrail = (
 	pathname: string,
@@ -55,7 +57,14 @@ export const programTrail = (
 			(l) => path.startsWith(l.href + '/') && l.active !== false
 		);
 		// A parent, not the current page: keep it a link.
-		if (parent) trail.push({ label: parent.label, href: parent.href, current: false });
+		if (parent) {
+			trail.push({ label: parent.label, href: parent.href, current: false });
+			// The sub-page names itself only if the programme declares it, so the
+			// label still comes from the nav data. An undeclared sub-page ends the
+			// trail here, exactly as before.
+			const subPage = parent.subPages?.find((s) => s.href === path);
+			if (subPage) trail.push({ label: subPage.label, href: subPage.href, current: true });
+		}
 	}
 
 	return trail;

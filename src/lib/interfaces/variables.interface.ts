@@ -33,6 +33,14 @@ export interface MenuNavCat {
 	list: Nav[];
 }
 
+/**
+ * A page named by the breadcrumb but absent from the nav. See Link.subPages.
+ */
+export interface SubPage {
+	href: string,
+	label: string
+};
+
 export interface Link {
 	href: string,
 	label: string,
@@ -40,7 +48,20 @@ export interface Link {
 	icon: object|null,
 	category?: string,
 	active?: boolean,
-	preload?: string
+	preload?: string,
+	/**
+	 * Pages below this one that the breadcrumb may name.
+	 *
+	 * Declared rather than derived: a slug is not a title, and the trail's rule
+	 * is that every crumb carries the name the rest of the site uses. A page
+	 * left out of this list still works — the trail simply stops at the
+	 * programme above it, which is what the deeper pages under vaccins do.
+	 *
+	 * Not a second menu: these do not appear in the nav, only in the trail —
+	 * which is why a sub-page carries no keywords or icon. A crumb is a name
+	 * and a destination, nothing else.
+	 */
+	subPages?: SubPage[]
 };
 
 export interface Nav {

@@ -17,6 +17,25 @@ const programsNavLinks = {
 		title: { en: 'Health prevention', fr: 'Prévention en santé' },
 		href: '/prevention',
 		list: [{ href: '/prevention/vaccins', label: 'Vaccins', category: 'program', active: true }]
+	},
+	'parcours-pluriprofessionnels': {
+		id: 'pathways',
+		title: { en: 'Multi-professional pathways', fr: 'Parcours pluriprofessionnels' },
+		href: '/parcours-pluriprofessionnels',
+		list: [
+			{
+				href: '/parcours-pluriprofessionnels/sante-mentale',
+				label: 'Santé mentale',
+				category: 'program',
+				active: true,
+				subPages: [
+					{
+						href: '/parcours-pluriprofessionnels/sante-mentale/tele-expertise',
+						label: 'Télé-expertise'
+					}
+				]
+			}
+		]
 	}
 } as unknown as ProgramsNavLinks;
 
@@ -58,6 +77,28 @@ describe('the programme breadcrumb trail', () => {
 		]);
 	});
 
+	// A sub-page is named only when the programme above it declares it, so the
+	// label still comes from the nav data and never from the slug. That is what
+	// separates it from calendrier and annuaire above, which stop the trail.
+	it('names a sub-page the programme above it declares', () => {
+		expect(
+			programTrail('/parcours-pluriprofessionnels/sante-mentale/tele-expertise', programsNavLinks)
+		).toEqual([
+			{ label: 'Accueil', href: '/', current: false },
+			{ label: 'Parcours pluriprofessionnels', href: '/parcours-pluriprofessionnels', current: false },
+			{
+				label: 'Santé mentale',
+				href: '/parcours-pluriprofessionnels/sante-mentale',
+				current: false
+			},
+			{
+				label: 'Télé-expertise',
+				href: '/parcours-pluriprofessionnels/sante-mentale/tele-expertise',
+				current: true
+			}
+		]);
+	});
+
 	it('ignores a query string', () => {
 		expect(programTrail('/prevention?tab=x', programsNavLinks).at(-1)?.href).toBe('/prevention');
 	});
@@ -76,6 +117,17 @@ describe('which crumb is the page you are on', () => {
 	it('marks no crumb as current on a sub-page', () => {
 		const trail = programTrail('/prevention/vaccins/calendrier', programsNavLinks);
 		expect(trail.at(-1)).toEqual({ label: 'Vaccins', href: '/prevention/vaccins', current: false });
+	});
+
+	// The programme above a declared sub-page is still a parent: it keeps the
+	// reader's way back up, so only the sub-page itself is current.
+	it('marks the sub-page current and its programme not, on a declared sub-page', () => {
+		const trail = programTrail(
+			'/parcours-pluriprofessionnels/sante-mentale/tele-expertise',
+			programsNavLinks
+		);
+		expect(trail.at(-1)?.current).toBe(true);
+		expect(trail.at(-2)?.current).toBe(false);
 	});
 
 	it('marks the last crumb as current on a programme page', () => {
