@@ -32,6 +32,10 @@ const programsNavLinks = {
 					{
 						href: '/parcours-pluriprofessionnels/sante-mentale/tele-expertise',
 						label: 'Télé-expertise'
+					},
+					{
+						href: '/parcours-pluriprofessionnels/sante-mentale/annuaire',
+						label: 'Annuaire santé mentale'
 					}
 				]
 			}
@@ -66,9 +70,36 @@ describe('the programme breadcrumb trail', () => {
 		]);
 	});
 
-	// calendrier and annuaire are real routes but are not in programsNavLinks;
-	// the page's own h1 says where the reader is, so the trail stops at the
-	// deepest level it can name rather than inventing one.
+	// Every sub-page of a programme names itself, so a reader always sees where
+	// they are. santé mentale has two, and one naming itself while the other
+	// stopped at the programme above made the trail look broken on the page
+	// that lost its name rather than deliberate.
+	it('names every declared sub-page of a programme, not just the first', () => {
+		expect(
+			programTrail('/parcours-pluriprofessionnels/sante-mentale/annuaire', programsNavLinks)
+		).toEqual([
+			{ label: 'Accueil', href: '/', current: false },
+			{
+				label: 'Parcours pluriprofessionnels',
+				href: '/parcours-pluriprofessionnels',
+				current: false
+			},
+			{
+				label: 'Santé mentale',
+				href: '/parcours-pluriprofessionnels/sante-mentale',
+				current: false
+			},
+			{
+				label: 'Annuaire santé mentale',
+				href: '/parcours-pluriprofessionnels/sante-mentale/annuaire',
+				current: true
+			}
+		]);
+	});
+
+	// calendrier is a real route but is not in programsNavLinks; the page's own
+	// h1 says where the reader is, so the trail stops at the deepest level it
+	// can name rather than inventing one from the slug.
 	it('stops at the deepest level the nav data knows', () => {
 		expect(programTrail('/prevention/vaccins/calendrier', programsNavLinks)).toEqual([
 			{ label: 'Accueil', href: '/', current: false },
