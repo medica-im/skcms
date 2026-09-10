@@ -63,11 +63,16 @@ function distanceOfEffector(entry: Entry, distEffectors: DistanceEffectors) {
 function compareEffectorDistance(a: Entry, b: Entry, distEffectors: DistanceEffectors) {
 	let dist_a = distanceOfEffector(a, distEffectors);
 	let dist_b = distanceOfEffector(b, distEffectors);
-	if (!dist_a && !dist_b) {
+	// Explicitly undefined, not falsy: a distance of 0 means the entry sits at
+	// the address that was searched — the closest possible match — and `!0` is
+	// true, so falsy guards sank it to the bottom of its group instead.
+	// undefined is the genuinely absent case: distanceEffectorsF skips a
+	// facility with no coordinates, so the lookup finds no key at all.
+	if (dist_a === undefined && dist_b === undefined) {
 		return 0;
-	} else if (!dist_a) {
+	} else if (dist_a === undefined) {
 		return 1;
-	} else if (!dist_b) {
+	} else if (dist_b === undefined) {
 		return -1;
 	} else {
 		return (dist_a - dist_b);

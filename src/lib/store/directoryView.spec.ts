@@ -317,15 +317,7 @@ describe('grouping and order', () => {
 		expect(groupNames(view({ term: 'nobody-by-this-name' }))).toEqual([]);
 	});
 
-	// KNOWN DEFECT, left failing on purpose: compareEffectorDistance guards
-	// with `!dist_a`, and `!0` is true. An entry at exactly the searched
-	// address — the closest possible match — is taken for one with no
-	// coordinates and sorted last. Damien is 0 m away, Chloé 11 km, Gaëlle
-	// 38 km; the code yields Chloé, Damien, Gaëlle.
-	//
-	// The assertion states the behaviour that is wanted, so it turns green
-	// when the guard becomes an explicit undefined check.
-	it.fails('orders within a group by distance when an address is given', () => {
+	it('orders within a group by distance when an address is given', () => {
 		// Damien is at the searched address (0 m), Chloé 11 km off, Gaëlle 38 km.
 		const avignon = {
 			geometry: { coordinates: [4.805528, 43.949317] }
