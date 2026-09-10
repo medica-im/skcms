@@ -158,9 +158,7 @@
 	};
 	
 	//runes
-	let rSelectSituation: SelectType | null | undefined = $state($selectSituation);
 	let rCurrentOrg = $derived(propCurrentOrg);
-	let rDirectoryRedirect = $derived(setRedirect);
 	let rLimitCategories = $derived(propLimitCategories);
 	let rFullFilteredEntries = $derived.by(() => {
 		return fullFilteredEntriesF(
