@@ -51,6 +51,20 @@ const config = {
 		// shared directory — every request 500s with ENOENT on proxy+layout.
 		outDir: process.env.SVELTEKIT_OUT_DIR || '.svelte-kit',
 		version: {
+			// What the running app compares itself against: the client polls
+			// /_app/version.json, and `updated` in src/routes/+layout.svelte
+			// turns the next navigation into a full page load once it differs.
+			//
+			// The immutable image tag, passed in by build-image.sh — the
+			// builder stage cannot compute it, because .dockerignore excludes
+			// .git. It names skcms *and* skvar, so a change to a site's content
+			// alone still produces a new version; SvelteKit's default,
+			// `Date.now()` at config-evaluation time, would say two builds of
+			// identical code differ and say nothing about what is in them.
+			//
+			// Unset in dev, where that default is what is wanted: every restart
+			// is a new version and no release ever happens.
+			name: process.env.APP_VERSION || Date.now().toString(),
 			pollInterval: 30000
         },
 		adapter: adapter(),

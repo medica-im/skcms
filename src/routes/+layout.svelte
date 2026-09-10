@@ -33,6 +33,12 @@
     import { scrollY } from '$lib/store/scrollStore';
 	import { PUBLIC_PLAUSIBLE_SCRIPT_SRC } from '$env/static/public';
 
+	// Polling only sets `updated.current`; nothing in SvelteKit reads it. This
+	// turns that flag into the full page load that leaves a superseded build
+	// behind. The failure path — a chunk the release removed — is SvelteKit's
+	// own (it calls updated.check() when a node fails to load, and again on any
+	// status >= 400), so this stays a shortcut for the case polling has already
+	// noticed, not a second implementation of it.
 	beforeNavigate(({ willUnload, to }) => {
 		if (updated.current && !willUnload && to?.url) {
 			location.href = to.url.href;

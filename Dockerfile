@@ -14,6 +14,12 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
 # --- ÉTAPE 2 : Build de l'application ---
 FROM base AS builder
 ARG ENV_FILE=.env
+# Read by svelte.config.js as kit.version.name, so the built app can tell it has
+# been superseded. Declared here rather than only in the production stage below,
+# where GIT_SHA and SUBMODULE_SHA become labels: this one has to exist while the
+# build runs. ENV, not ARG alone, because the config reads process.env.
+ARG APP_VERSION
+ENV APP_VERSION=$APP_VERSION
 RUN [ "${ENV_FILE}" = ".env" ] || [ "$(readlink -f ${ENV_FILE})" = "$(readlink -f .env)" ] || cp ${ENV_FILE} .env
 RUN pnpm run -r build
 

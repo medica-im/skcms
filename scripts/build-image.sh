@@ -136,6 +136,7 @@ docker build \
     --build-arg ENV_FILE="$ENV_FILE" \
     --build-arg GIT_SHA="$GIT_SHA" \
     --build-arg SUBMODULE_SHA="$SUBMODULE_SHA" \
+    --build-arg APP_VERSION="${IMMUTABLE_TAG#*:}" \
     -t "$TAG" \
     -t "$IMMUTABLE_TAG" \
     .

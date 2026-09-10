@@ -79,3 +79,52 @@ describe('build-image.sh arguments', () => {
 		expect(source).toMatch(/rev-parse HEAD/);
 	});
 });
+
+/**
+ * The app version SvelteKit stamps into the build.
+ *
+ * SvelteKit's client router holds the chunk filenames of the build it loaded.
+ * A release replaces those files, so a tab opened before it navigates to a
+ * chunk that is no longer there and the navigation dies — the page looks stuck
+ * until the browser is emptied by hand. `version.name` is what lets the running
+ * app notice: the client polls /_app/version.json and compares.
+ *
+ * The default is `Date.now()` evaluated when the config is read, which changes
+ * on every dev server restart and differs between two builds of identical
+ * code. The immutable image tag is the honest answer — it already names both
+ * repositories, and it is what a rollback is addressed by.
+ *
+ * It has to be *passed in*: .dockerignore excludes .git, so the builder stage
+ * cannot run image-tag.sh itself.
+ */
+describe('the app version stamped into the image', () => {
+	const dockerfile = readFileSync(resolve(__dirname, '../../Dockerfile'), 'utf8');
+	const config = readFileSync(resolve(__dirname, '../../svelte.config.js'), 'utf8');
+
+	it('is sent to the builder stage as a build arg', () => {
+		expect(source).toMatch(/--build-arg\s+APP_VERSION=/);
+	});
+
+	it('is the immutable image tag, so it names skcms and skvar both', () => {
+		// Not a fresh timestamp and not skcms alone: a skvar-only change is a
+		// different site and must produce a different version.
+		expect(source).toMatch(/APP_VERSION="?\$\{?IMMUTABLE_TAG/);
+	});
+
+	it('reaches the stage that runs the build, not only the runtime stage', () => {
+		// GIT_SHA and SUBMODULE_SHA are declared in the production stage, where
+		// they become labels. This one is read by svelte.config.js during
+		// `pnpm run -r build`, so it must be declared in the builder.
+		const builder = dockerfile.slice(
+			dockerfile.indexOf('AS builder'),
+			dockerfile.indexOf('AS production')
+		);
+		expect(builder).toMatch(/ARG APP_VERSION/);
+		expect(builder).toMatch(/ENV APP_VERSION/);
+	});
+
+	it('is what svelte.config.js names the version', () => {
+		expect(config).toMatch(/version:\s*\{[^}]*name:/);
+		expect(config).toMatch(/APP_VERSION/);
+	});
+});
