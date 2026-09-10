@@ -162,6 +162,38 @@ fi
 echo "==> [$NAME] Linking $ENV_FILE -> .env"
 ln -sf "$ENV_FILE" .env
 
+# Vite prebundles dependencies that ship raw .svelte source, and does not
+# reliably invalidate them when the Svelte version changes. It then serves
+# chunks compiled by the *old* compiler against the *new* runtime. The calling
+# convention between the two changes across minor versions — 5.51.5 -> 5.57.0
+# turned rest_props' `exclude` argument from an Array into a Set — so the
+# cached chunks throw during hydration:
+#
+#     TypeError: target.exclude.has is not a function
+#
+# The page still server-renders 200 and only *then* dies, so nothing anywhere
+# becomes interactive and every feature fails at once with "element not found",
+# blaming whichever component the stack happened to name. Deleting the caches
+# is the fix; restarting alone is not enough.
+#
+# Vite's own _metadata.json records no Svelte version, so keep a stamp beside
+# the caches and compare it against what is installed.
+SVELTE_VERSION=$(node -p "require('./node_modules/svelte/package.json').version" 2>/dev/null || true)
+VITE_STAMP="node_modules/.vite-svelte-version"
+if [[ -n "$SVELTE_VERSION" ]]; then
+    STAMPED=$(cat "$VITE_STAMP" 2>/dev/null || true)
+    if [[ "$STAMPED" != "$SVELTE_VERSION" ]]; then
+        if [[ -n "$STAMPED" ]]; then
+            echo -e "${ORANGE}==> [$NAME] svelte $STAMPED -> $SVELTE_VERSION, clearing Vite prebundles${NC}"
+        else
+            echo "==> [$NAME] Recording svelte $SVELTE_VERSION, clearing Vite prebundles"
+        fi
+        rm -rf .vite-w[0-9] .vite-w[0-9][0-9] node_modules/.vite node_modules/.vite-temp
+        mkdir -p node_modules
+        printf '%s' "$SVELTE_VERSION" > "$VITE_STAMP"
+    fi
+fi
+
 # Prints the pid listening on a port, or nothing. Always succeeds: an empty
 # result is a normal answer ("nothing is listening"), and under `set -e` a
 # non-zero grep here would abort the script instead.
