@@ -44,16 +44,10 @@
 		tagOfF,
 	} from '$lib/store/directoryStore.ts';
 	import FullDirectory from './FullDirectory.svelte';
-	import Types from './Types.svelte';
-	import type { SelectType } from '$lib/interfaces/select';
 	import type {
-		Contact,
 		Entry,
-		CurrentOrg,
 		AddressFeature,
 		DistanceEffectors,
-		CategorizedEntries,
-		Type
 	} from '$lib/store/directoryStoreInterface.ts';
 
 	let {
