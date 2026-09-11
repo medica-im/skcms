@@ -232,13 +232,13 @@ export const cardinalCategorizedFilteredEffectorsF = (categorizedFilteredEffecto
 };
 
 export const categorizedFullFilteredEffectorsF = (fullFilteredEffectors: Entry[]) => {
-	let categorySet = new Set();
+	let categorySet: Set<string> = new Set();
 	for (let effector of fullFilteredEffectors) {
 		categorySet.add(effector.effector_type.name)
 	}
 	let categoryArr = Array.from(categorySet);
 	categoryArr.sort();
-	const effectorsObj = categoryArr.reduce((acc: Record<string, []>, current) => {
+	const effectorsObj: Record<string, Entry[]> = categoryArr.reduce((acc: Record<string, Entry[]>, current) => {
 		acc[current] = [];
 		return acc;
 	}, {});
