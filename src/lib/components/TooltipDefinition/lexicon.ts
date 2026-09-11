@@ -4,7 +4,14 @@ const espK = 'Équipe de soins primaires';
 	const mspV0=`Les maisons de santé pluriprofessionnelles sont des structures pluridisciplinaires où travaillent de manière coordonnée médecins et auxiliaires médicaux.`
 	const mspV1=`L’idée est de créer un espace dédié à la coordination des soins au plus près de la population grâce au partage de compétences.`
 
-	const dict = {
+	/**
+	 * A term maps to its definition paragraphs. An abbreviation instead maps to
+	 * the full term, which is itself a key — so `MSP` resolves in two hops, and
+	 * callers test `dict[w][0] in dict` to tell the two apart.
+	 */
+	export type Lexicon = Record<string, string[]>;
+
+	const dict: Lexicon = {
 		MSP: ['Maison de santé pluriprofessionnelle'],
 		ESP: ['Équipe de soins primaires'],
 		[espK]: [espV0, espV1],
