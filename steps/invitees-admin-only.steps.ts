@@ -38,7 +38,7 @@ When('I follow a link to {string}', async ({ page }, path: string) => {
 
 Then('I am redirected to the sign-in page', async ({ page }) => {
 	await expect(page).toHaveURL(
-		new RegExp(`/signin\\?redirect=${INVITEES_PATH.replace(/\//g, '\\/')}`)
+		new RegExp(`/signin\\?redirectTo=${INVITEES_PATH.replace(/\//g, '\\/')}`)
 	);
 });
 

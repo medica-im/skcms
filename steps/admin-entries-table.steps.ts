@@ -14,7 +14,7 @@ let rowsBeforeSearch = 0;
 // The existing "I am redirected to the sign-in page" hardcodes the invitees
 // path, so this one names the route it came from.
 Then('I am redirected to sign in for {string}', async ({ page }, path: string) => {
-	await expect(page).toHaveURL(new RegExp(`/signin\\?redirect=${path.replace(/\//g, '\\/')}`));
+	await expect(page).toHaveURL(new RegExp(`/signin\\?redirectTo=${path.replace(/\//g, '\\/')}`));
 });
 
 Then('the entries table is shown', async ({ page }) => {

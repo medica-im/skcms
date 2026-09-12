@@ -29,13 +29,23 @@ function signinLinks(): string[] {
 	try {
 		return execFileSync(
 			'grep',
-			['-rn', '--include=*.ts', '--include=*.svelte', 'signin?redirect', 'src/'],
+			// steps/ too, not just src/: the BDD steps assert on this URL, and a
+			// rename that missed them left the app right and the suite red.
+			//
+			// -E and a character class for the separator, because the step files
+			// escape the '?' for a RegExp — a literal 'signin?redirect' matches
+			// application code and silently skips every step file.
+			['-rEn', '--include=*.ts', '--include=*.svelte', 'signin[\\\\?]*redirect', 'src/', 'steps/'],
 			{ cwd: root, encoding: 'utf8' }
 		)
 			.split('\n')
 			.filter(Boolean)
 			// This file names both spellings to describe them; it is not a caller.
-			.filter((l) => !l.startsWith('src/lib/signin-redirect-param.test.ts'));
+			.filter((l) => !l.startsWith('src/lib/signin-redirect-param.test.ts'))
+			// (skvar) is a submodule — a separate repository, on a per-site branch.
+			// Its links are the same contract but are not this repository's to
+			// rename, so they are reported there rather than failing this suite.
+			.filter((l) => !l.startsWith('src/routes/(skvar)/'));
 	} catch {
 		return [];
 	}
@@ -45,14 +55,20 @@ describe('the signin redirect parameter', () => {
 	it('is named redirectTo everywhere, matching @auth/sveltekit', () => {
 		// `signin?redirect=` — the old name. Anchored on the '=' so it cannot
 		// match `redirectTo=`.
-		const old = signinLinks().filter((l) => l.includes('signin?redirect='));
+		// `redirect=` and not `redirectTo=`. The separator is a character class
+		// rather than a literal '?': the step files escape it for a RegExp, so
+		// what sits between "signin" and the parameter is `\\?` there and a bare
+		// '?' in application code.
+		const old = signinLinks().filter((l) => /signin[\\?]*redirect=/.test(l));
 		expect(old).toEqual([]);
 	});
 
 	it('has links to check at all, so the test cannot pass by finding nothing', () => {
 		const links = signinLinks();
 		expect(links.length).toBeGreaterThan(10);
-		expect(links.every((l) => l.includes('signin?redirectTo='))).toBe(true);
+		// Same character class as above: `signin?redirectTo=` in application code,
+		// `signin\\?redirectTo=` where a step file escapes it for a RegExp.
+		expect(links.every((l) => /signin[\\?]*redirectTo=/.test(l))).toBe(true);
 	});
 
 	const page = readFileSync(resolve(root, 'src/routes/(common)/signin/+page.svelte'), 'utf8');
