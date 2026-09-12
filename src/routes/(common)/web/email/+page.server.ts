@@ -11,7 +11,7 @@ export const ssr = false;
 export const load: PageServerLoad = async ({ url, cookies, locals, fetch, parent }) => {
 	const session = await locals.auth();
 	if (!session) {
-		redirect(303, `${base}/signin?redirect=${url.pathname}`);
+		redirect(303, `${base}/signin?redirectTo=${url.pathname}`);
 	}
 	const { user } = await parent();
 	if (!user || 'superuser' !== user.role) {

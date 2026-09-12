@@ -15,8 +15,15 @@
 	// `base` is '' for every site served at its own root, so this is exactly
 	// "signin" there and the emitted action stays "/signin".
 	const signInPath = base ? `${base.slice(1)}/signin` : 'signin';
-	const redirectParam = page.url.searchParams.get('redirect');
-	const redirect = redirectParam ? redirectParam : '/dashboard';
+	// `redirectTo`, the name @auth/sveltekit itself uses — it reads that key off
+	// the posted form to build callbackUrl, which is why the hidden input below
+	// carries it. Guards across the app once sent `redirect` instead, and this
+	// page read only that; the mismatch quietly dropped half of them onto the
+	// fallback.
+	const redirectParam = page.url.searchParams.get('redirectTo');
+	// Base-prefixed: on an instance served under one, a bare /dashboard is the
+	// *site* root, which on unipa.fr is WordPress rather than the app.
+	const redirect = redirectParam ? redirectParam : `${base}/dashboard`;
 	const redirectTo = encodeURI(`${redirect}`);
 </script>
 

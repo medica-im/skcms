@@ -23,7 +23,7 @@ function getUrl(user: User, directoryName: string) {
 export const load: PageServerLoad = async ({ fetch, locals, params, cookies, parent, depends, url }) => {
    const session = await locals.auth();
    if (!session) {
-      redirect(303, `${base}/signin?redirect=${url.pathname}`);
+      redirect(303, `${base}/signin?redirectTo=${url.pathname}`);
    }
    const { user } = await parent();
    if (user === undefined) throw new Error("user undefined")

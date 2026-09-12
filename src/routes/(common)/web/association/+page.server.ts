@@ -21,7 +21,7 @@ export const load: PageServerLoad = async ({ url, cookies, locals, parent, depen
     depends('association:data');
     const session = await locals.auth();
     if (!session) {
-        redirect(303, `${base}/signin?redirect=${url.pathname}`);
+        redirect(303, `${base}/signin?redirectTo=${url.pathname}`);
     }
 
     const { user, organization } = await parent();

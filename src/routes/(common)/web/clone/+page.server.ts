@@ -5,6 +5,6 @@ import type { PageServerLoad } from './$types';
 /** Signed in, or nowhere. The backend is the real gate; this is the front door. */
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const session = await locals.auth();
-	if (!session) redirect(303, `${base}/signin?redirect=${url.pathname}`);
+	if (!session) redirect(303, `${base}/signin?redirectTo=${url.pathname}`);
 	return { session };
 };

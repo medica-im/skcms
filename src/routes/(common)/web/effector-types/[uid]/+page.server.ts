@@ -8,7 +8,7 @@ import { base } from '$app/paths';
 export const load: PageServerLoad = async ({ url, cookies, locals, fetch, params }) => {
    const session = await locals.auth();
    if (!session) {
-      redirect(303, `${base}/signin?redirect=${url.pathname}`);
+      redirect(303, `${base}/signin?redirectTo=${url.pathname}`);
    }
 
    const endpointUrl = `${variables.BASE_URI}/api/v2/effector-types/${params.uid}`;

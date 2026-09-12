@@ -13,7 +13,7 @@ import type { PageServerLoad } from './$types';
  */
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const session = await locals.auth();
-	if (!session) redirect(303, `${base}/signin?redirect=${url.pathname}${url.search}`);
+	if (!session) redirect(303, `${base}/signin?redirectTo=${url.pathname}${url.search}`);
 	// The target has to be an absolute https origin, checked here rather than
 	// trusted from the query string. Empty or relative, the browser resolves
 	// `${target}${returnTo}` against the current document and produces a
