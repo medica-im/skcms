@@ -66,8 +66,21 @@
 				if (limitToZip === false) {
 					return true;
 				} else {
+					// startsWith, not `includes(postcode.substring(0, 2))`. The old form
+					// was membership of a TRUNCATED string, so it only ever worked when
+					// postal_codes held two-character department codes: with
+					// santelyon3's production value of ['69003'], '69003'.substring(0,2)
+					// is '69' and ['69003'].includes('69') is false, so every address
+					// was discarded -- including 255 Rue Garibaldi at 69003, the
+					// directory's own postcode. The request succeeded and the dropdown
+					// stayed empty, which is indistinguishable from a broken geocoder.
+					// A prefix match lets ['69'] and ['69003'] each mean what they look
+					// like they mean, and stays a restriction: ['69003'] still excludes
+					// 69007. Pinned in geocoderOptions.test.ts.
 					return page.data?.directory?.postal_codes.length
-						? page.data.directory.postal_codes.includes(e.properties.postcode.substring(0, 2))
+						? page.data.directory.postal_codes.some((p: string) =>
+								e.properties.postcode.startsWith(p)
+							)
 						: true;
 				}
 			})
