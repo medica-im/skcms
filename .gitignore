@@ -57,7 +57,9 @@ __screenshots__
 # Personal working notes (review lists, scratch analysis). Untracked on
 # purpose: they are a snapshot of one moment's opinion, not project
 # documentation, so they would go stale in review rather than being updated.
-docs/
+# docs/ and TODO.md are symlinks into ../clinic-cms-notes (private repo).
+# No trailing slash on docs: it is a symlink now, and `docs/` would not match it.
+docs
 scripts/unipa-annuaire-target.sh
 
 # personal notes, not for the public repo
