@@ -116,6 +116,48 @@ export function apiOrigin(workerIndex?: number): string {
 	return `https://${WORKER_DOMAIN.replace('{i}', String(index))}`;
 }
 
+/**
+ * The path the site under test is served under, '' for all but one of them.
+ *
+ * unipa sits at /annuaire behind the WordPress that owns its root; every other
+ * site is served at its own. It matters to the suite because a step navigating
+ * to `/e/${slug}` reaches WordPress rather than the app on such a site — which
+ * is why the one site with a base path was the one the BDD suite could not
+ * exercise, and base-path bugs are exactly the class that only appears there.
+ *
+ * Keyed on the HOST being tested, not on the .env symlink. Reading .env would
+ * hand /annuaire to the w0..w3 worker sites whenever a developer happened to
+ * have unipa checked out — they are served at their own root, so every one of
+ * their navigations would then 404. The same leak through BASE_PATH once made
+ * every worker serve its pages under /annuaire.
+ *
+ * E2E_BASE_PATH overrides it for a host this does not know about.
+ */
+export function siteBasePath(workerIndex?: number): string {
+	const override = process.env.E2E_BASE_PATH;
+	const raw = override ?? basePathForHost(new URL(apiOrigin(workerIndex)).hostname);
+	const trimmed = raw.trim().replace(/\/$/, '');
+	if (!trimmed || trimmed === '/') return '';
+	return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+}
+
+/**
+ * BASE_PATH as that host's own env file declares it.
+ *
+ * The env files are named after the hostname they configure, so the file is
+ * found from the host rather than from whichever one .env happens to point at.
+ * A host with no env file of its own — the w0..w3 worker sites, which derive
+ * theirs from a template — is served at its root.
+ */
+function basePathForHost(hostname: string): string {
+	try {
+		const env = readFileSync(new URL(`../../.env.dev.${hostname.replace(/^dev\./, '')}`, import.meta.url), 'utf8');
+		return env.match(/^BASE_PATH\s*=\s*"?([^"\n#]+)"?/m)?.[1] ?? '';
+	} catch {
+		return '';
+	}
+}
+
 /** Auth.js v5 key derivation (see fastapi_nextauth_jwt: HKDF-SHA256, salt = cookie name). */
 async function derivedKey(secret: string, salt: string): Promise<Buffer> {
 	const key = await hkdfAsync(

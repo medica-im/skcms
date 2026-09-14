@@ -1,4 +1,41 @@
-<script lang="ts">
+<
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+script lang="ts">
 	import * as m from "$msgs";	import { popup } from '@skeletonlabs/skeleton';
 	import type { PopupSettings } from '@skeletonlabs/skeleton';
     import dict from './lexicon.js';

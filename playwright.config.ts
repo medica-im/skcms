@@ -67,6 +67,10 @@ export default defineConfig({
 		// shadows per worker. It has to be declared here all the same: the
 		// fixture overrides an *option*, and an option absent from the config is
 		// not one the `page` fixture resolves against.
+		//
+		// The bare origin. A base path cannot live here: a leading-slash goto
+		// resolves against the origin and drops it, so the prefix is applied by
+		// the `page` fixture in steps/fixtures.ts instead.
 		baseURL: apiOrigin(0),
 		trace: 'on-first-retry'
 	},
