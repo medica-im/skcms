@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { ORIGIN } from '$lib/utils/origin.ts';
 	import * as m from '$msgs';
-	import { postEntryTag, getTagCategories } from '../../../tag.remote.ts';
+	import { postEntryTag, getTagCategories, getTags } from '../../../tag.remote.ts';
 	import { invalidate } from '$app/navigation';
 	import {
 		faInfo,
@@ -27,9 +26,14 @@
 
 	let categoryChoices: SelectType[]|undefined = $state();
 
+	// The category uid for each name. A tag records the uid it belongs to while
+	// the select works in names, so the two have to be bridged somewhere.
+	let categoryUidByName: Record<string, string> = $state({});
+
 	const getCategoryChoices = async () => {
 		const tagCategories = await getTagCategories();
 		if (tagCategories) {
+			categoryUidByName = Object.fromEntries(tagCategories.map((e) => [e.name, e.uid]));
 			return tagCategories.map((e) => {
 				return { value: e.name, label: e.label };
 			});
@@ -120,13 +124,33 @@
 	}
 	async function onCategoryChange(event: CustomEvent) {
 		if (event.detail) {
-			const url = `${ORIGIN}/api/v2/tags?category=${event.detail.value}`;
-			const response = await fetch(url);
-			if (!response.ok) {
-				console.error(response.status);
+			// Through the remote function rather than fetching the API by hand from
+			// this component: in the browser the app's own origin is `base`, which
+			// is '' on most sites but /annuaire on unipa, where the API does not
+			// live under the prefix. That request 500d and the dropdown was simply
+			// empty, on one site only.
+			//
+			// Every tag, then filtered here rather than asking for one category:
+			// this route sets ssr = false, where an argument to a remote query
+			// never reaches the server. Tags record the category uid they belong
+			// to, which is what the select's name has to be bridged to.
+			let tags: Tag[] | undefined;
+			try {
+				const all = await getTags();
+				const categoryUid = categoryUidByName[event.detail.value];
+				tags = all?.filter((t) => t.category === categoryUid);
+			} catch (error) {
+				console.error('failed to load tags for category', event.detail.value, error);
+			}
+			if (!tags) {
+				// Said out loud rather than left as an empty list: a dropdown with
+				// nothing in it reads as "this category has no tags", which is a
+				// different thing from "the tags could not be fetched".
+				result = { success: false, text: m.TAGS_UNAVAILABLE() };
+				tagChoices = undefined;
 				return;
 			}
-			const tags: Tag[] = await response.json();
+			result = undefined;
 			tagChoices = tags.map((t) => {
 				return { value: t.uid, label: t.labelShort };
 			});

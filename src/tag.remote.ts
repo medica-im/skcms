@@ -48,3 +48,26 @@ export const getTagCategories = query(async () => {
 		return await res.json() as TagCategory[];
 	}
 });
+
+/**
+ * Every tag, for the caller to group by category.
+ *
+ * Here rather than fetched from the component, for the same reason
+ * getTagCategories is: BASE_URI is the API's own address, while a browser-side
+ * fetch built from the app's own origin resolves against `base` — '' on most
+ * sites and `/annuaire` on unipa, where the API is not under the prefix. That
+ * request 500d, and the tag dropdown was empty on that one site and silent
+ * about it.
+ *
+ * No argument, deliberately. A `query` that takes one is not usable from the
+ * entry page: it sets `ssr = false`, and with no server pass to serialise the
+ * argument the client issues the request bare — the schema then rejects
+ * "expected string, received undefined" before the handler runs. The whole
+ * lexicon of tags is small enough to send at once and filter here.
+ */
+export const getTags = query(async () => {
+	const res = await fetch(`${variables.BASE_URI}/api/v2/tags`);
+	if (res.ok) {
+		return await res.json() as Tag[];
+	}
+});
