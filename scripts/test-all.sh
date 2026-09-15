@@ -20,8 +20,18 @@ set -uo pipefail
 FRONTEND_DIR="${FRONTEND_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 
 # Optional machine-local overrides (git-ignored).
+#
+# `set -a` around the source so a plain `NAME=value` line is EXPORTED, not just
+# set as a shell variable. Most settings here are read by this script itself, so
+# either works for them -- but the ones a child process reads (PLAYWRIGHT_WORKERS
+# is the one that bites) are invisible without it, and the file looks correct
+# while doing nothing.
 # shellcheck source=/dev/null
-[[ -f "$FRONTEND_DIR/.env.test-all" ]] && source "$FRONTEND_DIR/.env.test-all"
+if [[ -f "$FRONTEND_DIR/.env.test-all" ]]; then
+    set -a
+    source "$FRONTEND_DIR/.env.test-all"
+    set +a
+fi
 
 BACKEND_DIR="${BACKEND_DIR:-$(cd "$FRONTEND_DIR/../backend" 2>/dev/null && pwd || echo "$FRONTEND_DIR/../backend")}"
 COMPOSE_FILE="${COMPOSE_FILE:-docker-compose-development.yml}"
@@ -43,7 +53,12 @@ NEO4J_CONTAINER="${NEO4J_CONTAINER:-backend-neo4j-1}"
 # a plain-http origin 401s every authenticated scenario. playwright.config.ts
 # carries no webServer entry for the same reason — nothing starts these but the
 # helper below.
-E2E_WORKERS="${E2E_WORKERS:-4}"
+# The TOTAL number of worker sites, split in half by shape: the lower half is
+# served at the root, the upper half under a base path (scripts/e2e-workers.sh).
+# playwright runs every scenario against both halves as two projects, so the
+# per-project parallelism is half this number -- 8 here keeps the 4-wide runs
+# the suite was tuned for while adding the second shape.
+E2E_WORKERS="${E2E_WORKERS:-8}"
 # Left running after the suite by default: a cold Vite boot per worker costs
 # more than the whole BDD run, and the next invocation reuses them.
 E2E_STOP_AFTER="${E2E_STOP_AFTER:-0}"
@@ -262,6 +277,9 @@ Key variables (override via env or $FRONTEND_DIR/.env.test-all):
   COMPOSE_FILE=$COMPOSE_FILE
   BACKEND_TEST_SERVICE=$BACKEND_TEST_SERVICE
   E2E_WORKERS=$E2E_WORKERS  E2E_STOP_AFTER=$E2E_STOP_AFTER
+  PLAYWRIGHT_WORKERS=${PLAYWRIGHT_WORKERS:-<half the cores>}  (scenarios run at once; the limit is RAM)
+  BDD_PROJECT=${BDD_PROJECT:-<all>}  (one shape only: chromium-base-path | chromium-root)
+  TEE_LOG=${TEE_LOG:-<none>}  (also write the run to this file, e.g. logs/run.log)
   SITE_CONTEXT=$SITE_CONTEXT  (dev.yml context serving dev.<site> for the sites project; started if absent)
   E2E_STOP_DEV_SERVER=$E2E_STOP_DEV_SERVER  (0 keep the site server up; 1 stop it for the run; STOP leave it stopped)
   SKIP_BACKEND=$SKIP_BACKEND  SKIP_FRONTEND=$SKIP_FRONTEND  SEED_BDD_USERS=$SEED_BDD_USERS
@@ -774,6 +792,25 @@ suite_bdd() {
     # rather than on anything it was written to check. Chromium is unaffected by
     # running under a display, so this is applied to the whole run rather than
     # to one project.
+    # BDD_PROJECT narrows the run to one playwright project, which is how you
+    # ask for a single SHAPE: chromium-base-path runs the 169 scenarios against
+    # the worker sites served under a prefix, chromium-root against those at
+    # their root. Unset, every project runs and each scenario is exercised in
+    # both shapes -- which is the point of the pair, so this is for iterating on
+    # one of them, not for a full check before a release.
+    local project_args=()
+    [[ -n "${BDD_PROJECT:-}" ]] && project_args=(--project "$BDD_PROJECT")
+
+    # TEE_LOG writes the run to a file as well as the terminal, so progress stays
+    # visible while the output survives for triage afterwards. Without it every
+    # duration and failure is printed and thrown away, and the only record left
+    # is test-results/, which holds failures but no timings and no passes.
+    local tee_log="${TEE_LOG:-}"
+    if [[ -n "$tee_log" ]]; then
+        mkdir -p "$(dirname "$FRONTEND_DIR/$tee_log")"
+        info "logging this run to $tee_log"
+    fi
+
     local runner=(npx playwright test)
     if command -v xvfb-run >/dev/null 2>&1; then
         runner=(xvfb-run -a npx playwright test)
@@ -781,7 +818,18 @@ suite_bdd() {
         warn "xvfb-run not found; Firefox scenarios will fail without a display"
         info "install it with: sudo apt-get install xvfb"
     fi
-    (cd "$FRONTEND_DIR" && "${runner[@]}") || rc=$?
+    if [[ -n "$tee_log" ]]; then
+        # pipefail is already set, so rc is playwright's status, not tee's.
+        # FORCE_COLOR because a pipe is not a TTY: playwright detects that and
+        # drops every colour, so `| tee` turned a readable run into a wall of
+        # grey. The file gets the codes STRIPPED instead — the terminal wants
+        # colour, a log read later does not, and escape sequences in it break
+        # every grep you would want to run over it.
+        (cd "$FRONTEND_DIR" && FORCE_COLOR=1 "${runner[@]}" "${project_args[@]}" 2>&1 \
+            | tee >(sed -u -E 's/\x1b\[[0-9;]*[mGKHF]//g' > "$tee_log")) || rc=$?
+    else
+        (cd "$FRONTEND_DIR" && "${runner[@]}" "${project_args[@]}") || rc=$?
+    fi
     if [[ "$E2E_STOP_AFTER" == "1" ]]; then
         info "stopping worker dev servers"
         "$FRONTEND_DIR/scripts/e2e-workers.sh" stop >/dev/null 2>&1 || true

@@ -64,3 +64,8 @@ scripts/unipa-annuaire-target.sh
 
 # personal notes, not for the public repo
 TODO.md
+
+# Test run logs, written by `./scripts/test-all.sh ... | tee logs/<run>.log`.
+# Local artefacts of one run on one machine: useful while triaging, meaningless
+# in review, and large.
+logs/
