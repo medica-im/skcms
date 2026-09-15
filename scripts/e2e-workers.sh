@@ -29,7 +29,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
-WORKERS="${2:-${E2E_WORKERS:-4}}"
+WORKERS="${2:-${E2E_WORKERS:-8}}"
 BASE_PORT="${E2E_BASE_PORT:-3100}"
 # The default is assigned separately rather than inline as
 # ${E2E_WORKER_DOMAIN:-w{i}.dev.medica.im}: bash reads the '}' of '{i}' as the
@@ -41,6 +41,35 @@ DOMAIN_TEMPLATE="w{i}.dev.medica.im"
 # origin is replaced below; everything else is copied as-is.
 TEMPLATE_ENV="${E2E_TEMPLATE_ENV:-.env.dev.sante-gadagne.fr}"
 RUN_DIR=".e2e-workers"
+
+# The worker pool is split in half: the LOWER half is served at its root, the
+# UPPER half under a base path.
+#
+# Both shapes have to be exercised by EVERY scenario, not by whichever ones
+# happened to land on a particular worker. A site proxied under a subdirectory
+# of a host whose root belongs to something else (unipa at /annuaire behind
+# WordPress) is the hardest shape we ship: a URL the app builds without the
+# prefix reaches that other thing rather than the app, so those bugs appear
+# there and nowhere else. /web/entries rendering "Aucune entrée" on a directory
+# of 59 was found by hand on 14 Sep 2026, because every worker was then served
+# at its root and no scenario could see it.
+#
+# playwright.config.ts pairs this with two projects -- chromium-root and
+# chromium-base-path -- which run the same scenarios twice, each pinned to the
+# half that has its shape. So the split here and the projects there must agree:
+# E2E_WORKERS is the TOTAL, and half of it is the pool each project draws from.
+#
+# An odd count gives the extra worker to the baseless half, so a run with
+# E2E_WORKERS=1 still starts something rather than nothing.
+BASE_PATH_VALUE="${E2E_WORKER_BASE_PATH-/annuaire}"
+ROOT_WORKERS=$(( (WORKERS + 1) / 2 ))
+
+# The base path this worker is served under, empty for the lower half. The suite
+# reads the same answer from the worker's own .env file (basePathForHost in
+# tests/fixtures/session.ts), so the two cannot drift.
+worker_base_path() {
+    (( $1 >= ROOT_WORKERS )) && printf '%s' "$BASE_PATH_VALUE" || printf ''
+}
 
 # sed rather than bash substitution: ${var/{i}/$n} does not expand the braces
 # reliably here and silently produced "w{i.dev.medica.im}", which every worker
@@ -68,6 +97,12 @@ write_env() {
     # carrying it. Missing the SSR one is not a quiet degradation: it leaves
     # every worker fetching the template's site server-side, so w3 renders w0's
     # data and a fixture named after its own worker 404s.
+    local base_path
+    base_path="$(worker_base_path "$i")"
+
+    # BASE_PATH is consumed at BUILD time by svelte.config.js to set kit.paths
+    # .base, so it has to be in the env file Vite loads -- exporting it here
+    # would not reach the config.
     sed -E \
         -e "s|^PUBLIC_APP_URL=.*|PUBLIC_APP_URL=\"https://${domain}\"|" \
         -e "s|^PUBLIC_SSR_API_URL=.*|PUBLIC_SSR_API_URL=\"https://${domain}\"|" \
@@ -77,6 +112,29 @@ write_env() {
         -e "s|^VITE_BASE_URI_DEV=.*|VITE_BASE_URI_DEV=\"https://${domain}\"|" \
         -e "s|^VITE_BASE_URI_PROD=.*|VITE_BASE_URI_PROD=\"https://${domain}\"|" \
         "$TEMPLATE_ENV" > "$env_file"
+
+    # Appended rather than substituted: the template has no BASE_PATH line, so
+    # a `sed s|^BASE_PATH=.*|...|` would match nothing and silently leave the
+    # base-path worker served at its root -- the exact blindness this exists to
+    # remove. Any inherited line is stripped first so the value written here is
+    # the only one, whichever way the template changes.
+    sed -i -E '/^BASE_PATH=/d' "$env_file"
+    printf 'BASE_PATH="%s"\n' "$base_path" >> "$env_file"
+
+    # AUTH_URL, for a worker served under a prefix.
+    #
+    # Auth.js derives its own route base from the request when this is unset,
+    # and gets the host's ROOT -- so on a prefixed site it looks for /auth/...
+    # while the routes are actually at {base}/auth/... . The session then never
+    # resolves, and the damage is silent rather than loud: every canEdit()
+    # server load returns false on a failed fetch, so the edit controls simply
+    # do not render. 46 scenarios in the 15 Sep run waited on buttons
+    # ("Modifier l'établissement", "ajouter une photo") that were never going to
+    # appear, and read as missing features rather than a missing session.
+    sed -i -E '/^AUTH_URL=/d' "$env_file"
+    if [[ -n "$base_path" ]]; then
+        printf 'AUTH_URL="https://%s%s/auth"\n' "$domain" "$base_path" >> "$env_file"
+    fi
 
     echo "$env_file"
 }

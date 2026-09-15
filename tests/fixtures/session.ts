@@ -112,7 +112,20 @@ const WORKER_DOMAIN = process.env.E2E_WORKER_DOMAIN ?? 'w{i}.dev.medica.im';
  * plain http and every authenticated scenario 401s.
  */
 export function apiOrigin(workerIndex?: number): string {
-	const index = workerIndex ?? Number(process.env.TEST_PARALLEL_INDEX ?? 0);
+	const raw = workerIndex ?? Number(process.env.TEST_PARALLEL_INDEX ?? 0);
+	// Clamped into the pool that actually exists. TEST_PARALLEL_INDEX counts
+	// PLAYWRIGHT workers, which is PLAYWRIGHT_WORKERS and unrelated to how many
+	// worker SITES were seeded: at 12 playwright workers this named w8..w11,
+	// which do not exist, and every step that seeds through the django shell
+	// died with "Site matching query does not exist". 17 call sites take this
+	// fallback -- most at module scope, where the project's workerOffset cannot
+	// be seen -- so the guard belongs here rather than at each of them.
+	//
+	// A caller that knows its own site (from baseURL) should still pass the
+	// index: clamping keeps the domain resolvable, it does not make it the
+	// RIGHT one for a project drawing from the upper half.
+	const pool = Number(process.env.E2E_WORKERS ?? 8);
+	const index = pool > 0 ? raw % pool : raw;
 	return `https://${WORKER_DOMAIN.replace('{i}', String(index))}`;
 }
 
@@ -150,12 +163,28 @@ export function siteBasePath(workerIndex?: number): string {
  * theirs from a template — is served at its root.
  */
 function basePathForHost(hostname: string): string {
-	try {
-		const env = readFileSync(new URL(`../../.env.dev.${hostname.replace(/^dev\./, '')}`, import.meta.url), 'utf8');
-		return env.match(/^BASE_PATH\s*=\s*"?([^"\n#]+)"?/m)?.[1] ?? '';
-	} catch {
-		return '';
+	// A worker site first: scripts/e2e-workers.sh writes .env.test.wN and puts
+	// BASE_PATH in it, and one worker is deliberately served under a prefix so
+	// every run exercises both shapes. Reading that file rather than keeping a
+	// second list here is what stops the suite and the servers disagreeing --
+	// which they did, silently, leaving the base-path worker navigated to as if
+	// it were baseless.
+	const worker = hostname.match(/^w(\d+)\./);
+	const candidates = worker
+		? [`../../.env.test.w${worker[1]}`]
+		: [`../../.env.dev.${hostname.replace(/^dev\./, '')}`];
+
+	for (const candidate of candidates) {
+		try {
+			const env = readFileSync(new URL(candidate, import.meta.url), 'utf8');
+			const value = env.match(/^BASE_PATH\s*=\s*"?([^"\n#]*)"?/m)?.[1];
+			if (value !== undefined) return value;
+		} catch {
+			// Next candidate; a host with no env file of its own is served at
+			// its root.
+		}
 	}
+	return '';
 }
 
 /** Auth.js v5 key derivation (see fastapi_nextauth_jwt: HKDF-SHA256, salt = cookie name). */

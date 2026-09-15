@@ -14,7 +14,23 @@ import { loadEnv } from 'vite';
 // still winning, so `BASE_PATH=/annuaire pnpm build` keeps working too. '' is
 // the third argument so no prefix filtering is applied — BASE_PATH is not a
 // PUBLIC_/VITE_ variable and would otherwise be dropped.
-const fileEnv = loadEnv(process.env.NODE_ENV || 'development', process.cwd(), '');
+// The MODE matters as much as NODE_ENV. `vite --mode test.w3` loads
+// .env.test.w3, and this config has to read the same file or the two disagree:
+// the dev server serves the app under one base path while svelte.config.js
+// compiled it for another. That is exactly how the base-path worker site came
+// up serving /annuaire from .env while its own env file said BASE_PATH="" --
+// silently, because a wrong base path looks like the change not working rather
+// than like a misread file.
+//
+// --mode is not in process.env, so it is read from argv. NODE_ENV stays the
+// fallback for every invocation that does not pass one.
+const modeArg = process.argv.indexOf('--mode');
+const MODE =
+	process.env.VITE_USER_MODE ??
+	(modeArg !== -1 ? process.argv[modeArg + 1] : undefined) ??
+	process.env.NODE_ENV ??
+	'development';
+const fileEnv = loadEnv(MODE, process.cwd(), '');
 const BASE_PATH = process.env.BASE_PATH ?? fileEnv.BASE_PATH ?? '';
 
 // Kept in step with vite.config.ts, which passes the same value to

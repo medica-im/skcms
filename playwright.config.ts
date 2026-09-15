@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { defineConfig, devices } from '@playwright/test';
 import { defineBddConfig } from 'playwright-bdd';
 import { apiOrigin } from './tests/fixtures/session';
@@ -33,15 +34,92 @@ const testDir = defineBddConfig({
  * evaluated inside each worker, where the index is set.
  */
 
+// How many worker sites are served at their root. The rest carry a base path.
+// Mirrors ROOT_WORKERS in scripts/e2e-workers.sh, which does the serving; the
+// two are one setting expressed in two places and must agree.
+/**
+ * Machine-local settings, the same file scripts/test-all.sh reads.
+ *
+ * Read here too because a bare `playwright test` is the obvious command and
+ * does not go through that script: without this, .env.test-all applied to
+ * `test-all.sh bdd` and silently did nothing to `playwright test`, which is a
+ * settings file that lies about being one. A real environment variable still
+ * wins, so `PLAYWRIGHT_WORKERS=4 playwright test` overrides the file.
+ */
+function settingsFile(): Record<string, string> {
+	try {
+		const text = readFileSync(new URL('./.env.test-all', import.meta.url), 'utf8');
+		return Object.fromEntries(
+			text
+				.split('\n')
+				.map((line) => line.trim())
+				.filter((line) => line && !line.startsWith('#'))
+				.map((line) => line.replace(/^export\s+/, ''))
+				.map((line) => {
+					const eq = line.indexOf('=');
+					return eq === -1
+						? ['', '']
+						: [line.slice(0, eq).trim(), line.slice(eq + 1).trim().replace(/^["']|["']$/g, '')];
+				})
+				.filter(([key]) => key)
+		);
+	} catch {
+		return {};
+	}
+}
+
+const settings = settingsFile();
+const setting = (name: string) => process.env[name] ?? settings[name];
+
+const E2E_WORKERS = Number(setting('E2E_WORKERS') ?? 8);
+const ROOT_WORKERS = Math.ceil(E2E_WORKERS / 2);
+
 export default defineConfig({
 	testDir,
 	// After hooks do not run when a run is interrupted, and what they leave
 	// behind can make later scenarios pass while proving the opposite of their
 	// name (see tests/globalSetup.ts).
 	globalSetup: './tests/globalSetup.ts',
-	// Some steps drive the backend through `manage.py shell` in Docker, which
-	// costs ~10s per call, so the default 30s is too tight.
-	timeout: 120_000,
+	// list on the terminal as before, plus a JSON file so DURATIONS survive the
+	// run. Without it every timing is printed and thrown away, and the only
+	// signal a scenario has got slower is the timeout -- which reports a
+	// failure, not a regression, and only once it is already 120s slow. A
+	// scenario that should take 5s and takes 60s is a bug, and it passes today.
+	// Three reporters, because they answer different questions:
+	//
+	//   list  — the terminal, live. What is running and what just failed.
+	//   json  — durations, so slowness is measurable after the fact
+	//           (./scripts/slow-scenarios.sh). Without it every timing is
+	//           printed once and thrown away.
+	//   html  — the failure DETAIL: error, stack, the page snapshot and the
+	//           trace, browsable instead of copy-pasted out of a terminal.
+	//           `open: 'never'` so a run does not hijack a browser; read it with
+	//           `pnpm exec playwright show-report`.
+	reporter: [
+		['list'],
+		['json', { outputFile: 'test-results/results.json' }],
+		['html', { open: 'never', outputFolder: 'playwright-report' }]
+	],
+	// 60s, from the measured distribution rather than from headroom.
+	//
+	// Over 104 passing scenarios on 2026-09-15: p50 9s, p90 21s, p99 32s, max
+	// 44s. The slow ones drive the backend through `manage.py shell` in Docker
+	// at ~10s a call, which is why the 30s default was too tight -- but 120s was
+	// 2.7x more than anything legitimate has ever needed, and that cost twice:
+	//
+	//   * a failing scenario burned 2 minutes before reporting, 4 with the
+	//     retry, so a run spent most of its wall clock confirming failures that
+	//     were obvious at second 20;
+	//   * and it HID slowness. A scenario that should take 5s and takes 60s is a
+	//     bug, and at 120s it passes silently. The first sign would be a timeout
+	//     months later, reported as a failure rather than as the regression it
+	//     is.
+	//
+	// 60s leaves ~36% over the slowest observed pass. Watch it with
+	// ./scripts/slow-scenarios.sh, which reads the json reporter's durations;
+	// if a legitimate scenario starts landing near it, fix the scenario before
+	// raising this.
+	timeout: 60_000,
 	// Four browsers, four Vite servers and a Dockerised backend share one 15GB
 	// box, and a renderer that loses that race dies mid-step: the failure reads
 	// as "Target crashed", or as an assertion whose Received is `undefined`
@@ -51,7 +129,30 @@ export default defineConfig({
 	// This is also what makes `trace: 'on-first-retry'` below produce anything:
 	// with no retries there is never a first retry, so the suite has been
 	// discarding the traces of exactly the failures that most need them.
-	retries: 1,
+	// RETRIES is overridable now that the box is not the reason for them.
+	//
+	// They were added when 4 browsers on a 15GB machine starved each other and a
+	// dead renderer failed as "Target crashed" -- a fact about the box, not the
+	// app, which should not fail a run alone. On 32GB/12 cores that is rare, and
+	// the retry costs a full duplicate run of every failure: 25 of them in the
+	// 15 Sep run, each up to a timeout long.
+	//
+	// Kept at 1 by default because `trace: 'on-first-retry'` below produces
+	// nothing without it, and the trace is what makes a failure diagnosable.
+	// PLAYWRIGHT_RETRIES=0 halves the cost of a run you are iterating on and
+	// already know is red.
+	retries: setting('PLAYWRIGHT_RETRIES') ? Number(setting('PLAYWRIGHT_RETRIES')) : 1,
+	// Half the cores by default (playwright's own rule): 6 on a 12-core box.
+	// PLAYWRIGHT_WORKERS raises it without editing this file, which matters
+	// because scripts/test-all.sh does not forward flags to playwright.
+	//
+	// The ceiling is not the core count but the MEMORY: the E2E_WORKERS vite
+	// servers are already resident before a single browser starts, and a
+	// chromium that loses that race dies mid-step with "Target crashed" or an
+	// assertion whose Received is undefined -- failures that read as facts
+	// about the app and are not. 8 browsers alongside 8 vite servers wants
+	// ~32GB; on a smaller box leave this alone.
+	workers: setting('PLAYWRIGHT_WORKERS') ? Number(setting('PLAYWRIGHT_WORKERS')) : undefined,
 	// No webServer: the suite needs one dev server *per worker*, each with its
 	// own .env and its own site, which a single command cannot express. They are
 	// started beforehand by
@@ -75,10 +176,37 @@ export default defineConfig({
 		trace: 'on-first-retry'
 	},
 	projects: [
+		// The same scenarios, twice: once against a site served at its root and
+		// once against one under a base path.
+		//
+		// Two projects rather than two runs, so a single `playwright test`
+		// covers both shapes and neither can be forgotten. They draw from
+		// opposite halves of the worker pool -- scripts/e2e-workers.sh serves
+		// the lower half at the root and the upper half under /annuaire -- and
+		// `workerOffset` is what sends a project at its own half (see
+		// workerSlot in steps/fixtures.ts).
+		//
+		// E2E_WORKERS is the TOTAL number of sites; each project runs on half.
+		// The halves must agree with the split in e2e-workers.sh: a project
+		// pointed at the wrong half tests one shape twice and passes while
+		// proving nothing.
 		{
-			name: 'chromium',
+			name: 'chromium-root',
 			testDir,
-			use: { ...devices['Desktop Chrome'] }
+			use: { ...devices['Desktop Chrome'], workerOffset: 0, workerPoolSize: ROOT_WORKERS }
+		},
+		{
+			// A site proxied under a subdirectory of a host whose root belongs
+			// to something else. The shape that hides bugs no other site can
+			// show: /web/entries rendering "Aucune entrée" on a directory of 59
+			// entries was invisible to this suite until it ran here.
+			name: 'chromium-base-path',
+			testDir,
+			use: {
+				...devices['Desktop Chrome'],
+				workerOffset: ROOT_WORKERS,
+				workerPoolSize: E2E_WORKERS - ROOT_WORKERS
+			}
 		},
 		{
 			// Plain Playwright specs, alongside the generated Gherkin ones. Some
