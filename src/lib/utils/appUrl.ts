@@ -7,13 +7,23 @@ import { PUBLIC_SSR_API_URL } from '$env/static/public';
  *
  * Two addresses, because the two sides genuinely differ on a proxied instance:
  *
- *   browser -> `base`               a RELATIVE url: whatever host the page was
- *                                   served from, plus any base path. It must
+ *   browser -> ''                   a ROOT-RELATIVE url: whatever host the page
+ *                                   was served from, and NO base path. It must
  *                                   not be an absolute address — the BDD suite
- *                                   serves the same build on four hostnames
- *                                   (w0..w3.dev.medica.im), each resolving to
+ *                                   serves the same build on several hostnames
+ *                                   (w0..w7.dev.medica.im), each resolving to
  *                                   its own tenant, and a baked-in host would
  *                                   send every worker to one site's data.
+ *
+ *                                   '' and not `base`: kit.paths.base prefixes
+ *                                   the app's own PAGE urls, not the origin it
+ *                                   fetches data from. The API is served at the
+ *                                   root on every site, base path or not —
+ *                                   staging.unipa.fr/api/v2/entries answers 200
+ *                                   while /annuaire/api/v2/entries is a 404.
+ *                                   Using `base` here asked for the second, so
+ *                                   every browser-side fetch on a prefixed site
+ *                                   missed.
  *   server  -> PUBLIC_SSR_API_URL   the API host directly. A server-side fetch
  *                                   to the public address leaves the machine,
  *                                   comes back through the proxy in front, and
@@ -28,7 +38,7 @@ import { PUBLIC_SSR_API_URL } from '$env/static/public';
  * there at all. It is not a secret — the hostname is in public DNS — so the
  * prefix costs nothing beyond the name having to carry the warning.
  */
-export const APP_URL = browser ? base : PUBLIC_SSR_API_URL;
+export const APP_URL = browser ? '' : PUBLIC_SSR_API_URL;
 
 /**
  * The address to put in markup, on either side: `base`, so relative.

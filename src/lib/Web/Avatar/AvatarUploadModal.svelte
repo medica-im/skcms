@@ -1,4 +1,10 @@
 <script lang="ts">
+	import { base } from '$app/paths';
+	// The prefix belongs on this one: /api/avatar and /api/facility are this
+	// APP's own routes (src/routes/api/...), not the backend API. On a site
+	// served under a base path the bare path leaves the app entirely -- on
+	// unipa.fr/annuaire that is WordPress -- and the upload 404s. The backend
+	// API is the opposite case and must stay unprefixed; see appUrl.ts.
 	import { invalidate } from '$app/navigation';
 	import * as m from '$msgs';
 	import Dialog from '$lib/Web/Dialog.svelte';
@@ -268,7 +274,7 @@
 			formData.append('file', blob, `avatar-${entryUid}.jpg`);
 			formData.append('access', selectedAccess);
 
-			const response = await fetch(`/api/avatar/${entryUid}`, {
+			const response = await fetch(`${base}/api/avatar/${entryUid}`, {
 				method: 'PUT',
 				body: formData
 			});
@@ -296,7 +302,7 @@
 		result = undefined;
 
 		try {
-			const response = await fetch(`/api/avatar/${entryUid}`, {
+			const response = await fetch(`${base}/api/avatar/${entryUid}`, {
 				method: 'PATCH',
 				headers: { 'content-type': 'application/json' },
 				body: JSON.stringify({ access: selectedAccess })
@@ -321,7 +327,7 @@
 		result = undefined;
 
 		try {
-			const response = await fetch(`/api/avatar/${entryUid}`, {
+			const response = await fetch(`${base}/api/avatar/${entryUid}`, {
 				method: 'DELETE'
 			});
 

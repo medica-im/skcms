@@ -6,10 +6,19 @@ import { APP_URL, PUBLIC_URL } from './appUrl';
 /**
  * Browser-side URLs are relative, and nothing may assume otherwise.
  *
- * APP_URL is `base` in the browser — '' for a site at its own domain root — so
- * that one build can serve several hostnames and each request stays on the host
- * it arrived at. The BDD suite depends on it (w0..w3.dev.medica.im are four
- * tenants sharing a build), and so does dev.unipa.fr/annuaire.
+ * APP_URL is '' in the browser, so every fetch is root-relative and stays on
+ * the host the page arrived at. The BDD suite depends on it (w0..w7
+ * .dev.medica.im are tenants sharing a build), and so does dev.unipa.fr.
+ *
+ * '' and NOT `base`, which is the distinction this file now pins. kit.paths
+ * .base prefixes the app's own PAGE urls; the API is served at the ROOT on
+ * every site, base path or not. APP_URL used `base`, so on a prefixed site
+ * every browser-side fetch asked for /annuaire/api/v2/... — a 404, while
+ * /api/v2/... answers 200. Twelve routes set `ssr = false` and fetch from the
+ * browser, so the whole authenticated area of a prefixed site came up empty;
+ * /web/entries rendering "Aucune entrée" on a directory of 41 was the symptom
+ * that surfaced it. Server-rendered pages were unaffected, which is why the
+ * addressbook looked fine and made the bug read as page-specific.
  *
  * Code that treats it as an absolute URL breaks in the worst way. +layout.svelte
  * sliced 'https://' off it for Plausible's data-domain and threw when it was
@@ -42,6 +51,19 @@ const files = sourceFiles(src).map((path) => ({
 }));
 
 describe('the constants themselves', () => {
+	it('does not build browser fetch urls from the page base path', () => {
+		// Asserted against the SOURCE because these tests run in node, where
+		// `browser` is false and APP_URL holds the SSR address: the runtime
+		// value cannot show which branch the browser would take.
+		const source = readFileSync(resolve(import.meta.dirname, 'appUrl.ts'), 'utf8');
+		const assignment = source.match(/export const APP_URL\s*=\s*([^;]+);/)?.[1] ?? '';
+
+		expect(assignment, 'APP_URL must not use `base`: the API is at the root').not.toMatch(
+			/\bbase\b/
+		);
+		expect(assignment).toMatch(/browser\s*\?\s*''/);
+	});
+
 	it('APP_URL is a string', () => {
 		expect(typeof APP_URL).toBe('string');
 	});
