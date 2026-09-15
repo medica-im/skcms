@@ -72,6 +72,31 @@ const settings = settingsFile();
 const setting = (name: string) => process.env[name] ?? settings[name];
 
 const E2E_WORKERS = Number(setting('E2E_WORKERS') ?? 8);
+
+/**
+ * Features that measure or drag real layout boxes, and so need the machine to
+ * themselves.
+ *
+ * cropperjs positions its selection from getBoundingClientRect and moves it by
+ * pointer events; the backdrop and centering scenarios compare rendered
+ * geometry. Under contention a renderer that loses the race reports a box that
+ * is briefly wrong, or a drag that never lands, and the failure reads as a
+ * product bug -- "the preview is not drawn as a circle", "the crop starts
+ * inside a landscape photograph". Those same scenarios pass alone: 63 of 63 on
+ * an idle box, having failed in a full parallel run minutes earlier.
+ *
+ * So they run in their own projects, `fullyParallel: false` and one worker,
+ * after the parallel ones. It costs a few minutes of wall clock and removes a
+ * class of failure that has twice been mistaken for a real defect.
+ */
+const PIXEL_SENSITIVE = [
+	'avatar-crop-preview',
+	'modal-backdrop',
+	'modal-centering',
+	'facility-modal-mobile'
+];
+
+const pixelMatch = new RegExp(`(${PIXEL_SENSITIVE.join('|')})\\.feature`);
 const ROOT_WORKERS = Math.ceil(E2E_WORKERS / 2);
 
 export default defineConfig({
@@ -152,6 +177,17 @@ export default defineConfig({
 	// assertion whose Received is undefined -- failures that read as facts
 	// about the app and are not. 8 browsers alongside 8 vite servers wants
 	// ~32GB; on a smaller box leave this alone.
+	// One playwright worker per worker SITE, and never more than one worker on a
+	// site: SEED_TAG derives from the site, and the cleanup helpers delete by
+	// that tag, so two workers sharing a site means one scenario's teardown
+	// destroys another's data mid-run. workerSlot() in steps/fixtures.ts throws
+	// rather than share, so a run asking for too many fails loudly.
+	//
+	// The two chromium projects own opposite halves and playwright interleaves
+	// them (they declare no `dependencies`), so at PLAYWRIGHT_WORKERS=4 each
+	// project's half is fully busy and all 8 sites are in use at once. Wanting
+	// more parallelism than that means seeding more sites, not packing more
+	// workers onto the ones that exist.
 	workers: setting('PLAYWRIGHT_WORKERS') ? Number(setting('PLAYWRIGHT_WORKERS')) : undefined,
 	// No webServer: the suite needs one dev server *per worker*, each with its
 	// own .env and its own site, which a single command cannot express. They are
@@ -176,37 +212,36 @@ export default defineConfig({
 		trace: 'on-first-retry'
 	},
 	projects: [
-		// The same scenarios, twice: once against a site served at its root and
-		// once against one under a base path.
+		// One chromium project over ALL the worker sites, not one per shape.
 		//
-		// Two projects rather than two runs, so a single `playwright test`
-		// covers both shapes and neither can be forgotten. They draw from
-		// opposite halves of the worker pool -- scripts/e2e-workers.sh serves
-		// the lower half at the root and the upper half under /annuaire -- and
-		// `workerOffset` is what sends a project at its own half (see
-		// workerSlot in steps/fixtures.ts).
+		// Half the sites are served under a base path and half at their root
+		// (scripts/e2e-workers.sh), so a worker exercises whichever shape its own
+		// site has. Every scenario therefore runs in both shapes across a run,
+		// without splitting the pool: 8 sites means 8 workers, each owning one
+		// site outright.
 		//
-		// E2E_WORKERS is the TOTAL number of sites; each project runs on half.
-		// The halves must agree with the split in e2e-workers.sh: a project
-		// pointed at the wrong half tests one shape twice and passes while
-		// proving nothing.
+		// The earlier arrangement gave each SHAPE its own project with half the
+		// sites, which capped parallelism at 4 and left the other 4 vite servers
+		// idle -- playwright runs projects one after another, so the halves never
+		// overlapped. Splitting by shape was the mistake; the shape belongs to
+		// the site, not to the project.
 		{
-			name: 'chromium-root',
+			name: 'chromium',
 			testDir,
-			use: { ...devices['Desktop Chrome'], workerOffset: 0, workerPoolSize: ROOT_WORKERS }
+			testIgnore: pixelMatch,
+			use: { ...devices['Desktop Chrome'], workerPoolSize: E2E_WORKERS }
 		},
+		// The pixel-sensitive features, one worker and no parallelism, after the
+		// project above. They measure and drag real layout boxes, and under
+		// contention report a box that is briefly wrong or a drag that never
+		// lands -- failures that read as product bugs and are not.
 		{
-			// A site proxied under a subdirectory of a host whose root belongs
-			// to something else. The shape that hides bugs no other site can
-			// show: /web/entries rendering "Aucune entrée" on a directory of 59
-			// entries was invisible to this suite until it ran here.
-			name: 'chromium-base-path',
+			name: 'chromium-serial',
 			testDir,
-			use: {
-				...devices['Desktop Chrome'],
-				workerOffset: ROOT_WORKERS,
-				workerPoolSize: E2E_WORKERS - ROOT_WORKERS
-			}
+			testMatch: pixelMatch,
+			fullyParallel: false,
+			workers: 1,
+			use: { ...devices['Desktop Chrome'], workerPoolSize: E2E_WORKERS }
 		},
 		{
 			// Plain Playwright specs, alongside the generated Gherkin ones. Some

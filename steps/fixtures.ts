@@ -83,20 +83,36 @@ export function selectableEntries<T extends { entrySlug?: string; active?: boole
  * remove.
  */
 function workerSlot(testInfo: import('@playwright/test').TestInfo): number {
-	const use = testInfo.project.use as { workerOffset?: number; workerPoolSize?: number };
-	const offset = Number(use.workerOffset ?? 0);
-	const poolSize = Number(use.workerPoolSize ?? 0);
+	const poolSize = Number(
+		(testInfo.project.use as { workerPoolSize?: number }).workerPoolSize ?? 0
+	);
 
-	// Wrapped into this project's OWN half of the pool, not just offset into it.
-	// parallelIndex counts playwright's workers, which is PLAYWRIGHT_WORKERS and
-	// has nothing to do with how many sites exist: at 8 playwright workers over
-	// a 4-site half, `parallelIndex + offset` reached w8..w11, which do not
-	// resolve. Every scenario on those slots died with ERR_NAME_NOT_RESOLVED,
-	// and -- worse -- basePathForHost found no .env.test.w9 and reported no base
-	// path, so the failures read as missing pages rather than a missing site.
-	if (!poolSize) return testInfo.parallelIndex + offset;
-	return offset + (testInfo.parallelIndex % poolSize);
+	// One site per playwright worker, and the worker index IS the site index.
+	//
+	// No offset and no wrapping. Half the sites are served under a base path and
+	// half at their root, so a worker exercises whichever shape its own site
+	// has; the shape belongs to the SITE, not to the project. An earlier version
+	// gave each shape its own project over half the pool, which capped
+	// parallelism at half the sites and left the rest idle, because playwright
+	// runs projects one after another rather than interleaving them.
+	//
+	// A site is not shareable: SEED_TAG derives from it and the cleanup helpers
+	// delete by that tag -- `MATCH (n) WHERE n.e2eSeed0 = true DETACH DELETE n`
+	// -- so two workers on one site means one scenario's teardown destroys
+	// another's entry mid-run. That surfaced as "entry <uid> missing from
+	// listing" with the entry gone from the graph, and as facility-deletion
+	// getting 404 where it expected 409.
+	if (poolSize && testInfo.parallelIndex >= poolSize) {
+		throw new Error(
+			`playwright worker ${testInfo.parallelIndex} has no worker site: only ` +
+				`${poolSize} are seeded. Lower PLAYWRIGHT_WORKERS, or raise E2E_WORKERS ` +
+				`and reseed.`
+		);
+	}
+	return testInfo.parallelIndex;
 }
+
+
 
 /**
  * The base path the site under test is served under, for a step that needs it.
