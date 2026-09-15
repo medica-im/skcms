@@ -1,6 +1,7 @@
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
 import { test } from './fixtures';
+import { basePathOf } from './fixtures';
 
 const { When, Then } = createBdd(test);
 
@@ -36,9 +37,13 @@ When('I follow a link to {string}', async ({ page }, path: string) => {
 	ctx.status = response?.status();
 });
 
-Then('I am redirected to the sign-in page', async ({ page }) => {
+Then('I am redirected to the sign-in page', async ({ page, baseURL }) => {
 	await expect(page).toHaveURL(
-		new RegExp(`/signin\\?redirectTo=${INVITEES_PATH.replace(/\//g, '\\/')}`)
+		// The prefix belongs to both halves on a site served under a base path:
+		// /annuaire/signin?redirectTo=/annuaire/web/invite/invitees.
+		new RegExp(
+			`${basePathOf(baseURL)}/signin\\?redirectTo=${`${basePathOf(baseURL)}${INVITEES_PATH}`.replace(/\//g, '\\/')}`
+		)
 	);
 });
 
@@ -76,7 +81,7 @@ async function backButton(page: import('@playwright/test').Page) {
 
 Then('I see a {string} control', async ({ page }, label: string) => {
 	expect(label).toBe('back');
-	await expect(await backButton(page)).toBeVisible({ timeout: 15_000 });
+	await expect(await backButton(page)).toBeVisible({ timeout: 8_000 });
 });
 
 Then('I do not see a {string} control', async ({ page }, label: string) => {

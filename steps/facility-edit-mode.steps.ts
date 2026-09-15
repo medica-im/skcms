@@ -4,6 +4,7 @@ import { test } from './fixtures';
 import { facilityCtx, setSwitch } from './facilityContext';
 import { djangoShell, clearApiCache } from './seed';
 import { addSessionCookie } from './common.steps';
+import { basePathOf } from './fixtures';
 
 const { Given, When, Then, After } = createBdd(test);
 
@@ -51,27 +52,34 @@ const before: {
  * wipe it, and the scenario would be exercising a reload — precisely what it
  * must not do.
  */
-When('I reach the facility page by following a link to that facility', async ({ page }) => {
+When('I reach the facility page by following a link to that facility', async ({ page, baseURL }) => {
 	await page.goto('/', { waitUntil: 'networkidle' });
 
-	await page.evaluate((slug) => {
+	// The href carries the base path, because this anchor stands in for one the
+	// app itself would render and those are built from `base`. page.goto is
+	// prefixed by the fixture in steps/fixtures.ts, but an href built here goes
+	// straight into the DOM and misses it -- so on a prefixed site the click
+	// landed on /sites/... and got a 404 page with no edit switch on it.
+	const prefix = basePathOf(baseURL);
+
+	await page.evaluate(({ slug, prefix }) => {
 		(window as any).__clientSideNav = true;
 		const anchor = document.createElement('a');
-		anchor.href = `/sites/${slug}`;
+		anchor.href = `${prefix}/sites/${slug}`;
 		anchor.textContent = 'to the facility';
 		anchor.id = 'e2e-facility-link';
 		document.body.prepend(anchor);
-	}, ctx.slug);
+	}, { slug: ctx.slug, prefix });
 
 	await page.locator('#e2e-facility-link').click();
-	await page.waitForURL(`**/sites/${ctx.slug}`, { timeout: 20_000 });
+	await page.waitForURL(`**/sites/${ctx.slug}`, { timeout: 8_000 });
 
 	const stayed = await page.evaluate(() => (window as any).__clientSideNav === true);
 	expect(stayed, 'the link caused a full page load, not a client-side navigation').toBe(true);
 });
 
 Then('I see the edit mode pencil', async ({ page }) => {
-	await expect(pencil(page)).toBeVisible({ timeout: 20_000 });
+	await expect(pencil(page)).toBeVisible({ timeout: 8_000 });
 });
 
 Then('I do not see the edit mode pencil', async ({ page }) => {
@@ -118,7 +126,7 @@ When('I turn edit mode off', async ({ page }) => {
 
 Then('I see the {string} button', async ({ page }, label: string) => {
 	expect(label).toBe('add picture');
-	await expect(addPictureButton(page)).toBeVisible({ timeout: 15_000 });
+	await expect(addPictureButton(page)).toBeVisible({ timeout: 8_000 });
 });
 
 /**
@@ -214,7 +222,7 @@ Then('the edit mode pencil is what receives a click on itself', async ({ page })
  * the page shows through, however that is spelled in CSS.
  */
 async function opacityOf(locator: import('@playwright/test').Locator): Promise<number> {
-	await expect(locator).toBeVisible({ timeout: 15_000 });
+	await expect(locator).toBeVisible({ timeout: 8_000 });
 	return locator.evaluate((element) => {
 		// Transparency can be spelled two ways: an `opacity` on the button or an
 		// ancestor, or an alpha on the button's own background colour. Either

@@ -47,7 +47,7 @@ When('I start creating an entry', async ({ page }) => {
 Then('I can create a facility from there', async ({ page }) => {
 	await expect(
 		page.getByRole('button', { name: /Créer un établissement/i }).first()
-	).toBeVisible({ timeout: 20_000 });
+	).toBeVisible({ timeout: 8_000 });
 });
 
 /** A commune is required by FacilityPost, so borrow one the site already uses. */
@@ -142,5 +142,5 @@ Then('I see the edit facility button', async ({ page }) => {
 	// Idempotent, so this is safe after a scenario that already pressed the
 	// pencil as well as one arriving straight from the facility page.
 	await enterEditMode(page);
-	await expect(editFacilityButton(page)).toBeVisible({ timeout: 20_000 });
+	await expect(editFacilityButton(page)).toBeVisible({ timeout: 8_000 });
 });

@@ -186,19 +186,19 @@ When('I turn on edit mode', async ({ page }) => {
 	// Visible is not the same as hydrated, and waiting longer does not help:
 	// setSwitch re-clicks until the state actually changes. See its comment in
 	// facilityContext.ts for why a single click silently does nothing.
-	await expect(button).toBeVisible({ timeout: 20_000 });
+	await expect(button).toBeVisible({ timeout: 8_000 });
 	await setSwitch(button, true);
 });
 
 Then('a role change control is shown', async ({ page }) => {
-	await expect(page.getByTestId('role-edit')).toBeVisible({ timeout: 10_000 });
+	await expect(page.getByTestId('role-edit')).toBeVisible({ timeout: 8_000 });
 });
 
 When('I open the role change control', async ({ page }) => {
 	// The roles on offer live in the dialog, so opening it is what makes them
 	// inspectable — the pencil alone shows nothing.
 	await page.getByTestId('role-edit').click();
-	await expect(roleSelect(page)).toBeVisible({ timeout: 10_000 });
+	await expect(roleSelect(page)).toBeVisible({ timeout: 8_000 });
 });
 
 Then('{string} is offered', async ({ page }, role: string) => {
@@ -225,7 +225,7 @@ When('I change their role to {string}', async ({ page }, role: string) => {
 	// step already opened the dialog.
 	if (!(await roleSelect(page).isVisible().catch(() => false))) {
 		await page.getByTestId('role-edit').click();
-		await expect(roleSelect(page)).toBeVisible({ timeout: 10_000 });
+		await expect(roleSelect(page)).toBeVisible({ timeout: 8_000 });
 	}
 	await roleSelect(page).selectOption(role);
 	await page.getByTestId('role-submit').click();
@@ -239,14 +239,14 @@ Then('their role is {string}', async ({ page }, role: string) => {
 	// Asserted from the server's answer, not from the control: the select still
 	// holding a value proves only that a click happened.
 	const badge = page.getByTestId('access-history').getByTestId('history-row').first();
-	await expect(badge).toHaveAttribute('data-role', role, { timeout: 15_000 });
+	await expect(badge).toHaveAttribute('data-role', role, { timeout: 8_000 });
 });
 
 Then(
 	'the history shows a change from {string} to {string} by me',
 	async ({ page }, from: string, to: string) => {
 		const rows = page.getByTestId('access-history').getByTestId('history-row');
-		await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+		await expect(rows.first()).toBeVisible({ timeout: 8_000 });
 
 		// Both roles survive the change: the new one active, the old one kept
 		// with the time it ended. An audit trail nobody can see is one nobody
@@ -332,7 +332,7 @@ When('I open the dashboard', async ({ page }) => {
 });
 
 Then('I am told my access is suspended', async ({ page }) => {
-	await expect(page.getByTestId('suspended-banner')).toBeVisible({ timeout: 15_000 });
+	await expect(page.getByTestId('suspended-banner')).toBeVisible({ timeout: 8_000 });
 });
 
 Given(
@@ -365,13 +365,13 @@ Given(
 );
 
 Then('I am told my email is unknown', async ({ page }) => {
-	await expect(page.getByTestId('unknown-email')).toBeVisible({ timeout: 15_000 });
+	await expect(page.getByTestId('unknown-email')).toBeVisible({ timeout: 8_000 });
 });
 
 Then('I am not told my email is unknown', async ({ page }) => {
 	// The dashboard is already rendered by the time this runs — the suspension
 	// banner is what says so — so an absent warning here is an absence, not a
 	// page that has yet to paint.
-	await expect(page.getByTestId('suspended-banner')).toBeVisible({ timeout: 15_000 });
+	await expect(page.getByTestId('suspended-banner')).toBeVisible({ timeout: 8_000 });
 	await expect(page.getByTestId('unknown-email')).toHaveCount(0);
 });

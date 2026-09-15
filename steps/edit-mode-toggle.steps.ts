@@ -40,7 +40,7 @@ Then('no edit mode button is shown', async ({ page }) => {
 });
 
 Then('the edit mode button is shown', async ({ page }) => {
-	await expect(editButton(page)).toBeVisible({ timeout: 20_000 });
+	await expect(editButton(page)).toBeVisible({ timeout: 8_000 });
 });
 
 Then('the edit mode button is off', async ({ page }) => {
@@ -53,7 +53,7 @@ Then('the edit mode button is on', async ({ page }) => {
 
 When('I press the edit mode button', async ({ page }) => {
 	const button = editButton(page);
-	await expect(button).toBeVisible({ timeout: 20_000 });
+	await expect(button).toBeVisible({ timeout: 8_000 });
 	await expect(button).toBeEnabled();
 
 	// One press, and it has to be one: this feature asserts the button is on

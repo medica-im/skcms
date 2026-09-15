@@ -86,7 +86,7 @@ print("NO_PLACE_IMAGE")
 });
 
 Then('the facility photograph is displayed', async ({ page }) => {
-	await expect(placePhotograph(page).first()).toBeVisible({ timeout: 20_000 });
+	await expect(placePhotograph(page).first()).toBeVisible({ timeout: 8_000 });
 });
 
 Then('no facility photograph is displayed', async ({ page }) => {
@@ -99,7 +99,7 @@ Then('no facility photograph is displayed', async ({ page }) => {
  */
 Then('the facility photograph has a text description', async ({ page }) => {
 	const image = placePhotograph(page).first();
-	await expect(image).toBeVisible({ timeout: 20_000 });
+	await expect(image).toBeVisible({ timeout: 8_000 });
 	const alt = await image.getAttribute('alt');
 	expect(alt, 'the photograph has no alt attribute').toBeTruthy();
 	expect(alt!.trim().length, 'the photograph has an empty alt attribute').toBeGreaterThan(0);

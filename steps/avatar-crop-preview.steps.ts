@@ -132,7 +132,7 @@ When('I choose a photograph to use as the avatar', async ({ page }) => {
 		.locator('input[type="file"]')
 		.setInputFiles({ name: 'avatar.jpg', mimeType: 'image/jpeg', buffer });
 	// The cropper initializes asynchronously (dynamic import of cropperjs).
-	await expect(cropper(page)).toBeVisible({ timeout: 15_000 });
+	await expect(cropper(page)).toBeVisible({ timeout: 8_000 });
 });
 
 When('I validate the crop', async ({ page }) => {
@@ -164,7 +164,7 @@ When('I close the avatar dialog', async ({ page }) => {
 });
 
 Then('I see a preview of the cropped picture', async ({ page }) => {
-	await expect(preview(page)).toBeVisible({ timeout: 15_000 });
+	await expect(preview(page)).toBeVisible({ timeout: 8_000 });
 	// A rendered image, not an empty box: the element must actually have decoded
 	// pixels, which a broken or unset src would not.
 	const width = await preview(page).evaluate(
@@ -313,7 +313,7 @@ When(
 		await openDialog(page)
 			.locator('input[type="file"]')
 			.setInputFiles({ name: 'avatar.jpg', mimeType: 'image/jpeg', buffer });
-		await expect(cropper(page)).toBeVisible({ timeout: 15_000 });
+		await expect(cropper(page)).toBeVisible({ timeout: 8_000 });
 		// The cropper sizes its canvas from the image, which is laid out a frame
 		// or two after the element appears.
 		await page.waitForTimeout(1200);
@@ -426,7 +426,7 @@ When('I delete the picture', async ({ page }) => {
 
 Then('the dialog confirms the picture was deleted', async ({ page }) => {
 	await expect(openDialog(page).getByText(/photo supprimée/i).first()).toBeVisible({
-		timeout: 20_000
+		timeout: 8_000
 	});
 });
 
@@ -470,7 +470,7 @@ Then('the cropper is no longer shown', async ({ page }) => {
 });
 
 Then('the cropper is shown again', async ({ page }) => {
-	await expect(cropper(page)).toBeVisible({ timeout: 15_000 });
+	await expect(cropper(page)).toBeVisible({ timeout: 8_000 });
 });
 
 Then('I did not have to choose the file again', async ({ page }) => {
@@ -489,7 +489,7 @@ Then('no avatar has been uploaded yet', async () => {
 Then('the avatar is uploaded successfully', async ({ page }) => {
 	await expect(
 		openDialog(page).getByText(/photo (de profil )?(mise à jour|enregistrée)|succès/i).first()
-	).toBeVisible({ timeout: 20_000 });
+	).toBeVisible({ timeout: 8_000 });
 });
 
 Then('the entry has an avatar', async () => {

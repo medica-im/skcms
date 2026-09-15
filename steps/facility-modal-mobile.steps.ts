@@ -113,13 +113,13 @@ print("OWNERSHIP_RESTORED")
 Then('the facility edit button is shown', async ({ page }) => {
 	// The button lives behind edit mode, so the pencil comes first.
 	await enterEditMode(page);
-	await expect(editButton(page)).toBeVisible({ timeout: 20_000 });
+	await expect(editButton(page)).toBeVisible({ timeout: 8_000 });
 });
 
 Given('I open the facility edit dialog', async ({ page }) => {
 	await enterEditMode(page);
 	await editButton(page).click();
-	await expect(dialog(page)).toBeVisible({ timeout: 10_000 });
+	await expect(dialog(page)).toBeVisible({ timeout: 8_000 });
 });
 
 Given(/^the screen is (a phone|a short phone|a desktop)$/, async ({ page }, screen: string) => {
@@ -132,7 +132,7 @@ Given(/^the screen is (a phone|a short phone|a desktop)$/, async ({ page }, scre
 	if ((await dialog(page).count()) === 0) {
 		await enterEditMode(page);
 		await editButton(page).click();
-		await expect(dialog(page)).toBeVisible({ timeout: 10_000 });
+		await expect(dialog(page)).toBeVisible({ timeout: 8_000 });
 		await page.waitForTimeout(300);
 	}
 });

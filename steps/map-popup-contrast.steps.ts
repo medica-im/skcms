@@ -92,7 +92,7 @@ When('I open the facility map', async ({ page }) => {
 	const section = page.locator('#test-map');
 	// The canvas is WebGL; wait for MapLibre to have drawn rather than for the
 	// element to merely exist.
-	await expect(section.locator('canvas.maplibregl-canvas')).toBeVisible({ timeout: 30_000 });
+	await expect(section.locator('canvas.maplibregl-canvas')).toBeVisible({ timeout: 8_000 });
 });
 
 When('a facility marker popup is open', async ({ page }) => {
@@ -102,8 +102,8 @@ When('a facility marker popup is open', async ({ page }) => {
 	if (!(await popup.isVisible().catch(() => false))) {
 		await page.locator('.maplibregl-marker').first().click();
 	}
-	await expect(popup).toBeVisible({ timeout: 30_000 });
-	await expect(popup.locator('a.anchor').first()).toBeVisible({ timeout: 30_000 });
+	await expect(popup).toBeVisible({ timeout: 8_000 });
+	await expect(popup.locator('a.anchor').first()).toBeVisible({ timeout: 8_000 });
 	// Let the map settle so the screenshot is not taken mid-animation.
 	await page.waitForTimeout(500);
 });

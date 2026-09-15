@@ -68,7 +68,7 @@ Given('the home page carousel has more than one slide', async ({ page, context, 
 	await addSessionCookie(context, 'superuser', baseURL);
 	await page.goto('/', { waitUntil: 'networkidle' });
 	const slides = teamCarousel(page).locator('[data-carousel-slide]');
-	await expect(slides.first()).toBeAttached({ timeout: 20_000 });
+	await expect(slides.first()).toBeAttached({ timeout: 8_000 });
 	expect(await slides.count(), 'expected more than one carousel slide').toBeGreaterThan(1);
 	await pauseAutoplay(page);
 });
@@ -99,7 +99,7 @@ Then('the carousel has moved to another slide', async ({ page }) => {
 	// The library animates the scroll, so poll until it settles somewhere else.
 	await expect
 		.poll(() => trackOffset(page), {
-			timeout: 15_000,
+			timeout: 8_000,
 			message: `carousel did not move from ${offsetBeforeClick}`
 		})
 		.not.toBe(offsetBeforeClick);
@@ -112,7 +112,7 @@ Then('the carousel has moved to another slide', async ({ page }) => {
  */
 async function avatarBox(page: import('@playwright/test').Page) {
 	const image = teamCarousel(page).locator('figure img').first();
-	await image.waitFor({ timeout: 20_000 });
+	await image.waitFor({ timeout: 8_000 });
 	return image.evaluate((img) => {
 		const rect = img.getBoundingClientRect();
 		return {
@@ -139,7 +139,7 @@ Given('I load the home page without JavaScript', async ({ browser, baseURL }) =>
 	});
 	// An avatar is intrinsically sized, so its box only means anything once the
 	// image has actually loaded.
-	await teamCarousel(page).locator('figure img').first().waitFor({ timeout: 20_000 });
+	await teamCarousel(page).locator('figure img').first().waitFor({ timeout: 8_000 });
 	await page.waitForTimeout(500);
 	ssrBox = (await avatarBox(page)) as Box | null;
 	await context.close();
@@ -151,7 +151,7 @@ Given('I note the size of the first avatar', async ({}) => {
 
 When('I load the home page with JavaScript', async ({ page }) => {
 	await page.goto('/', { waitUntil: 'networkidle' });
-	await teamCarousel(page).locator('[data-carousel-slide]').first().waitFor({ timeout: 20_000 });
+	await teamCarousel(page).locator('[data-carousel-slide]').first().waitFor({ timeout: 8_000 });
 	await pauseAutoplay(page);
 	hydratedBox = (await avatarBox(page)) as Box | null;
 });
@@ -229,7 +229,7 @@ Then(
 		await button.click({ force: true });
 		await expect
 			.poll(() => trackOffset(page), {
-				timeout: 15_000,
+				timeout: 8_000,
 				message:
 					`"${arrow}" was enabled but the carousel stayed at ${before} — ` +
 					`the library's cached slide count/geometry is stale`

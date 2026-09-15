@@ -13,14 +13,23 @@ const occupationButtons = (page: import('@playwright/test').Page) =>
 
 Given('the home page team section is displayed', async ({ page }) => {
 	await page.goto('/', { waitUntil: 'networkidle' });
-	await expect(occupationButtons(page).first()).toBeVisible({ timeout: 20_000 });
+	await expect(occupationButtons(page).first()).toBeVisible({ timeout: 8_000 });
 });
 
 /**
  * The Django Site this checkout is configured against — the host of
  * PUBLIC_ORIGIN, so switching context with scripts/dev.sh moves both together.
  */
-const SITE_DOMAIN = process.env.SEED_SITE_DOMAIN ?? new URL(apiOrigin()).hostname;
+// Resolved PER TEST, from that test's own baseURL, not once at module scope.
+//
+// `apiOrigin()` with no argument falls back to TEST_PARALLEL_INDEX, which is
+// playwright's worker slot and knows nothing about a project's workerOffset or
+// the size of the site pool: at 12 playwright workers it named w8..w11, which
+// are not seeded, and every scenario here died with "Site matching query does
+// not exist". Module scope cannot see the offset, so the lookup has to happen
+// where baseURL is available.
+const siteDomainFor = (baseURL: string | undefined) =>
+	process.env.SEED_SITE_DOMAIN ?? new URL(baseURL ?? apiOrigin()).hostname;
 
 /**
  * The slug this scenario seeded, so teardown removes exactly that one.
@@ -33,9 +42,9 @@ let seededSlug: string | null = null;
 
 Given(
 	'the site has an effector type named {string} labelled {string}',
-	async ({}, name: string, label: string) => {
+	async ({ baseURL }, name: string, label: string) => {
 		const slug = `e2e-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
-		await seedEffectorType({ siteDomain: SITE_DOMAIN, name, label, slug });
+		await seedEffectorType({ siteDomain: siteDomainFor(baseURL), name, label, slug });
 		seededSlug = slug;
 	}
 );
@@ -51,7 +60,7 @@ Then('the occupation button shows {string}', async ({ page }, expected: string) 
 	await expect(
 		occupationButtons(page).filter({ hasText: expected }).first(),
 		`no occupation button showing "${expected}"`
-	).toBeVisible({ timeout: 15_000 });
+	).toBeVisible({ timeout: 8_000 });
 });
 
 /**
@@ -63,7 +72,7 @@ Then("the button's tooltip shows {string}", async ({ page }, expected: string) =
 	await expect(
 		page.locator(`a.btn[title="${expected}"]`).first(),
 		`no occupation button whose tooltip is "${expected}"`
-	).toBeVisible({ timeout: 15_000 });
+	).toBeVisible({ timeout: 8_000 });
 });
 
 /** The flexed label is shown in full when there is no acronym to substitute. */
@@ -71,7 +80,7 @@ Then(
 	'no occupation button shows an abbreviation for {string}',
 	async ({ page }, name: string) => {
 		const button = occupationButtons(page).filter({ hasText: name }).first();
-		await expect(button, `no occupation button for "${name}"`).toBeVisible({ timeout: 15_000 });
+		await expect(button, `no occupation button for "${name}"`).toBeVisible({ timeout: 8_000 });
 		await expect(button).toHaveAttribute('title', name);
 	}
 );

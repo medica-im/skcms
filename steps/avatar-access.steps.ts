@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
-import { test } from './fixtures';
+import { test, basePathOf } from './fixtures';
 import { apiOrigin, sessionCookieName, type TestRole } from '../tests/fixtures/session';
 import { addSessionCookie } from './common.steps';
 import { seedAvatar, cloneEntry, removeClonedEntry, djangoShell, SEED_TAG } from './seed';
@@ -204,11 +204,11 @@ When('I open the home page', async ({ page }) => {
 // playwright-bdd matches step text regardless of the Given/When/Then keyword,
 // so each of these is defined once and reused in both positions.
 Then("the team carousel shows the entry's picture", async ({ page }) => {
-	await expect(carouselPicture(page).first()).toBeAttached({ timeout: 20_000 });
+	await expect(carouselPicture(page).first()).toBeAttached({ timeout: 8_000 });
 });
 
 Then("the team carousel does not show the entry's picture", async ({ page }) => {
-	await expect(carouselPicture(page)).toHaveCount(0, { timeout: 20_000 });
+	await expect(carouselPicture(page)).toHaveCount(0, { timeout: 8_000 });
 });
 
 // --- Signing in / out without a manual reload -------------------------------
@@ -230,24 +230,37 @@ When(
 			await addSessionCookie(context, role as TestRole, origin);
 			await route.fulfill({ status: 302, headers: { location: `${origin}/` } });
 		});
+		// The base path belongs to all three of these. page.goto is prefixed by
+		// the fixture, but the SELECTOR and the waitForURL predicate are matched
+		// against what the app actually renders: on a prefixed site the form
+		// posts to /annuaire/signin, so `form[action="/signin"]` matches nothing
+		// and the click waits out the whole timeout. That one selector accounted
+		// for 24 of the 54 failures in the 15 Sep base-path run.
+		const signinPath = `${basePathOf(baseURL)}/signin`;
 		await page.goto('/signin', { waitUntil: 'networkidle' });
 		// Scope to the sign-in form: the page also renders theme-picker buttons.
-		await page.locator('form[action="/signin"] button').first().click();
-		await page.waitForURL((url) => !url.pathname.startsWith('/signin'), { timeout: 30_000 });
+		await page.locator(`form[action="${signinPath}"] button`).first().click();
+		await page.waitForURL((url) => !url.pathname.startsWith(signinPath), { timeout: 8_000 });
 	}
 );
 
-When('I sign out', async ({ page, context }) => {
+When('I sign out', async ({ page, context, baseURL }) => {
 	await page.goto('/signout', { waitUntil: 'networkidle' });
 	// Scope to the sign-out form: the page also renders theme-picker buttons.
-	await page.locator('form[action="/signout"] button').first().click();
+	// The action carries the base path, exactly as the sign-IN form does: on a
+	// prefixed site the form posts to /annuaire/signout, so a selector built
+	// from the bare path matches nothing and the click waits out the timeout.
+	await page
+		.locator(`form[action="${basePathOf(baseURL)}/signout"] button`)
+		.first()
+		.click();
 	// Signing out clears the session cookie but keeps the user on /signout,
 	// so wait for the cookie to disappear rather than for a navigation.
 	await expect
 		.poll(
 			async () =>
 				(await context.cookies()).some((c) => c.name === sessionCookieName(API_ORIGIN) && c.value),
-			{ timeout: 30_000, message: 'session cookie was not cleared' }
+			{ timeout: 8_000, message: 'session cookie was not cleared' }
 		)
 		.toBe(false);
 });
@@ -269,7 +282,7 @@ When('I sign out from the app bar', async ({ page, context }) => {
 		.poll(
 			async () =>
 				(await context.cookies()).some((c) => c.name === sessionCookieName(API_ORIGIN) && c.value),
-			{ timeout: 30_000, message: 'session cookie was not cleared' }
+			{ timeout: 8_000, message: 'session cookie was not cleared' }
 		)
 		.toBe(false);
 });
@@ -282,7 +295,7 @@ When('I navigate back to the home page', async ({ page }) => {
 	// Click an in-app link so SvelteKit routes client-side; a page.goto() would
 	// be a full browser load and would not prove anything about invalidation.
 	await page.locator('a[href="/"]').first().click();
-	await page.waitForURL((url) => url.pathname === '/', { timeout: 30_000 });
+	await page.waitForURL((url) => url.pathname === '/', { timeout: 8_000 });
 	await page.waitForLoadState('networkidle');
 });
 
@@ -294,13 +307,13 @@ When('I navigate back to the home page', async ({ page }) => {
 Then(
 	"the team carousel shows the entry's picture without a page reload",
 	async ({ page }) => {
-		await expect(carouselPicture(page).first()).toBeAttached({ timeout: 30_000 });
+		await expect(carouselPicture(page).first()).toBeAttached({ timeout: 8_000 });
 	}
 );
 
 Then(
 	"the team carousel does not show the entry's picture without a page reload",
 	async ({ page }) => {
-		await expect(carouselPicture(page)).toHaveCount(0, { timeout: 30_000 });
+		await expect(carouselPicture(page)).toHaveCount(0, { timeout: 8_000 });
 	}
 );

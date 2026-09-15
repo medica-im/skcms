@@ -35,7 +35,7 @@ export async function enterEditMode(page: import('@playwright/test').Page) {
 	// coming, leaving the caller to fail on a control this function was meant
 	// to reveal.
 	try {
-		await pencil.waitFor({ state: 'visible', timeout: 15_000 });
+		await pencil.waitFor({ state: 'visible', timeout: 8_000 });
 	} catch {
 		// Genuinely absent: a visitor who may not edit. Leave the page alone so
 		// the caller fails on what it was really looking for.

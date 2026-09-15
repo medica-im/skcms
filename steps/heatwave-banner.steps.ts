@@ -32,7 +32,7 @@ Given('a heatwave alert is in progress', async ({ page }) => {
 // playwright-bdd matches on step text regardless of the keyword.
 
 When('I close the heatwave banner', async ({ page }) => {
-	await expect(banner(page)).toBeVisible({ timeout: 20_000 });
+	await expect(banner(page)).toBeVisible({ timeout: 8_000 });
 	await closeButton(page).click();
 });
 
@@ -62,7 +62,7 @@ When('{int} minutes have passed', async ({ page }, minutes: number) => {
 });
 
 Then('the heatwave banner is visible', async ({ page }) => {
-	await expect(banner(page)).toBeVisible({ timeout: 20_000 });
+	await expect(banner(page)).toBeVisible({ timeout: 8_000 });
 });
 
 Then('the heatwave banner is not visible', async ({ page }) => {

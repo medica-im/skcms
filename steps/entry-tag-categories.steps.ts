@@ -84,13 +84,13 @@ const openTagDialog = async (page: import('@playwright/test').Page) => {
 		.getByRole('button', { name: /étiquette/i })
 		.first()
 		.click();
-	await expect(page.locator('dialog[open]')).toBeVisible({ timeout: 10_000 });
+	await expect(page.locator('dialog[open]')).toBeVisible({ timeout: 8_000 });
 };
 
 const openEntryInEditMode = async (page: import('@playwright/test').Page) => {
 	await page.goto(`/e/${subject!.entry.entrySlug}`, { waitUntil: 'networkidle' });
 	const toggle = page.getByRole('switch').first();
-	await expect(toggle).toBeVisible({ timeout: 20_000 });
+	await expect(toggle).toBeVisible({ timeout: 8_000 });
 	await setSwitch(toggle, true);
 };
 
@@ -115,7 +115,7 @@ When('I choose that tag category', async ({ page }) => {
 	const category = dialogSelect(page, 0);
 	await category.click();
 	const list = page.locator('.svelte-select-list');
-	await expect(list).toBeVisible({ timeout: 10_000 });
+	await expect(list).toBeVisible({ timeout: 8_000 });
 	// The list is handed to floating-ui after it renders; clicking while it is
 	// still `prefloat` hits where the option is about to stop being.
 	await expect(page.locator('.svelte-select-list.prefloat')).toHaveCount(0, { timeout: 5_000 });
@@ -130,7 +130,7 @@ async function offeredTags(page: import('@playwright/test').Page): Promise<strin
 	const tagSelect = dialogSelect(page, 1);
 	await tagSelect.locator('input').first().click();
 	const list = page.locator('.svelte-select-list');
-	await expect(list).toBeVisible({ timeout: 10_000 });
+	await expect(list).toBeVisible({ timeout: 8_000 });
 	await expect(page.locator('.svelte-select-list.prefloat')).toHaveCount(0, { timeout: 5_000 });
 	return (await list.locator('.item').allInnerTexts()).map((t) => t.trim());
 }

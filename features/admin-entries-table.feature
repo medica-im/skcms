@@ -58,3 +58,22 @@ Feature: The administrative entries table loads
     And I click the "actives" count
     Then the state filter shows it is active
     And the table lists at least one entry
+
+  Scenario: The table lists every entry the directory holds
+    # "At least one" above says the fetch worked; it does not say the page
+    # shows the whole directory.
+    #
+    # The count comes from a raw Cypher query against neo4j -- the graph is the
+    # only source of truth that does not share a code path with the page. An
+    # earlier version of this scenario compared the table against
+    # /api/v2/entries, which cannot catch a bug in that endpoint: on 14 Sep 2026
+    # the ipa directory held 59 Entry nodes and the feed returned 41, and an
+    # API-versus-table assertion would have passed on both numbers.
+    #
+    # Runs on the site with a base path. unipa is served under /annuaire behind
+    # the WordPress that owns its root, and that is the one shape where a URL
+    # the app builds can miss the prefix and reach WordPress instead -- so a
+    # base-path bug shows up here and nowhere else.
+    Given I am signed in with the role "administrator"
+    When I open "/web/entries"
+    Then the table lists every entry in the graph

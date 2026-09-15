@@ -774,4 +774,83 @@ for i in range(WORKERS):
             {"email": email, "sub": sub, "role": role, "entry_uid": org_entry_uid},
         )
 
+# --- An IPA entry, so the tag categories have a subject ------------------------
+# entry-tag-categories.feature needs a TagCategory with tags AND an active entry
+# whose EffectorType the category covers. The only TagCategory in the graph is
+# `mention_ipa`, linked to exactly one EffectorType -- "infirmier en pratique
+# avancée". That link is correct domain data: the mentions belong to the IPA
+# profession, so the fixture gives each worker site an IPA ENTRY rather than
+# relinking the category to a profession the site already has. (Relinking was
+# tried first on 2026-09-15; it made the scenarios pass while asserting
+# something untrue about the address book.)
+#
+# CLONED from a real IPA entry rather than built from scratch. A bare
+# `MERGE (e:Entry)` with the three relationships was also tried, and 500'd
+# /api/v2/entries on every worker site: the entries query walks
+# (Facility)->(Commune)->(DepartmentOfFrance)->(Country) and reads fields on the
+# Effector that a bare node does not carry, so one incomplete entry poisons the
+# whole feed. Copying properties(src) carries all of that.
+#
+# The clone keeps the source's EffectorType (the IPA type, which is the point)
+# but takes THIS site's directory and facility -- the source's facility is in
+# another tenant's commune, and an entry is "a person, doing a job, at a place,
+# in a directory".
+IPA_TYPE_UID = "fdc0e597a0b4487293001371ab3808fd"
+
+for i in range(WORKERS):
+    domain = DOMAIN_TEMPLATE.format(i=i)
+    site = Site.objects.filter(domain=domain).first()
+    if site is None:
+        continue
+    directory = Directory.objects.filter(site=site).first()
+    if directory is None:
+        continue
+
+    rows, _ = db.cypher_query(
+        """
+        // A real IPA entry to copy, and this site's own facility to place it at.
+        MATCH (src:Entry)-[:HAS_EFFECTOR_TYPE]->(ipa:EffectorType {uid: $type_uid})
+        WHERE coalesce(src.active, true)
+        OPTIONAL MATCH (src)-[:HAS_EFFECTOR]->(srcEf:Effector)
+        MATCH (d:Directory {name: $dir})-[:HAS_ENTRY]->(:Entry)-[:HAS_FACILITY]->(f:Facility)
+        WITH src, srcEf, ipa, d, f LIMIT 1
+
+        // Idempotent: one IPA subject per site, so re-running tops up rather
+        // than multiplying. A second entry with the same slug would make
+        // /fullentries/slug ambiguous.
+        OPTIONAL MATCH (d)-[:HAS_ENTRY]->(existing:Entry {e2eIpaSubject: true})
+        WITH src, srcEf, ipa, d, f, existing
+        WHERE existing IS NULL
+
+        WITH src, srcEf, ipa, d, f,
+             apoc.map.removeKeys(properties(src), ['uid', 'slug']) AS srcProps
+        CREATE (e:Entry)
+        SET e = srcProps
+        SET e.uid = randomUUID(),
+            e.slug = $dir + '-ipa',
+            e.active = true,
+            e.e2eIpaSubject = true
+
+        // The Effector is 1:1 with the Entry and holds the person's name, so it
+        // is copied rather than shared -- sharing would rename the original.
+        // uid and rpps are dropped: uid trips its uniqueness constraint, and
+        // rpps is a real professional's registration number a copy must not
+        // claim.
+        FOREACH (_ IN CASE WHEN srcEf IS NULL THEN [] ELSE [1] END |
+          CREATE (ef:Effector)
+          SET ef = apoc.map.removeKeys(properties(srcEf), ['uid', 'rpps'])
+          SET ef.uid = randomUUID(), ef.e2eIpaSubject = true
+          MERGE (e)-[:HAS_EFFECTOR]->(ef)
+        )
+
+        MERGE (d)-[:HAS_ENTRY]->(e)
+        MERGE (e)-[:HAS_EFFECTOR_TYPE]->(ipa)
+        MERGE (e)-[:HAS_FACILITY]->(f)
+        RETURN e.uid, e.slug
+        """,
+        {"type_uid": IPA_TYPE_UID, "dir": directory.name},
+    )
+    if rows:
+        print(f"seeded IPA entry {rows[0][1]} on {domain}")
+
 print(f"WORKER_SITES_SEEDED {WORKERS}")

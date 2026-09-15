@@ -5,6 +5,7 @@ import { djangoShell, clearApiCache, SEED_TAG } from './seed';
 import { addSessionCookie } from './common.steps';
 import { facilityCtx, enterEditMode } from './facilityContext';
 import { apiOrigin, type TestRole } from '../tests/fixtures/session';
+import { basePathOf } from './fixtures';
 
 const { Given, When, Then, After } = createBdd(test);
 
@@ -272,8 +273,8 @@ Then('I see the {string} button under the edit facility button', async ({ page }
 	await enterEditMode(page);
 	const edit = editFacilityButton(page);
 	const add = addPictureButton(page);
-	await expect(edit).toBeVisible({ timeout: 15_000 });
-	await expect(add).toBeVisible({ timeout: 15_000 });
+	await expect(edit).toBeVisible({ timeout: 8_000 });
+	await expect(add).toBeVisible({ timeout: 8_000 });
 
 	// "Under" is the point of the placement, so assert the geometry rather than
 	// merely that both buttons exist somewhere on the page.
@@ -296,7 +297,7 @@ Then('I do not see the edit facility button', async ({ page }) => {
 Then('the button offers to modify the picture rather than add one', async ({ page }) => {
 	await enterEditMode(page);
 	await expect(page.getByRole('button', { name: /Modifier la photo du lieu/i }).first()).toBeVisible(
-		{ timeout: 15_000 }
+		{ timeout: 8_000 }
 	);
 	await expect(page.getByRole('button', { name: /Ajouter une photo du lieu/i })).toHaveCount(0);
 });
@@ -306,7 +307,7 @@ Then('the button offers to modify the picture rather than add one', async ({ pag
 When('I open the place picture dialog', async ({ page }) => {
 	await enterEditMode(page);
 	await addPictureButton(page).click();
-	await expect(openDialog(page)).toBeVisible({ timeout: 10_000 });
+	await expect(openDialog(page)).toBeVisible({ timeout: 8_000 });
 });
 
 Then('the dialog explains what to photograph', async ({ page }) => {
@@ -338,7 +339,7 @@ When('I choose an image file', async ({ page }) => {
 
 Then('the crop selection has a 16:9 ratio', async ({ page }) => {
 	const selection = openDialog(page).locator('cropper-selection');
-	await expect(selection).toHaveCount(1, { timeout: 15_000 });
+	await expect(selection).toHaveCount(1, { timeout: 8_000 });
 	const ratio = await selection.getAttribute('aspect-ratio');
 	expect(Number(ratio)).toBeCloseTo(16 / 9, 3);
 });
@@ -355,48 +356,53 @@ async function uploadThroughApi(
 	page: import('@playwright/test').Page,
 	uid: string,
 	width: number,
-	height: number
+	height: number,
+	// The app's OWN route (src/routes/api/facility/...), so it lives under the
+	// base path like any other page. A bare /api/... built inside page.evaluate
+	// skips the prefixing that steps/fixtures.ts does for page.goto, leaves the
+	// app entirely on a prefixed site, and 404s.
+	prefix = ''
 ) {
 	const dataUrl = await makeImage(page, width, height);
 	return page.evaluate(
-		async ([facilityUid, url]) => {
+		async ([facilityUid, url, apiPrefix]) => {
 			const blob = await (await fetch(url)).blob();
 			const form = new FormData();
 			form.append('file', blob, 'place.jpg');
 			form.append('alt', 'e2e');
-			const response = await fetch(`/api/facility/${facilityUid}/image`, {
+			const response = await fetch(`${apiPrefix}/api/facility/${facilityUid}/image`, {
 				method: 'PUT',
 				body: form
 			});
 			return { status: response.status, body: await response.text() };
 		},
-		[uid, dataUrl] as const
+		[uid, dataUrl, prefix] as const
 	);
 }
 
-When('I upload a facility picture through the API', async ({ page }) => {
+When('I upload a facility picture through the API', async ({ page, baseURL }) => {
 	const facility = await aFacility();
 	ctx.uid = facility.uid;
 	await page.goto('/', { waitUntil: 'domcontentloaded' });
-	const result = await uploadThroughApi(page, facility.uid, 1600, 900);
+	const result = await uploadThroughApi(page, facility.uid, 1600, 900, basePathOf(baseURL));
 	ctx.status = result.status;
 });
 
-When('I upload a {string} facility picture through the API', async ({ page }, shape: string) => {
+When('I upload a {string} facility picture through the API', async ({ page, baseURL }, shape: string) => {
 	const facility = await aFacility();
 	ctx.uid = facility.uid;
 	const [width, height] = SHAPES[shape];
 	await page.goto('/', { waitUntil: 'domcontentloaded' });
-	const result = await uploadThroughApi(page, facility.uid, width, height);
+	const result = await uploadThroughApi(page, facility.uid, width, height, basePathOf(baseURL));
 	ctx.status = result.status;
 	ctx.body = result.body;
 });
 
-When('I upload a facility picture measuring {int}x{int}', async ({ page }, w: number, h: number) => {
+When('I upload a facility picture measuring {int}x{int}', async ({ page, baseURL }, w: number, h: number) => {
 	const facility = await aFacility();
 	ctx.uid = facility.uid;
 	await page.goto('/', { waitUntil: 'domcontentloaded' });
-	const result = await uploadThroughApi(page, facility.uid, w, h);
+	const result = await uploadThroughApi(page, facility.uid, w, h, basePathOf(baseURL));
 	ctx.status = result.status;
 	ctx.body = result.body;
 });
@@ -554,7 +560,7 @@ const saveButton = (page: import('@playwright/test').Page) =>
 
 Then('the dialog offers to save the change', async ({ page }) => {
 	const button = saveButton(page);
-	await expect(button, 'no way to save the new description').toBeVisible({ timeout: 10_000 });
+	await expect(button, 'no way to save the new description').toBeVisible({ timeout: 8_000 });
 	await expect(button, 'the save button is disabled despite the change').toBeEnabled();
 });
 
@@ -582,7 +588,7 @@ Then('the facility picture carries that description', async ({ page }) => {
 				const facilities = (await response.json()) as { uid: string; image?: { alt?: string } }[];
 				return facilities.find((f) => f.uid === ctx.uid)?.image?.alt ?? '';
 			},
-			{ timeout: 20_000, message: 'the description never reached the facility' }
+			{ timeout: 8_000, message: 'the description never reached the facility' }
 		)
 		.toBe(DESCRIPTION);
 });
@@ -660,12 +666,23 @@ Then('the place image is separate from the avatar', async ({}) => {
 	expect(ctx.body.image.raw).not.toBe(ctx.body.avatar?.raw ?? null);
 });
 
-When('I delete the facility picture through the API', async ({ page }) => {
+When('I delete the facility picture through the API', async ({ page, baseURL }) => {
 	await page.goto('/', { waitUntil: 'domcontentloaded' });
-	const result = await page.evaluate(async (uid) => {
-		const response = await fetch(`/api/facility/${uid}/image`, { method: 'DELETE' });
-		return { status: response.status };
-	}, ctx.uid!);
+	// The app's OWN route, so it carries the base path -- unlike /api/v2/...,
+	// which the backend serves at the root on every site. Without the prefix the
+	// DELETE left the app entirely on a prefixed site, so the picture was never
+	// removed and the next step reported the facility still carrying one: a
+	// product assertion failing for a reason that had nothing to do with the
+	// product.
+	const result = await page.evaluate(
+		async ({ uid, prefix }) => {
+			const response = await fetch(`${prefix}/api/facility/${uid}/image`, {
+				method: 'DELETE'
+			});
+			return { status: response.status };
+		},
+		{ uid: ctx.uid!, prefix: basePathOf(baseURL) }
+	);
 	ctx.status = result.status;
 	await clearApiCache();
 });

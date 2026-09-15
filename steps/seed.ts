@@ -15,7 +15,25 @@ const COMPOSE_FILE = 'docker-compose-development.yml';
  * Playwright in each worker process — see workerMain.js in the playwright
  * package — and is stable for the process's lifetime.
  */
-export const SEED_TAG = `e2eSeed${process.env.TEST_PARALLEL_INDEX ?? ''}`;
+// The worker SITE this process seeds against, not playwright's worker slot.
+//
+// TEST_PARALLEL_INDEX counts playwright workers; the site is chosen by
+// steps/fixtures.ts from the project's workerOffset. With two projects over one
+// site pool those differ: a scenario running on w4 tagged its data `e2eSeed0`
+// and then looked for it on w4's site, where it had never been created. The
+// data was on disk under the other tag the whole time -- 2582 files under
+// e2eSeed0 against 35 under e2eSeed4 -- which is what made it read as "the
+// avatar never rendered" rather than "we looked on the wrong site".
+//
+// Clamped into the pool for the same reason apiOrigin() is: the index can
+// exceed the number of sites that exist, and a tag naming a site nobody seeded
+// is silently empty rather than an error.
+const seedIndex = (() => {
+	const raw = Number(process.env.TEST_PARALLEL_INDEX ?? 0);
+	const pool = Number(process.env.E2E_WORKERS ?? 8);
+	return pool > 0 ? raw % pool : raw;
+})();
+export const SEED_TAG = `e2eSeed${process.env.TEST_PARALLEL_INDEX === undefined ? '' : seedIndex}`;
 
 /** Runs Python in the backend's Django shell and returns stdout, nothing else. */
 function runDjangoShell(code: string): Promise<string> {
