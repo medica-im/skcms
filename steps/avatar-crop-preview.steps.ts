@@ -5,6 +5,7 @@ import { apiOrigin } from '../tests/fixtures/session';
 import { addSessionCookie } from './common.steps';
 import { enterEditMode } from './facilityContext';
 import { cloneEntry, removeClonedEntry, djangoShell, seedAvatar } from './seed';
+import { selectableEntries } from './fixtures';
 
 const { Given, When, Then, After } = createBdd(test);
 
@@ -89,7 +90,7 @@ Given('I am signed in as an administrator, on an entry of this site', async ({ c
 		entrySlug?: string;
 		active?: boolean;
 	}[];
-	const usable = entries.filter((e) => e.uid && e.active && e.entrySlug);
+	const usable = selectableEntries(entries).filter((e) => e.uid);
 	expect(usable.length, 'this site has no active entry to clone').toBeGreaterThan(0);
 
 	const clone = await cloneEntry({ sourceUid: usable[0].uid! });

@@ -830,7 +830,15 @@ for i in range(WORKERS):
         MATCH (src:Entry)-[:HAS_EFFECTOR_TYPE]->(ipa:EffectorType {uid: $type_uid})
         WHERE coalesce(src.active, true)
         OPTIONAL MATCH (src)-[:HAS_EFFECTOR]->(srcEf:Effector)
-        MATCH (d:Directory {name: $dir})-[:HAS_ENTRY]->(:Entry)-[:HAS_FACILITY]->(f:Facility)
+        // The site's ORGANIZATION facility, not whichever facility happens to
+        // come first. facility-deletion.feature deletes every Entry at the
+        // facility it is working on -- `MATCH (e:Entry)-[:HAS_FACILITY]->(f)
+        // DETACH DELETE e` -- and a clone sharing an ordinary entry's facility
+        // is swept away as collateral. It reappeared missing from one site in a
+        // later run, and the scenario that failed was three features away from
+        // the one that deleted it.
+        MATCH (d:Directory {name: $dir})-[:HAS_ENTRY]->(org:Entry)-[:HAS_FACILITY]->(f:Facility)
+        WHERE org.slug ENDS WITH '-organization'
         WITH src, srcEf, ipa, d, f LIMIT 1
 
         // Idempotent: one IPA subject per site, so re-running tops up rather
@@ -900,5 +908,51 @@ for i in range(WORKERS):
     )
     if rows:
         print(f"seeded IPA entry {rows[0][1]} on {domain}")
+
+# Assert the shape rather than trust it.
+#
+# Every defect in this fixture so far has surfaced somewhere else entirely: an
+# entry missing HAS_FACILITY is silently dropped by the entries query, so the
+# scenario that failed was the one asserting its own clone was listed, three
+# steps removed from the cause. The same cardinality rules the backend pins in
+# src/tests/test_entry_graph_model.py apply here, so they are checked at the
+# point the data is made and fail the seeding run instead.
+problems, _ = db.cypher_query(
+    """
+    MATCH (d:Directory)-[:HAS_ENTRY]->(e:Entry {e2eIpaSubject: true})
+    WHERE d.name STARTS WITH 'e2e-w'
+    WITH d, e,
+         size([(e)-[:HAS_FACILITY]->() | 1]) AS facilities,
+         size([(e)-[:HAS_EFFECTOR]->() | 1]) AS effectors,
+         size([(e)-[:HAS_EFFECTOR_TYPE]->() | 1]) AS types,
+         size([(e)-[:MEMBER_OF]->() | 1]) AS orgs
+    WHERE facilities <> 1 OR effectors <> 1 OR types <> 1 OR orgs < 1
+    RETURN d.name, e.slug, facilities, effectors, types, orgs
+    """
+)
+assert not problems, (
+    "seeded IPA entries are malformed - an Entry has exactly one Facility, one "
+    "Effector and one EffectorType, and must belong to its site's organization "
+    "or no role can reach it:\n  "
+    + "\n  ".join(
+        f"{d}/{slug}: {f} facilities, {ef} effectors, {t} types, {o} orgs"
+        for d, slug, f, ef, t, o in problems
+    )
+)
+
+# One per site, and one only: a second entry with the same slug makes
+# /fullentries/slug ambiguous.
+duplicates, _ = db.cypher_query(
+    """
+    MATCH (d:Directory)-[:HAS_ENTRY]->(e:Entry {e2eIpaSubject: true})
+    WHERE d.name STARTS WITH 'e2e-w'
+    WITH d, count(e) AS n WHERE n <> 1
+    RETURN d.name, n
+    """
+)
+assert not duplicates, (
+    "each worker site needs exactly one IPA subject:\n  "
+    + "\n  ".join(f"{d} has {n}" for d, n in duplicates)
+)
 
 print(f"WORKER_SITES_SEEDED {WORKERS}")

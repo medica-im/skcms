@@ -2,6 +2,26 @@ import { test as base } from 'playwright-bdd';
 import { apiOrigin, siteBasePath } from '../tests/fixtures/session';
 
 /**
+ * Entries a scenario may adopt as its own subject.
+ *
+ * Excludes the IPA entry seed_worker_sites.py plants for
+ * entry-tag-categories.feature. That one exists to be TAGGED, and the feed has
+ * no defined order, so "the first active entry" sometimes meant it and
+ * sometimes did not -- a scenario that cloned it inherited a fixture other
+ * scenarios also depend on, and the failures landed features away from the
+ * cause. Picking by what an entry IS rather than by where it sorts makes the
+ * choice deterministic.
+ */
+export function selectableEntries<T extends { entrySlug?: string; active?: boolean }>(
+	entries: T[]
+): T[] {
+	return entries.filter(
+		(e) => e.active && e.entrySlug && !e.entrySlug.includes('-ipa')
+	);
+}
+
+
+/**
  * Why browser waits in these step files are 8 seconds.
  *
  * Measured, not guessed. Over the steps of passing scenarios on 2026-09-15:

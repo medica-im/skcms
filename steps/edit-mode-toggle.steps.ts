@@ -2,6 +2,7 @@ import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
 import { test } from './fixtures';
 import { apiOrigin } from '../tests/fixtures/session';
+import { selectableEntries } from './fixtures';
 
 const { Given, When, Then } = createBdd(test);
 
@@ -23,7 +24,7 @@ async function anyEntrySlug(): Promise<string> {
 	});
 	expect(response.ok, `GET entries -> ${response.status}`).toBeTruthy();
 	const entries = (await response.json()) as { entrySlug?: string; active?: boolean }[];
-	const candidate = entries.find((e) => e.active && e.entrySlug);
+	const candidate = selectableEntries(entries)[0];
 	expect(candidate, 'this site has no active entry').toBeTruthy();
 	return candidate!.entrySlug!;
 }

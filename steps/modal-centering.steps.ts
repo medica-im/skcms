@@ -6,6 +6,7 @@ import { addSessionCookie } from './common.steps';
 import { enterEditMode } from './facilityContext';
 import { cloneEntry, removeClonedEntry, seedPhone, clearApiCache } from './seed';
 import { apiOrigin, createSessionCookie, sessionCookieName } from '../tests/fixtures/session';
+import { selectableEntries } from './fixtures';
 
 const { Given, Then, After } = createBdd(test);
 
@@ -118,7 +119,7 @@ Given(
 			entrySlug?: string;
 			active?: boolean;
 		}[];
-		const usable = entries.filter((e) => e.uid && e.active && e.entrySlug);
+		const usable = selectableEntries(entries).filter((e) => e.uid);
 		expect(usable.length, 'this site has no active entry to clone').toBeGreaterThan(0);
 
 		const clone = await cloneEntry({ sourceUid: usable[0].uid! });
