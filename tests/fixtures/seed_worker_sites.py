@@ -806,6 +806,24 @@ for i in range(WORKERS):
     if directory is None:
         continue
 
+    # Remove any INCOMPLETE clone first, so the seeding query below creates a
+    # good one rather than adding a second alongside it. Deleting and recreating
+    # rather than patching: the entry is a fixture, nothing refers to it by uid
+    # between runs, and a repair query would have to know every relationship the
+    # clone is supposed to carry -- which is exactly the knowledge that was
+    # wrong the first time.
+    db.cypher_query(
+        """
+        MATCH (d:Directory {name: $dir})-[:HAS_ENTRY]->(e:Entry {e2eIpaSubject: true})
+        WHERE NOT exists((e)-[:HAS_FACILITY]->())
+           OR NOT exists((e)-[:HAS_EFFECTOR]->())
+           OR NOT exists((e)-[:MEMBER_OF]->())
+        OPTIONAL MATCH (e)-[:HAS_EFFECTOR]->(ef:Effector {e2eIpaSubject: true})
+        DETACH DELETE e, ef
+        """,
+        {"dir": directory.name},
+    )
+
     rows, _ = db.cypher_query(
         """
         // A real IPA entry to copy, and this site's own facility to place it at.
@@ -818,7 +836,18 @@ for i in range(WORKERS):
         // Idempotent: one IPA subject per site, so re-running tops up rather
         // than multiplying. A second entry with the same slug would make
         // /fullentries/slug ambiguous.
+        //
+        // "Complete" rather than merely "present": an earlier version of this
+        // block created the entry without HAS_FACILITY, and because the guard
+        // only asked whether one EXISTED, re-running skipped it and could never
+        // repair it. The entries query MATCHes facility, type and effector, so
+        // that clone was silently absent from /api/v2/entries -- 8 entries in
+        // the graph, 7 in the feed -- and a scenario asserting its own clone was
+        // listed failed for a reason two steps removed from itself.
         OPTIONAL MATCH (d)-[:HAS_ENTRY]->(existing:Entry {e2eIpaSubject: true})
+        WHERE exists((existing)-[:HAS_FACILITY]->())
+          AND exists((existing)-[:HAS_EFFECTOR]->())
+          AND exists((existing)-[:MEMBER_OF]->())
         WITH src, srcEf, ipa, d, f, existing
         WHERE existing IS NULL
 
@@ -846,6 +875,25 @@ for i in range(WORKERS):
         MERGE (d)-[:HAS_ENTRY]->(e)
         MERGE (e)-[:HAS_EFFECTOR_TYPE]->(ipa)
         MERGE (e)-[:HAS_FACILITY]->(f)
+
+        // MEMBER_OF the site's organization Entry, like every other entry this
+        // seeder makes.
+        //
+        // Roles are scoped per SITE, not globally: may_authorize_api() resolves
+        // the site from the request host, _get_entry_uid() maps it to that
+        // site's Organization and its neomodel_uid, and the user's role is read
+        // against THAT organization entry. So an entry is editable by whoever
+        // administers the site it belongs to, and an entry not attached to the
+        // organization is outside every role's reach -- the clone rendered with
+        // no edit switch for anyone, including an administrator.
+        //
+        // Scenarios that pick "the first active entry" then failed on a missing
+        // control. The entry was the anomaly, not the step, so the fixture is
+        // what had to change.
+        WITH e, d
+        OPTIONAL MATCH (d)-[:HAS_ENTRY]->(sibling:Entry)-[:MEMBER_OF]->(org:Entry)
+        WITH e, collect(DISTINCT org) AS orgs
+        FOREACH (org IN orgs | MERGE (e)-[:MEMBER_OF]->(org))
         RETURN e.uid, e.slug
         """,
         {"type_uid": IPA_TYPE_UID, "dir": directory.name},

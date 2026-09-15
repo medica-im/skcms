@@ -23,17 +23,7 @@ async function anyEntrySlug(): Promise<string> {
 	});
 	expect(response.ok, `GET entries -> ${response.status}`).toBeTruthy();
 	const entries = (await response.json()) as { entrySlug?: string; active?: boolean }[];
-	// The entry the fixture designates -- ENTRY_ROLES in
-	// tests/fixtures/seed_worker_sites.py -- rather than "the first active one".
-	//
-	// The first is whichever the API returns first, and the IPA subject seeded
-	// for entry-tag-categories has no owner, so it carries no edit switch: it
-	// happened to sort first and these scenarios failed on a missing control
-	// that was never going to be there. Asking for the entry by the role it was
-	// seeded for makes the choice deterministic, exactly as avatar-access does.
-	const candidate =
-		entries.find((e) => e.active && e.entrySlug?.endsWith('-entry-0')) ??
-		entries.find((e) => e.active && e.entrySlug);
+	const candidate = entries.find((e) => e.active && e.entrySlug);
 	expect(candidate, 'this site has no active entry').toBeTruthy();
 	return candidate!.entrySlug!;
 }
