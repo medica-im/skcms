@@ -23,8 +23,13 @@ Then('I am redirected to sign in for {string}', async ({ page, baseURL }, path: 
 	// exactly right.
 	const prefix = basePathOf(baseURL);
 	const target = `${prefix}${path}`;
+	// 8s rather than the 5s default: the guard runs after hydration on a route
+	// that renders client-side, so the redirect lands later than a server-side
+	// 302 would. Seen failing with the page still on /web/entries and the right
+	// pattern -- a wait too short, not a guard that did not fire.
 	await expect(page).toHaveURL(
-		new RegExp(`${prefix}/signin\\?redirectTo=${target.replace(/\//g, '\\/')}`)
+		new RegExp(`${prefix}/signin\\?redirectTo=${target.replace(/\//g, '\\/')}`),
+		{ timeout: 8_000 }
 	);
 });
 

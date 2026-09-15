@@ -291,11 +291,21 @@ When('I sign out from the app bar', async ({ page, context }) => {
  * Client-side navigation (SvelteKit router), not a browser reload — the point
  * is that the app refreshes role-scoped data by itself.
  */
-When('I navigate back to the home page', async ({ page }) => {
+When('I navigate back to the home page', async ({ page, baseURL }) => {
+	// Both halves carry the base path: the app renders its home link from
+	// `base`, so on a prefixed site the href is "/annuaire/" and the pathname
+	// the router lands on is "/annuaire/" too. Written for the bare root, the
+	// selector matched nothing and the predicate could never become true.
+	const home = `${basePathOf(baseURL)}/`;
 	// Click an in-app link so SvelteKit routes client-side; a page.goto() would
 	// be a full browser load and would not prove anything about invalidation.
-	await page.locator('a[href="/"]').first().click();
-	await page.waitForURL((url) => url.pathname === '/', { timeout: 8_000 });
+	// `.filter({ visible: true })`: several links point at the home page and some
+	// live in the app bar's collapsed menu, which is present in the DOM but
+	// hidden at this viewport. `.first()` alone resolved to one of those and the
+	// click waited out the scenario timeout on an element that was never going
+	// to become visible.
+	await page.locator(`a[href="${home}"]`).filter({ visible: true }).first().click();
+	await page.waitForURL((url) => url.pathname === home, { timeout: 8_000 });
 	await page.waitForLoadState('networkidle');
 });
 
