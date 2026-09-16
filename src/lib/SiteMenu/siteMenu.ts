@@ -106,14 +106,22 @@ export function displayLabel(label: string): string {
  *
  * `external: false` marks them as ours, which is what lets the tree mark one as
  * the current page; entries on the parent site never are.
+ *
+ * `menu` defaults to whichever site is checked out, so callers pass three
+ * arguments and nothing changes for them. It exists so a test can supply its
+ * own: the loaded value is whatever skvar branch happens to be present, and a
+ * test that depends on that passes on one site and fails on the other four —
+ * which is exactly how this was found, green on unipa and red everywhere else.
+ * See the same reasoning in santelyon3-contact-load.test.ts.
  */
 export function menuWithOwnPages(
 	base: string,
 	directoryLabel: string,
-	legalLabel: string
+	legalLabel: string,
+	menu: SiteMenu | null = siteMenu
 ): SiteMenuItem[] {
-	const items = visibleItems();
-	if (!siteMenu) return items;
+	const items = visibleItems(menu?.items ?? []);
+	if (!menu) return items;
 
 	const own: SiteMenuItem = {
 		label: directoryLabel,
@@ -122,7 +130,7 @@ export function menuWithOwnPages(
 		children: [
 			{
 				label: legalLabel,
-				href: `${base}/${siteMenu.footer.legalHref}`,
+				href: `${base}/${menu.footer.legalHref}`,
 				external: false
 			}
 		]

@@ -316,10 +316,25 @@ describe('the app’s own pages in the drawer', () => {
 	 * Derived from `footer` rather than written into the curated menu file: that
 	 * file is regenerated from the parent site's markup, so an entry absent from
 	 * that markup would have to survive every merge as a special case.
+	 *
+	 * The menu is passed in rather than read from the checked-out site. These
+	 * assertions used to rely on the loaded value, which exists only on a branch
+	 * that has a parent site — so they passed on unipa and failed on the other
+	 * four, and the failure said "expected undefined" rather than naming the
+	 * checkout. A test that only runs on one tenant is a test of the checkout.
 	 */
+	const MENU = {
+		parentSite: { name: 'P', url: 'https://p.example', logo: '', logoAlt: '' },
+		items: [
+			{ label: 'ACCUEIL', href: 'https://p.example/', external: true },
+			{ label: 'CACHÉ', href: 'https://p.example/cache/', external: true, hidden: true }
+		],
+		footer: { showSites: false, contactHref: 'https://p.example/contact/', legalHref: 'mentions-legales' }
+	};
+
 	it('appends the directory and its legal notice, and marks them as ours', async () => {
 		const { menuWithOwnPages } = await import('$lib/SiteMenu/siteMenu');
-		const items = menuWithOwnPages('/annuaire', 'Annuaire', 'Mentions légales');
+		const items = menuWithOwnPages('/annuaire', 'Annuaire', 'Mentions légales', MENU as never);
 		const own = items[items.length - 1];
 
 		expect(own).toMatchObject({ label: 'Annuaire', href: '/annuaire/', external: false });
@@ -332,12 +347,18 @@ describe('the app’s own pages in the drawer', () => {
 
 	it('leaves the parent site’s own entries alone', async () => {
 		// Appended, never merged into the scraped tree: the curated file has to
-		// stay a faithful copy of what the parent site publishes.
-		const { menuWithOwnPages, visibleItems } = await import('$lib/SiteMenu/siteMenu');
-		const parent = visibleItems();
-		const combined = menuWithOwnPages('/annuaire', 'Annuaire', 'Mentions légales');
+		// stay a faithful copy of what the parent site publishes. Hidden entries
+		// are still dropped on the way through.
+		const { menuWithOwnPages } = await import('$lib/SiteMenu/siteMenu');
+		const items = menuWithOwnPages('/annuaire', 'Annuaire', 'Mentions légales', MENU as never);
 
-		expect(combined.slice(0, parent.length)).toEqual(parent);
-		expect(combined).toHaveLength(parent.length + 1);
+		expect(items.map((i) => i.label)).toEqual(['ACCUEIL', 'Annuaire']);
+	});
+
+	it('returns just the parent menu on a site that has none', async () => {
+		// Every site but the embedded one. Nothing to append, and nothing that
+		// throws for trying.
+		const { menuWithOwnPages } = await import('$lib/SiteMenu/siteMenu');
+		expect(menuWithOwnPages('', 'Annuaire', 'Mentions légales', null)).toEqual([]);
 	});
 });
