@@ -48,6 +48,17 @@ export interface SiteMenuItem {
 export interface ParentSite {
 	/** Display name, for link titles and the logo's alt text. */
 	name: string;
+	/**
+	 * The name written out, where there is room for it.
+	 *
+	 * The app bar has none — the short form sits beside the logo in a row that
+	 * also carries the menu and the account controls — but a footer does, and an
+	 * acronym alone tells a first-time reader nothing about whose site this is.
+	 *
+	 * Optional: a parent site whose name is not an abbreviation has nothing to
+	 * expand, and `name` is used as it stands.
+	 */
+	longName?: string;
 	/** Origin of the parent site. Where the logo links to. */
 	url: string;
 	/** Absolute URL of the parent site's logo. */

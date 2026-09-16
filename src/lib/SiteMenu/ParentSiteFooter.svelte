@@ -49,55 +49,70 @@
 
 <footer class="page-footer text-xs md:text-base">
 	<div class="w-full max-w-7xl mx-auto p-4 py-16 md:py-24 space-y-10">
-		<!-- Row 1: the parent site's identity, linking out to it -->
-		<div class="md:flex md:justify-between">
-			<div class="mb-6 md:mb-0">
+		<!--
+			The identity and the seven menu divisions across five columns.
+
+			A grid rather than CSS columns, because each block gets its own cell
+			whatever its height. Columns were tried and cannot do this: they
+			balance by height, and the one deep division — "Notre activité" and
+			its nested group — is on its own taller than a fifth of everything
+			here, so any track tall enough to hold it unsplit swallowed about
+			2.7 columns' worth and left two empty. Splitting it instead would
+			make one division read as two unrelated groups.
+
+			So eight blocks over five columns wrap to a second grid row. The two
+			rows share the same five tracks, which is what keeps it one layout
+			rather than the separate band the logo used to sit in above the menu.
+
+			`items-start` so a one-line division does not stretch to the height
+			of the tallest beside it.
+		-->
+		<div
+			class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5
+				gap-x-8 gap-y-7 items-start"
+		>
+			<div>
 				<a
 					href={menu.parentSite.url}
 					rel="noopener"
 					title={m.NAVBAR_GO_PARENT_SITE({ site: menu.parentSite.name })}
 				>
-					<div class="flex items-center space-x-2 lg:space-x-4">
+					<!--
+						The name written out here, where the app bar has only room
+						for the acronym. A footer is where someone who arrived on
+						a deep page finds out whose site they are on, and "UNIPA"
+						alone does not tell them.
+
+						Stacked from lg: at a fifth of the row the long name has
+						no width to sit beside a logo, and wrapping it there
+						pushed the logo out of line with the headings beside it.
+					-->
+					<div class="flex items-center gap-2 lg:flex-col lg:items-start lg:gap-3">
 						<img
 							src={menu.parentSite.logo}
 							alt={menu.parentSite.logoAlt}
-							class="h-8 lg:h-12 w-auto"
+							class="h-8 lg:h-10 w-auto"
 							loading="lazy"
 						/>
-						<h4 class="h4">{menu.parentSite.name}</h4>
+						<span class="text-sm font-semibold leading-snug">
+							{menu.parentSite.longName ?? menu.parentSite.name}
+						</span>
 					</div>
 				</a>
 			</div>
 
 			<!--
 				The same tree the drawer shows, and shown the same way: whole. A
-				disclosure version was tried here to save height and read worse
-				than the space was worth — the columns below buy that back
-				instead.
+				disclosure version was tried here and read worse than the height
+				it saved was worth.
 
-				It replaces a grid of columns that flattened the middle level away:
-				entries the parent site groups under a heading appeared as siblings of
-				that heading's own children, so the footer and the drawer disagreed
-				about the shape of the same menu.
+				`display: contents` on its list (flowIntoParent) so the divisions are
+				siblings of the identity block above and all eight blocks flow
+				through the same columns, rather than the whole menu landing in
+				one of them.
 			-->
-			<!--
-				Three columns from lg, one below it.
-
-				CSS columns rather than a grid: the tree is recursive, so a grid
-				would mean splitting the item list by hand and handing each
-				column a slice — which puts layout in charge of what the menu
-				contains. Columns flow the same single list, and a branch that
-				opens simply reflows.
-
-				`break-inside: avoid` on the rows (set in ParentSiteTree) is what
-				keeps a heading and its children from being split across a column
-				boundary, which is the one way this reads wrong.
-			-->
-			<nav
-				class="min-w-0 w-full md:w-auto lg:w-[42rem] lg:columns-3 lg:gap-8"
-				aria-label={menu.parentSite.name}
-			>
-				<ParentSiteTree items={treeItems} onNavigate={() => {}} />
+			<nav class="contents" aria-label={menu.parentSite.name}>
+				<ParentSiteTree items={treeItems} onNavigate={() => {}} sectionHeadings flowIntoParent />
 			</nav>
 		</div>
 

@@ -44,6 +44,7 @@ case "$1" in
 		SITE_URL="https://dev.unipa.fr"
 		BASE_PATH="/annuaire"
 		SITE_NAME="UNIPA"
+		SITE_LONG_NAME="Union Nationale des Infirmier·es en Pratique Avancée"
 		LOGO="https://dev.unipa.fr/wp-content/uploads/2025/06/unipa-logo-2025.png"
 		LOGO_ALT="UNIPA — Union Nationale des Infirmier·es en Pratique Avancée"
 		# The Skeleton theme matching this site, offered in the theme picker.
@@ -122,6 +123,7 @@ import type { SiteMenu } from '\$lib/interfaces/siteMenu.interface';
 export const siteMenu: SiteMenu = {
 	parentSite: {
 		name: '$SITE_NAME',
+		longName: '$SITE_LONG_NAME',
 		url: '$SITE_URL',
 		logo: '$LOGO',
 		logoAlt: '$LOGO_ALT',

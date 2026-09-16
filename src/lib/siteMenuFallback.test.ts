@@ -157,8 +157,8 @@ describe('the shared components without a parent site', () => {
 
 		const footer = read('src/lib/SiteMenu/ParentSiteFooter.svelte');
 		expect(footer).not.toContain('collapsible');
-		// Three columns from lg is what keeps a whole tree from running long.
-		expect(footer).toContain('lg:columns-3');
+		// Five columns from lg is what keeps a whole tree from running long.
+		expect(footer).toContain('lg:grid-cols-5');
 	});
 
 	it('stops the footer repeating links the tree already carries', () => {

@@ -30,12 +30,37 @@
 	let {
 		items,
 		depth = 0,
-		onNavigate
+		onNavigate,
+		sectionHeadings = false,
+		flowIntoParent = false
 	}: {
 		items: SiteMenuItem[];
 		depth?: number;
 		onNavigate: () => void;
+		/**
+		 * Style the top level as footer section headings — small caps, bold —
+		 * the way every other footer in the app titles a column.
+		 *
+		 * For the footer, where the seven top-level entries are laid out in
+		 * columns and have to read as seven separate divisions rather than one
+		 * long list. The drawer leaves this off: there the tree is a single
+		 * scrolling column and uniform rows are what make the guides legible.
+		 */
+		sectionHeadings?: boolean;
+		/**
+		 * Let the caller's own layout place the top-level entries.
+		 *
+		 * The list wrapper would otherwise be a single box, so the whole menu
+		 * would land in one column of the footer's column set. `display:
+		 * contents` takes the <ul> out of the box tree without removing it from
+		 * the accessibility tree: the <li>s flow as the caller's own children,
+		 * and the list is still a list.
+		 */
+		flowIntoParent?: boolean;
 	} = $props();
+
+	/** The top level of a tree asked to title its sections. */
+	const isSection = $derived(sectionHeadings && depth === 0);
 
 	/**
 	 * Whether a row points at the page being read.
@@ -54,7 +79,7 @@
 		!item.external && !!item.href && trim(item.href) === trim(page.url.pathname);
 </script>
 
-<ul class="list-none m-0 p-0">
+<ul class="list-none m-0 p-0 {flowIntoParent && depth === 0 ? 'contents' : ''}">
 	{#each items as item, i (item.label)}
 		{@const last = i === items.length - 1}
 		<!--
@@ -93,7 +118,9 @@
 					href={item.href}
 					rel={item.external ? 'noopener' : undefined}
 					aria-current={current(item) ? 'page' : undefined}
-					class="anchor block min-h-11 py-2 pr-2 leading-relaxed {current(item)
+					class="anchor block {isSection
+						? 'text-sm font-semibold uppercase pb-1 mb-2'
+						: 'min-h-11 py-2'} pr-2 leading-relaxed {current(item)
 						? 'font-semibold'
 						: ''}"
 					onclick={onNavigate}
@@ -107,13 +134,26 @@
 					only the colour and the missing underline say it is not a
 					link, which is the same signal every other non-link carries.
 				-->
-				<span class="block min-h-11 py-2 pr-2 leading-relaxed">
-					{displayLabel(item.label)}
-				</span>
+				{#if isSection}
+					<!--
+						`<h6 class="text-sm font-semibold uppercase">` is how every
+						other footer in this app titles a column — see
+						Footer.svelte and AddressbookFooter.svelte. Reused rather
+						than restyled so the parent-site footer does not become a
+						third convention.
+					-->
+					<h6 class="pr-2 pb-1 mb-2 text-sm font-semibold uppercase leading-relaxed">
+						{displayLabel(item.label)}
+					</h6>
+				{:else}
+					<span class="block min-h-11 py-2 pr-2 leading-relaxed">
+						{displayLabel(item.label)}
+					</span>
+				{/if}
 			{/if}
 
 			{#if item.children?.length}
-				<ParentSiteTree items={item.children} depth={depth + 1} {onNavigate} />
+				<ParentSiteTree items={item.children} depth={depth + 1} {onNavigate} {sectionHeadings} />
 			{/if}
 		</li>
 	{/each}
