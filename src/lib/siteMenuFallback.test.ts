@@ -147,20 +147,18 @@ describe('the shared components without a parent site', () => {
 		expect(appBar).toContain('siteMenu?.parentSite.theme');
 	});
 
-	it('collapses the footer tree but never the drawer one', () => {
-		// One component, two behaviours, decided by the caller. The drawer is the
-		// only navigation a phone has and must stay open; the footer sits under
-		// the page competing for height, so it starts closed. `collapsible`
-		// defaulting to false is what keeps the drawer as it was.
+	it('shows the tree whole, in the drawer and the footer alike', () => {
+		// A disclosure version existed briefly and read worse than the height it
+		// saved was worth. What replaced it in the footer is columns, not a
+		// second behaviour — so there is no `collapsible` mode to drift.
 		const tree = read('src/lib/SiteMenu/ParentSiteTree.svelte');
-		expect(tree).toMatch(/collapsible\s*=\s*false/);
-		expect(tree).toContain('aria-expanded');
+		expect(tree).not.toContain('aria-expanded');
+		expect(tree).not.toContain('collapsible');
 
 		const footer = read('src/lib/SiteMenu/ParentSiteFooter.svelte');
-		expect(footer).toContain('collapsible');
-
-		const drawer = read('src/lib/SkeletonAppBar/MobileSidebar.svelte');
-		expect(drawer).not.toContain('collapsible');
+		expect(footer).not.toContain('collapsible');
+		// Three columns from lg is what keeps a whole tree from running long.
+		expect(footer).toContain('lg:columns-3');
 	});
 
 	it('stops the footer repeating links the tree already carries', () => {

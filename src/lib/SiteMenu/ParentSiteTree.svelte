@@ -2,17 +2,14 @@
 	/**
 	 * The parent site's menu as a tree.
 	 *
-	 * Expanded by default, which is what the mobile drawer wants: the menu is a
-	 * handful of entries three levels deep, small enough to read whole, and a
-	 * closed branch there hides the very thing the drawer was opened to find.
-	 * Expanding would be a second interaction before any navigation can happen,
-	 * while the scroll that replaces it is free.
+	 * Always fully expanded, in the drawer and in the footer alike. The menu is a
+	 * handful of entries three levels deep — small enough to read whole — and a
+	 * closed branch hides the very thing someone opened the menu to find.
+	 * Expanding is an interaction standing in front of every navigation, while
+	 * the scroll or the column that replaces it costs nothing.
 	 *
-	 * `collapsible` opts into the opposite, for the footer: there the tree sits
-	 * under the page rather than over it, competing for height with everything
-	 * else, and a reader who has scrolled that far is looking for one thing
-	 * rather than reading the menu. Closed branches keep it to its top level
-	 * until asked.
+	 * A disclosure version of this existed briefly and was dropped: it read
+	 * worse than the space it saved was worth.
 	 *
 	 * Recursive rather than three hand-written levels: the previous version
 	 * repeated the same markup per depth, which is how the levels drifted apart
@@ -33,33 +30,12 @@
 	let {
 		items,
 		depth = 0,
-		onNavigate,
-		collapsible = false
+		onNavigate
 	}: {
 		items: SiteMenuItem[];
 		depth?: number;
 		onNavigate: () => void;
-		/** Branches start closed and get a disclosure control. */
-		collapsible?: boolean;
 	} = $props();
-
-	/**
-	 * Which branches are open, by label.
-	 *
-	 * A set rather than a flag per item: the items are plain data regenerated
-	 * by the importer, and writing UI state back into them would put it in the
-	 * file that gets overwritten.
-	 */
-	let open = $state(new Set<string>());
-	const isOpen = (item: SiteMenuItem) => !collapsible || open.has(item.label);
-
-	function toggle(item: SiteMenuItem) {
-		// Reassigned rather than mutated: a Set's own methods are not tracked,
-		// so `open.add(...)` alone would change nothing on screen.
-		const next = new Set(open);
-		next.has(item.label) ? next.delete(item.label) : next.add(item.label);
-		open = next;
-	}
 
 	/**
 	 * Whether a row points at the page being read.
@@ -81,7 +57,13 @@
 <ul class="list-none m-0 p-0">
 	{#each items as item, i (item.label)}
 		{@const last = i === items.length - 1}
-		<li class="relative {depth > 0 ? 'pl-5' : ''}">
+		<!--
+			`break-inside-avoid` matters only where this tree is laid out in CSS
+			columns (the footer): without it a heading can sit at the foot of one
+			column with its children at the head of the next, which reads as two
+			unrelated groups. Harmless everywhere else.
+		-->
+		<li class="relative break-inside-avoid {depth > 0 ? 'pl-5' : ''}">
 			{#if depth > 0}
 				<!--
 					The vertical line of this level, and the elbow into this row.
@@ -107,64 +89,17 @@
 					nothing to a screen reader, and this is the one place in the
 					menu where the styling carries meaning rather than decoration.
 				-->
-				<div class="flex items-center gap-2">
-					<a
-						href={item.href}
-						rel={item.external ? 'noopener' : undefined}
-						aria-current={current(item) ? 'page' : undefined}
-						class="anchor block flex-auto min-h-11 py-2 pr-2 leading-relaxed {current(item)
-							? 'font-semibold'
-							: ''}"
-						onclick={onNavigate}
-					>
-						{displayLabel(item.label)}
-					</a>
-					{#if collapsible && item.children?.length}
-						<!--
-							A row that is both a link and a branch needs two
-							controls: the label goes to its page, this opens what
-							is under it. Folding them into one would make every
-							tap a navigation and leave the branch unreachable.
-						-->
-						<button
-							type="button"
-							class="shrink-0 grid place-items-center w-11 h-11"
-							aria-expanded={isOpen(item)}
-							aria-label={displayLabel(item.label)}
-							onclick={() => toggle(item)}
-						>
-							<svg
-								class="w-3 h-3 transition-transform {isOpen(item) ? 'rotate-90' : ''}"
-								viewBox="0 0 8 12"
-								aria-hidden="true"
-							>
-								<path d="M1 1l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" />
-							</svg>
-						</button>
-					{/if}
-				</div>
-			{:else if collapsible && item.children?.length}
-				<!--
-					A heading that is also the disclosure control. It has no page
-					of its own, so nothing is lost by making the whole row the
-					button — and a heading that looked inert while being the only
-					way to open its branch is exactly the confusion to avoid.
-				-->
-				<button
-					type="button"
-					class="flex w-full items-center gap-2 min-h-11 py-2 pr-2 text-left leading-relaxed"
-					aria-expanded={isOpen(item)}
-					onclick={() => toggle(item)}
+				<a
+					href={item.href}
+					rel={item.external ? 'noopener' : undefined}
+					aria-current={current(item) ? 'page' : undefined}
+					class="anchor block min-h-11 py-2 pr-2 leading-relaxed {current(item)
+						? 'font-semibold'
+						: ''}"
+					onclick={onNavigate}
 				>
-					<span class="flex-auto">{displayLabel(item.label)}</span>
-					<svg
-						class="w-3 h-3 shrink-0 transition-transform {isOpen(item) ? 'rotate-90' : ''}"
-						viewBox="0 0 8 12"
-						aria-hidden="true"
-					>
-						<path d="M1 1l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" />
-					</svg>
-				</button>
+					{displayLabel(item.label)}
+				</a>
 			{:else}
 				<!--
 					A heading: an entry the parent site uses to open a panel, with
@@ -177,13 +112,8 @@
 				</span>
 			{/if}
 
-			{#if item.children?.length && isOpen(item)}
-				<ParentSiteTree
-					items={item.children}
-					depth={depth + 1}
-					{onNavigate}
-					{collapsible}
-				/>
+			{#if item.children?.length}
+				<ParentSiteTree items={item.children} depth={depth + 1} {onNavigate} />
 			{/if}
 		</li>
 	{/each}

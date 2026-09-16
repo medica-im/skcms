@@ -70,18 +70,34 @@
 			</div>
 
 			<!--
-				The same tree the drawer shows, collapsed. A footer competes for
-				height with the page above it, and a reader who has scrolled this far
-				is looking for one thing rather than reading the menu — so branches
-				start closed and open on request.
+				The same tree the drawer shows, and shown the same way: whole. A
+				disclosure version was tried here to save height and read worse
+				than the space was worth — the columns below buy that back
+				instead.
 
 				It replaces a grid of columns that flattened the middle level away:
 				entries the parent site groups under a heading appeared as siblings of
 				that heading's own children, so the footer and the drawer disagreed
 				about the shape of the same menu.
 			-->
-			<nav class="min-w-0 sm:w-80" aria-label={menu.parentSite.name}>
-				<ParentSiteTree items={treeItems} onNavigate={() => {}} collapsible />
+			<!--
+				Three columns from lg, one below it.
+
+				CSS columns rather than a grid: the tree is recursive, so a grid
+				would mean splitting the item list by hand and handing each
+				column a slice — which puts layout in charge of what the menu
+				contains. Columns flow the same single list, and a branch that
+				opens simply reflows.
+
+				`break-inside: avoid` on the rows (set in ParentSiteTree) is what
+				keeps a heading and its children from being split across a column
+				boundary, which is the one way this reads wrong.
+			-->
+			<nav
+				class="min-w-0 w-full md:w-auto lg:w-[42rem] lg:columns-3 lg:gap-8"
+				aria-label={menu.parentSite.name}
+			>
+				<ParentSiteTree items={treeItems} onNavigate={() => {}} />
 			</nav>
 		</div>
 
