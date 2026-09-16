@@ -108,4 +108,42 @@ describe('the shared components without a parent site', () => {
 
 		expect(files.filter((f) => untouchable.includes(f))).toEqual([]);
 	});
+
+	it('keeps tenant names out of the shared components', () => {
+		// The boundary this whole feature rests on: anything generalizable lives
+		// in src/lib and knows no tenant; anything belonging to one site lives in
+		// its skvar branch. A site name reaching the shared side is how a second
+		// parent-site project would start having to work around the first.
+		//
+		// Comments may name a site — explaining which one forced a decision is
+		// the useful half of a comment — so they are stripped before checking.
+		const tenants = /unipa|gadagne|santelyon|annuaire\.medica/i;
+		const strip = (src: string) =>
+			src
+				.replace(/<!--[\s\S]*?-->/g, '')
+				.replace(/\/\*[\s\S]*?\*\//g, '')
+				.replace(/^\s*\/\/.*$/gm, '');
+
+		for (const file of [
+			'src/lib/SiteMenu/siteMenu.ts',
+			'src/lib/SiteMenu/ParentSiteNav.svelte',
+			'src/lib/SiteMenu/ParentSiteTree.svelte',
+			'src/lib/SiteMenu/ParentSiteFooter.svelte',
+			'src/lib/interfaces/siteMenu.interface.ts',
+			'src/lib/SkeletonAppBar/SkeletonAppBar.svelte',
+			'src/lib/SkeletonAppBar/MobileSidebar.svelte',
+			'src/app.postcss'
+		]) {
+			expect(strip(read(file)), `${file} names a tenant in code`).not.toMatch(tenants);
+		}
+	});
+
+	it('lets a site declare its own theme rather than the app bar knowing it', () => {
+		// The theme file itself stays in src/lib/themes — tailwind resolves its
+		// config before skvar is in the picture, so a theme on a swapped
+		// submodule would make every other branch need one too. What must not
+		// leak is *which* theme a site uses: that is the site's own data.
+		const appBar = read('src/lib/SkeletonAppBar/SkeletonAppBar.svelte');
+		expect(appBar).toContain('siteMenu?.parentSite.theme');
+	});
 });

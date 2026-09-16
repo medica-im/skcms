@@ -46,6 +46,10 @@ case "$1" in
 		SITE_NAME="UNIPA"
 		LOGO="https://dev.unipa.fr/wp-content/uploads/2025/06/unipa-logo-2025.png"
 		LOGO_ALT="UNIPA — Union Nationale des Infirmier·es en Pratique Avancée"
+		# The Skeleton theme matching this site, offered in the theme picker.
+		# Written here so the app bar never has to name a tenant's theme.
+		THEME="unipa"
+		THEME_ICON="🩺"
 		;;
 	-h|--help) usage; exit 0 ;;
 	*) echo "Unknown context: $1" >&2; usage; exit 1 ;;
@@ -120,7 +124,9 @@ export const siteMenu: SiteMenu = {
 		name: '$SITE_NAME',
 		url: '$SITE_URL',
 		logo: '$LOGO',
-		logoAlt: '$LOGO_ALT'
+		logoAlt: '$LOGO_ALT',
+		theme: '$THEME',
+		themeIcon: '$THEME_ICON'
 	},
 	items: $(printf '%s' "$ITEMS" | sed '1!s/^/\t/'),
 	footer: {

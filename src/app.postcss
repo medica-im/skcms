@@ -88,18 +88,31 @@
  * before the woff2 arrives, and for anything Inter lacks.
  */
 /*
- * Every theme except `unipa`, which brings its own two faces.
+ * The preset themes, named one by one.
  *
- * Without the exclusion this rule wins over the theme's properties — it is the
- * same (0,1,1) specificity, and it comes later — so the unipa build would load
- * Poppins and Rubik and then render everything in Inter anyway. That failure is
- * invisible in the markup: the theme is applied, the fonts are fetched, and
- * only the rendered text is wrong.
+ * This used to be a bare `[data-theme]`, which matches every theme — including
+ * a custom one that declares its own faces. It is the same (0,1,1) specificity
+ * as the theme's own properties and comes later in the sheet, so it won: a
+ * custom theme loaded its fonts, applied them, and then rendered everything in
+ * Inter anyway. Nothing about the markup shows that; only the rendered text is
+ * wrong.
  *
- * `:not()` takes the specificity of its argument, so this stays (0,1,1) and the
- * reasoning above about `[data-theme]` on <body> is unchanged.
+ * Listing the presets rather than excluding the custom themes by name keeps
+ * this rule about what it is actually for — the ten built-in themes, which ask
+ * for `Inter` and `system-ui` and have no font of their own — and stops a
+ * tenant's theme id appearing in a stylesheet every tenant loads. A new custom
+ * theme is covered by saying nothing here.
  */
-:root [data-theme]:not([data-theme='unipa']) {
+:root [data-theme='skeleton'],
+:root [data-theme='wintry'],
+:root [data-theme='modern'],
+:root [data-theme='rocket'],
+:root [data-theme='seafoam'],
+:root [data-theme='vintage'],
+:root [data-theme='sahara'],
+:root [data-theme='hamlindigo'],
+:root [data-theme='gold-nouveau'],
+:root [data-theme='crimson'] {
 	--theme-font-family-base: 'Inter Variable', system-ui, sans-serif;
 	--theme-font-family-heading: 'Inter Variable', system-ui, sans-serif;
 }

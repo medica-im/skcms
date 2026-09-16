@@ -106,9 +106,20 @@
 	}
 
 	const themes = [
-		// Offered only where it is the site's own theme: elsewhere it is a
-		// palette belonging to somebody else's brand, in a list of neutral ones.
-		...(siteMenu ? [{ type: 'unipa', name: siteMenu.parentSite.name, icon: '🩺' }] : []),
+		// The parent site's own theme, where it has one and only on that site:
+		// elsewhere it is a palette belonging to somebody else's brand, sitting
+		// in a list of neutral ones. Which theme that is comes from the site's
+		// own data — naming it here would put one tenant's id in the component
+		// every tenant renders.
+		...(siteMenu?.parentSite.theme
+			? [
+					{
+						type: siteMenu.parentSite.theme,
+						name: siteMenu.parentSite.name,
+						icon: siteMenu.parentSite.themeIcon ?? '🎨'
+					}
+				]
+			: []),
 		{ type: 'skeleton', name: 'Skeleton', icon: '💀' },
 		{ type: 'wintry', name: 'Wintry', icon: '🌨️' },
 		{ type: 'modern', name: 'Modern', icon: '🤖' },

@@ -73,6 +73,12 @@ export function visibleItems(items: SiteMenuItem[] = siteMenu?.items ?? []): Sit
  * alone: IPA is the profession this whole site is about, and "Ipa" reads as
  * a mistake.
  */
+/**
+ * Shared rather than per-site: these are the French healthcare abbreviations
+ * every tenant of this app works in, not one site's vocabulary. A site whose
+ * menu needs a word kept in capitals that is not here should get it added here
+ * — the next tenant will want the same one.
+ */
 const ACRONYMS = new Set(['IPA', 'CPTS', 'MSP', 'URPS', 'ARS']);
 
 export function displayLabel(label: string): string {

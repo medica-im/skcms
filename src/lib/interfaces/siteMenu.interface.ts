@@ -53,6 +53,19 @@ export interface ParentSite {
 	/** Absolute URL of the parent site's logo. */
 	logo: string;
 	logoAlt: string;
+	/**
+	 * The Skeleton theme built to match this parent site, if there is one.
+	 *
+	 * Named here rather than in the app bar, which offers it in the theme
+	 * picker: a shared component should not know that a theme called `unipa`
+	 * exists, or which site it belongs to. The site declares its own.
+	 *
+	 * Optional — a parent site the app has no matching theme for is served in
+	 * whatever the visitor already had.
+	 */
+	theme?: string;
+	/** Emoji for that theme's entry in the picker. */
+	themeIcon?: string;
 }
 
 export interface SiteMenuFooter {
