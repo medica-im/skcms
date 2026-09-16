@@ -42,6 +42,23 @@
 		drawerStore.close();
 	}
 
+	/**
+	 * The drawer panel, focused on open so the first link is not.
+	 *
+	 * Deferred with a timeout rather than run straight from the effect: the
+	 * drawer focuses its first focusable child itself, and it does so after
+	 * this component has mounted. Focusing synchronously here simply loses —
+	 * the link ends up focused anyway, tinted by `.list-nav a:focus`, which is
+	 * the whole thing being fixed.
+	 */
+	let panel: HTMLDivElement | undefined = $state();
+	$effect(() => {
+		const el = panel;
+		if (!el) return;
+		const id = setTimeout(() => el.focus({ preventScroll: true }), 0);
+		return () => clearTimeout(id);
+	});
+
 	const classesActive = (href: string) => {
 		return page.url.pathname + page.url.search === href ? 'variant-ringed-primary' : '';
 	};
@@ -53,8 +70,24 @@
 	would hold open a band of empty panel beside it — which is what the
 	hamburger showed on any page outside the menu, the home page included.
 -->
+<!--
+	`tabindex="-1"` and the focus below: the drawer moves focus to its first
+	focusable child when it opens, and Skeleton paints `.list-nav a:focus` with
+	a primary tint — so the first menu entry came up looking like the current
+	page. It is not: the parent site marks no entry as current, and this app is
+	not on any of those pages anyway.
+
+	Focus lands on the panel instead of being removed. Taking it away entirely
+	would leave a keyboard user tabbing from wherever they were on the page
+	behind, and drop the screen-reader announcement of what just opened; the
+	tint is still there for anyone who tabs to a link, which is when it means
+	something.
+-->
+<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div
-	class="grid h-full bg-surface-50-900-token border-r border-surface-500/30 {parentMenu.length
+	bind:this={panel}
+	tabindex="-1"
+	class="grid h-full bg-surface-50-900-token border-r border-surface-500/30 focus:outline-none {parentMenu.length
 		? 'grid-cols-[1fr]'
 		: navLinks?.length
 			? 'grid-cols-[auto_1fr]'
