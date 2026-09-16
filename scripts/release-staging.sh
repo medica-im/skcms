@@ -335,6 +335,37 @@ sync_media() {
     fi
 }
 
+# Where a site is actually served.
+#
+# `name` is the hostname for every entry but one: the base-path instance is
+# called staging.ipa.medica.im and answers at staging.unipa.fr/annuaire, being a
+# section of that site rather than a site of its own. Its own root 404s by
+# design, so a step that used the name reached nothing — silently, in both of
+# the two places that need this address.
+#
+# Read in one place because two steps want it and they want different slices:
+# the link check crawls the whole URL, while a Redis key carries the host alone.
+# A second reader is how the two would drift apart again.
+site_origin() {
+    local name="$1" origin
+    origin="$(yq -r ".images[] | select(.name == \"$name\") | .origin // \"\"" "$IMAGES_FILE")"
+    # Unset for every site reached at its own root, which is all of them but one.
+    [[ -z "$origin" ]] && origin="https://$name"
+    printf '%s\n' "$origin"
+}
+
+# The hostname on its own, for a cache key.
+#
+# Django builds its keys from the Host header, so the path is not part of them:
+# the base-path site's keys read `:1:v2:entries:staging.unipa.fr:ipa:anonymous`,
+# with no /annuaire anywhere.
+site_host() {
+    local origin
+    origin="$(site_origin "$1")"
+    origin="${origin#*://}"
+    printf '%s\n' "${origin%%/*}"
+}
+
 # Drop one site's cached payloads.
 #
 # Per site rather than all at once: the keys carry the site's own hostname
@@ -344,24 +375,39 @@ sync_media() {
 # released last, the whole run. Clearing only the site about to be rebuilt keeps
 # each outage to that site's own build.
 clear_site_cache() {
-    local name="$1" n
+    local name="$1" host n
     [[ "$CLEAR_CACHE" == "1" ]] || { info "cache: left alone (CLEAR_CACHE=$CLEAR_CACHE)"; return 0; }
+
+    # The host it is served at, not what the entry is called. Those are the same
+    # string for every site but the base-path one, where using the name searched
+    # for a hostname that appears in no key at all.
+    host="$(site_host "$name")"
 
     # Doubly wildcarded: Django prefixes the key with its cache version (":1:")
     # and the endpoint, and suffixes it with directory and role, so the hostname
     # sits in the middle.
     n="$(ssh "$BACKEND_HOST" \
         "cd '$BACKEND_DIR' && docker compose -f '$BACKEND_COMPOSE' exec -T redis sh -c \
-         \"redis-cli --scan --pattern '*v2:*$name*' | xargs -r redis-cli DEL\"" 2>/dev/null | tail -1)"
+         \"redis-cli --scan --pattern '*v2:*$host*' | xargs -r redis-cli DEL\"" 2>/dev/null | tail -1)"
 
-    # A failure here is not worth stopping a release for: the cache is a
-    # performance layer, and the worst case is the stale-payload 500 this exists
-    # to prevent — which is visible immediately, in the link check below.
+    # An empty result means one of two things, and they need different answers.
+    # `xargs -r` prints nothing when there is nothing to delete, so a site with
+    # no cached payloads looks exactly like a Redis that never answered — and
+    # the warning used to assume the second and name it, which sent whoever read
+    # the release log after a component that was healthy. Ask Redis directly.
     if [[ -z "$n" ]]; then
-        warn "cache: could not clear $name (is redis up?); a shape change may serve stale payloads"
+        if ssh "$BACKEND_HOST" \
+            "cd '$BACKEND_DIR' && docker compose -f '$BACKEND_COMPOSE' exec -T redis \
+             redis-cli PING" 2>/dev/null | grep -q PONG; then
+            # Redis is fine and held nothing for this host. Normal after a first
+            # deploy or a cache that has expired; worth a line, not a warning.
+            info "cache: nothing cached for $host"
+        else
+            warn "cache: redis did not answer at $BACKEND_HOST:$BACKEND_DIR; $host may serve stale payloads"
+        fi
         return 0
     fi
-    info "cache: dropped $n payload(s) for $name"
+    info "cache: dropped $n payload(s) for $host"
 }
 
 # --- Link check --------------------------------------------------------------
@@ -373,10 +419,11 @@ LINKCHECK_IMAGE="${LINKCHECK_IMAGE:-raviqqe/muffet:latest}"
 
 linkcheck_site() {
     local name="$1" origin
-    origin="$(yq -r ".images[] | select(.name == \"$name\") | .origin // \"\"" "$IMAGES_FILE")"
-    # Not in images.yml yet: fall back to the name, which is the hostname for
-    # every entry there today.
-    [[ -z "$origin" ]] && origin="https://$name"
+    # Shared with the cache clear: one reader of `origin`, so the two steps
+    # cannot disagree about where a site lives. This used to hold its own copy,
+    # and the fallback's assumption — that a name is a hostname — stopped being
+    # true when the base-path site was added, so it crawled a 404 every release.
+    origin="$(site_origin "$name")"
 
     if ! command -v docker >/dev/null 2>&1; then
         warn "docker not available; skipping the link check"
