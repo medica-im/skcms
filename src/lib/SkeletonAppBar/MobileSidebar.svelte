@@ -12,6 +12,7 @@
 	import { faBlog, faCalendar } from '@fortawesome/free-solid-svg-icons';
 	import BookUser from '@lucide/svelte/icons/book-user';
 	import { menuNavCats } from '$var/variables.ts';
+	import { siteMenu, visibleItems } from '$lib/SiteMenu/siteMenu';
 	import { base } from '$app/paths';
 
 	let {
@@ -23,6 +24,13 @@
 	} = $props();
 
 	const siteCat = page.data.organization.category.name;
+
+	/**
+	 * The parent site's menu, empty where this app is not embedded in one.
+	 * Resolved once so the markup and the grid below agree on whether the
+	 * second column exists.
+	 */
+	const parentMenu = visibleItems();
 	const dirPath = page.data.directory.setting.path || '/';
 	const drawerStore = getDrawerStore();
 
@@ -46,7 +54,8 @@
 	hamburger showed on any page outside the menu, the home page included.
 -->
 <div
-	class="grid h-full bg-surface-50-900-token border-r border-surface-500/30 {navLinks?.length
+	class="grid h-full bg-surface-50-900-token border-r border-surface-500/30 {navLinks?.length ||
+	parentMenu.length
 		? 'grid-cols-[auto_1fr]'
 		: 'grid-cols-[auto]'}"
 >
@@ -81,19 +90,25 @@
 				<span>{m.NAVBAR_ADDRESSBOOK()}</span>
 			</AppRailAnchor>
 		{/if}
-		<AppRailAnchor
-			href="{base}/sites"
-			selected={page.url.pathname == '/sites' && !currentRailCategory}
-			class="lg:hidden"
-			on:click={() => {
-				onClickAnchor();
-			}}
-		>
-			<svelte:fragment slot="lead"
-				><DocsIcon name="mapLocationDot" width="w-6" height="h-6" /></svelte:fragment
+		<!--
+			The sites page is not advertised on a site that asked for it to be
+			hidden. The route still resolves — this only stops linking to it.
+		-->
+		{#if siteMenu?.footer.showSites ?? true}
+			<AppRailAnchor
+				href="{base}/sites"
+				selected={page.url.pathname == '/sites' && !currentRailCategory}
+				class="lg:hidden"
+				on:click={() => {
+					onClickAnchor();
+				}}
 			>
-			<span>Sites</span>
-		</AppRailAnchor>
+				<svelte:fragment slot="lead"
+					><DocsIcon name="mapLocationDot" width="w-6" height="h-6" /></svelte:fragment
+				>
+				<span>Sites</span>
+			</AppRailAnchor>
+		{/if}
 		{#if page.data.organization.google_calendar_id && page.data.organization.google_calendar_api_key}
 			<AppRailAnchor
 				href="{base}/calendrier"
@@ -145,8 +160,14 @@
 				{/if}
 			{/each}
 		{/if}
+		<!--
+			Contact belongs to the parent site where there is one: it is their
+			address, and ours would answer with the organisation behind the
+			directory rather than the one the visitor came looking for.
+		-->
 		<AppRailAnchor
-			href="{base}/contact"
+			href={siteMenu?.footer.contactHref ?? `${base}/contact`}
+			rel={siteMenu ? 'noopener' : undefined}
 			selected={page.url.pathname == '/contact' && !currentRailCategory}
 			class="lg:hidden"
 			on:click={() => {
@@ -223,6 +244,83 @@
 					{#if i + 1 < navLinks?.length}<hr class="!my-6 opacity-50" />{/if}
 				{/if}
 			{/each}
+		</section>
+	{/if}
+
+	<!--
+		The parent site's menu, on a phone. The drawer is the only way to reach
+		it below xl, where the app bar's dropdowns are hidden — without this the
+		menu would simply not exist on the screens most visitors use.
+
+		Its own section rather than a branch inside the one above: that one is
+		driven by `navLinks`, which a site embedded in another one never has, so
+		the two never appear together.
+	-->
+	{#if parentMenu.length}
+		<section class="p-4 pb-20 space-y-4 overflow-y-auto">
+			<nav class="list-nav">
+				<ul>
+					{#each parentMenu as item (item.label)}
+						<li>
+							{#if item.href}
+								<a
+									href={item.href}
+									rel={item.external ? 'noopener' : undefined}
+									class="min-h-11 flex items-center"
+									onclick={() => onListItemClick()}
+								>
+									<span class="flex-auto whitespace-normal">{item.label}</span>
+								</a>
+							{:else}
+								<span class="block px-4 pt-2 text-sm font-semibold opacity-60">
+									{item.label}
+								</span>
+							{/if}
+
+							{#if item.children?.length}
+								<ul class="pl-4">
+									{#each item.children as child (child.label)}
+										<li>
+											{#if child.href}
+												<a
+													href={child.href}
+													rel={child.external ? 'noopener' : undefined}
+													class="min-h-11 flex items-center"
+													onclick={() => onListItemClick()}
+												>
+													<span class="flex-auto whitespace-normal">{child.label}</span>
+												</a>
+											{:else}
+												<span class="block px-4 pt-2 text-sm font-semibold opacity-60">
+													{child.label}
+												</span>
+											{/if}
+											{#if child.children?.length}
+												<ul class="pl-4">
+													{#each child.children as grandchild (grandchild.label)}
+														<li>
+															<a
+																href={grandchild.href}
+																rel={grandchild.external ? 'noopener' : undefined}
+																class="min-h-11 flex items-center"
+																onclick={() => onListItemClick()}
+															>
+																<span class="flex-auto whitespace-normal"
+																	>{grandchild.label}</span
+																>
+															</a>
+														</li>
+													{/each}
+												</ul>
+											{/if}
+										</li>
+									{/each}
+								</ul>
+							{/if}
+						</li>
+					{/each}
+				</ul>
+			</nav>
 		</section>
 	{/if}
 </div>

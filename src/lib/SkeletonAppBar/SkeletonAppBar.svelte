@@ -39,6 +39,8 @@
 	import { AppBar } from '@skeletonlabs/skeleton';
 	import { LightSwitch } from '@skeletonlabs/skeleton';
 	import MenuNavLinks from '$lib/SkeletonAppBar/MenuNavLinks.svelte';
+	import ParentSiteNav from '$lib/SiteMenu/ParentSiteNav.svelte';
+	import { siteMenu, visibleItems } from '$lib/SiteMenu/siteMenu';
 	// Utilities
 	import { popup } from '@skeletonlabs/skeleton';
 	import { getModalStore } from '@skeletonlabs/skeleton';
@@ -177,33 +179,66 @@
 		</button>
 	</svelte:fragment>
 	<!-- Logo -->
-	<a data-sveltekit-preload-data="off" href="/" title={m.NAVBAR_GO_HOME()}>
-		<!-- gap only from lg, where there is a logo for it to separate. -->
+	{#if siteMenu}
+		<!--
+			Embedded in another site, the logo and the title go to different
+			places: the logo out to the parent site, the title back to this
+			app's own home. One anchor around both cannot express that, and the
+			two destinations have to be told apart — they used to share the
+			title "Aller à l'accueil" while leading to different sites.
+		-->
 		<div class="flex items-center lg:gap-2">
-			<!--
-				No logo below lg: the bar is a fixed cost on every page and the
-				icon is the part of it that carries no information — the title
-				beside it already names the site, and the hamburger already marks
-				this as the toolbar. Dropping it on mobile buys back its width for
-				the title and lets the row size to the text alone.
-			-->
-			<div class="hidden lg:inline-block">
-				{#if page.data?.organization?.category?.name == 'msp'}
-					<div class="w-6 h-6"><OutpatientClinicLogo /></div>
-				{:else if page.data?.organization?.category?.name == 'cpts'}
-					<Fa style="font-size:2em" icon={faAddressBook} class="align-middle" />
-				{/if}
-			</div>
-			<div class="block lg:hidden">
-				{title}
-			</div>
-			<span class="max-lg:hidden"
-				><h4 class="h4">
-					{title}
-				</h4>
-			</span>
+			<a
+				data-sveltekit-preload-data="off"
+				href={siteMenu.parentSite.url}
+				rel="noopener"
+				title={m.NAVBAR_GO_PARENT_SITE({ site: siteMenu.parentSite.name })}
+				class="flex items-center min-h-11"
+			>
+				<img
+					src={siteMenu.parentSite.logo}
+					alt={siteMenu.parentSite.logoAlt}
+					class="h-8 w-auto"
+				/>
+			</a>
+			<a
+				href="{base}/"
+				title={m.NAVBAR_GO_DIRECTORY_HOME()}
+				class="flex items-center min-h-11 px-1"
+			>
+				<span class="block lg:hidden">{m.ADDRESSBOOK_TITLE()}</span>
+				<span class="max-lg:hidden"><h4 class="h4">{m.ADDRESSBOOK_TITLE()}</h4></span>
+			</a>
 		</div>
-	</a>
+	{:else}
+		<a data-sveltekit-preload-data="off" href="/" title={m.NAVBAR_GO_HOME()}>
+			<!-- gap only from lg, where there is a logo for it to separate. -->
+			<div class="flex items-center lg:gap-2">
+				<!--
+					No logo below lg: the bar is a fixed cost on every page and the
+					icon is the part of it that carries no information — the title
+					beside it already names the site, and the hamburger already marks
+					this as the toolbar. Dropping it on mobile buys back its width for
+					the title and lets the row size to the text alone.
+				-->
+				<div class="hidden lg:inline-block">
+					{#if page.data?.organization?.category?.name == 'msp'}
+						<div class="w-6 h-6"><OutpatientClinicLogo /></div>
+					{:else if page.data?.organization?.category?.name == 'cpts'}
+						<Fa style="font-size:2em" icon={faAddressBook} class="align-middle" />
+					{/if}
+				</div>
+				<div class="block lg:hidden">
+					{title}
+				</div>
+				<span class="max-lg:hidden"
+					><h4 class="h4">
+						{title}
+					</h4>
+				</span>
+			</div>
+		</a>
+	{/if}
 	<svelte:fragment slot="trail">
 		<!-- Search -->
 		<!--div class="md:inline md:ml-4">
@@ -307,7 +342,17 @@
 		</div>
 		{/if}
 		<div class="relative hidden xl:block">
-			<MenuNavLinks />
+			<!--
+				The parent site's menu where there is one, this site's own
+				programme menu otherwise. Not both: they are two answers to the
+				same question, and a site embedded in another one navigates by
+				the parent's structure.
+			-->
+			{#if siteMenu}
+				<ParentSiteNav items={visibleItems()} />
+			{:else}
+				<MenuNavLinks />
+			{/if}
 		</div>
 
 		<!-- trigger-->

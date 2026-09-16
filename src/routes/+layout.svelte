@@ -26,6 +26,8 @@
     import Drawer from '$lib/Drawer/Drawer.svelte';
     import Footer from '$lib/Footer/Footer.svelte';
 	import AddressbookFooter from '$lib/Footer/AddressbookFooter.svelte';
+	import ParentSiteFooter from '$lib/SiteMenu/ParentSiteFooter.svelte';
+	import { siteMenu } from '$lib/SiteMenu/siteMenu';
 
     // Theme stylesheet is loaded from LayoutServerData
     import { QueryClientProvider, QueryClient } from '@tanstack/svelte-query'
@@ -139,7 +141,16 @@
 			<slot></slot>
 		</QueryClientProvider>
 		<svelte:fragment slot="pageFooter">
-			{#if page.data.organization?.category.name=="msp"}
+			<!--
+				A site embedded in another one gets that site's footer instead of
+				ours. Checked before the category, not as part of it: unipa is
+				typed `cpts` like several standalone sites, so branching on the
+				category would change theirs too. `siteMenu` is null everywhere
+				the file is absent from skvar, which is every other site.
+			-->
+			{#if siteMenu}
+				<ParentSiteFooter menu={siteMenu} />
+			{:else if page.data.organization?.category.name=="msp"}
 				<Footer />
 			{:else if page.data.organization?.category.name=="cpts"}
 				<AddressbookFooter/>
