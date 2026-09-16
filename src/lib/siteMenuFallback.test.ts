@@ -146,4 +146,31 @@ describe('the shared components without a parent site', () => {
 		const appBar = read('src/lib/SkeletonAppBar/SkeletonAppBar.svelte');
 		expect(appBar).toContain('siteMenu?.parentSite.theme');
 	});
+
+	it('collapses the footer tree but never the drawer one', () => {
+		// One component, two behaviours, decided by the caller. The drawer is the
+		// only navigation a phone has and must stay open; the footer sits under
+		// the page competing for height, so it starts closed. `collapsible`
+		// defaulting to false is what keeps the drawer as it was.
+		const tree = read('src/lib/SiteMenu/ParentSiteTree.svelte');
+		expect(tree).toMatch(/collapsible\s*=\s*false/);
+		expect(tree).toContain('aria-expanded');
+
+		const footer = read('src/lib/SiteMenu/ParentSiteFooter.svelte');
+		expect(footer).toContain('collapsible');
+
+		const drawer = read('src/lib/SkeletonAppBar/MobileSidebar.svelte');
+		expect(drawer).not.toContain('collapsible');
+	});
+
+	it('stops the footer repeating links the tree already carries', () => {
+		// The footer used to list the directory and contact as its own links
+		// while the parent's menu above carried contact and the tree below ended
+		// with the directory — one footer reading as two competing menus.
+		const footer = read('src/lib/SiteMenu/ParentSiteFooter.svelte');
+		expect(footer).not.toContain('SITES_TITLE');
+		expect(footer).not.toContain('CONTACT_TITLE');
+		// The legal notice survives, inside the tree, via the shared helper.
+		expect(footer).toContain('menuWithOwnPages');
+	});
 });

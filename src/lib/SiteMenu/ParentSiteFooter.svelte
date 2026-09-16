@@ -20,34 +20,31 @@
 	import { variables } from '$lib/utils/constants';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import type { SiteMenu, SiteMenuItem } from '$lib/interfaces/siteMenu.interface';
+	import ParentSiteTree from '$lib/SiteMenu/ParentSiteTree.svelte';
+	import { menuWithOwnPages } from '$lib/SiteMenu/siteMenu';
 
 	let { menu }: { menu: SiteMenu } = $props();
 
 	const lang = variables.DEFAULT_LANGUAGE;
 
 	/**
-	 * The columns of the footer's link grid: one per top-level menu entry that
-	 * has children, since a lone link makes a poor column heading.
+	 * What the footer's tree shows: the parent's menu, plus this app's own two
+	 * pages — the directory and the legal notice it owes for being hosted
+	 * separately.
+	 *
+	 * The same helper the drawer uses, so the two cannot drift. Contact and the
+	 * directory are deliberately not repeated as separate footer links any
+	 * more: contact already sits in the parent's menu above, and the directory
+	 * is the entry this tree ends with. Listing them twice in one footer is
+	 * what made it read as two competing menus.
 	 */
-	const columns = $derived(
-		(menu.items ?? []).filter((item) => (item.children?.length ?? 0) > 0)
+	const treeItems = $derived(
+		menuWithOwnPages(
+			base,
+			capitalizeFirstLetter(m.ADDRESSBOOK_TITLE(), lang),
+			capitalizeFirstLetter(m.LEGAL_NOTICES(), lang)
+		)
 	);
-
-	/** Top-level entries without children, shown as a row of plain links. */
-	const flatLinks = $derived(
-		(menu.items ?? []).filter((item) => (item.children?.length ?? 0) === 0)
-	);
-
-	/**
-	 * A column's links, flattened one level: the source menu groups some entries
-	 * under an intermediate heading, which is useful in a dropdown but only adds
-	 * indentation in a footer.
-	 */
-	function linksOf(item: SiteMenuItem): SiteMenuItem[] {
-		return (item.children ?? []).flatMap((child) =>
-			(child.children?.length ?? 0) > 0 ? (child.children ?? []) : [child]
-		);
-	}
 </script>
 
 <footer class="page-footer text-xs md:text-base">
@@ -72,82 +69,22 @@
 				</a>
 			</div>
 
-			<!-- Row 1b: the parent site's menu, as columns -->
-			<div class="grid grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-3">
-				{#each columns as column (column.label)}
-					<div>
-						<h5 class="h5 mb-4 font-semibold uppercase">{column.label}</h5>
-						<ul class="space-y-2">
-							{#each linksOf(column) as link (link.label)}
-								<li>
-									<a
-										href={link.href}
-										rel={link.external ? 'noopener' : undefined}
-										class="hover:underline">{link.label}</a
-									>
-								</li>
-							{/each}
-						</ul>
-					</div>
-				{/each}
+			<!--
+				The same tree the drawer shows, collapsed. A footer competes for
+				height with the page above it, and a reader who has scrolled this far
+				is looking for one thing rather than reading the menu — so branches
+				start closed and open on request.
 
-				<!-- Our own column: the links that are ours, not the parent's -->
-				<div>
-					<h5 class="h5 mb-4 font-semibold uppercase">
-						{capitalizeFirstLetter(m.ADDRESSBOOK_TITLE(), lang)}
-					</h5>
-					<ul class="space-y-2">
-						<li>
-							<a href="{base}/" class="hover:underline" title={m.NAVBAR_GO_DIRECTORY_HOME()}>
-								{capitalizeFirstLetter(m.ADDRESSBOOK_TITLE(), lang)}
-							</a>
-						</li>
-						{#if menu.footer.showSites}
-							<li>
-								<a href="{base}/sites" class="hover:underline">
-									{capitalizeFirstLetter(m.SITES_TITLE(), lang)}
-								</a>
-							</li>
-						{/if}
-						<li>
-							<a href={menu.footer.contactHref} rel="noopener" class="hover:underline">
-								{capitalizeFirstLetter(m.CONTACT_TITLE(), lang)}
-							</a>
-						</li>
-						<li>
-							<!--
-								Ours, and served from this app: a base-relative path,
-								never the parent site's.
-							-->
-							<a href="{base}/{menu.footer.legalHref}" class="hover:underline">
-								{capitalizeFirstLetter(m.LEGAL_NOTICES(), lang)}
-							</a>
-						</li>
-						{#each menu.footer.extraLinks ?? [] as extra (extra.label)}
-							<li>
-								<a
-									href={extra.href}
-									rel={extra.external ? 'noopener' : undefined}
-									class="hover:underline">{extra.label}</a
-								>
-							</li>
-						{/each}
-					</ul>
-				</div>
-			</div>
+				It replaces a grid of columns that flattened the middle level away:
+				entries the parent site groups under a heading appeared as siblings of
+				that heading's own children, so the footer and the drawer disagreed
+				about the shape of the same menu.
+			-->
+			<nav class="min-w-0 sm:w-80" aria-label={menu.parentSite.name}>
+				<ParentSiteTree items={treeItems} onNavigate={() => {}} collapsible />
+			</nav>
 		</div>
 
-		{#if flatLinks.length}
-			<div class="flex flex-wrap gap-x-6 gap-y-2">
-				{#each flatLinks as link (link.label)}
-					<a
-						href={link.href}
-						rel={link.external ? 'noopener' : undefined}
-						class="hover:underline">{link.label}</a
-					>
-				{/each}
-			</div>
-		{/if}
 
 		<hr class="opacity-20" />
 
