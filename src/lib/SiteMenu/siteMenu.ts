@@ -88,3 +88,45 @@ export function displayLabel(label: string): string {
 		.join(' ');
 	return cased.charAt(0).toLocaleUpperCase('fr') + cased.slice(1);
 }
+
+/**
+ * The parent site's menu with this app's own pages appended.
+ *
+ * The drawer is the only navigation a phone has, and the parent's menu alone
+ * cannot reach the two pages that belong to us: the directory itself, and the
+ * legal notice it owes because it is hosted separately from the parent site.
+ * Without these the only way back into the app from the drawer is the browser's
+ * back button.
+ *
+ * Appended rather than written into the curated file: that file is regenerated
+ * from the parent site's own markup, and an entry that is not in that markup
+ * would have to survive every merge as a special case. These are derived from
+ * `footer` — the same two URLs the footer already builds — so the site declares
+ * them once.
+ *
+ * `external: false` marks them as ours, which is what lets the tree mark one as
+ * the current page; entries on the parent site never are.
+ */
+export function menuWithOwnPages(
+	base: string,
+	directoryLabel: string,
+	legalLabel: string
+): SiteMenuItem[] {
+	const items = visibleItems();
+	if (!siteMenu) return items;
+
+	const own: SiteMenuItem = {
+		label: directoryLabel,
+		href: `${base}/`,
+		external: false,
+		children: [
+			{
+				label: legalLabel,
+				href: `${base}/${siteMenu.footer.legalHref}`,
+				external: false
+			}
+		]
+	};
+
+	return [...items, own];
+}

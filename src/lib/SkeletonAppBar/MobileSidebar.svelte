@@ -12,8 +12,9 @@
 	import { faBlog, faCalendar } from '@fortawesome/free-solid-svg-icons';
 	import BookUser from '@lucide/svelte/icons/book-user';
 	import { menuNavCats } from '$var/variables.ts';
-	import { siteMenu, visibleItems } from '$lib/SiteMenu/siteMenu';
+	import { siteMenu, visibleItems, menuWithOwnPages } from '$lib/SiteMenu/siteMenu';
 	import ParentSiteTree from '$lib/SiteMenu/ParentSiteTree.svelte';
+	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import { base } from '$app/paths';
 
 	let {
@@ -32,6 +33,16 @@
 	 * second column exists.
 	 */
 	const parentMenu = visibleItems();
+
+	/**
+	 * What the drawer actually renders: the parent's menu plus this app's own
+	 * two pages, which nothing in the parent's markup links to.
+	 */
+	const drawerMenu = menuWithOwnPages(
+		base,
+		capitalizeFirstLetter(m.ADDRESSBOOK_TITLE(), variables.DEFAULT_LANGUAGE),
+		capitalizeFirstLetter(m.LEGAL_NOTICES(), variables.DEFAULT_LANGUAGE)
+	);
 	const dirPath = page.data.directory.setting.path || '/';
 	const drawerStore = getDrawerStore();
 
@@ -310,7 +321,7 @@
 		-->
 		<section class="p-4 pb-20 overflow-y-auto">
 			<nav aria-label={siteMenu?.parentSite.name}>
-				<ParentSiteTree items={parentMenu} onNavigate={onListItemClick} />
+				<ParentSiteTree items={drawerMenu} onNavigate={onListItemClick} />
 			</nav>
 		</section>
 	{/if}

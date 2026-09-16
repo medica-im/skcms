@@ -18,6 +18,7 @@
 	 * box-drawing glyph would be read out by a screen reader and would not line
 	 * up once a long label wraps, which most of these do on a phone.
 	 */
+	import { page } from '$app/state';
 	import type { SiteMenuItem } from '$lib/interfaces/siteMenu.interface';
 	import { displayLabel } from '$lib/SiteMenu/siteMenu';
 	// Importing itself rather than `<svelte:self>`, which Svelte 5 deprecates.
@@ -32,6 +33,22 @@
 		depth?: number;
 		onNavigate: () => void;
 	} = $props();
+
+	/**
+	 * Whether a row points at the page being read.
+	 *
+	 * Only our own pages can match: an entry on the parent site is a different
+	 * document served by a different application, so `external` is never
+	 * current no matter what its URL says. That also keeps the parent's own
+	 * behaviour — it marks nothing as current — intact for its own entries.
+	 *
+	 * Compared against the pathname with any trailing slash removed, since the
+	 * app's own links are written both ways ('/annuaire/' for the home, and
+	 * '/annuaire/mentions-legales' without).
+	 */
+	const trim = (path: string) => path.replace(/\/+$/, '') || '/';
+	const current = (item: SiteMenuItem) =>
+		!item.external && !!item.href && trim(item.href) === trim(page.url.pathname);
 </script>
 
 <ul class="list-none m-0 p-0">
@@ -58,10 +75,18 @@
 			{/if}
 
 			{#if item.href}
+				<!--
+					`aria-current="page"` as well as the weight: bold alone says
+					nothing to a screen reader, and this is the one place in the
+					menu where the styling carries meaning rather than decoration.
+				-->
 				<a
 					href={item.href}
 					rel={item.external ? 'noopener' : undefined}
-					class="anchor block min-h-11 py-2 pr-2 leading-relaxed"
+					aria-current={current(item) ? 'page' : undefined}
+					class="anchor block min-h-11 py-2 pr-2 leading-relaxed {current(item)
+						? 'font-semibold'
+						: ''}"
 					onclick={onNavigate}
 				>
 					{displayLabel(item.label)}

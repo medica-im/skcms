@@ -306,3 +306,38 @@ describe('the unipa theme meets the contrast bar', () => {
 		}
 	});
 });
+
+describe('the app’s own pages in the drawer', () => {
+	/**
+	 * The drawer is the only navigation a phone has, and the parent site's menu
+	 * links to none of our pages. Without these two entries the only way back
+	 * into the app from an open drawer is the browser's back button.
+	 *
+	 * Derived from `footer` rather than written into the curated menu file: that
+	 * file is regenerated from the parent site's markup, so an entry absent from
+	 * that markup would have to survive every merge as a special case.
+	 */
+	it('appends the directory and its legal notice, and marks them as ours', async () => {
+		const { menuWithOwnPages } = await import('$lib/SiteMenu/siteMenu');
+		const items = menuWithOwnPages('/annuaire', 'Annuaire', 'Mentions légales');
+		const own = items[items.length - 1];
+
+		expect(own).toMatchObject({ label: 'Annuaire', href: '/annuaire/', external: false });
+		expect(own.children?.[0]).toMatchObject({
+			label: 'Mentions légales',
+			href: '/annuaire/mentions-legales',
+			external: false
+		});
+	});
+
+	it('leaves the parent site’s own entries alone', async () => {
+		// Appended, never merged into the scraped tree: the curated file has to
+		// stay a faithful copy of what the parent site publishes.
+		const { menuWithOwnPages, visibleItems } = await import('$lib/SiteMenu/siteMenu');
+		const parent = visibleItems();
+		const combined = menuWithOwnPages('/annuaire', 'Annuaire', 'Mentions légales');
+
+		expect(combined.slice(0, parent.length)).toEqual(parent);
+		expect(combined).toHaveLength(parent.length + 1);
+	});
+});
