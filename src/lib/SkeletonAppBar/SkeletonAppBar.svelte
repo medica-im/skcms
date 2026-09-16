@@ -250,6 +250,15 @@
 		</div-->
 
 		<!-- Navigate -->
+		<!--
+			Dropped where the parent site's menu is in the bar: that menu is how
+			this site navigates, and a second dropdown beside it offering a
+			different set of destinations is one navigation control too many.
+			The links it held are not lost — home and the directory are the two
+			anchors at the start of the bar, contact is in the parent's menu and
+			in the footer, and the drawer still carries the full rail on mobile.
+		-->
+		{#if !siteMenu}
 		<div class="relative hidden xl:block">
 			<!-- trigger -->
 			<button
@@ -302,6 +311,7 @@
 				</nav>
 			</div>
 		</div>
+		{/if}
 		{#if isMSP}
 		<div class="hidden">
 			<!-- trigger -->
