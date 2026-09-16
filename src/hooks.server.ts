@@ -65,14 +65,31 @@ const handleDebug: Handle = async ({ event, resolve }) => {
     return await resolve(event);
 };
 
+/**
+ * The theme a visitor gets before they have chosen one.
+ *
+ * Per site, because a directory embedded in someone else's website has to look
+ * like that website rather than like the default. `wintry` where nothing is
+ * set, which is every site that was here before and is what they all served.
+ *
+ * Only the default: the cookie still wins, so the theme switcher keeps working
+ * everywhere and a visitor's choice survives.
+ *
+ * Read at runtime from the deploy host's env rather than baked in at build
+ * time, so one image can serve a site whose theme changes without a rebuild.
+ * Not a PUBLIC_ variable: it is only ever read here, on the server, and the
+ * value reaches the browser as the rendered data-theme attribute.
+ */
+const DEFAULT_THEME = env.SITE_THEME || 'wintry';
+
 const cookie: Handle = async ({ event, resolve }) => {
 	let theme = '';
 	const cookieTheme = event.cookies.get('theme');
 	if (cookieTheme) {
 		theme = cookieTheme;
 	} else {
-		event.cookies.set('theme', 'wintry', { path: '/' });
-		theme = 'wintry';
+		event.cookies.set('theme', DEFAULT_THEME, { path: '/' });
+		theme = DEFAULT_THEME;
 	}
 	return await resolve(event, {
 		transformPageChunk: ({ html }) =>

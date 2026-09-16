@@ -35,6 +35,33 @@
  */
 @import '@fontsource-variable/inter';
 
+/*
+ * Poppins and Rubik, for the `unipa` theme.
+ *
+ * That site's directory is served inside unipa.fr, which sets Poppins on body
+ * text and Rubik on titles; matching them is most of what makes the app read as
+ * a section of that site rather than a different one. From @fontsource for the
+ * same reasons as Inter above — no third-party request, nothing leaked to a
+ * CDN, version pinned in package.json — rather than the Google Fonts link the
+ * parent site itself uses.
+ *
+ * Imported unconditionally, like Inter: these are stylesheets of @font-face
+ * rules, and a @font-face is a declaration, not a download. The browser fetches
+ * a file only when something actually renders in that family, so a site on any
+ * other theme pays nothing for these beyond the rules themselves.
+ *
+ * Poppins has no variable build, so it is the static package and only the
+ * weights the theme uses are imported. Rubik's variable build covers 300-900 in
+ * one file and registers as `Rubik Variable` — see the note in
+ * lib/themes/unipa.ts about naming it correctly in the font stack.
+ */
+@import '@fontsource/poppins/300.css';
+@import '@fontsource/poppins/400.css';
+@import '@fontsource/poppins/500.css';
+@import '@fontsource/poppins/600.css';
+@import '@fontsource/poppins/700.css';
+@import '@fontsource-variable/rubik';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -60,7 +87,19 @@
  * `system-ui, sans-serif` stays behind Inter as the fallback for the moment
  * before the woff2 arrives, and for anything Inter lacks.
  */
-:root [data-theme] {
+/*
+ * Every theme except `unipa`, which brings its own two faces.
+ *
+ * Without the exclusion this rule wins over the theme's properties — it is the
+ * same (0,1,1) specificity, and it comes later — so the unipa build would load
+ * Poppins and Rubik and then render everything in Inter anyway. That failure is
+ * invisible in the markup: the theme is applied, the fonts are fetched, and
+ * only the rendered text is wrong.
+ *
+ * `:not()` takes the specificity of its argument, so this stays (0,1,1) and the
+ * reasoning above about `[data-theme]` on <body> is unchanged.
+ */
+:root [data-theme]:not([data-theme='unipa']) {
 	--theme-font-family-base: 'Inter Variable', system-ui, sans-serif;
 	--theme-font-family-heading: 'Inter Variable', system-ui, sans-serif;
 }

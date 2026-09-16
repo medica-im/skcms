@@ -106,6 +106,9 @@
 	}
 
 	const themes = [
+		// Offered only where it is the site's own theme: elsewhere it is a
+		// palette belonging to somebody else's brand, in a list of neutral ones.
+		...(siteMenu ? [{ type: 'unipa', name: siteMenu.parentSite.name, icon: '🩺' }] : []),
 		{ type: 'skeleton', name: 'Skeleton', icon: '💀' },
 		{ type: 'wintry', name: 'Wintry', icon: '🌨️' },
 		{ type: 'modern', name: 'Modern', icon: '🤖' },
