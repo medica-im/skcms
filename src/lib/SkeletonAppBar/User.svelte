@@ -75,6 +75,12 @@
 		and sign-out were flush against each other, looking like one widget.
 		They are siblings here rather than in the trail, so the value has to be
 		repeated — keep it in step with `slotTrail` in SkeletonAppBar.svelte.
+
+		4px below lg rather than 8px: on a phone the trail ends at the bar's own
+		8px of padding, and the last control read as pressed against the edge of
+		the screen. The room comes from between the controls, which have it to
+		spare, rather than from the controls themselves — every one of them
+		stays at its 44px minimum.
 	-->
 	<!--
 		No `flex-wrap`: the row is narrower than the two controls need once the
@@ -83,7 +89,7 @@
 		alignment. They are one group and belong on one line; `items-center`
 		keeps them level whatever their individual heights.
 	-->
-	<div class="flex items-center gap-2 lg:gap-4">
+	<div class="flex items-center gap-1 lg:gap-4">
 		<button
 			use:popup={{ event: 'click', target: 'user' }}
 			title={session.user.name}

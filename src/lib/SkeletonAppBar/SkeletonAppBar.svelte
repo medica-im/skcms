@@ -158,7 +158,7 @@
 	shadow="shadow-lg"
 	padding="p-2 lg:p-4"
 	gap="gap-2 lg:gap-4"
-	slotTrail="!space-x-2 lg:!space-x-4"
+	slotTrail="!space-x-1 lg:!space-x-4"
 >
 	<svelte:fragment slot="lead">
 		<!-- Hamburger Menu -->
