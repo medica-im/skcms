@@ -229,3 +229,25 @@ describe('re-running the import over a curated file', () => {
 		expect(find(items, 'ANCIENNE PAGE')).toBeUndefined();
 	});
 });
+
+describe('how a parent-site label is shown', () => {
+	it('sentence-cases a shouted label', async () => {
+		const { displayLabel } = await import('$lib/SiteMenu/siteMenu');
+		expect(displayLabel('QUI SOMMES-NOUS ?')).toBe('Qui sommes-nous ?');
+		expect(displayLabel('BOÎTE À OUTILS')).toBe('Boîte à outils');
+	});
+
+	it('leaves an acronym in capitals', () => {
+		// "Ipa" reads as a mistake: it is the profession the whole site is about.
+		return import('$lib/SiteMenu/siteMenu').then(({ displayLabel }) => {
+			expect(displayLabel('IPA : UN MÉTIER INNOVANT')).toBe('IPA : un métier innovant');
+		});
+	});
+
+	it('capitalises the first letter even when it is accented', async () => {
+		// toUpperCase on a lone accented char is the kind of thing that works in
+		// one locale and not another; pinning it is cheaper than reasoning twice.
+		const { displayLabel } = await import('$lib/SiteMenu/siteMenu');
+		expect(displayLabel('ÉVÉNEMENTS')).toBe('Événements');
+	});
+});

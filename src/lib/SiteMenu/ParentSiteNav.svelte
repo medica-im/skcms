@@ -15,6 +15,7 @@
 	import Fa from 'svelte-fa';
 	import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
 	import type { SiteMenuItem } from '$lib/interfaces/siteMenu.interface';
+	import { displayLabel } from '$lib/SiteMenu/siteMenu';
 
 	let { items }: { items: SiteMenuItem[] } = $props();
 
@@ -30,15 +31,27 @@
 	 */
 	const targetId = (item: SiteMenuItem, index: number) =>
 		`parent-menu-${index}-${item.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+
 </script>
 
+<!--
+	`!px-2.5` against Skeleton's `px-4`: six items at the parent site's own
+	wording are about 80px wider than the bar has to give at 1440, and the row
+	wrapped — a second line of menu on every page. Horizontal padding is the
+	part of a button that costs width without costing reach, so it goes before
+	anything else does.
+
+	`min-h-11` stays on every one of them. 44px is the floor for this site's
+	readers, not a nicety, and a menu that has to be tapped is exactly where it
+	matters — see the note on the hamburger in SkeletonAppBar.svelte.
+-->
 {#each items as item, index (item.label)}
 	{#if hasChildren(item)}
 		<button
-			class="btn hover:variant-soft-primary min-h-11"
+			class="btn !px-2.5 hover:variant-soft-primary min-h-11"
 			use:popup={{ event: 'click', target: targetId(item, index) }}
 		>
-			<span>{item.label}</span>
+			<span>{displayLabel(item.label)}</span>
 			<span class="opacity-50"><Fa icon={faCaretDown} /></span>
 		</button>
 		<div class="card p-4 w-fit max-w-md shadow-xl" data-popup={targetId(item, index)}>
@@ -58,11 +71,11 @@
 										href={child.href}
 										rel={child.external ? 'noopener' : undefined}
 									>
-										{child.label}
+										{displayLabel(child.label)}
 									</a>
 								{:else}
 									<span class="block px-4 pt-2 text-sm font-semibold opacity-60">
-										{child.label}
+										{displayLabel(child.label)}
 									</span>
 								{/if}
 								<ul class="pl-4">
@@ -73,7 +86,7 @@
 												href={grandchild.href}
 												rel={grandchild.external ? 'noopener' : undefined}
 											>
-												{grandchild.label}
+												{displayLabel(grandchild.label)}
 											</a>
 										</li>
 									{/each}
@@ -84,7 +97,7 @@
 									href={child.href}
 									rel={child.external ? 'noopener' : undefined}
 								>
-									{child.label}
+									{displayLabel(child.label)}
 								</a>
 							{/if}
 						</li>
@@ -94,11 +107,11 @@
 		</div>
 	{:else}
 		<a
-			class="btn hover:variant-soft-primary min-h-11"
+			class="btn !px-2.5 hover:variant-soft-primary min-h-11"
 			href={item.href}
 			rel={item.external ? 'noopener' : undefined}
 		>
-			{item.label}
+			{displayLabel(item.label)}
 		</a>
 	{/if}
 {/each}

@@ -177,9 +177,17 @@
 			costs nobody anything. A width rather than the `btn-icon-sm` preset,
 			which also lowers font-size and would shrink the bars glyph itself.
 		-->
-		<button on:click={drawerOpen} class="btn-icon !w-11 xl:!hidden">
-			<Fa icon={faBars} />
-		</button>
+		<!--
+			On the left, unless this app is embedded in a site that puts it on
+			the right — unipa.fr does, and a visitor crossing into this section
+			should not have to find the menu button somewhere else. Rendered in
+			the trail slot in that case; see below.
+		-->
+		{#if !siteMenu}
+			<button on:click={drawerOpen} class="btn-icon !w-11 xl:!hidden">
+				<Fa icon={faBars} />
+			</button>
+		{/if}
 	</svelte:fragment>
 	<!-- Logo -->
 	{#if siteMenu}
@@ -198,10 +206,21 @@
 				title={m.NAVBAR_GO_PARENT_SITE({ site: siteMenu.parentSite.name })}
 				class="flex items-center min-h-11"
 			>
+				<!--
+					width/height rather than `w-auto` alone: this sits in a flex
+					row, where an image with no intrinsic width to lay out
+					against gets a 0-wide box and disappears — the alt text is
+					never shown, the request still succeeds, and the bar simply
+					looks like it has no logo. The attributes also give the
+					browser the aspect ratio before the file arrives, so the
+					row does not reflow around it.
+				-->
 				<img
 					src={siteMenu.parentSite.logo}
 					alt={siteMenu.parentSite.logoAlt}
-					class="h-8 w-auto"
+					width="147"
+					height="64"
+					class="h-8 w-auto max-w-none shrink-0"
 				/>
 			</a>
 			<a
@@ -442,5 +461,16 @@
         </div>
 
 		<User />
+		<!--
+			The hamburger, at the end of the row, for a site embedded in one that
+			places it there. Same 44px floor and the same `xl:!hidden` as the
+			copy in the lead slot — only the position differs, and exactly one of
+			the two ever renders.
+		-->
+		{#if siteMenu}
+			<button on:click={drawerOpen} class="btn-icon !w-11 xl:!hidden">
+				<Fa icon={faBars} />
+			</button>
+		{/if}
 	</svelte:fragment>
 </AppBar>

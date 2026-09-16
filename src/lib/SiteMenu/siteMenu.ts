@@ -51,3 +51,34 @@ export function visibleItems(items: SiteMenuItem[] = siteMenu?.items ?? []): Sit
 			children: item.children ? visibleItems(item.children) : undefined
 		}));
 }
+
+/**
+ * The parent site writes its menu in capitals, and its own header has the
+ * full width of the page to do that in. Ours also carries the site name, the
+ * theme control and the account controls, and the same labels then need
+ * about half as much room again as there is — they wrapped to a second row
+ * and doubled the height of the bar on every page.
+ *
+ * Cased here rather than in the data: the capitals are how the parent site
+ * writes these names, so they belong in the file the importer regenerates.
+ * This is presentation, and only this bar's.
+ *
+ * Done in script rather than with `lowercase first-letter:uppercase`, which
+ * silently half-works: Tailwind's `first-letter:` needs a block box and
+ * these buttons are inline-flex, so the lowercase applied and the capital
+ * never came back — "boîte à outils", "contact". CSS `capitalize` is not the
+ * answer either, since it title-cases every word ("Boîte À Outils").
+ *
+ * A word that is all capitals and has no lower-case form of its own is left
+ * alone: IPA is the profession this whole site is about, and "Ipa" reads as
+ * a mistake.
+ */
+const ACRONYMS = new Set(['IPA', 'CPTS', 'MSP', 'URPS', 'ARS']);
+
+export function displayLabel(label: string): string {
+	const cased = label
+		.split(' ')
+		.map((word) => (ACRONYMS.has(word) ? word : word.toLocaleLowerCase('fr')))
+		.join(' ');
+	return cased.charAt(0).toLocaleUpperCase('fr') + cased.slice(1);
+}

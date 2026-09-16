@@ -12,7 +12,7 @@
 	import { faBlog, faCalendar } from '@fortawesome/free-solid-svg-icons';
 	import BookUser from '@lucide/svelte/icons/book-user';
 	import { menuNavCats } from '$var/variables.ts';
-	import { siteMenu, visibleItems } from '$lib/SiteMenu/siteMenu';
+	import { siteMenu, visibleItems, displayLabel } from '$lib/SiteMenu/siteMenu';
 	import { base } from '$app/paths';
 
 	let {
@@ -54,11 +54,20 @@
 	hamburger showed on any page outside the menu, the home page included.
 -->
 <div
-	class="grid h-full bg-surface-50-900-token border-r border-surface-500/30 {navLinks?.length ||
-	parentMenu.length
-		? 'grid-cols-[auto_1fr]'
-		: 'grid-cols-[auto]'}"
+	class="grid h-full bg-surface-50-900-token border-r border-surface-500/30 {parentMenu.length
+		? 'grid-cols-[1fr]'
+		: navLinks?.length
+			? 'grid-cols-[auto_1fr]'
+			: 'grid-cols-[auto]'}"
 >
+	<!--
+		The rail is this app's own set of destinations. Where the parent site's
+		menu is in the drawer, it is a second list of places beside that one —
+		and the two do not agree: the rail's Contact is ours, the menu's is
+		theirs. The menu is the one that belongs to the site the visitor thinks
+		they are on, so the rail goes.
+	-->
+	{#if !parentMenu.length}
 	<!-- App Rail -->
 	<AppRail background="!bg-transparent" border="border-r border-surface-500/30">
 		<AppRailAnchor
@@ -180,6 +189,7 @@
 			<span>Contact</span>
 		</AppRailAnchor>
 	</AppRail>
+	{/if}
 	{#if navLinks?.length}
 		<!-- Nav Links -->
 		<!--
@@ -269,11 +279,11 @@
 									class="min-h-11 flex items-center"
 									onclick={() => onListItemClick()}
 								>
-									<span class="flex-auto whitespace-normal">{item.label}</span>
+									<span class="flex-auto whitespace-normal">{displayLabel(item.label)}</span>
 								</a>
 							{:else}
 								<span class="block px-4 pt-2 text-sm font-semibold opacity-60">
-									{item.label}
+									{displayLabel(item.label)}
 								</span>
 							{/if}
 
@@ -288,11 +298,11 @@
 													class="min-h-11 flex items-center"
 													onclick={() => onListItemClick()}
 												>
-													<span class="flex-auto whitespace-normal">{child.label}</span>
+													<span class="flex-auto whitespace-normal">{displayLabel(child.label)}</span>
 												</a>
 											{:else}
 												<span class="block px-4 pt-2 text-sm font-semibold opacity-60">
-													{child.label}
+													{displayLabel(child.label)}
 												</span>
 											{/if}
 											{#if child.children?.length}
@@ -306,7 +316,7 @@
 																onclick={() => onListItemClick()}
 															>
 																<span class="flex-auto whitespace-normal"
-																	>{grandchild.label}</span
+																	>{displayLabel(grandchild.label)}</span
 																>
 															</a>
 														</li>
