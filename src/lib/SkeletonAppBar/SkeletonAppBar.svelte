@@ -123,6 +123,7 @@
 		// { type: 'test', name: 'Test', icon: '🚧' },
 	];
 
+
 	const setTheme: SubmitFunction = ({ formData }) => {
 		const theme = formData.get('theme')?.toString();
 
@@ -198,7 +199,23 @@
 			two destinations have to be told apart — they used to share the
 			title "Aller à l'accueil" while leading to different sites.
 		-->
-		<div class="flex items-center lg:gap-2">
+		<!--
+			`-ml-2` below xl, where the hamburger has moved to the trail.
+
+			Skeleton renders its lead slot whenever one is passed at all — a
+			`<svelte:fragment slot="lead">` counts even when everything inside is
+			behind a false `{#if}` — so an empty lead div still takes a grid
+			column, and the bar's `gap-2` puts 8px in front of the logo. The logo
+			then sat 16px from the left while the hamburger sat 8px from the
+			right, and the button looked like it was touching the edge of the
+			screen because nothing on the other side was.
+
+			Pulling the logo back by that gap rather than dropping the column:
+			the column carries the default slot's own track, and removing it
+			moves the logo and title into the trailing one — which put them at
+			the far right of the bar with the controls on the left.
+		-->
+		<div class="flex items-center lg:gap-2 -ml-2 xl:ml-0">
 			<a
 				data-sveltekit-preload-data="off"
 				href={siteMenu.parentSite.url}
