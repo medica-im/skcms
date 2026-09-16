@@ -251,3 +251,58 @@ describe('how a parent-site label is shown', () => {
 		expect(displayLabel('ÉVÉNEMENTS')).toBe('Événements');
 	});
 });
+
+describe('the unipa theme meets the contrast bar', () => {
+	/**
+	 * WCAG 2.1 AA for body text, 4.5:1 — the same bar
+	 * features/map-popup-contrast.feature holds the facility popup to, and for
+	 * the same reason: Skeleton's `.anchor` paints link text with
+	 * `--color-primary-700`, so a theme whose primary ramp is a plain
+	 * interpolation of a light brand colour produces links nobody can read.
+	 *
+	 * This theme's first draft did exactly that and shipped 3.05:1. Checked
+	 * here against the token values rather than in a browser: the failure is in
+	 * the numbers, and a unit test says so on every run without needing a page
+	 * to render.
+	 */
+	const srgb = (c: number) => {
+		const v = c / 255;
+		return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+	};
+	const luminance = ([r, g, b]: number[]) =>
+		0.2126 * srgb(r) + 0.7152 * srgb(g) + 0.0722 * srgb(b);
+	const contrast = (a: number[], b: number[]) => {
+		const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+		return (hi + 0.05) / (lo + 0.05);
+	};
+	const token = (theme: Record<string, string>, name: string) =>
+		theme[name].split(' ').map(Number);
+
+	it('keeps link text readable on its own light surface', async () => {
+		const { unipaTheme } = await import('$lib/themes/unipa');
+		const p = unipaTheme.properties as Record<string, string>;
+		// `.anchor` in light mode, on the lightest surface the drawer uses.
+		const ratio = contrast(token(p, '--color-primary-700'), token(p, '--color-surface-50'));
+		expect(ratio).toBeGreaterThanOrEqual(4.5);
+	});
+
+	it('keeps link text readable on its own dark surface', async () => {
+		const { unipaTheme } = await import('$lib/themes/unipa');
+		const p = unipaTheme.properties as Record<string, string>;
+		// `.anchor` switches to primary-500 in dark mode.
+		const ratio = contrast(token(p, '--color-primary-500'), token(p, '--color-surface-800'));
+		expect(ratio).toBeGreaterThanOrEqual(4.5);
+	});
+
+	it('keeps the primary ramp getting darker, step by step', async () => {
+		// The fix darkened 600-900 by hand. A ramp that doubles back would make
+		// some `variant-*` pairing unreadable somewhere else in the app.
+		const { unipaTheme } = await import('$lib/themes/unipa');
+		const p = unipaTheme.properties as Record<string, string>;
+		const steps = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900]
+			.map((n) => luminance(token(p, `--color-primary-${n}`)));
+		for (let i = 1; i < steps.length; i++) {
+			expect(steps[i]).toBeLessThan(steps[i - 1]);
+		}
+	});
+});

@@ -66,10 +66,17 @@ export const unipaTheme: CustomThemeConfig = {
 		'--color-primary-300': '182 226 221',
 		'--color-primary-400': '148 198 191',
 		'--color-primary-500': '126 179 171',
-		'--color-primary-600': '111 162 155',
-		'--color-primary-700': '96 146 139',
-		'--color-primary-800': '72 110 104',
-		'--color-primary-900': '53 80 76',
+		// 700 and below are darkened away from a pure interpolation of the
+		// brand colour. Skeleton's `.anchor` paints link text with
+		// primary-700, and the interpolated value (96 146 139) gives 3.05:1 on
+		// this theme's light surface — under the 4.5:1 the project holds itself
+		// to for body text (features/map-popup-contrast.feature). The hue and
+		// saturation are the brand's; only lightness moves, so a link still
+		// reads as the same colour as everything else here.
+		'--color-primary-600': '79 135 127',
+		'--color-primary-700': '68 116 109',
+		'--color-primary-800': '53 90 84',
+		'--color-primary-900': '38 64 60',
 		// =~= Secondary: the dark neutral #32353C =~=
 		'--color-secondary-50': '232 232 233',
 		'--color-secondary-100': '209 210 211',

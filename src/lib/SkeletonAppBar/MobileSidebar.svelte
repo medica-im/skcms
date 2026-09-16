@@ -12,7 +12,8 @@
 	import { faBlog, faCalendar } from '@fortawesome/free-solid-svg-icons';
 	import BookUser from '@lucide/svelte/icons/book-user';
 	import { menuNavCats } from '$var/variables.ts';
-	import { siteMenu, visibleItems, displayLabel } from '$lib/SiteMenu/siteMenu';
+	import { siteMenu, visibleItems } from '$lib/SiteMenu/siteMenu';
+	import ParentSiteTree from '$lib/SiteMenu/ParentSiteTree.svelte';
 	import { base } from '$app/paths';
 
 	let {
@@ -300,69 +301,16 @@
 		the two never appear together.
 	-->
 	{#if parentMenu.length}
-		<section class="p-4 pb-20 space-y-4 overflow-y-auto">
-			<nav class="list-nav">
-				<ul>
-					{#each parentMenu as item (item.label)}
-						<li>
-							{#if item.href}
-								<a
-									href={item.href}
-									rel={item.external ? 'noopener' : undefined}
-									class="min-h-11 flex items-center"
-									onclick={() => onListItemClick()}
-								>
-									<span class="flex-auto whitespace-normal">{displayLabel(item.label)}</span>
-								</a>
-							{:else}
-								<span class="block px-4 pt-2 text-sm font-semibold opacity-60">
-									{displayLabel(item.label)}
-								</span>
-							{/if}
-
-							{#if item.children?.length}
-								<ul class="pl-4">
-									{#each item.children as child (child.label)}
-										<li>
-											{#if child.href}
-												<a
-													href={child.href}
-													rel={child.external ? 'noopener' : undefined}
-													class="min-h-11 flex items-center"
-													onclick={() => onListItemClick()}
-												>
-													<span class="flex-auto whitespace-normal">{displayLabel(child.label)}</span>
-												</a>
-											{:else}
-												<span class="block px-4 pt-2 text-sm font-semibold opacity-60">
-													{displayLabel(child.label)}
-												</span>
-											{/if}
-											{#if child.children?.length}
-												<ul class="pl-4">
-													{#each child.children as grandchild (grandchild.label)}
-														<li>
-															<a
-																href={grandchild.href}
-																rel={grandchild.external ? 'noopener' : undefined}
-																class="min-h-11 flex items-center"
-																onclick={() => onListItemClick()}
-															>
-																<span class="flex-auto whitespace-normal"
-																	>{displayLabel(grandchild.label)}</span
-																>
-															</a>
-														</li>
-													{/each}
-												</ul>
-											{/if}
-										</li>
-									{/each}
-								</ul>
-							{/if}
-						</li>
-					{/each}
-				</ul>
+		<!--
+			A tree rather than a nav list. `list-nav` styles every row as a tappable
+			block, which made a heading — an entry with no page of its own — look
+			like a link that did nothing when tapped, and gave no sign of which rows
+			belonged under which. The tree draws the structure instead, and the
+			underline says what is a link.
+		-->
+		<section class="p-4 pb-20 overflow-y-auto">
+			<nav aria-label={siteMenu?.parentSite.name}>
+				<ParentSiteTree items={parentMenu} onNavigate={onListItemClick} />
 			</nav>
 		</section>
 	{/if}
