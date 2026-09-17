@@ -20,6 +20,16 @@ import { originFor, requireSite } from './sites';
  * a test that only visits an EHPAD proves nothing about the branch that broke.
  * The status code is the assertion because that is the failure — an SSR
  * exception is a 500, whatever the page would otherwise have looked like.
+ *
+ * The subjects are seeded, not discovered. This used to ask the API for any
+ * live entry of each kind and `test.skip` when it found none — so on a database
+ * without a care home the branch that broke was never visited, and the spec
+ * reported a skip, which reads like a pass. Worse, when an entry did exist the
+ * test measured whichever row the directory happened to contain that day.
+ *
+ * tests/fixtures/seed_care_homes.py plants one EHPAD and one USLD with fixed
+ * slugs and non-zero bed counts. Missing data now fails naming the seed to run,
+ * the same way requireSite fails naming the server to start.
  */
 
 const SITE = 'annuaire.medica.im';
@@ -32,33 +42,25 @@ test.beforeAll(async () => await requireSite(SITE));
 /** The care home slugs that get their own component in e/[slug]/+page.ts. */
 const CARE_HOME_SLUGS = ['ehpad', 'usld'] as const;
 
+/** The slugs seed_care_homes.py gives its entries. */
+const seededSlug = (kind: string) => `e2e-${kind}`;
+
 /**
- * One live entry per care home slug, discovered rather than hardcoded.
+ * Whether the seeded entry for this kind is actually in the directory.
  *
- * The directory is real data that changes, so naming an entry here would tie
- * the test to a row somebody may deactivate. Asking the API which entries exist
- * keeps it honest, and skips cleanly on a site that happens to have none of a
- * given type rather than failing for the wrong reason.
+ * Asked of the API rather than assumed, so a missing seed fails with the one
+ * instruction that fixes it instead of a 404 the reader has to interpret.
  */
-async function entrySlugFor(kind: string): Promise<string | null> {
-	let response: Response;
-	try {
-		response = await fetch(`${ORIGIN}/api/v2/entries`, {
-			headers: { Accept: 'application/json', 'Cache-Control': 'no-cache' }
-		});
-	} catch {
-		return null;
-	}
+async function seededEntryExists(kind: string): Promise<boolean> {
+	const response = await fetch(`${ORIGIN}/api/v2/entries`, {
+		headers: { Accept: 'application/json', 'Cache-Control': 'no-cache' }
+	});
 	expect(response.ok, `GET entries -> ${response.status}`).toBeTruthy();
 	const entries = (await response.json()) as {
 		entrySlug?: string;
 		active?: boolean;
-		effector_type?: { slug?: string };
 	}[];
-	const match = entries.find(
-		(e) => e.active && e.entrySlug && e.effector_type?.slug === kind
-	);
-	return match?.entrySlug ?? null;
+	return entries.some((e) => e.active && e.entrySlug === seededSlug(kind));
 }
 
 for (const kind of CARE_HOME_SLUGS) {
@@ -67,10 +69,18 @@ for (const kind of CARE_HOME_SLUGS) {
 		// not skipped past here: a skip is a test that did not run wearing the
 		// colour of one that passed, and this spec skipped on every full run for
 		// as long as only one site server was started.
-		const slug = await entrySlugFor(kind);
-		// A site with no entry of this kind is a fact about the data, not about
-		// the code, and there is nothing to assert against — but say so loudly.
-		test.skip(slug === null, `no active ${kind} entry on ${ORIGIN}`);
+		const slug = seededSlug(kind);
+
+		// Not a skip: absent data is a fixture that has not been run, and a skip
+		// wearing the colour of a pass is what hid this branch for so long.
+		expect(
+			await seededEntryExists(kind),
+			`no active ${kind} entry "${slug}" on ${ORIGIN}.\n\n` +
+				`The care home subjects are seeded, not discovered. Plant them with:\n` +
+				`    cd ../backend && docker compose -f docker-compose-development.yml \\\n` +
+				`      exec -T -e DIRECTORY=opale_sud django python manage.py shell \\\n` +
+				`      < ../skcms/tests/fixtures/seed_care_homes.py\n`
+		).toBeTruthy();
 
 		// The status of the *final* response: this origin redirects to its
 		// canonical host, and reading the 301 would tell us nothing about
