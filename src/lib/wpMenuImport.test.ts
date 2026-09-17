@@ -150,6 +150,43 @@ describe('scraping the parent site menu', () => {
 		// and in again would be a round trip for a page we already serve.
 		expect(find(items, 'ANNUAIRE')).toMatchObject({ href: '/annuaire/', external: false });
 	});
+
+	it('drops the parent site\u2019s hostname, keeping the path', () => {
+		// One skvar branch serves dev *and* staging, so a hostname written into
+		// the menu sends one of them to the other: staging.unipa.fr linked every
+		// menu entry, and the logo, to dev.unipa.fr. The app is proxied under the
+		// parent's own domain, so a bare path resolves against whichever host is
+		// being read and both environments stay inside themselves.
+		//
+		// Every other per-environment address already works this way — no other
+		// skvar branch hardcodes a dev or staging hostname.
+		const { items } = runImport(NAV_HTML);
+		const hrefs: string[] = [];
+		const walk = (list: any[]) =>
+			list.forEach((i) => {
+				if (i.href) hrefs.push(i.href);
+				walk(i.children ?? []);
+			});
+		walk(items);
+
+		expect(hrefs.length).toBeGreaterThan(0);
+		expect(hrefs.filter((h) => /^https?:\/\//.test(h))).toEqual([]);
+		expect(find(items, 'CONTACT').href).toBe('/contact/');
+	});
+
+	it('keeps a link to another domain absolute', () => {
+		// Host-relative only for the parent site itself. A menu entry pointing
+		// somewhere else entirely still needs its host, and is still external.
+		const html = NAV_HTML.replace(
+			'href="https://dev.unipa.fr/contact/"',
+			'href="https://www.legifrance.gouv.fr/some-decree"'
+		);
+		const { items } = runImport(html);
+		expect(find(items, 'CONTACT')).toMatchObject({
+			href: 'https://www.legifrance.gouv.fr/some-decree',
+			external: true
+		});
+	});
 });
 
 describe('re-running the import over a curated file', () => {

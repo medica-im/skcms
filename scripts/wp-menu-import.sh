@@ -45,7 +45,7 @@ case "$1" in
 		BASE_PATH="/annuaire"
 		SITE_NAME="UNIPA"
 		SITE_LONG_NAME="Union Nationale des Infirmier·es en Pratique Avancée"
-		LOGO="https://dev.unipa.fr/wp-content/uploads/2025/06/unipa-logo-2025.png"
+		LOGO="/wp-content/uploads/2025/06/unipa-logo-2025.png"
 		LOGO_ALT="UNIPA — Union Nationale des Infirmier·es en Pratique Avancée"
 		# The Skeleton theme matching this site, offered in the theme picker.
 		# Written here so the app bar never has to name a tenant's theme.
@@ -124,7 +124,7 @@ export const siteMenu: SiteMenu = {
 	parentSite: {
 		name: '$SITE_NAME',
 		longName: '$SITE_LONG_NAME',
-		url: '$SITE_URL',
+		url: '/',
 		logo: '$LOGO',
 		logoAlt: '$LOGO_ALT',
 		theme: '$THEME',
@@ -135,7 +135,7 @@ export const siteMenu: SiteMenu = {
 		// The directory's own /sites page is not advertised on this site.
 		showSites: false,
 		// Contact is the parent site's — their address, not ours.
-		contactHref: '$SITE_URL/contact/',
+		contactHref: '/contact/',
 		// Legal stays ours: this app is hosted by a different provider than the
 		// parent site, so it owes its own mentions légales.
 		legalHref: 'mentions-legales'

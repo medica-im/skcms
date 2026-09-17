@@ -148,6 +148,21 @@ def normalise(items, site_url, base_path):
         parsed = urlparse(href)
         host = parsed.netloc
 
+        # The parent site's own hostname is dropped, keeping the path.
+        #
+        # One skvar branch serves dev and staging both, so a hostname written
+        # into the menu sends one environment to the other — staging.unipa.fr
+        # linked every entry, and the logo, to dev.unipa.fr. This app is proxied
+        # under the parent's own domain, so a bare path resolves against
+        # whichever host is being read and each environment stays inside itself.
+        #
+        # Only for the parent: a link to another domain keeps its host, since
+        # there is nothing for a relative path to resolve against.
+        if host and host == site_host:
+            href = parsed.path or "/"
+            parsed = urlparse(href)
+            host = ""
+
         if not href:
             # A heading that only opens a submenu. It goes nowhere, so it is
             # neither internal nor external.
@@ -188,11 +203,19 @@ def merge(scraped, existing):
     purpose — renaming a heading would stop it matching itself next time — and
     an empty string cannot key a dictionary shared by all of them.
     """
+    # Keyed on the path, so curation written against an absolute href still
+    # matches once the host is stripped. The committed file predates that change
+    # and every entry in it carries the hostname; without this the first re-run
+    # would treat all of them as new and quietly undo every hidden item and
+    # every renamed label.
+    def key(href):
+        return urlparse(href).path or href
+
     by_href = {}
     headings = []
     for item in existing or []:
         if item.get("href"):
-            by_href[item["href"]] = item
+            by_href[key(item["href"])] = item
         else:
             headings.append(item)
 
@@ -201,7 +224,7 @@ def merge(scraped, existing):
 
     for item in scraped:
         if item["href"]:
-            prior = by_href.get(item["href"])
+            prior = by_href.get(key(item["href"]))
         else:
             prior = headings[heading_index] if heading_index < len(headings) else None
             heading_index += 1

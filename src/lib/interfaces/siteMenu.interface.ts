@@ -59,9 +59,15 @@ export interface ParentSite {
 	 * expand, and `name` is used as it stands.
 	 */
 	longName?: string;
-	/** Origin of the parent site. Where the logo links to. */
+	/**
+	 * Where the logo links to: the parent site's own home.
+	 *
+	 * Host-relative (`/`), like every href here. This app is proxied under the
+	 * parent's domain, and one skvar branch serves several environments — an
+	 * absolute host sent staging's visitors to dev.
+	 */
 	url: string;
-	/** Absolute URL of the parent site's logo. */
+	/** The parent site's logo, host-relative for the same reason as `url`. */
 	logo: string;
 	logoAlt: string;
 	/**
@@ -85,7 +91,10 @@ export interface SiteMenuFooter {
 	 * still resolves, it is simply not advertised.
 	 */
 	showSites: boolean;
-	/** Contact belongs to the parent site — it is their address, not ours. */
+	/**
+	 * Contact belongs to the parent site — it is their address, not ours.
+	 * Host-relative, like `url`.
+	 */
 	contactHref: string;
 	/**
 	 * Legal notice stays OURS even though everything around it is theirs: this
