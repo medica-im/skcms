@@ -4,6 +4,22 @@ import { authReq, type Method } from '$lib/utils/request.ts';
 import { variables } from '$lib/utils/constants.ts';
 import type { User } from '$lib/interfaces/v2/user.ts';
 
+/**
+ * One user, or `null` if this site has never heard of them.
+ *
+ * The two failure kinds are kept apart on purpose, because collapsing them is
+ * what hid an empty owner panel for so long. This used to log and fall through
+ * on *any* non-OK response, returning `undefined`: a 401 was then
+ * indistinguishable from "no such user", and a caller's `if (user)` dropped the
+ * row without anything reaching an error path. Nothing on screen, nothing in
+ * the catch, and a console line no visitor reads.
+ *
+ *   - 404 is a fact about the data, not a failure: somebody may have been
+ *     deleted while an entry still names them. It comes back as `null` so a
+ *     caller resolving a list can skip that one and keep the rest.
+ *   - anything else — 401, 403, a proxy 502 — means the answer is unknown
+ *     rather than empty, so it throws and the caller has to say so.
+ */
 export const getUser = query(z.string(), async (uid) => {
 	const { cookies } = getRequestEvent();
 	const url = `${variables.BASE_URI}/api/v2/users/${uid}`;
@@ -12,7 +28,11 @@ export const getUser = query(z.string(), async (uid) => {
 	if (response.ok) {
 		return await response.json() as User;
 	}
+	if (response.status === 404) {
+		return null;
+	}
 	console.error(`Failed to fetch user ${uid}: ${response.status} ${response.statusText}`);
+	throw new Error(`Failed to fetch user ${uid}: ${response.status} ${response.statusText}`);
 });
 
 export const getUsers = query(async () => {

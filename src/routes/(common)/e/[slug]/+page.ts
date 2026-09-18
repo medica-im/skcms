@@ -17,6 +17,11 @@ export const load: PageLoad = async ({ fetch, params, depends, parent, data, url
     let component;
     let fullentry: EntryFull | undefined;
     let memberships: Entry[] | null;
+    // Always the server load's answer, on both branches below. Resolving the
+    // owner/creator users needs the request's cookies, which exist only on the
+    // server, and the client-side refetch of the entry does not change who owns
+    // it. See resolveOwnerCreator for why this is not a remote query.
+    const users = data?.users ?? [];
     if (browser && import.meta.env.PROD) {
         const url = `${variables.BASE_URI}/api/v2/fullentries/slug/${params.slug}`;
         const res = await fetch(url, {
@@ -43,7 +48,8 @@ export const load: PageLoad = async ({ fetch, params, depends, parent, data, url
         componentData = {
             fullentry: fullentry,
             careHomeData: careHomeData,
-            memberships: memberships
+            memberships: memberships,
+            users: users
         };
         if (fullentry.effector_type.slug == "ehpad") {
             component = CareHomePage
@@ -54,7 +60,8 @@ export const load: PageLoad = async ({ fetch, params, depends, parent, data, url
         component = DefaultComponent
         componentData = {
             fullentry: fullentry,
-            memberships: memberships
+            memberships: memberships,
+            users: users
         };
     }
     const canonicalUrl = `${variables.BASE_URI}/e/${params.slug}`;

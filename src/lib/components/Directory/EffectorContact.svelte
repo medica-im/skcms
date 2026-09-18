@@ -51,11 +51,14 @@
 	import AccessControl from '$lib/Web/Entry/AccessControl.svelte';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 	import type { EntryFull } from '$lib/store/directoryStoreInterface';
+	import type { UserWithRoles } from '$lib/Web/Users/ownerCreator.ts';
 	let { data } = $props();
 	const r = $derived(userRoles(page.data?.user?.role));
 
 	let fullentry: EntryFull = $derived(data.fullentry);
 	let memberships: Entry[] | null = $derived(data.memberships);
+	// Resolved by the page's server load, not by the panel that shows them.
+	let users: UserWithRoles[] = $derived(data.users ?? []);
 	setEntryUid(data.fullentry.uid);
 	setEffectorUid(data.fullentry.effector_uid);
 	setEditMode();
@@ -285,7 +288,7 @@
 		<AccessControl access={fullentry.access} editMode={$editMode} />
 	{/if}
 	{#if ['superuser', 'administrator'].includes(page.data?.user?.role)}
-		<CreatorOwner owner={fullentry.owner} creator={fullentry.creator} />
+		<CreatorOwner owner={fullentry.owner} creator={fullentry.creator} {users} />
 		<RedeemEmail data={fullentry} editMode={$editMode} />
 		<EntryDirectories data={fullentry} editMode={$editMode} />
 	{/if}

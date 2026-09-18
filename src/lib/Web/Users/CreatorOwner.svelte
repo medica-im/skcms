@@ -1,71 +1,66 @@
 <script lang="ts">
-	import { getUser } from '../../../user.remote.ts';
 	import Fa from 'svelte-fa';
 	import { faUser, faCheck, faEye, faExclamationTriangle, faUserShield } from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
 	import type { User } from '$lib/interfaces/v2/user.ts';
 	import type { Role } from '$lib/interfaces/v2/invitee.ts';
+	import type { UserWithRoles } from './ownerCreator.ts';
 	import { getEditMode } from '$lib/components/Directory/context';
 	import RoleBadge from '$lib/RoleBadge.svelte';
 	import PatchOwnerModal from './PatchOwnerModal.svelte';
 	import { base } from '$app/paths';
 
-	let { owner, creator }: { owner: string[] | null; creator: string[] | null } = $props();
+	/**
+	 * The owner / creator panel, told who to show rather than finding out.
+	 *
+	 * `users` arrives already resolved from the entry page's server load
+	 * (resolveOwnerCreator, called from +page.server.ts). This component used to
+	 * resolve the uids itself, awaiting the `getUser` remote query once per uid,
+	 * and that could not work on a server-rendered page: `{#await}` renders its
+	 * pending branch during SSR and never resolves there, so the html shipped
+	 * "Chargement..." and the rows depended on a second client-side round trip
+	 * after hydration. When that round trip failed the panel rendered "Aucun
+	 * utilisateur associé" — indistinguishable from an entry that genuinely has
+	 * nobody, which is how an empty panel went unexplained for so long.
+	 *
+	 * `owner` and `creator` are still taken, as lists of uids, even though the
+	 * rows already carry `isOwner`/`isCreator`. They answer a question the rows
+	 * cannot: *whether the entry names anybody in that capacity at all*. A
+	 * lookup that 404s drops somebody from `users` while the entry still names
+	 * them, so counting rows would report "no owner" for an entry that has one
+	 * the API would not return — the same class of mistake as the bug this panel
+	 * was rewritten for, where an empty list rendered as if it meant nobody.
+	 * `owner` drives the missing-owner warning below and the editing modal;
+	 * `creator` is kept alongside it so both halves stay equally trustworthy.
+	 */
+	let {
+		owner,
+		creator,
+		users = []
+	}: {
+		owner: string[] | null;
+		creator: string[] | null;
+		users?: UserWithRoles[];
+	} = $props();
 	const editMode = getEditMode();
-
-	interface UserWithRoles extends User {
-		isOwner: boolean;
-		isCreator: boolean;
-	}
 
 	function getPrimaryRole(user: User): Role {
 		return user.access.length > 0 ? (user.access[0].role as Role) : ('anonymous' as Role);
 	}
 
 	/**
-	 * The people named by either list, resolved.
+	 * Uids the entry names that no row accounts for.
 	 *
-	 * A `$derived` promise awaited in the markup, rather than an `$effect` that
-	 * copied users into `$state`. That was the bug behind an entry showing
-	 * "aucun utilisateur associé" while it had an owner: the effect read the
-	 * `getUser` query once and assigned the result, so the rows never followed a
-	 * change in the props — adding an owner upstream refreshed the query and
-	 * handed this panel new uids, and the panel kept the answer it had copied.
-	 *
-	 * Deriving it means the framework owns the lifecycle: new props produce a new
-	 * promise, `{#await}` renders whichever state it is in, and there is no
-	 * second copy of the data to go stale. It is also the pattern the rest of the
-	 * app already uses on a remote query — see Effectors.svelte,
-	 * DisplayFacility.svelte, HeatwaveAlert.svelte.
+	 * The load skips a uid whose lookup 404s — somebody deleted while an entry
+	 * still names them — and without this the panel would render that as a
+	 * shorter list and say nothing, which is the failure mode that hid the
+	 * original bug. Counted from both lists, so an unresolvable creator is as
+	 * visible as an unresolvable owner.
 	 */
-	const users = $derived.by(async () => {
-		const ownerUids = owner ?? [];
-		const creatorUids = creator ?? [];
-		// One lookup per person, not per mention: whoever created an entry
-		// usually still owns it, and both lists then name the same uid.
-		const allUids = [...new Set([...ownerUids, ...creatorUids])];
-
-		const resolved = await Promise.all(
-			allUids.map(async (uid) => {
-				try {
-					const user = await getUser(uid);
-					if (!user) return null;
-					return {
-						...user,
-						isOwner: ownerUids.includes(uid),
-						isCreator: creatorUids.includes(uid)
-					} satisfies UserWithRoles;
-				} catch (error) {
-					// One unresolvable uid must not take the rest of the list
-					// down with it — a user may have been deleted while still
-					// named on an entry.
-					console.error(`Failed to fetch user ${uid}:`, error);
-					return null;
-				}
-			})
-		);
-
-		return resolved.filter((u): u is UserWithRoles => u !== null);
+	const unresolved = $derived.by(() => {
+		const named = [...new Set([...(owner ?? []), ...(creator ?? [])])];
+		const shown = new Set(users.map((u) => u.uid));
+		return named.filter((uid) => !shown.has(uid));
 	});
 
 </script>
@@ -88,16 +83,24 @@
 		</div>
 	{/if}
 
+	{#if unresolved.length}
+		<!--
+			Somebody the entry names but the API would not return. Said out loud
+			rather than left as a missing row: a silently shorter list is what
+			made the original empty panel unreadable.
+		-->
+		<div class="flex items-center gap-2 p-2 variant-ghost-warning rounded-lg">
+			<Fa icon={faExclamationTriangle} class="text-warning-500" />
+			<span class="text-warning-700">{m.ERROR_LOADING_USERS()}</span>
+		</div>
+	{/if}
+
 	<!--
-		Awaited here rather than assigned in an effect, so the rendered state
-		follows the promise instead of a copy of its result. The same shape as
-		every other remote-query consumer in the app (Effectors.svelte,
-		DisplayFacility.svelte, HeatwaveAlert.svelte).
+		No loading state and no await: the rows are resolved by the page's server
+		load and are in the server-rendered html, so there is nothing to wait for
+		on either side.
 	-->
-	{#await users}
-		<div class="p-2 text-surface-500">Chargement...</div>
-	{:then resolved}
-		{#if resolved.length > 0}
+	{#if users.length > 0}
 		<div class="flex items-start p-1">
 			<div class="w-9"></div>
 			<div class="w-full">
@@ -114,7 +117,7 @@
 				</div>
 
 				<div class="grid grid-cols-1 gap-2">
-					{#each resolved as user (user.uid)}
+					{#each users as user (user.uid)}
 						{@const role = getPrimaryRole(user)}
 						<div
 							class="grid grid-cols-1 sm:grid-cols-[1fr_1.5fr_120px_80px_80px_36px] items-center gap-2 p-2 variant-soft-surface hover:variant-ghost-surface"
@@ -168,19 +171,14 @@
 				</div>
 			</div>
 		</div>
-		{:else}
-			<div class="p-2 text-surface-500">Aucun utilisateur associé.</div>
-		{/if}
-	{:catch}
+	{:else}
 		<!--
-			A failure now says so. The previous version could not reach here:
-			every lookup was caught per-uid and dropped, so an unauthorised or
-			failing request rendered the same "no users" line as an entry that
-			genuinely had none — which is how this went unnoticed.
+			Reached only when the entry really names nobody. A lookup that fails
+			for any reason other than 404 throws in the load now, so the page's
+			own error boundary reports it — this line can no longer stand in for
+			"something went wrong", which is exactly what made the original bug
+			invisible.
 		-->
-		<div class="flex items-center gap-2 p-2 variant-ghost-error rounded-lg">
-			<Fa icon={faExclamationTriangle} class="text-error-500" />
-			<span>{m.ERROR_LOADING_USERS()}</span>
-		</div>
-	{/await}
+		<div class="p-2 text-surface-500">Aucun utilisateur associé.</div>
+	{/if}
 </div>
