@@ -51,8 +51,13 @@ const name = (path: string) => relative(WEB, path);
  * was the first attempt and it was unreliable in both directions:
  *
  *   - it matched `from '...remote'` on any import, so CreatorOwner.svelte
- *     counted although `getUser` is a read and its checkmarks mean "this user
- *     owns the entry";
+ *     counted. That one is subtler than it first looked: the component does
+ *     reach a write, rendering PatchOwnerModal in edit mode, which patches the
+ *     entry's owner. But the confirmation belongs in the modal — where the
+ *     write happens and the result lives — not in the list around it, whose own
+ *     checkmarks mean "this user is the owner" and are a data state rather than
+ *     an outcome. Following the result puts the rule in the right place;
+ *     following the import put it on the wrapper;
  *   - tightening that to a call (`patchCommand(`, `use:enhance`) then missed
  *     every widget using a remote *form* — `updateForm` submitted via
  *     `await submit()` names no pattern above. That hid 24 of 50 components,
