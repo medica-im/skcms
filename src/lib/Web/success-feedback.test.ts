@@ -44,23 +44,29 @@ const read = (path: string) => readFileSync(path, 'utf8');
 const name = (path: string) => relative(WEB, path);
 
 /**
- * Widgets that save something.
+ * Widgets that report the outcome of a write.
  *
- * Detected by how they submit rather than by filename: `Update*`/`Create*` is a
- * naming habit, not a rule, and a widget that saves under some other name still
- * owes its reader the same confirmation.
+ * Keyed on the widget holding a `result` — the thing it would use to tell the
+ * reader what happened — rather than on how it submits. Detecting the submit
+ * was the first attempt and it was unreliable in both directions:
  *
- * A *call* to a remote function, not an import from `.remote` — importing
- * `getUser` from user.remote.ts is a read. Matching the module path counted
- * CreatorOwner.svelte, which only displays who owns an entry, and would have
- * had it grow a save confirmation for a save it never performs.
+ *   - it matched `from '...remote'` on any import, so CreatorOwner.svelte
+ *     counted although `getUser` is a read and its checkmarks mean "this user
+ *     owns the entry";
+ *   - tightening that to a call (`patchCommand(`, `use:enhance`) then missed
+ *     every widget using a remote *form* — `updateForm` submitted via
+ *     `await submit()` names no pattern above. That hid 24 of 50 components,
+ *     websites, phones, emails, social media and the association panels among
+ *     them. They all happened to carry the badge, so the suite was green on
+ *     luck rather than on coverage, which is worse than being red.
+ *
+ * A widget that writes something needs somewhere to put the outcome, and in
+ * this codebase that is a `FormResult`. So that is what is counted: it does not
+ * care how the write is dispatched, and a new mechanism inherits the rule
+ * instead of escaping it.
  */
-function saves(source: string): boolean {
-	return (
-		/use:enhance/.test(source) ||
-		/\b(?:patch|post|put|delete|create|update|save|submit)[A-Za-z]*Command\s*\(/i.test(source) ||
-		/\b(?:command|form)\(/.test(source)
-	);
+function reportsOutcome(source: string): boolean {
+	return /FormResult|result\s*=\s*\$state|result\??\.success/.test(source);
 }
 
 /** The agreed success affordance. */
@@ -82,13 +88,16 @@ const EXEMPT: Record<string, string> = {
 };
 
 describe('saving something says so', () => {
-	const saving = components().filter((path) => saves(read(path)));
+	const saving = components().filter((path) => reportsOutcome(read(path)));
 
 	it('finds the widgets that save, so this test cannot quietly cover nothing', () => {
-		// A guard on the detector above: if `saves()` stops matching — a new
-		// submit mechanism, a rename — every assertion below would pass over an
-		// empty list and report green.
-		expect(saving.length).toBeGreaterThan(20);
+		// A guard on the detector above: if it stops matching — a rename, a new
+		// way of holding the outcome — every assertion below would pass over an
+		// empty list and report green. The floor is set near the real count (55
+		// at the time of writing) rather than at some token number, so losing
+		// half of them fails here instead of passing quietly, which is exactly
+		// what the previous detector did.
+		expect(saving.length).toBeGreaterThan(45);
 	});
 
 	it('shows the same success badge in every one', () => {
