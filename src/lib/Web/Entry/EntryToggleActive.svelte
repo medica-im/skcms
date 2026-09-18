@@ -80,7 +80,15 @@
 			</div>
 			<div class="flex flex-wrap gap-4 justify-end">
 				<div class="flex gap-2 items-center">
-					{#if result && !result?.success}
+					<!--
+						Deactivating or restoring an entry is the most consequential
+						thing this page does, and it used to report only failure —
+						so the reader who succeeded saw nothing and could not tell
+						the click from a no-op. Same badge as every other widget.
+					-->
+					{#if result?.success}
+						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
+					{:else if result}
 						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span
 						>{result.text}
 					{/if}

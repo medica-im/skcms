@@ -105,7 +105,17 @@
 			<p class="text-sm opacity-70">{selectedAccessDescription}</p>
 			<div class="flex flex-wrap gap-4 justify-end">
 				<div class="flex gap-2 items-center">
-					{#if result && !result?.success}
+					<!--
+						Success said as plainly as failure. This widget saves on
+						its own, with no page reload to confirm it, and used to
+						render only the error branch — so a reader who changed
+						the access level saw nothing at all when it worked and
+						had to guess whether it had. The badge is the one every
+						other editing widget here uses.
+					-->
+					{#if result?.success}
+						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
+					{:else if result}
 						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span>
 						{result.text}
 					{/if}
