@@ -18,38 +18,56 @@
 		isCreator: boolean;
 	}
 
-	let users: UserWithRoles[] = $state([]);
-	let loading: boolean = $state(true);
-
 	function getPrimaryRole(user: User): Role {
 		return user.access.length > 0 ? (user.access[0].role as Role) : ('anonymous' as Role);
 	}
 
-	$effect(() => {
+	/**
+	 * The people named by either list, resolved.
+	 *
+	 * A `$derived` promise awaited in the markup, rather than an `$effect` that
+	 * copied users into `$state`. That was the bug behind an entry showing
+	 * "aucun utilisateur associé" while it had an owner: the effect read the
+	 * `getUser` query once and assigned the result, so the rows never followed a
+	 * change in the props — adding an owner upstream refreshed the query and
+	 * handed this panel new uids, and the panel kept the answer it had copied.
+	 *
+	 * Deriving it means the framework owns the lifecycle: new props produce a new
+	 * promise, `{#await}` renders whichever state it is in, and there is no
+	 * second copy of the data to go stale. It is also the pattern the rest of the
+	 * app already uses on a remote query — see Effectors.svelte,
+	 * DisplayFacility.svelte, HeatwaveAlert.svelte.
+	 */
+	const users = $derived.by(async () => {
 		const ownerUids = owner ?? [];
 		const creatorUids = creator ?? [];
+		// One lookup per person, not per mention: whoever created an entry
+		// usually still owns it, and both lists then name the same uid.
 		const allUids = [...new Set([...ownerUids, ...creatorUids])];
 
-		(async () => {
-			const fetchedUsers: UserWithRoles[] = [];
-			for (const uid of allUids) {
+		const resolved = await Promise.all(
+			allUids.map(async (uid) => {
 				try {
 					const user = await getUser(uid);
-					if (user) {
-						fetchedUsers.push({
-							...user,
-							isOwner: ownerUids.includes(uid),
-							isCreator: creatorUids.includes(uid)
-						});
-					}
+					if (!user) return null;
+					return {
+						...user,
+						isOwner: ownerUids.includes(uid),
+						isCreator: creatorUids.includes(uid)
+					} satisfies UserWithRoles;
 				} catch (error) {
+					// One unresolvable uid must not take the rest of the list
+					// down with it — a user may have been deleted while still
+					// named on an entry.
 					console.error(`Failed to fetch user ${uid}:`, error);
+					return null;
 				}
-			}
-			users = fetchedUsers;
-			loading = false;
-		})();
+			})
+		);
+
+		return resolved.filter((u): u is UserWithRoles => u !== null);
 	});
+
 </script>
 
 <div class="d-flex justify-content-between align-items-start">
@@ -70,9 +88,16 @@
 		</div>
 	{/if}
 
-	{#if loading}
+	<!--
+		Awaited here rather than assigned in an effect, so the rendered state
+		follows the promise instead of a copy of its result. The same shape as
+		every other remote-query consumer in the app (Effectors.svelte,
+		DisplayFacility.svelte, HeatwaveAlert.svelte).
+	-->
+	{#await users}
 		<div class="p-2 text-surface-500">Chargement...</div>
-	{:else if users.length > 0}
+	{:then resolved}
+		{#if resolved.length > 0}
 		<div class="flex items-start p-1">
 			<div class="w-9"></div>
 			<div class="w-full">
@@ -89,7 +114,7 @@
 				</div>
 
 				<div class="grid grid-cols-1 gap-2">
-					{#each users as user (user.uid)}
+					{#each resolved as user (user.uid)}
 						{@const role = getPrimaryRole(user)}
 						<div
 							class="grid grid-cols-1 sm:grid-cols-[1fr_1.5fr_120px_80px_80px_36px] items-center gap-2 p-2 variant-soft-surface hover:variant-ghost-surface"
@@ -143,7 +168,19 @@
 				</div>
 			</div>
 		</div>
-	{:else}
-		<div class="p-2 text-surface-500">Aucun utilisateur associé.</div>
-	{/if}
+		{:else}
+			<div class="p-2 text-surface-500">Aucun utilisateur associé.</div>
+		{/if}
+	{:catch}
+		<!--
+			A failure now says so. The previous version could not reach here:
+			every lookup was caught per-uid and dropped, so an unauthorised or
+			failing request rendered the same "no users" line as an entry that
+			genuinely had none — which is how this went unnoticed.
+		-->
+		<div class="flex items-center gap-2 p-2 variant-ghost-error rounded-lg">
+			<Fa icon={faExclamationTriangle} class="text-error-500" />
+			<span>{m.ERROR_LOADING_USERS()}</span>
+		</div>
+	{/await}
 </div>

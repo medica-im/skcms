@@ -214,6 +214,7 @@
   "ERROR404_HOME": "Go Home",
   "ERROR404_OOPS": "Oops!",
   "ERROR404_PAGENOTFOUND": "Page not found.",
+  "ERROR_LOADING_USERS": "Could not load the associated users.",
   "EXIT_FULLSCREEN": "Exit fullscreen",
   "FACILITIES_ALL": "All facilities",
   "FACILITY": [

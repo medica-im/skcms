@@ -214,6 +214,7 @@
   "ERROR404_HOME": "Retourner à l'accueil",
   "ERROR404_OOPS": "Oups!",
   "ERROR404_PAGENOTFOUND": "Page non trouvée.",
+  "ERROR_LOADING_USERS": "Impossible de charger les utilisateurs associés.",
   "EXIT_FULLSCREEN": "Quitter le plein écran",
   "FACILITIES_ALL": "Tous les établissements",
   "FACILITY": [
