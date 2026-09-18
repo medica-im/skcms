@@ -199,17 +199,25 @@ export const SITE_CONTEXTS: Record<SiteName, { context: string; port: number } |
  */
 export async function requireSite(site: SiteName): Promise<void> {
 	const origin = originFor(site);
+	const budgetMs = 15_000;
 	let status: number | undefined;
 	let failure = '';
+	let timedOut = false;
 	try {
 		const response = await fetch(`${origin}/`, {
 			redirect: 'follow',
-			signal: AbortSignal.timeout(15_000)
+			signal: AbortSignal.timeout(budgetMs)
 		});
 		status = response.status;
 		if (response.ok) return;
 	} catch (error) {
 		failure = error instanceof Error ? error.message : String(error);
+		// A timeout is not evidence that nothing is listening, so it must not be
+		// reported as one. Matched on the name AbortSignal.timeout rejects with,
+		// with the message as a fallback for runtimes that only set that.
+		timedOut =
+			(error instanceof Error && error.name === 'TimeoutError') ||
+			/aborted due to timeout|timed? ?out/i.test(failure);
 	}
 
 	const where = SITE_CONTEXTS[site];
@@ -218,12 +226,40 @@ export async function requireSite(site: SiteName): Promise<void> {
 			`(nginx routes ${origin} to :${where.port}; one site server runs at a time.)`
 		: `No dev.yml context is recorded for this site in tests/sites/sites.ts.`;
 
+	const cannotMeasure =
+		`These specs are about ${site} in particular and cannot be measured ` +
+		`against another tenant, so they fail here rather than reporting a ` +
+		`layout regression on a page that was never rendered.`;
+
+	// Two explanations, and the guard cannot tell them apart from one request —
+	// so it names both rather than asserting the wrong one. Claiming "is not
+	// serving" here once sent somebody to restart a server that was up and
+	// answering; the real cause was a loaded box, and the specs passed on retry.
+	if (timedOut) {
+		const check = where
+			// -L because the guard follows redirects too: without it this prints
+			// the 301 these origins answer with, which reads as a failure when
+			// the server is fine.
+			? `Check whether it is up and how fast it answers:\n` +
+				`    curl -sL -o /dev/null -w '%{http_code} in %{time_total}s\\n' ${origin}/\n` +
+				`    (that origin is served from :${where.port}.)\n\n` +
+				`If nothing is listening, start it with:\n` +
+				`    ./scripts/dev.sh --restart ${where.context}`
+			: start;
+
+		throw new Error(
+			`${origin} timed out after ${budgetMs / 1000}s (${failure}).\n\n` +
+				`The server may be up but starved rather than absent: this box runs ` +
+				`the e2e worker servers and the site servers together, and under that ` +
+				`load a healthy server can miss this budget. Playwright will mark such ` +
+				`a failure flaky if it passes on retry.\n\n${cannotMeasure}\n\n${check}`
+		);
+	}
+
 	throw new Error(
 		`${origin} is not serving ${site} ` +
 			`(${status !== undefined ? `HTTP ${status}` : failure}).\n\n` +
-			`These specs are about ${site} in particular and cannot be measured ` +
-			`against another tenant, so they fail here rather than reporting a ` +
-			`layout regression on a page that was never rendered.\n\n${start}`
+			`${cannotMeasure}\n\n${start}`
 	);
 }
 
