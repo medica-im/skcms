@@ -113,3 +113,82 @@ describe('the site guard, on why a site could not be measured', () => {
 		expect(message).toContain('./scripts/dev.sh --restart annuaire');
 	});
 });
+
+/**
+ * A cold start is not an outage.
+ *
+ * The guard is the FIRST request anything makes to that dev server, and a Vite
+ * dev server compiles its SSR module graph on demand. Measured on this box
+ * with nothing else running: **4.8s cold, then 0.2s warm**. Under a full run —
+ * eight worker servers, eight browsers and a 12-core machine — that first
+ * compile is several times slower, which is how a healthy server missed a 15s
+ * budget and the carehome specs failed as "not serving".
+ *
+ * They then passed on retry, every time, because the retry found a warm
+ * server. A flake that is guaranteed to pass the second time is not measuring
+ * anything; it is paying a one-time cost in the wrong place.
+ *
+ * So one timeout is no longer a verdict: the guard tries again, and only a
+ * second failure is reported. Raising the budget instead would make every
+ * genuine outage take twice as long to report, which is the case that actually
+ * needs to be fast.
+ */
+describe('the site guard, on a cold server', () => {
+	it('retries once when the first request times out', async () => {
+		// The carehome failure exactly: slow first request, fine afterwards.
+		let calls = 0;
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => {
+				calls++;
+				if (calls === 1) throw timeoutError();
+				return new Response('', { status: 200 });
+			})
+		);
+
+		await expect(requireSite(SITE)).resolves.toBeUndefined();
+		expect(calls, 'should have tried twice').toBe(2);
+	});
+
+	it('still refuses when it times out every time', async () => {
+		// A server that never answers is a real failure and must still be one.
+		let calls = 0;
+		const message = await guardMessage(async () => {
+			calls++;
+			throw timeoutError();
+		});
+
+		expect(message).toMatch(/timed out/i);
+		expect(calls, 'should not retry forever').toBe(2);
+	});
+
+	it('does not retry a bad status, which is an answer', async () => {
+		// 502 means nginx replied: the port is dead and a second identical
+		// request only wastes the budget. Retrying is for no answer at all.
+		let calls = 0;
+		const message = await guardMessage(async () => {
+			calls++;
+			return new Response('', { status: 502 });
+		});
+
+		expect(message).toContain('HTTP 502');
+		expect(calls).toBe(1);
+	});
+
+	it('retries a connection refusal too, since a starting server refuses', async () => {
+		// `dev.sh --restart` has a window where nothing is listening yet, and a
+		// guard that ran inside it reported the site as unserved.
+		let calls = 0;
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => {
+				calls++;
+				if (calls === 1) throw new Error('fetch failed');
+				return new Response('', { status: 200 });
+			})
+		);
+
+		await expect(requireSite(SITE)).resolves.toBeUndefined();
+		expect(calls).toBe(2);
+	});
+});

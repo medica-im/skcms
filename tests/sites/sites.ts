@@ -203,21 +203,42 @@ export async function requireSite(site: SiteName): Promise<void> {
 	let status: number | undefined;
 	let failure = '';
 	let timedOut = false;
-	try {
-		const response = await fetch(`${origin}/`, {
-			redirect: 'follow',
-			signal: AbortSignal.timeout(budgetMs)
-		});
-		status = response.status;
-		if (response.ok) return;
-	} catch (error) {
-		failure = error instanceof Error ? error.message : String(error);
-		// A timeout is not evidence that nothing is listening, so it must not be
-		// reported as one. Matched on the name AbortSignal.timeout rejects with,
-		// with the message as a fallback for runtimes that only set that.
-		timedOut =
-			(error instanceof Error && error.name === 'TimeoutError') ||
-			/aborted due to timeout|timed? ?out/i.test(failure);
+
+	// Twice, because the first request to a dev server pays for the SSR module
+	// graph being compiled on demand. Measured on this box with nothing else
+	// running: 4.8s cold, 0.2s warm — and under a full run (eight worker
+	// servers, eight browsers, twelve cores) that first compile is several
+	// times slower, which is how a healthy server missed this budget and the
+	// carehome specs failed as "not serving". They passed on retry every time,
+	// because the retry found a warm server.
+	//
+	// Only when there was NO answer. A status means the server replied and a
+	// second identical request would only spend the budget again — nginx's 502
+	// for a dead port is an answer, and a fast failure there is the point.
+	//
+	// A retry rather than a bigger budget: raising it would make every genuine
+	// outage take twice as long to report, and that is the case that has to be
+	// quick.
+	for (let attempt = 0; attempt < 2; attempt++) {
+		try {
+			const response = await fetch(`${origin}/`, {
+				redirect: 'follow',
+				signal: AbortSignal.timeout(budgetMs)
+			});
+			status = response.status;
+			if (response.ok) return;
+			// An answer, just not a good one: report it rather than retrying.
+			break;
+		} catch (error) {
+			failure = error instanceof Error ? error.message : String(error);
+			// A timeout is not evidence that nothing is listening, so it must not
+			// be reported as one. Matched on the name AbortSignal.timeout rejects
+			// with, with the message as a fallback for runtimes that only set
+			// that.
+			timedOut =
+				(error instanceof Error && error.name === 'TimeoutError') ||
+				/aborted due to timeout|timed? ?out/i.test(failure);
+		}
 	}
 
 	const where = SITE_CONTEXTS[site];
