@@ -47,6 +47,7 @@
 
 	// Stores
 	import { storeTheme } from '$lib/store/skeletonStores';
+	import { initialTheme } from '$lib/theme/initialTheme';
 	import { getDrawerStore } from '@skeletonlabs/skeleton';
 	import * as m from '$msgs';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
@@ -134,6 +135,31 @@
 		// { type: 'test', name: 'Test', icon: '🚧' },
 	];
 
+
+	// Start the switcher on whatever the page was actually rendered with.
+	//
+	// Without this the store's own default decided, and it could not know the
+	// site's: the `theme` cookie is HttpOnly, so the browser cannot read what
+	// the server chose. The dropdown therefore said Wintry on a site rendering
+	// its own palette from SITE_THEME — visible on unipa with cookies and site
+	// data cleared.
+	//
+	// Only when nothing is stored. SITE_THEME is a default, not a policy: the
+	// switcher has to keep working and a visitor's choice has to survive a
+	// reload, so a stored value always wins. initialTheme holds that rule.
+	//
+	// An `$effect` rather than a plain statement at init, because this
+	// component initialises before `page.data` is populated: read there,
+	// `page.data.theme` was undefined, initialTheme correctly fell back to
+	// 'wintry', and the seed wrote that — reproducing the very bug it was
+	// meant to fix. The effect reruns when the data arrives, and the
+	// `!$storeTheme` guard makes it a no-op from then on.
+	$effect(() => {
+		if (!browser) return;
+		const siteTheme = page.data.theme;
+		if (!siteTheme || $storeTheme) return;
+		$storeTheme = initialTheme($storeTheme, siteTheme);
+	});
 
 	const setTheme: SubmitFunction = ({ formData }) => {
 		const theme = formData.get('theme')?.toString();

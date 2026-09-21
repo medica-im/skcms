@@ -70,5 +70,11 @@ export const load: LayoutLoad = async ({ fetch, data, depends }) => {
     organization: data.organization,
     entries: entries || data.entries,
     labels: data.labels,
+    // Passed through, not recomputed: this load runs in the browser too, where
+    // the `theme` cookie is HttpOnly and unreadable. Listing the keys by hand
+    // means anything the server load returns and this one forgets is simply
+    // dropped — which is how `theme` reached __data.json but never
+    // `page.data`, leaving the switcher with nothing to seed itself from.
+    theme: data.theme,
   };
 }

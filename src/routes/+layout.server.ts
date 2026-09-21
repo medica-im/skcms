@@ -88,5 +88,9 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch, depends }
     entries: entries,
     labels: labels,
     situations: situations,
+    // What the page was actually rendered with, so the theme switcher can
+    // start on it. The `theme` cookie is HttpOnly and unreadable from the
+    // browser, which is why this has to travel in the payload.
+    theme: locals.theme,
   }
 }

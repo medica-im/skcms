@@ -10,7 +10,15 @@ declare global {
 			code?: string;
 			email?: string;
 		}
-		interface Locals {}
+		interface Locals {
+			/**
+			 * The theme this response was rendered with — the `theme` cookie,
+			 * or SITE_THEME where the visitor has never chosen one. Set in
+			 * hooks.server.ts and passed to the client in +layout.server.ts,
+			 * because the cookie itself is HttpOnly.
+			 */
+			theme?: string;
+		}
 		interface PageData {}
 		interface PageState {
 			selected?: unknown;

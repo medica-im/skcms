@@ -91,6 +91,12 @@ const cookie: Handle = async ({ event, resolve }) => {
 		event.cookies.set('theme', DEFAULT_THEME, { path: '/' });
 		theme = DEFAULT_THEME;
 	}
+	// Published for the loads, because the browser cannot read it: the cookie
+	// above is HttpOnly, so the theme switcher had no way of knowing what the
+	// page was actually rendered with. It defaulted to a hardcoded 'wintry'
+	// instead, and said so in the dropdown while the page wore the site's own
+	// palette. See lib/theme/initialTheme.ts.
+	event.locals.theme = theme;
 	return await resolve(event, {
 		transformPageChunk: ({ html }) =>
 			html.replace('data-theme=""', `data-theme="${theme}"`)
