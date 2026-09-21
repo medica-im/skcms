@@ -279,6 +279,15 @@ export default defineConfig({
 			name: 'firefox-cropper',
 			testDir,
 			testMatch: /avatar-crop-preview\.feature\.spec\.js$/,
+			// Serial, like chromium-serial above and for the same reason: this
+			// is a PIXEL_SENSITIVE feature, and the protection belongs to the
+			// feature rather than to the project that happens to run it.
+			// avatar-crop-preview was serialised in Chromium and left fully
+			// parallel here, so the same scenario kept timing out in Firefox
+			// waiting 60s for a button while eight workers fought over the box.
+			// Affordable because testMatch scopes this project to one feature.
+			fullyParallel: false,
+			workers: 1,
 			use: { ...devices['Desktop Firefox'] }
 		},
 		// Specs about one site in particular.
