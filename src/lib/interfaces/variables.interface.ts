@@ -16,7 +16,6 @@ export interface Variables {
 	readonly INPUT_FACILITY: boolean;
 	readonly INPUT_SEARCH: boolean;
 	readonly ENTRIES_LIMIT: number;
-	readonly SITUATIONS_TTL: number;
 }
 
 export interface ProgramsNavLinks {
