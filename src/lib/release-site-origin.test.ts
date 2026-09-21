@@ -51,18 +51,24 @@ function names(): string[] {
 }
 
 describe('where images.yml says each site is served', () => {
-	it('gives the base-path site the address it actually answers on', () => {
-		// The whole bug in one assertion. This entry is the only one whose name
-		// is not its hostname.
+	it('gives the base-path sites the address they actually answer on', () => {
+		// The whole bug in one assertion. These entries are sections of another
+		// site, so their name is not a hostname that answers: both are built
+		// with BASE_PATH and their own roots 404 by design.
 		expect(field('staging.ipa.medica.im', 'origin')).toBe('https://staging.unipa.fr/annuaire');
+		expect(field('ipa.medica.im', 'origin')).toBe('https://production.unipa.fr/annuaire');
 	});
 
 	it('leaves every other entry to fall back to its name', () => {
 		// `origin` is for the exceptions. Setting it everywhere would be a second
 		// copy of the hostname to keep in step with the name, which is the kind
 		// of duplication that let this diverge in the first place.
+		//
+		// The exceptions are exactly the unipa pair: production.unipa.fr is the
+		// temporary host for the unipa.fr cutover, and both entries move to
+		// https://unipa.fr/annuaire together when that lands.
 		const withOrigin = names().filter((n) => field(n, 'origin') !== '');
-		expect(withOrigin).toEqual(['staging.ipa.medica.im']);
+		expect(withOrigin.sort()).toEqual(['ipa.medica.im', 'staging.ipa.medica.im']);
 	});
 
 	it('names a host that resolves, not a path', () => {
