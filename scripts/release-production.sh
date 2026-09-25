@@ -164,6 +164,20 @@ if [[ $LIST -eq 1 ]]; then
     exit 0
 fi
 
+# --- Search engines ------------------------------------------------------------
+# Every site, before anything is touched. build-image.sh runs the same check,
+# but only after this script has cleared that site's cache, which already
+# begins its cutover: a mismatch found there leaves a live site degraded.
+# Found here, it costs nothing. See scripts/check-indexable.sh.
+for n in "${NAMES[@]}"; do
+    env_file=$(yq -r ".images[] | select(.name == \"$n\") | .env_file" "$IMAGES_FILE")
+    indexable=$(yq -r ".images[] | select(.name == \"$n\") | .indexable" "$IMAGES_FILE")
+    if ! (cd "$REPO_ROOT" && "$REPO_ROOT/scripts/check-indexable.sh" "$env_file" "$indexable" >/dev/null); then
+        echo "error: $n: nothing has been released." >&2
+        exit 1
+    fi
+done
+
 # --- Confirm -----------------------------------------------------------------
 # These are live sites. One confirmation for the whole run rather than one per
 # site: the list is right there to read, and a prompt answered four times in a

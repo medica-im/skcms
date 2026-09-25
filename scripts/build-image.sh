@@ -65,6 +65,11 @@ TAG=$(jq -r '.tag' <<<"$ENTRY")
 
 cd "$REPO_ROOT"
 
+# Before anything moves: a mismatch here is a production site telling search
+# engines to drop it, or a staging copy asking to be indexed. See the script.
+"$REPO_ROOT/scripts/check-indexable.sh" "$ENV_FILE" \
+    "$(jq -r 'if .indexable == null then "" else .indexable end' <<<"$ENTRY")"
+
 # Where the submodule was before this build moved it.
 #
 # Recorded as a commit, not just a branch name: the pull below advances the
