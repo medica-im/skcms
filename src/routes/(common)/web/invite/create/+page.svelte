@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import { createInvitee } from '$src/invitee.remote.ts';
 	import { goto } from '$app/navigation';
+	import { base } from '$app/paths';
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faCheck, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
@@ -117,7 +118,7 @@
 						class="variant-filled-error btn w-min"
 						onclick={() => {
 							if (onclose) onclose();
-							else goto('/web/invite/invitees');
+							else goto(`${base}/web/invite/invitees`);
 						}}
 						>{#if result?.success}Fermer{:else}Annuler{/if}</button
 					>

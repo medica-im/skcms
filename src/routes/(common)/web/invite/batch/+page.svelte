@@ -440,7 +440,7 @@
 			<div class="flex gap-4 justify-end">
 				<button
 					class="btn variant-ghost"
-					onclick={() => goto('/web/invite/invitees')}
+					onclick={() => goto(`${base}/web/invite/invitees`)}
 				>
 					{m.BATCH_INVITEE_CANCEL()}
 				</button>

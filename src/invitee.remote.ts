@@ -1,5 +1,6 @@
 import { redirect, invalid } from '@sveltejs/kit';
 import { getRequestEvent, query, form } from '$app/server';
+import { base } from '$app/paths';
 import * as z from "zod";
 import { authReq } from '$lib/utils/request.ts';
 import { variables } from '$lib/utils/constants.ts';
@@ -67,7 +68,7 @@ export const updateInvitee = form(UpdateInvitee, async (data) => {
 			data: json
 		}
 	} else {
-		redirect(303, '/web/invite/invitees');
+		redirect(303, `${base}/web/invite/invitees`);
 	}
 });
 
@@ -96,6 +97,6 @@ export const deleteInvitee = form(DeleteInvitee, async (data) => {
 				text: response.statusText
 			}
 		}
-		redirect(303, '/web/invite/invitees');
+		redirect(303, `${base}/web/invite/invitees`);
 	}
 });

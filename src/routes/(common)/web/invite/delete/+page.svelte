@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { deleteInvitee } from '$src/invitee.remote.ts';
 	import { goto } from '$app/navigation';
+	import { base } from '$app/paths';
 	import Fa from 'svelte-fa';
 	import { faCheck, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 	import type { Invitee } from '$lib/interfaces/v2/invitee';
@@ -55,7 +56,7 @@
 					type="button"
 					class="variant-filled-surface btn w-min"
 					onclick={() => {
-						goto('/web/invite/invitees');
+						goto(`${base}/web/invite/invitees`);
 					}}
 				>
 					{#if result?.success}Fermer{:else}Annuler{/if}
