@@ -279,7 +279,8 @@ Key variables (override via env or $FRONTEND_DIR/.env.test-all):
   E2E_WORKERS=$E2E_WORKERS  E2E_STOP_AFTER=$E2E_STOP_AFTER
   PLAYWRIGHT_WORKERS=${PLAYWRIGHT_WORKERS:-<half the cores>}  (scenarios run at once; the limit is RAM)
   BDD_PROJECT=${BDD_PROJECT:-<all>}  (one shape only: chromium-base-path | chromium-root)
-  TEE_LOG=${TEE_LOG:-<none>}  (also write the run to this file, e.g. logs/run.log)
+  TEE_LOG=${TEE_LOG-<logs/test-all-DATE.log>}  (the run is also written here; follow it with
+             tail -f logs/test-all-latest.log. TEE_LOG= turns it off)
   SITE_CONTEXT=$SITE_CONTEXT  (dev.yml context serving dev.<site> for the sites project; started if absent)
   E2E_STOP_DEV_SERVER=$E2E_STOP_DEV_SERVER  (0 keep the site server up; 1 stop it for the run; STOP leave it stopped)
   SKIP_BACKEND=$SKIP_BACKEND  SKIP_FRONTEND=$SKIP_FRONTEND  SEED_BDD_USERS=$SEED_BDD_USERS
@@ -454,8 +455,14 @@ ensure_site_server() {
     # symlink and the skvar submodule at this context, and a server started
     # without those renders a different tenant — which is the failure this is
     # here to prevent, one layer down.
-    (cd "$FRONTEND_DIR" && without_lock nohup ./scripts/dev.sh --restart "$SITE_CONTEXT" \
-        > "$FRONTEND_DIR/.e2e-workers/site-$SITE_CONTEXT.log" 2>&1 &)
+    #
+    # The subshell's output is redirected with `exec` BEFORE the call, never on
+    # the call: a redirection on a shell function (without_lock) makes bash
+    # save the current stdout/stderr on fds 10+ for the call's duration, and
+    # this subshell lives as long as the server. Those saved copies were the
+    # run log's pipe, so tee never saw EOF and the run hung after its summary.
+    (exec > "$FRONTEND_DIR/.e2e-workers/site-$SITE_CONTEXT.log" 2>&1
+     cd "$FRONTEND_DIR" && without_lock nohup ./scripts/dev.sh --restart "$SITE_CONTEXT" &)
 
     local waited=0
     while (( waited < 90 )); do
@@ -655,9 +662,10 @@ ensure_site_server_for() {
     local mode_env="$FRONTEND_DIR/.env.site.$ctx"
     cp "$FRONTEND_DIR/$env_file" "$mode_env" 2>/dev/null || return 1
     rm -f "$(site_stamp "$ctx")"
-    (cd "$FRONTEND_DIR" && without_lock nohup npx vite \
-        --port "$port" --strictPort --mode "site.$ctx" \
-        > "$FRONTEND_DIR/.e2e-workers/site-$ctx.log" 2>&1 &)
+    # exec first, not a redirection on the call: see ensure_site_server.
+    (exec > "$FRONTEND_DIR/.e2e-workers/site-$ctx.log" 2>&1
+     cd "$FRONTEND_DIR" && without_lock nohup npx vite \
+        --port "$port" --strictPort --mode "site.$ctx" &)
 
     local waited=0
     while (( waited < 90 )); do
@@ -801,16 +809,8 @@ suite_bdd() {
     local project_args=()
     [[ -n "${BDD_PROJECT:-}" ]] && project_args=(--project "$BDD_PROJECT")
 
-    # TEE_LOG writes the run to a file as well as the terminal, so progress stays
-    # visible while the output survives for triage afterwards. Without it every
-    # duration and failure is printed and thrown away, and the only record left
-    # is test-results/, which holds failures but no timings and no passes.
-    local tee_log="${TEE_LOG:-}"
-    if [[ -n "$tee_log" ]]; then
-        mkdir -p "$(dirname "$FRONTEND_DIR/$tee_log")"
-        info "logging this run to $tee_log"
-    fi
-
+    # No tee of its own: the whole run, this stage included, is already written
+    # to the run log (see "Run log" below the argument parsing).
     local runner=(npx playwright test)
     if command -v xvfb-run >/dev/null 2>&1; then
         runner=(xvfb-run -a npx playwright test)
@@ -818,18 +818,7 @@ suite_bdd() {
         warn "xvfb-run not found; Firefox scenarios will fail without a display"
         info "install it with: sudo apt-get install xvfb"
     fi
-    if [[ -n "$tee_log" ]]; then
-        # pipefail is already set, so rc is playwright's status, not tee's.
-        # FORCE_COLOR because a pipe is not a TTY: playwright detects that and
-        # drops every colour, so `| tee` turned a readable run into a wall of
-        # grey. The file gets the codes STRIPPED instead — the terminal wants
-        # colour, a log read later does not, and escape sequences in it break
-        # every grep you would want to run over it.
-        (cd "$FRONTEND_DIR" && FORCE_COLOR=1 "${runner[@]}" "${project_args[@]}" 2>&1 \
-            | tee >(sed -u -E 's/\x1b\[[0-9;]*[mGKHF]//g' > "$tee_log")) || rc=$?
-    else
-        (cd "$FRONTEND_DIR" && "${runner[@]}" "${project_args[@]}") || rc=$?
-    fi
+    (cd "$FRONTEND_DIR" && "${runner[@]}" "${project_args[@]}") || rc=$?
     if [[ "$E2E_STOP_AFTER" == "1" ]]; then
         info "stopping worker dev servers"
         "$FRONTEND_DIR/scripts/e2e-workers.sh" stop >/dev/null 2>&1 || true
@@ -887,6 +876,55 @@ if [[ ${#CONTEXTS[@]} -eq 0 ]]; then
     mapfile -t CONTEXTS < <(all_contexts)
 fi
 [[ ${#CONTEXTS[@]} -eq 0 ]] && { fail "no contexts found in dev.yml"; exit 1; }
+
+# --- Run log -----------------------------------------------------------------
+# Every run is written to a file as it is printed, every stage of it, so a run
+# can be followed live from another terminal (or by Claude) with
+#
+#     tail -f logs/test-all-latest.log
+#
+# and read afterwards. Without it the unit and backend output, and every
+# duration, went to the terminal and nowhere else.
+#
+# TEE_LOG=path picks the file; TEE_LOG= (empty) turns logging off. The terminal
+# keeps its colours (FORCE_COLOR, since the tools now write into a pipe and
+# would otherwise drop them); the file gets them stripped, because escape
+# sequences break every grep you would run over it.
+RUN_LOG="${TEE_LOG-logs/test-all-$(date +%Y%m%d-%H%M%S).log}"
+if [[ -n "$RUN_LOG" ]]; then
+    [[ "$RUN_LOG" == /* ]] || RUN_LOG="$FRONTEND_DIR/$RUN_LOG"
+    RUN_LOG_DIR="$(dirname "$RUN_LOG")"
+    mkdir -p "$RUN_LOG_DIR"
+    if [[ -z "${TEE_LOG+set}" ]]; then
+        # Keep the last 20 runs; only this script's own files are touched.
+        ls -1t "$RUN_LOG_DIR"/test-all-2*.log 2>/dev/null | tail -n +20 | xargs -r rm -f --
+        ln -sfn "$(basename "$RUN_LOG")" "$RUN_LOG_DIR/test-all-latest.log"
+    fi
+    export FORCE_COLOR=1
+    exec > >(tee >(sed -u -E 's/\x1b\[[0-9;?]*[A-Za-z]//g' > "$RUN_LOG")) 2>&1
+    RUN_LOG_PID=$!
+    info "logging this run to ${RUN_LOG#"$FRONTEND_DIR"/}"
+
+    # tee runs beside the script, so without this the shell could exit first
+    # and give the prompt back above the summary's last lines. On EXIT only,
+    # after start_dev_server has printed: INT and TERM keep their trap from
+    # above, since the run carries on after them and still needs its output.
+    #
+    # Bounded, not a bare `wait`: tee only ends once EVERY copy of its pipe is
+    # closed, and a background process that inherits one (the site servers
+    # did, see ensure_site_server) would otherwise hold the run open forever
+    # after its summary. tee writes each line as it reads it, so giving up
+    # after 5s loses nothing already printed.
+    finish_run_log() {
+        exec >&- 2>&-
+        local _
+        for _ in {1..50}; do
+            kill -0 "$RUN_LOG_PID" 2>/dev/null || return 0
+            sleep 0.1
+        done
+    }
+    trap 'start_dev_server; finish_run_log' EXIT
+fi
 
 # --- Run ---------------------------------------------------------------------
 TOTAL_START=$SECONDS
@@ -996,8 +1034,9 @@ switch_context() {
     # *becomes* the dev server and never returns — calling it synchronously
     # hangs the run forever, with the site up and healthy and nothing to show
     # for it.
-    (cd "$FRONTEND_DIR" && without_lock nohup ./scripts/dev.sh --restart "$ctx" \
-        > "$FRONTEND_DIR/.e2e-workers/site-$ctx.log" 2>&1 &)
+    # exec first, not a redirection on the call: see ensure_site_server.
+    (exec > "$FRONTEND_DIR/.e2e-workers/site-$ctx.log" 2>&1
+     cd "$FRONTEND_DIR" && without_lock nohup ./scripts/dev.sh --restart "$ctx" &)
 
     while (( waited < 120 )); do
         sleep 3; waited=$((waited + 3))
