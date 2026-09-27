@@ -5,6 +5,13 @@
 
 	let { data } = $props();
 
+	// "Page - Organization", like the site's other pages, with the short name:
+	// the title is cut at ~55 characters in a search result and far sooner in
+	// a tab, and "Union Nationale des Infirmiers en Pratique Avancée" alone
+	// would fill it.
+	const organization = $derived(page.data.organization?.formatted_name_short);
+	const title = $derived(organization ? `${data.title} - ${organization}` : data.title);
+
 	onMount(() => {
 		if (page.url.searchParams.has('invalidateEntries')) {
 			invalidate('app:entries');
@@ -14,6 +21,8 @@
 </script>
 
 <svelte:head>
+	<title>{title}</title>
+	<meta name="description" content={data.description} />
 	<link rel="canonical" href={data?.canonicalUrl} />
 </svelte:head>
 

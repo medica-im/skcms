@@ -8,6 +8,8 @@ import { error } from '@sveltejs/kit';
 import { browser } from '$app/environment';
 import { fetchCareHome } from '$lib/utils/fetchCareHome.ts';
 import type { EntryFull, Entry } from '$lib/store/directoryStoreInterface';
+import { base } from '$app/paths';
+import { entryCanonicalUrl, entryDescription, entryTitle } from '$lib/seo/entryMeta';
 
 export const load: PageLoad = async ({ fetch, params, depends, parent, data, url }) => {
     depends('entry:now');
@@ -64,10 +66,22 @@ export const load: PageLoad = async ({ fetch, params, depends, parent, data, url
             users: users
         };
     }
-    const canonicalUrl = `${variables.BASE_URI}/e/${params.slug}`;
+    // The list row carries what the full entry lacks: the type's raw_label
+    // (the acronym the title prefers) and the department.
+    const listed = entries.find((e: Entry) => e.entrySlug === params.slug);
+    const metaSource = {
+        ...fullentry,
+        effector_type: { ...fullentry.effector_type, raw_label: listed?.effector_type?.raw_label },
+        department: listed?.department
+    };
     return {
         componentData: componentData,
         component: component,
-        canonicalUrl: canonicalUrl,
+        // The public origin, never variables.BASE_URI: that is the backend's
+        // address, and made every unipa.fr/annuaire entry page declare
+        // https://ipa.medica.im/e/<slug> as its real address.
+        canonicalUrl: entryCanonicalUrl(url.origin, base, params.slug),
+        title: entryTitle(metaSource),
+        description: entryDescription(metaSource),
     }
 }
