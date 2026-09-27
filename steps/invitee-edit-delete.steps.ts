@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
 import { test, basePathOf } from './fixtures';
-import { djangoShell, SEED_TAG } from './seed';
+import { djangoShell, seedInvitee, removeInvitee } from './seed';
 
 const { Given, When, Then, After } = createBdd(test);
 
@@ -23,37 +23,15 @@ const ctx: { uid?: string } = {};
  * tag-wide delete would take a sibling scenario's data with it.
  */
 Given('an unused invitation exists', async ({ baseURL }) => {
-	const domain = new URL(baseURL).hostname;
-	const email = `e2e-invitee-${Date.now()}@example.org`;
-	const out = await djangoShell(`
-from neomodel import db
-from facility.models import Organization
-
-org_uid = Organization.objects.get(site__domain=${JSON.stringify(domain)}).neomodel_uid.hex
-rows, _ = db.cypher_query("""
-MATCH (e:Entry {uid: $org})
-CREATE (i:Invitee {uid: replace(randomUUID(), '-', ''), email: $email,
-                   name: 'Invitation e2e', role: 'staff', active: true,
-                   createdAt: timestamp(), ${SEED_TAG}: true})-[:INVITED_TO]->(e)
-RETURN i.uid
-""", {"org": org_uid, "email": ${JSON.stringify(email)}})
-assert rows, "no organization Entry for this site"
-print("INVITEE_SEEDED", rows[0][0])
-`);
-	const match = out.match(/INVITEE_SEEDED (\S+)/);
-	if (!match) throw new Error(`seeding invitee failed: ${out}`);
-	ctx.uid = match[1];
+	const { uid } = await seedInvitee({ siteDomain: new URL(baseURL).hostname, name: 'Invitation e2e' });
+	ctx.uid = uid;
 });
 
 After(async () => {
 	if (!ctx.uid) return;
 	const uid = ctx.uid;
 	ctx.uid = undefined;
-	await djangoShell(`
-from neomodel import db
-db.cypher_query("MATCH (i:Invitee {uid: $uid}) WHERE i.${SEED_TAG} = true DETACH DELETE i", {"uid": ${JSON.stringify(uid)}})
-print("CLEANED")
-`);
+	await removeInvitee(uid);
 });
 
 /** name of the seeded invitee in the graph, or null once it is gone. */

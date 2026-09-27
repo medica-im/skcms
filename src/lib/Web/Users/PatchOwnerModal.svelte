@@ -22,6 +22,7 @@
 		faCompress
 	} from '@fortawesome/free-solid-svg-icons';
 	import { areArraysEqualSets } from '$lib/utils/utils.ts';
+	import { sortByDateTime } from '$lib/utils/dateTimeSort';
 	import type { User } from '$lib/interfaces/v2/user.ts';
 	import type { Role } from '$lib/interfaces/v2/invitee.ts';
 	import type { FormResult } from '$lib/interfaces/v2/form';
@@ -82,7 +83,10 @@
 		if (sortBy === 'alpha') {
 			filtered.sort((a, b) => dir * (a.name ?? '').localeCompare(b.name ?? ''));
 		} else if (sortBy === 'date') {
-			filtered.sort((a, b) => dir * ((b.createdAt ?? 0) - (a.createdAt ?? 0)));
+			// The first click reads newest first, as it always has; a user with no
+			// date stays last either way (src/lib/utils/dateTimeSort.ts) instead
+			// of sorting as 1970 and topping the oldest-first view.
+			filtered = sortByDateTime(filtered, (u) => u.createdAt, sortAsc ? 'desc' : 'asc');
 		} else if (sortBy === 'role') {
 			filtered.sort(
 				(a, b) => dir * (rolePriority[getPrimaryRole(a)] - rolePriority[getPrimaryRole(b)])

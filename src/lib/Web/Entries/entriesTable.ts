@@ -6,6 +6,7 @@
  * sorted as 1970, an accent sorted after Z, an entry counted as owned because
  * somebody created it.
  */
+import { compareDateTimes, type SortDirection } from '$lib/utils/dateTimeSort';
 
 export type AdminUser = {
 	uid: string;
@@ -79,7 +80,7 @@ export function mergeAdmin(entry: any, fields: AdminFields | undefined): AdminEn
 }
 
 export type SortColumn = 'name' | 'createdAt' | 'lastModified' | 'active' | 'type' | 'facility';
-export type SortDirection = 'asc' | 'desc';
+export type { SortDirection };
 
 /**
  * When this entry was last changed, across both stores.
@@ -101,7 +102,11 @@ export function lastModifiedOf(entry: AdminEntry): number | null {
 
 const collator = new Intl.Collator('fr', { sensitivity: 'base', numeric: true });
 
-function compare(a: AdminEntry, b: AdminEntry, column: SortColumn): number {
+function compare(
+	a: AdminEntry,
+	b: AdminEntry,
+	column: Exclude<SortColumn, 'createdAt' | 'lastModified'>
+): number {
 	switch (column) {
 		case 'name':
 			// Intl.Collator, not <: "Élodie" sorts after "Zoé" under a
@@ -114,24 +119,7 @@ function compare(a: AdminEntry, b: AdminEntry, column: SortColumn): number {
 			return collator.compare(a.facility?.name ?? '', b.facility?.name ?? '');
 		case 'active':
 			return Number(a.active) - Number(b.active);
-		case 'createdAt':
-			return numeric(a.createdAt, b.createdAt);
-		case 'lastModified':
-			return numeric(lastModifiedOf(a), lastModifiedOf(b));
 	}
-}
-
-/**
- * Compare two timestamps, either of which may be missing.
- *
- * Returns NaN-free ordering with nulls treated as "no answer" rather than as
- * zero — the caller pushes them to the end regardless of direction.
- */
-function numeric(a: number | null, b: number | null): number {
-	if (a === null && b === null) return 0;
-	if (a === null) return 1;
-	if (b === null) return -1;
-	return a - b;
 }
 
 /**
@@ -151,18 +139,13 @@ export function sortEntries(
 	column: SortColumn,
 	direction: SortDirection
 ): AdminEntry[] {
-	const missing = (e: AdminEntry) =>
-		column === 'createdAt'
-			? e.createdAt === null
-			: column === 'lastModified'
-				? lastModifiedOf(e) === null
-				: false;
-
 	return [...entries].sort((a, b) => {
-		const aMissing = missing(a);
-		const bMissing = missing(b);
-		if (aMissing !== bMissing) return aMissing ? 1 : -1;
-		if (aMissing && bMissing) return 0;
+		// The date-time columns follow the frontend-wide rule (missing last in
+		// both directions): src/lib/utils/dateTimeSort.ts.
+		if (column === 'createdAt') return compareDateTimes(a.createdAt, b.createdAt, direction);
+		if (column === 'lastModified') {
+			return compareDateTimes(lastModifiedOf(a), lastModifiedOf(b), direction);
+		}
 		const result = compare(a, b, column);
 		return direction === 'asc' ? result : -result;
 	});

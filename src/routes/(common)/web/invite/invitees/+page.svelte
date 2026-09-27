@@ -14,17 +14,24 @@
 	import { ORIGIN } from '$lib/utils/origin.ts';
 	import type { PageData } from './$types';
 	import { base } from '$app/paths';
+	import { sortByDateTime, type SortDirection } from '$lib/utils/dateTimeSort';
 
 	let { data }: { data: PageData } = $props();
 	let invitees = $derived(data.invitees);
 	let searchTerm = $state('');
+	// Newest first: the API returns invitations in no order, and the one an
+	// administrator is looking for is usually the one just sent.
+	let createdDirection = $state<SortDirection>('desc');
 	let filteredInvitees = $derived.by(() => {
-		if (!searchTerm.trim()) return invitees;
+		if (!invitees) return invitees;
 		const term = normalize(searchTerm);
-		return invitees?.filter((inv) =>
-			(inv.name && normalize(inv.name).includes(term)) ||
-			normalize(inv.email).includes(term)
-		);
+		const found = searchTerm.trim()
+			? invitees.filter((inv) =>
+				(inv.name && normalize(inv.name).includes(term)) ||
+				normalize(inv.email).includes(term)
+			)
+			: invitees;
+		return sortByDateTime(found, (inv) => inv.createdAt, createdDirection);
 	});
 	let editModal: EditInviteeModal;
 	let deleteModal: DeleteInviteeModal;
@@ -191,7 +198,14 @@
 		<span>{m.INVITEE_COL_NAME()}</span>
 		<span>{m.INVITEE_COL_EMAIL()}</span>
 		<span>{m.INVITEE_COL_ROLE()}</span>
-		<span>{m.INVITEE_COL_CREATED()}</span>
+		<button
+			type="button"
+			class="flex items-center gap-1 min-h-11 hover:underline"
+			onclick={() => (createdDirection = createdDirection === 'desc' ? 'asc' : 'desc')}
+			aria-sort={createdDirection === 'asc' ? 'ascending' : 'descending'}
+		>
+			{m.INVITEE_COL_CREATED()}<span aria-hidden="true">{createdDirection === 'asc' ? '↑' : '↓'}</span>
+		</button>
 		<span>{m.INVITEE_COL_REDEEMED()}</span>
 		<span>{m.INVITEE_COL_STATUS()}</span>
 		<span class="col-span-3 text-center">{m.INVITEE_COL_ACTIONS()}</span>

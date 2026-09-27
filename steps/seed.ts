@@ -502,3 +502,65 @@ print("PHONE_SET", p.pk, p.phone, p.roles.count())
 `);
 	if (!out.includes('PHONE_SET')) throw new Error(`seeding phone failed: ${out}`);
 }
+
+/**
+ * An invitation of the scenario's own on the site's organization: active and
+ * never redeemed, which is the state the invitation pages act on. Nothing is
+ * looked up, so the outcome does not depend on what invitations the site holds.
+ *
+ * Tagged, but remove it with removeInvitee(uid): the tag is per worker, and a
+ * tag-wide delete would take a sibling scenario's invitations with it.
+ */
+export async function seedInvitee(options: {
+	/** The worker site's hostname; the invitation hangs off its organization. */
+	siteDomain: string;
+	name: string;
+	/** Milliseconds since the epoch, as the graph stores it; now by default. */
+	createdAt?: number;
+}): Promise<{ uid: string; email: string }> {
+	const email = `e2e-invitee-${Date.now()}-${Math.random().toString(36).slice(2, 6)}@example.org`;
+	// createdAt cannot be written in the CREATE: an APOC trigger in the graph
+	// ('create-timestamp') sets createdAt = timestamp() on every new node AFTER
+	// the transaction commits, overwriting it. So the date is set once the
+	// trigger has stamped the node -- it fires once per node, never again.
+	const out = await djangoShell(`
+import time
+from neomodel import db
+from facility.models import Organization
+
+org_uid = Organization.objects.get(site__domain=${JSON.stringify(options.siteDomain)}).neomodel_uid.hex
+rows, _ = db.cypher_query("""
+MATCH (e:Entry {uid: $org})
+CREATE (i:Invitee {uid: replace(randomUUID(), '-', ''), email: $email,
+                   name: $name, role: 'staff', active: true,
+                   ${SEED_TAG}: true})-[:INVITED_TO]->(e)
+RETURN i.uid
+""", {"org": org_uid, "email": ${JSON.stringify(email)}, "name": ${JSON.stringify(options.name)}})
+assert rows, "no organization Entry for this site"
+uid = rows[0][0]
+
+created_at = ${options.createdAt ?? 'None'}
+if created_at is not None:
+    for _ in range(50):
+        stamped, _ = db.cypher_query("MATCH (i:Invitee {uid: $uid}) RETURN i.createdAt", {"uid": uid})
+        if stamped[0][0] is not None:
+            break
+        time.sleep(0.1)
+    else:
+        raise RuntimeError("the create-timestamp trigger never stamped the invitee")
+    db.cypher_query("MATCH (i:Invitee {uid: $uid}) SET i.createdAt = $at", {"uid": uid, "at": created_at})
+print("INVITEE_SEEDED", uid)
+`);
+	const match = out.match(/INVITEE_SEEDED (\S+)/);
+	if (!match) throw new Error(`seeding invitee failed: ${out}`);
+	return { uid: match[1], email };
+}
+
+/** Deletes one seeded invitation, by uid and tag, leaving siblings alone. */
+export async function removeInvitee(uid: string): Promise<void> {
+	await djangoShell(`
+from neomodel import db
+db.cypher_query("MATCH (i:Invitee {uid: $uid}) WHERE i.${SEED_TAG} = true DETACH DELETE i", {"uid": ${JSON.stringify(uid)}})
+print("CLEANED")
+`);
+}
