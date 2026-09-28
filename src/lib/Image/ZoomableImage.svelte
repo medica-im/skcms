@@ -28,7 +28,9 @@
 		caption = '',
 		/** Natural size, so the viewer can scale without guessing or reflowing. */
 		width,
-		height
+		height,
+		/** A smaller file to show in place; the viewer still opens `src`. */
+		thumbnail = undefined
 	}: {
 		src: string;
 		alt: string;
@@ -36,6 +38,7 @@
 		caption?: string;
 		width?: number;
 		height?: number;
+		thumbnail?: string;
 	} = $props();
 
 	let bp: ReturnType<typeof BiggerPicture> | undefined;
@@ -71,7 +74,7 @@
 	title={m.IMAGE_ZOOM()}
 	aria-label={m.IMAGE_ZOOM()}
 >
-	<img {src} {alt} class={className} />
+	<img src={thumbnail ?? src} {alt} class={className} />
 </button>
 
 <!--
