@@ -6,6 +6,7 @@
 	import { faEnvelope, faUser, faPenToSquare, faTrash, faUserPlus, faClock, faShieldHalved, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 	import InviteeStatus from './InviteeStatus.svelte';
 	import InviteeEmailDelivery from './InviteeEmailDelivery.svelte';
+	import InviteeResend from './InviteeResend.svelte';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import FileJson from '@lucide/svelte/icons/file-json';
 	import RoleBadge from '$lib/RoleBadge.svelte';
@@ -76,6 +77,9 @@
 				{m.INVITEE_EMAIL_DELIVERY()}
 			</span>
 			<p class="mt-1"><InviteeEmailDelivery delivery={invitee.emailDelivery} variant="detail" /></p>
+			{#if !isRedeemed && invitee.active}
+				<div class="mt-2"><InviteeResend uid={invitee.uid} /></div>
+			{/if}
 		</div>
 
 		<!-- Created at -->

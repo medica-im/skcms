@@ -1,5 +1,5 @@
 import { redirect, invalid } from '@sveltejs/kit';
-import { getRequestEvent, query, form } from '$app/server';
+import { getRequestEvent, query, form, command } from '$app/server';
 import { base } from '$app/paths';
 import * as z from "zod";
 import { authReq } from '$lib/utils/request.ts';
@@ -99,4 +99,29 @@ export const deleteInvitee = form(DeleteInvitee, async (data) => {
 		}
 		redirect(303, `${base}/web/invite/invitees`);
 	}
+});
+
+
+/**
+ * Send an invitation's email again. A value, not a throw: a refusal (used,
+ * disabled, already_queued) is an answer the page words, not an error.
+ */
+export const resendInvitation = command(z.string(), async (uid) => {
+	const { cookies } = getRequestEvent();
+	const url = `${variables.BASE_URI}/api/v2/invitees/${uid}/resend`;
+	const response = await fetch(authReq(url, 'POST', cookies, '{}'));
+	let detail: any;
+	try {
+		detail = (await response.json())?.detail;
+	} catch {
+		detail = undefined;
+	}
+	if (!response.ok) {
+		console.error(`POST ${url} -> ${response.status} ${JSON.stringify(detail ?? '')}`);
+	}
+	return {
+		success: response.ok,
+		status: response.status,
+		code: typeof detail?.code === 'string' ? (detail.code as string) : undefined
+	};
 });

@@ -45,3 +45,25 @@ Feature: Whether an invitation's email went out
     And I am signed in with the role "administrator"
     When I open the page of the invitation whose email was refused
     Then I read that its email failed with "401: Forbidden"
+
+  Rule: an invitation's email can be sent again, once at a time
+
+    # After a failure, or because the invitee lost it. Each attempt is a new
+    # record, so a failure stays in the history. A successful resend goes
+    # through the real mail service, so it is covered by the backend tests
+    # (tests/api/test_invitee_resend.py), not here.
+
+    Scenario: A used invitation cannot be sent again
+      Given a used invitation whose email was sent
+      And I am signed in with the role "administrator"
+      When I open the page of the used invitation
+      Then I am not offered to send the invitation again
+
+    # A double click must not send two emails.
+    Scenario: An email already on its way is not sent a second time
+      Given an invitation whose email is on its way
+      And I am signed in with the role "administrator"
+      When I open the page of the invitation whose email is on its way
+      And I ask to send the invitation again
+      Then I am told an email is already on its way
+      And no second email was recorded

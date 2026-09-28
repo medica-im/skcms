@@ -107,3 +107,47 @@ Then('I read that its email failed with {string}', async ({ page }, error: strin
 	await expect(page.getByTestId('invitee-email-delivery')).toHaveAttribute('data-state', 'failed');
 	await expect(page.getByTestId('invitee-email-delivery-error')).toHaveText(error);
 });
+
+Given('a used invitation whose email was sent', async ({ baseURL }) => {
+	await invitationWithDelivery(baseURL, 'used', `status="sent"`, Date.now() - 60 * 60 * 1000);
+});
+
+Given('an invitation whose email is on its way', async ({ baseURL }) => {
+	await invitationWithDelivery(baseURL, 'queued', `status="queued"`);
+});
+
+When('I open the page of the used invitation', async ({ page }) => {
+	await page.goto(`/web/invite/invitees/${seeded.used!.uid}`, { waitUntil: 'domcontentloaded' });
+});
+
+When('I open the page of the invitation whose email is on its way', async ({ page }) => {
+	await page.goto(`/web/invite/invitees/${seeded.queued!.uid}`, { waitUntil: 'domcontentloaded' });
+});
+
+Then('I am not offered to send the invitation again', async ({ page }) => {
+	await expect(page.getByTestId('invitee-email-delivery')).toBeVisible();
+	await expect(page.getByTestId('invitee-resend')).toHaveCount(0);
+});
+
+// Clicked until an answer shows: a click before hydration reaches no handler.
+When('I ask to send the invitation again', async ({ page }) => {
+	const button = page.getByRole('button', { name: "Renvoyer l'invitation" });
+	await expect(async () => {
+		await button.click();
+		await expect(page.getByTestId('invitee-resend-outcome')).toBeVisible({ timeout: 2_000 });
+	}).toPass({ timeout: 20_000 });
+});
+
+Then('I am told an email is already on its way', async ({ page }) => {
+	await expect(page.getByTestId('invitee-resend-outcome')).toHaveText(
+		'Un envoi est déjà en cours pour cette invitation.'
+	);
+});
+
+Then('no second email was recorded', async () => {
+	const out = await djangoShell(
+		`from mailer.models import EmailDelivery\nprint("count", EmailDelivery.objects.filter(invitee_uid=${JSON.stringify(seeded.queued!.uid)}).count())`,
+		{ readOnly: true }
+	);
+	expect(out).toContain('count 1');
+});
