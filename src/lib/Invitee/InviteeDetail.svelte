@@ -5,6 +5,7 @@
 	import Fa from 'svelte-fa';
 	import { faEnvelope, faUser, faPenToSquare, faTrash, faUserPlus, faClock, faShieldHalved, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 	import InviteeStatus from './InviteeStatus.svelte';
+	import InviteeEmailDelivery from './InviteeEmailDelivery.svelte';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import FileJson from '@lucide/svelte/icons/file-json';
 	import RoleBadge from '$lib/RoleBadge.svelte';
@@ -66,6 +67,15 @@
 		<div>
 			<span class="text-sm text-surface-500">{m.INVITEE_COL_STATUS()}</span>
 			<p><InviteeStatus active={invitee.active} redeemedAt={invitee.redeemedAt} /></p>
+		</div>
+
+		<!-- Whether the invitation's email went out, with a failure's reason -->
+		<div>
+			<span class="text-sm text-surface-500 flex items-center gap-1">
+				<Fa icon={faEnvelope} size="sm" />
+				{m.INVITEE_EMAIL_DELIVERY()}
+			</span>
+			<p class="mt-1"><InviteeEmailDelivery delivery={invitee.emailDelivery} detailed /></p>
 		</div>
 
 		<!-- Created at -->

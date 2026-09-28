@@ -16,6 +16,7 @@
 	import Fa from 'svelte-fa';
 	import { faEnvelope, faUser, faEye, faPenToSquare, faTrash, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 	import InviteeStatus from './InviteeStatus.svelte';
+	import InviteeEmailDelivery from './InviteeEmailDelivery.svelte';
 	import { onMount } from 'svelte';
 	import RoleBadge from '$lib/RoleBadge.svelte';
 	import ListDateTime from '$lib/components/DateTime/ListDateTime.svelte';
@@ -77,6 +78,8 @@
 				<RoleBadge role={invitee.role} class="shrink-0" />
 			</div>
 			<div class="text-sm truncate">{invitee.email}</div>
+			<!-- Only when the email needs attention (failed, pending, unconfirmed). -->
+			<InviteeEmailDelivery delivery={invitee.emailDelivery} />
 			<!-- No "·" separator: when the line wraps it is left dangling at its end. -->
 			<div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
 				<span class="inline-flex items-center gap-2">
@@ -101,9 +104,12 @@
 		</div>
 		<span class="font-semibold truncate">{invitee.name || '—'}</span>
 
-		<div class="flex items-center gap-2 text-surface-600 min-w-0">
-			<span class="w-4 flex-shrink-0"><Fa icon={faEnvelope} size="sm" /></span>
-			<span class="truncate">{invitee.email}</span>
+		<div class="min-w-0">
+			<div class="flex items-center gap-2 text-surface-600 min-w-0">
+				<span class="w-4 flex-shrink-0"><Fa icon={faEnvelope} size="sm" /></span>
+				<span class="truncate">{invitee.email}</span>
+			</div>
+			<InviteeEmailDelivery delivery={invitee.emailDelivery} />
 		</div>
 
 		<RoleBadge role={invitee.role} uniform />

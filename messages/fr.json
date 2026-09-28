@@ -810,5 +810,14 @@
   "EMAIL_IMAGE_ERROR_NOT_AN_IMAGE": "Ce fichier n'est pas une image valide.",
   "EMAIL_IMAGE_ERROR_NAME_TAKEN": "Une autre image porte déjà ce nom.",
   "EMAIL_IMAGE_ERROR_NAME_REQUIRED": "Le nom est obligatoire.",
-  "EMAIL_IMAGE_ERROR_UNKNOWN": "L'opération a échoué. Réessayez plus tard."
+  "EMAIL_IMAGE_ERROR_UNKNOWN": "L'opération a échoué. Réessayez plus tard.",
+  "INVITEE_EMAIL_DELIVERY": "E-mail d'invitation",
+  "INVITEE_EMAIL_SENT": "E-mail envoyé",
+  "INVITEE_EMAIL_FAILED": "Échec de l'envoi",
+  "INVITEE_EMAIL_QUEUED": "Envoi en cours",
+  "INVITEE_EMAIL_UNCONFIRMED": "Envoi non confirmé",
+  "INVITEE_EMAIL_UNKNOWN": "Aucun envoi enregistré",
+  "INVITEE_EMAIL_SENT_HINT": "Accepté par le service d'envoi ; sa réception dans la boîte du destinataire n'est pas vérifiée.",
+  "INVITEE_EMAIL_UNCONFIRMED_HINT": "L'e-mail a été mis en file d'attente mais son envoi n'a jamais été confirmé. Il n'est probablement pas parti.",
+  "INVITEE_EMAIL_UNKNOWN_HINT": "Invitation créée avant le suivi des envois, ou sans e-mail."
 }
