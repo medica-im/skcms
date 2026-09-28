@@ -127,6 +127,16 @@ Feature: Wording the invitation email
       Then the gallery shows "logo-e2e"
       And its address is absolute and serves the image
 
+    # Leaving the tab unmounts every tile. That once threw in the image
+    # viewer's teardown and froze every tab of the page.
+    Scenario: The tabs keep working after leaving the images
+      When I open the invitation email page
+      And I open the images
+      And I upload the image "logo-e2e.png"
+      And I open the template
+      And I open the images
+      Then the gallery shows "logo-e2e"
+
     # The bytes are checked, not the name: a file that only claims to be an
     # image is refused, and the page says why instead of waiting forever.
     Scenario: A file that is not an image is refused with a reason

@@ -49,14 +49,24 @@
 		bp = BiggerPicture({ target: document.body });
 	});
 
-	onDestroy(() => bp?.close?.());
+	// Only while the viewer is showing. bigger-picture's close() reads options
+	// that only open() sets, so closing a viewer that was never opened throws
+	// -- and a throw during teardown left the email gallery's page frozen,
+	// since its tiles unmount on every tab switch.
+	let isOpen = false;
+
+	onDestroy(() => {
+		if (isOpen) bp?.close();
+	});
 
 	function open() {
 		bp?.open({
 			items: [{ img: src, alt, caption, width, height }],
 			// Animates the overlay out of the thumbnail rather than fading in from
 			// nowhere, so it is clear which image was opened.
-			el: trigger
+			el: trigger,
+			onOpen: () => (isOpen = true),
+			onClosed: () => (isOpen = false)
 		});
 	}
 </script>

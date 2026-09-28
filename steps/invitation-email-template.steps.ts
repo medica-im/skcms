@@ -136,6 +136,10 @@ async function openTab(page: Page, name: string, panel: string) {
 	);
 }
 
+When('I open the template', async ({ page }) => {
+	await openTab(page, 'Contenu', 'template-editor');
+});
+
 When('I open the preview', async ({ page }) => {
 	await openTab(page, 'Aperçu', 'template-preview');
 });
