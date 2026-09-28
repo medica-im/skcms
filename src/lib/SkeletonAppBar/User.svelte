@@ -35,7 +35,8 @@
 		faUserPlus,
 		faUser,
 		faUsers,
-		faHexagonNodes
+		faHexagonNodes,
+		faEnvelopeOpenText
 	} from '@fortawesome/free-solid-svg-icons';
 	let { embedded = false}: { embedded?: boolean; } = $props();
 	const drawerStore = getDrawerStore();
@@ -153,6 +154,10 @@
 						<a href="{base}/web/invite/invitees">
 							<span class="w-6 text-center"><Fa icon={faEnvelope} /></span>
 							<span class="capitalize">{m.invitation({ count: 2 })}</span>
+						</a>
+						<a href="{base}/web/invite/email-template">
+							<span class="w-6 text-center"><Fa icon={faEnvelopeOpenText} /></span>
+							<span>{m.EMAIL_TEMPLATE_NAV()}</span>
 						</a>
 							<a href="{base}/web/users">
 								<span class="w-6 text-center"><Fa icon={faUsers} /></span>
