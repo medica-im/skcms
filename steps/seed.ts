@@ -517,6 +517,8 @@ export async function seedInvitee(options: {
 	name: string;
 	/** Milliseconds since the epoch, as the graph stores it; now by default. */
 	createdAt?: number;
+	/** When it was used, in milliseconds; never used by default. */
+	redeemedAt?: number;
 }): Promise<{ uid: string; email: string }> {
 	const email = `e2e-invitee-${Date.now()}-${Math.random().toString(36).slice(2, 6)}@example.org`;
 	// createdAt cannot be written in the CREATE: an APOC trigger in the graph
@@ -549,6 +551,10 @@ if created_at is not None:
     else:
         raise RuntimeError("the create-timestamp trigger never stamped the invitee")
     db.cypher_query("MATCH (i:Invitee {uid: $uid}) SET i.createdAt = $at", {"uid": uid, "at": created_at})
+
+redeemed_at = ${options.redeemedAt ?? 'None'}
+if redeemed_at is not None:
+    db.cypher_query("MATCH (i:Invitee {uid: $uid}) SET i.redeemedAt = $at", {"uid": uid, "at": redeemed_at})
 print("INVITEE_SEEDED", uid)
 `);
 	const match = out.match(/INVITEE_SEEDED (\S+)/);

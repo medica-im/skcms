@@ -134,9 +134,12 @@
         {/if}
 
         <SortSelect
-            bind:direction={createdDirection}
-            newestLabel={m.USER_SORT_NEWEST()}
-            oldestLabel={m.USER_SORT_OLDEST()}
+            value={createdDirection}
+            options={[
+                { value: 'desc', label: m.USER_SORT_NEWEST() },
+                { value: 'asc', label: m.USER_SORT_OLDEST() }
+            ]}
+            onchange={(value) => (createdDirection = value as SortDirection)}
         />
 
         <!-- Column Headers (large screens only) -->

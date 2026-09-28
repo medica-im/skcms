@@ -58,6 +58,62 @@ When('I sort the invitations by creation date', async ({ page }) => {
 	}).toPass({ timeout: 8_000 });
 });
 
+/** The three invitations of the "sort by use" scenario, by the name that identifies each on the page. */
+const used = { recent: '', early: '', unused: '' };
+
+Given('two used invitations and one unused invitation exist', async ({ baseURL }) => {
+	const siteDomain = new URL(baseURL).hostname;
+	const tag = Math.random().toString(36).slice(2, 8);
+	used.recent = `Utilisée récemment ${tag}`;
+	used.early = `Utilisée il y a longtemps ${tag}`;
+	used.unused = `Jamais utilisée ${tag}`;
+	const now = Date.now();
+	const seeded = await Promise.all([
+		seedInvitee({ siteDomain, name: used.recent, redeemedAt: now - 60 * 60 * 1000 }),
+		seedInvitee({ siteDomain, name: used.early, redeemedAt: now - 2 * DAY }),
+		seedInvitee({ siteDomain, name: used.unused })
+	]);
+	ctx.uids = seeded.map((s) => s.uid);
+});
+
+/** Clicks the "Utilisation" header until its icon shows `direction` (hydration: see above). */
+async function sortByUse(page: import('@playwright/test').Page, direction: 'asc' | 'desc') {
+	const header = page.getByRole('button', { name: /^Utilisation/ });
+	const icon = header.getByTestId('sort-icon');
+	await expect(async () => {
+		if ((await icon.getAttribute('data-direction')) !== direction) await header.click();
+		await expect(icon).toHaveAttribute('data-direction', direction, { timeout: 1_000 });
+	}).toPass({ timeout: 8_000 });
+}
+
+When('I sort the invitations by use', async ({ page }) => sortByUse(page, 'desc'));
+When('I sort the invitations by use again', async ({ page }) => sortByUse(page, 'asc'));
+
+/** The three names' positions in the page's text, i.e. their order in the list. */
+async function order(page: import('@playwright/test').Page) {
+	for (const name of Object.values(used)) await expect(page.getByText(name)).toBeVisible();
+	const text = await page.locator('body').innerText();
+	return {
+		recent: text.indexOf(used.recent),
+		early: text.indexOf(used.early),
+		unused: text.indexOf(used.unused)
+	};
+}
+
+Then('the most recently used invitation comes first, and the unused one last', async ({ page }) => {
+	await expect.poll(async () => {
+		const o = await order(page);
+		return o.recent < o.early && o.early < o.unused;
+	}).toBe(true);
+});
+
+Then('the earliest used invitation comes first, and the unused one last', async ({ page }) => {
+	await expect.poll(async () => {
+		const o = await order(page);
+		return o.early < o.recent && o.recent < o.unused;
+	}).toBe(true);
+});
+
 // Before the page opens, so the page renders at that width from the start.
 Given('I browse on a phone', async ({ page }) => {
 	await page.setViewportSize({ width: 390, height: 844 });
@@ -69,8 +125,8 @@ Given('I browse on a phone', async ({ page }) => {
 When('I choose to see the oldest invitations first', async ({ page }) => {
 	const sort = page.getByLabel('Trier');
 	await expect(async () => {
-		await sort.selectOption({ label: "Plus récentes d'abord" });
-		await sort.selectOption({ label: "Plus anciennes d'abord" });
+		await sort.selectOption({ label: "Création — plus récentes d'abord" });
+		await sort.selectOption({ label: "Création — plus anciennes d'abord" });
 		const { newer, older } = await positions(page);
 		expect(older).toBeLessThan(newer);
 	}).toPass({ timeout: 8_000 });

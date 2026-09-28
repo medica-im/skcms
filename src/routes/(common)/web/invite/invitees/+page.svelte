@@ -21,19 +21,33 @@
 	let { data }: { data: PageData } = $props();
 	let invitees = $derived(data.invitees);
 	let searchTerm = $state('');
-	// Newest first: the API returns invitations in no order, and the one an
-	// administrator is looking for is usually the one just sent.
-	let createdDirection = $state<SortDirection>('desc');
+
+	// Sorted by creation or by use, newest first by default: the API returns
+	// invitations in no order, and the one an administrator looks for is
+	// usually the one just sent. Clicking the active column reverses it. An
+	// unused invitation has no use date and stays last either way.
+	type SortColumn = 'createdAt' | 'redeemedAt';
+	let sortColumn = $state<SortColumn>('createdAt');
+	let sortDirection = $state<SortDirection>('desc');
+
+	function sortBy(column: SortColumn) {
+		if (sortColumn === column) {
+			sortDirection = sortDirection === 'desc' ? 'asc' : 'desc';
+		} else {
+			sortColumn = column;
+			sortDirection = 'desc';
+		}
+	}
+
 	let filteredInvitees = $derived.by(() => {
 		if (!invitees) return invitees;
 		const term = normalize(searchTerm);
 		const found = searchTerm.trim()
-			? invitees.filter((inv) =>
-				(inv.name && normalize(inv.name).includes(term)) ||
-				normalize(inv.email).includes(term)
+			? invitees.filter(
+				(inv) => (inv.name && normalize(inv.name).includes(term)) || normalize(inv.email).includes(term)
 			)
 			: invitees;
-		return sortByDateTime(found, (inv) => inv.createdAt, createdDirection);
+		return sortByDateTime(found, (inv) => inv[sortColumn], sortDirection);
 	});
 	let editModal: EditInviteeModal;
 	let deleteModal: DeleteInviteeModal;
@@ -191,9 +205,18 @@
 	{/if}
 
 	<SortSelect
-		bind:direction={createdDirection}
-		newestLabel={m.INVITEE_SORT_NEWEST()}
-		oldestLabel={m.INVITEE_SORT_OLDEST()}
+		value={`${sortColumn}:${sortDirection}`}
+		options={[
+			{ value: 'createdAt:desc', label: m.INVITEE_SORT_CREATED_NEWEST() },
+			{ value: 'createdAt:asc', label: m.INVITEE_SORT_CREATED_OLDEST() },
+			{ value: 'redeemedAt:desc', label: m.INVITEE_SORT_REDEEMED_NEWEST() },
+			{ value: 'redeemedAt:asc', label: m.INVITEE_SORT_REDEEMED_OLDEST() }
+		]}
+		onchange={(value) => {
+			const [column, direction] = value.split(':');
+			sortColumn = column as SortColumn;
+			sortDirection = direction as SortDirection;
+		}}
 	/>
 
 	<!-- Column Headers (large screens only) -->
@@ -208,11 +231,16 @@
 		<span>{m.INVITEE_COL_ROLE()}</span>
 		<SortHeader
 			label={m.INVITEE_COL_CREATED()}
-			active={true}
-			direction={createdDirection}
-			onclick={() => (createdDirection = createdDirection === 'desc' ? 'asc' : 'desc')}
+			active={sortColumn === 'createdAt'}
+			direction={sortDirection}
+			onclick={() => sortBy('createdAt')}
 		/>
-		<span>{m.INVITEE_COL_REDEEMED()}</span>
+		<SortHeader
+			label={m.INVITEE_COL_REDEEMED()}
+			active={sortColumn === 'redeemedAt'}
+			direction={sortDirection}
+			onclick={() => sortBy('redeemedAt')}
+		/>
 		<span>{m.INVITEE_COL_STATUS()}</span>
 		<span class="col-span-3 text-center">{m.INVITEE_COL_ACTIONS()}</span>
 	</div>

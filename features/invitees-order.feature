@@ -13,6 +13,18 @@ Feature: Invitations are listed by date, newest first, and the order can be reve
     When I sort the invitations by creation date
     Then the older invitation is listed before the newer one
 
+  # "Utilisation" sorts by when an invitation was used. Unused ones have no
+  # such date and stay at the end whichever way the column is sorted: they
+  # answer neither "most recently used" nor "used longest ago".
+  Scenario: Sorting by use puts unused invitations last, both ways
+    Given I am signed in with the role "administrator"
+    And two used invitations and one unused invitation exist
+    When I open "/web/invite/invitees"
+    And I sort the invitations by use
+    Then the most recently used invitation comes first, and the unused one last
+    When I sort the invitations by use again
+    Then the earliest used invitation comes first, and the unused one last
+
   # The column headers are only shown on large screens, so on a phone the
   # order is chosen from a control above the list.
   Scenario: On a phone, the order is chosen above the list
