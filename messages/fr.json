@@ -815,9 +815,13 @@
   "INVITEE_EMAIL_SENT": "E-mail envoyé",
   "INVITEE_EMAIL_FAILED": "Échec de l'envoi",
   "INVITEE_EMAIL_QUEUED": "Envoi en cours",
-  "INVITEE_EMAIL_UNCONFIRMED": "Envoi non confirmé",
   "INVITEE_EMAIL_UNKNOWN": "Aucun envoi enregistré",
   "INVITEE_EMAIL_SENT_HINT": "Accepté par le service d'envoi ; sa réception dans la boîte du destinataire n'est pas vérifiée.",
-  "INVITEE_EMAIL_UNCONFIRMED_HINT": "L'e-mail a été mis en file d'attente mais son envoi n'a jamais été confirmé. Il n'est probablement pas parti.",
-  "INVITEE_EMAIL_UNKNOWN_HINT": "Invitation créée avant le suivi des envois, ou sans e-mail."
+  "INVITEE_EMAIL_UNKNOWN_HINT": "Invitation créée avant le suivi des envois.",
+  "INVITEE_COL_EMAIL_DELIVERY": "Envoi",
+  "INVITEE_EMAIL_SENT_SHORT": "Envoyé",
+  "INVITEE_EMAIL_FAILED_SHORT": "Échec",
+  "INVITEE_EMAIL_QUEUED_SHORT": "En cours",
+  "INVITEE_EMAIL_SEE_DETAIL": "voir le détail de l'invitation",
+  "INVITEE_EMAIL_TIMED_OUT": "Aucune confirmation d’envoi après 15 minutes : l’e-mail n’est probablement pas parti."
 }

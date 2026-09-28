@@ -815,9 +815,13 @@
   "INVITEE_EMAIL_SENT": "Email sent",
   "INVITEE_EMAIL_FAILED": "Sending failed",
   "INVITEE_EMAIL_QUEUED": "Sending",
-  "INVITEE_EMAIL_UNCONFIRMED": "Sending not confirmed",
   "INVITEE_EMAIL_UNKNOWN": "No sending recorded",
   "INVITEE_EMAIL_SENT_HINT": "Accepted by the mail service; arrival in the recipient's inbox is not checked.",
-  "INVITEE_EMAIL_UNCONFIRMED_HINT": "The email was queued but its sending was never confirmed. It probably did not leave.",
-  "INVITEE_EMAIL_UNKNOWN_HINT": "Invitation created before sendings were tracked, or without an email."
+  "INVITEE_EMAIL_UNKNOWN_HINT": "Invitation created before sendings were tracked.",
+  "INVITEE_COL_EMAIL_DELIVERY": "Sending",
+  "INVITEE_EMAIL_SENT_SHORT": "Sent",
+  "INVITEE_EMAIL_FAILED_SHORT": "Failed",
+  "INVITEE_EMAIL_QUEUED_SHORT": "Sending",
+  "INVITEE_EMAIL_SEE_DETAIL": "see the invitation's details",
+  "INVITEE_EMAIL_TIMED_OUT": "No confirmation of sending after 15 minutes: the email most likely never left."
 }

@@ -75,7 +75,7 @@
 				<Fa icon={faEnvelope} size="sm" />
 				{m.INVITEE_EMAIL_DELIVERY()}
 			</span>
-			<p class="mt-1"><InviteeEmailDelivery delivery={invitee.emailDelivery} detailed /></p>
+			<p class="mt-1"><InviteeEmailDelivery delivery={invitee.emailDelivery} variant="detail" /></p>
 		</div>
 
 		<!-- Created at -->

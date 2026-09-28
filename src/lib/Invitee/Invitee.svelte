@@ -78,7 +78,8 @@
 				<RoleBadge role={invitee.role} class="shrink-0" />
 			</div>
 			<div class="text-sm truncate">{invitee.email}</div>
-			<!-- Only when the email needs attention (failed, pending, unconfirmed). -->
+			<!-- Only when the email needs attention (failed or pending):
+			     the compact card has no "Envoi" column to say it. -->
 			<InviteeEmailDelivery delivery={invitee.emailDelivery} />
 			<!-- No "·" separator: when the line wraps it is left dangling at its end. -->
 			<div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
@@ -98,18 +99,15 @@
 	</div>
 
 	<!-- Large screens: a row under the page's column headers. -->
-	<div class="{cardClass} hidden p-3 lg:grid lg:grid-cols-[40px_1fr_1.5fr_120px_130px_130px_120px_36px_36px_36px] lg:items-center lg:gap-4">
+	<div class="{cardClass} hidden p-3 lg:grid lg:grid-cols-[40px_1fr_1.5fr_120px_130px_130px_120px_130px_36px_36px_36px] lg:items-center lg:gap-4">
 		<div class="w-10 h-10 rounded-full bg-surface-500/10 flex items-center justify-center">
 			<Fa icon={faUser} class="text-surface-600" />
 		</div>
 		<span class="font-semibold truncate">{invitee.name || '—'}</span>
 
-		<div class="min-w-0">
-			<div class="flex items-center gap-2 text-surface-600 min-w-0">
-				<span class="w-4 flex-shrink-0"><Fa icon={faEnvelope} size="sm" /></span>
-				<span class="truncate">{invitee.email}</span>
-			</div>
-			<InviteeEmailDelivery delivery={invitee.emailDelivery} />
+		<div class="flex items-center gap-2 text-surface-600 min-w-0">
+			<span class="w-4 flex-shrink-0"><Fa icon={faEnvelope} size="sm" /></span>
+			<span class="truncate">{invitee.email}</span>
 		</div>
 
 		<RoleBadge role={invitee.role} uniform />
@@ -127,6 +125,9 @@
 
 		<!-- Status: shape, icon and word, never colour alone (InviteeStatus) -->
 		<InviteeStatus active={invitee.active} redeemedAt={invitee.redeemedAt} />
+
+		<!-- Whether the email went out; a failure is a link to the details -->
+		<InviteeEmailDelivery delivery={invitee.emailDelivery} variant="column" href={detailHref} />
 
 		{#if !isRedeemed}{@render editButton(false)}{:else}<span></span>{/if}
 		{#if !isRedeemed}{@render deleteButton(false)}{:else}<span></span>{/if}

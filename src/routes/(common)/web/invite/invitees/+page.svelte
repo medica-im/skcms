@@ -260,8 +260,8 @@
 
 	<!-- Column Headers (large screens only) -->
 	<div class="hidden lg:grid lg:items-center lg:gap-4 px-3 pb-2 text-sm font-semibold text-surface-500"
-		class:lg:grid-cols-[40px_40px_1fr_1.5fr_120px_130px_130px_120px_36px_36px_36px]={exportMode}
-		class:lg:grid-cols-[40px_1fr_1.5fr_120px_130px_130px_120px_36px_36px_36px]={!exportMode}
+		class:lg:grid-cols-[40px_40px_1fr_1.5fr_120px_130px_130px_120px_130px_36px_36px_36px]={exportMode}
+		class:lg:grid-cols-[40px_1fr_1.5fr_120px_130px_130px_120px_130px_36px_36px_36px]={!exportMode}
 	>
 		{#if exportMode}<span></span>{/if}
 		<span></span>
@@ -282,6 +282,7 @@
 			disabled={!canSortByUse}
 		/>
 		<span>{m.INVITEE_COL_STATUS()}</span>
+		<span>{m.INVITEE_COL_EMAIL_DELIVERY()}</span>
 		<span class="col-span-3 text-center">{m.INVITEE_COL_ACTIONS()}</span>
 	</div>
 
