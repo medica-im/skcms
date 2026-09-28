@@ -44,16 +44,35 @@ Then('the newer invitation is listed before the older one', async ({ page }) => 
 	expect(newer).toBeLessThan(older);
 });
 
-// Clicked until aria-sort changes, re-reading it between clicks: the header is
+// Clicked until the sort icon turns, re-reading it between clicks: the header is
 // server-rendered complete, so a click before hydration lands on a button with
 // no handler and does nothing (see setSwitch in facilityContext.ts). Re-reading
 // rather than clicking blindly, since a second click on a live header would
 // flip the order straight back.
 When('I sort the invitations by creation date', async ({ page }) => {
 	const header = page.getByRole('button', { name: /^Création/ });
+	const icon = header.getByTestId('sort-icon');
 	await expect(async () => {
-		if ((await header.getAttribute('aria-sort')) !== 'ascending') await header.click();
-		await expect(header).toHaveAttribute('aria-sort', 'ascending', { timeout: 1_000 });
+		if ((await icon.getAttribute('data-direction')) !== 'asc') await header.click();
+		await expect(icon).toHaveAttribute('data-direction', 'asc', { timeout: 1_000 });
+	}).toPass({ timeout: 8_000 });
+});
+
+// Before the page opens, so the page renders at that width from the start.
+Given('I browse on a phone', async ({ page }) => {
+	await page.setViewportSize({ width: 390, height: 844 });
+});
+
+// Retried like the header: a choice made before hydration changes the <select>
+// but reaches no handler. Re-choosing the value already shown fires no change,
+// so each attempt goes through the other value first.
+When('I choose to see the oldest invitations first', async ({ page }) => {
+	const sort = page.getByLabel('Trier');
+	await expect(async () => {
+		await sort.selectOption({ label: "Plus récentes d'abord" });
+		await sort.selectOption({ label: "Plus anciennes d'abord" });
+		const { newer, older } = await positions(page);
+		expect(older).toBeLessThan(newer);
 	}).toPass({ timeout: 8_000 });
 });
 

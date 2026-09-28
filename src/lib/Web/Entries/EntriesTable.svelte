@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { base } from '$app/paths';
 	import * as m from '$msgs';
+	import SortHeader from '$lib/components/Table/SortHeader.svelte';
+	import ListDateTime from '$lib/components/DateTime/ListDateTime.svelte';
+	import { ariaSort } from '$lib/components/Table/sortHeader';
 	import {
 		sortEntries,
 		summarise,
@@ -40,10 +43,7 @@
 		}
 	}
 
-	const dateFormat = new Intl.DateTimeFormat('fr', { dateStyle: 'short', timeStyle: 'short' });
-	const showDate = (ms: number | null) => (ms === null ? '—' : dateFormat.format(new Date(ms)));
 
-	const arrow = (c: SortColumn) => (column !== c ? '' : direction === 'asc' ? '↑' : '↓');
 </script>
 
 <div class="space-y-4">
@@ -81,19 +81,13 @@
 				<thead>
 					<tr>
 						{#each [['name', m.admin_entries_col_person()], ['type', m.admin_entries_col_type()], ['facility', m.admin_entries_col_facility()], ['active', m.admin_entries_col_state()], ['createdAt', m.admin_entries_col_created()], ['lastModified', m.admin_entries_col_modified()]] as [key, label]}
-							<th>
-								<button
-									type="button"
-									class="flex items-center gap-1 hover:underline"
+							<th aria-sort={ariaSort(column === key, direction)}>
+								<SortHeader
+									{label}
+									active={column === key}
+									{direction}
 									onclick={() => sortBy(key as SortColumn)}
-									aria-sort={column === key
-										? direction === 'asc'
-											? 'ascending'
-											: 'descending'
-										: 'none'}
-								>
-									{label}<span aria-hidden="true">{arrow(key as SortColumn)}</span>
-								</button>
+								/>
 							</th>
 						{/each}
 						<th>{m.admin_entries_col_creator()}</th>
@@ -151,8 +145,8 @@
 									</span>
 								{/if}
 							</td>
-							<td class="whitespace-nowrap">{showDate(entry.createdAt)}</td>
-							<td class="whitespace-nowrap">{showDate(lastModifiedOf(entry))}</td>
+							<td class="whitespace-nowrap"><ListDateTime value={entry.createdAt} /></td>
+							<td class="whitespace-nowrap"><ListDateTime value={lastModifiedOf(entry)} /></td>
 							<td>
 								{#each entry.creators as user, i}
 									{#if i > 0},&nbsp;{/if}

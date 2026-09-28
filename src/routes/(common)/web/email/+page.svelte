@@ -5,7 +5,9 @@
 	import type { User } from '$lib/interfaces/v2/user';
 	import BatchEmailCard from '$lib/Web/Email/BatchEmailCard.svelte';
 	import Fa from 'svelte-fa';
-	import { faSort, faSortUp, faSortDown, faSearch, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+	import { faSearch, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+	import SortHeader from '$lib/components/Table/SortHeader.svelte';
+	import { sortByDateTime } from '$lib/utils/dateTimeSort';
 	import { base } from '$app/paths';
 
 	let { data }: { data: PageData } = $props();
@@ -42,20 +44,9 @@
 				);
 			});
 		}
-		return [...list].sort((a, b) =>
-			sortDesc ? b.sent_at - a.sent_at : a.sent_at - b.sent_at
-		);
+		return sortByDateTime(list, (email) => email.sent_at, sortDesc ? 'desc' : 'asc');
 	});
 
-	function formatDate(timestamp: number): string {
-		const date = new Date(timestamp);
-		const day = String(date.getDate()).padStart(2, '0');
-		const month = String(date.getMonth() + 1).padStart(2, '0');
-		const year = date.getFullYear();
-		const hours = String(date.getHours()).padStart(2, '0');
-		const minutes = String(date.getMinutes()).padStart(2, '0');
-		return `${day}/${month}/${year} ${hours}:${minutes}`;
-	}
 </script>
 
 <div class="container mx-auto p-4">
@@ -82,14 +73,12 @@
 
 	<!-- Column Headers (large screens only) -->
 	<div class="hidden lg:grid lg:grid-cols-[160px_1fr_2fr_100px_80px_36px] lg:items-center lg:gap-4 px-3 pb-2 text-sm font-semibold text-surface-500">
-		<button
-			type="button"
-			class="flex items-center gap-1 hover:text-surface-900 transition-colors"
+		<SortHeader
+			label="Date"
+			active={true}
+			direction={sortDesc ? 'desc' : 'asc'}
 			onclick={() => (sortDesc = !sortDesc)}
-		>
-			Date
-			<Fa icon={sortDesc ? faSortDown : faSortUp} size="sm" />
-		</button>
+		/>
 		<span>Auteur</span>
 		<span>Objet</span>
 		<span>Destinataires</span>
@@ -105,7 +94,6 @@
 					{email}
 					authorName={getAuthorName(email.author_uid)}
 					authorUid={email.author_uid}
-					{formatDate}
 				/>
 			{/each}
 		{:else}

@@ -3,7 +3,8 @@
 	import type { User } from '$lib/interfaces/v2/user';
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
-	import { faEnvelope, faUser, faCircle, faPenToSquare, faTrash, faUserPlus, faClock, faShieldHalved, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+	import { faEnvelope, faUser, faPenToSquare, faTrash, faUserPlus, faClock, faShieldHalved, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+	import InviteeStatus from './InviteeStatus.svelte';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import FileJson from '@lucide/svelte/icons/file-json';
 	import RoleBadge from '$lib/RoleBadge.svelte';
@@ -30,7 +31,7 @@
 	}
 </script>
 
-<div class="card variant-ghost p-4 {isRedeemed ? 'opacity-50' : ''}">
+<div class="card variant-ghost p-4 {!isRedeemed && invitee.active ? 'shadow-[inset_4px_0_0_rgb(var(--color-success-500))]' : ''}">
 	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 		<!-- Email -->
 		<div>
@@ -61,20 +62,11 @@
 			</p>
 		</div>
 
-		<!-- Status (hidden when redeemed, same as list view) -->
-		{#if !isRedeemed}
-			<div>
-				<span class="text-sm text-surface-500">{m.INVITEE_COL_STATUS()}</span>
-				<p class="font-semibold flex items-center gap-1">
-					<Fa
-						icon={faCircle}
-						size="sm"
-						class={invitee.active ? 'text-success-500' : 'text-surface-400'}
-					/>
-					{invitee.active ? 'Active' : 'Inactive'}
-				</p>
-			</div>
-		{/if}
+		<!-- Status, in every state: the same badge as the list (InviteeStatus) -->
+		<div>
+			<span class="text-sm text-surface-500">{m.INVITEE_COL_STATUS()}</span>
+			<p><InviteeStatus active={invitee.active} redeemedAt={invitee.redeemedAt} /></p>
+		</div>
 
 		<!-- Created at -->
 		<div>

@@ -4,11 +4,19 @@
     import { UserCard } from '$lib/User';
     import { ORIGIN } from '$lib/utils/origin.ts';
     import ExportModeToggle from '$lib/components/ExportModeToggle/ExportModeToggle.svelte';
+    import SortHeader from '$lib/components/Table/SortHeader.svelte';
+    import SortSelect from '$lib/components/Table/SortSelect.svelte';
+    import { sortByDateTime, type SortDirection } from '$lib/utils/dateTimeSort';
     import * as m from '$msgs';
     import type { PageData } from './$types';
 
     let { data }: { data: PageData } = $props();
     let users = $derived(data.users);
+    // Newest first, like the invitations: the API returns users in no order.
+    let createdDirection = $state<SortDirection>('desc');
+    let sortedUsers = $derived(
+        users ? sortByDateTime(users, (u) => u.createdAt, createdDirection) : users
+    );
 
     const isSuperuser = $derived(page.data?.user?.role === 'superuser');
     const isAuthorized = $derived(
@@ -125,6 +133,12 @@
             </div>
         {/if}
 
+        <SortSelect
+            bind:direction={createdDirection}
+            newestLabel={m.USER_SORT_NEWEST()}
+            oldestLabel={m.USER_SORT_OLDEST()}
+        />
+
         <!-- Column Headers (large screens only) -->
         <div class="hidden lg:grid lg:items-center lg:justify-items-start lg:gap-4 px-3 pb-2 text-sm font-semibold text-surface-500"
             class:lg:grid-cols-[40px_40px_1fr_1.5fr_150px_120px_36px]={exportMode}
@@ -135,13 +149,18 @@
             <span>{m['INVITEE_COL_NAME']()}</span>
             <span>{m['INVITEE_COL_EMAIL']()}</span>
             <span>{m['INVITEE_COL_ROLE']()}</span>
-            <span>{m['INVITEE_COL_CREATED']()}</span>
+            <SortHeader
+                label={m.INVITEE_COL_CREATED()}
+                active={true}
+                direction={createdDirection}
+                onclick={() => (createdDirection = createdDirection === 'desc' ? 'asc' : 'desc')}
+            />
             <span></span>
         </div>
 
         <div class="grid grid-cols-1 gap-2">
-            {#if users}
-                {#each users as user (user.uid)}
+            {#if sortedUsers}
+                {#each sortedUsers as user (user.uid)}
                     {#if exportMode}
                         <div class="flex items-center gap-2">
                             <input

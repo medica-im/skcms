@@ -16,8 +16,9 @@
 		faArrowDownAZ,
 		faClock,
 		faShieldHalved,
-		faCaretUp,
-		faCaretDown,
+		faSort,
+		faSortUp,
+		faSortDown,
 		faExpand,
 		faCompress
 	} from '@fortawesome/free-solid-svg-icons';
@@ -69,6 +70,16 @@
 		!!patchCommand.pending ||
 			areArraysEqualSets(initialOwners, selectedOwnerUids)
 	);
+
+	// The sort icons every sortable list uses (see SortHeader): faded faSort on
+	// a chip that is not the active one, and on the active one the direction
+	// the list is really in. sortAsc means "first click", which is A-Z for
+	// names but newest-first for dates, so the date chip reads it inverted.
+	function sortIcon(key: typeof sortBy) {
+		if (sortBy !== key) return faSort;
+		const ascending = key === 'date' ? !sortAsc : sortAsc;
+		return ascending ? faSortUp : faSortDown;
+	}
 
 	const filteredUsers = $derived.by(() => {
 		const query = searchText.toLowerCase().trim();
@@ -218,7 +229,7 @@
 					>
 						<Fa icon={faArrowDownAZ} size="sm" />
 						<span class="text-xs">A-Z</span>
-						{#if sortBy === 'alpha'}<Fa icon={sortAsc ? faCaretDown : faCaretUp} size="sm" />{/if}
+						<span class={sortBy === 'alpha' ? '' : 'opacity-40'}><Fa icon={sortIcon('alpha')} size="sm" /></span>
 					</button>
 					<button
 						class="chip {sortBy === 'date' ? 'variant-filled-primary' : 'variant-soft-surface'}"
@@ -226,7 +237,7 @@
 					>
 						<Fa icon={faClock} size="sm" />
 						<span class="text-xs">Date</span>
-						{#if sortBy === 'date'}<Fa icon={sortAsc ? faCaretDown : faCaretUp} size="sm" />{/if}
+						<span class={sortBy === 'date' ? '' : 'opacity-40'}><Fa icon={sortIcon('date')} size="sm" /></span>
 					</button>
 					<button
 						class="chip {sortBy === 'role' ? 'variant-filled-primary' : 'variant-soft-surface'}"
@@ -234,7 +245,7 @@
 					>
 						<Fa icon={faShieldHalved} size="sm" />
 						<span class="text-xs">Rôle</span>
-						{#if sortBy === 'role'}<Fa icon={sortAsc ? faCaretDown : faCaretUp} size="sm" />{/if}
+						<span class={sortBy === 'role' ? '' : 'opacity-40'}><Fa icon={sortIcon('role')} size="sm" /></span>
 					</button>
 				</div>
 

@@ -15,6 +15,8 @@
 	import type { PageData } from './$types';
 	import { base } from '$app/paths';
 	import { sortByDateTime, type SortDirection } from '$lib/utils/dateTimeSort';
+	import SortHeader from '$lib/components/Table/SortHeader.svelte';
+	import SortSelect from '$lib/components/Table/SortSelect.svelte';
 
 	let { data }: { data: PageData } = $props();
 	let invitees = $derived(data.invitees);
@@ -188,24 +190,28 @@
 		</div>
 	{/if}
 
+	<SortSelect
+		bind:direction={createdDirection}
+		newestLabel={m.INVITEE_SORT_NEWEST()}
+		oldestLabel={m.INVITEE_SORT_OLDEST()}
+	/>
+
 	<!-- Column Headers (large screens only) -->
 	<div class="hidden lg:grid lg:items-center lg:gap-4 px-3 pb-2 text-sm font-semibold text-surface-500"
-		class:lg:grid-cols-[40px_40px_1fr_1.5fr_120px_130px_130px_80px_36px_36px_36px]={exportMode}
-		class:lg:grid-cols-[40px_1fr_1.5fr_120px_130px_130px_80px_36px_36px_36px]={!exportMode}
+		class:lg:grid-cols-[40px_40px_1fr_1.5fr_120px_130px_130px_120px_36px_36px_36px]={exportMode}
+		class:lg:grid-cols-[40px_1fr_1.5fr_120px_130px_130px_120px_36px_36px_36px]={!exportMode}
 	>
 		{#if exportMode}<span></span>{/if}
 		<span></span>
 		<span>{m.INVITEE_COL_NAME()}</span>
 		<span>{m.INVITEE_COL_EMAIL()}</span>
 		<span>{m.INVITEE_COL_ROLE()}</span>
-		<button
-			type="button"
-			class="flex items-center gap-1 min-h-11 hover:underline"
+		<SortHeader
+			label={m.INVITEE_COL_CREATED()}
+			active={true}
+			direction={createdDirection}
 			onclick={() => (createdDirection = createdDirection === 'desc' ? 'asc' : 'desc')}
-			aria-sort={createdDirection === 'asc' ? 'ascending' : 'descending'}
-		>
-			{m.INVITEE_COL_CREATED()}<span aria-hidden="true">{createdDirection === 'asc' ? '↑' : '↓'}</span>
-		</button>
+		/>
 		<span>{m.INVITEE_COL_REDEEMED()}</span>
 		<span>{m.INVITEE_COL_STATUS()}</span>
 		<span class="col-span-3 text-center">{m.INVITEE_COL_ACTIONS()}</span>

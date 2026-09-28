@@ -3,9 +3,11 @@
 	import type { Invitee } from '$lib/interfaces/v2/invitee';
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
-	import { faEnvelope, faUser, faCircle, faEye, faPenToSquare, faTrash, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
+	import { faEnvelope, faUser, faEye, faPenToSquare, faTrash, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
+	import InviteeStatus from './InviteeStatus.svelte';
 	import { onMount } from 'svelte';
 	import RoleBadge from '$lib/RoleBadge.svelte';
+	import ListDateTime from '$lib/components/DateTime/ListDateTime.svelte';
 	import { base } from '$app/paths';
 
 	let { invitee, showLink = true, highlighted = false, onEdit, onDelete }: { invitee: Invitee; showLink?: boolean; highlighted?: boolean; onEdit?: (invitee: Invitee) => void; onDelete?: (invitee: Invitee) => void } = $props();
@@ -19,29 +21,9 @@
 
 	let showDetailLink = $derived(showLink && (import.meta.env.DEV || page.data?.user?.role === 'superuser'));
 
-	function formatDate(dateString: string | null): string {
-		if (!dateString) return '';
-		const date = new Date(dateString);
-		const day = String(date.getDate()).padStart(2, '0');
-		const month = String(date.getMonth() + 1).padStart(2, '0');
-		const year = date.getFullYear();
-		return `${day}/${month}/${year}`;
-	}
-
-	function formatDateTime(timestamp: number): string {
-		const date = new Date(timestamp);
-		const day = String(date.getDate()).padStart(2, '0');
-		const month = String(date.getMonth() + 1).padStart(2, '0');
-		const year = date.getFullYear();
-		const time = date.toLocaleTimeString('fr-FR', {
-			hour: '2-digit',
-			minute: '2-digit'
-		});
-		return `${day}/${month}/${year} ${time}`;
-	}
 </script>
 
-<div bind:this={el} class="card variant-ghost p-3 flex flex-col gap-3 lg:grid lg:grid-cols-[40px_1fr_1.5fr_120px_130px_130px_80px_36px_36px_36px] lg:items-center lg:gap-4 hover:variant-soft transition-colors {isRedeemed ? 'opacity-50' : ''} {highlighted ? 'invitee-highlighted' : ''}">
+<div bind:this={el} class="card variant-ghost p-3 flex flex-col gap-3 lg:grid lg:grid-cols-[40px_1fr_1.5fr_120px_130px_130px_120px_36px_36px_36px] lg:items-center lg:gap-4 hover:variant-soft transition-colors {!isRedeemed && invitee.active ? 'shadow-[inset_4px_0_0_rgb(var(--color-success-500))]' : ''} {highlighted ? 'invitee-highlighted' : ''}">
 	<!-- Avatar/Icon -->
 	<div class="flex items-center gap-3 lg:contents">
 		<div class="w-10 h-10 rounded-full bg-surface-500/10 flex items-center justify-center flex-shrink-0">
@@ -62,35 +44,22 @@
 	<RoleBadge role={invitee.role} uniform />
 
 	<!-- Date -->
-	<span class="text-sm text-surface-500">
-		{invitee.createdAt ? formatDate(invitee.createdAt) : '—'}
+	<span class="text-sm">
+		<ListDateTime value={invitee.createdAt} />
 	</span>
 
 	<!-- Redeemed Date -->
-	<span class="text-sm text-surface-500 flex items-center gap-1">
+	<span class="text-sm flex items-center gap-1">
 		{#if isRedeemed}
 			<Fa icon={faCheck} size="sm" class="text-success-500" />
-			<span class="lg:hidden">{m.INVITEE_REDEEMED_ON()}&nbsp;</span>{formatDateTime(invitee.redeemedAt!)}
+			<span class="lg:hidden">{m.INVITEE_REDEEMED_ON()}&nbsp;</span><ListDateTime value={invitee.redeemedAt} />
 		{:else}
 			<Fa icon={faXmark} size="sm" class="text-surface-400" />
 		{/if}
 	</span>
 
-	<!-- Status Indicator -->
-	{#if !isRedeemed}
-		<div class="flex items-center gap-1">
-			<Fa
-				icon={faCircle}
-				size="sm"
-				class={invitee.active ? 'text-success-500' : 'text-surface-400'}
-			/>
-			<span class="text-sm text-surface-600">
-				{invitee.active ? 'Active' : 'Inactive'}
-			</span>
-		</div>
-	{:else}
-		<span></span>
-	{/if}
+	<!-- Status: shape, icon and word, never colour alone (InviteeStatus) -->
+	<InviteeStatus active={invitee.active} redeemedAt={invitee.redeemedAt} />
 
 	<!-- Actions -->
 	<div class="flex items-center gap-1 lg:contents">

@@ -5,17 +5,9 @@
 	import { faEnvelope, faUser, faEye } from '@fortawesome/free-solid-svg-icons';
 	import RoleBadge from '$lib/RoleBadge.svelte';
 	import { base } from '$app/paths';
+	import ListDateTime from '$lib/components/DateTime/ListDateTime.svelte';
 
 	let { user, showLink = true }: { user: User; showLink?: boolean } = $props();
-
-	function formatDate(timestamp: number | null): string {
-		if (!timestamp) return '—';
-		const date = new Date(timestamp);
-		const day = String(date.getDate()).padStart(2, '0');
-		const month = String(date.getMonth() + 1).padStart(2, '0');
-		const year = date.getFullYear();
-		return `${day}/${month}/${year}`;
-	}
 
 	let primaryRole = $derived(
 		user.access.length > 0 ? user.access[0].role as Role : 'anonymous' as Role
@@ -43,8 +35,8 @@
 	<RoleBadge role={primaryRole} uniform />
 
 	<!-- Created Date -->
-	<span class="text-sm text-surface-500">
-		{formatDate(user.createdAt)}
+	<span class="text-sm">
+		<ListDateTime value={user.createdAt} />
 	</span>
 
 	<!-- Detail Link -->

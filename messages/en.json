@@ -260,6 +260,14 @@
   "INVITEE_COL_REDEEMED": "Redeemed",
   "INVITEE_COL_ROLE": "Role",
   "INVITEE_COL_STATUS": "Status",
+  "SORT_LABEL": "Sort",
+  "USER_SORT_NEWEST": "Newest first",
+  "USER_SORT_OLDEST": "Oldest first",
+  "INVITEE_SORT_NEWEST": "Newest first",
+  "INVITEE_SORT_OLDEST": "Oldest first",
+  "INVITEE_STATUS_ACTIVE": "Active",
+  "INVITEE_STATUS_USED": "Used",
+  "INVITEE_STATUS_DISABLED": "Disabled",
   "INVITEE_CREATE_BUTTON": "Create an invitation",
   "INVITEE_EXPORT_SELECTION": [
     {

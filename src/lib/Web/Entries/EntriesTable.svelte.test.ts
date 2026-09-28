@@ -194,7 +194,14 @@ describe('EntriesTable', () => {
 		await header.click();
 
 		// aria-sort, not a visual arrow alone: the column order has to be
-		// announced to a screen reader too.
-		await expect.element(header).toHaveAttribute('aria-sort', 'ascending');
+		// announced to a screen reader too. On the header CELL, where ARIA
+		// allows it, not on the button inside it. Found from the button rather
+		// than by role: vitest's locator engine does not map <th> to
+		// "columnheader" (it found none of the ten), where Playwright does.
+		await expect
+			.poll(() => header.element().closest('th')?.getAttribute('aria-sort'))
+			.toBe('ascending');
+		expect(header.element().getAttribute('aria-sort')).toBeNull();
+		await expect.element(header.getByTestId('sort-icon')).toHaveAttribute('data-direction', 'asc');
 	});
 });

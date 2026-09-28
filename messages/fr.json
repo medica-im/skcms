@@ -260,6 +260,14 @@
   "INVITEE_COL_REDEEMED": "Utilisation",
   "INVITEE_COL_ROLE": "Rôle",
   "INVITEE_COL_STATUS": "Statut",
+  "SORT_LABEL": "Trier",
+  "USER_SORT_NEWEST": "Plus récents d'abord",
+  "USER_SORT_OLDEST": "Plus anciens d'abord",
+  "INVITEE_SORT_NEWEST": "Plus récentes d'abord",
+  "INVITEE_SORT_OLDEST": "Plus anciennes d'abord",
+  "INVITEE_STATUS_ACTIVE": "Active",
+  "INVITEE_STATUS_USED": "Utilisée",
+  "INVITEE_STATUS_DISABLED": "Désactivée",
   "INVITEE_CREATE_BUTTON": "Créer une invitation",
   "INVITEE_EXPORT_SELECTION": [
     {

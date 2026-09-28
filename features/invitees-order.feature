@@ -12,3 +12,14 @@ Feature: Invitations are listed by date, newest first, and the order can be reve
     Then the newer invitation is listed before the older one
     When I sort the invitations by creation date
     Then the older invitation is listed before the newer one
+
+  # The column headers are only shown on large screens, so on a phone the
+  # order is chosen from a control above the list.
+  Scenario: On a phone, the order is chosen above the list
+    Given I am signed in with the role "administrator"
+    And two invitations created a day apart exist
+    And I browse on a phone
+    When I open "/web/invite/invitees"
+    Then the newer invitation is listed before the older one
+    When I choose to see the oldest invitations first
+    Then the older invitation is listed before the newer one

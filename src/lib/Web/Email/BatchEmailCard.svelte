@@ -3,17 +3,16 @@
 	import Fa from 'svelte-fa';
 	import { faCheck, faXmark, faEnvelope, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 	import { base } from '$app/paths';
+	import ListDateTime from '$lib/components/DateTime/ListDateTime.svelte';
 
 	let {
 		email,
 		authorName,
-		authorUid,
-		formatDate
+		authorUid
 	}: {
 		email: BatchEmailMessage;
 		authorName: string | null;
 		authorUid: string;
-		formatDate: (ts: number) => string;
 	} = $props();
 </script>
 
@@ -21,8 +20,8 @@
 	class="card variant-ghost p-3 flex flex-col gap-3 lg:grid lg:grid-cols-[160px_1fr_2fr_100px_80px_36px] lg:items-center lg:gap-4 hover:variant-soft transition-colors"
 >
 	<!-- Date -->
-	<span class="text-sm text-surface-500">
-		{formatDate(email.sent_at)}
+	<span class="text-sm">
+		<ListDateTime value={email.sent_at} />
 	</span>
 
 	<!-- Author -->
