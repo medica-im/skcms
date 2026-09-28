@@ -270,6 +270,7 @@
   "INVITEE_STATUS_ACTIVE": "Active",
   "INVITEE_STATUS_USED": "Used",
   "INVITEE_STATUS_DISABLED": "Disabled",
+  "INVITEE_VIEW": "View invitation",
   "INVITEE_FILTER_LABEL": "Filter by status",
   "INVITEE_FILTER_ALL": "All",
   "INVITEE_FILTER_ACTIVE": "Active",

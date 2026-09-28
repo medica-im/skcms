@@ -7,6 +7,14 @@ const { Given, When, Then, After } = createBdd(test);
 
 const DAY = 24 * 60 * 60 * 1000;
 
+/**
+ * An invitation's name as shown on screen. Each invitation is rendered twice,
+ * as a compact card for narrow screens and a table row for large ones, one of
+ * them hidden by CSS -- positions() reads innerText, which skips the hidden one.
+ */
+const onScreen = (page: import('@playwright/test').Page, name: string) =>
+	page.getByText(name).filter({ visible: true });
+
 /** Per-scenario state: the two invitations and the names that identify them on the page. */
 const ctx: { uids: string[]; newer: string; older: string } = { uids: [], newer: '', older: '' };
 
@@ -33,8 +41,8 @@ Given('two invitations created a day apart exist', async ({ baseURL }) => {
 
 /** Where each name first appears in the page's text: its position in the list. */
 async function positions(page: import('@playwright/test').Page) {
-	await expect(page.getByText(ctx.newer)).toBeVisible();
-	await expect(page.getByText(ctx.older)).toBeVisible();
+	await expect(onScreen(page, ctx.newer)).toBeVisible();
+	await expect(onScreen(page, ctx.older)).toBeVisible();
 	const text = await page.locator('body').innerText();
 	return { newer: text.indexOf(ctx.newer), older: text.indexOf(ctx.older) };
 }
@@ -91,7 +99,7 @@ When('I sort the invitations by use again', async ({ page }) => sortByUse(page, 
 
 /** The three names' positions in the page's text, i.e. their order in the list. */
 async function order(page: import('@playwright/test').Page) {
-	for (const name of Object.values(used)) await expect(page.getByText(name)).toBeVisible();
+	for (const name of Object.values(used)) await expect(onScreen(page, name)).toBeVisible();
 	const text = await page.locator('body').innerText();
 	return {
 		recent: text.indexOf(used.recent),

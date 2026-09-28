@@ -31,7 +31,10 @@ Given('an active, a used and a deactivated invitation exist', async ({ baseURL }
 	uids = seeded.map((s) => s.uid);
 });
 
-const listed = (page: Page, name: string) => page.getByText(name, { exact: true });
+// Visible only: each invitation is rendered twice, as a compact card for
+// narrow screens and a table row for large ones, one of them hidden by CSS.
+const listed = (page: Page, name: string) =>
+	page.getByText(name, { exact: true }).filter({ visible: true });
 
 Then('the active, used and deactivated invitations are all listed', async ({ page }) => {
 	for (const name of Object.values(names)) await expect(listed(page, name)).toBeVisible();
