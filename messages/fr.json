@@ -270,6 +270,11 @@
   "INVITEE_STATUS_ACTIVE": "Active",
   "INVITEE_STATUS_USED": "Utilisée",
   "INVITEE_STATUS_DISABLED": "Désactivée",
+  "INVITEE_FILTER_LABEL": "Filtrer par statut",
+  "INVITEE_FILTER_ALL": "Toutes",
+  "INVITEE_FILTER_ACTIVE": "Actives",
+  "INVITEE_FILTER_USED": "Utilisées",
+  "INVITEE_FILTER_DISABLED": "Désactivées",
   "INVITEE_CREATE_BUTTON": "Créer une invitation",
   "INVITEE_EXPORT_SELECTION": [
     {

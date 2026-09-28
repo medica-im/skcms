@@ -12,11 +12,13 @@
 	import { faCircle } from '@fortawesome/free-solid-svg-icons';
 	import { faCircleCheck, faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 	import * as m from '$msgs';
+	import { inviteeStatusOf } from './inviteeFilter';
 
 	let { active, redeemedAt }: { active: boolean | null | undefined; redeemedAt: number | null | undefined } =
 		$props();
 
-	const status = $derived(redeemedAt != null ? 'used' : active ? 'active' : 'disabled');
+	// The same rule the list's filter uses, so a badge never disagrees with it.
+	const status = $derived(inviteeStatusOf({ active, redeemedAt }));
 </script>
 
 <span data-testid="invitee-status" data-state={status} class="inline-flex items-center gap-2 text-sm">

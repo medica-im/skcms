@@ -519,6 +519,8 @@ export async function seedInvitee(options: {
 	createdAt?: number;
 	/** When it was used, in milliseconds; never used by default. */
 	redeemedAt?: number;
+	/** The "Actif" flag; false makes a deactivated invitation. True by default. */
+	active?: boolean;
 }): Promise<{ uid: string; email: string }> {
 	const email = `e2e-invitee-${Date.now()}-${Math.random().toString(36).slice(2, 6)}@example.org`;
 	// createdAt cannot be written in the CREATE: an APOC trigger in the graph
@@ -534,7 +536,7 @@ org_uid = Organization.objects.get(site__domain=${JSON.stringify(options.siteDom
 rows, _ = db.cypher_query("""
 MATCH (e:Entry {uid: $org})
 CREATE (i:Invitee {uid: replace(randomUUID(), '-', ''), email: $email,
-                   name: $name, role: 'staff', active: true,
+                   name: $name, role: 'staff', active: ${options.active === false ? 'false' : 'true'},
                    ${SEED_TAG}: true})-[:INVITED_TO]->(e)
 RETURN i.uid
 """, {"org": org_uid, "email": ${JSON.stringify(email)}, "name": ${JSON.stringify(options.name)}})

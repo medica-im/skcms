@@ -44,6 +44,17 @@ describe('SortHeader', () => {
 		await expect.element(icon()).toHaveAttribute('data-direction', 'asc');
 	});
 
+	// A column that cannot order the rows shown (every one of them lacks the
+	// value) is disabled rather than clickable-and-useless.
+	it('can be disabled, and then does nothing when pressed', async () => {
+		const onclick = vi.fn();
+		render(SortHeader, { label: 'Utilisation', active: false, direction: 'desc', onclick, disabled: true });
+		const button = page.getByRole('button', { name: 'Utilisation' });
+		await expect.element(button).toBeDisabled();
+		await button.click({ force: true });
+		expect(onclick).not.toHaveBeenCalled();
+	});
+
 	it('calls onclick when pressed', async () => {
 		const onclick = vi.fn();
 		render(SortHeader, { label: 'Création', active: true, direction: 'desc', onclick });

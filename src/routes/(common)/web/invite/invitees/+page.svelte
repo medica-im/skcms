@@ -17,6 +17,14 @@
 	import { sortByDateTime, type SortDirection } from '$lib/utils/dateTimeSort';
 	import SortHeader from '$lib/components/Table/SortHeader.svelte';
 	import SortSelect from '$lib/components/Table/SortSelect.svelte';
+	import InviteeStatusFilter from '$lib/Invitee/InviteeStatusFilter.svelte';
+	import {
+		countByStatus,
+		filterFromParam,
+		filterInvitees,
+		filterToParam,
+		type InviteeFilter
+	} from '$lib/Invitee/inviteeFilter';
 
 	let { data }: { data: PageData } = $props();
 	let invitees = $derived(data.invitees);
@@ -39,16 +47,41 @@
 		}
 	}
 
-	let filteredInvitees = $derived.by(() => {
-		if (!invitees) return invitees;
+	// The status filter lives in the address (?statut=...), so the back
+	// button, a reload and a shared link keep it. "Toutes" is no parameter.
+	const statusFilter = $derived(filterFromParam(page.url.searchParams.get('statut')));
+
+	function setStatusFilter(filter: InviteeFilter) {
+		const url = new URL(page.url);
+		const param = filterToParam(filter);
+		if (param) url.searchParams.set('statut', param);
+		else url.searchParams.delete('statut');
+		goto(url, { keepFocus: true, noScroll: true });
+	}
+
+	// Active and deactivated invitations have no use date, so sorting them by
+	// use would say nothing: they sort by creation then, and the Utilisation
+	// header is disabled.
+	const canSortByUse = $derived(statusFilter === 'all' || statusFilter === 'used');
+	const effectiveSortColumn = $derived<SortColumn>(canSortByUse ? sortColumn : 'createdAt');
+
+	// Search first, so the counts describe what the search lets through.
+	let searchedInvitees = $derived.by(() => {
+		if (!invitees || !searchTerm.trim()) return invitees;
 		const term = normalize(searchTerm);
-		const found = searchTerm.trim()
-			? invitees.filter(
-				(inv) => (inv.name && normalize(inv.name).includes(term)) || normalize(inv.email).includes(term)
-			)
-			: invitees;
-		return sortByDateTime(found, (inv) => inv[sortColumn], sortDirection);
+		return invitees.filter(
+			(inv) => (inv.name && normalize(inv.name).includes(term)) || normalize(inv.email).includes(term)
+		);
 	});
+	const statusCounts = $derived(countByStatus(searchedInvitees ?? []));
+	let filteredInvitees = $derived(
+		searchedInvitees &&
+			sortByDateTime(
+				filterInvitees(searchedInvitees, statusFilter),
+				(inv) => inv[effectiveSortColumn],
+				sortDirection
+			)
+	);
 	let editModal: EditInviteeModal;
 	let deleteModal: DeleteInviteeModal;
 	let createOpen: boolean = $state(false);
@@ -168,14 +201,16 @@
 		{/if}
 	</header>
 
-	<!-- Search -->
-	<div class="mb-4 max-w-sm">
+	<!-- Search, and the status filter: side by side on a large screen,
+	     stacked on a narrow one. -->
+	<div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center">
 		<input
 			type="search"
-			class="input"
+			class="input w-full max-w-sm"
 			placeholder="{m.INVITEE_COL_NAME()} / {m.INVITEE_COL_EMAIL()}..."
 			bind:value={searchTerm}
 		/>
+		<InviteeStatusFilter value={statusFilter} counts={statusCounts} onchange={setStatusFilter} />
 	</div>
 
 	{#if exportMode}
@@ -205,12 +240,16 @@
 	{/if}
 
 	<SortSelect
-		value={`${sortColumn}:${sortDirection}`}
+		value={`${effectiveSortColumn}:${sortDirection}`}
 		options={[
 			{ value: 'createdAt:desc', label: m.INVITEE_SORT_CREATED_NEWEST() },
 			{ value: 'createdAt:asc', label: m.INVITEE_SORT_CREATED_OLDEST() },
-			{ value: 'redeemedAt:desc', label: m.INVITEE_SORT_REDEEMED_NEWEST() },
-			{ value: 'redeemedAt:asc', label: m.INVITEE_SORT_REDEEMED_OLDEST() }
+			...(canSortByUse
+				? [
+						{ value: 'redeemedAt:desc', label: m.INVITEE_SORT_REDEEMED_NEWEST() },
+						{ value: 'redeemedAt:asc', label: m.INVITEE_SORT_REDEEMED_OLDEST() }
+					]
+				: [])
 		]}
 		onchange={(value) => {
 			const [column, direction] = value.split(':');
@@ -231,15 +270,16 @@
 		<span>{m.INVITEE_COL_ROLE()}</span>
 		<SortHeader
 			label={m.INVITEE_COL_CREATED()}
-			active={sortColumn === 'createdAt'}
+			active={effectiveSortColumn === 'createdAt'}
 			direction={sortDirection}
 			onclick={() => sortBy('createdAt')}
 		/>
 		<SortHeader
 			label={m.INVITEE_COL_REDEEMED()}
-			active={sortColumn === 'redeemedAt'}
+			active={effectiveSortColumn === 'redeemedAt'}
 			direction={sortDirection}
 			onclick={() => sortBy('redeemedAt')}
+			disabled={!canSortByUse}
 		/>
 		<span>{m.INVITEE_COL_STATUS()}</span>
 		<span class="col-span-3 text-center">{m.INVITEE_COL_ACTIONS()}</span>

@@ -20,19 +20,24 @@
 		label,
 		active,
 		direction,
-		onclick
+		onclick,
+		disabled = false
 	}: {
 		label: string;
 		active: boolean;
 		direction: SortDirection;
 		onclick: () => void;
+		/** For a column that cannot order the rows shown: none of them has the value. */
+		disabled?: boolean;
 	} = $props();
 </script>
 
 <button
 	type="button"
-	class="group inline-flex min-h-11 items-center gap-2 rounded-token px-2 font-semibold hover:variant-soft-surface
-		{active ? 'text-primary-700-200-token' : ''}"
+	class="group inline-flex min-h-11 items-center gap-2 rounded-token px-2 font-semibold
+		{disabled ? 'opacity-50 cursor-not-allowed' : 'hover:variant-soft-surface'}
+		{active && !disabled ? 'text-primary-700-200-token' : ''}"
+	{disabled}
 	{onclick}
 >
 	<span>{label}</span>
