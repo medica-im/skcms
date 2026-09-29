@@ -58,6 +58,15 @@
 							<input type="hidden" name="redirectTo" value={redirectTo} />
 						</div>
 					</SignIn>
+					{#if provider.name === 'google'}
+						<a
+							href="{base}/compte-google"
+							class="anchor -mt-4 inline-block py-3"
+							data-testid="google-account-help-link"
+						>
+							Pas de compte Google ? Mode d'emploi
+						</a>
+					{/if}
 				{/each}
 			</div>
 		</div>
