@@ -76,6 +76,13 @@ vi.mock('$lib/utils/request', () => ({
 	authReq: (url: string, method: string) => new Request(url, { method })
 }));
 
+// The load redirects former slugs under the site's base path. The real
+// $app/paths pulls in SvelteKit's runtime, and in a full vitest run, with the
+// browser project transforming beside it, that first import took up to 13 s:
+// every test here timed out, and each timed-out load then ran into the next
+// test's backend.
+vi.mock('$app/paths', () => ({ base: '' }));
+
 /**
  * A backend that answers the entry and the user lookups, and records what was
  * asked of it. `globalThis.fetch` and not the load's `fetch`: the load reaches
