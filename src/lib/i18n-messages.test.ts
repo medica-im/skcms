@@ -40,6 +40,10 @@ const SAME_IN_BOTH = new Set([
 	'CANCER',
 	'COL_ACTIONS',
 	'CONTACT_TITLE',
+	'EMAIL_IMAGE_TITLE',
+	'EMAIL_TEMPLATE_FORMAT',
+	'EMAIL_TEMPLATE_FORMAT_HTML',
+	'EMAIL_TEMPLATE_PREVIEW_HTML_TAB',
 	'EFFECTOR_TYPE_COL_ACTIONS',
 	'EFFECTOR_TYPE_COL_LABELS',
 	'EFFECTOR_TYPE_COL_PARENT',
@@ -55,6 +59,8 @@ const SAME_IN_BOTH = new Set([
 	'SITES_SINGULAR',
 	'SITES_TITLE',
 	'VACANT',
+	// Made only of placeholders, a unit and punctuation.
+	'EMAIL_IMAGE_DIMENSIONS',
 	// Plural forms whose two variants happen to match in both languages.
 	'SITE_COUNT',
 	'invitation',
