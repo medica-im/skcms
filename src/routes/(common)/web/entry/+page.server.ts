@@ -1,5 +1,6 @@
 import { error, redirect } from '@sveltejs/kit';
 import { ORIGIN } from '$lib/utils/origin.ts';
+import { creationPrefill } from '$lib/Web/Entry/entryType.ts';
 import { authReq } from '$lib/utils/request';
 import type { User } from '$src/lib/interfaces/user.interface';
 import type { Effector } from '$src/lib/interfaces/v2/effector';
@@ -46,9 +47,18 @@ export const load: PageServerLoad = async ({ fetch, locals, params, cookies, par
    } else {
       effectors = await response.json() as Effector[];
    }
+   // ?facility=&effector=: the page opens with this place and person already
+   // chosen, the way an entry whose type can no longer change is replaced.
+   const prefill = await creationPrefill<Effector>(
+      `${ORIGIN}/api/v2`,
+      url.searchParams,
+      (input) => globalThis.fetch(authReq(input, 'GET', cookies))
+   );
    return {
       effectors: effectors,
       user: user,
-      session: session
+      session: session,
+      initialFacility: prefill.facility,
+      initialEffector: prefill.effector
    }
 }

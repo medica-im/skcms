@@ -63,7 +63,10 @@ export const load: PageLoad = async ({ fetch, params, depends, parent, data, url
         componentData = {
             fullentry: fullentry,
             memberships: memberships,
-            users: users
+            users: users,
+            // From the server load only: the permission is per user and needs
+            // the request's cookies, like users above.
+            typeEdit: data?.typeEdit ?? null
         };
     }
     // The list row carries what the full entry lacks: the type's raw_label

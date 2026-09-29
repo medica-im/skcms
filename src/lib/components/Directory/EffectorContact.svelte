@@ -35,6 +35,7 @@
 	import CreateSoMed from '$lib/Web/SocialMedia/Create.svelte';
 	import UpdateEffector from '$lib/Web/Effector/UpdateEffectorModal.svelte';
 	import EntryToggleActive from '$lib/Web/Entry/EntryToggleActive.svelte';
+	import EffectorTypeEdit from '$lib/Web/Entry/EffectorTypeEdit.svelte';
 	import Tag from '$lib/Tag/Tag.svelte';
 	import { setEditMode, getEditMode, setEntryUid, setEffectorUid } from './context';
 	import UuidHex from '$lib/Uuid/UuidHex.svelte';
@@ -108,7 +109,19 @@
 						<UuidHyphen data={fullentry?.effector_uid} />
 					</div>
 				{/if}
-				<h3 class="h4 italic">{fullentry?.effector_type?.label}</h3>
+				<div class="flex flex-wrap items-center gap-2 min-w-0">
+					<h3 class="h4 italic">{fullentry?.effector_type?.label}</h3>
+					{#if $editMode}
+						<EffectorTypeEdit
+							entryUid={fullentry.uid}
+							currentType={fullentry.effector_type}
+							facilityUid={fullentry.facility?.uid}
+							effectorUid={fullentry.effector_uid}
+							active={fullentry.active !== false}
+							permission={data.typeEdit}
+						/>
+					{/if}
+				</div>
 				{#if r.SuperUser && $editMode}
 					<div class="flex flex-wrap items-center gap-2 min-w-0">
 						<span class="font-mono text-sm break-all">type {fullentry?.effector_type?.uid}</span>

@@ -133,3 +133,42 @@ export const getAvailableDirectories = query(async () => {
 	}
 	return [];
 });
+/**
+ * Changing an entry's effector type (backend api/routers/entry_type.py).
+ * Values, not throws: a refusal is an answer the page words by its code.
+ */
+const TypeChange = z.object({ uid: z.string(), effector_type: z.string() });
+
+export type RemovedTag = { uid: string; label: string | null };
+
+export const previewEntryTypeChange = command(TypeChange, async ({ uid, effector_type }) => {
+	const { cookies } = getRequestEvent();
+	const url = `${variables.BASE_URI}/api/v2/entries/${uid}/effector-type/preview?effector_type=${encodeURIComponent(effector_type)}`;
+	const response = await fetch(authReq(url, 'GET', cookies));
+	if (!response.ok) return { ok: false, removedTags: [] as RemovedTag[] };
+	return { ok: true, removedTags: ((await response.json()).removed_tags ?? []) as RemovedTag[] };
+});
+
+export const changeEntryType = command(TypeChange, async ({ uid, effector_type }) => {
+	const { cookies } = getRequestEvent();
+	const url = `${variables.BASE_URI}/api/v2/entries/${uid}/effector-type`;
+	const response = await fetch(authReq(url, 'PUT', cookies, JSON.stringify({ effector_type })));
+	let body: any = undefined;
+	try {
+		body = await response.json();
+	} catch {
+		// A proxy error page is not JSON; the status still says enough.
+	}
+	if (response.ok) {
+		return { success: true, status: response.status, slug: body?.slug as string, removedTags: (body?.removed_tags ?? []) as RemovedTag[] };
+	}
+	console.error(`PUT ${url} -> ${response.status} ${JSON.stringify(body?.detail ?? '')}`);
+	const detail = body?.detail;
+	return {
+		success: false,
+		status: response.status,
+		code: typeof detail?.code === 'string' ? (detail.code as string) : undefined,
+		// duplicate: the slug of the entry that already has this person, place and type.
+		slug: typeof detail?.slug === 'string' ? (detail.slug as string) : undefined
+	};
+});

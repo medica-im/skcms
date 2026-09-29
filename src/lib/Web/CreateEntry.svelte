@@ -8,7 +8,7 @@
 	import Fa from 'svelte-fa';
 	import { page } from '$app/state';
 	import { preloadData, pushState, goto } from '$app/navigation';
-	import { tick } from 'svelte';
+	import { tick, untrack } from 'svelte';
 	import { fade, slide } from 'svelte/transition';
 	import SelectEffector from '$routes/(common)/web/effector/select/+page.svelte';
 	import NewSelectEffectorModal from '$lib/Web/Effector/NewSelectEffectorModal.svelte';
@@ -30,10 +30,16 @@
 
 	let {
 		user,
-		effectors
+		effectors,
+		initialFacility = undefined,
+		initialEffector = undefined
 	}: {
 		user: User;
 		effectors: Effector[];
+		/** Preset from ?facility= (see creationPrefill): the step shows as answered. */
+		initialFacility?: { label: string; value: string };
+		/** Preset from ?effector=: once a type is chosen, the person step shows as answered. */
+		initialEffector?: Effector;
 	} = $props();
 
 	const defaultDpt: SelectType | undefined = page.data.directory.department_default
@@ -50,8 +56,8 @@
 	let memberships: SelectType[] = $state([]);
 	const displayMembershipStep: boolean = ["superuser", "administrator"].includes(page.data.user.role);
 	let membershipsDone: boolean = $state(!displayMembershipStep);
-	let facility: { label: string; value: string } | undefined = $state();
-	let effector: Effector | undefined = $state();
+	let facility: { label: string; value: string } | undefined = $state(untrack(() => initialFacility));
+	let effector: Effector | undefined = $state(untrack(() => initialEffector));
 	let selectedCommune: { label: string; value: string } | undefined = $state(communeDefault);
 	let facilityCount: number = $state(0);
 	let department: { label: string; value: string } | undefined = $state(defaultDpt);

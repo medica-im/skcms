@@ -8,6 +8,8 @@ export const load: PageLoad = async ({ params, fetch, parent, data }) => {
     return {
         user: data.user,
         effectors: data.effectors,
-        session: data.session
+        session: data.session,
+        initialFacility: data.initialFacility,
+        initialEffector: data.initialEffector
     }
 }
