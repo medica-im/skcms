@@ -271,14 +271,13 @@
 			{/if}
 			{#if hasChanges}
 				<span class="badge variant-soft-warning" data-testid="template-unsaved">{m.EMAIL_TEMPLATE_UNSAVED()}</span>
-			{:else if message}
-				<span
-					class="badge {message.ok ? 'variant-soft-success' : 'variant-soft-error'}"
-					data-testid="template-message"
-				>
-					{#if message.ok}<span><Fa icon={faCheck} /></span>{/if}
+			{:else if message?.ok}
+				<span class="inline-flex items-center gap-2" data-testid="template-message">
+					<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
 					<span>{message.text}</span>
 				</span>
+			{:else if message}
+				<span class="badge variant-soft-error" data-testid="template-message">{message.text}</span>
 			{/if}
 		</div>
 		{#if hasChanges && message && !message.ok}

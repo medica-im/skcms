@@ -89,7 +89,13 @@ const EXEMPT: Record<string, string> = {
 		'single badge would claim success for a batch that partly failed.',
 	'EntryCreationForm.svelte':
 		'Navigates to the created entry on success, so the confirmation is the ' +
-		'new page rather than a badge on a form the reader has left.'
+		'new page rather than a badge on a form the reader has left.',
+	'Email/Template/ImageTile.svelte':
+		'Renaming closes its dialog and the tile shows the new name; deleting ' +
+		'removes the tile. The change happens where the reader is looking, so it ' +
+		'is the confirmation.',
+	'Email/Template/TemplatePreview.svelte':
+		'Saves nothing: its result is the rendered preview, which is shown.'
 };
 
 describe('saving something says so', () => {

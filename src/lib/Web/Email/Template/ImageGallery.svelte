@@ -54,8 +54,8 @@
 			<span class="text-sm text-surface-600-300-token">{m.EMAIL_IMAGE_FORMATS()}</span>
 			{#if !uploading && result}
 				{#if result.success}
-					<span class="badge variant-soft-success" data-testid="email-image-uploaded">
-						<span><Fa icon={faCheck} /></span>
+					<span class="inline-flex items-center gap-2" data-testid="email-image-uploaded">
+						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
 						<span>{m.EMAIL_IMAGE_UPLOADED()}</span>
 					</span>
 				{:else}
