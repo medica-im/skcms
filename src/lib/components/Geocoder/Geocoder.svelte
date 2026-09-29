@@ -113,6 +113,11 @@
 		return params;
 	}
 
+	// The address service is a public one we don't run (it answered 504 on
+	// dev.unipa.fr, 29 Sep 2026). A failure is said under the field: an empty
+	// list alone looks like a broken page.
+	let unavailable = $state(false);
+
 	async function fetchGeojson() {
 		if ($addressFeature) {
 			return;
@@ -121,17 +126,21 @@
 			return;
 		}
 		let url = options.url + buildQueryString();
-		const res = await fetch(url, {
-			method: 'GET',
-			mode: 'cors'
-		});
-		if (!res.ok) {
-			const message = `An error has occured: ${res.status}`;
-			throw new Error(message);
-		} else {
+		try {
+			const res = await fetch(url, {
+				method: 'GET',
+				mode: 'cors'
+			});
+			if (!res.ok) {
+				throw new Error(`Address service answered ${res.status}`);
+			}
 			const geojson = await res.json();
-			//response = geojson;
 			addressOptions = getAddressOptions(geojson);
+			unavailable = false;
+		} catch (error) {
+			console.warn('Address search failed:', error);
+			addressOptions = [];
+			unavailable = true;
 		}
 	}
 	const addressFromUrl: AddressFeature | null = $derived.by(() => {
@@ -195,6 +204,9 @@ $addressFeature: {JSON.stringify($addressFeature)}-->
 		<DocsIcon name="clear" width="w-5" height="h-5" />
 	</button>
 </div>
+{#if unavailable && $inputAddress}
+	<p role="alert" class="text-sm text-error-700-200-token">{m.ADDRESSBOOK_GEOCODER_UNAVAILABLE()}</p>
+{/if}
 {#if visible}
 	<SelectAddress {commune} {addressOptions} bind:addressFeature={$addressFeature} bind:inputClass bind:isValid onSelect={updateUrlWithAddress} />
 {/if}

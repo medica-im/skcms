@@ -36,6 +36,7 @@
   "ADDRESSBOOK_FACILITIES_PLACEHOLDER": "Select by facility...",
   "ADDRESSBOOK_GEOCODER_ARIA_LABEL": "Search for person's address",
   "ADDRESSBOOK_GEOCODER_PLACEHOLDER": "Enter the person's address...",
+  "ADDRESSBOOK_GEOCODER_UNAVAILABLE": "Address search is temporarily unavailable. Please try again in a moment.",
   "ADDRESSBOOK_GOTOADDRESSBOOK": "Go back to addressbook",
   "ADDRESSBOOK_GOTOSEARCH": "Go back to search results",
   "ADDRESSBOOK_GOTOSITE": "Go back to site",

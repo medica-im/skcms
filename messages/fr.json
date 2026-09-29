@@ -36,6 +36,7 @@
   "ADDRESSBOOK_FACILITIES_PLACEHOLDER": "Sélectionner par établissement...",
   "ADDRESSBOOK_GEOCODER_ARIA_LABEL": "Recherche de l'adresse de la personne",
   "ADDRESSBOOK_GEOCODER_PLACEHOLDER": "Entrer l'adresse de la personne...",
+  "ADDRESSBOOK_GEOCODER_UNAVAILABLE": "La recherche d'adresse est momentanément indisponible. Réessayez dans un instant.",
   "ADDRESSBOOK_GOTOADDRESSBOOK": "Retourner vers l'annuaire",
   "ADDRESSBOOK_GOTOSEARCH": "Retourner aux résultats de recherche",
   "ADDRESSBOOK_GOTOSITE": "Retourner au site",
