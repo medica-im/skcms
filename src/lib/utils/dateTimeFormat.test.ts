@@ -8,7 +8,7 @@
  * built in local time, as the formatter reads calendar days in local time.
  */
 import { describe, it, expect } from 'vitest';
-import { formatListDateTime, formatFullDateTime } from './dateTimeFormat';
+import { formatListDateTime, formatFullDateTime, formatDate } from './dateTimeFormat';
 
 const now = new Date(2026, 8, 28, 16, 0); // 28 Sep 2026, 16:00 local
 const at = (d: number, h: number, m: number) => new Date(2026, 8, d, h, m).getTime();
@@ -64,5 +64,34 @@ describe('formatFullDateTime', () => {
 
 	it('is null when there is no date', () => {
 		expect(formatFullDateTime(null, 'fr')).toBeNull();
+	});
+});
+
+/**
+ * A day, in the organization's time zone rather than the machine's: SSR runs
+ * in UTC, hydration in the reader's browser, and a post published just after
+ * midnight in Paris would otherwise show the previous day, then flip.
+ */
+describe('formatDate', () => {
+	const paris = { locale: 'fr', timeZone: 'Europe/Paris' };
+
+	it('writes the day in full, in the locale', () => {
+		expect(formatDate('2026-09-28T10:00:00.000+02:00', paris)).toBe('28 septembre 2026');
+		expect(formatDate('2026-09-28T10:00:00.000+02:00', { locale: 'en', timeZone: 'Europe/Paris' })).toBe(
+			'September 28, 2026'
+		);
+	});
+
+	it('counts the day in the organization’s time zone, not the server’s', () => {
+		// 00:30 in Paris is still the 27th in UTC.
+		expect(formatDate('2026-09-27T22:30:00.000Z', paris)).toBe('28 septembre 2026');
+		expect(formatDate('2026-09-27T22:30:00.000Z', { locale: 'fr', timeZone: 'America/Martinique' })).toBe(
+			'27 septembre 2026'
+		);
+	});
+
+	it('is null when there is no date', () => {
+		expect(formatDate(null, paris)).toBeNull();
+		expect(formatDate('', paris)).toBeNull();
 	});
 });

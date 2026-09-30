@@ -10,6 +10,7 @@ export interface Organization {
     name: string
     company_name: string
     language: string
+    timezone: string
     formatted_name: string
     // Optional short label ("MSP Gadagne" for "maison de santé de Gadagne").
     // Most organisations have none, so every reader must fall back to

@@ -48,3 +48,16 @@ export function formatFullDateTime(value: DateTimeValue, locale: string): string
 	if (time === null) return null;
 	return new Intl.DateTimeFormat(locale, { dateStyle: 'full', timeStyle: 'short' }).format(time);
 }
+
+/**
+ * The day alone, "28 septembre 2026". `timeZone` is the organization's: left
+ * out, SSR (UTC) and hydration (the browser) can disagree on the day.
+ */
+export function formatDate(
+	value: DateTimeValue,
+	{ locale, timeZone }: { locale: string; timeZone: string }
+): string | null {
+	const time = toTime(value);
+	if (time === null) return null;
+	return new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeZone }).format(time);
+}

@@ -2,6 +2,9 @@
 	import RoundCard from '$lib/RoundCard/RoundCard.svelte';
 	import SignupForm from '$lib/Ghost/SignupForm.svelte';
 	import type { GhostSiteResponse, GhostSite, GhostError } from "$lib/interfaces/ghost.interface";
+	import { page } from '$app/state';
+	import { getLocale } from '../../paraglide/runtime.js';
+	import { formatDate } from '$lib/utils/dateTimeFormat';
 
 	let { data, ghost }: {
   data: any,
@@ -10,10 +13,7 @@
 
 const ghostData: GhostSite|null = ghost?.success ? ghost.data : null;
 
-	function formatDate(datetime: string) {
-		const event = new Date(datetime);
-		return event.toLocaleDateString();
-	}
+	const timeZone = $derived(page.data.organization?.timezone ?? 'Europe/Paris');
 </script>
 
 {#if data && Array.isArray(data?.posts) && data?.posts?.length}
@@ -32,7 +32,7 @@ const ghostData: GhostSite|null = ghost?.success ? ghost.data : null;
 					img={post.feature_image}
 					alt={post.feature_image_alt}
 					title={post.title}
-					date={formatDate(post.published_at)}
+					date={formatDate(post.published_at, { locale: getLocale(), timeZone }) ?? ''}
 					excerpt={post.custom_excerpt}
 				/>
 			{/each}
