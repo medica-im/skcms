@@ -55,6 +55,22 @@ export const SITE_ORIGINS = {
 export type SiteName = keyof typeof SITE_ORIGINS;
 
 /**
+ * Staging origin per site, chosen with SITE_TARGET=staging. Unlike SITE_ORIGIN,
+ * which points a whole run at one origin, this keeps each spec on its own
+ * tenant when several sites run together.
+ *
+ * Staging runs the built Node server, not Vite: errors that only exist in the
+ * bundled SSR (a hard reload 500ing where client-side navigation works) show
+ * there and nowhere on dev. Same base path as dev — BASE_PATHS applies to both.
+ */
+const STAGING_ORIGINS: Partial<Record<SiteName, string>> = {
+	'annuaire.medica.im': 'https://staging.annuaire.medica.im',
+	// The staging WordPress, which proxies /annuaire to the app — not the app's
+	// own host (staging.ipa.medica.im), where WordPress's links and assets 404.
+	'unipa.fr': 'https://staging.unipa.fr'
+};
+
+/**
  * The base path a site's app is served under, when it is not the origin root.
  *
  * This is BASE_PATH at build time (`.env.dev.<site>`), which is a property of
@@ -67,6 +83,11 @@ const BASE_PATHS: Partial<Record<SiteName, string>> = {
 	// Keep in step with BASE_PATH in .env.dev.unipa.fr.
 	'unipa.fr': '/annuaire'
 };
+
+/** The site's BASE_PATH, '' when the app is served at the origin root. */
+export function basePathFor(site: SiteName): string {
+	return BASE_PATHS[site] ?? '';
+}
 
 /**
  * One site per way of mounting the directory, for the mount-sensitive specs
@@ -154,6 +175,11 @@ export async function directoryPathFor(site: SiteName): Promise<string> {
 export function originFor(site: SiteName): string {
 	const override = process.env.SITE_ORIGIN;
 	if (override) return override.replace(/\/$/, '');
+	if (process.env.SITE_TARGET === 'staging') {
+		const staging = STAGING_ORIGINS[site];
+		if (!staging) throw new Error(`no staging origin for "${site}" in STAGING_ORIGINS`);
+		return staging;
+	}
 	const origin = SITE_ORIGINS[site];
 	if (!origin) {
 		throw new Error(
@@ -221,7 +247,9 @@ export async function requireSite(site: SiteName): Promise<void> {
 	// quick.
 	for (let attempt = 0; attempt < 2; attempt++) {
 		try {
-			const response = await fetch(`${origin}/`, {
+			// The app's root, not the origin's: on unipa the origin root is
+			// WordPress on dev and a 404 on staging.
+			const response = await fetch(`${origin}${basePathFor(site)}/`, {
 				redirect: 'follow',
 				signal: AbortSignal.timeout(budgetMs)
 			});
