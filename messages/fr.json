@@ -218,6 +218,7 @@
   "ERROR_LOADING_USERS": "Impossible de charger les utilisateurs associés.",
   "EXIT_FULLSCREEN": "Quitter le plein écran",
   "FACILITIES_ALL": "Tous les établissements",
+  "FACILITIES_ALL_SITES": "Établissements de tous les sites",
   "FACILITY": [
     {
       "declarations": [

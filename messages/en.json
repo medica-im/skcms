@@ -218,6 +218,7 @@
   "ERROR_LOADING_USERS": "Could not load the associated users.",
   "EXIT_FULLSCREEN": "Exit fullscreen",
   "FACILITIES_ALL": "All facilities",
+  "FACILITIES_ALL_SITES": "Facilities from every site",
   "FACILITY": [
     {
       "declarations": [

@@ -8,6 +8,7 @@
 	import type { Commune, DepartmentOfFrance, FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 	import { getCommunesByDpt, getDepartments, getFacilities } from './data';
 	import { normalize } from '$lib/helpers/stringHelpers.ts';
+	import { userRoles } from '$lib/auth/roles';
 
 	const communeFilter = (label: any, filterText: any) => {
 		return normalize(label).includes(normalize(filterText));
@@ -29,6 +30,17 @@
 	} = $props();
 	let allFacilities: FacilityV2[] | undefined = $state();
 	let departmentCode: string | undefined = $derived(department?.value);
+
+	const r = $derived(userRoles(page.data?.user?.role));
+	// Superusers only: every site's facilities, e.g. for a new project's
+	// organization entry. Off by default so the site's own list stays short.
+	let allSites: boolean = $state(false);
+
+	const loadFacilities = async () => {
+		allFacilities = undefined;
+		allFacilities = await getFacilities(allSites ? 'all' : 'site');
+		updateFacilityCount();
+	};
 
 	let communes: Commune[]|undefined = $state();
 	let departments: DepartmentOfFrance[]|undefined = $state();
@@ -79,7 +91,7 @@
 
 	onMount(async () => {
 		departments = await getDepartments();
-		allFacilities = await getFacilities();
+		await loadFacilities();
 		if ( department ) {
 			communes = await getCommunesByDpt(department.value);
 		} else {
@@ -177,6 +189,12 @@
 		{/if}
 	</div>
 	<div class="grid grid-cols-1 gap-4 variant-ghost p-4">
+		{#if r.SuperUser}
+			<label class="flex items-center gap-2 min-h-11">
+				<input type="checkbox" bind:checked={allSites} onchange={loadFacilities} />
+				{m.FACILITIES_ALL_SITES()}
+			</label>
+		{/if}
 		{#if allFacilities}
 			<p>{facilityLabel(allFacilities)}</p>
 			<div class="svelte-select-glow">
