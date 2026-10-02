@@ -507,7 +507,7 @@ context_for_site() {
 # tenant per server with --mode, exactly as the e2e workers already do for four
 # servers at once.
 ensure_all_site_servers() {
-    local site ctx started=0
+    local site ctx started=()
     while read -r site; do
         [[ -z "$site" ]] && continue
         ctx="$(context_for_site "$site")"
@@ -515,9 +515,35 @@ ensure_all_site_servers() {
             warn "no dev.yml context serves '$site'; its specs will fail"
             continue
         fi
-        SITE_CONTEXT="$ctx" ensure_site_server_for "$ctx" && started=$((started + 1))
+        SITE_CONTEXT="$ctx" ensure_site_server_for "$ctx" && started+=("$ctx")
     done < <(sites_project_hosts)
-    (( started )) || warn "no site servers started; the sites specs will fail"
+    (( ${#started[@]} )) || { warn "no site servers started; the sites specs will fail"; return 0; }
+    warm_site_servers "${started[@]}"
+}
+
+# Each site server's app root once more, after the last one has started.
+#
+# Every Vite start regenerates src/paraglide, and every server already running
+# drops its compiled SSR modules on that change. So the servers started first
+# were cold again before Playwright ran: annuaire, warmed at 12:57:22 on
+# 2026-10-02, was invalidated by lyon3's start at 12:57:36 and unipa's at
+# 12:57:49, and eight minutes later, under the eight BDD workers, its first
+# page took more than requireSite's 15s — three specs failed before testing
+# anything, retry included. Warming here, unloaded, costs a few seconds.
+#
+# The app root, not the origin's: on unipa the origin root is WordPress, and
+# warming it would compile nothing.
+warm_site_servers() {
+    local ctx host origin base result
+    for ctx in "$@"; do
+        host="$(SITE_CONTEXT="$ctx" site_host)"
+        origin="$(site_origin "$host")"
+        base="$(sed -n 's/^BASE_PATH="\?\([^"]*\)"\?/\1/p' \
+            "$FRONTEND_DIR/.env.$host" 2>/dev/null | head -1)"
+        result="$(curl -skL -o /dev/null -w '%{http_code} in %{time_total}s' \
+            --max-time 120 "$origin$base/" 2>/dev/null)"
+        info "warmed $origin$base/ (${result:-no answer})"
+    done
 }
 
 # ensure_site_server for a named context, leaving any other site server up.
