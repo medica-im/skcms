@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { testGitEnv } from './testing/gitEnv';
 
 /**
  * The immutable tag a build stamps alongside :latest.
@@ -82,7 +83,7 @@ describe('deciding that a tree is dirty', () => {
 	let parent: string;
 	let sub: string;
 	const git = (cwd: string, ...args: string[]) =>
-		execFileSync('git', args, { cwd, encoding: 'utf8' }).trim();
+		execFileSync('git', args, { cwd, encoding: 'utf8', env: testGitEnv }).trim();
 
 	beforeEach(() => {
 		// A submodule, and a parent that embeds it, so the pointer can move the

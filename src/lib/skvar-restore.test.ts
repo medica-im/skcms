@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { testGitEnv } from './testing/gitEnv';
 
 /**
  * Putting the skvar submodule back after a release.
@@ -27,7 +28,7 @@ const SCRIPT = resolve(__dirname, '../../scripts/skvar-restore.sh');
 
 let dir: string;
 const git = (cwd: string, ...args: string[]) =>
-	execFileSync('git', args, { cwd, encoding: 'utf8' }).trim();
+	execFileSync('git', args, { cwd, encoding: 'utf8', env: testGitEnv }).trim();
 
 /** A repository standing in for the submodule, with two branches. */
 beforeEach(() => {

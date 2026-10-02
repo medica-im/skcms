@@ -22,10 +22,19 @@ import { resolve } from 'node:path';
 const SCRIPT = resolve(__dirname, '../../scripts/build-image.sh');
 const source = readFileSync(SCRIPT, 'utf8');
 
-/** Runs the script and returns stdout, whatever its exit status. */
+/**
+ * Runs the script and returns its output, whatever its exit status.
+ *
+ * stderr is piped, not inherited (execFileSync's default for it): the
+ * rejections these tests provoke on purpose — "no entry named
+ * 'no-such-image'" — otherwise land in test-all's log as if something broke.
+ */
 function run(...args: string[]): { out: string; status: number } {
 	try {
-		return { out: execFileSync('bash', [SCRIPT, ...args], { encoding: 'utf8' }), status: 0 };
+		return {
+			out: execFileSync('bash', [SCRIPT, ...args], { encoding: 'utf8', stdio: 'pipe' }),
+			status: 0
+		};
 	} catch (e: unknown) {
 		const err = e as { stdout?: string; stderr?: string; status?: number };
 		return { out: (err.stdout ?? '') + (err.stderr ?? ''), status: err.status ?? 1 };
