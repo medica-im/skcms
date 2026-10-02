@@ -183,13 +183,21 @@ if [[ "${TEST_ALL_LOCK:-1}" == "1" ]]; then
             echo "       Wait for it, or stop it with:  kill $holder" >&2
         else
             # No live holder, yet the lock is taken: something inherited the file
-            # descriptor. The worker dev servers are the usual culprits — they are
-            # started by a run and deliberately outlive it, so without O_CLOEXEC
-            # they hold the lock for as long as they are up, which is forever.
-            echo "       No run is active, so a stopped one leaked it — usually the" >&2
-            echo "       worker dev servers, which outlive the run that started them." >&2
-            echo "       Free it with:" >&2
-            echo "         ./scripts/e2e-workers.sh stop && rm -f '$LOCK_FILE'" >&2
+            # descriptor. Named rather than guessed: this used to say "usually
+            # the worker dev servers", and the real holders on 2026-10-02 were
+            # the site servers' launching subshells (see drop_lock).
+            echo "       No run is active, so a stopped one leaked it. Holding it:" >&2
+            local_holders=""
+            for fd in /proc/[0-9]*/fd/*; do
+                [[ "$(readlink "$fd" 2>/dev/null)" == "$LOCK_FILE" ]] || continue
+                pid="${fd#/proc/}"; pid="${pid%%/*}"
+                [[ "$pid" == "$$" ]] && continue
+                local_holders+="$pid "
+                echo "         $pid  $(tr '\0' ' ' < "/proc/$pid/cmdline" 2>/dev/null | cut -c1-100)" >&2
+            done
+            [[ -z "$local_holders" ]] && echo "         (none found)" >&2
+            echo "       Free it by stopping them:" >&2
+            echo "         kill ${local_holders:-<pids above>}" >&2
         fi
         echo "       Or bypass the lock entirely:  TEST_ALL_LOCK=0 $0 $*" >&2
         exit 1
@@ -222,6 +230,17 @@ without_lock() {
     else
         "$@"
     fi
+}
+
+# Closes the lock in the current shell, for the subshells that start a server
+# and outlive the run. without_lock is not enough there: a function sent to
+# the background (`without_lock nohup vite &`) runs in a forked bash, which
+# inherits the descriptor and waits on its child — so every site server kept a
+# copy of test-all.sh holding the lock for as long as it was up, and the next
+# run refused to start.
+drop_lock() {
+    [[ -n "${LOCK_FD:-}" ]] && eval "exec ${LOCK_FD}>&-"
+    return 0
 }
 
 step() { printf '\n%s==> %s%s\n' "$BOLD" "$1" "$NC"; }
@@ -462,7 +481,8 @@ ensure_site_server() {
     # this subshell lives as long as the server. Those saved copies were the
     # run log's pipe, so tee never saw EOF and the run hung after its summary.
     (exec > "$FRONTEND_DIR/.e2e-workers/site-$SITE_CONTEXT.log" 2>&1
-     cd "$FRONTEND_DIR" && without_lock nohup ./scripts/dev.sh --restart "$SITE_CONTEXT" &)
+     drop_lock
+     cd "$FRONTEND_DIR" && nohup ./scripts/dev.sh --restart "$SITE_CONTEXT" &)
 
     local waited=0
     while (( waited < 90 )); do
@@ -712,12 +732,13 @@ ensure_site_server_for() {
     # routes (scripts/site-routes.sh).
     local own="$FRONTEND_DIR/e2e-sites/$ctx"
     (exec > "$FRONTEND_DIR/.e2e-workers/site-$ctx.log" 2>&1
+     drop_lock
      cd "$FRONTEND_DIR" && \
         ROUTES_DIR="$ROUTES_DIR" SKVAR_DIR="$SKVAR_DIR" \
         SVELTEKIT_OUT_DIR="$own/svelte-kit" \
         PARAGLIDE_OUT_DIR="./src/paraglide-site-$ctx" \
         VITE_CACHE_DIR="$own/vite" \
-        without_lock nohup npx vite \
+        nohup npx vite \
         --port "$port" --strictPort --mode "site.$ctx" &)
 
     local waited=0
@@ -1090,7 +1111,8 @@ switch_context() {
     # for it.
     # exec first, not a redirection on the call: see ensure_site_server.
     (exec > "$FRONTEND_DIR/.e2e-workers/site-$ctx.log" 2>&1
-     cd "$FRONTEND_DIR" && without_lock nohup ./scripts/dev.sh --restart "$ctx" &)
+     drop_lock
+     cd "$FRONTEND_DIR" && nohup ./scripts/dev.sh --restart "$ctx" &)
 
     while (( waited < 120 )); do
         sleep 3; waited=$((waited + 3))
