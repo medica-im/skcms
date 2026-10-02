@@ -8,6 +8,8 @@ static
 # generated on start.
 /.svelte-kit-w*
 /src/paraglide-w*
+/src/paraglide-site-*
+/e2e-sites
 /.vite-w*
 /.e2e-workers
 .env.test.w*

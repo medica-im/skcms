@@ -523,13 +523,13 @@ ensure_all_site_servers() {
 
 # Each site server's app root once more, after the last one has started.
 #
-# Every Vite start regenerates src/paraglide, and every server already running
-# drops its compiled SSR modules on that change. So the servers started first
-# were cold again before Playwright ran: annuaire, warmed at 12:57:22 on
-# 2026-10-02, was invalidated by lyon3's start at 12:57:36 and unipa's at
-# 12:57:49, and eight minutes later, under the eight BDD workers, its first
-# page took more than requireSite's 15s — three specs failed before testing
-# anything, retry included. Warming here, unloaded, costs a few seconds.
+# A server's first page compiles its whole SSR module graph, and under the
+# eight BDD workers that took more than requireSite's 15s: on 2026-10-02 three
+# annuaire specs failed before testing anything, retry included. That run's
+# servers also shared src/paraglide, so each new start made the ones before it
+# cold again; they now each have their own (ensure_site_server_for), but the
+# first compile still has to happen somewhere, and here, unloaded, it costs a
+# few seconds.
 #
 # The app root, not the origin's: on unipa the origin root is WordPress, and
 # warming it would compile nothing.
@@ -576,13 +576,18 @@ site_stamp() { printf '%s/.e2e-workers/site-%s.started\n' "$FRONTEND_DIR" "$1"; 
 # Stale means: no stamp (started outside this script), a stamp naming a
 # different origin, or a stamp whose pid is no longer the one on the port.
 site_server_is_ours() {
-    local ctx="$1" port="$2" origin="$3" stamp pid_now stamped_origin stamped_pid
+    local ctx="$1" port="$2" origin="$3" skvar="$4" stamp pid_now stamped_origin stamped_pid
     stamp="$(site_stamp "$ctx")"
     [[ -f "$stamp" ]] || return 1
     # shellcheck source=/dev/null
     stamped_origin="$(sed -n '1p' "$stamp")"
     stamped_pid="$(sed -n '2p' "$stamp")"
     [[ "$stamped_origin" == "$origin" ]] || return 1
+    # And on the skvar checkout this run would give it. A tenant whose branch
+    # was the submodule's own is served from the submodule; once a later run
+    # leaves another branch checked out there, that server renders the wrong
+    # tenant again, so it is restarted onto its worktree.
+    [[ "$(sed -n '3p' "$stamp")" == "$skvar" ]] || return 1
     pid_now="$(pid_on_port "$port")"
     [[ -n "$pid_now" && "$pid_now" == "$stamped_pid" ]]
 }
@@ -611,6 +616,13 @@ ensure_site_server_for() {
     [[ -z "$port" || -z "$host" ]] && { warn "no dev.yml entry for $ctx"; return 1; }
     origin="$(site_origin "$host")"
 
+    # The tenant's own skvar, not whichever branch the submodule is on: see
+    # scripts/site-routes.sh. Sets ROUTES_DIR and SKVAR_DIR, local to here.
+    local ROUTES_DIR SKVAR_DIR routes_env
+    routes_env="$("$FRONTEND_DIR/scripts/site-routes.sh" "$ctx")" ||
+        { warn "could not prepare $ctx's routes; its specs will fail"; return 1; }
+    eval "$routes_env"
+
     # Answering *and* answering as the right tenant, and started by this script
     # for this origin. Any one of the three alone lets a wrong server through:
     #
@@ -629,7 +641,7 @@ ensure_site_server_for() {
             info "$host is answering (:$port; could not confirm which directory)"
             return 0
         fi
-        if site_server_is_ours "$ctx" "$port" "$origin"; then
+        if site_server_is_ours "$ctx" "$port" "$origin" "$SKVAR_DIR"; then
             info "$host is answering (:$port, directory '$serving')"
             return 0
         fi
@@ -689,8 +701,23 @@ ensure_site_server_for() {
     cp "$FRONTEND_DIR/$env_file" "$mode_env" 2>/dev/null || return 1
     rm -f "$(site_stamp "$ctx")"
     # exec first, not a redirection on the call: see ensure_site_server.
+    # ROUTES_DIR and SKVAR_DIR give it its tenant's routes. The three output
+    # dirs are its own, as for the e2e workers (scripts/e2e-workers.sh says
+    # why each is needed): sharing src/paraglide is also what made each new
+    # site server throw away the compiled modules of those started before it.
+    # None of them under .e2e-workers/: the browser loads the paraglide
+    # runtime, the generated client nodes and the skvar modules, and Vite
+    # refuses paths through a dot-directory — every page failed to hydrate.
+    # Paraglide's beside the e2e workers' own, the rest with the tenant's
+    # routes (scripts/site-routes.sh).
+    local own="$FRONTEND_DIR/e2e-sites/$ctx"
     (exec > "$FRONTEND_DIR/.e2e-workers/site-$ctx.log" 2>&1
-     cd "$FRONTEND_DIR" && without_lock nohup npx vite \
+     cd "$FRONTEND_DIR" && \
+        ROUTES_DIR="$ROUTES_DIR" SKVAR_DIR="$SKVAR_DIR" \
+        SVELTEKIT_OUT_DIR="$own/svelte-kit" \
+        PARAGLIDE_OUT_DIR="./src/paraglide-site-$ctx" \
+        VITE_CACHE_DIR="$own/vite" \
+        without_lock nohup npx vite \
         --port "$port" --strictPort --mode "site.$ctx" &)
 
     local waited=0
@@ -700,7 +727,8 @@ ensure_site_server_for() {
             # Stamped only once it actually answers, and with the pid that ended
             # up on the port rather than the one the subshell forked: `nohup npx
             # vite` is a launcher, and the server is its child.
-            printf '%s\n%s\n' "$origin" "$(pid_on_port "$port")" > "$(site_stamp "$ctx")"
+            printf '%s\n%s\n%s\n' "$origin" "$(pid_on_port "$port")" "$SKVAR_DIR" \
+                > "$(site_stamp "$ctx")"
             ok "$host answering through nginx (${waited}s)"
             return 0
         }

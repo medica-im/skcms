@@ -2,8 +2,12 @@ import type { Reroute } from '@sveltejs/kit';
 import { base } from '$app/paths';
 import { deLocalizeUrl } from '$prgld/runtime.js';
 
+// Through the $skvar alias, not ./routes/(skvar): a test site server serves its
+// tenant's skvar from a worktree (scripts/site-routes.sh), and the hardcoded
+// path read the shared checkout's branch instead — annuaire's server saw Lyon
+// 3's contact page there and 404'd rather than falling back.
 const skvarContactExists = Object.keys(
-	import.meta.glob('./routes/(skvar)/contact/+page.svelte', { eager: false })
+	import.meta.glob('$skvar/contact/+page.svelte', { eager: false })
 ).length > 0;
 
 export const reroute: Reroute = ({ url }) => {

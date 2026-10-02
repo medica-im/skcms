@@ -37,6 +37,14 @@ const BASE_PATH = process.env.BASE_PATH ?? fileEnv.BASE_PATH ?? '';
 // paraglideVitePlugin's outdir.
 const PARAGLIDE_OUT_DIR = process.env.PARAGLIDE_OUT_DIR || './src/paraglide';
 
+// Per-tenant site servers in test runs (scripts/site-routes.sh): each serves
+// its own skvar branch from a worktree of the submodule, through a routes
+// directory that mirrors src/routes with (skvar) pointing at that worktree.
+// One shared checkout made every tenant's server render whichever branch was
+// checked out. Unset, both are this checkout's own.
+const ROUTES_DIR = process.env.ROUTES_DIR || 'src/routes';
+const SKVAR_DIR = process.env.SKVAR_DIR || './src/routes/(skvar)';
+
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	// Consult https://kit.svelte.dev/docs/integrations#preprocessors
@@ -66,6 +74,9 @@ const config = {
 		// otherwise overwrite each other's generated types and manifest in the
 		// shared directory — every request 500s with ENOENT on proxy+layout.
 		outDir: process.env.SVELTEKIT_OUT_DIR || '.svelte-kit',
+		files: {
+			routes: ROUTES_DIR
+		},
 		version: {
 			// What the running app compares itself against: the client polls
 			// /_app/version.json, and `updated` in src/routes/+layout.svelte
@@ -91,8 +102,11 @@ const config = {
 			// compiles its messages to its own directory.
 			$msgs: `${PARAGLIDE_OUT_DIR}/messages/_index.js`,
 			$prgld: `${PARAGLIDE_OUT_DIR}/`,
-			$var: './src/routes/(skvar)/(var)',
-			$svlt: './src/routes/(skvar)/(svlt)',
+			// The tenant's skvar wherever it is checked out; src/hooks.ts globs
+			// it to decide whether /contact falls back.
+			$skvar: SKVAR_DIR,
+			$var: `${SKVAR_DIR}/(var)`,
+			$svlt: `${SKVAR_DIR}/(svlt)`,
 			'$routes': './src/routes',
 		    '$routes/*': './src/routes/*',
 			'$src': './src',

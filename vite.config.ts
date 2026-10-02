@@ -137,6 +137,12 @@ export default defineConfig(({ mode }) => {
 			// them are served by this single dev server, so one entry covers any
 			// number of workers — see scripts/nginx/e2e-workers.conf.
 			allowedHosts: [new URL(API_URL).hostname, '.dev.medica.im'],
+			// A test site server's skvar worktree (scripts/site-routes.sh) is
+			// outside every directory SvelteKit lets Vite serve: its routes
+			// directory only links to it, and Vite checks the resolved path.
+			// Unlisted, the browser got 403 on every skvar module and no page
+			// hydrated. Merged into SvelteKit's own list, not replacing it.
+			...(process.env.SKVAR_DIR ? { fs: { allow: [process.env.SKVAR_DIR] } } : {}),
 			watch: {
 				ignored: [
 					'**/node_modules/**',
