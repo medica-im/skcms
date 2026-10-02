@@ -59,7 +59,24 @@ export default defineConfig(({ mode }) => {
 						include: ['src/**/*.{test,spec}.{js,ts}'],
 						// .svelte.test.ts files mount components and belong to the
 						// browser project below.
-						exclude: ['**/node_modules/**', 'src/**/*.svelte.{test,spec}.{js,ts}'],
+						exclude: [
+							'**/node_modules/**',
+							'src/**/*.svelte.{test,spec}.{js,ts}',
+							// test-all.sh runs this project once per tenant, and
+							// these do not depend on the tenant: they test the
+							// release scripts against throwaway git repositories.
+							// It sets SKIP_SITE_INDEPENDENT_TESTS=1 after the first
+							// site, so they run once per run, not five times.
+							// Here rather than --exclude on the command line: a
+							// project's own exclude replaces that one.
+							...(process.env.SKIP_SITE_INDEPENDENT_TESTS === '1'
+								? [
+										'src/lib/skvar-restore.test.ts',
+										'src/lib/image-tag.test.ts',
+										'src/lib/build-image-args.test.ts'
+									]
+								: [])
+						],
 						// Blocks ssh/scp/rsync/docker for every unit test, not just
 						// the one that was found reaching production. See the file
 						// for what went wrong and why a PATH fake is what catches

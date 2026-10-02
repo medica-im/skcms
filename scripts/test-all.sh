@@ -832,7 +832,13 @@ suite_typecheck() {
 # Emptying it costs the unit project nothing: its tests import `base` and assert
 # the relationship rather than a literal, so they hold at either value, and
 # scripts/typecheck-baselines.sh still exercises the real one per site.
-suite_unit() { (cd "$FRONTEND_DIR" && BASE_PATH= npx vitest run); }
+#
+# $1 = 1 skips the tests that do not depend on the tenant (the release
+# scripts' git tests, listed in vite.config.ts): run in the first site's stage,
+# they would only repeat the same answer in the other four.
+suite_unit() {
+    (cd "$FRONTEND_DIR" && BASE_PATH= SKIP_SITE_INDEPENDENT_TESTS="${1:-0}" npx vitest run)
+}
 
 suite_backend() {
     ensure_stack || return 1
@@ -1161,13 +1167,18 @@ SITES_CONTEXT="$SITE_CONTEXT"
 
 for suite in "${SUITES[@]}"; do
     if suite_is_per_site "$suite"; then
+        # The tenant-independent unit tests run with the first site only.
+        skip_site_independent=0
         for ctx in "${CONTEXTS[@]}"; do
             # Checkout only (second arg 0): unit imports files, it does not
             # browse, so no server is started and none is torn down.
             switch_context "$ctx" 0 \
                 || { record "$suite ($ctx)" fail 0; continue; }
             case "$suite" in
-                unit) [[ "$SKIP_FRONTEND" == "1" ]] || run_suite "unit ($ctx)" suite_unit ;;
+                unit) [[ "$SKIP_FRONTEND" == "1" ]] || {
+                        run_suite "unit ($ctx)" suite_unit "$skip_site_independent"
+                        skip_site_independent=1
+                    } ;;
                 typecheck) [[ "$SKIP_FRONTEND" == "1" ]] || run_suite "typecheck ($ctx)" suite_typecheck "$ctx" ;;
                 *) fail "no per-site handler for suite: $suite"; record "$suite ($ctx)" fail 0 ;;
             esac
