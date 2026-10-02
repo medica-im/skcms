@@ -64,6 +64,8 @@
 	const ariaListOpen = (label: string, count: number) =>
 		m.SELECT_ARIA_LIST_OPEN({ label, count });
 	const ariaFocused = () => m.SELECT_ARIA_FOCUSED();
+	// The option field svelte-select displays; a caller may name another.
+	const labelKey = $derived((rest.label as string | undefined) ?? 'label');
 
 	/**
 	 * Whether this select is inside a <dialog>, decided from the DOM rather than
@@ -101,5 +103,10 @@
 	on:filter
 >
 	<slot name="empty" slot="empty" />
+	<!-- svelte-select cuts a long option off with an ellipsis; the title shows
+	     the whole of it on hover. -->
+	<svelte:fragment slot="item" let:item>
+		<span title={item?.[labelKey]}>{item?.[labelKey]}</span>
+	</svelte:fragment>
 </Select>
 </div>

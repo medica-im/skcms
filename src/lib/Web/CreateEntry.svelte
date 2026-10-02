@@ -102,7 +102,7 @@ membershipsDone: {membershipsDone}
 		/>
 	</div>
 {:else}
-	<div class="grid grid-cols-1 gap-4 w-full p-4 place-items-center" out:fade={{ duration: 200 }}>
+	<div class="grid grid-cols-1 gap-4 w-full py-4 sm:p-4 place-items-center" out:fade={{ duration: 200 }}>
 		{#if !facility}
 			<SelectCreateFacilityAdmin
 				bind:facility
