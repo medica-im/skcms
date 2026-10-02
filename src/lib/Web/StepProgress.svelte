@@ -28,12 +28,16 @@
 </script>
 
 {#if visible}
-<div class="sticky top-0 z-10 self-start bg-surface-100-800-token {compact ? 'py-2 px-3' : 'py-3 px-4'} shadow-sm opacity-90 w-fit" transition:fade={{ duration: 300 }}>
+<!--
+	Centred, and narrower on a phone: with 32px connectors and 16px insets the
+	four steps of the entry form were wider than a 375px screen's content.
+-->
+<div class="sticky top-0 z-10 self-center bg-surface-100-800-token {compact ? 'py-2 px-3' : 'py-3 px-2 sm:px-4'} shadow-sm opacity-90 w-fit" transition:fade={{ duration: 300 }}>
 	<div class="flex items-center">
 		{#each steps as step, i}
 			{#if i > 0}
 				<div
-					class="{compact ? 'w-5' : 'w-8'} h-0.5 mx-1 transition-colors duration-300 {steps[i - 1].completed
+					class="{compact ? 'w-5 mx-1' : 'w-4 mx-0.5 sm:w-8 sm:mx-1'} h-0.5 transition-colors duration-300 {steps[i - 1].completed
 						? 'bg-success-500'
 						: 'bg-surface-300 dark:bg-surface-600'}"
 				></div>
