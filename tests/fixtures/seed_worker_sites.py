@@ -511,6 +511,10 @@ for i in range(WORKERS):
         MATCH (d:Directory {name: $dir})
         MATCH (org:Entry {uid: $org_entry})
         MERGE (d)-[:HAS_ENTRY]->(org)
+        // Owned by it too, as a real site's directory is: the "Annuaires" page
+        // and Directory.list_owner_entry act on the OWNED_BY owner, and a
+        // directory without one has nothing to hide.
+        MERGE (d)-[:OWNED_BY]->(org)
 
         // The organization Entry is a real Entry and needs the same shape as
         // any other: OrganizationSerializer._fetch_commune_and_department walks
