@@ -850,5 +850,14 @@
   "ENTRY_TYPE_EDIT_SEE_DUPLICATE": "Voir cette entrée",
   "ENTRY_TYPE_EDIT_ERROR_MALFORMED": "Cette entrée est incohérente et ne peut pas être modifiée ici. Contactez un super-administrateur.",
   "ENTRY_TYPE_EDIT_ERROR_UNKNOWN_TYPE": "Cette catégorie n'existe pas.",
-  "ENTRY_TYPE_EDIT_ERROR_FAILED": "La modification a échoué. Réessayez plus tard."
+  "ENTRY_TYPE_EDIT_ERROR_FAILED": "La modification a échoué. Réessayez plus tard.",
+  "DIRECTORIES_NAV": "Annuaires",
+  "DIRECTORIES_TITLE": "Annuaires",
+  "DIRECTORIES_INTRO": "Réglages des annuaires de ce site.",
+  "DIRECTORIES_OWNER": "Organisation : {label}",
+  "DIRECTORIES_LIST_OWNER_ENTRY": "Afficher la fiche de l'organisation dans la liste",
+  "DIRECTORIES_NO_OWNER": "Aucune organisation n'est rattachée à cet annuaire : ce réglage est sans effet.",
+  "DIRECTORIES_EMPTY": "Aucun annuaire pour ce site.",
+  "DIRECTORIES_LOAD_FAILED": "Impossible de charger les annuaires.",
+  "DIRECTORIES_SAVE_FAILED": "L'enregistrement a échoué. Réessayez plus tard."
 }

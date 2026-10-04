@@ -850,5 +850,14 @@
   "ENTRY_TYPE_EDIT_SEE_DUPLICATE": "See that entry",
   "ENTRY_TYPE_EDIT_ERROR_MALFORMED": "This entry is inconsistent and cannot be changed here. Contact a super administrator.",
   "ENTRY_TYPE_EDIT_ERROR_UNKNOWN_TYPE": "This category does not exist.",
-  "ENTRY_TYPE_EDIT_ERROR_FAILED": "The change failed. Try again later."
+  "ENTRY_TYPE_EDIT_ERROR_FAILED": "The change failed. Try again later.",
+  "DIRECTORIES_NAV": "Directories",
+  "DIRECTORIES_TITLE": "Directories",
+  "DIRECTORIES_INTRO": "Settings of this site's directories.",
+  "DIRECTORIES_OWNER": "Organization: {label}",
+  "DIRECTORIES_LIST_OWNER_ENTRY": "Show the organization's entry in the list",
+  "DIRECTORIES_NO_OWNER": "No organization is attached to this directory: this setting has no effect.",
+  "DIRECTORIES_EMPTY": "No directory for this site.",
+  "DIRECTORIES_LOAD_FAILED": "Directories could not be loaded.",
+  "DIRECTORIES_SAVE_FAILED": "Saving failed. Try again later."
 }

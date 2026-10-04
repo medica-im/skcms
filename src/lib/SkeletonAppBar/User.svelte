@@ -171,6 +171,10 @@
 						</a>
 						{/if}
 						{#if r.SuperUser}
+						<a href="{base}/web/directories">
+							<span class="w-6 text-center"><Fa icon={faAddressBook} /></span>
+							<span>{m.DIRECTORIES_NAV()}</span>
+						</a>
 						<a href="{base}/web/effector-types">
 							<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
 							<span>{m.CATEGORIES()}</span>
