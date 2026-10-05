@@ -32,6 +32,11 @@
 	let selectedFile: File | null = $state(null);
 	let columns: string[] = $state([]);
 	let previewRows: Record<string, string>[] = $state([]);
+	// Rows in the file and this organization's limit, both from /parse: a
+	// file that is too long is said to be before anything is sent.
+	let totalRows: number = $state(0);
+	let maxRows: number = $state(0);
+	let tooManyRows = $derived(maxRows > 0 && totalRows > maxRows);
 	let parseError: string = $state('');
 	let parsing: boolean = $state(false);
 
@@ -83,7 +88,8 @@
 	let mappingValid = $derived(
 		emailColumn &&
 		(splitName ? (firstNameColumn || lastNameColumn) : true) &&
-		selectedRole
+		selectedRole &&
+		!tooManyRows
 	);
 
 	let previewName = $derived.by(() => {
@@ -130,6 +136,8 @@
 			const result = await response.json();
 			columns = result.columns;
 			previewRows = result.preview_rows;
+			totalRows = result.total_rows ?? 0;
+			maxRows = result.max_rows ?? 0;
 			step = 'mapping';
 		} catch (e: any) {
 			parseError = e.message;
@@ -326,7 +334,14 @@
 		<div class="card p-6 space-y-6">
 			<!-- File info -->
 			<div class="flex items-center justify-between">
-				<p class="font-semibold">{selectedFile?.name}</p>
+				<div>
+					<p class="font-semibold">{selectedFile?.name}</p>
+					{#if maxRows}
+						<p class="text-sm text-surface-600-300-token" data-testid="batch-row-count">
+							{m.BATCH_INVITEE_ROW_COUNT({ count: totalRows, max: maxRows })}
+						</p>
+					{/if}
+				</div>
 				<button
 					class="btn btn-sm variant-ghost"
 					onclick={() => { step = 'upload'; columns = []; previewRows = []; }}
@@ -334,6 +349,12 @@
 					{m.BATCH_INVITEE_CHANGE_FILE()}
 				</button>
 			</div>
+
+			{#if tooManyRows}
+				<aside class="alert variant-filled-error" data-testid="batch-too-many-rows">
+					<p>{m.BATCH_INVITEE_TOO_MANY_ROWS({ count: totalRows, max: maxRows })}</p>
+				</aside>
+			{/if}
 
 			<hr />
 

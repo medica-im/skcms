@@ -116,6 +116,8 @@
   "BATCH_INVITEE_SUMMARY": "Summary",
   "BATCH_INVITEE_SUPPORTED_FORMATS": "Supported formats: .xlsx (Excel), .csv, .ods (LibreOffice)",
   "BATCH_INVITEE_TITLE": "Batch invitation creation",
+  "BATCH_INVITEE_ROW_COUNT": "{count} rows · at most {max} per file",
+  "BATCH_INVITEE_TOO_MANY_ROWS": "This file has {count} rows, more than the {max} allowed per file. Split it into several files.",
   "BATCH_INVITEE_VIEW_EXISTING": "View existing invitation",
   "BATCH_INVITEE_VIEW_INVITEES": "View created invitations",
   "BATCH_INVITEE_WARNING_NAME": "Warning: name match with existing invitation",
