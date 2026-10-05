@@ -11,9 +11,19 @@
 	import * as m from '$msgs';
 	import type { PageData } from './$types';
 	import { base } from '$app/paths';
+	import InviteeEmailDelivery from '$lib/Invitee/InviteeEmailDelivery.svelte';
+	import { deliveryLook, errorKindShort, NEEDS_ACTION, type DeliveryState } from '$lib/Invitee/emailDelivery';
+	import type { EmailErrorKind } from '$lib/interfaces/v2/invitee';
 
 	let { data }: { data: PageData } = $props();
 	let job = $derived(data.job);
+	// Where each email stands now (backend batch_report), not when the job ran.
+	let emailStatusCounts = $derived(
+		Object.entries(job?.email_status_counts ?? {}) as [DeliveryState, number][]
+	);
+	let errorKindCounts = $derived(
+		Object.entries(job?.email_error_kind_counts ?? {}) as [EmailErrorKind, number][]
+	);
 
 	function formatDateTime(dateString: string): string {
 		const date = new Date(dateString);
@@ -129,6 +139,35 @@
 			</div>
 		</div>
 
+		{#if emailStatusCounts.length > 0}
+			<section class="mb-6 space-y-3" data-testid="batch-email-counts">
+				<h2 class="h4">{m.BATCH_INVITEE_EMAIL_STATUSES()}</h2>
+				<ul class="flex flex-wrap gap-2">
+					{#each emailStatusCounts as [state, count] (state)}
+						<li
+							class="badge {NEEDS_ACTION.has(state) ? 'variant-soft-error' : 'variant-soft-surface'} gap-2 text-sm"
+							data-state={state}
+						>
+							<Fa icon={deliveryLook[state]?.icon ?? faExclamationTriangle} />
+							<span>{deliveryLook[state]?.short() ?? state}</span>
+							<span class="font-bold">{count}</span>
+						</li>
+					{/each}
+				</ul>
+				{#if errorKindCounts.length > 0}
+					<h3 class="h5">{m.BATCH_INVITEE_EMAIL_FAILURE_KINDS()}</h3>
+					<ul class="flex flex-wrap gap-2">
+						{#each errorKindCounts as [kind, count] (kind)}
+							<li class="badge variant-soft-error gap-2 text-sm" data-kind={kind}>
+								<span>{errorKindShort[kind]?.() ?? kind}</span>
+								<span class="font-bold">{count}</span>
+							</li>
+						{/each}
+					</ul>
+				{/if}
+			</section>
+		{/if}
+
 		<!-- Summary table -->
 		{#if job.summary?.length > 0}
 			<div class="table-container">
@@ -139,6 +178,7 @@
 							<th>{m.INVITEE_COL_NAME()}</th>
 							<th>{m.INVITEE_COL_EMAIL()}</th>
 							<th>{m.BATCH_INVITEE_STATUS()}</th>
+							<th>{m.BATCH_INVITEE_EMAIL_COLUMN_HEADER()}</th>
 							<th></th>
 						</tr>
 					</thead>
@@ -152,10 +192,20 @@
 									<span class={statusBadgeClass(row.status)}>
 										{statusLabel(row.status)}
 									</span>
-									{#if row.email_error}
+									{#if row.email_error && !row.email_delivery}
+										<!-- A job from before deliveries were linked to it. -->
 										<span class="badge variant-filled-warning ml-1" title={m.BATCH_INVITEE_EMAIL_ERRORS()}>
 											<Fa icon={faExclamationTriangle} />
 										</span>
+									{/if}
+								</td>
+								<td>
+									{#if row.email_delivery}
+										<InviteeEmailDelivery
+											delivery={row.email_delivery}
+											variant="column"
+											href={row.invitee_uid ? `${base}/web/invite/invitees/${row.invitee_uid}` : undefined}
+										/>
 									{/if}
 								</td>
 								<td>

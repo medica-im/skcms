@@ -9,23 +9,24 @@
 	 *   A failed email is a red cross linking to `href`, the invitation's page,
 	 *   where the reason and the resend button are.
 	 * - detail: the invitation's page, in full, with the time and a failure's
-	 *   reason -- Mailgun's, or for an email queued and never settled
-	 *   (timedOut), that it most likely never left.
+	 *   reason in words (errorKind), the service's own text below it; for an
+	 *   email queued and never settled (timedOut), that it most likely never
+	 *   left.
+	 *
+	 * Bounced, complained (spam) and suppressed (do-not-send list) need acting
+	 * on like a failure; deferred is flagged like a pending one. Looks and
+	 * words are shared with the batch report: ./emailDelivery.ts.
 	 *
 	 * A failure is the red circle-cross wherever it is shown. Like
 	 * InviteeStatus, never colour alone: an icon and a word.
 	 * See InviteeEmailDelivery.svelte.test.ts.
 	 */
 	import Fa from 'svelte-fa';
-	import {
-		faPaperPlane,
-		faHourglassHalf,
-		faCircleQuestion,
-		faCircleXmark
-	} from '@fortawesome/free-solid-svg-icons';
+	import { faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
 	import ListDateTime from '$lib/components/DateTime/ListDateTime.svelte';
 	import type { EmailDelivery } from '$lib/interfaces/v2/invitee';
+	import { deliveryLook, errorKindWords, NEEDS_ACTION, SETTLED_OK, type DeliveryState } from './emailDelivery';
 
 	let {
 		delivery,
@@ -38,17 +39,19 @@
 		href?: string;
 	} = $props();
 
-	const state = $derived(delivery?.status ?? 'unknown');
-	const shown = $derived(variant !== 'flag' || (state !== 'sent' && state !== 'unknown'));
-	const failed = $derived(state === 'failed');
-
-	const look = {
-		sent: { icon: faPaperPlane, words: m.INVITEE_EMAIL_SENT, short: m.INVITEE_EMAIL_SENT_SHORT, tone: 'text-success-800-100-token', hint: m.INVITEE_EMAIL_SENT_HINT },
-		failed: { icon: faCircleXmark, words: m.INVITEE_EMAIL_FAILED, short: m.INVITEE_EMAIL_FAILED_SHORT, tone: 'text-error-700-200-token font-bold', hint: undefined },
-		queued: { icon: faHourglassHalf, words: m.INVITEE_EMAIL_QUEUED, short: m.INVITEE_EMAIL_QUEUED_SHORT, tone: 'text-surface-700-200-token', hint: undefined },
-		unknown: { icon: faCircleQuestion, words: m.INVITEE_EMAIL_UNKNOWN, short: () => '—', tone: 'text-surface-600-300-token', hint: m.INVITEE_EMAIL_UNKNOWN_HINT }
-	} as const;
-	const current = $derived(look[state]);
+	const state: DeliveryState = $derived(delivery?.status ?? 'unknown');
+	const shown = $derived(variant !== 'flag' || !SETTLED_OK.has(state));
+	const failed = $derived(NEEDS_ACTION.has(state));
+	const current = $derived(deliveryLook[state]);
+	// Why it failed, in words: the kind when the service said, the timeout
+	// when nothing did, the service's raw text as a last resort.
+	const reason = $derived(
+		delivery?.timedOut
+			? m.INVITEE_EMAIL_TIMED_OUT()
+			: delivery?.errorKind
+				? errorKindWords[delivery.errorKind]()
+				: (delivery?.error ?? null)
+	);
 </script>
 
 {#if variant === 'column'}
@@ -98,10 +101,15 @@
 			{/if}
 		</span>
 		{#if variant === 'detail'}
-			{#if failed && (delivery?.error || delivery?.timedOut)}
+			{#if failed && reason}
 				<span class="text-sm break-words text-surface-700-200-token" data-testid="invitee-email-delivery-error">
-					{delivery?.timedOut ? m.INVITEE_EMAIL_TIMED_OUT() : delivery?.error}
+					{reason}
 				</span>
+				{#if delivery?.errorKind && delivery?.error}
+					<span class="text-xs break-words text-surface-600-300-token" data-testid="invitee-email-delivery-raw">
+						{delivery.error}
+					</span>
+				{/if}
 			{:else if current.hint}
 				<span class="text-sm text-surface-600-300-token">{current.hint()}</span>
 			{/if}

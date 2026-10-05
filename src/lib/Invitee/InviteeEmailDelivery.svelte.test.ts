@@ -135,3 +135,75 @@ describe('InviteeEmailDelivery on the detail page', () => {
 		await expect.element(badge()).toHaveTextContent('Aucun envoi enregistré');
 	});
 });
+
+/**
+ * The whole lifecycle, and why a failure happened in words.
+ *
+ * Past "accepted", the mail service reports what became of the email:
+ * delivered, deferred (it is still trying), bounced, reported as spam. And an
+ * address on the do-not-send list is not sent at all (suppressed). Each needs
+ * a word; the ones that need acting on -- bounced, complained, suppressed --
+ * read as failures, with the red cross and the link to the invitation.
+ *
+ * A failure's reason was the service's raw text ("400: 'to' parameter is not
+ * a valid address"). The errorKind says what it means and what to do, in the
+ * page's language; the raw text stays, smaller, for whoever digs further.
+ */
+const withKind = (status: string, errorKind: string, error = 'raw service text') =>
+	({ status, at: AT, error, errorKind, timedOut: false }) as never;
+
+describe('InviteeEmailDelivery through the lifecycle', () => {
+	it.each([
+		['delivered', 'Distribué'],
+		['deferred', 'Retardé'],
+		['bounced', 'Rejeté'],
+		['complained', 'Signalé'],
+		['suppressed', 'Non envoyé']
+	])('says a %s email in a short word', async (status, words) => {
+		render(InviteeEmailDelivery, { delivery: delivery(status), variant: 'column' });
+
+		await expect.element(cell()).toHaveAttribute('data-state', status);
+		await expect.element(cell()).toHaveTextContent(words);
+	});
+
+	it.each(['bounced', 'complained', 'suppressed'])('treats a %s email as a failure to act on', async (status) => {
+		render(InviteeEmailDelivery, { delivery: delivery(status), variant: 'column', href: '/web/invite/invitees/u1' });
+
+		const link = page.getByRole('link');
+		await expect.element(link).toHaveAttribute('href', '/web/invite/invitees/u1');
+		await expect.element(link.getByTestId('invitee-email-delivery-cross')).toBeVisible();
+	});
+
+	it('does not flag a delivered email on the compact card', async () => {
+		render(InviteeEmailDelivery, { delivery: delivery('delivered') });
+
+		await expect.element(badge()).not.toBeInTheDocument();
+	});
+
+	it('flags a deferred one: it may still fail', async () => {
+		render(InviteeEmailDelivery, { delivery: delivery('deferred') });
+
+		await expect.element(badge()).toHaveAttribute('data-state', 'deferred');
+	});
+});
+
+describe('InviteeEmailDelivery says why a failure happened', () => {
+	it.each([
+		['invalid_request', "corrigez-la"],
+		['misconfigured', 'super-administrateur'],
+		['rate_limited', 'renvoyez plus tard'],
+		['provider_unavailable', 'indisponible'],
+		['unreachable', "rien n'est parti"],
+		['outcome_unknown', 'peut-être parti']
+	])('in words for %s', async (kind, words) => {
+		render(InviteeEmailDelivery, { delivery: withKind('failed', kind), variant: 'detail' });
+
+		await expect.element(page.getByTestId('invitee-email-delivery-error')).toHaveTextContent(words);
+	});
+
+	it("keeps the service's own words, for whoever digs further", async () => {
+		render(InviteeEmailDelivery, { delivery: withKind('failed', 'invalid_request', '400: bad address'), variant: 'detail' });
+
+		await expect.element(page.getByTestId('invitee-email-delivery-raw')).toHaveTextContent('400: bad address');
+	});
+});
