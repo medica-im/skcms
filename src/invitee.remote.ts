@@ -151,3 +151,17 @@ export const correctInviteeAddress = command(CorrectAddress, async ({ uid, email
 	}
 	return { success: response.ok, status: response.status };
 });
+
+export type AddressCheck = { email: string; suggestion: string | null; problem: string | null };
+
+/** Addresses checked before sending (backend mailer.addresscheck): warnings only. */
+export const checkAddresses = command(z.array(z.string()).max(50), async (emails) => {
+	const { cookies } = getRequestEvent();
+	const url = `${variables.BASE_URI}/api/v2/mail/check-addresses`;
+	const response = await fetch(authReq(url, 'POST', cookies, JSON.stringify({ emails })));
+	if (!response.ok) {
+		console.error(`POST ${url} -> ${response.status} ${response.statusText}`);
+		return [] as AddressCheck[];
+	}
+	return (await response.json()) as AddressCheck[];
+});

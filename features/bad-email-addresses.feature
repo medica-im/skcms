@@ -40,3 +40,12 @@ Feature: Bad email addresses are shown where administrators work, and fixed ther
     When I open that batch's report
     Then the report counts 1 address to check
     And that invitation's address is flagged in the report
+
+  # Before sending: the form never submits here, so nothing is sent.
+  Scenario: The invitation form suggests the likely address
+    Given I am signed in with the role "administrator"
+    When I open "/web/invite/create"
+    And I type the invitation address "e2e-typo@gmial.com"
+    Then I am asked whether I meant "e2e-typo@gmail.com"
+    When I accept the suggestion
+    Then the address reads "e2e-typo@gmail.com"

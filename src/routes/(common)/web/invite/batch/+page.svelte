@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { ORIGIN } from '$lib/utils/origin.ts';
+	import { addressCheckWords } from '$lib/Invitee/emailDelivery';
 	import Fa from 'svelte-fa';
 	import {
 		faArrowLeft,
@@ -85,6 +86,35 @@
 
 	// Derived
 	let columnOptions = $derived(columns.map(c => ({ value: c, label: c })));
+	// Suspect addresses in the file, before anything is sent (backend
+	// mailer.addresscheck): typos, domains without mail, known bad ones.
+	// Warnings only; the report flags them again after sending.
+	type AddressCheckRow = { row: number; email: string; suggestion: string | null; problem: string | null };
+	let addressChecks: AddressCheckRow[] = $state([]);
+	let checkRequest = 0;
+	$effect(() => {
+		const file = selectedFile;
+		const column = emailColumn;
+		addressChecks = [];
+		if (!file || !column) return;
+		const request = ++checkRequest;
+		const formData = new FormData();
+		formData.append('file', file);
+		formData.append('mapping_json', JSON.stringify({ email_column: column }));
+		fetch(`${ORIGIN}/api/v2/batch-invitees/check`, { method: 'POST', credentials: 'include', body: formData })
+			.then((response) => (response.ok ? response.json() : []))
+			.then((rows: AddressCheckRow[]) => {
+				if (request === checkRequest) addressChecks = rows;
+			})
+			.catch((e) => console.error('Checking the addresses failed', e));
+	});
+
+	function addressCheckText(check: AddressCheckRow): string {
+		if (check.suggestion) return m.BATCH_INVITEE_CHECK_SUGGEST({ email: check.suggestion });
+		if (check.problem === 'invalid') return m.BATCH_INVITEE_CHECK_INVALID();
+		return (check.problem && addressCheckWords[check.problem]?.()) || '';
+	}
+
 	let mappingValid = $derived(
 		emailColumn &&
 		(splitName ? (firstNameColumn || lastNameColumn) : true) &&
@@ -431,6 +461,33 @@
 						</tbody>
 					</table>
 				</div>
+			{/if}
+
+			{#if addressChecks.length > 0}
+				<aside class="card variant-soft-warning p-4 space-y-2" data-testid="batch-address-checks">
+					<h3 class="h4">{m.BATCH_INVITEE_CHECK_TITLE()}</h3>
+					<p class="text-sm">{m.BATCH_INVITEE_CHECK_INTRO()}</p>
+					<div class="table-container">
+						<table class="table table-compact">
+							<thead>
+								<tr>
+									<th>{m.BATCH_INVITEE_ROW()}</th>
+									<th>{m.INVITEE_COL_EMAIL()}</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								{#each addressChecks as check (check.row)}
+									<tr>
+										<td>{check.row}</td>
+										<td>{check.email}</td>
+										<td>{addressCheckText(check)}</td>
+									</tr>
+								{/each}
+							</tbody>
+						</table>
+					</div>
+				</aside>
 			{/if}
 
 			<hr />

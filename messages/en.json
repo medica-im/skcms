@@ -930,5 +930,13 @@
         "countPlural=other": "{count} addresses to check"
       }
     }
-  ]
+  ],
+  "ADDRESS_CHECK_SUGGEST": "Did you mean",
+  "ADDRESS_CHECK_NO_MAIL_DOMAIN": "This domain does not receive email: check the address.",
+  "ADDRESS_CHECK_KNOWN_BAD": "This address was rejected before: it will not receive the invitation. Check it.",
+  "ADDRESS_CHECK_OPTED_OUT": "The person refused this organization's emails: the invitation will not be sent to them.",
+  "BATCH_INVITEE_CHECK_TITLE": "Addresses to check before sending",
+  "BATCH_INVITEE_CHECK_INTRO": "These addresses look wrong. Correct the file, or start the creation anyway: they will be flagged in the report.",
+  "BATCH_INVITEE_CHECK_SUGGEST": "Did you mean {email}?",
+  "BATCH_INVITEE_CHECK_INVALID": "Invalid address"
 }

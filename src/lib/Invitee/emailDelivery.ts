@@ -109,3 +109,12 @@ export const addressProblemWords: Record<AddressProblem, () => string> = {
 export function dayOf(iso: string): string {
 	return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 }
+
+/** What a check before sending found (backend mailer.addresscheck), in words. */
+export const addressCheckWords: Record<string, () => string> = {
+	no_mail_domain: m.ADDRESS_CHECK_NO_MAIL_DOMAIN,
+	bounced: m.ADDRESS_CHECK_KNOWN_BAD,
+	refused: m.ADDRESS_CHECK_KNOWN_BAD,
+	complained: m.ADDRESS_CHECK_OPTED_OUT,
+	unsubscribed: m.ADDRESS_CHECK_OPTED_OUT
+};

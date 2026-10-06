@@ -149,3 +149,25 @@ Then("that invitation's address is flagged in the report", async ({ page }) => {
 	const cell = page.getByRole('row').filter({ hasText: own.email! });
 	await expect(cell.getByTestId('invitee-address-flag')).toBeVisible();
 });
+
+const addressField = (page: Page) => page.getByPlaceholder('utilisateur@example.com');
+
+// Typed until the field holds it: before hydration the value is lost.
+When('I type the invitation address {string}', async ({ page }, address: string) => {
+	await expect(async () => {
+		await addressField(page).fill(address);
+		await expect(page.getByTestId('address-check-hint')).toBeVisible({ timeout: 3_000 });
+	}).toPass({ timeout: 20_000 });
+});
+
+Then('I am asked whether I meant {string}', async ({ page }, suggestion: string) => {
+	await expect(page.getByTestId('address-check-hint').getByRole('button', { name: suggestion })).toBeVisible();
+});
+
+When('I accept the suggestion', async ({ page }) => {
+	await page.getByTestId('address-check-hint').getByRole('button').click();
+});
+
+Then('the address reads {string}', async ({ page }, address: string) => {
+	await expect(addressField(page)).toHaveValue(address);
+});

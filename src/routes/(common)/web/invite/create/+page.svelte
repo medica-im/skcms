@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { createInvitee } from '$src/invitee.remote.ts';
+	import AddressCheckHint from '$lib/Invitee/AddressCheckHint.svelte';
 	import { goto } from '$app/navigation';
 	import { base } from '$app/paths';
 	import * as m from '$msgs';
@@ -73,6 +74,8 @@
 				<p class="text-error-500 text-sm">{iss.message}</p>
 			{/each}
 		</label>
+		<!-- A typo, a domain without mail, an address known to be bad: warnings only -->
+		<AddressCheckHint bind:email />
 
 		<!-- Name field -->
 		<label class="label">
