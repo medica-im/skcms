@@ -37,8 +37,8 @@ describe('inviteeStatusOf', () => {
 
 describe('countByStatus', () => {
 	it('counts every invitation once, and all of them', () => {
-		expect(countByStatus(all)).toEqual({ all: 4, active: 1, used: 2, disabled: 1 });
-		expect(countByStatus([])).toEqual({ all: 0, active: 0, used: 0, disabled: 0 });
+		expect(countByStatus(all)).toEqual({ all: 4, active: 1, used: 2, disabled: 1, check: 0 });
+		expect(countByStatus([])).toEqual({ all: 0, active: 0, used: 0, disabled: 0, check: 0 });
 	});
 });
 
@@ -65,5 +65,81 @@ describe('the URL parameter', () => {
 	it('writes them back, "all" as no parameter', () => {
 		expect(filterToParam('used')).toBe('utilisees');
 		expect(filterToParam('all')).toBeNull();
+	});
+});
+
+/**
+ * "À vérifier": invitations whose ADDRESS is the problem, for the
+ * administrator to check with the member and correct.
+ *
+ * - an address remembered by the backend (addressIssue: bounced, refused as
+ *   written, or a refusal of the organization's mail), even before any new
+ *   attempt;
+ * - or its latest email bounced, was reported as spam, was not sent because
+ *   of the address (suppressed), or was refused as written (invalid_request).
+ *
+ * A failure that is not the address's fault -- the mail service down, our
+ * configuration -- is not "à vérifier": the address is fine, the email shows
+ * as failed and can be sent again. Nor is a used invitation: the person
+ * joined, whatever became of an email.
+ *
+ * It is not a fourth status but a cut across them, offered in the same
+ * filter group (shown when there is something to check).
+ */
+import { needsCheck } from './inviteeFilter';
+
+const delivery = (status: string, errorKind: string | null = null) =>
+	({ status, at: '2026-10-06T12:00:00Z', error: null, errorKind }) as never;
+const issue = (reason: string) => ({ reason, since: '2026-10-06T12:00:00Z', detail: null }) as never;
+
+describe('needsCheck', () => {
+	it.each(['bounced', 'complained', 'suppressed'])('an email %s', (status) => {
+		expect(needsCheck({ ...active, emailDelivery: delivery(status) })).toBe(true);
+	});
+
+	it('an address refused as written', () => {
+		expect(needsCheck({ ...active, emailDelivery: delivery('failed', 'invalid_request') })).toBe(true);
+	});
+
+	it('a remembered address, before any new attempt', () => {
+		expect(needsCheck({ ...active, emailDelivery: delivery('sent'), addressIssue: issue('bounced') })).toBe(true);
+	});
+
+	it.each(['provider_unavailable', 'misconfigured', 'rate_limited', 'unreachable', 'outcome_unknown'])(
+		'not a failure that is not the address’s fault (%s)',
+		(kind) => {
+			expect(needsCheck({ ...active, emailDelivery: delivery('failed', kind) })).toBe(false);
+		}
+	);
+
+	it.each(['sent', 'delivered', 'queued', 'deferred'])('not an email %s', (status) => {
+		expect(needsCheck({ ...active, emailDelivery: delivery(status) })).toBe(false);
+	});
+
+	it('not a used invitation', () => {
+		expect(needsCheck({ ...used, emailDelivery: delivery('bounced') })).toBe(false);
+	});
+
+	it('not an invitation never emailed', () => {
+		expect(needsCheck(active)).toBe(false);
+	});
+});
+
+describe('the "À vérifier" filter', () => {
+	const bounced = { ...active, uid: 'b', emailDelivery: delivery('bounced') };
+	const list = [...all, bounced];
+
+	it('is counted, across the statuses', () => {
+		expect(countByStatus(list).check).toBe(1);
+		expect(countByStatus(list).active).toBe(2);
+	});
+
+	it('keeps only the invitations to check', () => {
+		expect(filterInvitees(list, 'check')).toEqual([bounced]);
+	});
+
+	it('lives in the address as ?statut=a-verifier', () => {
+		expect(filterToParam('check')).toBe('a-verifier');
+		expect(filterFromParam('a-verifier')).toBe('check');
 	});
 });

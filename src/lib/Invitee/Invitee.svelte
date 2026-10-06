@@ -19,6 +19,7 @@
 	import InviteeEmailDelivery from './InviteeEmailDelivery.svelte';
 	import { onMount } from 'svelte';
 	import RoleBadge from '$lib/RoleBadge.svelte';
+	import InviteeAddressFlag from './InviteeAddressFlag.svelte';
 	import ListDateTime from '$lib/components/DateTime/ListDateTime.svelte';
 	import { base } from '$app/paths';
 
@@ -77,7 +78,10 @@
 				{/if}
 				<RoleBadge role={invitee.role} class="shrink-0" />
 			</div>
-			<div class="text-sm truncate">{invitee.email}</div>
+			<div class="flex items-center gap-2 min-w-0 text-sm">
+				<span class="truncate">{invitee.email}</span>
+				<InviteeAddressFlag {invitee} />
+			</div>
 			<!-- Only when the email needs attention (failed or pending):
 			     the compact card has no "Envoi" column to say it. -->
 			<InviteeEmailDelivery delivery={invitee.emailDelivery} />
@@ -108,6 +112,7 @@
 		<div class="flex items-center gap-2 text-surface-600 min-w-0">
 			<span class="w-4 flex-shrink-0"><Fa icon={faEnvelope} size="sm" /></span>
 			<span class="truncate">{invitee.email}</span>
+			<InviteeAddressFlag {invitee} />
 		</div>
 
 		<RoleBadge role={invitee.role} uniform />

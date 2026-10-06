@@ -7,7 +7,7 @@
 	 * choice never depends on colour. See InviteeStatusFilter.svelte.test.ts.
 	 */
 	import Fa from 'svelte-fa';
-	import { faCircle, type IconDefinition } from '@fortawesome/free-solid-svg-icons';
+	import { faCircle, faTriangleExclamation, type IconDefinition } from '@fortawesome/free-solid-svg-icons';
 	import { faCircleCheck, faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 	import * as m from '$msgs';
 	import type { InviteeFilter } from './inviteeFilter';
@@ -28,11 +28,14 @@
 				['all', m.INVITEE_FILTER_ALL(), null, ''],
 				['active', m.INVITEE_FILTER_ACTIVE(), faCircle, 'text-success-500'],
 				['used', m.INVITEE_FILTER_USED(), faCircleCheck, ''],
-				['disabled', m.INVITEE_FILTER_DISABLED(), faCircleXmark, '']
+				['disabled', m.INVITEE_FILTER_DISABLED(), faCircleXmark, ''],
+				// Addresses to check: a cut across the statuses (inviteeFilter.needsCheck).
+				['check', m.INVITEE_FILTER_CHECK(), faTriangleExclamation, 'text-warning-600']
 			] as [InviteeFilter, string, IconDefinition | null, string][]
 		)
-			// "Désactivées" is rare: shown when there is one, or while chosen.
-			.filter(([key]) => key !== 'disabled' || counts.disabled > 0 || value === 'disabled')
+			// "Désactivées" and "À vérifier" are rare: shown when there is one,
+			// or while chosen.
+			.filter(([key]) => (key !== 'disabled' && key !== 'check') || counts[key] > 0 || value === key)
 	);
 </script>
 

@@ -12,6 +12,8 @@
 	import type { PageData } from './$types';
 	import { base } from '$app/paths';
 	import InviteeEmailDelivery from '$lib/Invitee/InviteeEmailDelivery.svelte';
+	import InviteeAddressFlag from '$lib/Invitee/InviteeAddressFlag.svelte';
+	import { needsCheck } from '$lib/Invitee/inviteeFilter';
 	import { deliveryLook, errorKindShort, NEEDS_ACTION, type DeliveryState } from '$lib/Invitee/emailDelivery';
 	import type { EmailErrorKind } from '$lib/interfaces/v2/invitee';
 
@@ -21,6 +23,18 @@
 	let emailStatusCounts = $derived(
 		Object.entries(job?.email_status_counts ?? {}) as [DeliveryState, number][]
 	);
+	// A row as an invitation, for the address checks shared with the list.
+	const asInvitee = (row: any) =>
+		({
+			uid: row.invitee_uid,
+			email: row.email,
+			emailDelivery: row.email_delivery,
+			addressIssue: row.addressIssue,
+			redeemedAt: null
+		}) as never;
+	let rowsToCheck = $derived((job?.summary ?? []).filter((row: any) => needsCheck(asInvitee(row))));
+	let onlyToCheck = $state(false);
+	let shownRows = $derived(onlyToCheck ? rowsToCheck : (job?.summary ?? []));
 	let errorKindCounts = $derived(
 		Object.entries(job?.email_error_kind_counts ?? {}) as [EmailErrorKind, number][]
 	);
@@ -133,6 +147,12 @@
 					<p class="text-sm">{m.BATCH_INVITEE_EMAIL_ERRORS()}</p>
 				</div>
 			{/if}
+			{#if rowsToCheck.length > 0}
+				<div class="card p-3 text-center variant-soft-warning" data-testid="batch-check-count">
+					<p class="text-2xl font-bold">{rowsToCheck.length}</p>
+					<p class="text-sm">{m.BATCH_INVITEE_CHECK_CARD()}</p>
+				</div>
+			{/if}
 			<div class="card p-3 text-center variant-soft-primary">
 				<p class="text-2xl font-bold">{job.total_rows}</p>
 				<p class="text-sm">Total</p>
@@ -170,6 +190,12 @@
 
 		<!-- Summary table -->
 		{#if job.summary?.length > 0}
+			{#if rowsToCheck.length > 0}
+				<label class="mb-3 flex min-h-11 items-center gap-3">
+					<input type="checkbox" class="checkbox" bind:checked={onlyToCheck} />
+					<span>{m.BATCH_INVITEE_CHECK_ONLY()}</span>
+				</label>
+			{/if}
 			<div class="table-container">
 				<table class="table table-compact">
 					<thead>
@@ -183,11 +209,16 @@
 						</tr>
 					</thead>
 					<tbody>
-						{#each job.summary as row}
+						{#each shownRows as row}
 							<tr>
 								<td>{row.row}</td>
 								<td>{row.name || '—'}</td>
-								<td>{row.email}</td>
+								<td>
+									<span class="inline-flex items-center gap-2">
+										<span>{row.email}</span>
+										<InviteeAddressFlag invitee={asInvitee(row)} />
+									</span>
+								</td>
 								<td>
 									<span class={statusBadgeClass(row.status)}>
 										{statusLabel(row.status)}

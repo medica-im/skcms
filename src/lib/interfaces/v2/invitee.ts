@@ -36,6 +36,18 @@ export interface EmailDelivery {
     timedOut?: boolean;
 }
 
+/**
+ * Why the invitation's address is not sent to automatically (backend
+ * mailer.suppression). bounced / refused: the address does not work --
+ * correct it, or resend anyway once checked. complained / unsubscribed: the
+ * person refused this organization's mail.
+ */
+export interface AddressIssue {
+    reason: 'bounced' | 'refused' | 'complained' | 'unsubscribed';
+    since: string;
+    detail: string | null;
+}
+
 export interface Invitee {
     uid: string;
     email: string;
@@ -47,4 +59,5 @@ export interface Invitee {
     redeemedAt: number | null;
     /** null: no recorded attempt (created before tracking, or never emailed). */
     emailDelivery?: EmailDelivery | null;
+    addressIssue?: AddressIssue | null;
 }

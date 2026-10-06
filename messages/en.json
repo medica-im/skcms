@@ -891,5 +891,44 @@
   "DIRECTORIES_NO_OWNER": "No organization is attached to this directory: this setting has no effect.",
   "DIRECTORIES_EMPTY": "No directory for this site.",
   "DIRECTORIES_LOAD_FAILED": "Directories could not be loaded.",
-  "DIRECTORIES_SAVE_FAILED": "Saving failed. Try again later."
+  "DIRECTORIES_SAVE_FAILED": "Saving failed. Try again later.",
+  "INVITEE_FILTER_CHECK": "To check",
+  "ADDRESS_PROBLEM_BOUNCED_SHORT": "Address rejected",
+  "ADDRESS_PROBLEM_REFUSED_SHORT": "Invalid address",
+  "ADDRESS_PROBLEM_COMPLAINED_SHORT": "Reported as spam",
+  "ADDRESS_PROBLEM_UNSUBSCRIBED_SHORT": "Unsubscribed",
+  "ADDRESS_PROBLEM_SUPPRESSED_SHORT": "Not sent",
+  "ADDRESS_PROBLEM_BOUNCED": "The mailbox does not exist or no longer receives mail. Check the address with the person, then correct it: the invitation will go to the new address.",
+  "ADDRESS_PROBLEM_REFUSED": "The mail service refused this address as written (a typo?). Check the address with the person, then correct it.",
+  "ADDRESS_PROBLEM_COMPLAINED": "The person marked our emails as spam: nothing more is sent to them on behalf of this organization.",
+  "ADDRESS_PROBLEM_UNSUBSCRIBED": "The person unsubscribed: nothing more is sent to them on behalf of this organization.",
+  "ADDRESS_PROBLEM_SUPPRESSED": "This address was rejected before: the email was not sent. Check the address with the person, then correct it.",
+  "ADDRESS_PROBLEM_SINCE": "Since {date}",
+  "ADDRESS_FLAG_SR": "Address to check: {reason}",
+  "ADDRESS_FIX_LABEL": "Corrected address",
+  "ADDRESS_FIX_SUBMIT": "Correct and resend",
+  "ADDRESS_FIX_DONE": "Address corrected: the invitation is sent to the new address.",
+  "ADDRESS_FIX_FAILED": "The correction failed. Check the address and try again.",
+  "INVITEE_RESEND_REJECTED_CONFIRM": "This address was rejected on {date}. Send again anyway?",
+  "INVITEE_RESEND_ANYWAY": "Send anyway",
+  "INVITEE_RESEND_OPTED_OUT": "The person refused this organization's emails: the invitation cannot be sent to them again.",
+  "INVITEE_CHECK_BANNER_HINT": "A rejected address is no longer retried automatically. Check it with the person and correct it from the invitation.",
+  "INVITEE_CHECK_BANNER_SHOW": "Show",
+  "BATCH_INVITEE_CHECK_CARD": "Addresses to check",
+  "BATCH_INVITEE_CHECK_ONLY": "Only the addresses to check",
+  "INVITEE_CHECK_BANNER": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "{count} address to check",
+        "countPlural=other": "{count} addresses to check"
+      }
+    }
+  ]
 }

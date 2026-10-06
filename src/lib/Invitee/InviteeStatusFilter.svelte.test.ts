@@ -10,7 +10,7 @@ import { render } from 'vitest-browser-svelte';
 import { page } from 'vitest/browser';
 import InviteeStatusFilter from './InviteeStatusFilter.svelte';
 
-const counts = { all: 12, active: 8, used: 3, disabled: 1 };
+const counts = { all: 12, active: 8, used: 3, disabled: 1, check: 0 };
 
 describe('InviteeStatusFilter', () => {
 	it('offers each status with its count, in a labelled group', async () => {

@@ -6,13 +6,15 @@ import { djangoShell, removeInvitee, seedInvitee } from './seed';
 const { Given, When, Then, After } = createBdd(test);
 
 /** The seeded invitation, and the delivery its email is recorded under. */
-const ctx: { uid?: string; email?: string; deliveryId?: string } = {};
+export const ctx: { uid?: string; email?: string; deliveryId?: string } = {};
 
 After(async () => {
 	if (!ctx.uid) return;
+	// The bounce also remembered the address (mailer.suppression).
 	await djangoShell(`
-from mailer.models import EmailDelivery
+from mailer.models import EmailDelivery, EmailSuppression
 EmailDelivery.objects.filter(invitee_uid=${JSON.stringify(ctx.uid)}).delete()
+EmailSuppression.objects.filter(address=${JSON.stringify(ctx.email)}).delete()
 `);
 	await removeInvitee(ctx.uid);
 	ctx.uid = ctx.email = ctx.deliveryId = undefined;

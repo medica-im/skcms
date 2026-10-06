@@ -13,6 +13,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import * as m from '$msgs';
 import type { EmailDeliveryStatus, EmailErrorKind } from '$lib/interfaces/v2/invitee';
+import { needsCheck } from './inviteeFilter';
 
 export type DeliveryState = EmailDeliveryStatus | 'unknown';
 
@@ -63,3 +64,48 @@ export const errorKindShort: Record<EmailErrorKind, () => string> = {
 	unreachable: m.EMAIL_ERROR_UNREACHABLE_SHORT,
 	outcome_unknown: m.EMAIL_ERROR_OUTCOME_UNKNOWN_SHORT
 };
+
+/**
+ * Why an invitation's address needs checking, for the flag and the
+ * invitation page: the backend's remembered reason (addressIssue) first,
+ * else what its latest email says. null when the address is fine
+ * (inviteeFilter.needsCheck decides).
+ */
+export type AddressProblem = 'bounced' | 'refused' | 'complained' | 'unsubscribed' | 'suppressed';
+
+export function addressProblemOf(invitee: {
+	redeemedAt?: number | null;
+	emailDelivery?: { status: string; errorKind?: string | null } | null;
+	addressIssue?: { reason: AddressProblem } | null;
+}): AddressProblem | null {
+	if (!needsCheck(invitee as never)) return null;
+	if (invitee.addressIssue) return invitee.addressIssue.reason;
+	const status = invitee.emailDelivery?.status;
+	if (status === 'bounced' || status === 'complained' || status === 'suppressed') return status;
+	return 'refused';
+}
+
+/** A refusal of the organization's mail: explained, never sent anyway. */
+export const OPTED_OUT: ReadonlySet<AddressProblem> = new Set(['complained', 'unsubscribed']);
+
+export const addressProblemShort: Record<AddressProblem, () => string> = {
+	bounced: m.ADDRESS_PROBLEM_BOUNCED_SHORT,
+	refused: m.ADDRESS_PROBLEM_REFUSED_SHORT,
+	complained: m.ADDRESS_PROBLEM_COMPLAINED_SHORT,
+	unsubscribed: m.ADDRESS_PROBLEM_UNSUBSCRIBED_SHORT,
+	suppressed: m.ADDRESS_PROBLEM_SUPPRESSED_SHORT
+};
+
+/** What happened and what to do. */
+export const addressProblemWords: Record<AddressProblem, () => string> = {
+	bounced: m.ADDRESS_PROBLEM_BOUNCED,
+	refused: m.ADDRESS_PROBLEM_REFUSED,
+	complained: m.ADDRESS_PROBLEM_COMPLAINED,
+	unsubscribed: m.ADDRESS_PROBLEM_UNSUBSCRIBED,
+	suppressed: m.ADDRESS_PROBLEM_SUPPRESSED
+};
+
+/** A date as the invitation pages write it: "6 octobre 2026". */
+export function dayOf(iso: string): string {
+	return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+}

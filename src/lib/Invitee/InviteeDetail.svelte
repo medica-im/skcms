@@ -7,6 +7,8 @@
 	import InviteeStatus from './InviteeStatus.svelte';
 	import InviteeEmailDelivery from './InviteeEmailDelivery.svelte';
 	import InviteeResend from './InviteeResend.svelte';
+	import InviteeAddressFlag from './InviteeAddressFlag.svelte';
+	import InviteeAddressProblem from './InviteeAddressProblem.svelte';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import FileJson from '@lucide/svelte/icons/file-json';
 	import RoleBadge from '$lib/RoleBadge.svelte';
@@ -41,7 +43,10 @@
 				<Fa icon={faEnvelope} size="sm" />
 				Email
 			</span>
-			<p class="font-semibold">{invitee.email}</p>
+			<p class="font-semibold flex items-center gap-2">
+				<span class="break-all">{invitee.email}</span>
+				<InviteeAddressFlag {invitee} />
+			</p>
 		</div>
 
 		<!-- Name -->
@@ -80,6 +85,11 @@
 			{#if !isRedeemed && invitee.active}
 				<div class="mt-2"><InviteeResend uid={invitee.uid} /></div>
 			{/if}
+		</div>
+
+		<!-- A bad address: what happened, what to do, and the fix in place -->
+		<div class="md:col-span-2">
+			<InviteeAddressProblem {invitee} />
 		</div>
 
 		<!-- Created at -->

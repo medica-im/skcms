@@ -891,5 +891,44 @@
   "DIRECTORIES_NO_OWNER": "Aucune organisation n'est rattachée à cet annuaire : ce réglage est sans effet.",
   "DIRECTORIES_EMPTY": "Aucun annuaire pour ce site.",
   "DIRECTORIES_LOAD_FAILED": "Impossible de charger les annuaires.",
-  "DIRECTORIES_SAVE_FAILED": "L'enregistrement a échoué. Réessayez plus tard."
+  "DIRECTORIES_SAVE_FAILED": "L'enregistrement a échoué. Réessayez plus tard.",
+  "INVITEE_FILTER_CHECK": "À vérifier",
+  "ADDRESS_PROBLEM_BOUNCED_SHORT": "Adresse rejetée",
+  "ADDRESS_PROBLEM_REFUSED_SHORT": "Adresse invalide",
+  "ADDRESS_PROBLEM_COMPLAINED_SHORT": "Signalé comme indésirable",
+  "ADDRESS_PROBLEM_UNSUBSCRIBED_SHORT": "Désinscrit",
+  "ADDRESS_PROBLEM_SUPPRESSED_SHORT": "Non envoyé",
+  "ADDRESS_PROBLEM_BOUNCED": "La boîte de réception n’existe pas ou ne reçoit plus de courrier. Vérifiez l’adresse auprès de la personne, puis corrigez-la : l’invitation partira vers la nouvelle adresse.",
+  "ADDRESS_PROBLEM_REFUSED": "Le service d’envoi a refusé cette adresse telle qu’elle est écrite (faute de frappe ?). Vérifiez l’adresse auprès de la personne, puis corrigez-la.",
+  "ADDRESS_PROBLEM_COMPLAINED": "La personne a classé nos e-mails en indésirables : plus rien ne lui est envoyé au nom de cette organisation.",
+  "ADDRESS_PROBLEM_UNSUBSCRIBED": "La personne s’est désinscrite : plus rien ne lui est envoyé au nom de cette organisation.",
+  "ADDRESS_PROBLEM_SUPPRESSED": "Cette adresse a déjà été rejetée : l’e-mail n’est pas parti. Vérifiez l’adresse auprès de la personne, puis corrigez-la.",
+  "ADDRESS_PROBLEM_SINCE": "Depuis le {date}",
+  "ADDRESS_FLAG_SR": "Adresse à vérifier : {reason}",
+  "ADDRESS_FIX_LABEL": "Adresse corrigée",
+  "ADDRESS_FIX_SUBMIT": "Corriger et renvoyer",
+  "ADDRESS_FIX_DONE": "Adresse corrigée : l’invitation est envoyée à la nouvelle adresse.",
+  "ADDRESS_FIX_FAILED": "La correction a échoué. Vérifiez l’adresse et réessayez.",
+  "INVITEE_RESEND_REJECTED_CONFIRM": "Cette adresse a été rejetée le {date}. Renvoyer quand même ?",
+  "INVITEE_RESEND_ANYWAY": "Renvoyer quand même",
+  "INVITEE_RESEND_OPTED_OUT": "La personne a refusé les e-mails de cette organisation : l’invitation ne peut pas lui être renvoyée.",
+  "INVITEE_CHECK_BANNER_HINT": "Une adresse rejetée n’est plus réessayée automatiquement. Vérifiez-la auprès de la personne et corrigez-la depuis l’invitation.",
+  "INVITEE_CHECK_BANNER_SHOW": "Voir",
+  "BATCH_INVITEE_CHECK_CARD": "Adresses à vérifier",
+  "BATCH_INVITEE_CHECK_ONLY": "Seulement les adresses à vérifier",
+  "INVITEE_CHECK_BANNER": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "{count} adresse à vérifier",
+        "countPlural=other": "{count} adresses à vérifier"
+      }
+    }
+  ]
 }

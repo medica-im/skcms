@@ -80,6 +80,9 @@
 		);
 	});
 	const statusCounts = $derived(countByStatus(searchedInvitees ?? []));
+	// Addresses to check in the whole list, whatever the search: the banner.
+	// Live, since `invitees` takes the pushed deliveries (LiveDeliveries).
+	const toCheck = $derived(countByStatus(invitees ?? []).check);
 	let filteredInvitees = $derived(
 		searchedInvitees &&
 			sortByDateTime(
@@ -209,6 +212,20 @@
 
 	<!-- Search, and the status filter: side by side on a large screen,
 	     stacked on a narrow one. -->
+	{#if toCheck > 0 && statusFilter !== 'check'}
+		<aside class="alert variant-soft-warning mb-4" data-testid="invitee-check-banner">
+			<div class="alert-message">
+				<p class="font-semibold">{m.INVITEE_CHECK_BANNER({ count: toCheck })}</p>
+				<p class="text-sm">{m.INVITEE_CHECK_BANNER_HINT()}</p>
+			</div>
+			<div class="alert-actions">
+				<button type="button" class="btn min-h-11 variant-filled-warning" onclick={() => setStatusFilter('check')}>
+					{m.INVITEE_CHECK_BANNER_SHOW()}
+				</button>
+			</div>
+		</aside>
+	{/if}
+
 	<div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center">
 		<input
 			type="search"

@@ -106,10 +106,21 @@ export const deleteInvitee = form(DeleteInvitee, async (data) => {
  * Send an invitation's email again. A value, not a throw: a refusal (used,
  * disabled, already_queued) is an answer the page words, not an error.
  */
-export const resendInvitation = command(z.string(), async (uid) => {
+const Resend = z.object({
+	uid: z.string(),
+	/** Send although the address bounced before: the administrator checked it. */
+	force: z.boolean().optional()
+});
+
+/**
+ * 409 codes: used, disabled, already_queued; address_rejected (the address
+ * bounced: send with force once checked; reason and since say when and why)
+ * and address_opted_out (the person refused this organization's mail).
+ */
+export const resendInvitation = command(Resend, async ({ uid, force }) => {
 	const { cookies } = getRequestEvent();
 	const url = `${variables.BASE_URI}/api/v2/invitees/${uid}/resend`;
-	const response = await fetch(authReq(url, 'POST', cookies, '{}'));
+	const response = await fetch(authReq(url, 'POST', cookies, JSON.stringify({ force: !!force })));
 	let detail: any;
 	try {
 		detail = (await response.json())?.detail;
@@ -122,6 +133,21 @@ export const resendInvitation = command(z.string(), async (uid) => {
 	return {
 		success: response.ok,
 		status: response.status,
-		code: typeof detail?.code === 'string' ? (detail.code as string) : undefined
+		code: typeof detail?.code === 'string' ? (detail.code as string) : undefined,
+		reason: typeof detail?.reason === 'string' ? (detail.reason as string) : undefined,
+		since: typeof detail?.since === 'string' ? (detail.since as string) : undefined
 	};
+});
+
+const CorrectAddress = z.object({ uid: z.string(), email: z.string().email() });
+
+/** A corrected address: the backend sends the invitation to it straight away. */
+export const correctInviteeAddress = command(CorrectAddress, async ({ uid, email }) => {
+	const { cookies } = getRequestEvent();
+	const url = `${variables.BASE_URI}/api/v2/invitees/${uid}`;
+	const response = await fetch(authReq(url, 'PATCH', cookies, JSON.stringify({ email })));
+	if (!response.ok) {
+		console.error(`PATCH ${url} -> ${response.status} ${response.statusText}`);
+	}
+	return { success: response.ok, status: response.status };
 });
