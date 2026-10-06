@@ -171,3 +171,11 @@ When('I accept the suggestion', async ({ page }) => {
 Then('the address reads {string}', async ({ page }, address: string) => {
 	await expect(addressField(page)).toHaveValue(address);
 });
+
+When('I edit that invitation from the list', async ({ page }) => {
+	await row(page, ctx.email!).getByRole('button', { name: 'Modifier' }).click();
+});
+
+Then('its edit form opens', async ({ page }) => {
+	await expect(page.getByRole('heading', { name: "Modifier l'invitation" }).first()).toBeVisible();
+});

@@ -20,7 +20,10 @@ import type { EmailDelivery } from '$lib/interfaces/v2/invitee';
 import { withLatest } from './liveDeliveriesMerge';
 
 export class LiveDeliveries {
-	latest = $state<Record<string, EmailDelivery>>({});
+	// Raw, and replaced on each change: plain objects, not $state proxies. The
+	// invitations they reach are handed to pushState (the edit form), whose
+	// structuredClone cannot copy a proxy -- the form silently never opened.
+	latest = $state.raw<Record<string, EmailDelivery>>({});
 
 	/** Listens until the returned function is called; `reload` on every (re)connection. */
 	connect(url: string, reload?: () => unknown): () => void {
@@ -32,12 +35,17 @@ export class LiveDeliveries {
 		source.addEventListener('delivery', (event) => {
 			try {
 				const { invitee_uid, emailDelivery } = JSON.parse((event as MessageEvent).data);
-				if (invitee_uid && emailDelivery) this.latest[invitee_uid] = emailDelivery;
+				if (invitee_uid && emailDelivery) this.receive(invitee_uid, emailDelivery);
 			} catch (e) {
 				console.error('Unreadable delivery event', e);
 			}
 		});
 		return () => source.close();
+	}
+
+	/** One pushed change: where this invitation's email stands now. */
+	receive(uid: string, delivery: EmailDelivery) {
+		this.latest = { ...this.latest, [uid]: delivery };
 	}
 
 	apply<T extends { uid: string; emailDelivery?: EmailDelivery | null }>(list: T[] | undefined): T[] | undefined {

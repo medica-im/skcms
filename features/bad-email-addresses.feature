@@ -26,6 +26,18 @@ Feature: Bad email addresses are shown where administrators work, and fixed ther
     When I show only the addresses to check
     Then that invitation is listed under "À vérifier"
 
+  # Its row changed live: it must still open its edit form. The pushed
+  # delivery was a $state proxy, which pushState could not copy -- the form
+  # silently never opened (lib/Invitee/liveDeliveries.svelte.ts).
+  Scenario: An invitation flagged live can still be edited from the list
+    Given I am signed in with the role "administrator"
+    And an invitation whose email was just sent
+    When I open the invitations list
+    And the mail service reports that the email bounced
+    Then that invitation's address is flagged "Adresse rejetée"
+    When I edit that invitation from the list
+    Then its edit form opens
+
   Scenario: Resending to an address that bounced asks first
     Given I am signed in with the role "administrator"
     And an invitation whose address bounced before
