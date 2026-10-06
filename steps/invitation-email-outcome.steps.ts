@@ -85,3 +85,30 @@ Then("without reloading, that invitation's email is shown as {string}", async ({
 	await expect(cell(page)).toContainText(words, { timeout: 30_000 });
 	expect(await page.evaluate(() => (window as any).__sameDocument)).toBe(true);
 });
+
+When('I open its page', async ({ page }) => {
+	await page.goto(`/web/invite/invitees/${ctx.uid}`);
+});
+
+Then('its page says its email is {string}', async ({ page }, words: string) => {
+	await expect(page.getByTestId('invitee-email-delivery')).toContainText(words);
+});
+
+When('the mail service reports that the email was delivered', async () => {
+	await djangoShell(`
+import time
+from mailer.delivery import apply_event
+from mailer.providers.base import DeliveryEvent, EventKind
+apply_event(DeliveryEvent(
+    provider="mailgun", event_id="e2e-delivered-${ctx.uid}", kind=EventKind.DELIVERED,
+    recipient=${JSON.stringify(ctx.email)}, occurred_at=time.time(),
+    metadata={"delivery_id": "${ctx.deliveryId}"},
+))
+`);
+});
+
+Then('without reloading, its page says its email is {string}', async ({ page }, words: string) => {
+	await page.evaluate(() => ((window as any).__sameDocument = true));
+	await expect(page.getByTestId('invitee-email-delivery')).toContainText(words, { timeout: 30_000 });
+	expect(await page.evaluate(() => (window as any).__sameDocument)).toBe(true);
+});

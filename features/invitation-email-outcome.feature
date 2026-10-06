@@ -17,3 +17,13 @@ Feature: The invitations list learns what became of each email
     Then that invitation's email is shown as "Envoyé"
     When the mail service reports that the email bounced
     Then without reloading, that invitation's email is shown as "Rejeté"
+
+  # The invitation's page too: after a correction, the administrator waits
+  # there to see the new address accepted, then delivered.
+  Scenario: An invitation's page learns its email was delivered without reloading
+    Given I am signed in with the role "administrator"
+    And an invitation whose email was just sent
+    When I open its page
+    Then its page says its email is "E-mail envoyé"
+    When the mail service reports that the email was delivered
+    Then without reloading, its page says its email is "E-mail distribué"

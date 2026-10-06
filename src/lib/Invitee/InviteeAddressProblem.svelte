@@ -79,4 +79,12 @@
 			{/if}
 		{/if}
 	</div>
+{:else if result?.success}
+	<!-- The page reloads after a correction and the address is fine again:
+	     the box is gone, the confirmation stays. What becomes of the new
+	     email shows live just above (LiveDeliveries). -->
+	<p class="flex items-center gap-2 text-sm text-success-800-100-token" role="status">
+		<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
+		<span>{m.ADDRESS_FIX_DONE()}</span>
+	</p>
 {/if}

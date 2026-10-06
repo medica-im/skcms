@@ -30,6 +30,7 @@ vi.mock('$app/navigation', () => ({ invalidateAll: vi.fn() }));
 
 import InviteeAddressFlag from './InviteeAddressFlag.svelte';
 import InviteeAddressProblem from './InviteeAddressProblem.svelte';
+import InviteeAddressProblemHarness from './InviteeAddressProblemHarness.svelte';
 import InviteeResend from './InviteeResend.svelte';
 import InviteeStatusFilter from './InviteeStatusFilter.svelte';
 
@@ -106,6 +107,24 @@ describe('the problem on the invitation page', () => {
 		await expect.poll(() => remote.correctInviteeAddress.mock.calls[0]?.[0]).toEqual({
 			uid: 'u1', email: 'right@medica.im'
 		});
+		await expect.element(page.getByRole('status')).toHaveTextContent('envoyée à la nouvelle adresse');
+	});
+
+	// The page reloads after the correction and the address is fine again, so
+	// the problem box closes: the confirmation must outlive it.
+	it('still says the invitation went to the new address once the problem is gone', async () => {
+		remote.correctInviteeAddress.mockResolvedValue({ success: true, status: 200 });
+		render(InviteeAddressProblemHarness, {
+			before: invitee({ emailDelivery: bouncedDelivery }),
+			after: invitee({ email: 'right@medica.im', emailDelivery: { ...bouncedDelivery, status: 'queued', error: null } })
+		});
+
+		await page.getByLabelText('Adresse corrigée').fill('right@medica.im');
+		await page.getByRole('button', { name: 'Corriger et renvoyer' }).click();
+		await expect.element(page.getByRole('status')).toBeVisible();
+		await page.getByRole('button', { name: 'reload' }).click();
+
+		await expect.element(page.getByTestId('invitee-address-problem')).not.toBeInTheDocument();
 		await expect.element(page.getByRole('status')).toHaveTextContent('envoyée à la nouvelle adresse');
 	});
 
