@@ -5,7 +5,7 @@
 	import EditInviteeModal from '$lib/Invitee/EditInviteeModal.svelte';
 	import DeleteInviteeModal from '$lib/Invitee/DeleteInviteeModal.svelte';
 	import { Invitee } from '$lib/Invitee';
-	import { preloadData, pushState, goto } from '$app/navigation';
+	import { preloadData, pushState, goto, invalidateAll } from '$app/navigation';
 	import { faPlus, faFileLines } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import ExportModeToggle from '$lib/components/ExportModeToggle/ExportModeToggle.svelte';
@@ -18,6 +18,7 @@
 	import SortHeader from '$lib/components/Table/SortHeader.svelte';
 	import SortSelect from '$lib/components/Table/SortSelect.svelte';
 	import InviteeStatusFilter from '$lib/Invitee/InviteeStatusFilter.svelte';
+	import { LiveDeliveries } from '$lib/Invitee/liveDeliveries.svelte';
 	import {
 		countByStatus,
 		filterFromParam,
@@ -27,7 +28,12 @@
 	} from '$lib/Invitee/inviteeFilter';
 
 	let { data }: { data: PageData } = $props();
-	let invitees = $derived(data.invitees);
+	// Each email's status as the backend pushes it (bounced, delivered...),
+	// over what the page loaded: see $lib/Invitee/liveDeliveries.svelte.ts.
+	const live = new LiveDeliveries();
+	// Reloaded once per (re)connection, so nothing published before it is missed.
+	$effect(() => live.connect(`${ORIGIN}/api/v2/invitees/events`, invalidateAll));
+	let invitees = $derived(live.apply(data.invitees));
 	let searchTerm = $state('');
 
 	// Sorted by creation or by use, newest first by default: the API returns
