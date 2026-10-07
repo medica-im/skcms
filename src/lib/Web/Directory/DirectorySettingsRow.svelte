@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 	import { invalidate } from '$app/navigation';
+	import { page } from '$app/state';
+	import DirectoryEffectorTypes from './DirectoryEffectorTypes.svelte';
 	import { SlideToggle } from '@skeletonlabs/skeleton';
 	import Fa from 'svelte-fa';
 	import { faCheck } from '@fortawesome/free-solid-svg-icons';
@@ -9,6 +11,10 @@
 	import { setListOwnerEntry, type DirectoryUpdateResult } from '../../../directory.remote';
 
 	let { directory }: { directory: DirectorySettings } = $props();
+
+	// Administrators see the page for the categories; the owner switch stays
+	// superusers' (the backend refuses them too).
+	const isSuperuser = $derived(page.data?.user?.role === 'superuser');
 
 	// Local so a refused change can be put back: the toggle flips on click,
 	// before the server has answered.
@@ -57,6 +63,7 @@
 			{/if}
 		</p>
 	</div>
+	{#if isSuperuser}
 	<div class="flex items-center gap-2">
 		<SlideToggle
 			name="list-owner-entry-{directory.uid}"
@@ -78,4 +85,6 @@
 	{#if result && !result.success}
 		<p class="text-sm text-error-700-200-token" role="alert">{m.DIRECTORIES_SAVE_FAILED()}</p>
 	{/if}
+	{/if}
+	<DirectoryEffectorTypes {directory} />
 </li>

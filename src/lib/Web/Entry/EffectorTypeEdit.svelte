@@ -22,7 +22,7 @@
 	import { base } from '$app/paths';
 	import * as m from '$msgs';
 	import Dialog from '$lib/Web/Dialog.svelte';
-	import EffectorTypeSelect from '$lib/Web/EffectorTypeSelect.svelte';
+	import OfferedEffectorTypeSelect from '$lib/Web/OfferedEffectorTypeSelect.svelte';
 	import EntryToggleActive from '$lib/Web/Entry/EntryToggleActive.svelte';
 	import { changeEntryType, previewEntryTypeChange, type RemovedTag } from '../../../entry.remote';
 	import {
@@ -147,7 +147,7 @@
 				</p>
 				<div class="space-y-2">
 					<span class="block">{m.ENTRY_TYPE_EDIT_NEW()}</span>
-					<EffectorTypeSelect bind:selectedEffectorType={selected} />
+					<OfferedEffectorTypeSelect bind:selectedEffectorType={selected} />
 				</div>
 				{#if removedTags.length}
 					<div class="alert variant-soft-warning" data-testid="entry-type-removed-tags">

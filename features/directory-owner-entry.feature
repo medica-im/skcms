@@ -48,19 +48,26 @@ Feature: A directory may leave its organization's entry out of its lists
       And I turn on the organization's entry
       Then the address book lists the organization's entry
 
-  Rule: Nobody but a superuser reaches the page
+  Rule: Only a superuser sees the switch
 
-    Scenario Outline: A <role> is refused
-      Given I am signed in with the role "<role>"
+    Administrators reach the page too, to set the categories a directory
+    offers (directory-effector-types.feature); the switch is not theirs, and
+    the backend refuses them as well. Staff do not reach the page at all.
+
+    Scenario: A staff member is refused
+      Given I am signed in with the role "staff"
       When I open "/web/directories"
       Then the response status is 403
 
-      Examples:
-        | role          |
-        | administrator |
-        | staff         |
-
-    Scenario: An administrator's menu has no link to it
-      Given I am signed in with the role "administrator"
+    Scenario: A staff member's menu has no link to it
+      Given I am signed in with the role "staff"
       When I open "/"
       Then the user menu has no link to the directories page
+
+    Scenario: An administrator reaches the page without the switch
+      Given I am signed in with the role "administrator"
+      And this site's directory lists its organization's entry
+      When I open "/"
+      Then the user menu has a link to the directories page
+      When I open the directories page
+      Then the organization's entry switch is not shown

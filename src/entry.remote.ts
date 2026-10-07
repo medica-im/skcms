@@ -43,7 +43,10 @@ export const createEntry = form(postEntry, async (data, issue) => {
 		console.error(JSON.stringify(json))
 		console.error(response.status)
 		console.error(response.statusText)
-		invalid(json.detail ?? `${response.status} ${response.statusText}`);
+		// A refusal with a code (type_not_offered) is passed as its code; the
+		// form words it.
+		const detail = typeof json.detail?.code === 'string' ? json.detail.code : json.detail;
+		invalid(detail ?? `${response.status} ${response.statusText}`);
 	} else {
 		const json = await response.json() as EntryFull;
 		console.log(`Success! Status: ${response.status} Status text: ${response.statusText}`);

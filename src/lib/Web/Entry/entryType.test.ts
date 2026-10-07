@@ -78,6 +78,7 @@ describe('typeChangeRefusal', () => {
 		['duplicate', m.ENTRY_TYPE_EDIT_ERROR_DUPLICATE()],
 		['malformed', m.ENTRY_TYPE_EDIT_ERROR_MALFORMED()],
 		['unknown_type', m.ENTRY_TYPE_EDIT_ERROR_UNKNOWN_TYPE()],
+		['type_not_offered', m.ENTRY_TYPE_NOT_OFFERED()],
 		['not_allowed', m.ENTRY_TYPE_EDIT_LOCKED()],
 		[undefined, m.ENTRY_TYPE_EDIT_ERROR_FAILED()],
 		['something_new', m.ENTRY_TYPE_EDIT_ERROR_FAILED()]

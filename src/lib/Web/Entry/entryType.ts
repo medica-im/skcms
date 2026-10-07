@@ -59,6 +59,8 @@ export function typeChangeRefusal(code: string | undefined, windowDays: number |
 			return m.ENTRY_TYPE_EDIT_ERROR_MALFORMED();
 		case 'unknown_type':
 			return m.ENTRY_TYPE_EDIT_ERROR_UNKNOWN_TYPE();
+		case 'type_not_offered':
+			return m.ENTRY_TYPE_NOT_OFFERED();
 		case 'expired':
 			return m.ENTRY_TYPE_EDIT_EXPIRED({ days: windowDays ?? 0 });
 		case 'no_date':

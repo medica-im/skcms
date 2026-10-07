@@ -97,7 +97,9 @@ hasErrors: {hasErrors}-->
 						<h3 class="h3">Erreur</h3>
 						<p>{issue.message === 'One active Entry object with same effector, effector_type and facility already exists.'
 							? 'Une entrée active avec la même personne, la même catégorie et le même établissement existe déjà.'
-							: issue.message}</p>
+							: issue.message === 'type_not_offered'
+								? m.ENTRY_TYPE_NOT_OFFERED()
+								: issue.message}</p>
 					</div>
 				</aside>
 			{/each}

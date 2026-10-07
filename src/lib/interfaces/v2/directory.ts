@@ -1,4 +1,4 @@
-/** A directory as the superuser "Annuaires" page shows it (GET /api/v2/directories). */
+/** A directory as the "Annuaires" page shows it (GET /api/v2/directories). */
 export interface DirectorySettings {
 	uid: string;
 	name: string;
@@ -7,4 +7,6 @@ export interface DirectorySettings {
 	owner: { uid: string; label: string | null } | null;
 	/** Whether the owner shows in the directory's lists. */
 	list_owner_entry: boolean;
+	/** The categories offered at entry creation; empty: every one. */
+	effector_types: { uid: string; label: string | null }[];
 }

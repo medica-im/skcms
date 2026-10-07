@@ -153,6 +153,12 @@ Then('the user menu has a link to the directories page', async ({ page }) => {
 	await expect(page.locator(`[data-popup="user"] a[href$="${DIRECTORIES_PATH}"]`)).toHaveCount(1);
 });
 
+Then("the organization's entry switch is not shown", async ({ page }) => {
+	// The row first, or "not shown" would pass on a page still loading.
+	await expect(page.locator(`[data-testid="directory-row"][data-directory="${ctx.directory}"]`)).toBeVisible();
+	await expect(toggle(page)).toHaveCount(0);
+});
+
 Then('the user menu has no link to the directories page', async ({ page }) => {
 	// Wait for the menu itself, or "no link" would pass on a page still loading.
 	await expect(page.locator('[data-popup="user"]')).toHaveCount(1);

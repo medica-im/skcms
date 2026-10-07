@@ -21,7 +21,7 @@ vi.mock('../../../entry.remote', () => ({
 vi.mock('$app/paths', () => ({ base: '/annuaire' }));
 vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidateAll: vi.fn() }));
 vi.mock('$lib/components/Directory/context', () => ({ getEntryUid: () => 'e1' }));
-vi.mock('$lib/Web/EffectorTypeSelect.svelte', async () => ({
+vi.mock('$lib/Web/OfferedEffectorTypeSelect.svelte', async () => ({
 	default: (await import('./EffectorTypeSelectStub.svelte')).default
 }));
 

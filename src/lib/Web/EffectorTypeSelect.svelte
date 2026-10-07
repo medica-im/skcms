@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import * as m from '$msgs';
 	import Select from '$lib/Web/Select.svelte';
 	import NoOptions from '$lib/Web/NoOptions.svelte';
@@ -9,23 +8,38 @@
 
 	let {
 		selectedEffectorType = $bindable(),
-	}: { selectedEffectorType: { label: string; value: string } | undefined; } = $props();
+		scope = 'all',
+		exclude = []
+	}: {
+		selectedEffectorType: { label: string; value: string } | undefined;
+		/** 'directory': only what this site's directory offers at entry creation. */
+		scope?: 'all' | 'directory';
+		/** Uids left out, e.g. the categories a directory already offers. */
+		exclude?: string[];
+	} = $props();
 
-	let effectorTypes: EffectorType[]|undefined = $state();
+	let effectorTypes: EffectorType[] | undefined = $state();
 	let filterText: string = $state('');
 	const itemFilter = () => true; // turn off internal filter
-	onMount(async ()=> {
-		effectorTypes = await getEffectorTypes();
-	}
-	)
+
+	// Reloaded when the scope changes: a superuser may switch to every category.
+	$effect(() => {
+		const wanted = scope;
+		effectorTypes = undefined;
+		getEffectorTypes(wanted).then((types) => {
+			if (wanted === scope) effectorTypes = types;
+		});
+	});
+
+	const offered = $derived(effectorTypes?.filter((t) => !exclude.includes(t.uid)));
 </script>
 
-{#if effectorTypes}
+{#if offered}
 	<div class="svelte-select svelte-select-glow w-full">
 		<Select
 			{itemFilter}
 			searchable={true}
-			items={getTypeItems(effectorTypes, filterText)}
+			items={getTypeItems(offered, filterText)}
 			bind:value={selectedEffectorType}
 			bind:filterText
 			placeholder="Sélectionner une catégorie"

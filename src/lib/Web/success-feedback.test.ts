@@ -94,6 +94,11 @@ const EXEMPT: Record<string, string> = {
 		'Renaming closes its dialog and the tile shows the new name; deleting ' +
 		'removes the tile. The change happens where the reader is looking, so it ' +
 		'is the confirmation.',
+	'Directory/DirectoryEffectorTypes.svelte':
+		"Each save redraws the list of categories from the server's answer — a " +
+		'chip appears or goes — so the change in front of the reader is the ' +
+		'confirmation; one badge for several quick additions and removals would ' +
+		'not say which it confirms.',
 	'Email/Template/TemplatePreview.svelte':
 		'Saves nothing: its result is the rendered preview, which is shown.'
 };

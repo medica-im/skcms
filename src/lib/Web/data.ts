@@ -3,8 +3,13 @@ import type { EffectorType } from '$lib/interfaces/v2/effector';
 import type { FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 import type { Commune, DepartmentOfFrance } from '$lib/interfaces/v2/facility.ts';
 
-export const getEffectorTypes = async () => {
-  const response = await fetch(`${ORIGIN}/api/v2/effector-types`)
+/**
+ * 'directory': only the categories this site's directory offers at entry
+ * creation (every one when it names none); 'all': every category.
+ */
+export const getEffectorTypes = async (scope: 'all' | 'directory' = 'all') => {
+  const query = scope === 'directory' ? '?scope=directory' : ''
+  const response = await fetch(`${ORIGIN}/api/v2/effector-types${query}`)
   const data = (await response.json()) as Array<EffectorType>
   return data
 }

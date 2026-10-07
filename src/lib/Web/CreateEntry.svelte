@@ -13,7 +13,7 @@
 	import SelectEffector from '$routes/(common)/web/effector/select/+page.svelte';
 	import NewSelectEffectorModal from '$lib/Web/Effector/NewSelectEffectorModal.svelte';
 	import * as m from '$msgs';
-	import EffectorTypeSelect from '$lib/Web/EffectorTypeSelect.svelte';
+	import OfferedEffectorTypeSelect from '$lib/Web/OfferedEffectorTypeSelect.svelte';
 	import DisplayFacility from '$lib/Web/DisplayFacility.svelte';
 	import Effectors from '$lib/Web/Effectors.svelte';
 	import SelectCreateFacilityAdmin from '$lib/Web/Facility/SelectCreateFacilityAdmin.svelte';
@@ -134,7 +134,7 @@ membershipsDone: {membershipsDone}
 			>
 				{#if !effectorType}
 					<h3 class="h3">Sélectionner une catégorie</h3>
-					<EffectorTypeSelect bind:selectedEffectorType={effectorType} />
+					<OfferedEffectorTypeSelect bind:selectedEffectorType={effectorType} />
 				{:else}
 					<div class="flex variant-ringed p-2 gap-4 items-center">
 						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
