@@ -8,7 +8,8 @@
 	import BoardMembersDisplay from '$lib/Association/BoardMembersDisplay.svelte';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 
-	const joinModules = import.meta.glob('../../(skvar)/(svlt)/(association)/Join.svelte', { eager: true });
+	// $svlt, not ../../(skvar): a test site server's skvar is a worktree.
+	const joinModules = import.meta.glob('$svlt/(association)/Join.svelte', { eager: true });
 	const JoinComponent: any = (Object.values(joinModules)[0] as any)?.default ?? null;
 
 	let { data } = $props();

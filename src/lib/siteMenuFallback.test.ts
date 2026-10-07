@@ -73,7 +73,10 @@ describe('the shared components without a parent site', () => {
 		// — and a direct import would not even compile on a branch without it.
 		const loader = read('src/lib/SiteMenu/siteMenu.ts');
 		expect(loader).toContain('import.meta.glob');
-		expect(loader).toContain('routes/(skvar)/(var)/siteMenu.ts');
+		// Through $skvar: a test site server serves its tenant's skvar from a
+		// worktree, and a relative path reaches the submodule instead — another
+		// tenant's branch, where dev.unipa.fr found no menu.
+		expect(loader).toContain('$skvar/(var)/siteMenu.ts');
 		expect(loader).toMatch(/siteMenu:\s*SiteMenu\s*\|\s*null/);
 
 		// No site named in the code itself. Comments may name one — explaining
