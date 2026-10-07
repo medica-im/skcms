@@ -17,12 +17,15 @@ import type { SiteMenu, SiteMenuItem } from '$lib/interfaces/siteMenu.interface'
  * Eager because it is a plain data module read during the first render of every
  * page; deferring it would only add a promise to the app bar.
  *
- * Through $skvar, never a relative path: a test site server serves its tenant's
- * skvar from a worktree, and `../../routes/(skvar)` reached the submodule —
- * another tenant's branch — so dev.unipa.fr showed the generic app bar.
+ * Through an alias, never a relative path: a test site server serves its
+ * tenant's skvar from a worktree, and `../../routes/(skvar)` reached the
+ * submodule — another tenant's branch — so dev.unipa.fr showed the generic
+ * app bar. And through $var rather than `$skvar/(var)`: after an alias, `(var)`
+ * is glob syntax, and in a build it matched nothing — staging.unipa.fr showed
+ * the generic app bar. See src/lib/skvarAlias.test.ts.
  */
 const modules = import.meta.glob<{ siteMenu?: SiteMenu }>(
-	'$skvar/(var)/siteMenu.ts',
+	'$var/siteMenu.ts',
 	{ eager: true }
 );
 

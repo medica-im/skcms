@@ -42,7 +42,41 @@ const strip = (src: string) =>
 		.replace(/\/\*[\s\S]*?\*\//g, '')
 		.replace(/^\s*\/\/.*$/gm, '');
 
+/**
+ * And through the alias, no parenthesis after it unless escaped.
+ *
+ * Vite escapes the alias's own path — `src/routes/(skvar)` in a build — but
+ * not what the pattern adds after it, where `(var)` is glob syntax and matches
+ * nothing. `$skvar/(var)/siteMenu.ts` found the menu on a test site server,
+ * whose skvar path has no parenthesis, and nothing in the image built for
+ * staging.unipa.fr, which showed the generic app bar (2026-10-07; measured
+ * with a bare Vite build). Use the narrower alias (`$var/siteMenu.ts`) or
+ * escape the group (`$svlt/\\(association\\)/Join.svelte`).
+ */
+const globPatterns = (source: string) =>
+	[...source.matchAll(/import\.meta\.glob[^(]*\(\s*(['"`])(.*?)\1/g)].map((m) => m[2]);
+
 describe('the path to skvar', () => {
+	it('globs through an alias with no bare parenthesis after it', () => {
+		const found = sources(SRC).flatMap((file) =>
+			globPatterns(strip(readFileSync(file, 'utf8')))
+				.filter((pattern) => pattern.startsWith('$') && /(^|[^\\])[()]/.test(pattern))
+				.map((pattern) => `${relative(ROOT, file)}: ${pattern}`)
+		);
+		expect(found).toEqual([]);
+	});
+
+	it('finds skvar files through the alias as a build resolves it', () => {
+		// Vitest transforms this file with the app's Vite config, where $skvar is
+		// the submodule's real path, (skvar) included — as in an image build.
+		// variables.ts is on every tenant's branch.
+		expect(Object.keys(import.meta.glob('$var/variables.ts'))).toHaveLength(1);
+		expect(Object.keys(import.meta.glob('$skvar/\\(var\\)/variables.ts'))).toHaveLength(1);
+		// The trap itself, so this file notices if Vite ever changes: the bare
+		// group after the alias matches nothing.
+		expect(Object.keys(import.meta.glob('$skvar/(var)/variables.ts'))).toHaveLength(0);
+	});
+
 	it('goes through $skvar, never a relative path to (skvar)', () => {
 		const relativeToSkvar = /['"`][^'"`\n]*\(skvar\)\/[^'"`\n]*['"`]/g;
 		const found = sources(SRC).flatMap((file) =>
