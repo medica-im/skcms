@@ -71,6 +71,7 @@
 
 	const onDepartmentClear = () => {
 		department = undefined;
+		commune = undefined;
 		updateFacilityCount();
 	};
 

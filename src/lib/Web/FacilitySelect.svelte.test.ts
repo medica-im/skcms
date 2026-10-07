@@ -7,10 +7,11 @@
  * default filter would be a plain substring of the displayed line, and "msp
  * lyon" would find nothing.
  */
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import { page, userEvent } from 'vitest/browser';
 import FacilitySelect from './FacilitySelect.svelte';
+import * as data from './data';
 import '../../app.postcss';
 
 const commune = (uid: string, name_fr: string) => ({
@@ -20,10 +21,20 @@ const commune = (uid: string, name_fr: string) => ({
 	department: { uid: 'd69', code: '69', name: 'Rhône', slug: 'rhone', wikidata: 'Q12724' }
 });
 
+// The signed-in role, set per test; none by default.
+const who = vi.hoisted(() => ({ role: undefined as string | undefined }));
+vi.mock('$app/state', () => ({
+	page: {
+		get data() {
+			return { user: who.role ? { role: who.role } : undefined };
+		}
+	}
+}));
+
 vi.mock('./data', () => ({
 	getDepartments: async () => [{ uid: 'd69', code: '69', name: 'Rhône', slug: 'rhone', wikidata: 'Q12724' }],
 	getCommunesByDpt: async () => [],
-	getFacilities: async () => [
+	getFacilities: vi.fn(async () => [
 		{ uid: 'f1', name: 'Maison de santé du Parc', label: 'MSP du Parc', street: '12 rue de la République',
 		  commune: commune('c1', 'Lyon'), effectors: null },
 		{ uid: 'f2', name: "L'Hôpital Saint-Étienne", label: 'CHU Nord', street: 'Bd Leclerc',
@@ -36,7 +47,7 @@ vi.mock('./data', () => ({
 		// 122 characters: the longest production line.
 		{ uid: 'f5', name: 'Maison de santé pluriprofessionnelle des Monts du Lyonnais et du Beaujolais',
 		  label: null, street: '12500 avenue des Frères Lumières', commune: commune('c1', 'Lyon'), effectors: null }
-	]
+	])
 }));
 
 /** The options the open list shows, as text. */
@@ -139,5 +150,59 @@ describe('FacilitySelect width', () => {
 		await expect.poll(shown).toEqual(ALL);
 		expect(whole(P90)).toBe(true);
 		expect(whole(LONGEST)).toBe(false);
+	});
+});
+
+/**
+ * "Établissements de tous les sites": a superuser's way to every site's
+ * facilities. The count beside it is taken after the department and commune
+ * filters, so it cannot tell which list was loaded — on staging.santelyon3.fr
+ * it read 46 either way (2026-10-08). Which list is asked for is checked here.
+ */
+describe('FacilitySelect, every site', () => {
+	const ALL_SITES = 'Établissements de tous les sites';
+
+	afterEach(() => {
+		who.role = undefined;
+	});
+
+	it("a superuser's box asks for every site's facilities, and back", async () => {
+		who.role = 'superuser';
+		const getFacilities = vi.mocked(data.getFacilities);
+		getFacilities.mockClear();
+		render(FacilitySelect, { selectedFacility: undefined, department: undefined, commune: undefined, facilityCount: 0 });
+		await expect.element(page.getByText('Établissements: 5')).toBeInTheDocument();
+		expect(getFacilities).toHaveBeenLastCalledWith('site');
+
+		await page.getByLabelText(ALL_SITES).click();
+		await expect.poll(() => getFacilities.mock.calls.at(-1)).toEqual(['all']);
+
+		await page.getByLabelText(ALL_SITES).click();
+		await expect.poll(() => getFacilities.mock.calls.at(-1)).toEqual(['site']);
+	});
+
+	it('clearing the department clears the commune it held, so nothing filters unseen', async () => {
+		who.role = 'superuser';
+		render(FacilitySelect, {
+			selectedFacility: undefined,
+			department: { value: '69', label: '69 - Rhône' },
+			commune: { value: 'c1', label: 'Lyon' },
+			facilityCount: 0
+		});
+		await expect.element(page.getByText('Établissements: 3')).toBeInTheDocument();
+
+		// The department's ✖ is the page's first.
+		(document.querySelector('.clear-select') as HTMLElement).click();
+		await expect.element(page.getByPlaceholder('Sélectionner un département')).toBeInTheDocument();
+		await expect.element(page.getByPlaceholder("Sélectionner d'abord un département")).toBeInTheDocument();
+
+		await expect.element(page.getByText('Établissements: 5')).toBeInTheDocument();
+	});
+
+	it('is not offered to an administrator', async () => {
+		who.role = 'administrator';
+		render(FacilitySelect, { selectedFacility: undefined, department: undefined, commune: undefined, facilityCount: 0 });
+		await expect.element(page.getByText('Établissements: 5')).toBeInTheDocument();
+		await expect.element(page.getByLabelText(ALL_SITES)).not.toBeInTheDocument();
 	});
 });
