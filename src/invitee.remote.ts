@@ -26,8 +26,7 @@ export const createInvitee = form(CreateInvitee, async (data, issue) => {
 	if (response.ok == false) {
 		console.error(response.status)
 		console.error(response.statusText)
-		if ( jsn.detail.code === 'DUPLICATE_EMAIL' ) {
-			console.log("DUPLICATE_EMAIL true if block");
+		if ( ['DUPLICATE_EMAIL', 'ALREADY_MEMBER'].includes(jsn.detail?.code) ) {
 			invalid(issue.email(jsn.detail.message));
 		}
 		invalid(jsn.detail?.message ?? response.statusText);

@@ -109,7 +109,7 @@
   "BATCH_INVITEE_SELECT_COLUMN": "Select a column",
   "BATCH_INVITEE_SELECT_FILE": "Select a file",
   "BATCH_INVITEE_SEND_EMAILS": "Send invitation emails",
-  "BATCH_INVITEE_SKIPPED_ACTIVE": "Skipped (same name, active user)",
+  "BATCH_INVITEE_SKIPPED_ACTIVE": "Skipped (already a user of this site)",
   "BATCH_INVITEE_SKIPPED_DUPLICATE": "Skipped (duplicate email)",
   "BATCH_INVITEE_STATUS": "Status",
   "BATCH_INVITEE_SUBTITLE": "Upload a file to create multiple invitations at once.",
