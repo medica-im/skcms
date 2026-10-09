@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import { createInvitee } from '$src/invitee.remote.ts';
 	import AddressCheckHint from '$lib/Invitee/AddressCheckHint.svelte';
+	import { addressStillRefused } from '$lib/Invitee/refusedAddress';
 	import { goto } from '$app/navigation';
 	import { base } from '$app/paths';
 	import * as m from '$msgs';
@@ -41,7 +42,13 @@
 	let entry = $derived(organization.uid);
 	let createdBy = $derived(session?.user?.providerAccountId || '');
 
-	const disabled = $derived(!email || !selectedRole || Boolean(createInvitee.for(formKey).pending));
+	let submittedEmail: string | null = $state(null);
+	const emailIssues = $derived(createInvitee.for(formKey).fields.email.issues() ?? []);
+	const refused = $derived(addressStillRefused(emailIssues, submittedEmail, email));
+
+	const disabled = $derived(
+		!email || !selectedRole || refused || Boolean(createInvitee.for(formKey).pending)
+	);
 
 
 </script>
@@ -54,6 +61,7 @@
 
 	<form
 		{...createInvitee.for(formKey)}
+		onsubmitcapture={() => (submittedEmail = email)}
 		class="grid grid-cols-1 gap-4 w-full max-w-xl"
 	>
 		<!-- Hidden fields -->
@@ -70,9 +78,11 @@
 				placeholder="utilisateur@example.com"
 				required
 			/>
-			{#each createInvitee.for(formKey).fields.email.issues() as iss}
-				<p class="text-error-500 text-sm">{iss.message}</p>
-			{/each}
+			{#if refused}
+				{#each emailIssues as iss}
+					<p class="text-error-500 text-sm">{iss.message}</p>
+				{/each}
+			{/if}
 		</label>
 		<!-- A typo, a domain without mail, an address known to be bad: warnings only -->
 		<AddressCheckHint bind:email />
@@ -105,7 +115,7 @@
 						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span>
 						<span class="text-base">{result?.response?.detail || result?.text}</span>
 					{/if}
-					{#each createInvitee.for(formKey).fields.allIssues() as iss}
+					{#each (createInvitee.for(formKey).fields.allIssues() ?? []).filter((iss) => refused || iss.path[0] !== 'email') as iss}
 						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span>
 						<span class="text-base">{iss.message}</span>
 					{/each}
