@@ -307,7 +307,7 @@
 	}
 </script>
 
-<div class="container mx-auto p-4 max-w-3xl">
+<div class="container mx-auto p-4 {step === 'done' ? 'max-w-6xl' : 'max-w-3xl'}">
 	<!-- Header -->
 	<header class="mb-6">
 		<div class="flex items-center justify-between mb-4">
