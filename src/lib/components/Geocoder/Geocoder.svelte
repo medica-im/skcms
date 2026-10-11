@@ -196,6 +196,7 @@ $addressFeature: {JSON.stringify($addressFeature)}-->
 		aria-label={m.ADDRESSBOOK_GEOCODER_ARIA_LABEL()}
 	/>
 	<button
+		type="button"
 		class="variant-filled-secondary"
 		onclick={handleClear}
 		aria-label={m.ADDRESSBOOK_CLEAR()}

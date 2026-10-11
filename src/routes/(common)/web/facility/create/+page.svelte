@@ -1,6 +1,8 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import * as m from '$msgs';
+	import MissingGpsDialog from '$lib/Web/Facility/MissingGpsDialog.svelte';
+	import { hasCoordinates } from '$lib/components/Map/coordinates.ts';
 	import { slugify } from '$lib/helpers/stringHelpers.ts';
 	import { createFacility } from '$src/facility.remote.ts';
 	import {
@@ -115,7 +117,7 @@
 		if (lngLatArray) {
 			return { lng: lngLatArray[0], lat: lngLatArray[1] };
 		} else {
-			return { lng: 0, lat: 0 };
+			return { lng: null, lat: null };
 		}
 	});
 	let formResult = $derived(createFacility.result);
@@ -135,6 +137,23 @@
 		zip = '';
 		formResult = undefined;
 		geocoder = true;
+	};
+
+	let form: HTMLFormElement | undefined = $state();
+	let gpsDialog: HTMLDialogElement | undefined = $state();
+	let confirmedNoGps = false;
+	let glow = $state(false);
+
+	const useGeocoder = async () => {
+		geocoder = true;
+		await tick();
+		form?.querySelector<HTMLInputElement>('input[name="geocoder"]')?.focus();
+		glow = true;
+		setTimeout(() => (glow = false), 3000);
+	};
+	const saveAnyway = () => {
+		confirmedNoGps = true;
+		form?.requestSubmit();
 	};
 
 	const selectFacility = () => {
@@ -161,7 +180,13 @@
 <div class="rounded-lg w-full p-4 variant-ghost-secondary items-center place-items-center space-y-6">
 	<h3 class="h3 text-center">Créer un établissement</h3>
 	<form
+		bind:this={form}
 		{...createFacility.enhance(async ({submit}) => {
+			if (!hasCoordinates(lat, lng) && !confirmedNoGps) {
+				gpsDialog?.showModal();
+				return;
+			}
+			confirmedNoGps = false;
 			await submit();
 		})}
 		class="space-y-6"
@@ -211,12 +236,18 @@
 					/>
 				</label>
 				{#if geocoder}
-				<Geocoder
-					commune={commune.label}
-					placeholder={"Entrer l'adresse: N° & voie"}
-					bind:isValid={validateForm}
-					limitToZip={false}
-				/>
+				<div
+					class="rounded-container-token {glow ? 'animate-pulse ring-4 ring-warning-500' : ''}"
+					data-testid="geocoder-glow"
+					data-glow={glow}
+				>
+					<Geocoder
+						commune={commune.label}
+						placeholder={"Entrer l'adresse: N° & voie"}
+						bind:isValid={validateForm}
+						limitToZip={false}
+					/>
+				</div>
 				{/if}
 				<label class="flex label place-self-start place-items-center space-x-2 w-full">
 				<span class="text-sm">Je n'ai pas trouvé pas l'adresse exacte dans le géocodeur</span>
@@ -356,7 +387,13 @@
 						bind:value={zoom}
 					/>
 				</label>
-				<AddMarkerMap bind:lng bind:lat bind:zoom />
+				<AddMarkerMap
+					bind:lng
+					bind:lat
+					bind:zoom
+					commune={commune.label}
+					departmentCode={department.value}
+				/>
 				<label class="flex label place-self-start place-items-center space-x-2">
 					<span>Latitude</span>
 
@@ -412,3 +449,4 @@
 		</div>
 	</form>
 </div>
+<MissingGpsDialog bind:dialog={gpsDialog} onusegeocoder={useGeocoder} onsaveanyway={saveAnyway} />

@@ -6,6 +6,7 @@ import type { Phone } from '$lib/interfaces/phone.interface.js';
 export interface Address {
     building: string|null,
     city: string,
+    department_code?: string|null,
     country: string,
     facility_uid: string,
     geographical_complement: string|null

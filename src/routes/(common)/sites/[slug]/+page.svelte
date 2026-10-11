@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { variables } from '$src/lib/utils/constants';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import * as m from '$msgs';
 	import FacilityPage from '$lib/Facility/FacilityPage.svelte';
+	import { hasCoordinates } from '$lib/components/Map/coordinates.ts';
 	import SitesLink from '$lib/components/Sites/SitesLink.svelte';
 	import { page } from '$app/state';
 	import UpdateFacilityModal from '$lib/Web/Facility/UpdateFacilityModal.svelte';
@@ -51,13 +53,13 @@
 			uid: facility.uid,
 			commune: {
 				name_fr: facility.address.city,
-				uid: '',
+				uid: facility.commune,
 				slug_fr: '',
 				wikidata: '',
 				department: {
 					uid: '',
 					name: '',
-					code: '',
+					code: facility.address.department_code ?? '',
 					slug: '',
 					wikidata: ''
 				}
@@ -73,8 +75,8 @@
 			geographical_complement: facility.address.geographical_complement,
 			zip: facility.address.zip,
 			effectors: null,
-			ban_id: null,
-			ban_banId: null,
+			ban_id: facility.ban_id,
+			ban_banId: facility.ban_banId,
 			// Carried through so the button can offer to modify an existing
 			// picture rather than to add a first one.
 			image: facility.image ?? null
@@ -150,6 +152,11 @@
 					hasImage={!!dataV2.image}
 					alt={dataV2.image?.alt ?? ''}
 				/>
+				{#if !hasCoordinates(data.facility.address.latitude, data.facility.address.longitude)}
+					<span class="badge variant-filled-warning" data-testid="facility-gps-missing"
+						>{m.FACILITY_GPS_MISSING()}</span
+					>
+				{/if}
 			</div>
 		{/if}
 	{/if}

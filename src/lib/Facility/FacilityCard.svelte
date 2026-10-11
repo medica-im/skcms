@@ -15,6 +15,7 @@
 	import { browser } from '$app/environment';
 	import { isMobile } from '$lib/helpers/deviceDetector.ts';
 	import { createFacilitiesMapData } from '$lib/components/Map/mapData.ts';
+	import { hasCoordinates } from '$lib/components/Map/coordinates.ts';
 	import type { Facility } from '$lib/interfaces/facility.interface.ts';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 	import type { SvelteSet } from 'svelte/reactivity';
@@ -93,7 +94,7 @@
 			{/if}
 		</div>
 		<div class="mx-2 p-1 h-64 lg:w-full z-0">
-			{#if intersecting.has(facility.uid)}
+			{#if intersecting.has(facility.uid) && hasCoordinates(facility.address?.latitude, facility.address?.longitude)}
 			<Map data={createFacilitiesMapData([facility])} />
 			{/if}
 		</div>

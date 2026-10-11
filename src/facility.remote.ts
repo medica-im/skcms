@@ -3,6 +3,7 @@ import { getRequestEvent, form, command } from '$app/server';
 import * as z from "zod";
 import { authReq } from '$lib/utils/request.ts';
 import { variables } from '$lib/utils/constants.ts';
+import { latitude, longitude } from '$lib/Web/Facility/coordinateSchema.ts';
 
 // Whether someone may edit a facility is asked in sites/[slug]/+page.server.ts,
 // not here. As a remote query it had to be awaited in the component, where the
@@ -13,12 +14,8 @@ const postFacility = z.object({
 	name: z.string(),
     label: z.string(),
     slug: z.string(),
-    longitude: z.preprocess((val: string)=>{
-       return Number.parseFloat(val)
-	},	z.number().min(-180).max(180)),
-    latitude: z.preprocess((val: string)=>{
-       return Number.parseFloat(val)
-	},	z.number().min(-90).max(90)),
+    longitude,
+    latitude,
     zoom: z.preprocess((val: string)=>{
        return Number.parseInt(val)
 	},	z.number().gte(0).lte(22)),
@@ -65,12 +62,8 @@ const putFacility = z.object({
 	name: z.string(),
     label: z.string(),
     slug: z.string(),
-    longitude: z.preprocess((val: string)=>{
-       return Number.parseFloat(val)
-	},	z.number().min(-180).max(180)),
-    latitude: z.preprocess((val: string)=>{
-       return Number.parseFloat(val)
-	},	z.number().min(-90).max(90)),
+    longitude,
+    latitude,
     zoom: z.preprocess((val: string)=>{
        return Number.parseInt(val)
 	},	z.number().gte(0).lte(22)),

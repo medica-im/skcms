@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import * as m from '$msgs';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import FileJson from '@lucide/svelte/icons/file-json';
 	import Types from '$lib/components/Directory/Types.svelte';
@@ -29,6 +30,7 @@
 		anchor?: boolean;
 	} = $props();
 
+	const mapData = $derived(createMapData2(data));
 </script>
 
 	<!--{#if (import.meta.env.VITE_DEV == 'true')}
@@ -53,6 +55,11 @@
 							hasImage={!!data.image}
 							alt={data.image?.alt ?? ''}
 						/>
+						{#if !mapData.length}
+							<span class="badge variant-soft-warning" data-testid="facility-gps-missing"
+								>{m.FACILITY_GPS_MISSING()}</span
+							>
+						{/if}
 					</div>
 				{/if}
 				<div class="flex items-center text-wrap space-x-2">
@@ -124,7 +131,9 @@
 				</div>
 			{/if}
 		</div>
+		{#if mapData.length}
 		<div class="mx-2 p-2 h-{mapHeight} lg:w-full z-0">
-			<Map data={createMapData2(data)} />
+			<Map data={mapData} />
 		</div>
+		{/if}
 	</div>

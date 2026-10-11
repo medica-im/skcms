@@ -10,6 +10,7 @@
 	import { browser } from '$app/environment';
 	import { isMobile } from '$lib/helpers/deviceDetector';
 	import { createFacilitiesMapData } from '$lib/components/Map/mapData';
+	import { hasCoordinates } from '$lib/components/Map/coordinates';
 	import { variables } from '$lib/utils/constants';
 	import { copy } from 'svelte-copy';
 	import { page } from '$app/state';
@@ -54,7 +55,7 @@
 				<Email data={email} />
 			{/each}
 		{/if}
-		{#if facility.address.longitude && facility.address.latitude}
+		{#if hasCoordinates(facility.address.latitude, facility.address.longitude)}
 			{#if browser}
 				{#if isMobile(window)}
 					<Navigation geoData={createFacilityGeoData(facility)} />
@@ -141,7 +142,7 @@
 		also centred the leftover showed up as an outsized gap next to the
 		photograph. Height stays fixed — only the width follows the column.
 	-->
-	{#if facility.address.longitude && facility.address.latitude}
+	{#if hasCoordinates(facility.address.latitude, facility.address.longitude)}
 		<div class="h-64 lg:h-96 z-0 mx-auto w-full max-w-lg lg:max-w-none lg:flex-1 lg:min-w-0">
 			<MapLibre data={createFacilitiesMapData([facility])} showTooltip={false} target={null} />
 		</div>

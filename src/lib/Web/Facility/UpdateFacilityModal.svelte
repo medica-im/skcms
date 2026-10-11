@@ -13,6 +13,8 @@
 	import type { AddressFeature } from '$lib/store/directoryStoreInterface';
 	import AddMarkerMap from '$lib/MapLibre/AddMarkerMap.svelte';
 	import Geocoder from '$lib/components/Geocoder/Geocoder.svelte';
+	import MissingGpsDialog from './MissingGpsDialog.svelte';
+	import { hasCoordinates } from '$lib/components/Map/coordinates.ts';
 	import {
 		getAddressFeature,
 		setAddressFeature,
@@ -89,24 +91,24 @@
 	);
 	let building: string | null = $state(facility.building);
 	let street: string = $derived($addressFeature?.properties?.name || facility.street);
-	let geographical_complement: string = $state('');
+	let geographical_complement: string = $state(facility.geographical_complement ?? '');
 	let zip: string | null = $derived($addressFeature?.properties?.postcode || facility.zip);
-	let zoom: number = $state(18);
+	let zoom: number = $state(facility.zoom ?? 18);
 	let { lng, lat } = $derived.by(() => {
 		if ($addressFeature?.geometry.coordinates) {
 			return {
 				lng: $addressFeature?.geometry.coordinates[0],
 				lat: $addressFeature?.geometry.coordinates[1]
 			};
-		} else if (facility.location?.longitude && facility.location?.latitude) {
+		} else if (hasCoordinates(facility.location?.latitude, facility.location?.longitude)) {
 			return {
-				lng: facility.location.longitude,
-				lat: facility.location.latitude
+				lng: facility.location?.longitude ?? null,
+				lat: facility.location?.latitude ?? null
 			};
 		} else {
 			return {
-				lng: 0,
-				lat: 0
+				lng: null,
+				lat: null
 			};
 		}
 	});
@@ -120,13 +122,28 @@
 				slug == facility.slug &&
 				building == facility.building &&
 				street == facility.street &&
-				geographical_complement == facility.geographical_complement &&
+				geographical_complement == (facility.geographical_complement ?? '') &&
+				zoom == (facility.zoom ?? 18) &&
 				ban_banId == facility.ban_banId &&
 				lng == facility.location?.longitude &&
 				lat == facility.location?.latitude)
 	);
 
 	let dialog: HTMLDialogElement | undefined = $state();
+	let form: HTMLFormElement | undefined = $state();
+	let gpsDialog: HTMLDialogElement | undefined = $state();
+	let confirmedNoGps = false;
+	let glow = $state(false);
+
+	const useGeocoder = () => {
+		form?.querySelector<HTMLInputElement>('input[name="geocoder"]')?.focus();
+		glow = true;
+		setTimeout(() => (glow = false), 3000);
+	};
+	const saveAnyway = () => {
+		confirmedNoGps = true;
+		form?.requestSubmit();
+	};
 
 	let slugSuccess: boolean = $derived(page.url.searchParams.get('success') == 'true');
 	onMount(() => {
@@ -159,7 +176,13 @@
 	<div class="rounded-lg w-full p-4 variant-ghost-secondary items-center place-items-center">
 		<h3 class="h3 text-center">Modifier l'établissement</h3>
 		<form
+			bind:this={form}
 			{...updateFacility.for(uid).enhance(async ({ submit }) => {
+				if (!hasCoordinates(lat, lng) && !confirmedNoGps) {
+					gpsDialog?.showModal();
+					return;
+				}
+				confirmedNoGps = false;
 				try {
 					await submit();
 					// The directory map plots each entry's own coordinates, and those
@@ -249,12 +272,18 @@
 							bind:value={slug}
 						/>
 					</label>
-					<Geocoder
-						commune={facility.commune.name_fr}
-						placeholder={"Entrer l'adresse"}
-						inputClass={inputClass.geocoder}
-						bind:isValid={validateForm}
-					/>
+					<div
+						class="rounded-container-token {glow ? 'animate-pulse ring-4 ring-warning-500' : ''}"
+						data-testid="geocoder-glow"
+						data-glow={glow}
+					>
+						<Geocoder
+							commune={facility.commune.name_fr}
+							placeholder={"Entrer l'adresse"}
+							inputClass={inputClass.geocoder}
+							bind:isValid={validateForm}
+						/>
+					</div>
 					{#each updateFacility.for(uid).fields.ban_id.issues() as issue}
 						<p class="issue">{issue.message}</p>
 					{/each}
@@ -371,7 +400,13 @@
 							}}
 						/>
 					</label>
-					<AddMarkerMap bind:lng bind:lat bind:zoom />
+					<AddMarkerMap
+						bind:lng
+						bind:lat
+						bind:zoom
+						commune={facility.commune.name_fr}
+						departmentCode={facility.commune.department?.code ?? null}
+					/>
 					<label class="label flex w-full flex-col items-start gap-1 place-self-start sm:flex-row sm:items-center sm:gap-2">
 						<span>Latitude</span>
 						<input name="latitude" class="input w-full" bind:value={lat} />
@@ -428,6 +463,7 @@
 		</form>
 	</div></Dialog
 >
+<MissingGpsDialog bind:dialog={gpsDialog} onusegeocoder={useGeocoder} onsaveanyway={saveAnyway} />
 
 <style lang="postcss">
 	.wrap {

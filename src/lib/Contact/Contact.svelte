@@ -5,6 +5,7 @@
 	import Fa from 'svelte-fa';
 	import Address from '$lib/Address/Address.svelte';
 	import { createContactMapData } from '$lib/components/Map/mapData';
+	import { hasCoordinates } from '$lib/components/Map/coordinates';
 	import Phones from '$lib/Directory/Phone/Phones.svelte';
 	import Emails from '$lib/Email/Emails.svelte';
 	import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
@@ -62,8 +63,9 @@
 			</div>
 		</div>
 	</div>
+	{#if hasCoordinates(page.data.organization.contact.address?.latitude, page.data.organization.contact.address?.longitude)}
 	<div class="h-72 lg:h-80 lg:min-h-80 lg:h-full p-2">
-		<MapLibre 
+		<MapLibre
   center={mapData.lngLat}
   zoom={mapData.zoom}
   class="h-full"
@@ -73,6 +75,7 @@
 </MapLibre>
 
 	</div>
+	{/if}
 </div>
 
 <style>

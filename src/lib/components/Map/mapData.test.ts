@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { base } from '$app/paths';
-import { createEntriesMapData, createFacilitiesMapData } from './mapData';
+import { createEntriesMapData, createFacilitiesMapData, createMapData2 } from './mapData';
 
 /**
  * Where a map marker's popup link points.
@@ -198,5 +198,43 @@ describe('Facility.svelte asks for linked markers by default', () => {
 		// emphasising a marker. What this pins is the third: that mapAnchor
 		// reaches the call rather than being a prop nothing reads.
 		expect(source).toMatch(/createFacilitiesMapData\([^)]*,\s*true,\s*mapAnchor\)/);
+	});
+});
+
+/**
+ * A facility with no position used to be drawn at 0/0, in the Gulf of Guinea,
+ * and on a directory map it dragged the bounds out to include it.
+ */
+describe('a marker without a position is left off the map', () => {
+	const noPosition = [
+		['null coordinates', { latitude: null, longitude: null }],
+		['0/0 as the API sends it', { latitude: '0.0', longitude: '0.0' }]
+	] as const;
+
+	it.each(noPosition)('skips an entry with %s', (_, address) => {
+		const points = createEntriesMapData(
+			[entry({ address: { ...address, zoom: 18 } }), entry()] as never,
+			false,
+			null,
+			null
+		);
+		expect(points).toHaveLength(1);
+		expect(points[0].latLng).toEqual([45.760292, 4.849019]);
+	});
+
+	it.each(noPosition)('skips a facility with %s', (_, address) => {
+		const points = createFacilitiesMapData(
+			[facility({ address: { ...facility().address, ...address } }), facility()] as never
+		);
+		expect(points).toHaveLength(1);
+	});
+
+	it.each(noPosition)('draws no map of a single facility with %s', (_, location) => {
+		expect(createMapData2({ name: 'Pôle Santé Gare', zoom: 17, location } as never)).toEqual([]);
+	});
+
+	it('still draws a single facility that has a position', () => {
+		const location = { latitude: '43.492949', longitude: '-1.463151' };
+		expect(createMapData2({ name: 'Pôle Santé Gare', zoom: 17, location } as never)).toHaveLength(1);
 	});
 });

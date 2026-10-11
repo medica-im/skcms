@@ -1,4 +1,5 @@
 import { entrySlugPageUrl, facilityPageUrl } from '$lib/utils/utils.ts';
+import { hasCoordinates } from './coordinates.ts';
 import type { MapData } from '$lib/interfaces/mapData.interface.ts';
 import type { Facility, Address } from '$lib/interfaces/facility.interface.ts';
 import type { Facility as FacilityV1, FacilityV2 } from '$lib/interfaces/v2/facility.ts';
@@ -31,6 +32,9 @@ export const createMapData = (address: Address, facilityName: string) => {
 };
 
 export const createMapData2 = (facility: FacilityV1 | FacilityV2) => {
+    if (!hasCoordinates(facility?.location?.latitude, facility?.location?.longitude)) {
+        return [];
+    }
     const mapData: MapData[] = [
         {
             latLng: [Number(facility?.location?.latitude ?? 0), Number(facility?.location?.longitude ?? 0)],
@@ -50,7 +54,7 @@ export const createMapData2 = (facility: FacilityV1 | FacilityV2) => {
 
 export const createFacilitiesMapData = (facilities: Facility[], tooltip = false, anchor = false) => {
     const points: MapData[] = [];
-    facilities.forEach((item: Facility) => {
+    facilities.filter((item) => hasCoordinates(item.address?.latitude, item.address?.longitude)).forEach((item: Facility) => {
         // Opt-in, because the maps that draw a single facility do it on that
         // facility's own page: a link there points at the page you are reading.
         // Addressed slug-first and uid-second, the way every other /sites/ link
@@ -102,7 +106,7 @@ function getTarget(addressFeature: AddressFeature) {
 
 export const createEntriesMapData = (entries: Entry[], tooltip = false, target: AddressFeature | null, org_category: string | null = null) => {
     const points: MapData[] = [];
-    entries.forEach((entry: Entry) => {
+    entries.filter((entry) => hasCoordinates(entry.address?.latitude, entry.address?.longitude)).forEach((entry: Entry) => {
         let tooltipHtml = `
         <b>${entry.address?.tooltip_text || entry.name}</b>
         <br>

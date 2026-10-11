@@ -19,6 +19,7 @@
 	import Websites from '$lib/Website/Websites.svelte';
 	import { MapLibre, DefaultMarker } from 'svelte-maplibre';
 	import { createContactMapData } from '$lib/components/Map/mapData';
+	import { hasCoordinates } from '$lib/components/Map/coordinates';
 	import * as openStreetMap from '$lib/MapLibre/style/openStreetMap.json';
 	import SoMed from '$lib/SoMed/SoMed.svelte';
 	import Appointment from '$lib/components/Effector/Appointment/Appointments.svelte';
@@ -269,7 +270,7 @@
 						{/if}
 						<Address data={fullentry.address} distance={false} />
 					</div>
-					{#if fullentry.address.longitude && fullentry.address.latitude}
+					{#if hasCoordinates(fullentry.address.latitude, fullentry.address.longitude)}
 						{@const mapData = createContactMapData(fullentry.address, fullentry.facility.name)}
 						<div class="h-56 w-64 lg:h-64 lg:w-96 p-2 z-0">
 							<MapLibre
