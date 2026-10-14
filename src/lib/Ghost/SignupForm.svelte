@@ -20,7 +20,7 @@
 
 	let triggered: boolean = $state(false);
 	const modalStore = getModalStore();
-	const ghostData: GhostSite | null = data.success ? data.data : null;
+	const ghostData: GhostSite | null = data?.success ? data.data : null;
 	let visible: boolean = $state(true);
 	let errorMsg: string = $state('');
 	let inputClass: string = $state('');
