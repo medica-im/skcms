@@ -69,3 +69,30 @@ describe('HealthPrograms', () => {
 		expect(info.className).toContain('space-y-4');
 	});
 });
+
+describe('HealthPrograms, an archived programme', () => {
+	const withArchive = {
+		'education-sante': {
+			id: 'education-sante',
+			title: { en: 'Health education', fr: 'Éducation pour la santé' },
+			href: '/education-sante',
+			list: [
+				{ href: '/education-sante/parentalite', label: 'Parentalité', category: 'program', archive: true },
+				{ href: '/education-sante/sommeil', label: 'Sommeil', category: 'program' }
+			]
+		}
+	} as never;
+
+	it('is marked with the archive badge', async () => {
+		render(HealthPrograms, { programsNavLinks: withArchive });
+		const link = browser.getByRole('link', { name: /Parentalité/ });
+		await expect.element(link.getByRole('img', { name: 'Archivé' })).toBeVisible();
+	});
+
+	it('leaves a current programme unmarked', async () => {
+		render(HealthPrograms, { programsNavLinks: withArchive });
+		const link = browser.getByRole('link', { name: /Sommeil/ });
+		await expect.element(link).toBeVisible();
+		expect(link.getByRole('img', { name: 'Archivé' }).elements()).toHaveLength(0);
+	});
+});

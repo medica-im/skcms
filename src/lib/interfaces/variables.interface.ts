@@ -47,6 +47,11 @@ export interface Link {
 	icon: object|null,
 	category?: string,
 	active?: boolean,
+	/**
+	 * A programme that has ended but whose page is kept: still listed, marked
+	 * with an ArchiveBadge. `active: false` instead hides the link.
+	 */
+	archive?: boolean,
 	preload?: string,
 	/**
 	 * Pages below this one that the breadcrumb may name.

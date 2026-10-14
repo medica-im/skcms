@@ -4,6 +4,7 @@
 	import { capitalizeFirstLetter, lowercaseFirstLetter } from '$lib/helpers/stringHelpers.ts';
 	import { getProgram, getIsOther } from '$lib/links.ts';
 	import Fa from "svelte-fa";
+	import ArchiveBadge from '$lib/ArchiveBadge/ArchiveBadge.svelte';
 	import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
 	let { pathname, programsNavLinks } = $props();
@@ -57,6 +58,7 @@
 							<span><Fa icon={prog.icon as IconDefinition}/></span>
 							{/if}
 							<span class="flex-auto">{prog.label}</span>
+							{#if prog.archive}<ArchiveBadge />{/if}
 							</div>
 						</a>
 					</li>

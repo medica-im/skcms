@@ -60,6 +60,7 @@
   "AND": "and",
   "APNEA": "sleep apnea",
   "APPOINTMENT": "Appointment",
+  "ARCHIVED": "Archived",
   "ASSOCIATION_TITLE": "Association",
   "AVATAR_ACCESS_ADMIN": "This picture is visible only to authenticated administrators of the organization.",
   "AVATAR_ACCESS_LABEL": "Who can see this picture?",

@@ -21,6 +21,7 @@
 		faPersonChalkboard
 	} from '@fortawesome/free-solid-svg-icons';
 	import { menuNavCats } from '$var/variables.ts';
+	import ArchiveBadge from '$lib/ArchiveBadge/ArchiveBadge.svelte';
 
 	const lang = variables.DEFAULT_LANGUAGE;
 	function getNavGroups(id: string) {
@@ -45,7 +46,7 @@
                     {navGroup.title[lang]}
                 </li>
 				{/if}
-                {#each navGroup.list.filter(e=>e.active != false) as { href, label, icon, preload }}
+                {#each navGroup.list.filter(e=>e.active != false) as { href, label, icon, preload, archive }}
                 <li>
                     <a data-sveltekit-preload-data={preload ? preload:"hover"} {href} class={page.url.pathname + page.url.search === href ? 'variant-ringed-primary' : ''}>
                         <span class="w-6 text-center">
@@ -54,6 +55,7 @@
 							{/if}
 						</span>
                         <span>{label}</span>
+                        {#if archive}<ArchiveBadge />{/if}
                     </a>
                 </li>
                 {/each}

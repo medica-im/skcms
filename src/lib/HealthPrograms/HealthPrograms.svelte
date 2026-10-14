@@ -3,6 +3,7 @@
 	import { variables } from '$src/lib/utils/constants';
 	import Fa from 'svelte-fa';
 	import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
+	import ArchiveBadge from '$lib/ArchiveBadge/ArchiveBadge.svelte';
 	import { getProgram } from '$lib/links.ts';
 	import { programsCopy } from './copy.ts';
 	import type { ProgramsNavLinks } from '$lib/interfaces/variables.interface.ts';
@@ -69,6 +70,7 @@
                                 <span class="badge variant-filled-primary"><Fa icon={faArrowRight} /></span>
 								
 								<span class="flex flex-wrap whitespace-normal text-left">{prog.label}</span>
+								{#if prog.archive}<ArchiveBadge />{/if}
 							</a>
 						</li>
 					{/each}

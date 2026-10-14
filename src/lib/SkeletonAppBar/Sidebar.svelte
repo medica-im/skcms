@@ -6,6 +6,7 @@
 	import { AppRail, AppRailTile } from '@skeletonlabs/skeleton';
 	import { variables } from '$lib/utils/constants';
 	import MenuNavLinks from './MenuNavLinks.svelte';
+	import ArchiveBadge from '$lib/ArchiveBadge/ArchiveBadge.svelte';
 
 	let currentRailCategory: string | undefined = $derived(
 		menuNavCats.find((cat) =>
@@ -71,10 +72,11 @@
 						<!-- Navigation List -->
 						<nav class="list-nav">
 							<ul>
-								{#each list.filter((e) => e.active != false) as { href, label, badge }}
+								{#each list.filter((e) => e.active != false) as { href, label, badge, archive }}
 									<li>
 										<a {href} class={classesActive(href)} data-sveltekit-preload-data="hover">
 											<span class="flex-auto">{@html label}</span>
+											{#if archive}<ArchiveBadge />{/if}
 											{#if badge}<span class="badge variant-filled-secondary">{badge}</span>{/if}
 										</a>
 									</li>

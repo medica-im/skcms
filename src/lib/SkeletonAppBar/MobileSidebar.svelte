@@ -14,6 +14,7 @@
 	import { menuNavCats } from '$var/variables.ts';
 	import { siteMenu, visibleItems, menuWithOwnPages } from '$lib/SiteMenu/siteMenu';
 	import ParentSiteTree from '$lib/SiteMenu/ParentSiteTree.svelte';
+	import ArchiveBadge from '$lib/ArchiveBadge/ArchiveBadge.svelte';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import { base } from '$app/paths';
 
@@ -278,7 +279,7 @@
 					<!-- Navigation List -->
 					<nav class="list-nav">
 						<ul>
-							{#each list.filter((e: any) => e.active != false) as { href, label, badge }}
+							{#each list.filter((e: any) => e.active != false) as { href, label, badge, archive }}
 								<li>
 									<a
 										{href}
@@ -289,6 +290,7 @@
 										}}
 									>
 										<span class="flex-auto whitespace-normal">{@html label}</span>
+										{#if archive}<ArchiveBadge />{/if}
 										{#if badge}<span class="badge variant-filled-secondary">{badge}</span>{/if}
 									</a>
 								</li>
