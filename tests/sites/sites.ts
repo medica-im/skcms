@@ -43,6 +43,7 @@ import { join } from 'node:path';
 export const SITE_ORIGINS = {
 	'santelyon3.fr': 'https://dev.santelyon3.fr',
 	'sante-gadagne.fr': 'https://dev.sante-gadagne.fr',
+	'msp-vedene.fr': 'https://dev.msp-vedene.fr',
 	'annuaire.medica.im': 'http://dev.annuaire.medica.im',
 	'ipa.medica.im': 'http://dev.ipa.medica.im',
 	'sandbox.medica.im': 'http://dev.sandbox.medica.im',
@@ -200,6 +201,7 @@ export function originFor(site: SiteName): string {
 export const SITE_CONTEXTS: Record<SiteName, { context: string; port: number } | undefined> = {
 	'santelyon3.fr': { context: 'lyon3', port: 3011 },
 	'sante-gadagne.fr': { context: 'gadagne', port: 3012 },
+	'msp-vedene.fr': { context: 'vedene', port: 3013 },
 	'annuaire.medica.im': { context: 'annuaire', port: 3010 },
 	'sandbox.medica.im': { context: 'sandbox', port: 3014 },
 	'unipa.fr': { context: 'unipa', port: 3015 },
