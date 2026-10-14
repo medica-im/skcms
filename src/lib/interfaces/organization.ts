@@ -69,7 +69,7 @@ export interface Organization {
         SIREN: string,
         SIRET: string,
         RCS: string|null,
-        SHARE_CAPITAL: string|null,
+        SHARE_CAPITAL: number|null,
         VAT: string|null
     }
 
