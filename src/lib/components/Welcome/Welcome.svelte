@@ -8,7 +8,7 @@
 	} = $props();
 </script>
 
-<h2 class="h2">
+<h1 class="h2">
 	{m.HOME_WELCOME()}
 	{formattedNameDefiniteArticle}{#if page.data.session && page.data.session.user.name}&ensp;<span style="text-transform: capitalize; display:inline-block;">{page.data.session.user.name}</span>{/if}&#8239;!
-</h2>
+</h1>
