@@ -1,6 +1,7 @@
 import type { Reroute } from '@sveltejs/kit';
 import { base } from '$app/paths';
 import { deLocalizeUrl } from '$prgld/runtime.js';
+import { isContactPath } from '$lib/contactPath';
 
 // Through the $skvar alias, not ./routes/(skvar): a test site server serves its
 // tenant's skvar from a worktree (scripts/site-routes.sh), and the hardcoded
@@ -16,7 +17,7 @@ export const reroute: Reroute = ({ url }) => {
 	// stopped working on an instance served under /annuaire: the pathname is
 	// '/annuaire/contact', the branch never fired, and a tenant whose skvar has
 	// no contact page got a 404 instead of the fallback.
-	if (url.pathname === `${base}/contact`) {
+	if (isContactPath(url.pathname, base)) {
 		if (!skvarContactExists) {
 			return `${base}/fallback/contact`;
 		}
