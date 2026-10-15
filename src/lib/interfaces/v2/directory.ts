@@ -9,4 +9,10 @@ export interface DirectorySettings {
 	list_owner_entry: boolean;
 	/** The categories offered at entry creation; empty: every one. */
 	effector_types: { uid: string; label: string | null }[];
+	/** The site's own directory: always public, so it takes no minimum role. */
+	main: boolean;
+	/** The least role that may list it when reached as a sibling (?directory=). */
+	minimum_role: MinimumRole;
 }
+
+export type MinimumRole = 'anonymous' | 'staff' | 'administrator' | 'superuser';

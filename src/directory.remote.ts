@@ -37,28 +37,42 @@ const ListOwnerEntry = z.object({
 	list_owner_entry: z.boolean()
 });
 
-/** Whether the directory lists its owner (the organization's entry). The backend clears the caches. */
-export const setListOwnerEntry = command(
-	ListOwnerEntry,
-	async ({ uid, list_owner_entry }): Promise<DirectoryUpdateResult> => {
-		const { cookies } = getRequestEvent();
-		const url = `${variables.BASE_URI}/api/v2/directories/${uid}`;
-		const response = await fetch(
-			authReq(url, 'PATCH', cookies, JSON.stringify({ list_owner_entry }))
-		);
-		if (response.ok) {
-			await getDirectorySettings().refresh();
-			return { success: true, status: response.status };
-		}
-		let detail: string | undefined;
-		try {
-			detail = (await response.json())?.detail;
-		} catch {
-			detail = undefined;
-		}
-		console.error(`PATCH ${url} -> ${response.status} ${response.statusText}`);
-		return { success: false, status: response.status, detail };
+/** PATCH /directories/{uid} with only the settings to change. */
+async function patchDirectory(uid: string, body: Record<string, unknown>): Promise<DirectoryUpdateResult> {
+	const { cookies } = getRequestEvent();
+	const url = `${variables.BASE_URI}/api/v2/directories/${uid}`;
+	const response = await fetch(authReq(url, 'PATCH', cookies, JSON.stringify(body)));
+	if (response.ok) {
+		await getDirectorySettings().refresh();
+		return { success: true, status: response.status };
 	}
+	let detail: string | undefined;
+	try {
+		detail = (await response.json())?.detail;
+	} catch {
+		detail = undefined;
+	}
+	console.error(`PATCH ${url} -> ${response.status} ${response.statusText}`);
+	return { success: false, status: response.status, detail };
+}
+
+/** Whether the directory lists its owner (the organization's entry). The backend clears the caches. */
+export const setListOwnerEntry = command(ListOwnerEntry, ({ uid, list_owner_entry }) =>
+	patchDirectory(uid, { list_owner_entry })
+);
+
+const MinimumRole = z.object({
+	uid: z.string(),
+	minimum_role: z.enum(['anonymous', 'staff', 'administrator', 'superuser'])
+});
+
+/**
+ * The least role that may see a sibling directory — superusers only. The
+ * backend refuses it on the site's main directory (409) and drops its cached
+ * lookups, so it applies at once.
+ */
+export const setDirectoryMinimumRole = command(MinimumRole, ({ uid, minimum_role }) =>
+	patchDirectory(uid, { minimum_role })
 );
 
 /**

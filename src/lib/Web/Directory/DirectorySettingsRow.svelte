@@ -7,8 +7,13 @@
 	import Fa from 'svelte-fa';
 	import { faCheck } from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
-	import type { DirectorySettings } from '$lib/interfaces/v2/directory.ts';
-	import { setListOwnerEntry, type DirectoryUpdateResult } from '../../../directory.remote';
+	import type { DirectorySettings, MinimumRole } from '$lib/interfaces/v2/directory.ts';
+	import { roleLabels } from '$lib/roles';
+	import {
+		setDirectoryMinimumRole,
+		setListOwnerEntry,
+		type DirectoryUpdateResult
+	} from '../../../directory.remote';
 
 	let { directory }: { directory: DirectorySettings } = $props();
 
@@ -28,6 +33,31 @@
 	$effect(() => {
 		hydrated = true;
 	});
+
+	const MINIMUM_ROLES: MinimumRole[] = ['anonymous', 'staff', 'administrator', 'superuser'];
+	const minimumRoleLabel = (role: MinimumRole) =>
+		role === 'anonymous' ? m.DIRECTORIES_MINIMUM_ROLE_EVERYONE() : roleLabels[role];
+
+	let minimumRole = $state<MinimumRole>(untrack(() => directory.minimum_role));
+	let savedMinimumRole = untrack(() => directory.minimum_role);
+	let savingRole = $state(false);
+	let roleResult = $state<DirectoryUpdateResult | undefined>();
+
+	async function saveMinimumRole() {
+		const wanted = minimumRole;
+		savingRole = true;
+		roleResult = undefined;
+		try {
+			roleResult = await setDirectoryMinimumRole({ uid: directory.uid, minimum_role: wanted });
+		} catch (e) {
+			console.error('setDirectoryMinimumRole failed', e);
+			roleResult = { success: false, status: 0 };
+		} finally {
+			if (roleResult?.success) savedMinimumRole = wanted;
+			else minimumRole = savedMinimumRole;
+			savingRole = false;
+		}
+	}
 
 	async function save() {
 		const wanted = checked;
@@ -84,6 +114,36 @@
 	{/if}
 	{#if result && !result.success}
 		<p class="text-sm text-error-700-200-token" role="alert">{m.DIRECTORIES_SAVE_FAILED()}</p>
+	{/if}
+	{#if directory.main}
+		<p class="text-sm text-surface-600-300-token">{m.DIRECTORIES_MAIN_PUBLIC()}</p>
+	{:else}
+		<div class="space-y-1">
+			<div class="flex flex-wrap items-center gap-2">
+				<label for="minimum-role-{directory.uid}">{m.DIRECTORIES_MINIMUM_ROLE()}</label>
+				<select
+					id="minimum-role-{directory.uid}"
+					class="select min-h-11 w-auto"
+					aria-describedby="minimum-role-hint-{directory.uid}"
+					bind:value={minimumRole}
+					onchange={saveMinimumRole}
+					disabled={!hydrated || savingRole}
+				>
+					{#each MINIMUM_ROLES as role (role)}
+						<option value={role}>{minimumRoleLabel(role)}</option>
+					{/each}
+				</select>
+				{#if roleResult?.success}
+					<span class="badge-icon variant-filled-success" data-testid="minimum-role-saved"><Fa icon={faCheck} /></span>
+				{/if}
+			</div>
+			<p id="minimum-role-hint-{directory.uid}" class="text-sm text-surface-600-300-token">
+				{m.DIRECTORIES_MINIMUM_ROLE_HINT()}
+			</p>
+			{#if roleResult && !roleResult.success}
+				<p class="text-sm text-error-700-200-token" role="alert">{m.DIRECTORIES_SAVE_FAILED()}</p>
+			{/if}
+		</div>
 	{/if}
 	{/if}
 	<DirectoryEffectorTypes {directory} />
