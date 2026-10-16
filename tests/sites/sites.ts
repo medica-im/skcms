@@ -344,7 +344,7 @@ export function specsBySite(dir: string): Map<SiteName, string[]> {
 			| undefined;
 		if (!site || !(site in SITE_ORIGINS)) {
 			throw new Error(
-				`tests/sites/${file} does not declare which site it runs against by default.\n` +
+				`${dir}/${file} does not declare which site it runs against by default.\n` +
 					`Add \`const SITE = '<site>';\` and a \`test.beforeAll(() => requireSite(SITE))\`, ` +
 					`so it runs against that tenant's server rather than whichever one is up.` +
 					(site ? `\nRead "${site}", which is not a known site.` : '')

@@ -73,7 +73,7 @@ E2E_STOP_AFTER="${E2E_STOP_AFTER:-0}"
 # so they cannot be measured against whichever site a worker happens to serve).
 #
 # Without it the specs do not skip, they fail: a route whose server is down
-# leaves nginx answering 502, and tests/sites/santelyon3-contact-layout fails 11
+# leaves nginx answering 502, and Lyon 3's tests/contact-layout (skvar) fails 11
 # times over with "no layout grid — either this site has no contact page of its
 # own and is serving the generic fallback", which reads as a broken contact page
 # rather than a missing server. Hence ensure_site_server below, which starts it
@@ -505,8 +505,18 @@ sites_project_hosts() {
     local names
     names="$(grep -rhoE "originFor\('[^']+'\)" "$FRONTEND_DIR/tests/sites" 2>/dev/null |
         sed -E "s/originFor\('([^']+)'\)/\1/" | sort -u)"
-    # santelyon3-contact-layout resolves its site through a SITE constant.
+    # Most specs name their site through a SITE constant.
     names+=$'\n'"$(grep -rhoE "^const SITE = '[^']+'" "$FRONTEND_DIR/tests/sites" 2>/dev/null |
+        sed -E "s/^const SITE = '([^']+)'/\1/")"
+    # And a site's own specs, in its skvar branch under tests/: read from each
+    # context's branch, since its worktree may not be built yet, and from the
+    # submodule's working tree for specs not committed yet.
+    local skvar="$FRONTEND_DIR/src/routes/(skvar)" branch
+    while read -r branch; do
+        names+=$'\n'"$(git -C "$skvar" grep -hoE "^const SITE = '[^']+'" "$branch" -- tests 2>/dev/null |
+            sed -E "s/^const SITE = '([^']+)'/\1/")"
+    done < <("${YQ:-yq}" -r '.contexts[].development_skvar_branch' "$FRONTEND_DIR/dev.yml" 2>/dev/null)
+    names+=$'\n'"$(grep -rhoE "^const SITE = '[^']+'" "$skvar/tests" 2>/dev/null |
         sed -E "s/^const SITE = '([^']+)'/\1/")"
     printf '%s\n' "$names" | grep -v '^$' | sort -u
 }

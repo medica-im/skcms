@@ -62,6 +62,8 @@ export default defineConfig(({ mode }) => {
 						exclude: [
 							'**/node_modules/**',
 							'src/**/*.svelte.{test,spec}.{js,ts}',
+							// A site's own Playwright specs, in its skvar branch.
+							'src/routes/\\(skvar\\)/tests/**',
 							// test-all.sh runs this project once per tenant, and
 							// these do not depend on the tenant: they test the
 							// release scripts against throwaway git repositories.

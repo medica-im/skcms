@@ -1,11 +1,28 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, realpathSync } from 'node:fs';
+import { relative } from 'node:path';
 import { defineConfig, devices } from '@playwright/test';
 import { defineBddConfig } from 'playwright-bdd';
 import { apiOrigin } from './tests/fixtures/session';
-import { SITE_CONTEXTS, specsBySite } from './tests/sites/sites';
+import { SITE_CONTEXTS, specsBySite, type SiteName } from './tests/sites/sites';
 
-/** Where the per-tenant specs live; see siteProjects() at the foot of this file. */
-const SITES_DIR = './tests/sites';
+/**
+ * Where the per-tenant specs live; see siteProjects() at the foot of this file.
+ * These test skcms code on a real tenant. A spec about one site's own pages
+ * lives in that site's skvar branch, under tests/ (SKVAR_TESTS).
+ */
+const SITES_DIR = 'tests/sites';
+
+/**
+ * A site's own specs, from the skvar checkout its site server renders:
+ * scripts/site-routes.sh links e2e-sites/<ctx>/routes/(skvar) to the
+ * submodule when the site's branch is checked out there, to a worktree
+ * otherwise. Resolved, so the specs' relative imports start from where they
+ * really are. Undefined before the site's routes were ever built.
+ */
+const SKVAR_TESTS = (context: string) => {
+	const link = `e2e-sites/${context}/routes/(skvar)`;
+	return existsSync(link) ? `${relative('.', realpathSync(link))}/tests` : undefined;
+};
 
 // Generates Playwright specs from Gherkin .feature files + step definitions.
 const testDir = defineBddConfig({
@@ -344,14 +361,29 @@ function siteProjects() {
 	// it. These specs resolve a fixed tenant origin instead, never apiOrigin,
 	// and only read — layout measurements, contrast readings, and clone requests
 	// that assert on a refusal — so any number can share one site server.
-	const common = { testDir: SITES_DIR, fullyParallel: true, use: chrome };
+	// The repository root, because a tenant's specs come from two directories.
+	const common = { testDir: '.', fullyParallel: true, use: chrome };
 
-	const perTenant = [...specsBySite(SITES_DIR)].map(([site, files]) => ({
+	const specs = new Map<SiteName, string[]>();
+	const collect = (dir: string) => {
+		for (const [site, files] of specsBySite(dir)) {
+			specs.set(site, [...(specs.get(site) ?? []), ...files.map((f) => `${dir}/${f}`)]);
+		}
+	};
+	collect(SITES_DIR);
+	for (const tenant of Object.values(SITE_CONTEXTS)) {
+		const dir = tenant && SKVAR_TESTS(tenant.context);
+		if (dir && existsSync(dir)) collect(dir);
+	}
+
+	const escape = (path: string) => path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	const perTenant = [...specs].map(([site, paths]) => ({
 		...common,
 		name: `sites-${SITE_CONTEXTS[site]?.context ?? site}`,
-		// Anchored to the files this tenant owns, so no other tenant's spec can
-		// be swept in by a loose glob.
-		testMatch: new RegExp(`/(${files.map((f) => f.replace(/\./g, '\\.')).join('|')})$`)
+		// Anchored to the exact paths this tenant owns, so neither another
+		// tenant's spec nor another checkout of the same skvar branch (the
+		// submodule, e2e-sites/<ctx>/routes) can be swept in.
+		testMatch: new RegExp(`/(${paths.map(escape).join('|')})$`)
 	}));
 
 	// `sites` kept as a name, because --project matches exactly and both the
