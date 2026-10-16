@@ -8,13 +8,10 @@
  * polling. EventSource reconnects by itself when the connection drops.
  *
  *   const live = new LiveDeliveries();
- *   $effect(() => live.connect(url, invalidateAll));   // closes on unmount
+ *   $effect(() => live.connect(url));   // closes on unmount
  *   let invitees = $derived(live.apply(data.invitees));
  *
- * A change published while no stream was listening -- between the page's
- * render and the stream opening, or during a reconnection -- is gone. So on
- * every (re)connection the page reloads its list once (`reload`), and the
- * pushed values held so far are dropped: the fresh list knows better.
+ * A change published while no stream is listening shows on the next visit.
  */
 import type { EmailDelivery } from '$lib/interfaces/v2/invitee';
 import { withLatest } from './liveDeliveriesMerge';
@@ -25,13 +22,9 @@ export class LiveDeliveries {
 	// structuredClone cannot copy a proxy -- the form silently never opened.
 	latest = $state.raw<Record<string, EmailDelivery>>({});
 
-	/** Listens until the returned function is called; `reload` on every (re)connection. */
-	connect(url: string, reload?: () => unknown): () => void {
+	/** Listens until the returned function is called. */
+	connect(url: string): () => void {
 		const source = new EventSource(url, { withCredentials: true });
-		source.addEventListener('open', () => {
-			this.latest = {};
-			reload?.();
-		});
 		source.addEventListener('delivery', (event) => {
 			try {
 				const { invitee_uid, emailDelivery } = JSON.parse((event as MessageEvent).data);
