@@ -48,7 +48,7 @@ export const filterEntries = (entries: Entry[], currentOrg: boolean | null=null,
 
 export const getAvatars = (entries: Entry[], uid: string) => {
     let carousel = entries.filter((e: Entry)=>{
-        return ((e.avatar?.sm || e.avatar?.raw) && (e.memberships.includes(uid)))
+        return (e.active && (e.avatar?.sm || e.avatar?.raw) && (e.memberships.includes(uid)))
     });
     shuffle(carousel);
     return carousel
