@@ -23,6 +23,9 @@ vi.mock('../../../directory.remote', () => remote);
 const state = vi.hoisted(() => ({ page: { data: { user: { role: 'superuser' } } } }));
 vi.mock('$app/state', () => state);
 vi.mock('$app/navigation', () => ({ invalidate: vi.fn() }));
+vi.mock('$lib/Web/EffectorTypeSelect.svelte', async () => ({
+	default: (await import('../Entry/EffectorTypeSelectStub.svelte')).default
+}));
 
 import DirectorySettingsRow from './DirectorySettingsRow.svelte';
 import type { DirectorySettings } from '$lib/interfaces/v2/directory';
