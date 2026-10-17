@@ -57,6 +57,7 @@ describe('release-production.sh', () => {
 				'annuaire.cptsopalesud.fr',
 				'annuaire.medica.im',
 				'ipa.medica.im',
+				'msp-vedene.fr',
 				'sante-gadagne.fr',
 				'santelyon3.fr'
 			].sort()
