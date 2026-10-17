@@ -2,7 +2,6 @@
 import { SvelteKitAuth } from "@auth/sveltekit";
 import type { DefaultSession } from "@auth/sveltekit";
 import { AUTH_DEBUG } from '$env/static/private';
-import GitHub from "@auth/sveltekit/providers/github";
 import Google from "@auth/sveltekit/providers/google";
 
 declare module "@auth/sveltekit" {
@@ -23,7 +22,7 @@ declare module "@auth/sveltekit" {
 export const { handle, signIn, signOut } = SvelteKitAuth({
   trustHost: true,
   debug: AUTH_DEBUG == 'true' ? true : false,
-  providers: [Google, GitHub],
+  providers: [Google],
   callbacks: {
     jwt({ token, user, account, profile }) {
       if (token) {

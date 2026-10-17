@@ -12,7 +12,7 @@ const b64url = (b: Buffer) => b.toString('base64url');
 
 /**
  * Mints a real Auth.js v5 session cookie (JWE) so Playwright can browse as a
- * given role without going through Google/GitHub OAuth.
+ * given role without going through Google OAuth.
  *
  * The backend decrypts this cookie with the same AUTH_SECRET and resolves the
  * role from Neo4j via the `providerAccountId` (the OAuth `sub`), so the seeded
