@@ -37,8 +37,15 @@ print("DELIVERY", row.id)
 	expect(ctx.deliveryId, `recording the delivery failed: ${out}`).toBeTruthy();
 });
 
+// The page catches no delivery published before its live stream listens, and
+// the backend answers the stream just before subscribing. A real bounce comes
+// seconds after the send at the earliest; waiting for the stream, then a
+// second's reading, keeps the scenario at that pace.
 When('I open the invitations list', async ({ page }) => {
+	const listening = page.waitForResponse((r) => r.url().includes('/api/v2/invitees/events'));
 	await page.goto('/web/invite/invitees');
+	await listening;
+	await page.waitForTimeout(1000);
 });
 
 /**
