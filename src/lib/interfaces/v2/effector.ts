@@ -14,6 +14,8 @@ export interface EffectorType {
     effector_type_label_fr: string|null,
     isHCW: boolean,
     isRPPS: boolean,
+    /** False for a category that only groups others ("médecin"): no entry can have it. */
+    assignable: boolean,
     unique_ID: string|null,
     concept_en: string|null,
     concept_fr: string|null,

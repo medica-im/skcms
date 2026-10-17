@@ -31,7 +31,7 @@
 		});
 	});
 
-	const offered = $derived(effectorTypes?.filter((t) => !exclude.includes(t.uid)));
+	const offered = $derived(effectorTypes?.filter((t) => t.assignable !== false && !exclude.includes(t.uid)));
 </script>
 
 {#if offered}
