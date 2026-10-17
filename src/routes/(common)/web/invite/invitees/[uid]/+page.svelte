@@ -7,14 +7,12 @@
     import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
     import type { PageData } from './$types';
     import { base } from '$app/paths';
-    import { ORIGIN } from '$lib/utils/origin.ts';
-    import { LiveDeliveries } from '$lib/Invitee/liveDeliveries.svelte';
+    import { getLiveDeliveries } from '$lib/Invitee/liveDeliveries.svelte';
 
     let { data }: { data: PageData } = $props();
     // Its email's status as the backend pushes it: after a correction, the
     // new address accepted, then delivered (or rejected), without reloading.
-    const live = new LiveDeliveries();
-    $effect(() => live.connect(`${ORIGIN}/api/v2/invitees/events`));
+    const live = getLiveDeliveries();
     let invitee = $derived(live.apply(data.invitee ? [data.invitee] : undefined)?.[0] ?? data.invitee);
     let createdByUser = $derived(data.createdByUser);
     let editModal: EditInviteeModal;

@@ -72,7 +72,7 @@ Then("that invitation's email is shown as {string}", async ({ page }, words: str
  * What the webhook endpoint does once Mailgun's signature checks out: the
  * real apply_event, with the bounce in provider-neutral terms.
  */
-When('the mail service reports that the email bounced', async () => {
+async function reportBounce() {
 	await djangoShell(`
 import time
 from mailer.delivery import apply_event
@@ -84,6 +84,32 @@ apply_event(DeliveryEvent(
     detail="550 5.1.1 User unknown",
 ))
 `);
+}
+
+When('the mail service reports that the email bounced', reportBounce);
+
+// The list's data is fetched before the report and shown after it: the moment
+// a stream opened by the list itself would not be listening yet.
+When('I go back to the list while the mail service reports that the email was delivered', async ({ page }) => {
+	const back = page.getByRole('link', { name: 'Retour aux invitations' });
+	await expect(back).toBeVisible();
+	// A reader's pace, as on the list.
+	await page.waitForTimeout(1000);
+	let fetched!: () => void;
+	const dataFetched = new Promise<void>((resolve) => (fetched = resolve));
+	let release!: () => void;
+	const released = new Promise<void>((resolve) => (release = resolve));
+	await page.route('**/web/invite/invitees/__data.json*', async (route) => {
+		const response = await route.fetch();
+		fetched();
+		await released;
+		await route.fulfill({ response });
+	});
+	await back.click();
+	await dataFetched;
+	await reportDelivered();
+	release();
+	await page.waitForURL('**/web/invite/invitees');
 });
 
 Then("without reloading, that invitation's email is shown as {string}", async ({ page }, words: string) => {
@@ -101,7 +127,7 @@ Then('its page says its email is {string}', async ({ page }, words: string) => {
 	await expect(page.getByTestId('invitee-email-delivery')).toContainText(words);
 });
 
-When('the mail service reports that the email was delivered', async () => {
+async function reportDelivered() {
 	await djangoShell(`
 import time
 from mailer.delivery import apply_event
@@ -112,7 +138,9 @@ apply_event(DeliveryEvent(
     metadata={"delivery_id": "${ctx.deliveryId}"},
 ))
 `);
-});
+}
+
+When('the mail service reports that the email was delivered', reportDelivered);
 
 Then('without reloading, its page says its email is {string}', async ({ page }, words: string) => {
 	await page.evaluate(() => ((window as any).__sameDocument = true));

@@ -18,7 +18,7 @@
 	import SortHeader from '$lib/components/Table/SortHeader.svelte';
 	import SortSelect from '$lib/components/Table/SortSelect.svelte';
 	import InviteeStatusFilter from '$lib/Invitee/InviteeStatusFilter.svelte';
-	import { LiveDeliveries } from '$lib/Invitee/liveDeliveries.svelte';
+	import { getLiveDeliveries } from '$lib/Invitee/liveDeliveries.svelte';
 	import {
 		countByStatus,
 		filterFromParam,
@@ -30,8 +30,7 @@
 	let { data }: { data: PageData } = $props();
 	// Each email's status as the backend pushes it (bounced, delivered...),
 	// over what the page loaded: see $lib/Invitee/liveDeliveries.svelte.ts.
-	const live = new LiveDeliveries();
-	$effect(() => live.connect(`${ORIGIN}/api/v2/invitees/events`));
+	const live = getLiveDeliveries();
 	let invitees = $derived(live.apply(data.invitees));
 	let searchTerm = $state('');
 

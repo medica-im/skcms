@@ -7,12 +7,20 @@
  * Server-Sent Event (GET /api/v2/invitees/events, backend mailer.live); no
  * polling. EventSource reconnects by itself when the connection drops.
  *
- *   const live = new LiveDeliveries();
- *   $effect(() => live.connect(url));   // closes on unmount
+ * One stream for the whole invitation section, opened by its layout, so what
+ * the mail service reports while the administrator moves from sending to the
+ * list, or from the list to an invitation, is still there on arrival:
+ *
+ *   // web/invite/+layout.svelte
+ *   const live = setLiveDeliveries(new LiveDeliveries());
+ *   $effect(() => live.connect(url));   // closes on leaving the section
+ *   // a page
+ *   const live = getLiveDeliveries();
  *   let invitees = $derived(live.apply(data.invitees));
  *
  * A change published while no stream is listening shows on the next visit.
  */
+import { createContext } from 'svelte';
 import type { EmailDelivery } from '$lib/interfaces/v2/invitee';
 import { withLatest } from './liveDeliveriesMerge';
 
@@ -45,3 +53,6 @@ export class LiveDeliveries {
 		return withLatest(list, this.latest);
 	}
 }
+
+/** The section's stream, set by web/invite/+layout.svelte. */
+export const [getLiveDeliveries, setLiveDeliveries] = createContext<LiveDeliveries>();

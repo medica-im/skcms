@@ -27,3 +27,15 @@ Feature: The invitations list learns what became of each email
     Then its page says its email is "E-mail envoyé"
     When the mail service reports that the email was delivered
     Then without reloading, its page says its email is "E-mail distribué"
+
+  # The administrator resends from an invitation's page and goes straight back
+  # to the list rather than wait there. The stream belongs to the invitation
+  # pages as a whole, not to one page, so what the mail service reports on the
+  # way back is shown on the list. (The just-sent email stands for the resent
+  # one: resending for real would send a real email.)
+  Scenario: A status reported on the way back to the list is shown there
+    Given I am signed in with the role "administrator"
+    And an invitation whose email was just sent
+    When I open its page
+    And I go back to the list while the mail service reports that the email was delivered
+    Then without reloading, that invitation's email is shown as "Distribué"
