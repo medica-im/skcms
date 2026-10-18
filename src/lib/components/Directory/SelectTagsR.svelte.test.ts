@@ -48,19 +48,39 @@ const mount = (categoryOf: (typeof IPA)[], tagOf: Tag[] = IPA_MENTIONS, s = stor
 const mentionSelect = () => screen.getByPlaceholder('mention');
 /** The options the open list shows, as text. */
 const shown = () => [...document.querySelectorAll('.list-item')].map((e) => e.textContent?.trim() ?? '');
+/**
+ * Types `query` until the list shows `until`, by fill rather than click.
+ *
+ * A click toggles the list, and svelte-select shuts it on blur. Each vitest
+ * worker has its own page, but Firefox keeps a single focus for content inside
+ * iframes across all of them, so a click in a parallel file blurred this one's
+ * input; a retried click toggled it again. Any text opens the list, and erasing
+ * it leaves the list open, unfiltered; fill does both and is safe to repeat.
+ */
+const typeUntil = (query: string, until: (options: string[]) => boolean) =>
+	expect
+		.poll(async () => {
+			if (!until(shown())) {
+				await userEvent.fill(mentionSelect(), query || ' ');
+				if (!query) await userEvent.fill(mentionSelect(), '');
+			}
+			return until(shown());
+		})
+		.toBe(true);
+/** Opens the list with every option in it. */
+const openList = () => typeUntil('', (options) => options.length > 0);
 
 describe('SelectTagsR', () => {
 	it('shows the mentions with no type chosen when only IPAs are offered', async () => {
 		mount([IPA]);
 		await expect.element(mentionSelect()).toBeVisible();
-		await userEvent.click(mentionSelect());
+		await openList();
 		await expect.poll(shown).toEqual(IPA_MENTIONS.map((t) => t.labelShort));
 	});
 
 	it('selects the mention chosen in the list, and shows it chosen', async () => {
 		const { s } = mount([IPA]);
-		await userEvent.click(mentionSelect());
-		await expect.poll(shown).toContain('PCS');
+		await typeUntil('PCS', (options) => options.includes('PCS'));
 		await userEvent.click(screen.getByText('PCS', { exact: true }));
 		await expect.poll(() => get(s.selectedTags)?.map((t) => t.labelShort)).toEqual(['PCS']);
 		await expect.poll(() => document.querySelector('.selected-item')?.textContent?.trim()).toBe('PCS');
