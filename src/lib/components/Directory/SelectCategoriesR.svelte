@@ -131,6 +131,7 @@
 			{items}
 			value={onlyType}
 			disabled={true}
+			showChevron={false}
 			inputAttributes={{ 'aria-describedby': 'only-type-explained' }}
 			placeholder={m.ADDRESSBOOK_CATEGORIES_PLACEHOLDER()}
 		><NoOptions slot="empty" /></Select>

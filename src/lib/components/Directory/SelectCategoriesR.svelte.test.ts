@@ -66,6 +66,12 @@ describe('SelectCategoriesR with a single type offered', () => {
 		expect(nav.goto).not.toHaveBeenCalled();
 	});
 
+	it('shows no down arrow, since there is no list to open', async () => {
+		mount([IPA]);
+		await expect.poll(selected).toBe('infirmier en pratique avancée');
+		expect(document.querySelector('[data-testid="only-type"] .chevron')).toBeNull();
+	});
+
 	it('looks like a chosen value, not like a greyed-out control', async () => {
 		mount([IPA]);
 		const item = { uid: 'x', label: 'un choix', name: 'un choix' };
