@@ -27,7 +27,7 @@ import { requireSite } from '../../tests/sites/sites';
  */
 
 const SITE = 'annuaire.medica.im';
-const ORIGIN = 'http://dev.annuaire.medica.im';
+const ORIGIN = 'https://dev.annuaire.medica.im';
 
 /** How AbortSignal.timeout rejects — the shape the guard actually catches. */
 const timeoutError = () => {

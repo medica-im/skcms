@@ -3,7 +3,7 @@ import { relative } from 'node:path';
 import { defineConfig, devices } from '@playwright/test';
 import { defineBddConfig } from 'playwright-bdd';
 import { apiOrigin } from './tests/fixtures/session';
-import { SITE_CONTEXTS, specsBySite, type SiteName } from './tests/sites/sites';
+import { SITE_CONTEXTS, SITE_ORIGINS, specsBySite, type SiteName } from './tests/sites/sites';
 
 /**
  * Where the per-tenant specs live; see siteProjects() at the foot of this file.
@@ -348,7 +348,44 @@ export default defineConfig({
  * server is up.
  */
 function siteProjects() {
-	const chrome = { ...devices['Desktop Chrome'] };
+	// SITES_VIA (test-all sets 127.0.0.2): every dev.<site> resolves to that
+	// address instead, where scripts/nginx/dev-site-test.conf hands it to
+	// test-all's own site servers. The page is still https://dev.<site> —
+	// cookies, CORS and PUBLIC_ORIGIN unchanged — only the connection moves, so
+	// a developer's dev server on the same hostname is left alone.
+	//
+	// Chromium by its own flag below; the specs' requests from Node by
+	// scripts/sites-dns.cjs, preloaded into the worker processes, which inherit
+	// this environment.
+	const via = process.env.SITES_VIA;
+	const hosts = (Object.keys(SITE_CONTEXTS) as SiteName[])
+		.filter((site) => SITE_CONTEXTS[site])
+		.map((site) => new URL(SITE_ORIGINS[site]).hostname);
+	if (via) {
+		const preload = `--require ${new URL('./scripts/sites-dns.cjs', import.meta.url).pathname}`;
+		process.env.SITES_HOSTS = hosts.join(',');
+		if (!process.env.NODE_OPTIONS?.includes(preload)) {
+			process.env.NODE_OPTIONS = `${process.env.NODE_OPTIONS ?? ''} ${preload}`.trim();
+		}
+	}
+	// One launchOptions for every browser a spec starts, since Playwright applies
+	// the project's to a browserType.launch() inside a test too
+	// (vedene-sidebar-reload.spec.ts starts both): each engine reads its own and
+	// ignores the other's. Firefox has no per-host rule, so it resolves *every*
+	// name to SITES_VIA — enough while the specs it runs load nothing from
+	// another host (measured: msp-vedene.fr's pages load only their own). One
+	// that does would need a forward proxy instead.
+	const chrome = {
+		...devices['Desktop Chrome'],
+		...(via
+			? {
+					launchOptions: {
+						args: [`--host-resolver-rules=${hosts.map((h) => `MAP ${h} ${via}`).join(',')}`],
+						firefoxUserPrefs: { 'network.dns.forceResolve': via }
+					}
+				}
+			: {})
+	};
 	// Every tenant's dev server runs at once — each has its own port and its own
 	// --mode (scripts/test-all.sh's ensure_all_site_servers) — so no spec is
 	// waiting for a server to be switched between tenants.

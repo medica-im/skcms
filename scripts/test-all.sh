@@ -89,6 +89,14 @@ SITE_CONTEXT="${SITE_CONTEXT:-lyon3}"
 E2E_STOP_DEV_SERVER="${E2E_STOP_DEV_SERVER:-0}"
 PKG_MANAGER="${PKG_MANAGER:-pnpm}"
 
+# The `sites` specs run on this run's own server for each site, beside any dev
+# server the developer has up: same dev.<site> hostname, the dev port + 200.
+# Its Playwright and its own checks resolve those names to SITES_VIA, where
+# scripts/nginx/dev-site-test.conf answers (install it once, see that file).
+# SITES_VIA= (empty) goes back to the dev ports, stopping whatever holds them.
+export SITES_VIA="${SITES_VIA-127.0.0.2}"
+SITE_TEST_PORT_OFFSET=200
+
 # Neo4j is slow to become healthy; `compose up --wait` alone gives up too early.
 NEO4J_HEALTH_TIMEOUT="${NEO4J_HEALTH_TIMEOUT:-180}"
 STACK_WAIT_TIMEOUT="${STACK_WAIT_TIMEOUT:-300}"
@@ -512,6 +520,18 @@ context_for_site() {
 # servers at once.
 ensure_all_site_servers() {
     local site ctx started=()
+    # Asked, not looked up: the vhosts' own wildcard :443 answers on SITES_VIA
+    # too, so a listening socket proves nothing. Only dev-site-test.conf marks
+    # its responses — whatever the status, a 502 from a server not yet started
+    # included.
+    if [[ -n "$SITES_VIA" ]] && ! site_curl -sk -o /dev/null -D - --max-time 10 \
+            "https://$(site_host)/" 2>/dev/null | grep -qi '^x-dev-site-test: 1'; then
+        fail "nothing answers on $SITES_VIA for this run's site servers"
+        info "install it once:  sudo ln -s ${TEST_ALL_CHECKOUT:-$FRONTEND_DIR}/scripts/nginx/dev-site-test.conf /etc/nginx/sites-enabled/dev-site-test"
+        info "                  sudo nginx -t && sudo systemctl reload nginx"
+        info "or run on the dev ports, stopping any dev server there:  SITES_VIA= ${TEST_ALL_CHECKOUT:-$FRONTEND_DIR}/scripts/test-all.sh"
+        return 1
+    fi
     while read -r site; do
         [[ -z "$site" ]] && continue
         ctx="$(context_for_site "$site")"
@@ -544,7 +564,7 @@ warm_site_servers() {
         origin="$(site_origin "$host")"
         base="$(sed -n 's/^BASE_PATH="\?\([^"]*\)"\?/\1/p' \
             "$FRONTEND_DIR/.env.$host" 2>/dev/null | head -1)"
-        result="$(curl -skL -o /dev/null -w '%{http_code} in %{time_total}s' \
+        result="$(site_curl -skL -o /dev/null -w '%{http_code} in %{time_total}s' \
             --max-time 120 "$origin$base/" 2>/dev/null)"
         info "warmed $origin$base/ (${result:-no answer})"
     done
@@ -561,6 +581,20 @@ warm_site_servers() {
 # duplicated rather than sourced because dev.sh runs `exec vite` at the end and
 # sourcing it would take this script with it.
 pid_on_port() { ss -ltnpH "sport = :$1" 2>/dev/null | grep -oP 'pid=\K[0-9]+' | head -1 || true; }
+
+# curl a site the way the specs' browser reaches it: through SITES_VIA when
+# set (its --host-resolver-rules, in curl's terms), so these checks see this
+# run's site servers and not the developer's.
+site_curl() {
+    if [[ -n "$SITES_VIA" ]]; then curl --connect-to "::$SITES_VIA:" "$@"; else curl "$@"; fi
+}
+
+# The port this run's server for a context listens on.
+site_server_port() {
+    local port; port="$(SITE_CONTEXT="$1" site_port)"
+    [[ -z "$port" ]] && return 0
+    if [[ -n "$SITES_VIA" ]]; then echo $((port + SITE_TEST_PORT_OFFSET)); else echo "$port"; fi
+}
 
 # Where a running site server records what it was started for.
 #
@@ -609,13 +643,13 @@ site_server_is_ours() {
 # backend, so it can be up while the page server is not.
 site_reports_slug() {
     local origin="$1"
-    curl -skfL --max-time 15 "$origin/api/v1/directory/" 2>/dev/null |
+    site_curl -skfL --max-time 15 "$origin/api/v1/directory/" 2>/dev/null |
         "${JQ:-jq}" -r '.slug // empty' 2>/dev/null
 }
 
 ensure_site_server_for() {
     local ctx="$1" port host origin env_file branch
-    port="$(SITE_CONTEXT="$ctx" site_port)"
+    port="$(site_server_port "$ctx")"
     host="$(SITE_CONTEXT="$ctx" site_host)"
     [[ -z "$port" || -z "$host" ]] && { warn "no dev.yml entry for $ctx"; return 1; }
     origin="$(site_origin "$host")"
@@ -635,7 +669,7 @@ ensure_site_server_for() {
     #   * the stamp alone cannot see a server that has since gone wrong;
     #   * the slug alone cannot see a server started before a .env switch, whose
     #     403 the status check catches but whose cause it cannot name.
-    if curl -skfL -o /dev/null --max-time 10 "$origin/"; then
+    if site_curl -skfL -o /dev/null --max-time 10 "$origin/"; then
         local serving
         serving="$(site_reports_slug "$origin")"
         if [[ -z "$serving" ]]; then
@@ -728,7 +762,7 @@ ensure_site_server_for() {
     local waited=0
     while (( waited < 90 )); do
         sleep 5; waited=$((waited + 5))
-        curl -skfL -o /dev/null --max-time 10 "$origin/" && {
+        site_curl -skfL -o /dev/null --max-time 10 "$origin/" && {
             # Stamped only once it actually answers, and with the pid that ended
             # up on the port rather than the one the subshell forked: `nohup npx
             # vite` is a launcher, and the server is its child.
