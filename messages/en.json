@@ -30,6 +30,7 @@
   "ADDRESSBOOK_APPOINTMENT_LABEL": "Book an appointment",
   "ADDRESSBOOK_CATEGORIES_ALL": "All categories",
   "ADDRESSBOOK_CATEGORIES_PLACEHOLDER": "Select by category...",
+  "ADDRESSBOOK_CATEGORY_ONLY_ONE": "The only profession in this selection",
   "ADDRESSBOOK_CLEAR": "Clear",
   "ADDRESSBOOK_COMMUNES_PLACEHOLDER": "Select by municipality...",
   "ADDRESSBOOK_COSTS_AND_REIMBURSEMENTS": "Costs and reimbursements",

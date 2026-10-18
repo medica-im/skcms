@@ -27,7 +27,7 @@
 		);
 	};
 	let items = $derived.by(() => {
-		return categoryOf.sort(function (a, b) {
+		return [...categoryOf].sort(function (a, b) {
 			return a.name.localeCompare(b.name);
 		});
 	});
@@ -49,6 +49,16 @@
 		const effector_type = categoryOf.find((e) => types.includes(e.uid));
 		return effector_type || null;
 	});
+
+	// Shown, not chosen: nothing reaches the store or the URL.
+	const onlyType: Type | null = $derived(!selectionFromUrl && items.length === 1 ? items[0] : null);
+	let explaining = $state(false);
+	let explainTimer: ReturnType<typeof setTimeout> | undefined;
+	function explainOnlyType() {
+		explaining = true;
+		clearTimeout(explainTimer);
+		explainTimer = setTimeout(() => (explaining = false), 4000);
+	}
 
 	$effect(() => {
 		const sel = selectionFromUrl;
@@ -111,6 +121,24 @@
 	<div class="text-surface-700 svelte-select">
 		<Select loading={true} placeholder={m.ADDRESSBOOK_CATEGORIES_PLACEHOLDER()} />
 	</div>
+{:else if onlyType}
+	<!-- A disabled field receives no click: the tap is caught around it. -->
+	<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+	<div class="text-surface-700 svelte-select only-type" data-testid="only-type" onclick={explainOnlyType}>
+		<Select
+			{label}
+			{itemId}
+			{items}
+			value={onlyType}
+			disabled={true}
+			inputAttributes={{ 'aria-describedby': 'only-type-explained' }}
+			placeholder={m.ADDRESSBOOK_CATEGORIES_PLACEHOLDER()}
+		><NoOptions slot="empty" /></Select>
+		<span id="only-type-explained" class="sr-only">{m.ADDRESSBOOK_CATEGORY_ONLY_ONE()}</span>
+		{#if explaining}
+			<p class="mt-1 text-sm" role="status">{m.ADDRESSBOOK_CATEGORY_ONLY_ONE()}</p>
+		{/if}
+	</div>
 {:else}
 	<div class="text-surface-700 svelte-select">
 		<Select
@@ -129,3 +157,14 @@
 		><NoOptions slot="empty" /></Select>
 	</div>
 {/if}
+
+<style>
+	/* A fact, not a greyed-out control: the colours of a chosen value. */
+	.only-type :global(.svelte-select) {
+		--disabled-background: var(--background);
+		--disabled-color: var(--selected-item-color);
+		/* svelte-select's own border colour (its --border default); it reads no --border-color. */
+		--disabled-border-color: #d8dbdf;
+		pointer-events: none;
+	}
+</style>

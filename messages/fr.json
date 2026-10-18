@@ -30,6 +30,7 @@
   "ADDRESSBOOK_APPOINTMENT_LABEL": "Prendre rendez-vous",
   "ADDRESSBOOK_CATEGORIES_ALL": "Toutes catégories",
   "ADDRESSBOOK_CATEGORIES_PLACEHOLDER": "Sélectionner par catégorie....",
+  "ADDRESSBOOK_CATEGORY_ONLY_ONE": "Seule profession dans cette sélection",
   "ADDRESSBOOK_CLEAR": "Effacer",
   "ADDRESSBOOK_COMMUNES_PLACEHOLDER": "Sélectionner par commune...",
   "ADDRESSBOOK_COSTS_AND_REIMBURSEMENTS": "Tarifs et remboursements",
