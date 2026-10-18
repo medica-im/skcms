@@ -13,10 +13,8 @@ DEV_PORT="${DEV_PORT:-}"
 # disagreement makes the site unreachable rather than merely misconfigured.
 NGINX_PORT_MAP="${NGINX_PORT_MAP:-$REPO_ROOT/scripts/nginx/dev-site-ports.conf}"
 
-RESTART=0
-
 usage() {
-    echo "Usage: $0 [--restart] <name>"
+    echo "Usage: $0 <name>"
     echo "       $0 --list"
     echo
     echo "Switches to the dev context described by <name> in $DEV_FILE:"
@@ -26,13 +24,13 @@ usage() {
     echo "(starting them if needed), symlinks its env_file to .env, then runs"
     echo "vite on that context's own port from dev.yml."
     echo
-    echo "One site runs at a time. If any dev server is already up — this"
-    echo "context's or another's — the script stops rather than leave a server"
-    echo "serving the route manifest of the branch it booted with, which"
+    echo "One site runs at a time. Any dev server already up — this context's"
+    echo "or another's — is stopped first, and named as it is: left running it"
+    echo "would serve the route manifest of the branch it booted with, which"
     echo "renders fine and then dies on hydration."
     echo
     echo "  --list     print the available context names and exit"
-    echo "  --restart  stop whichever dev server is running first"
+    echo "  --restart  accepted for older callers; restarting is the default"
 }
 
 if ! command -v yq >/dev/null 2>&1; then
@@ -52,7 +50,7 @@ while [[ $# -gt 0 ]]; do
             yq -r '.contexts[].name' "$DEV_FILE"
             exit 0
             ;;
-        --restart) RESTART=1; shift ;;
+        --restart) shift ;;
         -h|--help) usage; exit 0 ;;
         -*) echo "error: unknown option '$1'" >&2; usage >&2; exit 1 ;;
         *) ARGS+=("$1"); shift ;;
@@ -214,10 +212,8 @@ stop_server() {
     return 1
 }
 
-# Only one site runs at a time, by choice: five Vite servers plus a Dockerised
-# backend do not fit the box's 15GB comfortably. So any *other* context's server
-# is stopped here — but never silently, because that server may be the one
-# serving a Playwright run or another terminal's browser.
+# Only one site runs at a time: any *other* context's server is stopped here,
+# and named as it is, since it may be serving another terminal's browser.
 #
 # The submodule checkout above already moved the skvar branch under any running
 # server's feet, and a Vite process holds the route manifest it booted with.
@@ -230,16 +226,6 @@ while read -r other_name other_port; do
     other_pid=$(pid_on_port "$other_port")
     [[ -z "$other_pid" ]] && continue
 
-    if [[ "$RESTART" != "1" ]]; then
-        echo -e "${ORANGE}==> [$NAME] '$other_name' is running on port $other_port (pid $other_pid)${NC}" >&2
-        echo "Only one dev site runs at a time, and the skvar checkout this script" >&2
-        echo "just did has already invalidated that server's route manifest." >&2
-        echo >&2
-        echo "Re-run with --restart to stop it, or stop it yourself:" >&2
-        echo "    kill $other_pid" >&2
-        exit 1
-    fi
-
     echo -e "${ORANGE}==> [$NAME] stopping '$other_name' on port $other_port (pid $other_pid)${NC}"
     stop_server "$other_pid" "$other_port" || exit 1
 done < <(yq -r '.contexts[] | select(.port) | [.name, .port] | @tsv' "$DEV_FILE")
@@ -247,18 +233,8 @@ done < <(yq -r '.contexts[] | select(.port) | [.name, .port] | @tsv' "$DEV_FILE"
 # This context's own port. Same treatment: a server already here is serving the
 # manifest it booted with, not the checkout above.
 if OWN_PID=$(pid_on_port "$DEV_PORT") && [[ -n "$OWN_PID" ]]; then
-    if [[ "$RESTART" == "1" ]]; then
-        echo -e "${ORANGE}==> [$NAME] stopping dev server on port $DEV_PORT (pid $OWN_PID)${NC}"
-        stop_server "$OWN_PID" "$DEV_PORT" || exit 1
-    else
-        echo -e "${ORANGE}==> [$NAME] port $DEV_PORT is already held by pid $OWN_PID${NC}" >&2
-        echo "That server is serving the route manifest of whichever skvar branch it" >&2
-        echo "started with — not necessarily $DEV_BRANCH." >&2
-        echo >&2
-        echo "Re-run with --restart to replace it, or stop it yourself:" >&2
-        echo "    kill $OWN_PID" >&2
-        exit 1
-    fi
+    echo -e "${ORANGE}==> [$NAME] stopping dev server on port $DEV_PORT (pid $OWN_PID)${NC}"
+    stop_server "$OWN_PID" "$DEV_PORT" || exit 1
 fi
 
 echo "==> [$NAME] Starting dev server on port $DEV_PORT"

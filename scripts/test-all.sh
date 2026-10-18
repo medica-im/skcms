@@ -544,11 +544,11 @@ warm_site_servers() {
 
 # ensure_site_server for a named context, leaving any other site server up.
 #
-# dev.sh refuses to start while another site server is running — a server
-# outlives a branch switch and would then serve the route manifest of the branch
-# it booted with. That is the right rule for a person switching contexts by
-# hand, and the wrong one here: these servers are started for the length of a
-# run, against tenants whose branches are not being switched under them.
+# dev.sh stops any other site server before starting — a server outlives a
+# branch switch and would then serve the route manifest of the branch it booted
+# with. That is the right rule for a person switching contexts by hand, and the
+# wrong one here: these servers are started for the length of a run, against
+# tenants whose branches are not being switched under them.
 # The pid listening on a TCP port, or empty. Same implementation as dev.sh's;
 # duplicated rather than sourced because dev.sh runs `exec vite` at the end and
 # sourcing it would take this script with it.
@@ -837,9 +837,8 @@ suite_bdd() {
     stop_dev_server
     ensure_e2e_workers || { start_dev_server; return 1; }
     # The `sites` project browses the real dev.<site> hostname, not a worker
-    # origin, so the worker servers above do not cover it. Started after them
-    # because dev.sh refuses to run while another *site* server is up, and
-    # before Playwright because a 502 here reads as a broken page.
+    # origin, so the worker servers above do not cover it. Started before
+    # Playwright because a 502 here reads as a broken page.
     # Every tenant the sites project names, not just one: with a single server
     # the specs for the other site skipped, so a "full" run quietly omitted them.
     [[ "$E2E_STOP_DEV_SERVER" == "0" ]] && ensure_all_site_servers
