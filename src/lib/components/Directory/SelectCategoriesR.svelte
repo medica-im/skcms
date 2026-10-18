@@ -137,7 +137,7 @@
 		><NoOptions slot="empty" /></Select>
 		<span id="only-type-explained" class="sr-only">{m.ADDRESSBOOK_CATEGORY_ONLY_ONE()}</span>
 		{#if explaining}
-			<p class="mt-1 text-sm" role="status">{m.ADDRESSBOOK_CATEGORY_ONLY_ONE()}</p>
+			<p class="mt-1 text-sm text-surface-600-300-token" role="status">{m.ADDRESSBOOK_CATEGORY_ONLY_ONE()}</p>
 		{/if}
 	</div>
 {:else}

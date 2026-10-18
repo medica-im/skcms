@@ -56,6 +56,27 @@ const description = () => {
 	return id ? (document.getElementById(id)?.textContent?.trim() ?? null) : null;
 };
 
+/** The first opaque background at or above `el`; the page's own when none is. */
+const paintedBehind = (el: Element): string => {
+	for (let node: Element | null = el; node; node = node.parentElement) {
+		const bg = getComputedStyle(node).backgroundColor;
+		if (!/rgba\(.*,\s*0\)$/.test(bg) && bg !== 'transparent') return bg;
+	}
+	return getComputedStyle(document.body).backgroundColor;
+};
+/** WCAG contrast ratio of two `rgb()` colours. */
+const contrast = (a: string, b: string): number => {
+	const lum = (c: string) => {
+		const [r, g, bl] = (c.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number).map((v) => {
+			const s = v / 255;
+			return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+		});
+		return 0.2126 * r + 0.7152 * g + 0.0722 * bl;
+	};
+	const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x);
+	return (hi + 0.05) / (lo + 0.05);
+};
+
 describe('SelectCategoriesR with a single type offered', () => {
 	it('shows that type as a fact, read-only, without choosing it', async () => {
 		const { selectCategories } = mount([IPA]);
@@ -94,6 +115,22 @@ describe('SelectCategoriesR with a single type offered', () => {
 		await userEvent.click(screen.getByTestId('only-type'));
 		await expect.element(screen.getByRole('status')).toHaveTextContent(ONLY_ONE);
 	});
+
+	for (const scheme of ['light', 'dark'] as const) {
+		it(`tells it legibly in ${scheme} mode`, async () => {
+			document.documentElement.classList.toggle('dark', scheme === 'dark');
+			try {
+				mount([IPA]);
+				await userEvent.click(screen.getByTestId('only-type'));
+				const status = screen.getByRole('status');
+				await expect.element(status).toHaveTextContent(ONLY_ONE);
+				const text = getComputedStyle(status.element()).color;
+				await expect.poll(() => contrast(text, paintedBehind(status.element()))).toBeGreaterThanOrEqual(4.5);
+			} finally {
+				document.documentElement.classList.remove('dark');
+			}
+		});
+	}
 
 	it('says it to a screen reader along with the type', async () => {
 		mount([IPA]);
