@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Measure the svelte-check error count for every site, and print the baseline
-# lines test-all.sh expects.
+# lines scripts/typecheck-baselines.conf holds.
 #
 #   ./scripts/typecheck-baselines.sh            # every context in dev.yml
 #   ./scripts/typecheck-baselines.sh gadagne    # just one
@@ -13,7 +13,7 @@
 # baseline cannot describe both, and the failure is silent in the direction that
 # matters: set for the worst site, it admits eleven new errors on the best.
 #
-# The output is meant to be pasted into test-all.sh. It is not written there
+# The output is meant to be pasted into typecheck-baselines.conf. It is not written there
 # automatically on purpose — a baseline that rewrites itself records whatever
 # the tree happened to contain, including regressions it was supposed to catch.
 set -uo pipefail
@@ -63,15 +63,19 @@ measure() {
 
 echo "# Measured $(date +%Y-%m-%d) by scripts/typecheck-baselines.sh" >&2
 declare -a lines=()
+highest=0
 while read -r ctx; do
     [[ -z "$ctx" ]] && continue
     printf '  %-10s ' "$ctx" >&2
     if count="$(measure "$ctx")"; then
         printf '%s errors\n' "$count" >&2
-        lines+=("TYPECHECK_BASELINE_${ctx}=\"\${TYPECHECK_BASELINE_${ctx}:-${count}}\"")
+        lines+=("TYPECHECK_BASELINE_${ctx}=${count}")
+        (( count > highest )) && highest="$count"
     fi
 done < <(contexts "$@")
 
 echo >&2
-echo "# Paste into scripts/test-all.sh:" >&2
+echo "# Paste into scripts/typecheck-baselines.conf:" >&2
 printf '%s\n' "${lines[@]}"
+# Only from a full measurement: one site's count says nothing about the worst.
+[[ $# -eq 0 ]] && printf 'TYPECHECK_BASELINE_DEFAULT=%s\n' "$highest"

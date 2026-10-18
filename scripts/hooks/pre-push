@@ -31,12 +31,8 @@ if [[ -z "$ctx" ]]; then
     exit 0
 fi
 
-# The baseline for that site, read from test-all.sh so there is one source of
-# truth. A site with no line falls back the same way test-all.sh does.
-baseline="$(sed -nE "s/^TYPECHECK_BASELINE_${ctx}=\"\\\$\{TYPECHECK_BASELINE_${ctx}:-([0-9]+)\}\".*/\1/p" \
-    scripts/test-all.sh | head -1)"
-[[ -z "$baseline" ]] && baseline="$(sed -nE 's/^TYPECHECK_BASELINE_DEFAULT="\$\{TYPECHECK_BASELINE_DEFAULT:-([0-9]+)\}".*/\1/p' \
-    scripts/test-all.sh | head -1)"
+# The same lookup test-all.sh uses, so the two cannot disagree.
+baseline="$(scripts/typecheck-baseline-of.sh "$ctx")"
 [[ -z "$baseline" ]] && { echo "pre-push: no baseline found; skipping typecheck" >&2; exit 0; }
 
 echo "pre-push: typechecking $ctx (baseline $baseline)..."
@@ -59,6 +55,6 @@ fi
 
 echo "pre-push: $count errors on $ctx (baseline $baseline) — ok"
 if (( count < baseline )); then
-    echo "pre-push: below baseline; consider lowering TYPECHECK_BASELINE_$ctx to $count"
+    echo "pre-push: below baseline; consider lowering TYPECHECK_BASELINE_$ctx to $count in scripts/typecheck-baselines.conf"
 fi
 exit 0

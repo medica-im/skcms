@@ -98,45 +98,11 @@ SKIP_BACKEND="${SKIP_BACKEND:-0}"
 SKIP_FRONTEND="${SKIP_FRONTEND:-0}"
 SEED_BDD_USERS="${SEED_BDD_USERS:-1}"
 
-# The codebase carries a backlog of pre-existing svelte-check errors, so the
-# typecheck suite fails on the *count* rising above a baseline rather than on
-# any error at all. Lower these as the backlog is paid down.
-#
-# One baseline per site, because the count is a property of the site and not of
-# the parent code. Each context checks out its own skvar branch, and the routes
-# under (skvar) are typechecked with everything else — so the same parent commit
-# measures 195 on annuaire and 206 on gadagne. A single number cannot describe
-# both: set high enough for gadagne it admits eleven new errors on annuaire, and
-# set for annuaire it fails gadagne on work nobody did. That second case is what
-# happened — a global 197 against gadagne's real 206 reported "error count rose
-# above the baseline" on a release that had changed none of it.
-#
-# Measured, not guessed: a baseline above the real count admits that many new
-# errors without failing. Measured 2026-08-20 with `typecheck-baselines.sh`,
-# which prints exactly these lines; re-run it when lowering them. The run prints
-# each real count beside its baseline on every invocation.
-TYPECHECK_BASELINE_annuaire="${TYPECHECK_BASELINE_annuaire:-195}"
-TYPECHECK_BASELINE_lyon3="${TYPECHECK_BASELINE_lyon3:-205}"
-TYPECHECK_BASELINE_gadagne="${TYPECHECK_BASELINE_gadagne:-206}"
-TYPECHECK_BASELINE_ipa="${TYPECHECK_BASELINE_ipa:-195}"
-TYPECHECK_BASELINE_sandbox="${TYPECHECK_BASELINE_sandbox:-195}"
-
-# The fallback for a context with no line above — a new site added to dev.yml
-# reaches this rather than silently typechecking against zero. Deliberately the
-# highest of the measured numbers: a new site fails on being worse than the
-# worst known, not on inheriting a stricter site's budget.
-TYPECHECK_BASELINE_DEFAULT="${TYPECHECK_BASELINE_DEFAULT:-206}"
-
-# Per-site baseline lookup, with the old global name still honoured: anyone who
-# exports TYPECHECK_BASELINE means "this number, for whatever I am running".
+# The typecheck suite fails on the svelte-check error count rising above a
+# per-site baseline. The numbers, and why there is one per site, are in
+# scripts/typecheck-baselines.conf; the pre-push hook reads them the same way.
 typecheck_baseline() {
-    local ctx="$1" var val
-    if [[ -n "${TYPECHECK_BASELINE:-}" ]]; then
-        printf '%s\n' "$TYPECHECK_BASELINE"; return
-    fi
-    var="TYPECHECK_BASELINE_${ctx}"
-    val="${!var:-}"
-    printf '%s\n' "${val:-$TYPECHECK_BASELINE_DEFAULT}"
+    "$FRONTEND_DIR/scripts/typecheck-baseline-of.sh" "$1"
 }
 
 ALL_SUITES=(typecheck unit backend bdd)
@@ -278,10 +244,10 @@ Suites: ${ALL_SUITES[*]}
 Sites: $(all_contexts | tr '\n' ' ')
   Named by their dev.yml name (lyon3) or the host they serve
   (dev.santelyon3.fr). With none named, the stages that depend on which
-  tenant is checked out — unit and bdd — run once per site, because a page
-  or a spec belonging to one tenant is skipped on the others. typecheck and
-  backend run once: the backend has no tenant, and svelte-check is judged
-  against a single error baseline.
+  tenant is checked out — typecheck, unit and bdd — run once per site:
+  a page or a spec belonging to one tenant is skipped on the others, and
+  each site's svelte-check count is judged against its own baseline
+  (scripts/typecheck-baselines.conf). backend runs once: it has no tenant.
 
   Each site is switched to with dev.sh, which moves the skvar branch and the
   .env symlink together, so the checkout is left on whichever site ran last.
@@ -800,6 +766,7 @@ ensure_e2e_workers() {
 suite_typecheck() {
     local ctx="${1:-$SITE_CONTEXT}" out count baseline
     baseline="$(typecheck_baseline "$ctx")"
+    [[ "$baseline" =~ ^[0-9]+$ ]] || { fail "no typecheck baseline for $ctx"; return 1; }
     (cd "$FRONTEND_DIR" && npx svelte-kit sync >/dev/null 2>&1)
     # --output machine keeps the summary line stable; svelte-check otherwise
     # switches to a human summary ("found N errors") when attached to a TTY.
@@ -826,7 +793,7 @@ suite_typecheck() {
         return 1
     fi
     (( count < baseline )) && \
-        info "below baseline — consider lowering TYPECHECK_BASELINE_$ctx to $count"
+        info "below baseline — consider lowering TYPECHECK_BASELINE_$ctx to $count in scripts/typecheck-baselines.conf"
     return 0
 }
 
