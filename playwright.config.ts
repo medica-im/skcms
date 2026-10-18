@@ -258,7 +258,15 @@ export default defineConfig({
 			testMatch: pixelMatch,
 			fullyParallel: false,
 			workers: 1,
-			use: { ...devices['Desktop Chrome'], workerPoolSize: E2E_WORKERS }
+			// The first attempt's trace, kept when it fails: on-first-retry records
+			// the retry, and the avatar scenarios' flake passes on retry, so the
+			// trace that would explain it was never written. Here only, because a
+			// trace of every first run is not free across the whole suite.
+			use: {
+				...devices['Desktop Chrome'],
+				workerPoolSize: E2E_WORKERS,
+				trace: 'retain-on-first-failure'
+			}
 		},
 		{
 			// Plain Playwright specs, alongside the generated Gherkin ones. Some
@@ -305,7 +313,8 @@ export default defineConfig({
 			// Affordable because testMatch scopes this project to one feature.
 			fullyParallel: false,
 			workers: 1,
-			use: { ...devices['Desktop Firefox'] }
+			// As chromium-serial: the first attempt's trace, kept when it fails.
+			use: { ...devices['Desktop Firefox'], trace: 'retain-on-first-failure' }
 		},
 		// Specs about one site in particular.
 		//

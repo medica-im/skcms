@@ -22,25 +22,23 @@ export const facilityCtx: {
  * has to come through here first.
  *
  * Guarded rather than unconditional: pressing the pencil while edit mode is
- * already on would turn it back off. A page with no pencil — a visitor who may
- * not edit — is left alone, so callers still fail on the control they were
- * really looking for rather than on this.
+ * already on would turn it back off.
+ *
+ * A page with no pencil fails here, by name. Every caller means to edit, and a
+ * missing pencil left for the caller to discover surfaced a minute later as a
+ * timeout on the control edit mode would have shown — the avatar scenarios'
+ * flake read as a missing "Ajouter une photo" button for an administrator.
  */
 export async function enterEditMode(page: import('@playwright/test').Page) {
 	const pencil = page.getByRole('switch').first();
 
 	// The pencil only appears once the page has asked the server whether this
-	// visitor may edit, so give it time to arrive. count() answers immediately
-	// and would read a pencil that is merely still loading as one that is not
-	// coming, leaving the caller to fail on a control this function was meant
-	// to reveal.
-	try {
-		await pencil.waitFor({ state: 'visible', timeout: 8_000 });
-	} catch {
-		// Genuinely absent: a visitor who may not edit. Leave the page alone so
-		// the caller fails on what it was really looking for.
-		return;
-	}
+	// visitor may edit, so give it time to arrive — under a loaded run that
+	// answer is not instant.
+	await expect(
+		pencil,
+		'no edit switch: the page never said this visitor may edit (see the permission request in the trace)'
+	).toBeVisible({ timeout: 20_000 });
 
 	await setSwitch(pencil, true);
 }
