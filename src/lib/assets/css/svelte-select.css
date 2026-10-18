@@ -75,6 +75,22 @@
     --clear-select-color: rgb(var(--color-surface-200));
 }
 
+/*
+    A hand over what can be clicked.
+
+    svelte-select hardcodes `cursor: default` on its input, which covers the
+    box, and on its options, with no custom property to change it; these
+    selectors outrank its scoped ones. Each tests its own element's disabled
+    state: the directory filters wrap the library in another `.svelte-select`,
+    so an ancestor's state says nothing about the control inside it.
+*/
+.svelte-select:not(.disabled):not(:has(.svelte-select)),
+.svelte-select input:not(:disabled),
+.svelte-select .multi-item:not(.disabled),
+.svelte-select-list .item:not(.not-selectable):not(.list-group-title) {
+    cursor: pointer;
+}
+
 .svelte-select-glow {
     --border-color: rgb(var(--color-primary-500));
     --border: 2px solid rgb(var(--color-primary-500));

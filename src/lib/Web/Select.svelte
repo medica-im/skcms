@@ -42,16 +42,22 @@
 	 * A caller that names its own placeholder still wins: "Sélectionner un rôle"
 	 * says more than the generic one.
 	 */
+	/**
+	 * The down arrow is what tells a reader the box is a dropdown; svelte-select
+	 * leaves it off by default.
+	 */
 	let {
 		value = $bindable(),
 		filterText = $bindable(''),
 		placeholder = m.SELECT_PLACEHOLDER(),
+		showChevron = true,
 		floatingConfig = {},
 		...rest
 	}: Record<string, unknown> & {
 		value?: unknown;
 		filterText?: string;
 		placeholder?: string;
+		showChevron?: boolean;
 		floatingConfig?: Record<string, unknown>;
 	} = $props();
 
@@ -88,6 +94,7 @@
 <Select
 	{...rest}
 	{placeholder}
+	{showChevron}
 	{ariaValues}
 	{ariaListOpen}
 	{ariaFocused}
