@@ -8,7 +8,7 @@ import type { Entry, AddressFeature, DistanceEffectors, CategorizedEntries, Type
 import type { Organization } from '$lib/interfaces/organization.ts';
 import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
 import type { SelectType } from '$lib/interfaces/select';
-import type { Tag } from '$lib/store/directoryStoreInterface.ts';
+import type { Tag, TagCategory } from '$lib/store/directoryStoreInterface.ts';
 import type { Fetch } from '$lib/interfaces/fetch.ts';
 import type { Labels } from '$lib/interfaces/label.interace.ts';
 
@@ -370,3 +370,22 @@ export const tagOfF = (fullFilteredEntries: Entry[], selectFacility: string | nu
 		return uniqueTags as Tag[];
 	}
 }
+
+/**
+ * The tag categories whose selector is shown, from the tags the filtered
+ * entries carry (`tagOf`): those connected, through their tags'
+ * `effector_types`, to every type in play — the chosen ones, or with none
+ * chosen, every type the type selector offers.
+ */
+export const tagCategoriesShownF = (tags: Tag[], selectedTypes: string[], offeredTypes: Type[]): TagCategory[] => {
+	const inPlay = selectedTypes.length ? selectedTypes : offeredTypes.map((t) => t.uid);
+	const byName = new Map<string, { category: TagCategory; types: Set<string> }>();
+	for (const t of tags ?? []) {
+		const found = byName.get(t.category.name) ?? { category: t.category, types: new Set<string>() };
+		(t.effector_types ?? []).forEach((uid) => found.types.add(uid));
+		byName.set(t.category.name, found);
+	}
+	return [...byName.values()]
+		.filter(({ types }) => inPlay.length > 0 && inPlay.every((uid) => types.has(uid)))
+		.map(({ category }) => category);
+};

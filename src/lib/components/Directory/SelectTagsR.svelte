@@ -7,27 +7,15 @@
 	import * as m from '$msgs';
 	import { getSelectedTags, getSelectCategories } from './context';
 	import { arrayFilterUnique } from '$lib/utils/utils.ts';
-	import type { Tag, TagCategory } from '$lib/store/directoryStoreInterface';
+	import type { Tag, TagCategory, Type } from '$lib/store/directoryStoreInterface';
+	import { tagCategoriesShownF } from '$lib/store/directoryStore';
 	import type { SelectType } from '$lib/interfaces/select';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 
-	let { tagOf }: { tagOf: Tag[] } = $props();
+	let { tagOf, categoryOf }: { tagOf: Tag[]; categoryOf: Type[] } = $props();
 
 	const selectCategories = getSelectCategories();
-	const activeTagCategories = (): TagCategory[] => {
-		const aTC: TagCategory[] = [];
-		page.data.entries
-			.filter((e: Entry) => $selectCategories.includes(e.effector_type.uid))
-			.forEach((e: Entry) => {
-				if (e.tags) {
-					const tags = e.tags.filter((t) => t.effector_types.includes(e.effector_type.uid));
-					tags.forEach((t) => aTC.push(t.category));
-				}
-			});
-		const uniqueActiveTagCategories = aTC.filter(arrayFilterUnique((t: TagCategory) => t.uid));
-		console.log(uniqueActiveTagCategories);
-		return uniqueActiveTagCategories;
-	};
+	const shownCategories: TagCategory[] = $derived(tagCategoriesShownF(tagOf, $selectCategories, categoryOf));
 	const getItems = (category: TagCategory) => {
 		const items = tagOf
 			.filter((t) => {return t.category.name == category.name})
@@ -102,7 +90,7 @@
 </script>
 
 <!--{JSON.stringify($selectedTags)}-->
-{#each activeTagCategories() as aTC}
+{#each shownCategories as aTC}
 	<div class="text-surface-700 svelte-select max-h-12">
 		{#if !tagOf}
 			<Select loading={true} placeholder={aTC.labelShort} />
@@ -115,7 +103,7 @@
 				on:change={handleChange}
 				on:clear={handleClear}
 				placeholder={aTC.labelShort}
-				bind:value
+				{value}
 			><NoOptions slot="empty" /></Select>
 		{/if}
 	</div>

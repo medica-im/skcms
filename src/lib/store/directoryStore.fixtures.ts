@@ -164,6 +164,42 @@ export const TAG_SPORT: Tag = {
 	effector_types: [PHYSIO.uid]
 } as unknown as Tag;
 
+/**
+ * The graph's IPA mentions: connected to "infirmier en pratique avancée" only,
+ * never to the generic infirmier (NURSE).
+ */
+export const IPA: Type = {
+	uid: 'type-ipa',
+	name: 'infirmier en pratique avancée',
+	label: 'infirmier en pratique avancée',
+	raw_label: 'IPA',
+	slug: 'infirmier-en-pratique-avancee',
+	definition: null,
+	synonyms: []
+} as unknown as Type;
+
+const MENTION = { uid: 'tag-category-mention', label: 'mention', labelShort: 'mention', name: 'mention' };
+const mention = (uid: string, labelShort: string, label: string): Tag =>
+	({ uid, name: uid, label, labelShort, category: MENTION, effector_types: [IPA.uid] }) as unknown as Tag;
+
+export const IPA_MENTIONS: Tag[] = [
+	mention('tag-ooh', 'OOH', 'oncologie et hémato-oncologie'),
+	mention('tag-urgences', 'urgences', 'urgences'),
+	mention('tag-pcs', 'PCS', 'pathologies chroniques stabilisées'),
+	mention('tag-mrctdr', 'MRCTDR', 'maladie rénale chronique, dialyse, transplantation rénale'),
+	mention('tag-psm', 'PSM', 'psychiatrie et santé mentale')
+];
+
+/** Another category, connected to another type: the rule names neither. */
+export const TAG_PHYSIO_RESPI: Tag = {
+	uid: 'tag-respi',
+	name: 'respi',
+	label: 'kinésithérapie respiratoire',
+	labelShort: 'respiratoire',
+	category: { uid: 'tag-category-orientation', label: 'orientation', labelShort: 'orientation', name: 'orientation' },
+	effector_types: [PHYSIO.uid]
+} as unknown as Tag;
+
 /** Communes: two in department 84, one in 30, so department and commune can disagree. */
 export const GADAGNE = { uid: 'commune-gadagne', name: 'Châteauneuf-de-Gadagne', dept: '84' };
 export const AVIGNON = { uid: 'commune-avignon', name: 'Avignon', dept: '84' };

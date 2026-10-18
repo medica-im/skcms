@@ -24,7 +24,8 @@ import {
 	communeOfF,
 	departmentOfF,
 	facilityOfF,
-	tagOfF
+	tagOfF,
+	tagCategoriesShownF
 } from './directoryStore.ts';
 import {
 	makeEntry,
@@ -33,8 +34,12 @@ import {
 	ORG_UID,
 	NURSE,
 	DOCTOR,
+	PHYSIO,
+	IPA,
+	IPA_MENTIONS,
 	TAG_ONCO,
-	TAG_GERIA
+	TAG_GERIA,
+	TAG_PHYSIO_RESPI
 } from './directoryStore.fixtures.ts';
 
 const uids = (entries: { uid: string }[]) => entries.map((e) => e.uid).sort();
@@ -283,5 +288,44 @@ describe('selector option lists', () => {
 			[TAG_ONCO.uid, TAG_GERIA.uid].sort()
 		);
 		expect(tagOfF(all, null, [NURSE.uid], [], null).map((t) => t.uid)).toEqual([TAG_ONCO.uid]);
+	});
+});
+
+describe('tagCategoriesShownF: which tag selectors the address book shows', () => {
+	// The tags the filtered entries carry (tagOf): a selector only offers what
+	// is there to choose.
+	const everyTag = [...IPA_MENTIONS, TAG_PHYSIO_RESPI];
+	const shown = (tags: typeof everyTag, selected: string[], offered: (typeof IPA)[]) =>
+		tagCategoriesShownF(tags, selected, offered).map((c) => c.name);
+
+	it('shows the categories of the filtered tags connected to the chosen type', () => {
+		expect(shown(everyTag, [IPA.uid], [IPA, NURSE, PHYSIO])).toEqual(['mention']);
+		expect(shown(everyTag, [PHYSIO.uid], [IPA, NURSE, PHYSIO])).toEqual(['orientation']);
+	});
+
+	it('hides them for a chosen type whose filtered entries carry none, as an IPA without a mention in the chosen commune', () => {
+		expect(shown([TAG_PHYSIO_RESPI], [IPA.uid], [IPA, PHYSIO])).toEqual([]);
+		expect(shown([], [IPA.uid], [IPA])).toEqual([]);
+	});
+
+	it('with no type chosen, shows a category every offered type is connected to', () => {
+		expect(shown(IPA_MENTIONS, [], [IPA])).toEqual(['mention']);
+	});
+
+	it('with no type chosen, hides it when the filtered entries carry none of its tags', () => {
+		expect(shown([], [], [IPA])).toEqual([]);
+	});
+
+	it('keeps it hidden while an offered type is not connected to it: mentions mean nothing for an infirmier', () => {
+		expect(shown(IPA_MENTIONS, [], [IPA, NURSE])).toEqual([]);
+	});
+
+	it('shows nothing when no type is offered', () => {
+		expect(shown(everyTag, [], [])).toEqual([]);
+	});
+
+	it('knows no type or category by name', () => {
+		expect(shown(everyTag, [], [PHYSIO])).toEqual(['orientation']);
+		expect(shown(everyTag, [], [IPA, PHYSIO])).toEqual([]);
 	});
 });

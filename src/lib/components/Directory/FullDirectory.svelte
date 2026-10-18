@@ -109,7 +109,7 @@
 				{/if}
 			{/if}
 			{#if displayTag}
-				<SelectTags {tagOf} />
+				<SelectTags {tagOf} {categoryOf} />
 			{/if}
 			{#if displayFacility}
 				<SelectFacility {facilityOf} />
