@@ -39,17 +39,24 @@ SKVAR="$ROOT/src/routes/(skvar)"
 DIR="$ROOT/e2e-sites/$ctx"
 mkdir -p "$DIR"
 
+# In a test-all snapshot worktree the submodule is detached, so the branch the
+# snapshot was taken on is served from its skvar snapshot instead: the same
+# uncommitted edits, frozen.
+ref="$branch"
+[[ -n "${TEST_ALL_SKVAR_SNAPSHOT:-}" && "$branch" == "${TEST_ALL_SKVAR_BRANCH:-}" ]] \
+    && ref="$TEST_ALL_SKVAR_SNAPSHOT"
+
 if [[ "$(git -C "$SKVAR" branch --show-current)" == "$branch" ]]; then
     skvar_dir="$SKVAR"
 else
     skvar_dir="$DIR/skvar"
     if git -C "$SKVAR" worktree list --porcelain | grep -qxF "worktree $skvar_dir"; then
         # Refreshed to the branch's tip: the branch may have moved since.
-        git -C "$skvar_dir" checkout -q --force --detach "$branch"
+        git -C "$skvar_dir" checkout -q --force --detach "$ref"
     else
         rm -rf "$skvar_dir"
         git -C "$SKVAR" worktree prune
-        git -C "$SKVAR" worktree add -q --detach "$skvar_dir" "$branch"
+        git -C "$SKVAR" worktree add -q --detach "$skvar_dir" "$ref"
     fi
 fi
 

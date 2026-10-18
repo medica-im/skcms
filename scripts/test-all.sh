@@ -129,6 +129,14 @@ case " $* " in
     *" -h "*|*" --help "*|*" --list "*) TEST_ALL_LOCK=0 ;;
 esac
 
+# The run in the snapshot worktree is this same process, exec'd (see Snapshot
+# below): it holds the lock on the descriptor it inherited, and flock on a new
+# descriptor would refuse it.
+if [[ -n "${TEST_ALL_LOCK_FD:-}" ]]; then
+    LOCK_FD="$TEST_ALL_LOCK_FD"
+    TEST_ALL_LOCK=0
+fi
+
 if [[ "${TEST_ALL_LOCK:-1}" == "1" ]]; then
     # Opened >> rather than >: `>` truncates on open, which happens *before*
     # flock decides who wins — so the losing run would wipe the holder's pid and
@@ -742,6 +750,25 @@ ensure_site_server_for() {
 trap 'start_dev_server' EXIT INT TERM
 
 ensure_e2e_workers() {
+    # Reused only if they serve this run's code: workers left up by a run in
+    # another checkout — the developer's, or the snapshot worktree — answer
+    # just the same, and the scenarios would test that tree instead.
+    local i pid foreign=()
+    for ((i = 0; i < E2E_WORKERS; i++)); do
+        pid="$(pid_on_port "$((${E2E_BASE_PORT:-3100} + i))")"
+        [[ -n "$pid" && "$(readlink "/proc/$pid/cwd")" != "$FRONTEND_DIR" ]] && foreign+=("$pid")
+    done
+    if (( ${#foreign[@]} )); then
+        info "stopping ${#foreign[@]} worker dev server(s) running from another checkout"
+        kill "${foreign[@]}" 2>/dev/null
+        local alive
+        for _ in $(seq 100); do
+            alive=0
+            for pid in "${foreign[@]}"; do kill -0 "$pid" 2>/dev/null && alive=1; done
+            (( alive )) || break
+            sleep 0.1
+        done
+    fi
     if e2e_workers_ready; then
         info "reusing $E2E_WORKERS worker dev server(s)"
         return 0
@@ -768,6 +795,11 @@ suite_typecheck() {
     baseline="$(typecheck_baseline "$ctx")"
     [[ "$baseline" =~ ^[0-9]+$ ]] || { fail "no typecheck baseline for $ctx"; return 1; }
     (cd "$FRONTEND_DIR" && npx svelte-kit sync >/dev/null 2>&1)
+    # The messages are generated too, by the Vite plugin, so a checkout no dev
+    # server has run in — the snapshot worktree, fresh — has none, and every
+    # `$msgs` import fails: 369 errors against 119. Same options as the plugin.
+    (cd "$FRONTEND_DIR" && npx @inlang/paraglide-js compile --silent --project ./project.inlang \
+        --outdir "${PARAGLIDE_OUT_DIR:-./src/paraglide}" --strategy baseLocale >/dev/null 2>&1)
     # --output machine keeps the summary line stable; svelte-check otherwise
     # switches to a human summary ("found N errors") when attached to a TTY.
     out=$(cd "$FRONTEND_DIR" && npx svelte-check --output machine --threshold error 2>&1)
@@ -826,6 +858,10 @@ suite_backend() {
 }
 
 suite_bdd() {
+    # The worker servers render the checkout's skvar, and the scenarios are
+    # written against SITE_CONTEXT's. A bdd run on its own would otherwise test
+    # whichever site the checkout was on — in a snapshot, the developer's.
+    switch_context "$SITE_CONTEXT" 0 || return 1
     ensure_stack || return 1
     if [[ "$SEED_BDD_USERS" == "1" ]]; then
         info "seeding per-role test users"
@@ -934,6 +970,38 @@ if [[ ${#CONTEXTS[@]} -eq 0 ]]; then
 fi
 [[ ${#CONTEXTS[@]} -eq 0 ]] && { fail "no contexts found in dev.yml"; exit 1; }
 
+# --- Snapshot ----------------------------------------------------------------
+# The run tests the working tree as it is now, and runs it elsewhere: a
+# snapshot of every file (snapshot-tree.sh), checked out in a worktree beside
+# this one (test-worktree.sh). The checkout is then free for other work while
+# the run goes — its branch switches, generated files and servers are the
+# worktree's — and a green run names exactly the code it passed
+# (refs/test-all/last), however the tree has moved on since.
+#
+# Then this script hands over to the snapshot's own copy, so the run is that
+# code throughout, this file included. The same process, so it keeps the lock;
+# its log stays in this checkout's logs/, where `tail -f` looks for it.
+#
+# TEST_ALL_IN_PLACE=1 runs on the checkout itself, as before.
+if [[ -z "${TEST_ALL_SNAPSHOT:-}" && "${TEST_ALL_IN_PLACE:-0}" != "1" ]]; then
+    TEST_WORKTREE="${TEST_WORKTREE:-$FRONTEND_DIR-test}"
+    snapshot_vars="$(cd "$FRONTEND_DIR" && scripts/snapshot-tree.sh)" \
+        || { fail "could not snapshot the working tree"; exit 1; }
+    eval "$snapshot_vars"
+    # Kept alive by a ref, and findable: `git diff HEAD test-all/last` is what
+    # this run tests on top of HEAD.
+    git -C "$FRONTEND_DIR" update-ref refs/test-all/last "$SNAPSHOT"
+    [[ -n "$SKVAR_SNAPSHOT" ]] && \
+        git -C "$FRONTEND_DIR/src/routes/(skvar)" update-ref refs/test-all/last "$SKVAR_SNAPSHOT"
+    printf 'snapshot %s, in %s\n' "$(git -C "$FRONTEND_DIR" rev-parse --short "$SNAPSHOT")" "$TEST_WORKTREE"
+    (cd "$FRONTEND_DIR" && scripts/test-worktree.sh "$TEST_WORKTREE" "$SNAPSHOT" "$SKVAR_SNAPSHOT") \
+        || { fail "could not prepare the worktree $TEST_WORKTREE"; exit 1; }
+    export TEST_ALL_SNAPSHOT="$SNAPSHOT" TEST_ALL_SKVAR_SNAPSHOT="$SKVAR_SNAPSHOT" \
+        TEST_ALL_SKVAR_BRANCH="$SKVAR_BRANCH" TEST_ALL_LOCK_FD="${LOCK_FD:-}" \
+        TEST_ALL_LOG_DIR="${TEST_ALL_LOG_DIR:-$FRONTEND_DIR/logs}" TEST_ALL_CHECKOUT="$FRONTEND_DIR"
+    exec env FRONTEND_DIR="$TEST_WORKTREE" "$TEST_WORKTREE/scripts/test-all.sh" "$@"
+fi
+
 # --- Run log -----------------------------------------------------------------
 # Every run is written to a file as it is printed, every stage of it, so a run
 # can be followed live from another terminal (or by Claude) with
@@ -947,7 +1015,7 @@ fi
 # keeps its colours (FORCE_COLOR, since the tools now write into a pipe and
 # would otherwise drop them); the file gets them stripped, because escape
 # sequences break every grep you would run over it.
-RUN_LOG="${TEE_LOG-logs/test-all-$(date +%Y%m%d-%H%M%S).log}"
+RUN_LOG="${TEE_LOG-${TEST_ALL_LOG_DIR:-logs}/test-all-$(date +%Y%m%d-%H%M%S).log}"
 if [[ -n "$RUN_LOG" ]]; then
     [[ "$RUN_LOG" == /* ]] || RUN_LOG="$FRONTEND_DIR/$RUN_LOG"
     RUN_LOG_DIR="$(dirname "$RUN_LOG")"
@@ -987,6 +1055,15 @@ fi
 TOTAL_START=$SECONDS
 printf '%sRunning tests%s\n' "$BOLD" "$NC"
 info "frontend: $FRONTEND_DIR"
+if [[ -n "${TEST_ALL_SNAPSHOT:-}" ]]; then
+    snap_short="$(git -C "$FRONTEND_DIR" rev-parse --short "$TEST_ALL_SNAPSHOT")"
+    # snapshot-tree.sh hands back HEAD itself when nothing had changed.
+    if git -C "$FRONTEND_DIR" log -1 --format=%s "$TEST_ALL_SNAPSHOT" | grep -q '^test-all snapshot '; then
+        info "code:     snapshot $snap_short = HEAD $(git -C "$FRONTEND_DIR" rev-parse --short "$TEST_ALL_SNAPSHOT^") + $(git -C "$FRONTEND_DIR" diff --name-only "$TEST_ALL_SNAPSHOT^" "$TEST_ALL_SNAPSHOT" | wc -l) changed file(s)"
+    else
+        info "code:     commit $snap_short, nothing uncommitted"
+    fi
+fi
 info "backend:  $BACKEND_DIR"
 
 info "sites:    ${CONTEXTS[*]}"
@@ -1049,7 +1126,16 @@ switch_context() {
             "$FRONTEND_DIR/dev.yml" 2>/dev/null)"
         [[ -z "$branch" || -z "$env_file" ]] && { warn "no dev.yml entry for $ctx"; return 1; }
 
-        if ! git -C "$FRONTEND_DIR/src/routes/(skvar)" checkout -q "$branch" 2>/dev/null; then
+        # In the snapshot worktree, detached: a branch can be checked out in one
+        # worktree only, and the developer's submodule holds one. The branch the
+        # snapshot was taken on is its snapshot, uncommitted edits included.
+        local target=("$branch")
+        if [[ -n "${TEST_ALL_SNAPSHOT:-}" ]]; then
+            target=(--detach "$branch")
+            [[ "$branch" == "${TEST_ALL_SKVAR_BRANCH:-}" && -n "${TEST_ALL_SKVAR_SNAPSHOT:-}" ]] \
+                && target=(--detach "$TEST_ALL_SKVAR_SNAPSHOT")
+        fi
+        if ! git -C "$FRONTEND_DIR/src/routes/(skvar)" checkout -q "${target[@]}" 2>/dev/null; then
             warn "could not check out $branch in the skvar submodule"
             return 1
         fi
