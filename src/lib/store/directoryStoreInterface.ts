@@ -22,8 +22,11 @@ export interface Type {
     slug: string,
     synonyms: string[] | null,
     uid: string,
-    labels: string[]
+    labels: string[],
+    nature?: Nature | null
 }
+
+export type Nature = 'profession' | 'service' | 'activity';
 
 export interface TagCategory {
         uid: string;

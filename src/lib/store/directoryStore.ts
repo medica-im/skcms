@@ -193,12 +193,20 @@ export const categorizedFilteredEffectorsF = (filteredEffectors: Entry[], distan
 	return effectorsMap as CategorizedEntries;
 };
 
+const anyForm = (forms: Labels[string]['S'] | undefined) => forms?.N || forms?.M || forms?.F || undefined;
+
 export const genderedLabel = (entries: Entry[], eTL: Labels, fallback: string): string => {
+	const type: Type = entries[0].effector_type;
+	if (type.nature === 'activity') {
+		return anyForm(eTL[type.uid]?.S) ?? fallback;
+	}
+	if (type.nature === 'service') {
+		return anyForm(eTL[type.uid]?.[entries.length > 1 ? 'P' : 'S']) ?? fallback;
+	}
 	let countF = 0;
 	let countM = 0;
 	let countN = 0;
 	let countNone = 0;
-	const type: Type = entries[0].effector_type;
 	for (const e of entries) {
 		if (e.gender == 'F') countF++;
 		else if (e.gender == 'M') countM++;
