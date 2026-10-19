@@ -26,6 +26,7 @@
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
 	import type { User } from '$lib/interfaces/user.interface.ts';
+	import type { Nature } from '$lib/store/directoryStoreInterface';
 	import { base } from '$app/paths';
 
 	let {
@@ -61,7 +62,7 @@
 	let selectedCommune: { label: string; value: string } | undefined = $state(communeDefault);
 	let facilityCount: number = $state(0);
 	let department: { label: string; value: string } | undefined = $state(defaultDpt);
-	let effectorType: { label: string; value: string } | undefined = $state();
+	let effectorType: { label: string; value: string; nature?: Nature | null } | undefined = $state();
 	let effectorTypeValue = $derived(effectorType?.value);
 	let submitted: boolean = $state(false);
 	let steps = $derived([
@@ -219,7 +220,7 @@ membershipsDone: {membershipsDone}
 						>
 					</a>
 					{/if}
-					<CreateEffectorModal bind:memberships bind:effector />
+					<CreateEffectorModal bind:memberships bind:effector {effectorType} />
 				{/if}
 			</div>
 		{/if}

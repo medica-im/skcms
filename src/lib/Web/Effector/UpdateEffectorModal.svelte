@@ -1,6 +1,9 @@
 <script lang="ts">
+	import * as m from '$msgs';
 	import { page } from '$app/state';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
+	import { FIXED_GENDER, gendersFor, professionWords, type Gender } from './gender.ts';
+	import GenderHint from './GenderHint.svelte';
 	import { goto } from '$app/navigation';
 	import { invalidate } from '$app/navigation';
 	import Dialog from '$lib/Web/Dialog.svelte';
@@ -40,13 +43,19 @@
 		slug_fr: !isRequired.slug_fr,
 		gender: !isRequired.gender
 	});
+	const genders = $derived(gendersFor(data.effector_type?.nature));
+	const words = $derived(professionWords(page.data.labels, data.effector_type?.uid));
+	const genderName: Partial<Record<Gender, () => string>> = { F: m.EFFECTOR_GENDER_F, M: m.EFFECTOR_GENDER_M };
+	const initialGender: string | null = untrack(() =>
+		genders.length ? (genders.includes(data.gender as Gender) ? data.gender : null) : (data.gender ?? FIXED_GENDER)
+	);
 	let name_fr: string = $state(data.name);
 	let label_fr: string = $state(data.label);
 	let slug_fr: string = $state(data.slug);
-	let gender: string | null = $state(data.gender);
+	let gender: string | null = $state(initialGender);
 	let formResult = $derived(updateEffector.for(data.effector_uid).result);
 	let isModified: boolean = $derived(
-		name_fr != data.name || label_fr != data.label || slug_fr != data.slug || gender != data.gender
+		name_fr != data.name || label_fr != data.label || slug_fr != data.slug || gender != initialGender
 	);
 	let disabled: boolean = $derived(!!updateEffector.for(data.effector_uid).pending ||
 		!Object.values(validateForm).every((v) => v === true) ||
@@ -173,33 +182,32 @@
 							}}
 						/>
 					</label>
-					<label class="flex label place-self-start place-items-center space-x-2 w-full">
-						<span class="h4">Genre grammatical</span>
-						<!--input
-							oninput={() => {}}
-							class="input {inputClass.gender}"
-							name="gender"
-							type="text"
-							placeholder=""
-							bind:value={gender}
-						/-->
-						{#each updateEffector.for(data.effector_uid).fields.gender.issues() as issue}
-							<p class="issue">{issue.message}</p>
-						{/each}
-						<select
-							class="select {inputClass.gender} w-min"
-							name="gender"
-							size="3"
-							bind:value={gender}
-							onchange={() => {
-								validateGender(gender, inputClass, isRequired, validateForm);
-							}}
-						>
-							<option value="F">Féminin</option>
-							<option value="M">Masculin</option>
-							<option value="N">Neutre</option>
-						</select>
-					</label>
+					{#if genders.length}
+						<div class="space-y-1">
+							<label class="flex label place-self-start place-items-center space-x-2 w-full">
+								<span class="h4">{m.EFFECTOR_GENDER_LABEL()}</span>
+								{#each updateEffector.for(data.effector_uid).fields.gender.issues() as issue}
+									<p class="issue">{issue.message}</p>
+								{/each}
+								<select
+									class="select {inputClass.gender} w-min"
+									name="gender"
+									size={genders.length}
+									bind:value={gender}
+									onchange={() => {
+										validateGender(gender, inputClass, isRequired, validateForm);
+									}}
+								>
+									{#each genders as g (g)}
+										<option value={g}>{genderName[g]?.()}</option>
+									{/each}
+								</select>
+							</label>
+							<GenderHint {words} {gender} />
+						</div>
+					{:else}
+						<input type="hidden" name="gender" value={gender} />
+					{/if}
 					<div class="flex gap-8">
 						<div class="flex gap-2 items-center">
 							{#if formResult?.success || slugSuccess}

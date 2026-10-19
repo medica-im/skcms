@@ -963,5 +963,12 @@
   "BATCH_INVITEE_CHECK_TITLE": "Adresses à vérifier avant l’envoi",
   "BATCH_INVITEE_CHECK_INTRO": "Ces adresses semblent incorrectes. Corrigez le fichier, ou lancez quand même la création : elles seront signalées dans le rapport.",
   "BATCH_INVITEE_CHECK_SUGGEST": "Vouliez-vous dire {email} ?",
-  "BATCH_INVITEE_CHECK_INVALID": "Adresse invalide"
+  "BATCH_INVITEE_CHECK_INVALID": "Adresse invalide",
+  "EFFECTOR_GENDER_LABEL": "Genre grammatical",
+  "EFFECTOR_GENDER_F": "Féminin",
+  "EFFECTOR_GENDER_M": "Masculin",
+  "EFFECTOR_GENDER_WHY": "Pour écrire correctement la profession sur la fiche : {feminine} ou {masculine}.",
+  "EFFECTOR_GENDER_WHY_GENERIC": "Pour écrire correctement la profession sur la fiche.",
+  "EFFECTOR_GENDER_WHY_SAME": "Pour accorder ce qui désigne cette personne : une {word} ou un {word}.",
+  "EFFECTOR_GENDER_SHOWN": "Sur la fiche : {label}"
 }

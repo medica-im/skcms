@@ -1,3 +1,5 @@
+import type { Nature } from '$lib/store/directoryStoreInterface';
+
 export interface EffectorType {
     uid: string,
     name_fr: string,
@@ -16,6 +18,8 @@ export interface EffectorType {
     isRPPS: boolean,
     /** False for a category that only groups others ("médecin"): no entry can have it. */
     assignable: boolean,
+    /** What its entries do; null for a category, or a type not classified yet. */
+    nature: Nature | null,
     unique_ID: string|null,
     concept_en: string|null,
     concept_fr: string|null,

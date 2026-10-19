@@ -12,7 +12,8 @@ export function getTypeItems(typesV2: EffectorType[], _filterText: string) {
             synonyms: t.synonyms_fr,
             definition: t.definition_fr,
             slug: t.slug_fr,
-            labels: []
+            labels: [],
+            nature: t.nature ?? null
         }
         types.push(type)
     });
@@ -33,7 +34,7 @@ export function getItems(elements: Type[], _filterText: string) {
     ).sort(function (a, b) {
         return a.name.localeCompare(b.name);
     }).map(function (x) {
-        let dct = { value: x.uid, label: x.name };
+        let dct = { value: x.uid, label: x.name, nature: x.nature ?? null };
         return dct;
     });
 };

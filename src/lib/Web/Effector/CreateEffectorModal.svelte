@@ -12,14 +12,24 @@
 	import type { InputClass, IsRequired, ValidateForm } from '$lib/Web/Effector/validate.ts';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
 	import type { SelectType } from '$lib/interfaces/select';
+	import type { Nature } from '$lib/store/directoryStoreInterface';
+	import { FIXED_GENDER, gendersFor, professionWords, type Gender } from './gender.ts';
+	import GenderHint from './GenderHint.svelte';
 
 	let {
 		effector = $bindable(),
-		memberships = $bindable()
+		memberships = $bindable(),
+		effectorType
 	}: {
 		effector: Effector | undefined;
 		memberships: SelectType[];
+		/** The entry's type: its nature decides whether a gender is asked for. */
+		effectorType: { label: string; value: string; nature?: Nature | null } | undefined;
 	} = $props();
+
+	const genders = $derived(gendersFor(effectorType?.nature));
+	const words = $derived(professionWords(page.data.labels, effectorType?.value));
+	const genderName: Partial<Record<Gender, () => string>> = { F: m.EFFECTOR_GENDER_F, M: m.EFFECTOR_GENDER_M };
 
 	let uuid = $state(self.crypto.randomUUID());
 	let result = $derived(createEffector.for(uuid).result);
@@ -55,7 +65,7 @@
 		isMember = undefined;
 		name_fr = "";
 		label_fr = "";
-		gender = undefined;
+		gender = genders.length ? undefined : FIXED_GENDER;
 	};
 	const disabled = $derived(!!createEffector.for(uuid).pending ||result?.success || (!name_fr.length || gender==undefined) || isMember == undefined)
 </script>
@@ -125,22 +135,29 @@
 						bind:value={slug_fr}
 					/>{@render asterisk("slug_fr")}
 				</label>
-				<label class="flex label place-self-start place-items-center space-x-2 w-full">
-					<span>Genre grammatical</span>
-					{#each createEffector.for(uuid).fields.gender.issues() as issue}
-						<p class="issue text-error-500">{issue.message}</p>
-					{/each}
-					<select
-						class="select w-min"
-						name="gender"
-						size="3"
-						bind:value={gender}
-					>
-						<option value="F">Féminin</option>
-						<option value="M">Masculin</option>
-						<option value="N">Neutre</option>
-					</select>{@render asterisk("gender")}
-				</label>
+				{#if genders.length}
+					<div class="space-y-1">
+						<label class="flex label place-self-start place-items-center space-x-2 w-full">
+							<span>{m.EFFECTOR_GENDER_LABEL()}</span>
+							{#each createEffector.for(uuid).fields.gender.issues() as issue}
+								<p class="issue text-error-500">{issue.message}</p>
+							{/each}
+							<select
+								class="select w-min"
+								name="gender"
+								size={genders.length}
+								bind:value={gender}
+							>
+								{#each genders as g (g)}
+									<option value={g}>{genderName[g]?.()}</option>
+								{/each}
+							</select>{@render asterisk("gender")}
+						</label>
+						<GenderHint {words} {gender} />
+					</div>
+				{:else}
+					<input type="hidden" name="gender" value={FIXED_GENDER} />
+				{/if}
 				<label class="flex label place-self-start place-items-center space-x-2 w-full">
 					<span>Cette personne est-elle membre de {page.data.organization.formatted_name}?</span>
 					<div class="flex items-center gap-2">
