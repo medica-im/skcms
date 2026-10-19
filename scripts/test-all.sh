@@ -1308,4 +1308,23 @@ for i in "${!RESULT_NAMES[@]}"; do
     fi
 done
 printf '  %stotal %ss%s\n' "$DIM" "$((SECONDS - TOTAL_START))" "$NC"
+
+# A green snapshot run is what scripts/commit-tested.sh commits, and its note
+# says how much it vouches for: full only when every suite ran on every site,
+# nothing skipped.
+if [[ -n "${TEST_ALL_SNAPSHOT:-}" && "$exit_code" == 0 && ${#RESULT_NAMES[@]} -gt 0 ]]; then
+    sorted() { printf '%s\n' "$@" | sort | tr '\n' ' '; }
+    coverage="partial: ${SUITES[*]} on ${CONTEXTS[*]}"
+    if [[ "$(sorted "${SUITES[@]}")" == "$(sorted "${ALL_SUITES[@]}")" \
+          && "$(sorted "${CONTEXTS[@]}")" == "$(sorted $(all_contexts))" \
+          && "$SKIP_BACKEND$SKIP_FRONTEND" == "00" ]]; then
+        coverage="full"
+    fi
+    git -C "$FRONTEND_DIR" update-ref --create-reflog -m "test-all passed ($coverage)" \
+        refs/test-all/passed "$TEST_ALL_SNAPSHOT"
+    [[ -n "${TEST_ALL_SKVAR_SNAPSHOT:-}" ]] && \
+        git -C "$FRONTEND_DIR/src/routes/(skvar)" update-ref --create-reflog -m "test-all passed ($coverage)" \
+            refs/test-all/passed "$TEST_ALL_SKVAR_SNAPSHOT"
+    printf '  %sgreen (%s): scripts/commit-tested.sh commits exactly this code%s\n' "$GREEN" "$coverage" "$NC"
+fi
 exit "$exit_code"
