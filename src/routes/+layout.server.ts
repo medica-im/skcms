@@ -5,84 +5,64 @@ import { getSituationsV2 } from '$lib/store/directoryStore';
 import type { Organization } from '$lib/interfaces/organization.ts';
 import type { LayoutServerLoad } from "./$types"
 import type { User } from "$lib/interfaces/user.interface";
-import type { Entry } from '$lib/store/directoryStoreInterface';
-import type { Situation } from '$lib/store/directoryStoreInterface.ts';
 import type { Labels } from '$lib/interfaces/label.interace.ts';
 import type { Directory } from '$lib/interfaces/directory.interface.ts';
 
 export const load: LayoutServerLoad = async ({ locals, cookies, fetch, depends }) => {
   depends('app:entries');
-  let response;
-  let user: User | undefined;
-    const userUrl = `${ORIGIN}/api/v2/users/me`;
-    const request = authReq(userUrl, "GET", cookies);
+
+  const getUser = async (): Promise<User | undefined> => {
     try {
-      response = await globalThis.fetch(request);
+      const response = await globalThis.fetch(authReq(`${ORIGIN}/api/v2/users/me`, "GET", cookies));
       if (!response.ok) {
         throw new Error(`Response status: ${response.status}`);
       }
-      user = await response.json();
+      const user = await response.json();
       console.log("user layout.server.ts", user);
+      return user;
     } catch (error: any) {
       console.error('There was an error while retrieving user from layout.server.ts', error.message);
     }
-  // here retrieving entries with auth works with http://localhost and pnpm run dev
-  let entries: Entry[] | undefined = await getEntries(globalThis.fetch, cookies);
+  };
 
-  let organization;
-  const orgUrl = `${ORIGIN}/api/v2/organization`;
-  try {
-    response = await fetch(orgUrl, {
-      credentials: 'include',
-      method: 'GET',
-      headers: { "content-type": "application/json" },
-    })
-    if (!response.ok) {
-      throw new Error(`Response status: ${response.status}`);
+  const getJson = async <T>(url: string, what: string): Promise<T | undefined> => {
+    try {
+      const response = await fetch(url, {
+        credentials: 'include',
+        method: 'GET',
+        headers: { "content-type": "application/json" },
+      });
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+      return await response.json() as T;
+    } catch (error: any) {
+      console.error(`${what} from layout.server.ts ${error.message}`);
     }
-    organization = await response.json() as Organization;
-  } catch (error: any) {
-    console.error(`organization from layout.server.ts ${error.message}`);
-  }
+  };
 
-  let directory;
-  const dirUrl = `${ORIGIN}/api/v1/directory/`;
-  try {
-    response = await fetch(dirUrl, {
-      credentials: 'include',
-      method: 'GET',
-      headers: { "content-type": "application/json" },
-    })
-    if (!response.ok) {
-      throw new Error(`Response status: ${response.status}`);
-    }
-    directory = await response.json() as Directory;
-  } catch (error: any) {
-    console.error(`directory from layout.server.ts ${error.message}`);
-  }
+  const directoryAndSituations = getJson<Directory>(`${ORIGIN}/api/v1/directory/`, 'directory').then(async (directory) => ({
+    directory,
+    // globalThis.fetch, not SvelteKit's event fetch, for the same reason as
+    // entries below: the event fetch's same-origin check compares against the
+    // scheme Vite itself sees, which does not account for TLS terminated by a
+    // proxy in front of it.
+    situations: directory?.inputField.situation ? await getSituationsV2(globalThis.fetch) : undefined,
+  }));
 
-  let labels;
-  try {
-    response = await fetch(`${ORIGIN}/api/v2/effector-type-labels`);
-    if (!response.ok) {
-      throw new Error(`Response status: ${response.status}`);
-    }
-    labels = await response.json() as Labels;
-  } catch (error: any) {
-    console.error(`labels from layout.server.ts ${error.message}`);
-  }
-
-  // globalThis.fetch, not SvelteKit's event fetch, for the same reason as
-  // entries above: the event fetch's same-origin check compares against the
-  // scheme Vite itself sees, which does not account for TLS terminated by a
-  // proxy in front of it.
-  let situations: Situation[] | undefined = directory?.inputField.situation
-    ? await getSituationsV2(globalThis.fetch)
-    : undefined;
+  const [user, entries, organization, { directory, situations }, labels, session] = await Promise.all([
+    getUser(),
+    // here retrieving entries with auth works with http://localhost and pnpm run dev
+    getEntries(globalThis.fetch, cookies),
+    getJson<Organization>(`${ORIGIN}/api/v2/organization`, 'organization'),
+    directoryAndSituations,
+    getJson<Labels>(`${ORIGIN}/api/v2/effector-type-labels`, 'labels'),
+    locals.auth(),
+  ]);
 
   return {
     user: user,
-    session: await locals.auth(),
+    session: session,
     organization: organization,
     directory: directory,
     entries: entries,
