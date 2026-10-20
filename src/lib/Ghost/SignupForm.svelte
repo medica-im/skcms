@@ -16,7 +16,7 @@
 		GhostAddMemberError
 	} from '$lib/interfaces/ghost.interface';
 
-	let { data }: { data: GhostSiteResponse } = $props();
+	let { data }: { data: GhostSiteResponse | null } = $props();
 
 	let triggered: boolean = $state(false);
 	const modalStore = getModalStore();

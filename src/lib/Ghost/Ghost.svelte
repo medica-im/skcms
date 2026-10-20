@@ -8,7 +8,7 @@
 
 	let { data, ghost }: {
   data: any,
-  ghost: GhostSiteResponse,
+  ghost: GhostSiteResponse | null,
 } = $props();
 
 const ghostData: GhostSite|null = ghost?.success ? ghost.data : null;
