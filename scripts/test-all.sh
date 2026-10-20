@@ -854,7 +854,15 @@ suite_typecheck() {
     if (( count > baseline )); then
         # Only the errors in files this site owns are worth printing: the
         # backlog is long, and the new ones are what the reader needs.
-        printf '%s\n' "$out" | grep -E 'ERROR' | head -20
+        local owned
+        owned=$(printf '%s\n' "$out" | grep -F ' ERROR "src/routes/(skvar)/')
+        if [[ -n "$owned" ]]; then
+            info "errors in files $ctx owns:"
+            printf '%s\n' "$owned"
+        else
+            info "no error in files $ctx owns; the first 20 of all:"
+            printf '%s\n' "$out" | grep -E 'ERROR' | head -20
+        fi
         warn "error count rose above the baseline for $ctx"
         return 1
     fi
