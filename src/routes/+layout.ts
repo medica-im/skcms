@@ -76,5 +76,6 @@ export const load: LayoutLoad = async ({ fetch, data, depends }) => {
     // dropped — which is how `theme` reached __data.json but never
     // `page.data`, leaving the switcher with nothing to seed itself from.
     theme: data.theme,
+    dismissedAlerts: data.dismissedAlerts,
   };
 }

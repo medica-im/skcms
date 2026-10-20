@@ -1,14 +1,19 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import { page } from '$app/state';
 	import Fa from 'svelte-fa';
 	import { faXmark } from '@fortawesome/free-solid-svg-icons';
+	import { dismissedCookie } from './dismissed';
 
 	let {
-		visible = $bindable(true),
+		id,
+		visible = $bindable(!(id && page.data.dismissedAlerts?.includes(id))),
 		variant = 'variant-ghost-primary',
 		onclose,
 		children
 	}: {
+		/** Closing is kept in a cookie under this id, so the server leaves the alert out. */
+		id?: string;
 		visible?: boolean;
 		variant?: string;
 		onclose?: () => void;
@@ -21,6 +26,7 @@
 		);
 		if (!confirmed) return;
 		visible = false;
+		if (id) document.cookie = dismissedCookie(page.data.dismissedAlerts ?? [], id, location.protocol === 'https:');
 		onclose?.();
 	}
 </script>

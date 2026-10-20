@@ -31,10 +31,10 @@ const answer = (path: string, body: unknown, status = 200) => held.find((h) => h
 
 const INDEPENDENT = ['/api/v2/users/me', '/api/v2/entries', '/api/v2/organization', '/api/v1/directory/', '/api/v2/effector-type-labels'];
 
-const event = () =>
+const event = (dismissed?: string) =>
 	({
 		fetch: fakeFetch,
-		cookies: { getAll: () => [], get: () => undefined },
+		cookies: { getAll: () => [], get: (name: string) => (name === 'dismissed-alerts' ? dismissed : undefined) },
 		depends: () => {},
 		locals: {
 			theme: 'light',
@@ -93,6 +93,14 @@ describe('the root layout’s data', () => {
 		answer('/api/v2/situations', [{ uid: 's1' }]);
 
 		expect(((await loading) as Record<string, unknown>).situations).toEqual([{ uid: 's1' }]);
+	});
+
+	it('tells every page which alerts the visitor has closed, read from their cookie', async () => {
+		const loading = load(event('association-alert-v1'));
+		await vi.waitFor(() => expect(started()).toEqual(expect.arrayContaining(INDEPENDENT)), { timeout: 1000 });
+		answerAll();
+
+		expect(((await loading) as Record<string, unknown>).dismissedAlerts).toEqual(['association-alert-v1']);
 	});
 
 	it('keeps the rest when one request fails', async () => {
