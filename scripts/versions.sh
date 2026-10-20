@@ -242,10 +242,8 @@ fi
 # matches one, so what is up to date reads at a glance down the columns.
 if [[ -n "${FORCE_COLOR:-}" || ( -t 1 && -z "${NO_COLOR:-}" ) ]]; then
     B=$'\e[1m' D=$'\e[2m' R=$'\e[31m' G=$'\e[32m' Y=$'\e[33m' T=$'\e[1;32m' X=$'\e[0m'
-    LINKS=1
 else
     B='' D='' R='' G='' Y='' T='' X=''
-    LINKS=0
 fi
 COLS="${COLUMNS:-$(tput cols 2>/dev/null || echo 120)}"
 
@@ -256,19 +254,15 @@ pad() { # text width — pads or cuts to exactly width characters
 }
 rule() { local n="$1" s; printf -v s '%*s' "$n" ''; printf '%s' "${s// /─}"; }
 
-# A component's name, padded, and a terminal hyperlink (OSC 8) to where the
-# site answers when it has one.
-name_cell() {
-    local text url name
-    text="$(pad "$1" "$W_COMP")"
+# A site is shown as the whole URL where it answers: a terminal opens a plain
+# https:// URL, while OSC 8 hyperlinks are ignored by many (QTerminal among
+# them). The column is as wide as the longest, since a cut URL opens elsewhere.
+label_of() {
+    local url
     url="$(awk -F'\t' -v n="$1" '$1 == n { print $5; exit }' "$work/entries")"
-    if (( LINKS )) && [[ -n "$url" ]]; then
-        name="${text%"${text##*[! ]}"}"
-        printf '\e]8;;%s\e\\%s\e]8;;\e\\%s' "$url" "$name" "${text:${#name}}"
-    else
-        printf '%s' "$text"
-    fi
+    printf '%s' "${url:-$1}"
 }
+name_cell() { pad "$(label_of "$1")" "$W_COMP"; }
 
 state_text() { # state dirty behind skvar_behind
     local parts=()
@@ -289,8 +283,13 @@ state_color() {
     case "$1" in current) printf '%s' "$G" ;; behind) printf '%s' "$Y" ;; not-running) printf '%s' "$D" ;; *) printf '%s' "$R" ;; esac
 }
 
-W_COMP=26 W_HOST=18 W_SHA=7 W_STATE=18 W_WHEN=16
-fixed=$(( 2 + W_COMP + 1 + W_HOST + 1 + W_SHA + 1 + W_SHA + 2 + W_STATE + 1 + W_WHEN + 1 ))
+W_COMP=9
+while IFS=$'\t' read -r _ comp _; do
+    label="$(label_of "$comp")"
+    (( ${#label} > W_COMP )) && W_COMP=${#label}
+done <"$work/rows"
+W_SHA=7 W_STATE=18 W_WHEN=16
+fixed=$(( 2 + W_COMP + 1 + W_SHA + 1 + W_SHA + 2 + W_STATE + 1 + W_WHEN + 1 ))
 W_SUBJ=$(( COLS - fixed )); (( W_SUBJ < 20 )) && W_SUBJ=20
 
 fe_label="skcms $FRONTEND_TIP" be_label="backend $BACKEND_TIP"
@@ -305,22 +304,33 @@ echo
 tip_line tips "$fe_label" "$FRONTEND_DIR" "$FRONTEND_TIP"
 tip_line '' "$be_label" "$BACKEND_DIR" "$BACKEND_TIP"
 
-for env in dev staging production; do
-    grep -q "^$env"$'\t' "$work/rows" || continue
-    printf '\n %s╭─ %s%s%s %s%s\n' "$D" "$X$B" "$env" "$X$D" "$(rule $(( COLS - 6 - ${#env} )))" "$X"
-    printf ' %s│%s %s%s %s %s %s  %s %s %s%s\n' "$D" "$X" "$D" \
-        "$(pad component $W_COMP)" "$(pad host $W_HOST)" "$(pad commit $W_SHA)" "$(pad skvar $W_SHA)" \
+# One box per host, so two machines of one environment are never mistaken for
+# one: dev, then each environment's hosts, the one named like it first.
+boxes() {
+    local env
+    printf 'dev\t\n'
+    for env in staging production; do
+        awk -F'\t' -v e="$env" '$1 == e && !seen[$3]++ { split($3, p, "."); print (p[1] == e ? 0 : 1) "\t" NR "\t" $3 }' \
+            "$work/rows" | sort -t$'\t' -k1,1n -k2,2n | cut -f3 | sed "s/^/$env\t/"
+    done
+}
+
+while IFS=$'\t' read -r env box; do
+    title="$env"
+    [[ -n "$box" && "${box%%.*}" != "$env" ]] && title="$env · ${box%%.*}"
+    printf '\n %s╭─ %s%s%s %s%s\n' "$D" "$X$B" "$title" "$X$D" "$(rule $(( COLS - 6 - ${#title} )))" "$X"
+    printf ' %s│%s %s%s %s %s  %s %s %s%s\n' "$D" "$X" "$D" \
+        "$(pad component $W_COMP)" "$(pad commit $W_SHA)" "$(pad skvar $W_SHA)" \
         "$(pad state $W_STATE)" "$(pad deployed $W_WHEN)" "subject" "$X"
     while IFS=$'\t' read -r e comp host commit skvar dirty b sb state deployed subj; do
-        [[ "$e" == "$env" ]] || continue
+        [[ "$e" == "$env" && ( -z "$box" || "$host" == "$box" ) ]] || continue
         [[ "$skvar" == - ]] && skvar=''
         [[ "$commit" == - ]] && commit=''
         ccol='' scol=''
         [[ "$b" == 0 ]] && ccol="$T"
         [[ "$sb" == 0 && -n "$skvar" ]] && scol="$T"
-        printf ' %s│%s %s%s%s %s%s%s %s%s%s %s%s%s  %s%s%s %s%s%s %s\n' "$D" "$X" \
+        printf ' %s│%s %s%s%s %s%s%s %s%s%s  %s%s%s %s%s%s %s\n' "$D" "$X" \
             "$B" "$(name_cell "$comp")" "$X" \
-            "$D" "$(pad "$host" $W_HOST)" "$X" \
             "$ccol" "$(pad "$commit" $W_SHA)" "$X" \
             "$scol" "$(pad "$skvar" $W_SHA)" "$X" \
             "$(state_color "$state")" "$(pad "$(state_text "$state" "$dirty" "$b" "$sb")" $W_STATE)" "$X" \
@@ -328,5 +338,5 @@ for env in dev staging production; do
             "$(pad "$subj" "$W_SUBJ")"
     done <"$work/rows"
     printf ' %s╰%s%s\n' "$D" "$(rule $(( COLS - 3 )))" "$X"
-done
+done < <(boxes)
 echo

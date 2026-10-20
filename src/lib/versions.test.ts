@@ -347,12 +347,41 @@ describe('versions.sh: the display', () => {
 		expect(paintedInTable(short(b1))).toBe(false);
 	});
 
-	it("links each site's name to where it answers: its origin, or https://<name>", () => {
-		const link = (url: string, text: string) => `\x1b]8;;${url}\x1b\\${text}\x1b]8;;\x1b\\`;
-		const out = runWith({ FORCE_COLOR: '1' });
-		expect(out).toContain(link('https://site.fr', 'site.fr'));
-		expect(out).toContain(link('https://staging.example.org/annuaire', 'staging.site.fr'));
-		expect(run()).not.toContain('\x1b]8;;');
+	it('shows each site as the whole URL where it answers, which any terminal can open', () => {
+		const table = run()
+			.split('\n')
+			.filter((l) => l.includes('│'));
+		const first = (url: string) => table.some((l) => l.startsWith(` │ ${url} `));
+		expect(first('https://site.fr')).toBe(true);
+		expect(first('https://staging.example.org/annuaire')).toBe(true);
+		expect(runWith({ FORCE_COLOR: '1' })).not.toContain('\x1b]8;;');
+	});
+
+	it('boxes each host apart, the one named like its environment first', () => {
+		writeFileSync(
+			join(dir, 'images.yml'),
+			`${IMAGES_YML}  - name: other.fr
+    skvar_branch: site.fr
+    tag: ghcr.io/medica-im/other.fr:latest
+    host: other.example.org
+`.replace(/host: prod$/m, 'host: production')
+		);
+		host('other.example.org', [
+			{ image: `${BACKEND}:latest`, digest: 1 },
+			{ image: 'ghcr.io/medica-im/other.fr:latest', digest: 10 }
+		]);
+		host('production', [{ image: 'ghcr.io/medica-im/site.fr:latest', digest: 10 }]);
+		const boxes = run()
+			.split('╭─ ')
+			.slice(1)
+			.map((b) => ({ title: b.split(' ─')[0], body: b }));
+		expect(boxes.map((b) => b.title)).toEqual(['dev', 'staging · stage', 'production', 'production · other']);
+		const box = (title: string) => boxes.find((b) => b.title === title)?.body ?? '';
+		expect(box('production')).toContain('https://site.fr');
+		expect(box('production')).not.toContain('https://other.fr');
+		expect(box('production · other')).toContain('https://other.fr');
+		expect(box('production · other')).toContain(short(b1));
+		expect(row('production', 'other.fr').host).toBe('other.example.org');
 	});
 
 	it('gives each tip its commit and subject', () => {
