@@ -4,6 +4,12 @@ set -euo pipefail
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 DEV_FILE="${DEV_FILE:-$REPO_ROOT/dev.yml}"
 SUBMODULE_PATH="src/routes/(skvar)"
+SKVAR_DIR="${SKVAR_DIR:-$REPO_ROOT/$SUBMODULE_PATH}"
+ENV_LINK="${ENV_LINK:-$REPO_ROOT/.env}"
+# The test servers the status names: scripts/e2e-workers.sh's, one per worker
+# from 3100, and test-all's site servers on each site's dev port + 200.
+E2E_PORTS="${E2E_PORTS:-3100-3131}"
+TEST_ALL_PORT_OFFSET="${TEST_ALL_PORT_OFFSET:-200}"
 BACKEND_DIR="${BACKEND_DIR:-$REPO_ROOT/../backend}"
 BACKEND_COMPOSE_FILE="${BACKEND_COMPOSE_FILE:-docker-compose-development.yml}"
 # Each context declares its own port in dev.yml (see the note there); DEV_PORT
@@ -16,6 +22,11 @@ NGINX_PORT_MAP="${NGINX_PORT_MAP:-$REPO_ROOT/scripts/nginx/dev-site-ports.conf}"
 usage() {
     echo "Usage: $0 <name>"
     echo "       $0 --list"
+    echo "       $0"
+    echo
+    echo "With no name: which dev server is running, the .env and skvar branch"
+    echo "in place (warning when they are not that server's), and the test"
+    echo "servers left running."
     echo
     echo "Switches to the dev context described by <name> in $DEV_FILE:"
     echo "checks out the entry's development_skvar_branch in $SUBMODULE_PATH,"
@@ -29,7 +40,7 @@ usage() {
     echo "would serve the route manifest of the branch it booted with, which"
     echo "renders fine and then dies on hydration."
     echo
-    echo "  --list     print the available context names and exit"
+    echo "  --list     print the contexts and their ports, marking the one running"
     echo "  --restart  accepted for older callers; restarting is the default"
 }
 
@@ -38,16 +49,113 @@ if ! command -v yq >/dev/null 2>&1; then
     exit 1
 fi
 
+ORANGE='\033[0;33m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+# --- What is running ---------------------------------------------------------
+# Every listening TCP port and the pid holding it, read once. "?" when the
+# holder belongs to another user: ss shows no pid then.
+declare -A LISTENERS=()
+read_listeners() {
+    local local_addr users port pid
+    while read -r _ _ _ local_addr _ users; do
+        port="${local_addr##*:}"
+        pid=$(grep -oP 'pid=\K[0-9]+' <<<"$users" | head -1 || true)
+        [[ -z "${LISTENERS[$port]:-}" || "${LISTENERS[$port]}" == "?" ]] && LISTENERS[$port]="${pid:-?}"
+    done < <(ss -ltnpH 2>/dev/null || true)
+}
+
+# A port is a dev server's only if Vite holds it: anything else is "busy".
+vite_pid() {
+    local pid="${LISTENERS[$1]:-}"
+    [[ -n "$pid" && "$pid" != "?" ]] && ps -o args= -p "$pid" 2>/dev/null | grep -q vite && echo "$pid"
+    return 0
+}
+
+uptime_of() { ps -o etime= -p "$1" 2>/dev/null | tr -d ' '; }
+
+port_state() {
+    local pid="${LISTENERS[$1]:-}" vite
+    [[ -z "$pid" ]] && return 0
+    vite=$(vite_pid "$1")
+    if [[ -n "$vite" ]]; then
+        echo "● running (pid $vite, up $(uptime_of "$vite"))"
+    elif [[ "$pid" == "?" ]]; then
+        echo "busy (another user's process)"
+    else
+        echo "busy (pid $pid: $(ps -o comm= -p "$pid" 2>/dev/null))"
+    fi
+}
+
+contexts_tsv() { yq -r '.contexts[] | [.name, (.port // ""), .env_file, .development_skvar_branch] | @tsv' "$DEV_FILE"; }
+
+list_contexts() {
+    read_listeners
+    local name port
+    while IFS=$'\t' read -r name port _ _; do
+        printf '%-10s %-6s %s\n' "$name" "$port" "$(port_state "$port")" | sed 's/ *$//'
+    done < <(contexts_tsv)
+}
+
+show_status() {
+    read_listeners
+    local name port env_file branch pid
+    local running="" running_port="" running_branch="" env_name="" skvar_name="" tests=()
+    local env_target skvar_branch
+    env_target=$(readlink "$ENV_LINK" 2>/dev/null || true)
+    skvar_branch=$(git -C "$SKVAR_DIR" branch --show-current 2>/dev/null || true)
+
+    while IFS=$'\t' read -r name port env_file branch; do
+        [[ "$env_file" == "${env_target##*/}" ]] && env_name="$name"
+        [[ "$branch" == "$skvar_branch" && -z "$skvar_name" ]] && skvar_name="$name"
+        [[ -z "$port" ]] && continue
+        pid=$(vite_pid "$port")
+        if [[ -n "$pid" && -z "$running" ]]; then
+            running="$name"; running_port="$port"; running_branch="$branch"
+            echo "running:  $name on :$port (pid $pid, up $(uptime_of "$pid"))"
+        fi
+        pid=$(vite_pid "$((port + TEST_ALL_PORT_OFFSET))")
+        [[ -n "$pid" ]] && tests+=(":$((port + TEST_ALL_PORT_OFFSET)) (test-all $name)")
+    done < <(contexts_tsv)
+    [[ -z "$running" ]] && echo "running:  none"
+
+    echo ".env   -> ${env_target:-(none)}${env_name:+ ($env_name)}"
+    echo "skvar  :  ${skvar_branch:-(detached)}${skvar_name:+ ($skvar_name)}"
+
+    for port in $(seq "${E2E_PORTS%-*}" "${E2E_PORTS#*-}"); do
+        [[ -n "$(vite_pid "$port")" ]] && tests=(":$port (e2e worker)" "${tests[@]}")
+    done
+    if [[ ${#tests[@]} -gt 0 ]]; then
+        local joined
+        joined=$(printf ', %s' "${tests[@]}")
+        echo "test   :  ${joined:2}"
+    fi
+
+    # Vite reads .env when it starts, and the routes come from the skvar
+    # checkout: a server that disagrees with either renders one site with the
+    # other's settings or routes, then dies on hydration.
+    if [[ -n "$running" ]]; then
+        [[ "$env_name" != "$running" ]] &&
+            echo -e "${ORANGE}warning: .env is ${env_name:-${env_target:-missing}}'s, the server on :$running_port is $running — run ./scripts/dev.sh $running to restart it with its own${NC}"
+        [[ "$skvar_branch" != "$running_branch" ]] &&
+            echo -e "${ORANGE}warning: skvar is on ${skvar_branch:-a detached HEAD}, $running develops on $running_branch — run ./scripts/dev.sh $running${NC}"
+    fi
+    return 0
+}
+
 if [[ $# -lt 1 ]]; then
+    show_status
+    echo
     usage
-    exit 1
+    exit 0
 fi
 
 ARGS=()
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --list)
-            yq -r '.contexts[].name' "$DEV_FILE"
+            list_contexts
             exit 0
             ;;
         --restart) shift ;;
@@ -84,10 +192,6 @@ if [[ -z "$DEV_PORT" ]]; then
     echo "Add a 'port:' to it, matching $NGINX_PORT_MAP." >&2
     exit 1
 fi
-
-ORANGE='\033[0;33m'
-GREEN='\033[0;32m'
-NC='\033[0m'
 
 # dev.yml says which port to start on; the nginx map says where dev.<site>
 # sends the browser. When they disagree the site is simply unreachable — nginx
@@ -133,15 +237,15 @@ echo "==> [$NAME] Checking backend services in $BACKEND_DIR"
 cd "$REPO_ROOT"
 
 echo "==> [$NAME] Checking out skvar branch: $DEV_BRANCH"
-git -C "$SUBMODULE_PATH" fetch origin "$DEV_BRANCH"
-git -C "$SUBMODULE_PATH" checkout "$DEV_BRANCH"
+git -C "$SKVAR_DIR" fetch origin "$DEV_BRANCH"
+git -C "$SKVAR_DIR" checkout "$DEV_BRANCH"
 
 # --ff-only rather than a bare pull: switching sites takes what the remote
 # holds and should never merge. A bare `git pull` asks git to reconcile, and
 # git refuses outright when neither pull.rebase nor pull.ff is configured —
 # "Need to specify how to reconcile divergent branches" — which is a confusing
 # way to fail at what is meant to be a one-word site switch.
-if ! git -C "$SUBMODULE_PATH" merge --ff-only "origin/$DEV_BRANCH"; then
+if ! git -C "$SKVAR_DIR" merge --ff-only "origin/$DEV_BRANCH"; then
     echo "error: skvar $DEV_BRANCH cannot fast-forward to origin/$DEV_BRANCH." >&2
     echo "       The local branch has commits the remote does not — push them," >&2
     echo "       or reset if they are not wanted, then run this again." >&2
@@ -149,8 +253,8 @@ if ! git -C "$SUBMODULE_PATH" merge --ff-only "origin/$DEV_BRANCH"; then
 fi
 
 echo "==> [$NAME] Checking $PROD_BRANCH against $DEV_BRANCH"
-git -C "$SUBMODULE_PATH" fetch origin "$PROD_BRANCH"
-AHEAD=$(git -C "$SUBMODULE_PATH" rev-list --count "$DEV_BRANCH..origin/$PROD_BRANCH")
+git -C "$SKVAR_DIR" fetch origin "$PROD_BRANCH"
+AHEAD=$(git -C "$SKVAR_DIR" rev-list --count "$DEV_BRANCH..origin/$PROD_BRANCH")
 if [[ "$AHEAD" -gt 0 ]]; then
     echo -e "${ORANGE}==> [$NAME] warning: $PROD_BRANCH is $AHEAD commit(s) ahead of $DEV_BRANCH${NC}"
 else
@@ -158,7 +262,7 @@ else
 fi
 
 echo "==> [$NAME] Linking $ENV_FILE -> .env"
-ln -sf "$ENV_FILE" .env
+ln -sf "$ENV_FILE" "$ENV_LINK"
 
 # Vite prebundles dependencies that ship raw .svelte source, and does not
 # reliably invalidate them when the Svelte version changes. It then serves
