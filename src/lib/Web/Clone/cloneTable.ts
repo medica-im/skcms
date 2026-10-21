@@ -79,14 +79,6 @@ export function sortEntries(
 	});
 }
 
-/** The slice to show, and how many pages there are. */
-export function paginate<T>(rows: T[], page: number, size: number) {
-	const total = Math.max(1, Math.ceil(rows.length / Math.max(1, size)));
-	const current = Math.min(Math.max(1, page), total);
-	const start = (current - 1) * size;
-	return { rows: rows.slice(start, start + size), page: current, pages: total };
-}
-
 /**
  * Whether every selectable entry on this page is already ticked.
  *

@@ -1,9 +1,10 @@
 <script lang="ts">
 	import {
-		sortEntries, paginate, lastModifiedOf, addressLine, allSelected,
+		sortEntries, lastModifiedOf, addressLine, allSelected,
 		DEFAULT_PAGE_SIZE,
 		type SourceEntry, type CloneSortColumn, type SortDirection
 	} from './cloneTable';
+	import { paginate } from '$lib/utils/paginate';
 
 	/**
 	 * The source instance's entries, to pick from.
