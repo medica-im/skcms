@@ -3,6 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { ORIGIN } from '$lib/utils/origin.ts';
 	import { addressCheckWords } from '$lib/Invitee/emailDelivery';
+	import BatchProgressBar, { type BatchPhase } from '$lib/Invitee/BatchProgressBar.svelte';
 	import Fa from 'svelte-fa';
 	import {
 		faArrowLeft,
@@ -78,6 +79,9 @@
 		skipped_duplicate_email_count: 0,
 		skipped_active_user_count: 0,
 		failed_email_count: 0,
+		phase: 'creating' as BatchPhase,
+		emails_total: 0,
+		emails_processed: 0,
 		percentage: 0
 	});
 	let summary: any[] = $state([]);
@@ -257,6 +261,7 @@
 				const data = await response.json();
 				summary = data.summary || [];
 				progress = {
+					...progress,
 					status: data.status,
 					total_rows: data.total_rows,
 					processed_rows: data.processed_rows,
@@ -541,19 +546,7 @@
 				{m.BATCH_INVITEE_PROCESSING()}
 			</h3>
 
-			<!-- Progress bar -->
-			<div>
-				<div class="flex justify-between text-sm mb-1">
-					<span>{m.BATCH_INVITEE_PROGRESS()}</span>
-					<span>{progress.processed_rows} / {progress.total_rows} ({progress.percentage}%)</span>
-				</div>
-				<div class="w-full bg-surface-300 rounded-full h-4">
-					<div
-						class="bg-primary-500 h-4 rounded-full transition-all duration-300"
-						style="width: {progress.percentage}%"
-					></div>
-				</div>
-			</div>
+			<BatchProgressBar {progress} />
 
 			<!-- Live counters -->
 			<div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
