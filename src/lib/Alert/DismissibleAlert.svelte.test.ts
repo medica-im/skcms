@@ -37,4 +37,17 @@ describe('DismissibleAlert', () => {
 		await expect.element(page.getByText('Les inscriptions sont ouvertes.')).not.toBeInTheDocument();
 		expect(document.cookie).toContain('dismissed-alerts=closed-before,association-alert-v1');
 	});
+
+	it('closes without asking when the alert is only a result to acknowledge', async () => {
+		// The warning about cookies suits an announcement closed for good; a
+		// reminder's report is read once and done with.
+		const ask = vi.spyOn(window, 'confirm');
+		render(DismissibleAlert, { id: 'resend-job-1', confirmClose: false, children });
+
+		await page.getByRole('button', { name: 'Fermer' }).click();
+
+		await expect.element(page.getByText('Les inscriptions sont ouvertes.')).not.toBeInTheDocument();
+		expect(ask).not.toHaveBeenCalled();
+		expect(document.cookie).toContain('resend-job-1');
+	});
 });

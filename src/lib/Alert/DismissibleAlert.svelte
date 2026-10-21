@@ -9,6 +9,7 @@
 		id,
 		visible = $bindable(!(id && page.data.dismissedAlerts?.includes(id))),
 		variant = 'variant-ghost-primary',
+		confirmClose = true,
 		onclose,
 		children
 	}: {
@@ -16,14 +17,18 @@
 		id?: string;
 		visible?: boolean;
 		variant?: string;
+		/** Warn that the alert will not come back; off for a result read once. */
+		confirmClose?: boolean;
 		onclose?: () => void;
 		children: Snippet;
 	} = $props();
 
 	function close() {
-		const confirmed = confirm(
-			"Cette alerte n'apparaîtra plus lors de vos prochaines visites. Vous pourrez effacer les cookies et les données de sites sur votre appareil pour la faire réapparaître."
-		);
+		const confirmed =
+			!confirmClose ||
+			confirm(
+				"Cette alerte n'apparaîtra plus lors de vos prochaines visites. Vous pourrez effacer les cookies et les données de sites sur votre appareil pour la faire réapparaître."
+			);
 		if (!confirmed) return;
 		visible = false;
 		if (id) document.cookie = dismissedCookie(page.data.dismissedAlerts ?? [], id, location.protocol === 'https:');
