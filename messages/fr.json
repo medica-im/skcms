@@ -110,6 +110,17 @@
   "PAGINATION_NEXT": "Suivant",
   "PAGINATION_PAGE": "Page {page} / {pages}",
   "PAGINATION_PER_PAGE": "Par page",
+  "BATCH_INVITEE_KIND_RESEND": "Relance",
+  "BATCH_JOB_PENDING": "En attente",
+  "BATCH_JOB_FAILED": "Échec",
+  "REMINDER_COMPLETED": "Relance terminée",
+  "REMINDER_CANCELLED": "Relance arrêtée",
+  "REMINDER_LOGS_TITLE": "Historique des relances",
+  "REMINDER_LOGS_EMPTY": "Aucune relance pour l’instant.",
+  "BATCH_INVITEE_ROW_RESENT": "Relancée",
+  "BATCH_INVITEE_ROW_MISSING": "Introuvable",
+  "BATCH_INVITEE_RESEND_SENT": "Envoyés",
+  "BATCH_INVITEE_RESEND_SKIPPED": "Ignorés",
   "BATCH_INVITEE_PHASE_CREATING": "Création des invitations",
   "BATCH_INVITEE_PHASE_SENDING": "Envoi des e-mails",
   "BATCH_INVITEE_ROLE": "Rôle pour tous les invités",
@@ -942,6 +953,61 @@
   "INVITEE_RESEND_REJECTED_CONFIRM": "Cette adresse a été rejetée le {date}. Renvoyer quand même ?",
   "INVITEE_RESEND_ANYWAY": "Renvoyer quand même",
   "INVITEE_RESEND_OPTED_OUT": "La personne a refusé les e-mails de cette organisation : l’invitation ne peut pas lui être renvoyée.",
+  "INVITATION_SETTINGS_TITLE": "Réglages des invitations",
+  "INVITATION_SETTINGS_RESEND_AFTER": "Délai avant relance, en jours",
+  "INVITATION_SETTINGS_RESEND_AFTER_HINT": "Lors d’une relance, une invitation en attente n’est cochée d’office que si son dernier e-mail date d’au moins ce nombre de jours : on évite ainsi d’écrire de nouveau à quelqu’un qu’on vient de joindre.",
+  "INVITATION_SETTINGS_SAVE": "Enregistrer",
+  "INVITATION_SETTINGS_SAVED": "Réglages enregistrés.",
+  "INVITATION_SETTINGS_FAILED": "L’enregistrement a échoué.",
+  "INVITEE_RESEND_MODE_BUTTON": "Relancer",
+  "INVITEE_RESEND_MODE_TITLE": "Relancer les invitations en attente",
+  "INVITEE_RESEND_MODE_HINT": "Les invitations relancées il y a moins de {days} jours restent décochées. Celles en cours d’envoi ou dont l’adresse est à vérifier ne peuvent pas être relancées d’ici.",
+  "INVITEE_RESEND_ONLY_EXCLUDED": "Voir seulement les non cochées",
+  "INVITEE_RESEND_SEND": "Renvoyer ({count})",
+  "INVITEE_RESEND_SELECT": "Relancer {email}",
+  "INVITEE_RESEND_REASON_QUEUED": "Envoi en cours",
+  "INVITEE_RESEND_REASON_ADDRESS": "Adresse à vérifier",
+  "INVITEE_RESEND_REASON_RECENT": "Déjà envoyée",
+  "INVITEE_RESEND_CONFIRM_TITLE": "Relancer les invitations",
+  "INVITEE_RESEND_CONFIRM_COUNT": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "{count} e-mail va partir.",
+        "countPlural=other": "{count} e-mails vont partir."
+      }
+    }
+  ],
+  "INVITEE_RESEND_CONFIRM_EXCLUDED": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "{count} invitation active ne recevra rien.",
+        "countPlural=other": "{count} invitations actives ne recevront rien."
+      }
+    }
+  ],
+  "INVITEE_RESEND_CONFIRM_PACE": "Les e-mails partent un par un : comptez quelques minutes. Vous pouvez quitter la page, la progression vous attendra dans la liste.",
+  "INVITEE_RESEND_CONFIRM_BUTTON": "Relancer",
+  "INVITEE_RESEND_BATCH_RUNNING": "Un envoi groupé est déjà en cours : attendez qu’il se termine.",
+  "INVITEE_RESEND_START_FAILED": "La relance n’a pas pu démarrer. Réessayez plus tard.",
+  "INVITEE_RESEND_RUNNING": "Relance en cours",
+  "INVITEE_RESEND_STOP": "Arrêter l’envoi",
+  "INVITEE_RESEND_SUMMARY": "Relance du {date} — envoyés : {sent} · ignorés : {skipped} · en échec : {failed}",
+  "INVITEE_RESEND_STOPPED": "Relance du {date} arrêtée après {processed} e-mails sur {total}.",
+  "INVITEE_RESEND_REPORT": "Voir le rapport",
   "INVITEE_CHECK_BANNER_HINT": "Une adresse rejetée n’est plus réessayée automatiquement. Vérifiez-la auprès de la personne et corrigez-la depuis l’invitation.",
   "INVITEE_CHECK_BANNER_SHOW": "Voir",
   "BATCH_INVITEE_CHECK_CARD": "Adresses à vérifier",

@@ -110,6 +110,17 @@
   "PAGINATION_NEXT": "Next",
   "PAGINATION_PAGE": "Page {page} / {pages}",
   "PAGINATION_PER_PAGE": "Per page",
+  "BATCH_INVITEE_KIND_RESEND": "Reminder",
+  "BATCH_JOB_PENDING": "Waiting",
+  "BATCH_JOB_FAILED": "Failed",
+  "REMINDER_COMPLETED": "Reminder finished",
+  "REMINDER_CANCELLED": "Reminder stopped",
+  "REMINDER_LOGS_TITLE": "Reminder history",
+  "REMINDER_LOGS_EMPTY": "No reminders yet.",
+  "BATCH_INVITEE_ROW_RESENT": "Reminded",
+  "BATCH_INVITEE_ROW_MISSING": "Not found",
+  "BATCH_INVITEE_RESEND_SENT": "Sent",
+  "BATCH_INVITEE_RESEND_SKIPPED": "Skipped",
   "BATCH_INVITEE_PHASE_CREATING": "Creating the invitations",
   "BATCH_INVITEE_PHASE_SENDING": "Sending the emails",
   "BATCH_INVITEE_ROLE": "Role for all invitees",
@@ -942,6 +953,61 @@
   "INVITEE_RESEND_REJECTED_CONFIRM": "This address was rejected on {date}. Send again anyway?",
   "INVITEE_RESEND_ANYWAY": "Send anyway",
   "INVITEE_RESEND_OPTED_OUT": "The person refused this organization's emails: the invitation cannot be sent to them again.",
+  "INVITATION_SETTINGS_TITLE": "Invitation settings",
+  "INVITATION_SETTINGS_RESEND_AFTER": "Days before a reminder",
+  "INVITATION_SETTINGS_RESEND_AFTER_HINT": "When sending reminders, a pending invitation is ticked by default only if its last email is at least this many days old, so someone just reached is not written to again.",
+  "INVITATION_SETTINGS_SAVE": "Save",
+  "INVITATION_SETTINGS_SAVED": "Settings saved.",
+  "INVITATION_SETTINGS_FAILED": "Saving failed.",
+  "INVITEE_RESEND_MODE_BUTTON": "Send reminders",
+  "INVITEE_RESEND_MODE_TITLE": "Remind pending invitations",
+  "INVITEE_RESEND_MODE_HINT": "Invitations emailed less than {days} days ago stay unticked. Those with an email on its way or an address to check cannot be reminded from here.",
+  "INVITEE_RESEND_ONLY_EXCLUDED": "Show only the unticked",
+  "INVITEE_RESEND_SEND": "Send ({count})",
+  "INVITEE_RESEND_SELECT": "Remind {email}",
+  "INVITEE_RESEND_REASON_QUEUED": "Email on its way",
+  "INVITEE_RESEND_REASON_ADDRESS": "Address to check",
+  "INVITEE_RESEND_REASON_RECENT": "Already sent",
+  "INVITEE_RESEND_CONFIRM_TITLE": "Send reminders",
+  "INVITEE_RESEND_CONFIRM_COUNT": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "{count} email will be sent.",
+        "countPlural=other": "{count} emails will be sent."
+      }
+    }
+  ],
+  "INVITEE_RESEND_CONFIRM_EXCLUDED": [
+    {
+      "declarations": [
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": [
+        "countPlural"
+      ],
+      "match": {
+        "countPlural=one": "{count} active invitation will receive nothing.",
+        "countPlural=other": "{count} active invitations will receive nothing."
+      }
+    }
+  ],
+  "INVITEE_RESEND_CONFIRM_PACE": "The emails go one after another: allow a few minutes. You may leave the page; the progress will wait for you in the list.",
+  "INVITEE_RESEND_CONFIRM_BUTTON": "Send reminders",
+  "INVITEE_RESEND_BATCH_RUNNING": "A batch is already running: wait for it to finish.",
+  "INVITEE_RESEND_START_FAILED": "The reminder could not start. Try again later.",
+  "INVITEE_RESEND_RUNNING": "Reminder in progress",
+  "INVITEE_RESEND_STOP": "Stop sending",
+  "INVITEE_RESEND_SUMMARY": "Reminder of {date} — sent: {sent} · skipped: {skipped} · failed: {failed}",
+  "INVITEE_RESEND_STOPPED": "Reminder of {date} stopped after {processed} emails of {total}.",
+  "INVITEE_RESEND_REPORT": "See the report",
   "INVITEE_CHECK_BANNER_HINT": "A rejected address is no longer retried automatically. Check it with the person and correct it from the invitation.",
   "INVITEE_CHECK_BANNER_SHOW": "Show",
   "BATCH_INVITEE_CHECK_CARD": "Addresses to check",

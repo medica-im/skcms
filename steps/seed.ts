@@ -564,6 +564,53 @@ print("INVITEE_SEEDED", uid)
 	return { uid: match[1], email };
 }
 
+/**
+ * Many active, never used invitations in one shell call, named
+ * "<prefix> 01", "<prefix> 02"... so a search for the prefix lists them alone.
+ * Remove them with removeInvitees(uids).
+ */
+export async function seedInvitees(options: {
+	siteDomain: string;
+	prefix: string;
+	count: number;
+}): Promise<{ uid: string; email: string; name: string }[]> {
+	const stamp = `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+	const people = Array.from({ length: options.count }, (_, i) => ({
+		name: `${options.prefix} ${String(i + 1).padStart(2, '0')}`,
+		email: `e2e-invitee-${stamp}-${i + 1}@example.org`
+	}));
+	const out = await djangoShell(`
+import json
+from neomodel import db
+from facility.models import Organization
+
+org_uid = Organization.objects.get(site__domain=${JSON.stringify(options.siteDomain)}).neomodel_uid.hex
+rows, _ = db.cypher_query("""
+MATCH (e:Entry {uid: $org})
+UNWIND $people AS person
+CREATE (i:Invitee {uid: replace(randomUUID(), '-', ''), email: person.email,
+                   name: person.name, role: 'staff', active: true,
+                   ${SEED_TAG}: true})-[:INVITED_TO]->(e)
+RETURN i.uid, i.email, i.name
+""", {"org": org_uid, "people": json.loads(${JSON.stringify(JSON.stringify(people))})})
+assert len(rows) == ${options.count}, "no organization Entry for this site"
+print("INVITEES_SEEDED", json.dumps([{"uid": u, "email": e, "name": n} for u, e, n in rows]))
+`);
+	const match = out.match(/INVITEES_SEEDED (.+)/);
+	if (!match) throw new Error(`seeding invitees failed: ${out}`);
+	return JSON.parse(match[1]);
+}
+
+/** Deletes seeded invitations, by uid and tag, in one shell call. */
+export async function removeInvitees(uids: string[]): Promise<void> {
+	if (!uids.length) return;
+	await djangoShell(`
+from neomodel import db
+db.cypher_query("MATCH (i:Invitee) WHERE i.uid IN $uids AND i.${SEED_TAG} = true DETACH DELETE i", {"uids": ${JSON.stringify(uids)}})
+print("CLEANED")
+`);
+}
+
 /** Deletes one seeded invitation, by uid and tag, leaving siblings alone. */
 export async function removeInvitee(uid: string): Promise<void> {
 	await djangoShell(`

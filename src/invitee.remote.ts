@@ -138,6 +138,48 @@ export const resendInvitation = command(Resend, async ({ uid, force }) => {
 	};
 });
 
+/** The organization's invitation settings; superusers only, the backend decides. */
+export const updateInvitationSettings = form(
+	z.object({ resendAfterDays: z.number().int().min(1).max(365) }),
+	async ({ resendAfterDays }) => {
+		const { cookies } = getRequestEvent();
+		const url = `${variables.BASE_URI}/api/v2/invitation-settings`;
+		const response = await fetch(authReq(url, 'PATCH', cookies, JSON.stringify({ resendAfterDays })));
+		if (!response.ok) {
+			console.error(`PATCH ${url} -> ${response.status}`);
+			return { success: false, status: response.status };
+		}
+		const saved = await response.json();
+		return { success: true, status: response.status, resendAfterDays: saved.resendAfterDays as number };
+	}
+);
+
+/**
+ * Start a reminder to many invitations: a batch job of kind resend. A value,
+ * not a throw: 409 batch_running (a batch of the organization is running) is
+ * an answer the page words.
+ */
+export const startBatchResend = command(z.object({ uids: z.array(z.string()).min(1).max(5000) }), async ({ uids }) => {
+	const { cookies } = getRequestEvent();
+	const url = `${variables.BASE_URI}/api/v2/batch-invitees/resend`;
+	const response = await fetch(authReq(url, 'POST', cookies, JSON.stringify({ uids })));
+	let body: any;
+	try {
+		body = await response.json();
+	} catch {
+		body = undefined;
+	}
+	if (!response.ok) {
+		console.error(`POST ${url} -> ${response.status} ${JSON.stringify(body?.detail ?? '')}`);
+	}
+	return {
+		success: response.ok,
+		status: response.status,
+		jobUid: response.ok ? (body?.job_uid as string) : undefined,
+		code: typeof body?.detail?.code === 'string' ? (body.detail.code as string) : undefined
+	};
+});
+
 const CorrectAddress = z.object({ uid: z.string(), email: z.string().email() });
 
 /** A corrected address: the backend sends the invitation to it straight away. */

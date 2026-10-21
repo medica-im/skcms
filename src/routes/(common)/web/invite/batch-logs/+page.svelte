@@ -1,18 +1,10 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import Fa from 'svelte-fa';
-	import {
-		faArrowLeft,
-		faCheck,
-		faXmark,
-		faBan,
-		faSpinner,
-		faClock,
-		faEye
-	} from '@fortawesome/free-solid-svg-icons';
+	import { faArrowLeft, faEye } from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
 	import type { PageData } from './$types';
 	import { base } from '$app/paths';
+	import { batchJobStatus } from '$lib/Invitee/batchJobStatus';
 
 	let { data }: { data: PageData } = $props();
 	let jobs = $derived(data.jobs ?? []);
@@ -26,36 +18,6 @@
 			hour: '2-digit',
 			minute: '2-digit'
 		});
-	}
-
-	function statusIcon(status: string) {
-		switch (status) {
-			case 'completed': return faCheck;
-			case 'cancelled': return faBan;
-			case 'failed': return faXmark;
-			case 'processing': return faSpinner;
-			default: return faClock;
-		}
-	}
-
-	function statusClass(status: string): string {
-		switch (status) {
-			case 'completed': return 'text-success-500';
-			case 'cancelled': return 'text-warning-500';
-			case 'failed': return 'text-error-500';
-			case 'processing': return 'text-primary-500';
-			default: return 'text-surface-500';
-		}
-	}
-
-	function statusLabel(status: string): string {
-		switch (status) {
-			case 'completed': return m.BATCH_INVITEE_COMPLETED();
-			case 'cancelled': return m.BATCH_INVITEE_CANCELLED();
-			case 'failed': return m.BATCH_INVITEE_FAILED();
-			case 'processing': return m.BATCH_INVITEE_PROCESSING();
-			default: return status;
-		}
 	}
 </script>
 
@@ -89,12 +51,13 @@
 				</thead>
 				<tbody>
 					{#each jobs as job}
+						{@const status = batchJobStatus(job.status)}
 						<tr>
 							<td>{formatDateTime(job.created_at)}</td>
 							<td>
-								<span class="flex items-center gap-1 {statusClass(job.status)}">
-									<Fa icon={statusIcon(job.status)} class={job.status === 'processing' ? 'animate-spin' : ''} />
-									{statusLabel(job.status)}
+								<span class="flex items-center gap-1 {status.className}">
+									<Fa icon={status.icon} class={job.status === 'processing' ? 'animate-spin' : ''} />
+									{status.label}
 								</span>
 							</td>
 							<td>{job.role}</td>

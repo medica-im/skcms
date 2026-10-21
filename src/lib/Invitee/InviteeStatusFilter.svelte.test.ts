@@ -52,4 +52,10 @@ describe('InviteeStatusFilter', () => {
 		await expect.element(button).toBeVisible();
 		expect(button.element().getBoundingClientRect().height).toBeGreaterThanOrEqual(44);
 	});
+
+	it('can be held on one status: reminders go to active invitations only', async () => {
+		render(InviteeStatusFilter, { value: 'active', counts, onchange: () => {}, disabled: true });
+		await expect.element(page.getByRole('button', { name: /^Actives/ })).toHaveAttribute('aria-pressed', 'true');
+		await expect.element(page.getByRole('button', { name: /^Toutes/ })).toBeDisabled();
+	});
 });

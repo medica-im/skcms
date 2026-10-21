@@ -2,18 +2,17 @@
 	import Fa from 'svelte-fa';
 	import {
 		faArrowLeft,
-		faCheck,
-		faXmark,
-		faBan,
 		faExclamationTriangle,
 		faExternalLinkAlt
 	} from '@fortawesome/free-solid-svg-icons';
+	import { batchJobStatus } from '$lib/Invitee/batchJobStatus';
 	import * as m from '$msgs';
 	import type { PageData } from './$types';
 	import { base } from '$app/paths';
 	import InviteeEmailDelivery from '$lib/Invitee/InviteeEmailDelivery.svelte';
 	import InviteeAddressFlag from '$lib/Invitee/InviteeAddressFlag.svelte';
 	import { needsCheck } from '$lib/Invitee/inviteeFilter';
+	import { resendCounts } from '$lib/Invitee/batchResend';
 	import { deliveryLook, errorKindShort, NEEDS_ACTION, type DeliveryState } from '$lib/Invitee/emailDelivery';
 	import type { EmailErrorKind } from '$lib/interfaces/v2/invitee';
 
@@ -73,48 +72,54 @@
 		}
 	}
 
-	function jobStatusLabel(status: string): string {
-		switch (status) {
-			case 'completed': return m.BATCH_INVITEE_COMPLETED();
-			case 'cancelled': return m.BATCH_INVITEE_CANCELLED();
-			case 'failed': return m.BATCH_INVITEE_FAILED();
-			default: return status;
-		}
+	// A reminder's rows: sent again, or why not (access.tasks._send_invitations).
+	const SKIPPED_LABEL: Record<string, () => string> = {
+		used: m.INVITEE_STATUS_USED,
+		disabled: m.INVITEE_STATUS_DISABLED,
+		already_queued: m.INVITEE_RESEND_REASON_QUEUED,
+		missing: m.BATCH_INVITEE_ROW_MISSING
+	};
+
+	function rowLabel(row: any): string {
+		if (row.status !== 'resend') return statusLabel(row.status);
+		if (!row.email_skipped) return m.BATCH_INVITEE_ROW_RESENT();
+		return SKIPPED_LABEL[row.email_skipped]?.() ?? row.email_skipped;
 	}
 
-	function jobStatusIcon(status: string) {
-		switch (status) {
-			case 'completed': return faCheck;
-			case 'cancelled': return faBan;
-			default: return faXmark;
-		}
+	function rowBadgeClass(row: any): string {
+		if (row.status !== 'resend') return statusBadgeClass(row.status);
+		return row.email_skipped ? 'badge variant-filled-surface' : 'badge variant-filled-success';
 	}
 
-	function jobStatusColor(status: string): string {
-		switch (status) {
-			case 'completed': return 'text-success-500';
-			case 'cancelled': return 'text-warning-500';
-			default: return 'text-error-500';
-		}
-	}
 </script>
 
 <div class="container mx-auto p-4 max-w-4xl">
 	<header class="mb-6">
-		<a href="{base}/web/invite/batch-logs" class="btn btn-sm variant-ghost mb-4">
-			<Fa icon={faArrowLeft} class="mr-2" />
-			{m.BATCH_INVITEE_LOGS()}
-		</a>
+		{#if job?.kind === 'resend'}
+			<a href="{base}/web/invite/reminder-logs" class="btn btn-sm variant-ghost mb-4">
+				<Fa icon={faArrowLeft} class="mr-2" />
+				{m.REMINDER_LOGS_TITLE()}
+			</a>
+		{:else}
+			<a href="{base}/web/invite/batch-logs" class="btn btn-sm variant-ghost mb-4">
+				<Fa icon={faArrowLeft} class="mr-2" />
+				{m.BATCH_INVITEE_LOGS()}
+			</a>
+		{/if}
 
 		{#if job}
+			{@const status = batchJobStatus(job.status, job.kind)}
 			<div class="flex items-center gap-3 mb-2">
 				<h1 class="h1">{m.BATCH_INVITEE_SUMMARY()}</h1>
-				<span class={jobStatusColor(job.status)}>
-					<Fa icon={jobStatusIcon(job.status)} />
-					{jobStatusLabel(job.status)}
+				<span class={status.className}>
+					<Fa icon={status.icon} />
+					{status.label}
 				</span>
 			</div>
-			<p class="text-surface-600">{formatDateTime(job.created_at)} — {m.INVITEE_COL_ROLE()}: {job.role}</p>
+			<p class="text-surface-600">
+				{formatDateTime(job.created_at)} —
+				{#if job.kind === 'resend'}{m.BATCH_INVITEE_KIND_RESEND()}{:else}{m.INVITEE_COL_ROLE()}: {job.role}{/if}
+			</p>
 		{/if}
 	</header>
 
@@ -124,6 +129,27 @@
 		</div>
 	{:else}
 		<!-- Counters -->
+		{#if job.kind === 'resend'}
+			{@const counts = resendCounts(job)}
+			<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6" data-testid="resend-counts">
+				<div class="card p-3 text-center variant-soft-success">
+					<p class="text-2xl font-bold">{counts.sent}</p>
+					<p class="text-sm">{m.BATCH_INVITEE_RESEND_SENT()}</p>
+				</div>
+				<div class="card p-3 text-center variant-soft-surface">
+					<p class="text-2xl font-bold">{counts.skipped}</p>
+					<p class="text-sm">{m.BATCH_INVITEE_RESEND_SKIPPED()}</p>
+				</div>
+				<div class="card p-3 text-center variant-soft-warning">
+					<p class="text-2xl font-bold">{counts.failed}</p>
+					<p class="text-sm">{m.BATCH_INVITEE_EMAIL_ERRORS()}</p>
+				</div>
+				<div class="card p-3 text-center variant-soft-primary">
+					<p class="text-2xl font-bold">{job.total_rows}</p>
+					<p class="text-sm">Total</p>
+				</div>
+			</div>
+		{:else}
 		<div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
 			<div class="card p-3 text-center variant-soft-success">
 				<p class="text-2xl font-bold">{job.successful_count}</p>
@@ -158,6 +184,7 @@
 				<p class="text-sm">Total</p>
 			</div>
 		</div>
+		{/if}
 
 		{#if emailStatusCounts.length > 0}
 			<section class="mb-6 space-y-3" data-testid="batch-email-counts">
@@ -220,8 +247,8 @@
 									</span>
 								</td>
 								<td>
-									<span class={statusBadgeClass(row.status)}>
-										{statusLabel(row.status)}
+									<span class={rowBadgeClass(row)}>
+										{rowLabel(row)}
 									</span>
 									{#if row.email_error && !row.email_delivery}
 										<!-- A job from before deliveries were linked to it. -->
@@ -262,7 +289,7 @@
 		<!-- Actions -->
 		<div class="flex gap-4 justify-end mt-6">
 			<a href="{base}/web/invite/invitees" class="btn variant-filled-primary">
-				{m.BATCH_INVITEE_VIEW_INVITEES()}
+				{job.kind === 'resend' ? m.INVITEE_BACK_TO_LIST() : m.BATCH_INVITEE_VIEW_INVITEES()}
 			</a>
 		</div>
 	{/if}

@@ -92,3 +92,14 @@ describe('an invitation on a narrow screen', () => {
 			.toHaveAttribute('href', '/web/invite/invitees/inv-1');
 	});
 });
+
+describe('an invitation on a wide screen', () => {
+	it('offers no edit or delete when the list gives no way to', async () => {
+		// The list's resend mode: ticking rows, not changing them.
+		await page.viewport(1400, 900);
+		render(Invitee, { invitee: base });
+		await expect.element(page.getByText('camille.martin@example.org').nth(1)).toBeVisible();
+		expect(page.getByRole('button', { name: 'Modifier' }).elements()).toHaveLength(0);
+		expect(page.getByRole('button', { name: 'Supprimer' }).elements()).toHaveLength(0);
+	});
+});

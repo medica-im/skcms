@@ -15,11 +15,13 @@
 	let {
 		value,
 		counts,
-		onchange
+		onchange,
+		disabled = false
 	}: {
 		value: InviteeFilter;
 		counts: Record<InviteeFilter, number>;
 		onchange: (filter: InviteeFilter) => void;
+		disabled?: boolean;
 	} = $props();
 
 	const options = $derived(
@@ -48,6 +50,7 @@
 			type="button"
 			class="btn min-h-11 gap-2 px-4 {pressed ? 'variant-filled-primary' : 'variant-soft-surface'}"
 			aria-pressed={pressed}
+			{disabled}
 			onclick={() => onchange(key)}
 		>
 			{#if icon}

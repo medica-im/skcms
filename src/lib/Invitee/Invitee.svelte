@@ -134,8 +134,8 @@
 		<!-- Whether the email went out; a failure is a link to the details -->
 		<InviteeEmailDelivery delivery={invitee.emailDelivery} variant="column" href={detailHref} />
 
-		{#if !isRedeemed}{@render editButton(false)}{:else}<span></span>{/if}
-		{#if !isRedeemed}{@render deleteButton(false)}{:else}<span></span>{/if}
+		{#if !isRedeemed && onEdit}{@render editButton(false)}{:else}<span></span>{/if}
+		{#if !isRedeemed && onDelete}{@render deleteButton(false)}{:else}<span></span>{/if}
 		{#if showDetailLink}
 			<a href={detailHref} class="btn-icon btn-icon-sm variant-ghost-primary" aria-label={m.INVITEE_VIEW()} title={m.INVITEE_VIEW()}>
 				<Fa icon={faEye} />

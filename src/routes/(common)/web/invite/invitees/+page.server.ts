@@ -1,7 +1,8 @@
-import { error, redirect } from '@sveltejs/kit';
+import { error, redirect, type Cookies } from '@sveltejs/kit';
 import { authReq } from '$lib/utils/request.ts';
 import { variables } from '$lib/utils/constants.ts';
 import type { Invitee } from '$src/lib/interfaces/v2/invitee';
+import type { ResendJob } from '$lib/Invitee/batchResend';
 import type { PageServerLoad } from "./$types"
 import { base } from '$app/paths';
 
@@ -22,6 +23,8 @@ export const load: PageServerLoad = async ({ url, cookies, locals, fetch, parent
    }
 
    let invitees: Invitee[] | undefined;
+   let settings: { resendAfterDays: number } | undefined;
+   let resendJobs: ResendJob[] | undefined;
    if (import.meta.env.DEV) {
       // Use backend API URL directly for server-side requests
       const endpointUrl = `${variables.BASE_URI}/api/v2/invitees`;
@@ -51,10 +54,28 @@ export const load: PageServerLoad = async ({ url, cookies, locals, fetch, parent
       } catch (error: any) {
          console.error('Error retrieving invitees:', error.message);
       }
+
+      [settings, resendJobs] = await Promise.all([
+         getJson<{ resendAfterDays: number }>(`${variables.BASE_URI}/api/v2/invitation-settings`, cookies, fetch),
+         getJson<ResendJob[]>(`${variables.BASE_URI}/api/v2/batch-invitees?kind=resend&limit=1`, cookies, fetch)
+      ]);
    }
 
    return {
       session: session,
-      invitees: invitees
+      invitees: invitees,
+      resendAfterDays: settings?.resendAfterDays,
+      latestResend: resendJobs ? (resendJobs[0] ?? null) : undefined
+   }
+}
+
+async function getJson<T>(url: string, cookies: Cookies, fetch: typeof globalThis.fetch): Promise<T | undefined> {
+   try {
+      const response = await fetch(authReq(url, 'GET', cookies));
+      if (!response.ok) throw new Error(`Response status: ${response.status}`);
+      return await response.json();
+   } catch (error: any) {
+      console.error(`GET ${url}: ${error.message}`);
+      return undefined;
    }
 }

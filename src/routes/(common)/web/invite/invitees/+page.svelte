@@ -5,8 +5,8 @@
 	import EditInviteeModal from '$lib/Invitee/EditInviteeModal.svelte';
 	import DeleteInviteeModal from '$lib/Invitee/DeleteInviteeModal.svelte';
 	import { Invitee } from '$lib/Invitee';
-	import { preloadData, pushState, goto } from '$app/navigation';
-	import { faPlus, faFileLines } from '@fortawesome/free-solid-svg-icons';
+	import { preloadData, pushState, goto, invalidateAll } from '$app/navigation';
+	import { faPlus, faFileLines, faPaperPlane, faGear, faClockRotateLeft } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import ExportModeToggle from '$lib/components/ExportModeToggle/ExportModeToggle.svelte';
 	import * as m from '$msgs';
@@ -17,8 +17,17 @@
 	import { sortByDateTime, type SortDirection } from '$lib/utils/dateTimeSort';
 	import SortHeader from '$lib/components/Table/SortHeader.svelte';
 	import SortSelect from '$lib/components/Table/SortSelect.svelte';
+	import Pagination from '$lib/components/Table/Pagination.svelte';
+	import { paginate, pageFromParam, pageSizeFromParam, PAGE_SIZES, type PageSize } from '$lib/utils/paginate';
 	import InviteeStatusFilter from '$lib/Invitee/InviteeStatusFilter.svelte';
 	import { getLiveDeliveries } from '$lib/Invitee/liveDeliveries.svelte';
+	import ResendBar from '$lib/Invitee/ResendBar.svelte';
+	import ResendConfirmDialog from '$lib/Invitee/ResendConfirmDialog.svelte';
+	import BatchResendStatus from '$lib/Invitee/BatchResendStatus.svelte';
+	import ListDateTime from '$lib/components/DateTime/ListDateTime.svelte';
+	import { resendEligibility, initialResendSelection, type ResendEligibility, type ResendRefusal } from '$lib/Invitee/resendSelection';
+	import { isRunning, type ResendJob } from '$lib/Invitee/batchResend';
+	import { startBatchResend } from '$src/invitee.remote.ts';
 	import {
 		countByStatus,
 		filterFromParam,
@@ -49,19 +58,53 @@
 			sortColumn = column;
 			sortDirection = 'desc';
 		}
+		firstPage();
 	}
 
-	// The status filter lives in the address (?statut=...), so the back
-	// button, a reload and a shared link keep it. "Toutes" is no parameter.
-	const statusFilter = $derived(filterFromParam(page.url.searchParams.get('statut')));
+	// The status filter, the page and its size live in the address
+	// (?statut=, ?page=, ?par=), so the back button, a reload and a shared
+	// link keep them. "Toutes", page 1 and the default size are no parameter.
+	const urlFilter = $derived(filterFromParam(page.url.searchParams.get('statut')));
+	const pageNumber = $derived(pageFromParam(page.url.searchParams.get('page')));
+	const pageSize = $derived(pageSizeFromParam(page.url.searchParams.get('par')));
+
+	function navigate(change: (url: URL) => void, noScroll = true) {
+		const url = new URL(page.url);
+		change(url);
+		goto(url, { keepFocus: true, noScroll });
+	}
 
 	function setStatusFilter(filter: InviteeFilter) {
-		const url = new URL(page.url);
 		const param = filterToParam(filter);
-		if (param) url.searchParams.set('statut', param);
-		else url.searchParams.delete('statut');
-		goto(url, { keepFocus: true, noScroll: true });
+		navigate((url) => {
+			if (param) url.searchParams.set('statut', param);
+			else url.searchParams.delete('statut');
+			url.searchParams.delete('page');
+		});
 	}
+
+	function setPage(number: number) {
+		navigate((url) => {
+			if (number > 1) url.searchParams.set('page', String(number));
+			else url.searchParams.delete('page');
+		}, false);
+	}
+
+	function setPageSize(size: PageSize) {
+		navigate((url) => {
+			if (size !== PAGE_SIZES[0]) url.searchParams.set('par', String(size));
+			else url.searchParams.delete('par');
+			url.searchParams.delete('page');
+		});
+	}
+
+	function firstPage() {
+		if (page.url.searchParams.has('page')) navigate((url) => url.searchParams.delete('page'));
+	}
+
+	// A reminder goes to active invitations only: the filter holds on them.
+	let resendMode = $state(false);
+	const statusFilter = $derived<InviteeFilter>(resendMode ? 'active' : urlFilter);
 
 	// Active and deactivated invitations have no use date, so sorting them by
 	// use would say nothing: they sort by creation then, and the Utilisation
@@ -159,6 +202,92 @@
 	let allSelected = $derived(
 		filteredInvitees != null && filteredInvitees.length > 0 && selectedUids.size === filteredInvitees.length
 	);
+
+	// --- Reminders (resend mode) ---------------------------------------------
+
+	// The latest reminder: as loaded, then as started from this page.
+	let resendJob = $derived<ResendJob | null>(data.latestResend ?? null);
+	const resendRunning = $derived(resendJob != null && isRunning(resendJob));
+
+	let resendNow = $state(Date.now());
+	let onlyExcluded = $state(false);
+	const eligibility = $derived.by(() => {
+		const map = new Map<string, ResendEligibility>();
+		if (!resendMode) return map;
+		for (const invitee of invitees ?? []) {
+			map.set(invitee.uid, resendEligibility(invitee, resendNow, data.resendAfterDays));
+		}
+		return map;
+	});
+	const sendableUids = $derived([...eligibility].filter(([, e]) => e.sendable).map(([uid]) => uid));
+	const activeCount = $derived(countByStatus(invitees ?? []).active);
+
+	function enterResendMode() {
+		resendNow = Date.now();
+		exportMode = false;
+		onlyExcluded = false;
+		resendMode = true;
+		selectedUids = initialResendSelection(invitees ?? [], resendNow, data.resendAfterDays);
+		firstPage();
+	}
+
+	function leaveResendMode() {
+		resendMode = false;
+		onlyExcluded = false;
+		selectedUids = new Set();
+		firstPage();
+	}
+
+	const REFUSAL_LABEL: Record<ResendRefusal, () => string> = {
+		used: m.INVITEE_STATUS_USED,
+		disabled: m.INVITEE_STATUS_DISABLED,
+		queued: m.INVITEE_RESEND_REASON_QUEUED,
+		address: m.INVITEE_RESEND_REASON_ADDRESS
+	};
+
+	let confirmDialog: HTMLDialogElement | undefined = $state();
+	let starting = $state(false);
+	let startError = $state('');
+
+	function askToSend() {
+		startError = '';
+		confirmDialog?.showModal();
+	}
+
+	async function send() {
+		starting = true;
+		startError = '';
+		const uids = [...selectedUids];
+		const result = await startBatchResend({ uids });
+		starting = false;
+		if (result.success && result.jobUid) {
+			confirmDialog?.close();
+			resendJob = {
+				uid: result.jobUid,
+				status: 'pending',
+				created_at: new Date().toISOString(),
+				phase: 'sending',
+				total_rows: uids.length,
+				processed_rows: 0,
+				emails_total: uids.length,
+				emails_processed: 0,
+				email_skipped_count: 0,
+				failed_email_count: 0
+			};
+			leaveResendMode();
+		} else {
+			startError = result.code === 'batch_running' ? m.INVITEE_RESEND_BATCH_RUNNING() : m.INVITEE_RESEND_START_FAILED();
+		}
+	}
+
+	// --- The rows on this page -------------------------------------------------
+
+	const listed = $derived(
+		resendMode && onlyExcluded
+			? (filteredInvitees ?? []).filter((i) => !selectedUids.has(i.uid))
+			: (filteredInvitees ?? [])
+	);
+	const view = $derived(paginate(listed, pageNumber, pageSize));
 </script>
 
 <div class="container mx-auto p-4">
@@ -171,14 +300,41 @@
 				</p>
 			</div>
 			<div class="flex gap-2">
-				<a href="{base}/web/invite/batch">
-					<button class="btn variant-filled-secondary" title={m.BATCH_INVITEE_BUTTON_TITLE()}>
+				<button
+					type="button"
+					class="btn variant-filled-secondary"
+					title={m.INVITEE_RESEND_MODE_TITLE()}
+					disabled={resendMode || resendRunning}
+					onclick={enterResendMode}
+				>
+					<span><Fa icon={faPaperPlane} /></span>
+					<span class="hidden lg:block">{m.INVITEE_RESEND_MODE_BUTTON()}</span>
+				</button>
+				<a
+					href="{base}/web/invite/reminder-logs"
+					class="btn min-h-11 variant-ghost-secondary"
+					class:pointer-events-none={resendMode}
+					class:opacity-50={resendMode}
+					tabindex={resendMode ? -1 : undefined}
+					aria-label={m.REMINDER_LOGS_TITLE()}
+					title={m.REMINDER_LOGS_TITLE()}
+				>
+					<Fa icon={faClockRotateLeft} />
+				</a>
+				<a
+					href="{base}/web/invite/batch"
+					class:pointer-events-none={resendMode}
+					tabindex={resendMode ? -1 : undefined}
+				>
+					<button class="btn variant-filled-secondary" title={m.BATCH_INVITEE_BUTTON_TITLE()} disabled={resendMode}>
 						<span><Fa icon={faFileLines} /></span>
 						<span class="hidden lg:block">{m.BATCH_INVITEE_BUTTON()}</span>
 					</button>
 				</a>
 				<a
 					href="{base}/web/invite/create"
+					class:pointer-events-none={resendMode}
+					tabindex={resendMode ? -1 : undefined}
 					onclick={async (e) => {
 						if (e.shiftKey || e.metaKey || e.ctrlKey) return;
 
@@ -194,23 +350,42 @@
 						}
 					}}
 				>
-					<button class="btn variant-filled-primary" title={m.INVITEE_CREATE_BUTTON()}>
+					<button class="btn variant-filled-primary" title={m.INVITEE_CREATE_BUTTON()} disabled={resendMode}>
 						<span><Fa icon={faPlus} /></span>
 						<span class="hidden lg:block">{m.INVITEE_CREATE_BUTTON()}</span>
 					</button>
 				</a>
 			</div>
 		</div>
-		{#if isSuperuser}
-			<div class="flex justify-end">
+		{#if isSuperuser && !resendMode}
+			<div class="flex justify-end gap-2">
+				<a href="{base}/web/invite/settings" class="btn min-h-11 variant-ghost" title={m.INVITATION_SETTINGS_TITLE()}>
+					<span><Fa icon={faGear} /></span>
+					<span>{m.INVITATION_SETTINGS_TITLE()}</span>
+				</a>
 				<ExportModeToggle bind:checked={exportMode} onchange={updateSelectionForExportMode} />
 			</div>
 		{/if}
 	</header>
 
+	{#if resendJob}
+		{#key resendJob.uid}
+			<BatchResendStatus job={resendJob} onfinished={() => invalidateAll()} />
+		{/key}
+	{/if}
+
+	{#if resendMode}
+		<aside class="alert variant-soft-primary mb-4" data-testid="resend-mode">
+			<div class="alert-message">
+				<p class="font-semibold">{m.INVITEE_RESEND_MODE_TITLE()}</p>
+				<p class="text-sm">{m.INVITEE_RESEND_MODE_HINT({ days: data.resendAfterDays })}</p>
+			</div>
+		</aside>
+	{/if}
+
 	<!-- Search, and the status filter: side by side on a large screen,
 	     stacked on a narrow one. -->
-	{#if toCheck > 0 && statusFilter !== 'check'}
+	{#if toCheck > 0 && statusFilter !== 'check' && !resendMode}
 		<aside class="alert variant-soft-warning mb-4" data-testid="invitee-check-banner">
 			<div class="alert-message">
 				<p class="font-semibold">{m.INVITEE_CHECK_BANNER({ count: toCheck })}</p>
@@ -230,8 +405,9 @@
 			class="input w-full max-w-sm"
 			placeholder="{m.INVITEE_COL_NAME()} / {m.INVITEE_COL_EMAIL()}..."
 			bind:value={searchTerm}
+			oninput={firstPage}
 		/>
-		<InviteeStatusFilter value={statusFilter} counts={statusCounts} onchange={setStatusFilter} />
+		<InviteeStatusFilter value={statusFilter} counts={statusCounts} onchange={setStatusFilter} disabled={resendMode} />
 	</div>
 
 	{#if exportMode}
@@ -276,15 +452,17 @@
 			const [column, direction] = value.split(':');
 			sortColumn = column as SortColumn;
 			sortDirection = direction as SortDirection;
+			firstPage();
 		}}
 	/>
 
 	<!-- Column Headers (large screens only) -->
 	<div class="hidden lg:grid lg:items-center lg:gap-4 px-3 pb-2 text-sm font-semibold text-surface-500"
 		class:lg:grid-cols-[40px_40px_1fr_1.5fr_120px_130px_130px_120px_130px_36px_36px_36px]={exportMode}
-		class:lg:grid-cols-[40px_1fr_1.5fr_120px_130px_130px_120px_130px_36px_36px_36px]={!exportMode}
+		class:lg:grid-cols-[44px_40px_1fr_1.5fr_120px_130px_130px_120px_130px_36px_36px_36px]={resendMode}
+		class:lg:grid-cols-[40px_1fr_1.5fr_120px_130px_130px_120px_130px_36px_36px_36px]={!exportMode && !resendMode}
 	>
-		{#if exportMode}<span></span>{/if}
+		{#if exportMode || resendMode}<span></span>{/if}
 		<span></span>
 		<span>{m.INVITEE_COL_NAME()}</span>
 		<span>{m.INVITEE_COL_EMAIL()}</span>
@@ -308,7 +486,7 @@
 	</div>
 
 	<div class="grid grid-cols-1 gap-2">
-		{#each filteredInvitees as invitee (invitee.uid)}
+		{#each view.rows as invitee (invitee.uid)}
 			{#if exportMode}
 				<div class="flex items-center gap-2">
 					<input
@@ -321,12 +499,72 @@
 						<Invitee {invitee} highlighted={(Date.now() - new Date(invitee.createdAt).getTime()) < 60_000} onEdit={(inv) => editModal.handleEdit(inv)} onDelete={(inv) => deleteModal.handleDelete(inv)} />
 					</div>
 				</div>
+			{:else if resendMode}
+				{@const reminder = eligibility.get(invitee.uid)}
+				<div class="flex items-start gap-1" data-testid="resend-row">
+					<label class="w-11 h-11 flex flex-shrink-0 items-center justify-center mt-2">
+						<input
+							type="checkbox"
+							class="checkbox"
+							aria-label={m.INVITEE_RESEND_SELECT({ email: invitee.email })}
+							checked={selectedUids.has(invitee.uid)}
+							disabled={!reminder?.sendable}
+							onchange={() => toggleInvitee(invitee.uid)}
+						/>
+					</label>
+					<div class="flex-1 min-w-0">
+						<Invitee {invitee} />
+						{#if reminder && !reminder.sendable}
+							<p class="px-3 pt-1 text-sm text-surface-600-300-token" data-testid="resend-reason">
+								{REFUSAL_LABEL[reminder.reason]()}
+							</p>
+						{:else if reminder && !reminder.preselected && invitee.emailDelivery}
+							<p class="px-3 pt-1 text-sm text-surface-600-300-token" data-testid="resend-reason">
+								{m.INVITEE_RESEND_REASON_RECENT()} · <ListDateTime value={invitee.emailDelivery.at} />
+							</p>
+						{/if}
+					</div>
+				</div>
 			{:else}
 				<Invitee {invitee} highlighted={(Date.now() - new Date(invitee.createdAt).getTime()) < 60_000} onEdit={(inv) => editModal.handleEdit(inv)} onDelete={(inv) => deleteModal.handleDelete(inv)} />
 			{/if}
 		{/each}
 	</div>
+
+	<Pagination
+		page={view.page}
+		pages={view.pages}
+		size={pageSize}
+		total={listed.length}
+		onpage={setPage}
+		onsize={setPageSize}
+	/>
+
+	{#if resendMode}
+		<ResendBar
+			selected={selectedUids.size}
+			sendable={sendableUids.length}
+			{onlyExcluded}
+			onselectall={() => (selectedUids = new Set(sendableUids))}
+			onselectnone={() => (selectedUids = new Set())}
+			ononlyexcluded={(only) => {
+				onlyExcluded = only;
+				firstPage();
+			}}
+			oncancel={leaveResendMode}
+			onsend={askToSend}
+		/>
+	{/if}
 </div>
+
+<ResendConfirmDialog
+	bind:dialog={confirmDialog}
+	count={selectedUids.size}
+	excluded={activeCount - selectedUids.size}
+	busy={starting}
+	error={startError}
+	onconfirm={send}
+/>
 
 {#if createOpen}
 	<CreateInviteeModal onresult={() => {}} title={"Créer une invitation"}>
