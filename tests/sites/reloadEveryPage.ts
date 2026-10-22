@@ -78,8 +78,8 @@ async function load(context: BrowserContext, url: string) {
 	});
 	page.on('pageerror', (e) => errors.push(`exception: ${e.message}`));
 	page.on('console', (m) => {
-		if (m.type() !== 'error' || isAnonymousUserCheck(m.text(), m.location().url)) return;
 		const where = m.location().url;
+		if (m.type() !== 'error' || isAnonymousUserCheck(m.text(), where) || isThirdParty(where, url)) return;
 		errors.push(`console: ${m.text()}${where && where !== url ? ` (${where})` : ''}`);
 	});
 
@@ -108,6 +108,21 @@ async function load(context: BrowserContext, url: string) {
 function isAnonymousUserCheck(text: string, location: string): boolean {
 	if (/status of 401/.test(text) && /\/api\/v2\/users\/me$/.test(location)) return true;
 	return /retrieving user from layout\.ts.*401/.test(text);
+}
+
+/**
+ * A message logged by somebody else's script: Google Maps on the contact page
+ * logs a permissions-policy violation on every load. Not ours to fix, and a
+ * check that fails on it every time stops being read -- the same reason the
+ * link check forgives other sites' broken links.
+ */
+function isThirdParty(location: string, pageUrl: string): boolean {
+	if (!location) return false;
+	try {
+		return new URL(location).origin !== new URL(pageUrl).origin;
+	} catch {
+		return false;
+	}
 }
 
 export async function reloadEveryPage(browser: Browser, site: SiteName) {

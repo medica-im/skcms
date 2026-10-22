@@ -66,9 +66,16 @@ export type SiteName = keyof typeof SITE_ORIGINS;
  * Staging runs the built Node server, not Vite: errors that only exist in the
  * bundled SSR (a hard reload 500ing where client-side navigation works) show
  * there and nowhere on dev. Same base path as dev — BASE_PATHS applies to both.
+ *
+ * Every staging site of images.yml, which scripts/check-staging.sh crawls after
+ * a release (src/lib/staging-origins.test.ts keeps the two lists one).
  */
-const STAGING_ORIGINS: Partial<Record<SiteName, string>> = {
+export const STAGING_ORIGINS: Partial<Record<SiteName, string>> = {
 	'annuaire.medica.im': 'https://staging.annuaire.medica.im',
+	'santelyon3.fr': 'https://staging.santelyon3.fr',
+	'sante-gadagne.fr': 'https://staging.sante-gadagne.fr',
+	'msp-vedene.fr': 'https://staging.msp-vedene.fr',
+	'msp.medica.im': 'https://staging.msp.medica.im',
 	// The staging WordPress, which proxies /annuaire to the app — not the app's
 	// own host (staging.ipa.medica.im), where WordPress's links and assets 404.
 	'unipa.fr': 'https://staging.unipa.fr'

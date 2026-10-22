@@ -338,7 +338,21 @@ export default defineConfig({
 		// Run them all with the `sites` grep, which still names every spec:
 		//
 		//     pnpm exec playwright test --project=sites
-		...siteProjects()
+		...siteProjects(),
+		// One staging site's pages loaded cold, after a release: run by
+		// scripts/check-staging.sh, which names the site. Only then, never in a
+		// dev run: it browses the staging machine.
+		...(process.env.STAGING_CHECK_ORIGIN
+			? [
+					{
+						name: 'staging',
+						testDir: './tests/staging',
+						// A failure here is a finding, not flakiness: no second crawl.
+						retries: 0,
+						use: { ...devices['Desktop Chrome'] }
+					}
+				]
+			: [])
 	]
 });
 

@@ -112,13 +112,16 @@ describe('release-staging.sh uses it', () => {
 		expect(clear).toMatch(/redis-cli\s+PING/);
 	});
 
-	it('resolves the origin once, for both steps', () => {
-		// Two readers of the same field, so it is read in one place. A second
-		// `yq ... .origin` somewhere else is how the two would drift apart
-		// again.
+	it('resolves the origin once, for the release and the check', () => {
+		// Several readers of the same field -- the cache clear here, the link
+		// check and the browser check in check-staging.sh -- so it is read in
+		// one place, scripts/lib/staging-sites.sh. A second `yq ... .origin`
+		// somewhere else is how they would drift apart again.
 		// The quotes are backslash-escaped inside the shell string, so match the
 		// field name alone rather than the whole yq expression.
-		const reads = script.match(/\.origin /g) ?? [];
-		expect(reads).toHaveLength(1);
+		const reads = (path: string) => readFileSync(resolve(ROOT, path), 'utf8').match(/\.origin /g) ?? [];
+		expect(reads('scripts/lib/staging-sites.sh')).toHaveLength(1);
+		expect(reads('scripts/release-staging.sh')).toHaveLength(0);
+		expect(reads('scripts/check-staging.sh')).toHaveLength(0);
 	});
 });

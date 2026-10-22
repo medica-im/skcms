@@ -25,16 +25,14 @@ SUBMODULE_PATH="src/routes/(skvar)"
 BUILD="$REPO_ROOT/scripts/build-image.sh"
 DEPLOY="$REPO_ROOT/scripts/deploy-image.sh"
 
-# Which sites count as staging is read from their compose file, not from their
-# name — the same rule release-production.sh uses, and for the same reason. A
-# name is not the discriminator it appears to be: annuaire.medica.im is a
-# *production* site that runs on the staging machine, and carries neither
-# "staging" nor "production" in its name. The compose file is what actually
-# differs, and images.yml already records it.
+# Which sites are staging (by compose file, not by name), where each is served,
+# and the link check: shared with check-staging.sh.
 #
 # Production sites stay unreachable from this script: releasing every site at
 # once is a staging habit, and production wants naming a site deliberately.
-STAGING_COMPOSE="${STAGING_COMPOSE:-docker-compose-staging.yml}"
+# shellcheck source=lib/staging-sites.sh
+source "$REPO_ROOT/scripts/lib/staging-sites.sh"
+CHECK="$REPO_ROOT/scripts/check-staging.sh"
 
 usage() {
     cat <<EOF
@@ -47,7 +45,7 @@ Options:
   --list         print the sites this would release, and exit
   --dry-run      print what would run, without building or deploying
   --build-only   build and push, skip the deploy
-  --no-linkcheck do not crawl the deployed site for broken links
+  --no-linkcheck do not run scripts/check-staging.sh on the deployed sites
   -h, --help     this help
 
 A site whose build fails is not deployed; the others carry on. The exit status
@@ -62,14 +60,8 @@ EOF
 }
 
 # --- Output ------------------------------------------------------------------
-if [[ -t 1 ]]; then
-    BOLD=$'\e[1m'; RED=$'\e[31m'; GREEN=$'\e[32m'; YELLOW=$'\e[33m'; DIM=$'\e[2m'; NC=$'\e[0m'
-else
-    BOLD=''; RED=''; GREEN=''; YELLOW=''; DIM=''; NC=''
-fi
-step() { printf '\n%s==> %s%s\n' "$BOLD" "$1" "$NC"; }
-info() { printf '%s    %s%s\n' "$DIM" "$1" "$NC"; }
-warn() { printf '%s    %s%s\n' "$YELLOW" "$1" "$NC"; }
+# shellcheck source=lib/output.sh
+source "$REPO_ROOT/scripts/lib/output.sh"
 
 # --- Arguments ---------------------------------------------------------------
 DRY_RUN=0
@@ -128,7 +120,7 @@ fi
 if [[ ${#NAMES[@]} -eq 0 ]]; then
     while IFS= read -r name; do
         [[ -n "$name" ]] && NAMES+=("$name")
-    done < <(yq -r ".images[] | select((.compose_file // \"\") == \"$STAGING_COMPOSE\") | .name" "$IMAGES_FILE")
+    done < <(staging_names)
 fi
 
 if [[ ${#NAMES[@]} -eq 0 ]]; then
@@ -144,7 +136,7 @@ fi
 STAGING_NAMES=()
 while IFS= read -r name; do
     [[ -n "$name" ]] && STAGING_NAMES+=("$name")
-done < <(yq -r ".images[] | select((.compose_file // \"\") == \"$STAGING_COMPOSE\") | .name" "$IMAGES_FILE")
+done < <(staging_names)
 
 is_staging() {
     local candidate="$1" n
@@ -335,26 +327,7 @@ sync_media() {
     fi
 }
 
-# Where a site is actually served.
-#
-# `name` is the hostname for every entry but one: the base-path instance is
-# called staging.ipa.medica.im and answers at staging.unipa.fr/annuaire, being a
-# section of that site rather than a site of its own. Its own root 404s by
-# design, so a step that used the name reached nothing — silently, in both of
-# the two places that need this address.
-#
-# Read in one place because two steps want it and they want different slices:
-# the link check crawls the whole URL, while a Redis key carries the host alone.
-# A second reader is how the two would drift apart again.
-site_origin() {
-    local name="$1" origin
-    origin="$(yq -r ".images[] | select(.name == \"$name\") | .origin // \"\"" "$IMAGES_FILE")"
-    # Unset for every site reached at its own root, which is all of them but one.
-    [[ -z "$origin" ]] && origin="https://$name"
-    printf '%s\n' "$origin"
-}
-
-# The hostname on its own, for a cache key.
+# The hostname on its own, for a cache key (site_origin: lib/staging-sites.sh).
 #
 # Django builds its keys from the Host header, so the path is not part of them:
 # the base-path site's keys read `:1:v2:entries:staging.unipa.fr:ipa:anonymous`,
@@ -411,41 +384,7 @@ clear_site_cache() {
 }
 
 # --- Link check --------------------------------------------------------------
-# muffet crawls the deployed site; scripts/linkcheck-classify.sh decides which
-# findings are ours. Run through Docker so the release needs no muffet on the
-# host, and from here rather than on the server so the output lands in the
-# release log where it will be read.
-LINKCHECK_IMAGE="${LINKCHECK_IMAGE:-raviqqe/muffet:latest}"
-
-linkcheck_site() {
-    local name="$1" origin
-    # Shared with the cache clear: one reader of `origin`, so the two steps
-    # cannot disagree about where a site lives. This used to hold its own copy,
-    # and the fallback's assumption — that a name is a hostname — stopped being
-    # true when the base-path site was added, so it crawled a 404 every release.
-    origin="$(site_origin "$name")"
-
-    if ! command -v docker >/dev/null 2>&1; then
-        warn "docker not available; skipping the link check"
-        return 0
-    fi
-
-    # Each site crawls with its own flags, kept in its .env file next to
-    # everything else that varies per site.
-    local -a flags=()
-    readarray -t flags < <("$REPO_ROOT/scripts/linkcheck-flags.sh" "$name")
-
-    local json
-    if ! json="$(docker run --rm "$LINKCHECK_IMAGE" \
-            "${flags[@]}" "$origin/" 2>/dev/null)"; then
-        # muffet exits non-zero whenever it found anything, which is not by
-        # itself a failure — the classifier decides. An empty result is handled
-        # there too.
-        :
-    fi
-
-    "$REPO_ROOT/scripts/linkcheck-classify.sh" "$origin" <<<"$json"
-}
+# After the loop: scripts/check-staging.sh, on every site deployed.
 
 # --- Release -----------------------------------------------------------------
 declare -a OK_NAMES=() FAILED_NAMES=() FAILED_AT=()
@@ -515,26 +454,6 @@ for NAME in "${NAMES[@]}"; do
         continue
     fi
 
-    # Crawl what was just deployed. The site has to be up to be crawled, so
-    # this can only run here — and running it here is the point: a page that
-    # answers 404 is found at release time rather than by somebody browsing to
-    # it later, which is how a contact page whose facility slug did not resolve
-    # sat broken on staging.
-    #
-    # Only our own broken links fail the release. Somebody else's site going
-    # down is not a reason to stop deploying, and a check that cries wolf over
-    # openstreetmap rate-limiting a crawler stops being read.
-    if [[ $SKIP_LINKCHECK -eq 0 ]]; then
-        step "$NAME: link check"
-        if [[ $DRY_RUN -eq 1 ]]; then
-            info "(dry run) crawl $NAME and classify the findings"
-        elif ! linkcheck_site "$NAME"; then
-            FAILED_NAMES+=("$NAME"); FAILED_AT+=("linkcheck")
-            warn "broken links on $NAME"
-            continue
-        fi
-    fi
-
     OK_NAMES+=("$NAME")
 done
 
@@ -549,4 +468,17 @@ done
 printf '  %s%d ok, %d failed in %dm %ds%s\n' \
     "$DIM" "${#OK_NAMES[@]}" "${#FAILED_NAMES[@]}" "$((SECONDS / 60))" "$((SECONDS % 60))" "$NC"
 
-[[ ${#FAILED_NAMES[@]} -eq 0 ]]
+# Check what was just deployed: links and pages in a browser, once every site
+# is up, so a page that 404s or dies on hydration is found at release time
+# rather than by somebody browsing to it later. --no-linkcheck skips it.
+CHECKED=0
+if [[ $SKIP_LINKCHECK -eq 0 && $BUILD_ONLY -eq 0 && ${#OK_NAMES[@]} -gt 0 ]]; then
+    step "check"
+    if [[ $DRY_RUN -eq 1 ]]; then
+        info "(dry run) $CHECK ${OK_NAMES[*]}"
+    else
+        "$CHECK" "${OK_NAMES[@]}" || CHECKED=1
+    fi
+fi
+
+[[ ${#FAILED_NAMES[@]} -eq 0 && $CHECKED -eq 0 ]]
