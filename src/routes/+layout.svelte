@@ -28,6 +28,8 @@
 	import AddressbookFooter from '$lib/Footer/AddressbookFooter.svelte';
 	import ParentSiteFooter from '$lib/SiteMenu/ParentSiteFooter.svelte';
 	import { siteMenu } from '$lib/SiteMenu/siteMenu';
+	import DemoBanner from '$lib/DemoBanner/DemoBanner.svelte';
+	import { demoBanner } from '$lib/DemoBanner/demoBanner';
 
     // Theme stylesheet is loaded from LayoutServerData
     import { QueryClientProvider, QueryClient } from '@tanstack/svelte-query'
@@ -132,6 +134,9 @@
 <AppShell class="z-[90000]" slotHeader="relative z-20" regionpage="overflow-y-scroll" slotfooter="bg-black p-4" on:scroll="{scrollHandler}">
 		<svelte:fragment slot="header">
 			<SkeletonAppBar/>
+			{#if demoBanner}
+				<DemoBanner text={demoBanner} />
+			{/if}
 		</svelte:fragment>
 		<svelte:fragment slot="sidebarLeft">
 			<Sidebar/>
