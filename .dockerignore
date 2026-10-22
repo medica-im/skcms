@@ -21,10 +21,18 @@ build
 # Kept out of the context rather than reordered in the Dockerfile because they
 # are not build inputs at all. The build reads none of them; only test and
 # release tooling does, and that runs on the host.
+#
+# This list is also what says which commits change the image: image-tag.sh
+# and versions.sh count only the others (scripts/lib/image-inputs.sh).
 scripts
 tests
 features
 .features-gen
+steps
 docs
 playwright.config.ts
 vitest-setup*
+**/*.test.ts
+**/*.spec.ts
+**/__screenshots__
+src/lib/testing

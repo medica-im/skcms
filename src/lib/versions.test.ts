@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { execFileSync } from 'node:child_process';
 import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 
 /**
  * Which commit runs where: the backend and every frontend, on dev, staging and
@@ -49,6 +49,21 @@ function commit(repo: string, subject: string): string {
 	clock += 60;
 	const date = `@${clock} +0000`;
 	writeFileSync(join(repo, 'file'), `${subject}\n`);
+	git(repo, 'add', '-A');
+	execFileSync('git', ['commit', '-q', '-m', subject], {
+		cwd: repo,
+		env: { ...process.env, ...gitEnv(), GIT_AUTHOR_DATE: date, GIT_COMMITTER_DATE: date },
+		stdio: 'pipe'
+	});
+	return git(repo, 'rev-parse', 'HEAD');
+}
+
+/** A commit of one file at `path`, with its own later date; returns its full sha. */
+function commitPath(repo: string, path: string, text: string, subject: string): string {
+	clock += 60;
+	const date = `@${clock} +0000`;
+	mkdirSync(dirname(join(repo, path)), { recursive: true });
+	writeFileSync(join(repo, path), text);
 	git(repo, 'add', '-A');
 	execFileSync('git', ['commit', '-q', '-m', subject], {
 		cwd: repo,
@@ -187,6 +202,8 @@ beforeEach(() => {
 	chmodSync(join(fixtures, 'fake-ssh'), 0o755);
 
 	frontend = repo('skcms', 'main');
+	// What the image leaves out, as in the real repository: committed with f1.
+	writeFileSync(join(frontend, '.dockerignore'), 'scripts\n');
 	f1 = commit(frontend, 'frontend one');
 	f2 = commit(frontend, 'frontend two');
 	skvar = repo('skvar', 'site.fr');
@@ -389,5 +406,94 @@ describe('versions.sh: the display', () => {
 		const tip = (label: string) => lines.find((l) => l.includes(label)) ?? '';
 		expect(tip('skcms main')).toContain(`${short(f2)}  frontend two`);
 		expect(tip('backend production')).toContain(`${short(b2)}  backend two`);
+	});
+});
+
+/**
+ * Only commits that change an image count.
+ *
+ * A commit to a release script, a test or a feature file builds the same image
+ * byte for byte. Counting it put dev "ahead" and every environment "behind"
+ * after each script edit, and buried the commits that are waiting to go out.
+ * What an image is built from is the repository minus its .dockerignore, or
+ * the list a repository keeps in scripts/image-inputs (the backend).
+ */
+describe('versions.sh: only code commits count', () => {
+	it('does not put a site behind for a commit to what its image leaves out', () => {
+		commitPath(frontend, 'scripts/release.sh', 'x\n', 'a release script');
+		const r = row('production', 'site.fr');
+		expect([r.behind, r.state]).toEqual(['0', 'current']);
+	});
+
+	it('counts only the commits that changed the image', () => {
+		commitPath(frontend, 'scripts/release.sh', 'x\n', 'a release script');
+		commit(frontend, 'frontend three');
+		commitPath(frontend, 'scripts/release.sh', 'y\n', 'another release script');
+		expect(row('production', 'site.fr').behind).toBe('1');
+		expect(row('staging', 'staging.site.fr').behind).toBe('2');
+	});
+
+	it('shows dev at its last code commit, not at a later script commit', () => {
+		commitPath(frontend, 'scripts/release.sh', 'x\n', 'a release script');
+		const fe = row('dev', 'frontend (site.fr)');
+		expect([fe.commit, fe.state]).toEqual([short(f2), 'current']);
+	});
+
+	it('does not call dev dirty for an edited script', () => {
+		commitPath(frontend, 'scripts/release.sh', 'x\n', 'a release script');
+		writeFileSync(join(frontend, 'scripts/release.sh'), 'edited\n');
+		expect(row('dev', 'frontend (site.fr)').state).toBe('current');
+		writeFileSync(join(frontend, 'file'), 'edited\n');
+		expect(row('dev', 'frontend (site.fr)').state).toBe('dirty');
+	});
+
+	it('follows the list of inputs the backend keeps', () => {
+		commitPath(backend, 'scripts/image-inputs', 'file\n', 'list what the image is built from');
+		commitPath(backend, 'docs.md', 'x\n', 'docs');
+		expect(row('production', 'backend').state).toBe('current');
+		expect(row('staging', 'backend').behind).toBe('1');
+		expect(row('dev', 'backend').commit).toBe(short(b2));
+	});
+
+	it('shows each tip at its last code commit', () => {
+		commitPath(frontend, 'scripts/release.sh', 'x\n', 'a release script');
+		const tip = run()
+			.split('\n')
+			.find((l) => l.includes('skcms main')) ?? '';
+		expect(tip).toContain(`${short(f2)}  frontend two`);
+	});
+
+	it("names the backend's commit from its label when no local tag is left", () => {
+		host('prod', [{ image: `${BACKEND}:latest`, digest: 97, sha: b1 }]);
+		const r = row('production', 'backend');
+		expect([r.commit, r.behind]).toEqual([short(b1), '1']);
+	});
+});
+
+describe('versions.sh: what is waiting to be deployed', () => {
+	const box = (title: string) =>
+		run()
+			.split('╭─ ')
+			.find((b) => b.startsWith(`${title} `)) ?? '';
+
+	it('lists, under each environment, the code commits it does not run yet', () => {
+		commitPath(frontend, 'scripts/release.sh', 'x\n', 'a release script');
+		const f3 = commit(frontend, 'frontend three');
+		const staging = box('staging');
+		expect(staging).toContain('to deploy');
+		for (const [sha, subject] of [
+			[f2, 'frontend two'],
+			[f3, 'frontend three'],
+			[b2, 'backend two'],
+			[s2, 'skvar two']
+		]) {
+			expect(staging).toMatch(new RegExp(`${short(sha)}\\s+${subject}`));
+		}
+		expect(staging).not.toContain('a release script');
+	});
+
+	it('lists nothing for an environment that runs every code commit', () => {
+		commitPath(frontend, 'scripts/release.sh', 'x\n', 'a release script');
+		expect(box('production')).not.toContain('to deploy');
 	});
 });

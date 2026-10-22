@@ -137,3 +137,17 @@ describe('the app version stamped into the image', () => {
 		expect(config).toMatch(/APP_VERSION/);
 	});
 });
+
+/**
+ * The commit an image's git.sha label names is the one its tag names: the last
+ * commit that changed what the image is built from. versions.sh falls back to
+ * the label when no local tag is left; a label naming HEAD would put an image
+ * built after a script-only commit "ahead" of an identical one.
+ */
+describe('the commit stamped into the image', () => {
+	it('is the last commit that changed the image, as in its tag', () => {
+		expect(source).toMatch(/source "\$REPO_ROOT\/scripts\/lib\/image-inputs\.sh"/);
+		expect(source).toMatch(/GIT_SHA=\$\(code_commit "\$REPO_ROOT"\)/);
+		expect(source).not.toMatch(/GIT_SHA=\$\(git rev-parse HEAD\)/);
+	});
+});

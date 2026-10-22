@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { testGitEnv } from './testing/gitEnv';
 
 /**
@@ -151,5 +151,92 @@ describe('deciding that a tree is dirty', () => {
 		// This one really is uncommitted content that ends up in the image.
 		writeFileSync(join(parent, 'sub', 'a'), 'changed');
 		expect(tagIn(parent)).toMatch(/-dirty$/);
+	});
+});
+
+/**
+ * Only what goes into the image counts.
+ *
+ * Editing or committing a release script used to mark dev dirty and put it a
+ * commit ahead of staging and production, for an image that would be byte for
+ * byte the same -- so the commits that matter were hard to see. The image's
+ * inputs are the repository minus .dockerignore (or, for a repository that
+ * lists them, its scripts/image-inputs); the tag names the last commit that
+ * changed them, and only an edit among them is dirty.
+ */
+describe('a tag that follows the image, not the repository', () => {
+	let repo: string;
+	const git = (...args: string[]) =>
+		execFileSync('git', args, { cwd: repo, encoding: 'utf8', env: testGitEnv }).trim();
+	const write = (path: string, text: string) => {
+		mkdirSync(dirname(join(repo, path)), { recursive: true });
+		writeFileSync(join(repo, path), text);
+	};
+	const commitAll = (subject: string) => {
+		git('add', '-A');
+		git('commit', '-qm', subject);
+		return git('rev-parse', 'HEAD').slice(0, 7);
+	};
+	const tag = () =>
+		execFileSync('bash', [SCRIPT], {
+			cwd: repo,
+			env: { ...testGitEnv, IMAGE_TAG_SUBMODULE_SHA: 'a1b2c3d' + 'b'.repeat(33) },
+			encoding: 'utf8'
+		}).trim();
+
+	beforeEach(() => {
+		repo = mkdtempSync(join(tmpdir(), 'inputs-'));
+		git('init', '-q', '-b', 'main');
+		git('config', 'user.email', 't@t.test');
+		git('config', 'user.name', 'test');
+		write('.dockerignore', 'node_modules\n# tooling\nscripts\n');
+		write('src/app.ts', '1');
+		write('scripts/release.sh', '1');
+		write('scripts/lib/helper.sh', '1');
+	});
+
+	afterEach(() => rmSync(repo, { recursive: true, force: true }));
+
+	it('is not dirty when only a file the image leaves out was edited', () => {
+		commitAll('code');
+		write('scripts/release.sh', 'edited');
+		write('scripts/lib/helper.sh', 'edited');
+		expect(tag()).not.toMatch(/-dirty$/);
+	});
+
+	it('is dirty when a file the image is built from was edited', () => {
+		commitAll('code');
+		write('src/app.ts', 'edited');
+		expect(tag()).toMatch(/-dirty$/);
+	});
+
+	it('keeps its name across a commit that touches only what the image leaves out', () => {
+		const code = commitAll('code');
+		write('scripts/release.sh', 'edited');
+		commitAll('a release script');
+		expect(tag()).toMatch(new RegExp(`^${code}-`));
+	});
+
+	it('moves with a commit that changes the image', () => {
+		commitAll('code');
+		write('scripts/release.sh', 'edited');
+		commitAll('a release script');
+		write('src/app.ts', 'edited');
+		const next = commitAll('more code');
+		expect(tag()).toMatch(new RegExp(`^${next}-`));
+	});
+
+	it('follows the list of inputs a repository keeps, when it keeps one', () => {
+		// The backend's image is built from a few named folders; its
+		// .dockerignore only keeps secrets out.
+		write('scripts/image-inputs', 'src\n');
+		write('README.md', '1');
+		const code = commitAll('code');
+		write('README.md', 'edited');
+		expect(tag()).not.toMatch(/-dirty$/);
+		commitAll('docs');
+		expect(tag()).toMatch(new RegExp(`^${code}-`));
+		write('src/app.ts', 'edited');
+		expect(tag()).toMatch(/-dirty$/);
 	});
 });

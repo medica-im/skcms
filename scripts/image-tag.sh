@@ -22,11 +22,15 @@
 set -euo pipefail
 
 SUBMODULE_PATH="${IMAGE_TAG_SUBMODULE_PATH:-src/routes/(skvar)}"
+# shellcheck source=lib/image-inputs.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/image-inputs.sh"
 
+# The last commit that changed what the image is built from, not HEAD: a
+# commit to a script alone builds the same image, under the same name.
 if [[ -n "${IMAGE_TAG_GIT_SHA:-}" ]]; then
     GIT_SHA="$IMAGE_TAG_GIT_SHA"
 else
-    GIT_SHA="$(git rev-parse HEAD)"
+    GIT_SHA="$(code_commit "$(git rev-parse --show-toplevel)")"
 fi
 
 if [[ -n "${IMAGE_TAG_SUBMODULE_SHA:-}" ]]; then
@@ -49,8 +53,10 @@ else
     # own commit is already in the tag, so where it points is described, not
     # unknown. What -dirty has to mean is that something was edited and is in
     # neither commit — checked inside the submodule on the line below.
-    DIRTY=0
-    [[ -n "$(git status --porcelain --ignore-submodules=all 2>/dev/null)" ]] && DIRTY=1
+    #
+    # And only among the files the image is built from (lib/image-inputs.sh):
+    # an edited release script is in no image.
+    DIRTY="$(code_dirty "$(git rev-parse --show-toplevel)" --ignore-submodules=all)"
     [[ -n "$(git -C "$SUBMODULE_PATH" status --porcelain 2>/dev/null)" ]] && DIRTY=1
 fi
 

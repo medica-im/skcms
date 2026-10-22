@@ -111,7 +111,10 @@ if ! git -C "$SUBMODULE_PATH" merge --ff-only "origin/$SKVAR_BRANCH"; then
     exit 1
 fi
 
-GIT_SHA=$(git rev-parse HEAD)
+# The commit the git.sha label names is the one the tag names (image-tag.sh).
+# shellcheck source=lib/image-inputs.sh
+source "$REPO_ROOT/scripts/lib/image-inputs.sh"
+GIT_SHA=$(code_commit "$REPO_ROOT")
 SUBMODULE_SHA=$(git -C "$SUBMODULE_PATH" rev-parse HEAD)
 
 # The moving tag from images.yml, plus one that never moves.

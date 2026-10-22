@@ -19,9 +19,12 @@
 # is left; the backend has no label, so without a tag it is unknown, not
 # guessed.
 #
-# "behind" counts commits from the deployed one to the local tip: main for
-# skcms, the site's own branch for skvar, production for the backend. Nothing
-# is fetched, so the tips are as fresh as the last fetch or pull.
+# "behind" counts the commits from the deployed one to the local tip that
+# change an image -- not a release script, a test or a feature file
+# (lib/image-inputs.sh) -- and each environment lists them under "to deploy".
+# The tips: main for skcms, the site's own branch for skvar, production for
+# the backend. Nothing is fetched, so they are as fresh as the last fetch or
+# pull.
 set -uo pipefail
 export LC_ALL=C.UTF-8
 
@@ -35,6 +38,10 @@ BACKEND_TIP="${BACKEND_TIP:-production}"
 BACKEND_IMAGE="${BACKEND_IMAGE:-ghcr.io/medica-im/clinic-cms-backend}"
 VERSIONS_SSH="${VERSIONS_SSH:-ssh -o BatchMode=yes -o ConnectTimeout=8}"
 VERSIONS_LOCAL_IMAGES="${VERSIONS_LOCAL_IMAGES:-}"
+# Only commits that change an image count: the last of them is a working
+# tree's commit, and they are the ones "behind" counts and lists.
+# shellcheck source=lib/image-inputs.sh
+source "$REPO_ROOT/scripts/lib/image-inputs.sh"
 
 case "${1:-}" in
     --tsv) TSV=1 ;;
@@ -121,9 +128,7 @@ tip_of() {
     fi
 }
 
-behind() {
-    git -C "$1" rev-list --count "$2..$3" 2>/dev/null || printf '?\n'
-}
+behind() { code_behind "$@"; }
 
 when() { git -C "$1" log -1 --format=%ct "$2" 2>/dev/null || printf '0\n'; }
 subject() { git -C "$1" log -1 --format=%s "$2" 2>/dev/null; }
@@ -180,16 +185,15 @@ frontend_row() { # env component host branch commit skvar dirty deployed
 # --- dev: the working trees ---------------------------------------------------
 
 : >"$work/rows"
-dirty_tree() { [[ -n "$(git -C "$1" status --porcelain "${@:2}" 2>/dev/null)" ]] && echo 1 || echo 0; }
 
 dev_skvar_branch="$(git -C "$SKVAR_DIR" branch --show-current 2>/dev/null)"
 dev_skvar_branch="${dev_skvar_branch:-$(git -C "$SKVAR_DIR" rev-parse --short HEAD 2>/dev/null)}"
 dev_fe_dirty=0
-[[ "$(dirty_tree "$FRONTEND_DIR" --ignore-submodules=all)" == 1 || "$(dirty_tree "$SKVAR_DIR")" == 1 ]] && dev_fe_dirty=1
-backend_row dev "$(hostname -s)" "$(git -C "$BACKEND_DIR" rev-parse HEAD 2>/dev/null)" 'working tree' \
-    "$(dirty_tree "$BACKEND_DIR")"
+[[ "$(code_dirty "$FRONTEND_DIR" --ignore-submodules=all)" == 1 || "$(code_dirty "$SKVAR_DIR")" == 1 ]] && dev_fe_dirty=1
+backend_row dev "$(hostname -s)" "$(code_commit "$BACKEND_DIR")" 'working tree' \
+    "$(code_dirty "$BACKEND_DIR")"
 frontend_row dev "frontend ($dev_skvar_branch)" "$(hostname -s)" "$dev_skvar_branch" \
-    "$(git -C "$FRONTEND_DIR" rev-parse HEAD)" "$(git -C "$SKVAR_DIR" rev-parse HEAD)" \
+    "$(code_commit "$FRONTEND_DIR")" "$(code_commit "$SKVAR_DIR")" \
     "$dev_fe_dirty" 'working tree'
 
 # --- staging and production: what each host runs -----------------------------
@@ -205,8 +209,9 @@ for env in staging production; do
         if [[ -f "$work/down.$h" ]]; then
             down_row "$env" backend "$h" unreachable
         elif c="$(container_of "$h" "$BACKEND_IMAGE")"; then
-            IFS="$US" read -r digests _ _ created <<<"$c"
-            backend_row "$env" "$h" "$(local_tag "$BACKEND_IMAGE" "$digests")" "$(deployed_at "$created")"
+            IFS="$US" read -r digests sha _ created <<<"$c"
+            tag="$(local_tag "$BACKEND_IMAGE" "$digests")"
+            backend_row "$env" "$h" "${tag:-$sha}" "$(deployed_at "$created")"
         fi
 
         while IFS=$'\t' read -r name host branch repo _; do
@@ -295,14 +300,67 @@ W_SUBJ=$(( COLS - fixed )); (( W_SUBJ < 20 )) && W_SUBJ=20
 fe_label="skcms $FRONTEND_TIP" be_label="backend $BACKEND_TIP"
 W_TIP=$(( ${#fe_label} > ${#be_label} ? ${#fe_label} : ${#be_label} ))
 tip_line() { # heading label repo ref
-    local room=$(( COLS - 1 - 4 - 2 - W_TIP - 1 - 7 - 2 ))
+    local room=$(( COLS - 1 - 4 - 2 - W_TIP - 1 - 7 - 2 )) code
     (( room < 20 )) && room=20
+    code="$(code_commit "$3" "$4")"
     printf ' %s%s%s  %s %s%s%s  %s\n' "$D" "$(pad "$1" 4)" "$X" "$(pad "$2" "$W_TIP")" \
-        "$T" "$(git -C "$3" rev-parse --short "$4" 2>/dev/null)" "$X" "$(pad "$(subject "$3" "$4")" "$room")"
+        "$T" "${code:0:7}" "$X" "$(pad "$(subject "$3" "$code")" "$room")"
 }
 echo
 tip_line tips "$fe_label" "$FRONTEND_DIR" "$FRONTEND_TIP"
 tip_line '' "$be_label" "$BACKEND_DIR" "$BACKEND_TIP"
+
+# The code commits a box's hosts do not run yet: for each repository, from the
+# component furthest behind. "<label><TAB><sha><TAB><subject>" per line, newest
+# first, at most PENDING_MAX per repository and then a count of the rest.
+PENDING_MAX="${PENDING_MAX:-10}"
+pending_repo() { # label repo from to
+    local label="$1" n=0 sha subj total
+    total="$(code_behind "$2" "$3" "$4")"
+    while IFS=$'\t' read -r sha subj; do
+        (( n++ < PENDING_MAX )) || break
+        printf '%s\t%s\t%s\n' "$label" "${sha:0:7}" "$subj"
+    done < <(code_log "$2" "$3" "$4")
+    [[ "$total" =~ ^[0-9]+$ ]] && (( total > PENDING_MAX )) &&
+        printf '%s\t\t… and %s more\n' "$label" $(( total - PENDING_MAX ))
+    return 0
+}
+
+pending() { # env box
+    local env="$1" box="$2" e comp host commit skvar dirty b sb branch
+    local fe_from="" fe_most=0 be_from="" be_most=0
+    declare -A sv_from=() sv_most=()
+    while IFS=$'\t' read -r e comp host commit skvar dirty b sb _; do
+        [[ "$e" == "$env" && ( -z "$box" || "$host" == "$box" ) && "$commit" != - ]] || continue
+        if [[ "$comp" == backend ]]; then
+            [[ "$b" =~ ^[0-9]+$ ]] && (( b > be_most )) && { be_most=$b; be_from=$commit; }
+            continue
+        fi
+        [[ "$b" =~ ^[0-9]+$ ]] && (( b > fe_most )) && { fe_most=$b; fe_from=$commit; }
+        branch="$(awk -F'\t' -v n="$comp" '$1 == n { print $3; exit }' "$work/entries")"
+        if [[ -n "$branch" && "$sb" =~ ^[0-9]+$ ]] && (( sb > ${sv_most[$branch]:-0} )); then
+            sv_most[$branch]=$sb sv_from[$branch]=$skvar
+        fi
+    done <"$work/rows"
+    (( fe_most > 0 )) && pending_repo skcms "$FRONTEND_DIR" "$fe_from" "$FRONTEND_TIP"
+    for branch in $(printf '%s\n' "${!sv_from[@]}" | sort); do
+        pending_repo "skvar $branch" "$SKVAR_DIR" "${sv_from[$branch]}" "$(tip_of "$SKVAR_DIR" "$branch")"
+    done
+    (( be_most > 0 )) && pending_repo backend "$BACKEND_DIR" "$be_from" "$BACKEND_TIP"
+    return 0
+}
+
+pending_block() { # env box
+    pending "$1" "$2" >"$work/pending"
+    [[ -s "$work/pending" ]] || return 0
+    local w=0 label sha subj
+    while IFS=$'\t' read -r label _; do (( ${#label} > w )) && w=${#label}; done <"$work/pending"
+    printf ' %s│%s %sto deploy%s\n' "$D" "$X" "$Y" "$X"
+    while IFS=$'\t' read -r label sha subj; do
+        printf ' %s│%s   %s %s%s%s  %s\n' "$D" "$X" "$(pad "$label" "$w")" \
+            "$B" "$(pad "$sha" 7)" "$X" "$(pad "$subj" $(( COLS - w - 16 )))"
+    done <"$work/pending"
+}
 
 # One box per host, so two machines of one environment are never mistaken for
 # one: dev, then each environment's hosts, the one named like it first.
@@ -337,6 +395,7 @@ while IFS=$'\t' read -r env box; do
             "$D" "$(pad "$deployed" $W_WHEN)" "$X" \
             "$(pad "$subj" "$W_SUBJ")"
     done <"$work/rows"
+    [[ "$env" != dev ]] && pending_block "$env" "$box"
     printf ' %s╰%s%s\n' "$D" "$(rule $(( COLS - 3 )))" "$X"
 done < <(boxes)
 echo
