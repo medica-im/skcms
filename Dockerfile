@@ -1,5 +1,5 @@
 # --- ÉTAPE 1 : Base commune ---
-FROM node:22-slim AS base
+FROM node:24-slim AS base
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
@@ -24,7 +24,7 @@ RUN [ "${ENV_FILE}" = ".env" ] || [ "$(readlink -f ${ENV_FILE})" = "$(readlink -
 RUN pnpm run -r build
 
 # --- ÉTAPE 3 : Image de PRODUCTION ---
-FROM node:22-slim AS production
+FROM node:24-slim AS production
 ARG GIT_SHA
 ARG SUBMODULE_SHA
 LABEL git.sha=$GIT_SHA

@@ -139,7 +139,10 @@ esac
 echo "==> [$NAME] Building target=$TARGET env_file=$ENV_FILE"
 echo "    tags: $TAG"
 echo "          $IMMUTABLE_TAG"
+# --pull: the newest patch of the node base image (package.json engines), not
+# whichever one this machine pulled last, so its security fixes reach the image.
 docker build \
+    --pull \
     --target "$TARGET" \
     --build-arg ENV_FILE="$ENV_FILE" \
     --build-arg GIT_SHA="$GIT_SHA" \
