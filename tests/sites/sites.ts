@@ -52,7 +52,8 @@ export const SITE_ORIGINS = {
 	// WordPress at the root with only /annuaire proxied to the app; see
 	// BASE_PATHS below, and directoryPathFor for why that is not the same thing
 	// as santelyon3's /annuaire.
-	'unipa.fr': 'https://dev.unipa.fr'
+	'unipa.fr': 'https://dev.unipa.fr',
+	'msp.medica.im': 'https://dev.msp.medica.im'
 } as const;
 
 export type SiteName = keyof typeof SITE_ORIGINS;
@@ -207,6 +208,7 @@ export const SITE_CONTEXTS: Record<SiteName, { context: string; port: number } |
 	'annuaire.medica.im': { context: 'annuaire', port: 3010 },
 	'sandbox.medica.im': { context: 'sandbox', port: 3014 },
 	'unipa.fr': { context: 'unipa', port: 3015 },
+	'msp.medica.im': { context: 'msp', port: 3016 },
 	'ipa.medica.im': undefined
 };
 

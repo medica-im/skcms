@@ -58,6 +58,7 @@ describe('release-production.sh', () => {
 				'annuaire.medica.im',
 				'ipa.medica.im',
 				'msp-vedene.fr',
+				'msp.medica.im',
 				'sante-gadagne.fr',
 				'santelyon3.fr'
 			].sort()
