@@ -83,6 +83,15 @@
 	$effect(() => {
 		inDialog = !!host?.closest('dialog');
 	});
+
+	/**
+	 * On a touch screen the browser's mousedown comes after svelte-select's
+	 * pointerup has opened the list; landing outside the input, it takes focus
+	 * away and the list closes at once. Only the input itself should take focus.
+	 */
+	const keepFocus = (e: MouseEvent) => {
+		if (!(e.target instanceof HTMLInputElement)) e.preventDefault();
+	};
 </script>
 
 <!--
@@ -90,7 +99,7 @@
 	svelte-select's own defaults: declaring them here means always passing them,
 	and an empty forwarded slot renders every option as a blank row.
 -->
-<div bind:this={host} class="contents">
+<div bind:this={host} class="contents" onmousedown={keepFocus} role="none">
 <Select
 	{...rest}
 	{placeholder}

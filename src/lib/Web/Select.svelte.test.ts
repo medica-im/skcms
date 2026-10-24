@@ -8,6 +8,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import { render } from 'vitest-browser-svelte';
+import { cdp, server } from 'vitest/browser';
 import Select from './Select.svelte';
 import '../../app.postcss';
 import '$lib/assets/css/svelte-select.css';
@@ -32,6 +33,44 @@ describe('Select chevron', () => {
 		render(Select, { props: { items, label: 'label', itemId: 'uid', showChevron: false } } as never);
 		await expect.poll(() => document.querySelector('.svelte-select .indicators')).not.toBeNull();
 		expect(document.querySelector('.svelte-select .chevron')).toBeNull();
+	});
+});
+
+/**
+ * A finger, not a mouse: CDP touch events are trusted, so the browser runs its
+ * own tap sequence — pointer events, then the compatibility mouse events and
+ * the focus change they carry — which no synthetic dispatch reproduces.
+ */
+const tap = async (el: Element) => {
+	const frame = window.frameElement!.getBoundingClientRect();
+	const scale = frame.width / window.innerWidth;
+	const box = el.getBoundingClientRect();
+	const point = {
+		x: frame.left + (box.left + box.width / 2) * scale,
+		y: frame.top + (box.top + box.height / 2) * scale
+	};
+	const session = cdp();
+	await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [point] });
+	await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+};
+
+describe.runIf(server.browser === 'chromium')('Select on a touch screen', () => {
+	it('opens the list when the down arrow is tapped', async () => {
+		render(Select, { props: { items, label: 'label', itemId: 'uid' } } as never);
+		await expect.poll(() => document.querySelector('.svelte-select .chevron')).not.toBeNull();
+		await tap(document.querySelector('.svelte-select .chevron')!);
+		await expect.poll(() => document.querySelector('.svelte-select-list')).not.toBeNull();
+		await new Promise((r) => setTimeout(r, 300));
+		expect(document.querySelector('.svelte-select-list')).not.toBeNull();
+	});
+
+	it('opens the list when the box is tapped', async () => {
+		render(Select, { props: { items, label: 'label', itemId: 'uid' } } as never);
+		await expect.poll(() => document.querySelector('.svelte-select input')).not.toBeNull();
+		await tap(document.querySelector('.svelte-select input')!);
+		await expect.poll(() => document.querySelector('.svelte-select-list')).not.toBeNull();
+		await new Promise((r) => setTimeout(r, 300));
+		expect(document.querySelector('.svelte-select-list')).not.toBeNull();
 	});
 });
 
