@@ -62,6 +62,37 @@ if [[ $LIST -eq 1 ]]; then
     exit 0
 fi
 
+# --- Run log -----------------------------------------------------------------
+# Every check is written to a file as it is printed, as test-all's runs are: a
+# post-release failure is read hours later, after the terminal that ran it is
+# gone. The file is logs/check-staging-DATE.log, with check-staging-latest.log
+# pointing at the newest and the last 20 kept. TEE_LOG=path picks the file;
+# TEE_LOG= (empty) turns logging off. Colour stays on screen and is stripped
+# from the file, so a grep over it works.
+RUN_LOG="${TEE_LOG-${CHECK_STAGING_LOG_DIR:-$REPO_ROOT/logs}/check-staging-$(date +%Y%m%d-%H%M%S).log}"
+if [[ -n "$RUN_LOG" ]]; then
+    RUN_LOG_DIR="$(dirname "$RUN_LOG")"
+    mkdir -p "$RUN_LOG_DIR"
+    if [[ -z "${TEE_LOG+set}" ]]; then
+        ls -1t "$RUN_LOG_DIR"/check-staging-2*.log 2>/dev/null | tail -n +20 | xargs -r rm -f --
+        ln -sfn "$(basename "$RUN_LOG")" "$RUN_LOG_DIR/check-staging-latest.log"
+    fi
+    exec > >(tee >(sed -u -E 's/\x1b\[[0-9;?]*[A-Za-z]//g' > "$RUN_LOG")) 2>&1
+    RUN_LOG_PID=$!
+    info "logging this check to $RUN_LOG"
+    # tee runs beside the script: without waiting for it, the prompt could come
+    # back above the summary's last lines.
+    finish_run_log() {
+        exec >&- 2>&-
+        local _
+        for _ in {1..50}; do
+            kill -0 "$RUN_LOG_PID" 2>/dev/null || return 0
+            sleep 0.1
+        done
+    }
+    trap finish_run_log EXIT
+fi
+
 declare -A FAILED=()
 fail() { FAILED[$1]="${FAILED[$1]:+${FAILED[$1]}, }$2"; }
 
