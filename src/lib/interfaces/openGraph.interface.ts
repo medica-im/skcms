@@ -3,6 +3,6 @@ export interface OpenGraph {
     username: string;
     twitter_description: string;
     description: string;
-    image_url: string;
-    image_alt: string;
+    image_url: string | null;
+    image_alt: string | null;
 }
