@@ -8,7 +8,7 @@
  */
 import { describe, it, expect, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
-import { cdp, server, page as screen, userEvent } from 'vitest/browser';
+import { cdp, server, userEvent } from 'vitest/browser';
 import * as m from '$msgs';
 import Select from './Select.svelte';
 import '../../app.postcss';
@@ -86,8 +86,9 @@ describe('Select with nothing to offer', () => {
 describe('Select callbacks', () => {
 	it('hands the chosen item itself to onchange', async () => {
 		const onchange = vi.fn();
-		render(Select, { props: { items, label: 'label', itemId: 'uid', listOpen: true, onchange } } as never);
-		await userEvent.click(screen.getByText('Médecin généraliste'));
+		// Exact: once focused, the screen-reader announcement names the hovered option too.
+		const view = await render(Select, { props: { items, label: 'label', itemId: 'uid', listOpen: true, onchange } } as never);
+		await userEvent.click(view.getByText('Médecin généraliste', { exact: true }));
 		await expect.poll(() => onchange.mock.calls.length).toBe(1);
 		expect(onchange.mock.calls[0][0]).toMatchObject(items[1]);
 	});
