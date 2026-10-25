@@ -62,20 +62,13 @@ export const load: LayoutLoad = async ({ fetch, data, depends }) => {
     situations = await getSituationsV2(fetch);
   }
 
+  // Everything the server load returned, then what this one refetches in the
+  // browser. Listed by hand, a key this load forgot never reached page.data:
+  // `theme` once, then the site's sharing card.
   return {
+    ...data,
     situations: situations || data.situations,
-    directory: data.directory,
-    session: data.session,
     user: user || data.user,
-    organization: data.organization,
     entries: entries || data.entries,
-    labels: data.labels,
-    // Passed through, not recomputed: this load runs in the browser too, where
-    // the `theme` cookie is HttpOnly and unreadable. Listing the keys by hand
-    // means anything the server load returns and this one forgets is simply
-    // dropped — which is how `theme` reached __data.json but never
-    // `page.data`, leaving the switcher with nothing to seed itself from.
-    theme: data.theme,
-    dismissedAlerts: data.dismissedAlerts,
   };
 }
