@@ -2,6 +2,7 @@ import { ORIGIN } from '$lib/utils/origin.ts';
 import { authReq } from '$lib/utils/request';
 import { getEntries } from '$lib/api.ts';
 import { getSituationsV2 } from '$lib/store/directoryStore';
+import { getOpenGraph } from '$lib/store/openGraphStore';
 import { DISMISSED_COOKIE, parseDismissed } from '$lib/Alert/dismissed';
 import type { Organization } from '$lib/interfaces/organization.ts';
 import type { LayoutServerLoad } from "./$types"
@@ -51,13 +52,15 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch, depends }
     situations: directory?.inputField.situation ? await getSituationsV2(globalThis.fetch) : undefined,
   }));
 
-  const [user, entries, organization, { directory, situations }, labels, session] = await Promise.all([
+  const [user, entries, organization, { directory, situations }, labels, openGraph, session] = await Promise.all([
     getUser(),
     // here retrieving entries with auth works with http://localhost and pnpm run dev
     getEntries(globalThis.fetch, cookies),
     getJson<Organization>(`${ORIGIN}/api/v2/organization`, 'organization'),
     directoryAndSituations,
     getJson<Labels>(`${ORIGIN}/api/v2/effector-type-labels`, 'labels'),
+    // Here, on the server only, so the browser never asks for the card itself.
+    getOpenGraph(fetch),
     locals.auth(),
   ]);
 
@@ -68,6 +71,7 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch, depends }
     directory: directory,
     entries: entries,
     labels: labels,
+    openGraph: openGraph,
     situations: situations,
     dismissedAlerts: parseDismissed(cookies.get(DISMISSED_COOKIE)),
     // What the page was actually rendered with, so the theme switcher can

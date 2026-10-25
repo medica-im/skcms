@@ -31,9 +31,6 @@
 <svelte:window bind:scrollY={$scrollY} />
 
 <svelte:head>
-	<!--{#if data?.openGraph}
-		<OpenGraph opengraph={data.openGraph} />
-	{/if}-->
 	<title>
 		{capitalizeFirstLetter(m.USER_GUIDE())} - {capitalizeFirstLetter(
 			page.data.organization.formatted_name

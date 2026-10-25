@@ -19,7 +19,12 @@ declare global {
 			 */
 			theme?: string;
 		}
-		interface PageData {}
+		interface PageData {
+			/** The site's sharing card, from the root layout. */
+			openGraph?: import('$lib/interfaces/openGraph.interface').OpenGraph;
+			/** A page's own sharing values, laid over the site's card (mergeCard). */
+			card?: import('$lib/components/OpenGraph/mergeCard').PageCard;
+		}
 		interface PageState {
 			selected?: unknown;
 			editing?: unknown;

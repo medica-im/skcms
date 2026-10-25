@@ -19,6 +19,7 @@
     import { Toast } from '@skeletonlabs/skeleton';
     // Modal Components
     import Search from '$lib/Search/Search.svelte';
+    import PageOpenGraph from '$lib/components/OpenGraph/PageOpenGraph.svelte';
     // Types
     import type { ModalComponent } from '@skeletonlabs/skeleton';
     // components
@@ -125,6 +126,7 @@
 	{#if variables.NOINDEX==true}
 	<meta name="robots" content="noindex">
 	{/if}
+	<PageOpenGraph />
 </svelte:head>
 <!-- Overlays -->
 <Modal components="{modalComponentRegistry}"></Modal>

@@ -22,14 +22,14 @@ const fakeFetch = (input: RequestInfo | URL) =>
 		const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
 		held.push({
 			path: new URL(url).pathname,
-			answer: (body, status = 200) => resolve(new Response(JSON.stringify(body), { status }))
+			answer: (body, status = 200) => resolve(new Response(status === 204 ? null : JSON.stringify(body), { status }))
 		});
 	});
 
 const started = () => held.map((h) => h.path);
 const answer = (path: string, body: unknown, status = 200) => held.find((h) => h.path === path)!.answer(body, status);
 
-const INDEPENDENT = ['/api/v2/users/me', '/api/v2/entries', '/api/v2/organization', '/api/v1/directory/', '/api/v2/effector-type-labels'];
+const INDEPENDENT = ['/api/v2/users/me', '/api/v2/entries', '/api/v2/organization', '/api/v1/directory/', '/api/v2/effector-type-labels', '/api/v2/opengraph'];
 
 const event = (dismissed?: string) =>
 	({
@@ -45,12 +45,15 @@ const event = (dismissed?: string) =>
 		}
 	}) as never;
 
-const answerAll = (directory: unknown = { inputField: { situation: false } }) => {
+const CARD = { title: 'Maison de santé' };
+
+const answerAll = (directory: unknown = { inputField: { situation: false } }, card: unknown = CARD) => {
 	answer('/api/v2/users/me', { username: 'alice' });
 	answer('/api/v2/entries', [{ name: 'Alice Martin' }]);
 	answer('/api/v2/organization', { name: 'CPTS' });
 	answer('/api/v1/directory/', directory);
 	answer('/api/v2/effector-type-labels', { t: {} });
+	answer('/api/v2/opengraph', card, card === null ? 204 : 200);
 	releaseAuth({ user: { email: 'alice@example.org' } });
 };
 
@@ -103,6 +106,22 @@ describe('the root layout’s data', () => {
 		expect(((await loading) as Record<string, unknown>).dismissedAlerts).toEqual(['association-alert-v1']);
 	});
 
+	it("hands every page the site's sharing card, asked for by the server alone", async () => {
+		const loading = load(event());
+		await vi.waitFor(() => expect(started()).toEqual(expect.arrayContaining(INDEPENDENT)), { timeout: 1000 });
+		answerAll();
+
+		expect(((await loading) as Record<string, unknown>).openGraph).toEqual(CARD);
+	});
+
+	it('hands no card on a site without one', async () => {
+		const loading = load(event());
+		await vi.waitFor(() => expect(started()).toEqual(expect.arrayContaining(INDEPENDENT)), { timeout: 1000 });
+		answerAll(undefined, null);
+
+		expect(((await loading) as Record<string, unknown>).openGraph).toBeUndefined();
+	});
+
 	it('keeps the rest when one request fails', async () => {
 		const loading = load(event());
 		await vi.waitFor(() => expect(started()).toEqual(expect.arrayContaining(INDEPENDENT)), { timeout: 1000 });
@@ -112,6 +131,7 @@ describe('the root layout’s data', () => {
 		answer('/api/v2/entries', [{ name: 'Alice Martin' }]);
 		answer('/api/v1/directory/', { inputField: { situation: false } });
 		answer('/api/v2/effector-type-labels', { t: {} });
+		answer('/api/v2/opengraph', CARD);
 		releaseAuth(null);
 
 		const data = (await loading) as Record<string, unknown>;
