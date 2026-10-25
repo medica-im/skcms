@@ -17,7 +17,6 @@
 		faClockRotateLeft
 	} from '@fortawesome/free-solid-svg-icons';
 	import Select from '$lib/Web/Select.svelte';
-	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import * as m from '$msgs';
 	import type { Role } from '$lib/interfaces/v2/invitee';
 	import type { PageData } from './$types';
@@ -404,7 +403,7 @@
 						items={columnOptions}
 						bind:value={emailColumnSel}
 						placeholder={m.BATCH_INVITEE_SELECT_COLUMN()}
-					><NoOptions slot="empty" /></Select>
+					/>
 				</label>
 
 				<!-- Name split toggle -->
@@ -421,7 +420,7 @@
 								items={columnOptions}
 								bind:value={firstNameColumnSel}
 								placeholder={m.BATCH_INVITEE_NO_COLUMN()}
-							><NoOptions slot="empty" /></Select>
+							/>
 						</label>
 						<label class="label">
 							<span>{m.BATCH_INVITEE_LAST_NAME_COLUMN()}</span>
@@ -429,7 +428,7 @@
 								items={columnOptions}
 								bind:value={lastNameColumnSel}
 								placeholder={m.BATCH_INVITEE_NO_COLUMN()}
-							><NoOptions slot="empty" /></Select>
+							/>
 						</label>
 					</div>
 				{:else}
@@ -439,7 +438,7 @@
 							items={columnOptions}
 							bind:value={nameColumnSel}
 							placeholder={m.BATCH_INVITEE_NO_COLUMN()}
-						><NoOptions slot="empty" /></Select>
+						/>
 					</label>
 				{/if}
 			</div>
@@ -504,7 +503,7 @@
 					items={getRoleOptions()}
 					bind:value={selectedRole}
 					placeholder={m.BATCH_INVITEE_ROLE()}
-				><NoOptions slot="empty" /></Select>
+				/>
 			</label>
 
 			<!-- Send emails -->

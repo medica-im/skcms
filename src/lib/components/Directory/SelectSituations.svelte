@@ -1,6 +1,5 @@
 <script lang="ts">
 	import Select from '$lib/Web/Select.svelte';
-	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { getSelectSituation } from './context';
@@ -39,16 +38,16 @@
 		selectSituation.set(selectionFromUrl);
 	});
 
-	function handleChange(event: CustomEvent) {
-		if (event.detail) {
+	function handleChange(selected: SelectType | undefined) {
+		if (selected) {
 			const url = new URL(page.url);
-			url.searchParams.set('situation', event.detail.value);
+			url.searchParams.set('situation', selected.value);
 			goto(`${url.pathname}?${url.searchParams}`, { noScroll: true, keepFocus: true });
 		}
 	}
 
-	function handleClear(event: CustomEvent) {
-		if (event.detail) {
+	function handleClear(cleared: unknown) {
+		if (cleared) {
 			const url = new URL(page.url);
 			url.searchParams.delete('situation');
 			const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
@@ -66,10 +65,10 @@
 			{itemId}
 			items={situations}
 			searchable={true}
-			on:change={handleChange}
-			on:clear={handleClear}
+			onchange={handleChange}
+			onclear={handleClear}
 			placeholder={m.ADDRESSBOOK_SITUATIONS_PLACEHOLDER()}
 			value={selectionFromUrl}
-		><NoOptions slot="empty" /></Select>
+		/>
 	{/if}
 </div>

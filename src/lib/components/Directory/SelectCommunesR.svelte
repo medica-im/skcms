@@ -2,7 +2,6 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import Select from '$lib/Web/Select.svelte';
-	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import * as m from '$msgs';
 	import { getSelectedCommunesUids, getSelectedCommunesChoices } from './context';
 	import type { Commune } from '$lib/interfaces/geography.interface.ts';
@@ -56,8 +55,8 @@
 		}
 	});
 
-	function handleClear(event: CustomEvent) {
-		if (event.detail) {
+	function handleClear(cleared: unknown) {
+		if (cleared) {
 			const url = new URL(page.url);
 			url.searchParams.delete('communes');
 			const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
@@ -65,13 +64,13 @@
 		}
 	}
 
-	function handleChange(event: CustomEvent) {
-		if (event.detail) {
+	function handleChange(selected: SelectType | SelectType[] | undefined) {
+		if (selected) {
 			let uids: string[];
-			if (Array.isArray(event.detail)) {
-				uids = event.detail.map((e: SelectType) => e.value);
+			if (Array.isArray(selected)) {
+				uids = selected.map((e) => e.value);
 			} else {
-				uids = [event.detail.value];
+				uids = [selected.value];
 			}
 			const url = new URL(page.url);
 			url.searchParams.set('communes', JSON.stringify(uids));
@@ -96,11 +95,11 @@ $selectedCommunesChoices: {JSON.stringify($selectedCommunesChoices)}
 			{itemId}
 			items={getItems(communeOf)}
 			searchable={true}
-			on:change={handleChange}
-			on:clear={handleClear}
+			onchange={handleChange}
+			onclear={handleClear}
 			placeholder={m.ADDRESSBOOK_COMMUNES_PLACEHOLDER()}
 			{multiple}
 			value={selectionFromUrl}
-		><NoOptions slot="empty" /></Select>
+		/>
 	{/if}
 </div>

@@ -15,7 +15,6 @@
 	import { JsonView } from '@zerodevx/svelte-json-view';
 	import type { Email } from '$lib/interfaces/email.interface.ts';
 	import Select from '$lib/Web/Select.svelte';
-	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import Dialog from '../Dialog.svelte';
 	import { getEntryUid } from '$lib/components/Directory/context';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
@@ -78,11 +77,10 @@
 		setValues();
 	});
 
-	function handle(e) {
-        console.log(e.detail);
-		if (e.detail.value == 'phone') {
+	function handle(selected: SelectPhoneUrlType | undefined) {
+		if (selected?.value == 'phone') {
 			url=null
-		} else if (e.detail.value == 'url') {
+		} else if (selected?.value == 'url') {
 			phone=null
 		}
     }
@@ -110,11 +108,11 @@
 			<h3 class="h3">{m.APPOINTMENT()}</h3>
 			<label class="label">			
 			<span>Lieu</span>
-			<Select items={locationChoices} bind:value={selectedLocation}><NoOptions slot="empty" /></Select>
+			<Select items={locationChoices} bind:value={selectedLocation} />
 			</label>
 			<label class="label">			
 			<span>Méthode</span>
-			<Select items={phoneUrlChoices} bind:value={selectedPhoneUrl} on:change={handle}><NoOptions slot="empty" /></Select>
+			<Select items={phoneUrlChoices} bind:value={selectedPhoneUrl} onchange={handle} />
 			</label>
 			{#if selectedPhoneUrl?.value == 'url'}
 						<label class="label">

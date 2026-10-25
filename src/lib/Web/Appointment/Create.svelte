@@ -10,7 +10,6 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Select from '$lib/Web/Select.svelte';
-	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import Dialog from '../Dialog.svelte';
 	import { getEntryUid } from '$lib/components/Directory/context';
 	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
@@ -80,11 +79,11 @@
 			<h3 class="h3">{m.APPOINTMENT()}</h3>
 			<label class="label">
 				<span>Lieu</span>
-				<Select items={locationChoices} bind:value={selectedLocation}><NoOptions slot="empty" /></Select>
+				<Select items={locationChoices} bind:value={selectedLocation} />
 			</label>
 			<label class="label">
 				<span>Méthode</span>
-				<Select items={phoneUrlChoices} bind:value={selectedPhoneUrl}><NoOptions slot="empty" /></Select>
+				<Select items={phoneUrlChoices} bind:value={selectedPhoneUrl} />
 			</label>
 			{#if selectedPhoneUrl?.value == 'url'}
 				<label class="label">

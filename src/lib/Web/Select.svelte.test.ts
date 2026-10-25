@@ -6,9 +6,10 @@
  * override it. The hand comes from the shared stylesheet, so it is measured
  * with that stylesheet loaded as the root layout loads it.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
-import { cdp, server } from 'vitest/browser';
+import { cdp, server, page as screen, userEvent } from 'vitest/browser';
+import * as m from '$msgs';
 import Select from './Select.svelte';
 import '../../app.postcss';
 import '$lib/assets/css/svelte-select.css';
@@ -71,6 +72,24 @@ describe.runIf(server.browser === 'chromium')('Select on a touch screen', () => 
 		await expect.poll(() => document.querySelector('.svelte-select-list')).not.toBeNull();
 		await new Promise((r) => setTimeout(r, 300));
 		expect(document.querySelector('.svelte-select-list')).not.toBeNull();
+	});
+});
+
+describe('Select with nothing to offer', () => {
+	it('says so in the site language, not in svelte-select English', async () => {
+		render(Select, { props: { items: [], listOpen: true } } as never);
+		await expect.poll(() => document.querySelector('.svelte-select-list')?.textContent?.trim()).toBe(m.NO_OPTIONS());
+		expect(document.querySelector('.svelte-select-list .empty')).toBeNull();
+	});
+});
+
+describe('Select callbacks', () => {
+	it('hands the chosen item itself to onchange', async () => {
+		const onchange = vi.fn();
+		render(Select, { props: { items, label: 'label', itemId: 'uid', listOpen: true, onchange } } as never);
+		await userEvent.click(screen.getByText('Médecin généraliste'));
+		await expect.poll(() => onchange.mock.calls.length).toBe(1);
+		expect(onchange.mock.calls[0][0]).toMatchObject(items[1]);
 	});
 });
 

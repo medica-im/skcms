@@ -10,7 +10,6 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Select from '$lib/Web/Select.svelte';
-	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import Dialog from '$lib/Web/Dialog.svelte';
 	import { getEntryUid } from '$lib/components/Directory/context';
 	import { areArraysEqualSets } from '$lib/utils/utils.ts';
@@ -85,7 +84,7 @@
 	<div class="rounded-lg h-96 w-96 p-4 variant-ghost-secondary items-center place-items-center">
 		<div class="grid grid-cols-1 item-center place-items-center gap-12 w-full">
 			<h3 class="h3">{m.ENTRY_DIRECTORIES()}</h3>
-			<Select multiple items={choices} bind:value={selectedItems}><NoOptions slot="empty" /></Select>
+			<Select multiple items={choices} bind:value={selectedItems} />
 			{#if hasNoSelection}
 				<p class="text-sm text-error-500">{m.ENTRY_DIRECTORIES_REQUIRED()}</p>
 			{/if}

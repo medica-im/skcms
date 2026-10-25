@@ -5,7 +5,6 @@
 	import Fa from 'svelte-fa';
 	import { faCheck, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 	import Select from '$lib/Web/Select.svelte';
-	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import type { EffectorType } from '$lib/interfaces/v2/effector';
 
 	let { data, onclose }: { data: any; onclose?: () => void } = $props();
@@ -132,7 +131,7 @@
 					bind:value={selectedParent}
 					placeholder={m.EFFECTOR_TYPE_PARENT_PLACEHOLDER()}
 					clearable={true}
-				><NoOptions slot="empty" /></Select>
+				/>
 			</div>
 			</label>
 		</div>

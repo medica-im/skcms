@@ -72,10 +72,9 @@
 				});
 		}
 	};
-	async function onTagChange(event: CustomEvent) {
-		if (event.detail) {
+	async function onTagChange(eventTags: SelectType[] | undefined) {
+		if (eventTags) {
 			const currentTags = tags ? tags.map((t) => t.uid) : null;
-			const eventTags: SelectType[] = event.detail;
 			if (!addTags) {
 				addTags = [];
 			}
@@ -87,11 +86,11 @@
 			});
 		}
 	}
-	async function onTagClear(event: CustomEvent) {
-		if (event.detail) {
-			const forDeletion: string[] = Array.isArray(event.detail)
-				? event.detail.map((e) => e.value)
-				: [event.detail.value];
+	async function onTagClear(cleared: SelectType | SelectType[] | undefined) {
+		if (cleared) {
+			const forDeletion: string[] = Array.isArray(cleared)
+				? cleared.map((e) => e.value)
+				: [cleared.value];
 			const existingTags: string[] = tags ? tags.map((t) => t.uid) : [];
 			if (addTags) {
 				addTags = addTags.filter((item) => !forDeletion.includes(item));
@@ -116,14 +115,14 @@
 			}
 		}
 	}
-	async function onCategoryClear(event: CustomEvent) {
-		if (event.detail) {
+	async function onCategoryClear(cleared: unknown) {
+		if (cleared) {
 			selectedTags = undefined;
 			tagChoices = undefined;
 		}
 	}
-	async function onCategoryChange(event: CustomEvent) {
-		if (event.detail) {
+	async function onCategoryChange(category: SelectType | undefined) {
+		if (category) {
 			// Through the remote function rather than fetching the API by hand from
 			// this component: in the browser the app's own origin is `base`, which
 			// is '' on most sites but /annuaire on unipa, where the API does not
@@ -137,10 +136,10 @@
 			let tags: Tag[] | undefined;
 			try {
 				const all = await getTags();
-				const categoryUid = categoryUidByName[event.detail.value];
+				const categoryUid = categoryUidByName[category.value];
 				tags = all?.filter((t) => t.category === categoryUid);
 			} catch (error) {
-				console.error('failed to load tags for category', event.detail.value, error);
+				console.error('failed to load tags for category', category.value, error);
 			}
 			if (!tags) {
 				// Said out loud rather than left as an empty list: a dropdown with
@@ -203,8 +202,8 @@
 				<Select
 					items={categoryChoices}
 					bind:value={selectedCategory}
-					on:change={onCategoryChange}
-					on:clear={onCategoryClear}
+					onchange={onCategoryChange}
+					onclear={onCategoryClear}
 				/>
 			</label>
 			<label class="label">
@@ -213,8 +212,8 @@
 					multiple
 					items={tagChoices}
 					bind:value={selectedTags}
-					on:change={onTagChange}
-					on:clear={onTagClear}
+					onchange={onTagChange}
+					onclear={onTagClear}
 				/>
 			</label>
 

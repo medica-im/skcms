@@ -2,7 +2,6 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import Select from '$lib/Web/Select.svelte';
-	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import { onMount } from 'svelte';
 	import * as m from '$msgs';
 	import { getSelectedTags, getSelectCategories } from './context';
@@ -64,8 +63,8 @@
 		selectedTags.set(tags);
 	});
 
-	function handleClear(event: CustomEvent) {
-		if (event.detail) {
+	function handleClear(cleared: unknown) {
+		if (cleared) {
 			$selectedTags = null;
 			if (page.url.searchParams.get('tags')) {
 				page.url.searchParams.delete('tags');
@@ -74,17 +73,14 @@
 		}
 	}
 
-	function handleChange(event: CustomEvent) {
-		if (event.detail) {
-			if (Array.isArray(event.detail)) {
-				$selectedTags = event.detail.map((e) => e.value);
-			} else {
-				const tag = page.data.entries
-					.map((e: Entry) => e.tags)
-					.flat()
-					.find((t: Tag) => {return t.uid == event.detail.value});
-				selectedTags.set([tag]);
-			}
+	function handleChange(selected: SelectType | SelectType[] | undefined) {
+		if (selected) {
+			const uids = Array.isArray(selected) ? selected.map((e) => e.value) : [selected.value];
+			const tags: Tag[] = page.data.entries
+				.flatMap((e: Entry) => e.tags ?? [])
+				.filter(arrayFilterUnique((t: Tag) => t.uid))
+				.filter((t: Tag) => uids.includes(t.uid));
+			selectedTags.set(tags);
 		}
 	}
 </script>
@@ -100,11 +96,11 @@
 				{itemId}
 				items={getItems(aTC)}
 				searchable={true}
-				on:change={handleChange}
-				on:clear={handleClear}
+				onchange={handleChange}
+				onclear={handleClear}
 				placeholder={aTC.labelShort}
 				{value}
-			><NoOptions slot="empty" /></Select>
+			/>
 		{/if}
 	</div>
 {/each}

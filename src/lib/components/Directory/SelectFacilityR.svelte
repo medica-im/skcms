@@ -4,7 +4,6 @@
 	import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
 	import type { SelectType } from '$lib/interfaces/select';
 	import Select from '$lib/Web/Select.svelte';
-	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import { getSelectFacility, getFacilityChoice } from './context.ts';
 	import * as m from '$msgs';
 
@@ -48,16 +47,16 @@
 		}
 	});
 
-	function handleChange(event: CustomEvent) {
-		if (event.detail) {
+	function handleChange(selected: SelectType | undefined) {
+		if (selected) {
 			const url = new URL(page.url);
-			url.searchParams.set('facility', event.detail.value);
+			url.searchParams.set('facility', selected.value);
 			goto(`${url.pathname}?${url.searchParams}`, { noScroll: true, keepFocus: true });
 		}
 	}
 
-	function handleClear(event: CustomEvent) {
-		if (event.detail) {
+	function handleClear(cleared: unknown) {
+		if (cleared) {
 			const url = new URL(page.url);
 			url.searchParams.delete('facility');
 			const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
@@ -78,10 +77,10 @@
 			{itemId}
 			items={getItems(facilityOf)}
 			searchable={true}
-			on:change={handleChange}
-			on:clear={handleClear}
+			onchange={handleChange}
+			onclear={handleClear}
 			placeholder={m.ADDRESSBOOK_FACILITIES_PLACEHOLDER()}
 			value={selectionFromUrl}
-		><NoOptions slot="empty" /></Select>
+		/>
 	{/if}
 </div>

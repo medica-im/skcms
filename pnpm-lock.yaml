@@ -98,8 +98,8 @@ importers:
         specifier: 1.3.0
         version: 1.3.0(svelte@5.57.2(@typescript-eslint/types@8.57.0))
       svelte-select:
-        specifier: ^5.8.3
-        version: 5.8.3
+        specifier: ^6.0.0
+        version: 6.0.0(svelte@5.57.2(@typescript-eslint/types@8.57.0))
       video.js:
         specifier: ^8.24.0
         version: 8.24.0
@@ -2810,8 +2810,10 @@ packages:
       typescript:
         optional: true
 
-  svelte-select@5.8.3:
-    resolution: {integrity: sha512-nQsvflWmTCOZjssdrNptzfD1Ok45hHVMTL5IHay5DINk7dfu5Er+8KsVJnZMJdSircqtR0YlT4YkCFlxOUhVPA==}
+  svelte-select@6.0.0:
+    resolution: {integrity: sha512-WJ1UDw0a1Z3I7oVFgaCS7G9D2rCSmYAPpufNEj/DNuk5Oyb2a5dju6F36o0urBVw9bTE3WkM9cZkI0x+Sfo8Bg==}
+    peerDependencies:
+      svelte: '>=5'
 
   svelte2tsx@0.7.52:
     resolution: {integrity: sha512-svdT1FTrCLpvlU62evO5YdJt/kQ7nxgQxII/9BpQUvKr+GJRVdAXNVw8UWOt0fhoe5uWKyU0WsUTMRVAtRbMQg==}
@@ -3277,7 +3279,7 @@ snapshots:
       '@cucumber/ci-environment': 14.0.0
       '@cucumber/cucumber-expressions': 20.0.0
       '@cucumber/gherkin': 41.0.0
-      '@cucumber/gherkin-streams': 7.0.1(@cucumber/gherkin@41.0.0)(@cucumber/message-streams@5.0.1(@cucumber/messages@32.3.1))(@cucumber/messages@34.0.1)
+      '@cucumber/gherkin-streams': 7.0.1(@cucumber/gherkin@41.0.0)(@cucumber/message-streams@5.0.1(@cucumber/messages@34.0.1))(@cucumber/messages@34.0.1)
       '@cucumber/gherkin-utils': 12.0.1
       '@cucumber/html-formatter': 24.0.0(@cucumber/messages@34.0.1)
       '@cucumber/junit-xml-formatter': 0.14.0(@cucumber/messages@34.0.1)
@@ -3307,7 +3309,7 @@ snapshots:
       yaml: 2.9.0
       yup: 1.7.1
 
-  '@cucumber/gherkin-streams@7.0.1(@cucumber/gherkin@41.0.0)(@cucumber/message-streams@5.0.1(@cucumber/messages@32.3.1))(@cucumber/messages@34.0.1)':
+  '@cucumber/gherkin-streams@7.0.1(@cucumber/gherkin@41.0.0)(@cucumber/message-streams@5.0.1(@cucumber/messages@34.0.1))(@cucumber/messages@34.0.1)':
     dependencies:
       '@cucumber/gherkin': 41.0.0
       '@cucumber/message-streams': 5.0.1(@cucumber/messages@34.0.1)
@@ -5678,8 +5680,9 @@ snapshots:
       postcss-load-config: 6.0.1(jiti@1.21.7)(postcss@8.5.8)(yaml@2.9.0)
       typescript: 5.9.3
 
-  svelte-select@5.8.3:
+  svelte-select@6.0.0(svelte@5.57.2(@typescript-eslint/types@8.57.0)):
     dependencies:
+      svelte: 5.57.2(@typescript-eslint/types@8.57.0)
       svelte-floating-ui: 1.5.8
 
   svelte2tsx@0.7.52(svelte@5.57.2(@typescript-eslint/types@8.57.0))(typescript@5.9.3):

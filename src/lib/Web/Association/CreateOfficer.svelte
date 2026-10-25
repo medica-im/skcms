@@ -6,7 +6,6 @@
 	import { faCheck, faExclamationCircle, faPlus } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Select from '$lib/Web/Select.svelte';
-	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import Dialog from '../Dialog.svelte';
 	import type { OrganizationRole } from '$lib/interfaces/v2/association';
 	import type { Effector } from '$lib/interfaces/v2/effector';
@@ -42,7 +41,7 @@
 		organizationRoles.map((r) => ({ label: r.label, value: r.uid }))
 	);
 
-	function onRoleSelect(event: CustomEvent) {
+	function onRoleSelect() {
 		if (selectedRole) {
 			roleLabel = selectedRole.label;
 		}
@@ -95,7 +94,7 @@
 						items={effectorItems}
 						bind:value={selectedEffector}
 						searchable={true}
-					><NoOptions slot="empty" /></Select>
+					/>
 				</label>
 
 				<label class="label">
@@ -107,8 +106,8 @@
 						items={roleItems}
 						bind:value={selectedRole}
 						searchable={true}
-						on:change={onRoleSelect}
-					><NoOptions slot="empty" /></Select>
+						onchange={onRoleSelect}
+					/>
 				</label>
 
 				<label class="label">

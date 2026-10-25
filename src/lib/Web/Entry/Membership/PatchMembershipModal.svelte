@@ -86,9 +86,8 @@
 			})
 	);
 
-	function onChange(event: CustomEvent) {
-		if (event.detail) {
-			const e: SelectType[] = event.detail;
+	function onChange(e: SelectType[] | undefined) {
+		if (e) {
 			console.log(JSON.stringify(e));
 			for (var i = 0, len = e.length; i < len; i++) {
 				const element = e[i];
@@ -98,9 +97,8 @@
 			}
 		}
 	}
-	function onClear(event: CustomEvent) {
-		if (event.detail) {
-			const e: SelectType = event.detail;
+	function onClear(e: SelectType | SelectType[] | undefined) {
+		if (e) {
 			const to_delete: SelectType[] = Array.isArray(e) ? e : [e];
 			const to_delete_value: string[] = to_delete.map(e=>e.value);
 			selectedMemberships = selectedMemberships.filter((item) => !to_delete_value.includes(item.value));
@@ -156,8 +154,8 @@
 					multiple
 					items={cptsItems}
 					bind:value={selectedCPTS}
-					on:change={onChange}
-					on:clear={onClear}
+					onchange={onChange}
+					onclear={onClear}
 					searchable={true}
 				/>
 				<!--selectedCPTS: {JSON.stringify(selectedCPTS)}<br>
@@ -169,8 +167,8 @@
 					itemId={"value"}
 					items={mspItems}
 					bind:value={selectedMSP}
-					on:change={onChange}
-					on:clear={onClear}
+					onchange={onChange}
+					onclear={onClear}
 					searchable={true}
 				/>
 				<!--mspItems: {JSON.stringify(mspItems)}<br>
@@ -182,8 +180,8 @@
 					multiple
 					items={otherItems}
 					bind:value={selectedOther}
-					on:change={onChange}
-					on:clear={onClear}
+					onchange={onChange}
+					onclear={onClear}
 					searchable={true}
 				/>
 

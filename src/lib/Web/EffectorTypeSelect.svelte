@@ -1,7 +1,6 @@
 <script lang="ts">
 	import * as m from '$msgs';
 	import Select from '$lib/Web/Select.svelte';
-	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import { getEffectorTypes } from './data';
 	import { getTypeItems } from '$lib/components/Directory/SelectCategory.ts';
 	import type { EffectorType } from '$lib/interfaces/v2/effector';
@@ -43,7 +42,7 @@
 			bind:value={selectedEffectorType}
 			bind:filterText
 			placeholder="Sélectionner une catégorie"
-		><NoOptions slot="empty" /></Select>
+		/>
 	</div>
 {:else}
 	<div class="svelte-select svelte-select-glow w-full">

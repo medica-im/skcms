@@ -6,7 +6,6 @@
 	import { faCheck, faExclamationCircle, faPlus } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Select from '$lib/Web/Select.svelte';
-	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import Dialog from '../Dialog.svelte';
 	import type { Effector } from '$lib/interfaces/v2/effector';
 	import type { MembershipCategory } from '$lib/interfaces/v2/association';
@@ -91,7 +90,7 @@
 						itemFilter={effectorFilter}
 						bind:value={selectedEffector}
 						searchable={true}
-					><NoOptions slot="empty" /></Select>
+					/>
 				</label>
 
 				{#if categoryItems.length > 0}
@@ -104,7 +103,7 @@
 							searchable={true}
 							clearable={true}
 							placeholder={m.SELECT_CATEGORY()}
-						><NoOptions slot="empty" /></Select>
+						/>
 					</label>
 				{/if}
 

@@ -3,7 +3,6 @@
 	import { page } from '$app/state';
 	import { onMount } from 'svelte';
 	import Select from '$lib/Web/Select.svelte';
-	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import type { SelectType } from '$lib/interfaces/select.ts';
 	import type { Commune, DepartmentOfFrance, FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 	import { getCommunesByDpt, getDepartments, getFacilities } from './data';
@@ -154,10 +153,10 @@
 				items={getDepartmentItems(departments)}
 				itemFilter={departmentFilter}
 				bind:value={department}
-				on:clear={onDepartmentClear}
-				on:change={onDepartmentChange}
+				onclear={onDepartmentClear}
+				onchange={onDepartmentChange}
 				placeholder="Sélectionner un département"
-			><NoOptions slot="empty" /></Select>
+			/>
 	</div>
 	<div class="grid grid-cols-1 gap-4 variant-ghost p-2 sm:p-4">
 		<p>Commune</p>
@@ -166,16 +165,16 @@
 			disabled={true}
 				items={null}
 				placeholder="Sélectionner d'abord un département"
-			><NoOptions slot="empty" /></Select>
+			/>
 		{:else}
 			<Select
 				items={communeItems}
 				itemFilter={communeFilter}
 				bind:value={commune}
-				on:clear={onCommuneClear}
-				on:change={onCommuneChange}
+				onclear={onCommuneClear}
+				onchange={onCommuneChange}
 				placeholder="Sélectionner une commune"
-			><NoOptions slot="empty" /></Select>
+			/>
 		{/if}
 	</div>
 	<div class="grid grid-cols-1 gap-4 variant-ghost p-2 sm:p-4">
@@ -193,7 +192,7 @@
 					itemFilter={facilityFilter}
 					bind:value={selectedFacility}
 					placeholder="Sélectionner un établissement"
-				><NoOptions slot="empty" /></Select>
+				/>
 			</div>
 		{:else}
 		<p>{m.LOADING()}</p>

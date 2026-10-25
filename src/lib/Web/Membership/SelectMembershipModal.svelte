@@ -9,7 +9,6 @@
 	import Fa from 'svelte-fa';
 	import { faPlus, faCheck, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 	import Select from '$lib/Web/Select.svelte';
-	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import OrganizationRadio from './../OrganizationRadio.svelte';
 	import { slugify } from '$lib/helpers/stringHelpers';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
@@ -54,9 +53,8 @@
 			})
 	);
 
-	function onChange(event: CustomEvent) {
-		if (event.detail) {
-			const e: SelectType[] = event.detail;
+	function onChange(e: SelectType[] | undefined) {
+		if (e) {
 			for (var i = 0, len = e.length; i < len; i++) {
 				const element = e[i];
 				if (!memberships.some((m) => m.value === element.value)) {
@@ -65,9 +63,8 @@
 			}
 		}
 	}
-	function onClear(event: CustomEvent) {
-		if (event.detail) {
-			const e: SelectType = event.detail;
+	function onClear(e: SelectType | undefined) {
+		if (e) {
 			memberships = memberships.filter((item) => item.value !== e.value);
 		}
 	}
@@ -125,10 +122,10 @@
 					multiple
 					items={cptsItems}
 					bind:value={selectedCPTS}
-					on:change={onChange}
-					on:clear={onClear}
+					onchange={onChange}
+					onclear={onClear}
 					searchable={true}
-				><NoOptions slot="empty" /></Select>
+				/>
 				<!--selectedCPTS: {JSON.stringify(selectedCPTS)}<br>
 				memberships: {JSON.stringify(memberships)}-->
 				<h4 class="h4">MSP</h4>
@@ -136,19 +133,19 @@
 					multiple
 					items={mspItems}
 					bind:value={selectedMSP}
-					on:change={onChange}
-					on:clear={onClear}
+					onchange={onChange}
+					onclear={onClear}
 					searchable={true}
-				><NoOptions slot="empty" /></Select>
+				/>
 				<h4 class="h4">Autre</h4>
 				<Select
 					multiple
 					items={otherItems}
 					bind:value={selectedOther}
-					on:change={onChange}
-					on:clear={onClear}
+					onchange={onChange}
+					onclear={onClear}
 					searchable={true}
-				><NoOptions slot="empty" /></Select>
+				/>
 
 				{#if memberships.length}
 					<div class="card p-4 variant-ringed">

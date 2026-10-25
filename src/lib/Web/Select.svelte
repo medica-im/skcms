@@ -1,6 +1,8 @@
 <script lang="ts">
 	import Select from 'svelte-select';
+	import type { Snippet } from 'svelte';
 	import * as m from '$msgs';
+	import NoOptions from '$lib/Web/NoOptions.svelte';
 
 	/**
 	 * svelte-select with its dropdown positioned against the viewport.
@@ -46,12 +48,17 @@
 	 * The down arrow is what tells a reader the box is a dropdown; svelte-select
 	 * leaves it off by default.
 	 */
+	/**
+	 * An empty list says so in the site language; svelte-select's own default is
+	 * the English "No options". A caller's `empty` snippet still wins.
+	 */
 	let {
 		value = $bindable(),
 		filterText = $bindable(''),
 		placeholder = m.SELECT_PLACEHOLDER(),
 		showChevron = true,
 		floatingConfig = {},
+		empty,
 		...rest
 	}: Record<string, unknown> & {
 		value?: unknown;
@@ -59,6 +66,7 @@
 		placeholder?: string;
 		showChevron?: boolean;
 		floatingConfig?: Record<string, unknown>;
+		empty?: Snippet;
 	} = $props();
 
 	/**
@@ -66,9 +74,9 @@
 	 * sentences, and unlike a visible label nothing about them looks wrong on
 	 * screen — a French user simply hears English.
 	 */
-	const ariaValues = (values: string) => m.SELECT_ARIA_VALUES({ values });
-	const ariaListOpen = (label: string, count: number) =>
-		m.SELECT_ARIA_LIST_OPEN({ label, count });
+	const ariaValues = (values: unknown) => m.SELECT_ARIA_VALUES({ values: String(values) });
+	const ariaListOpen = (label: unknown, count: number) =>
+		m.SELECT_ARIA_LIST_OPEN({ label: String(label), count });
 	const ariaFocused = () => m.SELECT_ARIA_FOCUSED();
 	// The option field svelte-select displays; a caller may name another.
 	const labelKey = $derived((rest.label as string | undefined) ?? 'label');
@@ -94,35 +102,28 @@
 	};
 </script>
 
-<!--
-	Only the "empty" slot is forwarded. The item and selection slots are left to
-	svelte-select's own defaults: declaring them here means always passing them,
-	and an empty forwarded slot renders every option as a blank row.
--->
+{#snippet noOptions()}
+	<NoOptions />
+{/snippet}
+
+<!-- svelte-select cuts a long option off with an ellipsis; the title shows the
+     whole of it on hover. -->
+{#snippet titledItem({ item }: { item: Record<string, unknown> })}
+	<span title={item?.[labelKey] as string}>{item?.[labelKey]}</span>
+{/snippet}
+
 <div bind:this={host} class="contents" onmousedown={keepFocus} role="none">
-<Select
-	{...rest}
-	{placeholder}
-	{showChevron}
-	{ariaValues}
-	{ariaListOpen}
-	{ariaFocused}
-	bind:value
-	bind:filterText
-	floatingConfig={inDialog ? { strategy: 'fixed', ...floatingConfig } : { ...floatingConfig }}
-	on:change
-	on:clear
-	on:select
-	on:input
-	on:focus
-	on:blur
-	on:filter
->
-	<slot name="empty" slot="empty" />
-	<!-- svelte-select cuts a long option off with an ellipsis; the title shows
-	     the whole of it on hover. -->
-	<svelte:fragment slot="item" let:item>
-		<span title={item?.[labelKey]}>{item?.[labelKey]}</span>
-	</svelte:fragment>
-</Select>
+	<Select
+		{...rest}
+		{placeholder}
+		{showChevron}
+		{ariaValues}
+		{ariaListOpen}
+		{ariaFocused}
+		bind:value
+		bind:filterText
+		floatingConfig={inDialog ? { strategy: 'fixed', ...floatingConfig } : { ...floatingConfig }}
+		empty={empty ?? noOptions}
+		item={titledItem}
+	/>
 </div>

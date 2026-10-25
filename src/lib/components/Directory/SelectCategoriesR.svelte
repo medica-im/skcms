@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { base } from '$app/paths';
 	import Select from '$lib/Web/Select.svelte';
-	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import * as m from '$msgs';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
@@ -71,14 +70,14 @@
 		}
 	});
 
-	function handleFocus(e: CustomEvent) {
+	function handleFocus(e: FocusEvent) {
 		focused = true;
 		listOpen = true;
-		srcElement = e.detail.srcElement;
+		srcElement = e.target as HTMLElement;
 	}
 
-	const handleClear = async (event: CustomEvent) => {
-		if (event.detail) {
+	const handleClear = async (cleared: unknown) => {
+		if (cleared) {
 			if (srcElement) srcElement.blur();
 			if ($directoryRedirect && page.url.pathname != dirPath) {
 				if ($selectFacility) {
@@ -97,11 +96,11 @@
 		}
 	};
 
-	function handleChange(event: CustomEvent) {
-		if (event.detail) {
+	function handleChange(selected: Type | undefined) {
+		if (selected) {
 			if (srcElement) srcElement.blur();
 			if ($directoryRedirect && page.url.pathname != dirPath) {
-				const typesParam = JSON.stringify([event.detail.uid]);
+				const typesParam = JSON.stringify([selected.uid]);
 				let urlParams = `?types=${typesParam}`;
 				if ($selectFacility) {
 					urlParams += `&facility=${$selectFacility}`;
@@ -109,7 +108,7 @@
 				goto(`${dirPath}${urlParams}`);
 			} else {
 				const url = new URL(page.url);
-				url.searchParams.set('types', JSON.stringify([event.detail.uid]));
+				url.searchParams.set('types', JSON.stringify([selected.uid]));
 				goto(`${url.pathname}?${url.searchParams}`, { noScroll: true, keepFocus: true });
 			}
 		} else {
@@ -134,7 +133,7 @@
 			showChevron={false}
 			inputAttributes={{ 'aria-describedby': 'only-type-explained' }}
 			placeholder={m.ADDRESSBOOK_CATEGORIES_PLACEHOLDER()}
-		><NoOptions slot="empty" /></Select>
+		/>
 		<span id="only-type-explained" class="sr-only">{m.ADDRESSBOOK_CATEGORY_ONLY_ONE()}</span>
 		{#if explaining}
 			<p class="mt-1 text-sm text-surface-600-300-token" role="status">{m.ADDRESSBOOK_CATEGORY_ONLY_ONE()}</p>
@@ -150,12 +149,12 @@
 			{focused}
 			{listOpen}
 			searchable={true}
-			on:focus={handleFocus}
-			on:change={handleChange}
-			on:clear={handleClear}
+			onfocus={handleFocus}
+			onchange={handleChange}
+			onclear={handleClear}
 			value={selectionFromUrl}
 			placeholder={m.ADDRESSBOOK_CATEGORIES_PLACEHOLDER()}
-		><NoOptions slot="empty" /></Select>
+		/>
 	</div>
 {/if}
 

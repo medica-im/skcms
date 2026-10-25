@@ -6,7 +6,6 @@
 	import Fa from 'svelte-fa';
 	import { faCheck, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 	import Select from '$lib/Web/Select.svelte';
-	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import type { Role, Invitee } from '$lib/interfaces/v2/invitee';
 	import type { PageData } from './$types';
 	import type { SelectType } from '$src/lib/interfaces/select';
@@ -80,7 +79,7 @@
 				bind:value={selectedRole}
 				placeholder="Sélectionner un rôle"
 				hasError={!selectedRole}
-			><NoOptions slot="empty" /></Select>
+			/>
 			<input type="hidden" name="role" value={selectedRole?.value || ''} />
 		</div>
 

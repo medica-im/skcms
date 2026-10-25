@@ -2,7 +2,6 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import Select from '$lib/Web/Select.svelte';
-	import NoOptions from '$lib/Web/NoOptions.svelte';
 	import { onMount } from 'svelte';
 	import * as m from '$msgs';
 	import { getSelectedDepartment } from './context';
@@ -52,16 +51,16 @@
 		selectDepartment.set(selectionFromUrl);
 	});
 
-	function handleChange(event: CustomEvent) {
-		if (event.detail) {
+	function handleChange(selected: SelectType | undefined) {
+		if (selected) {
 			const url = new URL(page.url);
-			url.searchParams.set('department', JSON.stringify(event.detail.value));
+			url.searchParams.set('department', JSON.stringify(selected.value));
 			goto(`${url.pathname}?${url.searchParams}`, { noScroll: true, keepFocus: true });
 		}
 	}
 
-	const handleClear = (event: CustomEvent) => {
-		if (event.detail) {
+	const handleClear = (cleared: unknown) => {
+		if (cleared) {
 			const url = new URL(page.url);
 			url.searchParams.delete('department');
 			const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
@@ -79,10 +78,10 @@
 			{itemId}
 			{items}
 			searchable={true}
-			on:change={handleChange}
-			on:clear={handleClear}
+			onchange={handleChange}
+			onclear={handleClear}
 			placeholder={m.ADDRESSBOOK_DEPARTMENTS_PLACEHOLDER()}
 			value={selectionFromUrl}
-		><NoOptions slot="empty" /></Select>
+		/>
 	{/if}
 </div>
