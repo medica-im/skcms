@@ -32,8 +32,19 @@ const SAMPLED: { name: string; pattern: RegExp }[] = [
 	{ name: '/sites/[slug]', pattern: /^\/sites\/[^/]+$/ }
 ];
 
-/** Not pages, or pages that change the session rather than show something. */
-const SKIPPED = [/^\/api(\/|$)/, /^\/auth(\/|$)/, /^\/signin(\/|$)/, /^\/signout(\/|$)/, /^\/_test(\/|$)/];
+/**
+ * Not pages, or pages that change the session rather than show something.
+ * /blog/ghost is Ghost's admin, which the blog's theme links to ("Connexion"):
+ * its API refuses an anonymous visitor, so a crawl would always fail there.
+ */
+const SKIPPED = [
+	/^\/api(\/|$)/,
+	/^\/auth(\/|$)/,
+	/^\/signin(\/|$)/,
+	/^\/signout(\/|$)/,
+	/^\/_test(\/|$)/,
+	/^\/blog\/ghost(\/|$)/
+];
 
 /** Files rather than pages. */
 const FILE = /\.(pdf|png|jpe?g|gif|svg|webp|ics|xml|txt|json|zip|docx?|xlsx?)$/i;
