@@ -5,15 +5,17 @@ vi.mock('$lib/utils/origin.ts', () => ({ ORIGIN: 'https://site.test' }));
 import { getOpenGraph } from './openGraphStore';
 
 /**
- * The site's sharing card (/api/v1/opengraph/), for the pages that set their
+ * The site's sharing card (/api/v2/opengraph), for the pages that set their
  * OpenGraph tags from it.
  *
- * A site without a card is a normal state, answered 404: the page renders
- * without the tags, and nothing is logged. It used to log an error, which
- * check-staging.sh then reported as a broken page on every site without one.
+ * A site without a card is a normal state, answered 204 (404 from a backend
+ * that predates the route): the page renders without the tags, and nothing is logged. A 404
+ * also made the browser log "Failed to load resource", which the staging
+ * reload checks report as a broken page on every site without one.
  *
- * Through the load function's fetch when a page passes it: SvelteKit replays
- * that response during hydration instead of asking again from the browser.
+ * Through the load function's fetch when a page passes it. That does not spare
+ * the browser its own request: the URL is absolute on the server and relative
+ * in the browser (APP_URL), so SvelteKit has no response to replay.
  */
 
 const reply = (status: number, body: unknown = {}) =>
@@ -30,12 +32,19 @@ describe('getOpenGraph', () => {
 	it('asks the site through the fetch it is given', async () => {
 		const fetch = reply(200);
 		await getOpenGraph(fetch);
-		expect(fetch).toHaveBeenCalledWith('https://site.test/api/v1/opengraph/');
+		expect(fetch).toHaveBeenCalledWith('https://site.test/api/v2/opengraph');
 	});
 
 	it('returns nothing, and logs nothing, for a site without a card', async () => {
 		const log = vi.spyOn(console, 'error').mockImplementation(() => {});
 		expect(await getOpenGraph(reply(404))).toBeUndefined();
+		expect(log).not.toHaveBeenCalled();
+	});
+
+	it('returns nothing, and logs nothing, when the site answers that it has no card', async () => {
+		const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+		const fetch = vi.fn(async () => new Response(null, { status: 204 }));
+		expect(await getOpenGraph(fetch)).toBeUndefined();
 		expect(log).not.toHaveBeenCalled();
 	});
 
