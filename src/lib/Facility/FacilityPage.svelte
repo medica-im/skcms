@@ -12,10 +12,6 @@
 	import { createFacilitiesMapData } from '$lib/components/Map/mapData';
 	import { hasCoordinates } from '$lib/components/Map/coordinates';
 	import { variables } from '$lib/utils/constants';
-	import { copy } from 'svelte-copy';
-	import { page } from '$app/state';
-	import UuidHex from '$lib/Uuid/UuidHex.svelte';
-	import UuidHyphen from '$lib/Uuid/UuidHyphen.svelte';
 	import type { Facility } from '$lib/interfaces/facility.interface.ts';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 	import { PUBLIC_URL } from '$lib/utils/appUrl';
@@ -73,13 +69,6 @@
 					<SoMed data={facility.socialnetworks} appBar={false} />
 				{/if}
 			</span>
-		{/if}
-		{#if page.data?.user?.role == 'superuser'}
-			<div class="space-x-2">
-				<span>Facility {facility.uid}</span>
-				<UuidHex data={facility.uid}/>
-				<UuidHyphen data={facility.uid}/>
-			</div>
 		{/if}
 		<div class="w-full">
 			<Types

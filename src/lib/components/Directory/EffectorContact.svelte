@@ -39,8 +39,6 @@
 	import EffectorTypeEdit from '$lib/Web/Entry/EffectorTypeEdit.svelte';
 	import Tag from '$lib/Tag/Tag.svelte';
 	import { setEditMode, getEditMode, setEntryUid, setEffectorUid } from './context';
-	import UuidHex from '$lib/Uuid/UuidHex.svelte';
-	import UuidHyphen from '$lib/Uuid/UuidHyphen.svelte';
 	import MembershipSection from '$lib/components/Directory/MembershipSection.svelte';
 	import CreatorOwner from '$lib/Web/Users/CreatorOwner.svelte';
 	import RedeemEmail from '$lib/Web/Entry/RedeemEmail.svelte';
@@ -85,16 +83,6 @@
 	<div class="flex flex-wrap p-2 gap-10">
 		<div class="flex flex-wrap-reverse justify-start lg:justify-end gap-4 lg:gap-8 min-w-0">
 			<div class="grid grid-cols-1 items-start content-start gap-2 min-w-0 max-w-prose">
-				<!-- The uid and its two copy buttons belong on one line: as bare grid
-				     children each took a row of its own, so a single uuid spread over
-				     three. -->
-				{#if r.SuperUser && $editMode}
-					<div class="flex flex-wrap items-center gap-2 min-w-0">
-						<span class="font-mono text-sm break-all">entry {fullentry?.uid}</span>
-						<UuidHex data={fullentry?.uid} />
-						<UuidHyphen data={fullentry?.uid} />
-					</div>
-				{/if}
 				<h2 class="h3 flex flex-wrap min-w-0 break-words place-items-center gap-4">
 					{fullentry.name}{#if $editMode}<UpdateEffector data={fullentry} />{/if}
 					{#if fullentry.active === false}
@@ -103,13 +91,6 @@
 						>
 					{/if}
 				</h2>
-				{#if r.SuperUser && $editMode}
-					<div class="flex flex-wrap items-center gap-2 min-w-0">
-						<span class="font-mono text-sm break-all">effector {fullentry?.effector_uid}</span>
-						<UuidHex data={fullentry?.effector_uid} />
-						<UuidHyphen data={fullentry?.effector_uid} />
-					</div>
-				{/if}
 				<div class="flex flex-wrap items-center gap-2 min-w-0">
 					<h3 class="h4 italic">{fullentry?.effector_type?.label}</h3>
 					{#if $editMode}
@@ -123,13 +104,6 @@
 						/>
 					{/if}
 				</div>
-				{#if r.SuperUser && $editMode}
-					<div class="flex flex-wrap items-center gap-2 min-w-0">
-						<span class="font-mono text-sm break-all">type {fullentry?.effector_type?.uid}</span>
-						<UuidHex data={fullentry?.effector_type?.uid} />
-						<UuidHyphen data={fullentry?.effector_type?.uid} />
-					</div>
-				{/if}
 				<Tag data={fullentry?.tags} compact={false} />
 				{#if $editMode}<TagModal tags={fullentry.tags} />{/if}
 				<MembershipSection {memberships} editMode={$editMode} uid={fullentry.uid} />
@@ -261,13 +235,6 @@
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 p-1">
 					<div class="space-y-2">
 						<FacilityLink data={fullentry.facility} />
-						{#if r.SuperUser && $editMode}
-							<div class="flex flex-wrap items-center gap-2 min-w-0">
-								<span class="font-mono text-sm break-all">facility {fullentry?.facility?.uid}</span>
-								<UuidHex data={fullentry?.facility?.uid} />
-								<UuidHyphen data={fullentry?.facility?.uid} />
-							</div>
-						{/if}
 						<Address data={fullentry.address} distance={false} />
 					</div>
 					{#if hasCoordinates(fullentry.address.latitude, fullentry.address.longitude)}

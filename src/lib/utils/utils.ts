@@ -25,10 +25,6 @@ export const isObjectEmpty = (obj: Object) => {
 	return true;
 }
 
-export const hyphenateUuid = (i: string) => {
-	return i.substring(0, 8) + "-" + i.substring(8, 12) + "-" + i.substring(12, 16) + "-" + i.substring(16, 20) + "-" + i.substring(20);
-}
-
 export function filterInPlace(array: any[], fn: Function) {
 	let from = 0, to = 0;
 	while (from < array.length) {
