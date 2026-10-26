@@ -46,6 +46,24 @@ const SKIPPED = [
 	/^\/blog\/ghost(\/|$)/
 ];
 
+/**
+ * Pages known to fail for a reason being sorted out outside the code (data,
+ * blog content). Skipped meanwhile, and named in every report so they are not
+ * forgotten; per site, so the same path elsewhere is still checked. Remove an
+ * entry once its cause is fixed.
+ */
+const KNOWN_ISSUES: Partial<Record<SiteName, { path: string; why: string }[]>> = {
+	'sante-gadagne.fr': [
+		{
+			path: '/education-therapeutique/polypathologie',
+			why: 'names inactive entries (Goolaerts, Deloche, Reusser as coordinator), which 404'
+		}
+	],
+	'msp-vedene.fr': [
+		{ path: '/form/nosmoking', why: 'linked from the blog post « Mois sans tabac »; no such page' }
+	]
+};
+
 /** Files rather than pages. */
 const FILE = /\.(pdf|png|jpe?g|gif|svg|webp|ics|xml|txt|json|zip|docx?|xlsx?)$/i;
 
@@ -142,6 +160,8 @@ export async function reloadEveryPage(browser: Browser, site: SiteName) {
 
 	const queue = SEEDS.map((path) => `${origin}${base}${path}`);
 	const sampled = new Set<string>();
+	const known = KNOWN_ISSUES[site] ?? [];
+	const skippedKnown = new Set<string>();
 	const visited: string[] = [];
 	const failures: Failure[] = [];
 
@@ -179,6 +199,10 @@ export async function reloadEveryPage(browser: Browser, site: SiteName) {
 		if (base && url.pathname !== base && !url.pathname.startsWith(`${base}/`)) return null;
 		const path = url.pathname.slice(base.length).replace(/\/$/, '') || '/';
 		if (SKIPPED.some((p) => p.test(path)) || FILE.test(path)) return null;
+		if (known.some((k) => k.path === path)) {
+			skippedKnown.add(path);
+			return null;
+		}
 		const route = SAMPLED.find((s) => s.pattern.test(path));
 		if (route) {
 			if (sampled.has(route.name)) return null;
@@ -225,5 +249,8 @@ export async function reloadEveryPage(browser: Browser, site: SiteName) {
 		.map((f) => `${f.url}\n${f.errors.map((e) => `    ${e}`).join('\n')}`)
 		.join('\n');
 	console.log(`${site}: ${visited.length} pages reloaded\n${visited.map((u) => `  ${u}`).join('\n')}`);
+	for (const k of known.filter((k) => skippedKnown.has(k.path))) {
+		console.log(`  KNOWN ISSUE, not reloaded: ${k.path} (${k.why})`);
+	}
 	expect(failures, `pages that fail on a hard reload:\n${report}`).toEqual([]);
 }
