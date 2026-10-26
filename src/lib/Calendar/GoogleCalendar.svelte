@@ -3,7 +3,7 @@
 	import { getLocale } from '$prgld/runtime.js';
 	import EventCalendar from './EventCalendar.svelte';
 	import { googleCalendarLinks } from './googleCalendarLinks';
-	import CopyButton from '$lib/Web/Email/Template/CopyButton.svelte';
+	import CopyButton from '$lib/Web/CopyButton.svelte';
 	import Fa from 'svelte-fa';
 	import { faCalendarPlus } from '@fortawesome/free-solid-svg-icons';
 	import { faGoogle } from '@fortawesome/free-brands-svg-icons';

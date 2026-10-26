@@ -10,7 +10,7 @@
 	import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
 	import * as m from '$msgs';
 	import Dialog from '$lib/Web/Dialog.svelte';
-	import CopyButton from './CopyButton.svelte';
+	import CopyButton from '$lib/Web/CopyButton.svelte';
 	import {
 		isDraftChanged,
 		isInviteeField,

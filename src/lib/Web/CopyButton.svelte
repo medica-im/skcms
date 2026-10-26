@@ -35,5 +35,5 @@
 	data-copy-text={text}
 >
 	<span><Fa icon={copied ? faCheck : faCopy} /></span>
-	<span class:font-mono={mono} aria-live="polite">{copied ? m.EMAIL_IMAGE_COPIED() : label}</span>
+	<span class:font-mono={mono} aria-live="polite">{copied ? m.COPIED() : label}</span>
 </button>

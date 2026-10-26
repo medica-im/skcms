@@ -1,13 +1,13 @@
 /**
- * The copy button of the email template page.
+ * The copy button shared by every page that hands text to the user: an email
+ * template's images and placeholders, a calendar's iCal address.
  *
- * What it copies is what ends up in an email: an image's absolute address,
- * an <mj-image>, a {{ placeholder }}. It must copy exactly that text, say that
+ * What it copies gets pasted somewhere else. It must copy exactly that text, say that
  * it did -- otherwise nothing on screen changes and people click again -- and
  * be a 44px target, for older users on phones.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import '../../../../app.postcss';
+import '../../app.postcss';
 import { render } from 'vitest-browser-svelte';
 import { page } from 'vitest/browser';
 import CopyButton from './CopyButton.svelte';

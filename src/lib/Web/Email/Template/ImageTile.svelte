@@ -4,7 +4,7 @@
 	import * as m from '$msgs';
 	import Dialog from '$lib/Web/Dialog.svelte';
 	import ZoomableImage from '$lib/Image/ZoomableImage.svelte';
-	import CopyButton from './CopyButton.svelte';
+	import CopyButton from '$lib/Web/CopyButton.svelte';
 	import { formatBytes, imageErrorMessage, imgTag, mjImageTag, type EmailImage } from './emailTemplate';
 	import { deleteEmailImage, updateEmailImage } from '../../../../emailTemplate.remote';
 
