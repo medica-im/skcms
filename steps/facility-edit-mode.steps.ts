@@ -5,6 +5,7 @@ import { facilityCtx, setSwitch } from './facilityContext';
 import { djangoShell, clearApiCache } from './seed';
 import { addSessionCookie } from './common.steps';
 import { basePathOf } from './fixtures';
+import { hasCoordinates } from '../src/lib/components/Map/coordinates.js';
 
 const { Given, When, Then, After } = createBdd(test);
 
@@ -34,6 +35,30 @@ const before: {
 	/** Whether a map container was on the page at all, separate from its position. */
 	mapPresent?: boolean;
 } = {};
+
+/**
+ * Whether the page is due to carry a map, by the page's own rule applied to the
+ * facility's stored position. Asked of the data, not counted on the page:
+ * maplibre builds its container after hydration, and a count taken before that
+ * read a map still on its way as no map at all.
+ */
+async function facilityHasCoordinates(uid: string): Promise<boolean> {
+	const out = await djangoShell(
+		`
+from neomodel import db
+rows, _ = db.cypher_query(
+    "MATCH (f:Facility {uid: $uid}) RETURN f.location.latitude, f.location.longitude",
+    {"uid": ${JSON.stringify(uid)}},
+)
+assert rows, "no facility ${uid}"
+print("FACILITY_LOCATION", rows[0][0], rows[0][1])
+`,
+		{ readOnly: true }
+	);
+	const match = out.match(/FACILITY_LOCATION (\S+) (\S+)/);
+	if (!match) throw new Error(`reading the facility's location failed: ${out}`);
+	return hasCoordinates(match[1], match[2]);
+}
 
 /**
  * Reaches the facility page by clicking a link, rather than by loading its URL.
@@ -99,11 +124,13 @@ When('I turn edit mode on', async ({ page }) => {
 		if (box) before.photograph = { x: Math.round(box.x), y: Math.round(box.y) };
 	}
 	// Presence and position are recorded separately: a maplibre container can be
-	// on the page while still reporting no box. Conflating the two made a page
-	// whose map had not measured yet look like a page with no map at all, and
-	// the assertion then demanded the container be absent.
-	before.mapPresent = (await map(page).count()) > 0;
+	// on the page while still reporting no box.
+	expect(ctx.uid, 'no facility was chosen before this step').toBeTruthy();
+	before.mapPresent = await facilityHasCoordinates(ctx.uid!);
 	if (before.mapPresent) {
+		await expect(map(page), 'the facility has coordinates but its map never appeared').toBeVisible({
+			timeout: 15_000
+		});
 		const box = await map(page).boundingBox();
 		if (box) before.map = { x: Math.round(box.x), y: Math.round(box.y) };
 	}
