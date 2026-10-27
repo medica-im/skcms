@@ -76,8 +76,24 @@ describe('sites-dns.cjs', () => {
 	});
 
 	it('changes nothing without SITES_VIA', async () => {
+		// HOST is still listed in SITES_HOSTS: the point is that the guard
+		// (`if (address && hosts.size)`) keeps the shim from patching dns.lookup
+		// at all when SITES_VIA is unset, even for a name it would otherwise
+		// intercept. Proving that needs an outcome that depends on whether the
+		// patch fired — so the fetch must still fail, the same way it would with
+		// no shim loaded.
+		//
+		// It must not depend on *how fast* real DNS gives up on an unresolvable
+		// name, though: that varies with the resolver and network the suite
+		// happens to run on, and a slow NXDOMAIN once took this past Node's own
+		// 10s subprocess timeout. AbortSignal.timeout bounds the fetch itself, so
+		// the test's own 5s budget decides the failure, not whatever is
+		// underneath it.
 		await expect(
-			node(`await fetch('http://${HOST}:${port}/')`, { SITES_VIA: '', SITES_HOSTS: HOST })
+			node(
+				`await fetch('http://${HOST}:${port}/', { signal: AbortSignal.timeout(5000) })`,
+				{ SITES_VIA: '', SITES_HOSTS: HOST }
+			)
 		).rejects.toThrow();
 	});
 });
