@@ -61,6 +61,8 @@ const SAME_IN_BOTH = new Set([
 	'SITES_SINGULAR',
 	'SITES_TITLE',
 	'VACANT',
+	// Product names, which no language translates.
+	'CALENDAR_ADD_WEBCAL',
 	// Made only of placeholders, a unit and punctuation.
 	'EMAIL_IMAGE_DIMENSIONS',
 	// Plural forms whose two variants happen to match in both languages.
