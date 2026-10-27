@@ -10,9 +10,11 @@
 	 * Dev-only: +page.ts throws 404 outside `dev`, so this never answers in
 	 * production.
 	 */
+	import { page } from '$app/state';
 	import MapLibre from '$lib/MapLibre/MapLibre.svelte';
-	import { createFacilitiesMapData } from '$lib/components/Map/mapData.ts';
+	import { createEntriesMapData, createFacilitiesMapData } from '$lib/components/Map/mapData.ts';
 	import type { Facility } from '$lib/interfaces/facility.interface.js';
+	import type { Entry } from '$lib/store/directoryStoreInterface.ts';
 
 	// Two well-separated facilities, plus a pair 56m apart — the real distance
 	// between the CPTS and the cabinet infirmier in Lyon 3, which is about 4px
@@ -69,12 +71,35 @@
 			}
 		}
 	] as unknown as Facility[];
+
+	// The address book's popups, built by createEntriesMapData as the directory
+	// builds them: a link to the entry, and its effector type under it.
+	const entries = [
+		{
+			name: 'Camille Martin',
+			entrySlug: 'camille-martin',
+			effector_type: { name: 'Infirmier' },
+			address: { latitude: '43.492949', longitude: '-1.463151', zoom: 15, tooltip_direction: 'top' }
+		},
+		{
+			name: 'Pharmacie Saint-Esprit',
+			entrySlug: 'pharmacie-saint-esprit',
+			effector_type: { name: 'Pharmacien' },
+			address: { latitude: '43.497', longitude: '-1.469', zoom: 15, tooltip_direction: 'top' }
+		}
+	] as unknown as Entry[];
+
+	const data = $derived(
+		page.url.searchParams.get('kind') === 'entries'
+			? createEntriesMapData(entries, false, null)
+			: createFacilitiesMapData(facilities, true, true)
+	);
 </script>
 
 <!-- anchor=true: the linked popup is what the scenario measures. -->
 <div id="test-map" class="h-96 w-full">
 	<MapLibre
-		data={createFacilitiesMapData(facilities, true, true)}
+		{data}
 		showTooltip={true}
 		target={null}
 	/>

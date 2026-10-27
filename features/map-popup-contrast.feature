@@ -39,6 +39,24 @@ Feature: Map popup links are readable in both colour modes
         | light |
         | dark  |
 
+  # An address book popup carries more than the link: the effector type sits
+  # under it. That line once had an inline `color: #000`, written when MapLibre
+  # painted every card white; once the card followed the theme it was black on
+  # surface-900 in dark mode. Measuring the link alone could not see it, so
+  # every piece of text in the card is held to the same bar.
+  Rule: every line of an address book popup contrasts with its card
+
+    Scenario Outline: An address book popup is legible in <mode> mode
+      Given the site is in "<mode>" mode
+      When I open the address book map
+      And an address book marker popup is open
+      Then every line of the popup contrasts with the popup background
+
+      Examples:
+        | mode  |
+        | light |
+        | dark  |
+
   # The popup must not be left to the browser's own dark-mode styling: that is
   # the difference between the two engines, so pinning it is what makes the
   # scenario above mean the same thing everywhere.

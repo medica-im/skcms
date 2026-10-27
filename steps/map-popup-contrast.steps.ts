@@ -83,19 +83,35 @@ Given('the site is in {string} mode', async ({ page }, mode: string) => {
 	await page.emulateMedia({ colorScheme: mode === 'dark' ? 'dark' : 'light' });
 });
 
-When('I open the facility map', async ({ page }) => {
+async function openFixtureMap(page: Page, path: string) {
 	// A dev-only fixture route rendering the map alone (see
 	// src/routes/(common)/_test/map-popup). The colours under test belong to the
 	// component, so the scenario should not also depend on a tenant's data or on
 	// scrolling a section of the home page into view.
-	await page.goto('/_test/map-popup');
+	await page.goto(path);
 	const section = page.locator('#test-map');
 	// The canvas is WebGL; wait for MapLibre to have drawn rather than for the
 	// element to merely exist.
 	await expect(section.locator('canvas.maplibregl-canvas')).toBeVisible({ timeout: 8_000 });
+}
+
+When('I open the facility map', async ({ page }) => {
+	await openFixtureMap(page, '/_test/map-popup');
+});
+
+When('I open the address book map', async ({ page }) => {
+	await openFixtureMap(page, '/_test/map-popup?kind=entries');
+});
+
+When('an address book marker popup is open', async ({ page }) => {
+	await openPopup(page);
 });
 
 When('a facility marker popup is open', async ({ page }) => {
+	await openPopup(page);
+});
+
+async function openPopup(page: Page) {
 	// Facility.svelte passes showTooltip, so the popups open themselves. If that
 	// ever changes, click a marker instead of failing obscurely.
 	const popup = page.locator('.maplibregl-popup').first();
@@ -106,7 +122,7 @@ When('a facility marker popup is open', async ({ page }) => {
 	await expect(popup.locator('a.anchor').first()).toBeVisible({ timeout: 8_000 });
 	// Let the map settle so the screenshot is not taken mid-animation.
 	await page.waitForTimeout(500);
-});
+}
 
 function popupLink(page: Page): Locator {
 	return page.locator('.maplibregl-popup a.anchor').first();
@@ -131,6 +147,33 @@ Then('the popup link contrasts with the popup background', async ({ page }) => {
 		`popup link rgb(${fg}) on card rgb(${bg}) is ${ratio.toFixed(2)}:1, ` +
 			`want >= ${AA_BODY_TEXT}:1 for body text`
 	).toBeGreaterThanOrEqual(AA_BODY_TEXT);
+});
+
+Then('every line of the popup contrasts with the popup background', async ({ page }) => {
+	const card = popupCard(page);
+	const bg = await dominantColour(page, await card.screenshot());
+	// Every element that holds text of its own, with the colour it resolves to.
+	const lines = await card.evaluate((root) =>
+		[root, ...root.querySelectorAll('*')]
+			.filter((el) =>
+				[...el.childNodes].some((n) => n.nodeType === Node.TEXT_NODE && n.textContent?.trim())
+			)
+			.map((el) => ({
+				text: [...el.childNodes]
+					.filter((n) => n.nodeType === Node.TEXT_NODE)
+					.map((n) => n.textContent?.trim())
+					.join(' ')
+					.trim(),
+				color: getComputedStyle(el).color
+			}))
+	);
+	expect(lines.length, 'the popup has no text to measure').toBeGreaterThan(1);
+
+	const failing = lines
+		.map((l) => ({ ...l, ratio: contrast(parseRgb(l.color), bg) }))
+		.filter((l) => l.ratio < AA_BODY_TEXT)
+		.map((l) => `"${l.text}" ${l.color} is ${l.ratio.toFixed(2)}:1`);
+	expect(failing, `on card rgb(${bg}), want >= ${AA_BODY_TEXT}:1`).toEqual([]);
 });
 
 Then('the popup card has an explicit background colour', async ({ page }) => {

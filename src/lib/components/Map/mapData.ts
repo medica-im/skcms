@@ -127,7 +127,7 @@ export const createEntriesMapData = (entries: Entry[], tooltip = false, target: 
         let popupHtml = `
         ${link}
         <br>
-        <span style="color:#000000;">${entry.effector_type.name}</span>`
+        <span>${entry.effector_type.name}</span>`
 
         points.push({
             latLng: [Number(entry.address?.latitude ?? 0), Number(entry.address?.longitude ?? 0)],
