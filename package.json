@@ -40,7 +40,7 @@
 		"@vitest/browser": "^4.1.12",
 		"@vitest/browser-playwright": "^4.1.12",
 		"autoprefixer": "^10.6.2",
-		"maplibre-gl": "^5.24.0",
+		"maplibre-gl": "^6.16.0",
 		"npm-run-all": "^4.1.5",
 		"playwright-bdd": "^9.2.1",
 		"postcss": "^8.5.32",
@@ -91,7 +91,7 @@
 		"svelte-headlessui": "^0.0.46",
 		"svelte-intersection-observer": "^1.2.0",
 		"svelte-light-carousel": "^2.0.1",
-		"svelte-maplibre": "1.3.0",
+		"svelte-maplibre": "2.0.1",
 		"svelte-select": "^6.0.0",
 		"video.js": "^8.24.2",
 		"videojs-contrib-quality-levels": "^4.1.0"

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import * as m from '$msgs';
 	import { MapLibre, MapEvents, DefaultMarker } from 'svelte-maplibre';
+	import '$lib/MapLibre/worker';
 	import type { MapMouseEvent } from 'maplibre-gl';
 	import { hasCoordinates, distanceKm } from '$lib/components/Map/coordinates.ts';
 	import { communeCentre } from '$lib/components/Geocoder/communeCentre.ts';

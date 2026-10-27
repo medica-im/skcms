@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { ORIGIN } from '$lib/utils/origin.ts';
 	import { MapLibre, DefaultMarker } from 'svelte-maplibre';
+	import '$lib/MapLibre/worker';
 	import { page } from '$app/state';
 	import Fa from 'svelte-fa';
 	import Address from '$lib/Address/Address.svelte';

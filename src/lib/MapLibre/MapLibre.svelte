@@ -6,6 +6,7 @@
 	import { bbox } from '@turf/bbox';
 	import { lineString } from '@turf/helpers';
 	import { MapLibre, type Map } from 'svelte-maplibre';
+	import '$lib/MapLibre/worker';
 	import type { LngLatBoundsLike, FitBoundsOptions, LngLatLike } from 'maplibre-gl';
 	import type { MapData } from '$lib/interfaces/mapData.interface.js';
 	import type { AddressFeature } from '$lib/store/directoryStoreInterface';

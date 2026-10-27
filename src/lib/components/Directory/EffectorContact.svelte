@@ -18,6 +18,7 @@
 	import Address from '$lib/Directory/Address.svelte';
 	import Websites from '$lib/Website/Websites.svelte';
 	import { MapLibre, DefaultMarker } from 'svelte-maplibre';
+	import '$lib/MapLibre/worker';
 	import { createContactMapData } from '$lib/components/Map/mapData';
 	import { hasCoordinates } from '$lib/components/Map/coordinates';
 	import * as openStreetMap from '$lib/MapLibre/style/openStreetMap.json';
