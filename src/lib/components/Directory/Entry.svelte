@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Phones from '$lib/Directory/Phone/Phones.svelte';
-	import { FacilityLink } from '$lib';
+	import FacilityLink from '$lib/Facility/FacilityLink.svelte';
 	import Avatar from '$lib/components/Effector/Avatar/Avatar.svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';

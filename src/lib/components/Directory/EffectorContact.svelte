@@ -26,7 +26,7 @@
 	import Appointment from '$lib/components/Effector/Appointment/Appointments.svelte';
 	import Cost from '$lib/components/Effector/Cost/Cost.svelte';
 	import Payment from '$lib/Addressbook/Payment/Payment.svelte';
-	import { FacilityLink } from '$lib';
+	import FacilityLink from '$lib/Facility/FacilityLink.svelte';
 	import Info from '$lib/components/Effector/Info/Info.svelte';
 	import Avatar from '$lib/components/Effector/Avatar/Avatar.svelte';
 	import Back from '$lib/components/Directory/Back.svelte';
