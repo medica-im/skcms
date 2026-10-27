@@ -104,8 +104,47 @@ db.cypher_query(
 `);
 }
 
-/** Which shared account a scenario suspended, so it can be put back. */
-let suspendedAccount: TestRole | undefined;
+/** Which shared account a scenario suspended, and on which site, so it can be put back. */
+let suspended: { role: TestRole; host: string } | undefined;
+
+/**
+ * Suspends a shared per-role account, or lifts its suspension, on one site
+ * only: the site whose hostname is given, through the Access that points at
+ * that site's organization Entry.
+ *
+ * Every worker signs in as the same shared accounts, each on its own site. An
+ * unscoped suspension reached every site's Access at once, and any scenario
+ * signing in as that role on another worker meanwhile was served with no role
+ * at all — the avatar dialog's edit switch never appeared.
+ */
+async function setSuspension(role: TestRole, host: string, on: boolean): Promise<void> {
+	const out = await djangoShell(`
+from neomodel import db
+from facility.models import Organization
+from django.contrib.sites.models import Site
+from time import time_ns
+
+org = Organization.objects.get(site=Site.objects.get(domain="${host}"))
+rows, _ = db.cypher_query(
+    """
+    MATCH (a:Account {sub: $sub})<-[:HAS_ACCOUNT]-(u:User)-[:HAS_ACCESS]->(ac:Access {active: true})
+          -[:ACCESS_TO]->(:Entry {uid: $entry_uid})
+    SET ac.suspendedAt = $now, ac.suspensionReason = $reason
+    RETURN count(ac)
+    """,
+    {
+        "sub": "${TEST_ACCOUNTS[role].sub}",
+        "entry_uid": org.neomodel_uid.hex,
+        "now": ${on ? 'time_ns() // 1_000_000' : 'None'},
+        "reason": ${on ? '"e2e"' : 'None'},
+    },
+)
+print("SUSPENSION_SET", rows[0][0])
+`);
+	expect(out, `not exactly one ${role} access on ${host} to ${on ? 'suspend' : 'reinstate'}: ${out}`).toMatch(
+		/^SUSPENSION_SET 1$/m
+	);
+}
 
 /**
  * Undo everything a scenario did, in one place.
@@ -121,19 +160,10 @@ After(async () => {
 		ctx.targetUid = undefined;
 		ctx.targetRole = undefined;
 	}
-	if (suspendedAccount) {
-		const sub = TEST_ACCOUNTS[suspendedAccount].sub;
-		suspendedAccount = undefined;
-		await djangoShell(`
-from neomodel import db
-db.cypher_query(
-    """
-    MATCH (a:Account {sub: $sub})<-[:HAS_ACCOUNT]-(u:User)-[:HAS_ACCESS]->(ac:Access {active: true})
-    SET ac.suspendedAt = NULL, ac.suspensionReason = NULL
-    """,
-    {"sub": "${sub}"},
-)
-`);
+	if (suspended) {
+		const { role, host } = suspended;
+		suspended = undefined;
+		await setSuspension(role, host, false);
 	}
 });
 
@@ -305,26 +335,15 @@ Then('the history was fetched by the browser', async ({ page }) => {
 	).toBe(200);
 });
 
-Given('my access has been suspended', async ({ context, baseURL }) => {
+Given('my access has been suspended', async ({ baseURL }) => {
 	// Suspends the signed-in test account itself, which is the only way to see
-	// what a suspended person sees. Restored in the afterEach below, since the
-	// per-role accounts are shared by every other scenario.
-	await djangoShell(`
-from neomodel import db
-from time import time_ns
-db.cypher_query(
-    """
-    MATCH (a:Account {sub: $sub})<-[:HAS_ACCOUNT]-(u:User)-[:HAS_ACCESS]->(ac:Access {active: true})
-    SET ac.suspendedAt = $now, ac.suspensionReason = 'e2e'
-    """,
-    {"sub": "${TEST_ACCOUNTS.administrator.sub}", "now": time_ns() // 1_000_000},
-)
-`);
-	suspendedAccount = 'administrator';
-	// The session cookie is unaffected by the suspension — that is the point,
-	// the identity survives — so nothing to re-issue here.
-	void context;
-	void baseURL;
+	// what a suspended person sees. Restored in the After hook above, since the
+	// per-role accounts are shared by every other scenario. The session cookie
+	// is unaffected by the suspension — that is the point, the identity
+	// survives — so nothing to re-issue here.
+	const host = new URL(baseURL ?? apiOrigin()).hostname;
+	await setSuspension('administrator', host, true);
+	suspended = { role: 'administrator', host };
 });
 
 When('I open the dashboard', async ({ page }) => {
