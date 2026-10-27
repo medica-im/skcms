@@ -77,12 +77,50 @@ async function makeImage(
  * Tagged with the worker-scoped SEED_TAG so cleanup only ever touches this
  * worker's own facility. Mirrors seedFacility in facility-deletion.steps.ts.
  */
-async function aFacility() {
+type StaffLink = 'owner' | 'creator';
+
+/** Makes the staff test user answerable for $facility: as owner of an entry there, or as its creator. */
+const STAFF_LINK: Record<StaffLink, string> = {
+	owner: `
+MATCH (e:Entry)-[:HAS_FACILITY]->(f:Facility {uid: $facility})
+WITH e LIMIT 1
+MATCH (u:User)-[:HAS_ACCOUNT]->(:Account {sub: "e2e-sub-staff"})
+MERGE (e)-[:OWNED_BY]->(u)
+RETURN e.uid`,
+	creator: `
+MATCH (f:Facility {uid: $facility})
+MATCH (u:User)-[:HAS_ACCOUNT]->(:Account {sub: "e2e-sub-staff"})
+MERGE (f)-[:CREATED_BY]->(u)
+RETURN f.uid`
+};
+
+// Plain Cypher rather than the neomodel class: inside `manage.py shell`
+// neomodel resolves a relationship's node class against the calling module,
+// which is the shell command itself, and raises AttributeError.
+const staffLinkPython = (link: StaffLink, facilityUid: string) => `
+rows, _ = db.cypher_query("""${STAFF_LINK[link]}
+""", {"facility": ${facilityUid}})
+assert rows, "could not make the staff test user ${link} of the facility"
+print("STAFF_LINKED")
+`;
+
+async function linkStaff(link: StaffLink, uid: string) {
+	const out = await djangoShell(`from neomodel import db\n${staffLinkPython(link, JSON.stringify(uid))}`);
+	if (!out.includes('STAFF_LINKED')) throw new Error(`could not link ${link}: ${out}`);
+}
+
+/**
+ * `link` makes the staff test user answerable for the facility in the same
+ * shell that seeds it: each `manage.py shell` boots Django, which costs more
+ * than the query.
+ */
+async function aFacility(link?: StaffLink) {
 	// Once a scenario has settled on a facility — typically by making the signed
 	// in user answerable for it — every later step must stay with that one.
 	// Picking afresh would land on a facility the user is a stranger to, and the
 	// scenario would fail on the wrong thing.
 	if (ctx.uid && ctx.slug) {
+		if (link) await linkStaff(link, ctx.uid);
 		return { uid: ctx.uid, slug: ctx.slug };
 	}
 
@@ -137,13 +175,16 @@ CREATE (e)-[:HAS_EFFECTOR]->(ef)
 MERGE (d)-[:HAS_ENTRY]->(e)
 """, {"dir": directory.name, "facility": facility_uid, "effector": effector_uid,
       "entrySlug": "e2e-place-image-entry-${worker}"})
-
 print("FACILITY_SEEDED", facility_uid, facility_slug)
-`);
+${link ? staffLinkPython(link, 'facility_uid') : ''}`);
 	const match = out.match(/FACILITY_SEEDED (\S+) (\S+)/);
 	if (!match) throw new Error(`seeding facility failed: ${out}`);
 	await clearApiCache();
 	ctx.seededFacility = true;
+	if (link && !out.includes('STAFF_LINKED')) {
+		ctx.uid = match[1];
+		throw new Error(`could not link ${link}: ${out}`);
+	}
 	return { uid: match[1], slug: match[2] };
 }
 
@@ -196,7 +237,10 @@ After(async () => {
 	}
 	// Leaving the staff user owning an entry would make the scenarios that
 	// expect an unconnected staff member pass without proving anything.
-	if (ctx.ownershipLinked && ctx.uid) {
+	//
+	// Only needed on a facility that outlives the scenario: a seeded one is
+	// removed below with DETACH DELETE, which takes its links with it.
+	if (ctx.ownershipLinked && ctx.uid && !ctx.seededFacility) {
 		const uid = ctx.uid;
 		ctx.ownershipLinked = false;
 		await djangoShell(`
@@ -210,7 +254,7 @@ print("OWNERSHIP_RESTORED")
 `);
 		await clearApiCache();
 	}
-	if (ctx.creatorLinked && ctx.uid) {
+	if (ctx.creatorLinked && ctx.uid && !ctx.seededFacility) {
 		const uid = ctx.uid;
 		ctx.creatorLinked = false;
 		await djangoShell(`
@@ -239,6 +283,8 @@ print("SEEDED_FACILITY_REMOVED")
 `);
 		await clearApiCache();
 	}
+	ctx.ownershipLinked = false;
+	ctx.creatorLinked = false;
 	ctx.uid = undefined;
 	ctx.slug = undefined;
 	ctx.status = undefined;
@@ -417,29 +463,10 @@ When('I upload a facility picture measuring {int}x{int}', async ({ page, baseURL
 Given(
 	'I am signed in as the owner of an entry at a facility of this site',
 	async ({ context, page, baseURL }) => {
-		const facility = await aFacility();
+		const facility = await aFacility('owner');
 		ctx.uid = facility.uid;
 		ctx.slug = facility.slug;
-
-		// Plain Cypher rather than the neomodel class: inside `manage.py shell`
-		// neomodel resolves a relationship's node class against the calling
-		// module, which is the shell command itself, and raises AttributeError.
-		const out = await djangoShell(`
-from neomodel import db
-
-rows, _ = db.cypher_query("""
-MATCH (e:Entry)-[:HAS_FACILITY]->(f:Facility {uid: $facility})
-WITH e LIMIT 1
-MATCH (u:User)-[:HAS_ACCOUNT]->(:Account {sub: "e2e-sub-staff"})
-MERGE (e)-[:OWNED_BY]->(u)
-RETURN e.uid
-""", {"facility": "${facility.uid}"})
-assert rows, "no entry at this facility, or no staff test user"
-print("OWNER_LINKED", rows[0][0])
-`);
-		if (!out.includes('OWNER_LINKED')) throw new Error(`could not link owner: ${out}`);
 		ctx.ownershipLinked = true;
-		await clearApiCache();
 
 		await addSessionCookie(context, 'staff', baseURL ?? 'http://localhost:3000');
 		await page.goto('/', { waitUntil: 'domcontentloaded' });
@@ -457,25 +484,10 @@ print("OWNER_LINKED", rows[0][0])
 Given(
 	'I am signed in as the creator of a facility of this site',
 	async ({ context, page, baseURL }) => {
-		const facility = await aFacility();
+		const facility = await aFacility('creator');
 		ctx.uid = facility.uid;
 		ctx.slug = facility.slug;
-
-		const out = await djangoShell(`
-from neomodel import db
-
-rows, _ = db.cypher_query("""
-MATCH (f:Facility {uid: $facility})
-MATCH (u:User)-[:HAS_ACCOUNT]->(:Account {sub: "e2e-sub-staff"})
-MERGE (f)-[:CREATED_BY]->(u)
-RETURN f.uid
-""", {"facility": "${facility.uid}"})
-assert rows, "no such facility, or no staff test user"
-print("CREATOR_LINKED", rows[0][0])
-`);
-		if (!out.includes('CREATOR_LINKED')) throw new Error(`could not link creator: ${out}`);
 		ctx.creatorLinked = true;
-		await clearApiCache();
 
 		await addSessionCookie(context, 'staff', baseURL ?? 'http://localhost:3000');
 		await page.goto('/', { waitUntil: 'domcontentloaded' });
