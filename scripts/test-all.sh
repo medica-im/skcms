@@ -891,14 +891,18 @@ suite_typecheck() {
 # every tenant, so the first site's stage runs everything and the others their
 # own tests alone. Returning early when there are none matters: vitest given no
 # file filter runs every file.
+#
+# Under xvfb when it is available: headless Firefox has no WebGL2 without a
+# display, and a component that mounts a MapLibre map never starts there.
 suite_unit() {
-    local own
-    [[ "${1:-all}" == "all" ]] && { (cd "$FRONTEND_DIR" && BASE_PATH= npx vitest run); return; }
+    local own runner=(npx vitest run)
+    command -v xvfb-run >/dev/null 2>&1 && runner=(xvfb-run -a npx vitest run)
+    [[ "${1:-all}" == "all" ]] && { (cd "$FRONTEND_DIR" && BASE_PATH= "${runner[@]}"); return; }
     own="$(cd "$FRONTEND_DIR" && scripts/skvar-tests.sh)" || return 1
     [[ -z "$own" ]] && { info "no tests of its own on this branch"; return 0; }
     local files
     mapfile -t files <<< "$own"
-    (cd "$FRONTEND_DIR" && BASE_PATH= npx vitest run "${files[@]}")
+    (cd "$FRONTEND_DIR" && BASE_PATH= "${runner[@]}" "${files[@]}")
 }
 
 suite_backend() {

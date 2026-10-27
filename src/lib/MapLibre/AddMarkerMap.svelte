@@ -2,6 +2,7 @@
 	import * as m from '$msgs';
 	import { MapLibre, MapEvents, DefaultMarker } from 'svelte-maplibre';
 	import '$lib/MapLibre/worker';
+	import { openStreetMap } from '$lib/MapLibre/style/openStreetMap';
 	import type { MapMouseEvent } from 'maplibre-gl';
 	import { hasCoordinates, distanceKm } from '$lib/components/Map/coordinates.ts';
 	import { communeCentre } from '$lib/components/Geocoder/communeCentre.ts';
@@ -49,7 +50,7 @@
 <div class="relative w-full">
 	{#key [view.lng, view.lat, view.zoom]}
 		<MapLibre
-			style="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+			style={openStreetMap}
 			class="relative aspect-[9/16] max-h-[70vh] w-full sm:aspect-video sm:max-h-full"
 			standardControls
 			center={{ lng: view.lng, lat: view.lat }}
