@@ -282,6 +282,7 @@ Key variables (override via env or $FRONTEND_DIR/.env.test-all):
   E2E_WORKERS=$E2E_WORKERS  E2E_STOP_AFTER=$E2E_STOP_AFTER
   PLAYWRIGHT_WORKERS=${PLAYWRIGHT_WORKERS:-<half the cores>}  (scenarios run at once; the limit is RAM)
   BDD_PROJECT=${BDD_PROJECT:-<all>}  (one shape only: chromium-base-path | chromium-root)
+  BDD_GREP=${BDD_GREP:-<all>}  (only the scenarios whose title matches; the run counts as partial)
   TEE_LOG=${TEE_LOG-<logs/test-all-DATE.log>}  (the run is also written here; follow it with
              tail -f logs/test-all-latest.log. TEE_LOG= turns it off)
   SITE_CONTEXT=$SITE_CONTEXT  (dev.yml context serving dev.<site> for the sites project; started if absent)
@@ -957,6 +958,10 @@ suite_bdd() {
     # one of them, not for a full check before a release.
     local project_args=()
     [[ -n "${BDD_PROJECT:-}" ]] && project_args=(--project "$BDD_PROJECT")
+    # BDD_GREP narrows it to the scenarios whose title matches, for the same
+    # purpose: the worker servers serve the snapshot, so a playwright run of
+    # one feature from the working tree would test the last run's code.
+    [[ -n "${BDD_GREP:-}" ]] && project_args+=(--grep "$BDD_GREP")
 
     # No tee of its own: the whole run, this stage included, is already written
     # to the run log (see "Run log" below the argument parsing).
@@ -1339,7 +1344,8 @@ if [[ -n "${TEST_ALL_SNAPSHOT:-}" && "$exit_code" == 0 && ${#RESULT_NAMES[@]} -g
     coverage="partial: ${SUITES[*]} on ${CONTEXTS[*]}"
     if [[ "$(sorted "${SUITES[@]}")" == "$(sorted "${ALL_SUITES[@]}")" \
           && "$(sorted "${CONTEXTS[@]}")" == "$(sorted $(all_contexts))" \
-          && "$SKIP_BACKEND$SKIP_FRONTEND" == "00" ]]; then
+          && "$SKIP_BACKEND$SKIP_FRONTEND" == "00" \
+          && -z "${BDD_PROJECT:-}${BDD_GREP:-}" ]]; then
         coverage="full"
     fi
     git -C "$FRONTEND_DIR" update-ref --create-reflog -m "test-all passed ($coverage)" \
