@@ -1,5 +1,5 @@
 <script lang="ts">
-	let { dialog = $bindable(), classProp = "max-w-full sm:max-w-[90vw] lg:max-w-5xl", overflow = "overflow-visible", maxHeight = "max-h-[90dvh]" } : { dialog: HTMLDialogElement|undefined; classProp?: string; overflow?: string; maxHeight?: string; } = $props();
+	let { dialog = $bindable(), classProp = "max-w-full sm:max-w-[90vw] lg:max-w-5xl", overflow = "overflow-visible", maxHeight = "max-h-[90dvh]", onclose } : { dialog: HTMLDialogElement|undefined; classProp?: string; overflow?: string; maxHeight?: string; onclose?: () => void; } = $props();
 </script>
 
 <!--
@@ -37,6 +37,7 @@
 <dialog
 	class="rounded-lg !m-auto {maxHeight} overflow-y-auto overscroll-contain {overflow} {classProp}"
 	bind:this={dialog}
+	{onclose}
 >
 	<slot/>
 </dialog>

@@ -219,7 +219,7 @@ Then('the page flags the missing GPS position', async ({ page }) => {
 });
 
 Then('the page shows no map of the facility', async ({ page }) => {
-	// The edit dialog's own picker map is always in the DOM, closed or not.
+	// Not the edit dialog's own picker map, which is there whenever the dialog is open.
 	await expect(page.locator('.maplibregl-map:not(dialog .maplibregl-map)')).toHaveCount(0);
 });
 

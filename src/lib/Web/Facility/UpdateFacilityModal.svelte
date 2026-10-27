@@ -130,6 +130,8 @@
 	);
 
 	let dialog: HTMLDialogElement | undefined = $state();
+	/** The picker map is built only while the dialog is shown. */
+	let open = $state(false);
 	let form: HTMLFormElement | undefined = $state();
 	let gpsDialog: HTMLDialogElement | undefined = $state();
 	let confirmedNoGps = false;
@@ -161,6 +163,7 @@
 	onclick={async () => {
 		formResult = undefined;
 		slugSuccess = false;
+		open = true;
 		dialog?.showModal();
 	}}
 	class="btn bg-surface-100-800-token text-surface-900-50-token variant-ringed-surface shadow opacity-90 hover:opacity-100 transition-opacity"
@@ -172,7 +175,7 @@
 	overflow="" so the dialog's own overflow-y-auto applies: this form is taller
 	than a phone screen and has to scroll to its buttons.
 -->
-<Dialog bind:dialog classProp="w-full" overflow="">
+<Dialog bind:dialog classProp="w-full" overflow="" onclose={() => (open = false)}>
 	<div class="rounded-lg w-full p-4 variant-ghost-secondary items-center place-items-center">
 		<h3 class="h3 text-center">Modifier l'établissement</h3>
 		<form
@@ -400,13 +403,15 @@
 							}}
 						/>
 					</label>
-					<AddMarkerMap
-						bind:lng
-						bind:lat
-						bind:zoom
-						commune={facility.commune.name_fr}
-						departmentCode={facility.commune.department?.code ?? null}
-					/>
+					{#if open}
+						<AddMarkerMap
+							bind:lng
+							bind:lat
+							bind:zoom
+							commune={facility.commune.name_fr}
+							departmentCode={facility.commune.department?.code ?? null}
+						/>
+					{/if}
 					<label class="label flex w-full flex-col items-start gap-1 place-self-start sm:flex-row sm:items-center sm:gap-2">
 						<span>Latitude</span>
 						<input name="latitude" class="input w-full" bind:value={lat} />

@@ -89,3 +89,15 @@ Feature: Edit mode on the facility page
       When I turn edit mode on
       Then the edit facility button is semi-transparent
       And the "add picture" button is semi-transparent
+
+  Rule: edit mode loads no map until the edit dialog is opened
+
+    # The edit dialog carries a map for placing the facility, and an editor
+    # turns edit mode on far more often than they open that dialog. Built with
+    # the buttons, the hidden map fetched a style, tiles and fonts from the
+    # tile host every time — for nothing, and from the editor's browser.
+    Scenario: Turning edit mode on leaves the dialog's map unloaded
+      Given I am signed in as the owner of an entry at a facility of this site
+      And I open the facility page for that facility
+      When I turn edit mode on
+      Then the closed edit dialog has not loaded its map

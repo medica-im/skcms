@@ -211,6 +211,21 @@ Then('the map has not moved', async ({ page }) => {
 });
 
 /**
+ * The dialog's form is rendered with the buttons, closed or not, so once its
+ * fields are there a picker built with them would be too. The hint is the
+ * picker's own markup, there from its first render; maplibre's container class
+ * comes later, so a count of that alone could pass before the map was built.
+ */
+Then('the closed edit dialog has not loaded its map', async ({ page }) => {
+	const dialog = page
+		.locator('dialog:not([open])')
+		.filter({ has: page.locator('input[name="latitude"]') });
+	await expect(dialog).toHaveCount(1);
+	await expect(dialog.getByTestId('add-marker-hint')).toHaveCount(0);
+	await expect(dialog.locator('.maplibregl-map')).toHaveCount(0);
+});
+
+/**
  * The pencil and the buttons it reveals must not share any pixels: overlapping
  * them means the second press lands on "edit facility" and edit mode can never
  * be turned off.
