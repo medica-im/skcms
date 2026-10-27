@@ -32,6 +32,17 @@ const ctx: {
 } = {};
 
 /**
+ * The sub prefix of the disposable users seeded from this worker's site.
+ *
+ * Carries the site so cleanup can stay on it: a worker runs one scenario at a
+ * time, but several workers run at once, and a prefix shared by all of them
+ * let one scenario's teardown delete the user another was still working on.
+ * Scoped by site rather than by a list of uids, so it also clears what an
+ * aborted earlier run left on the same site.
+ */
+const targetPrefix = () => `e2e-role-target-${new URL(apiOrigin()).hostname}-`;
+
+/**
  * Create a disposable user with a given role, and return its uid.
  *
  * A scenario that changes somebody's role owns that somebody: pointing the
@@ -75,8 +86,8 @@ db.cypher_query(
         "user_uid": user_uid,
         "account_uid": uuid4().hex,
         "access_uid": uuid4().hex,
-        "sub": "e2e-role-target-${suffix}",
-        "email": "e2e-role-target-${suffix}@example.test",
+        "sub": "${targetPrefix()}${suffix}",
+        "email": "${targetPrefix()}${suffix}@example.test",
         "name": "E2E Role Target",
         "role": "${role}",
         "now": now,
@@ -89,17 +100,18 @@ print(user_uid)
 	return uid;
 }
 
-/** Remove the throwaway users this file created, whatever a scenario did to them. */
+/** Remove the throwaway users seeded from this worker's site, whatever a scenario did to them. */
 async function removeSeededUsers(): Promise<void> {
 	await djangoShell(`
 from neomodel import db
 db.cypher_query(
     """
     MATCH (a:Account)<-[:HAS_ACCOUNT]-(u:User)
-    WHERE a.sub STARTS WITH 'e2e-role-target-'
+    WHERE a.sub STARTS WITH $prefix
     OPTIONAL MATCH (u)-[:HAS_ACCESS]->(ac:Access)
     DETACH DELETE a, u, ac
-    """
+    """,
+    {"prefix": "${targetPrefix()}"},
 )
 `);
 }
