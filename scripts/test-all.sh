@@ -263,7 +263,9 @@ Sites: $(all_contexts | tr '\n' ' ')
   tenant is checked out — typecheck, unit and bdd — run once per site:
   a page or a spec belonging to one tenant is skipped on the others, and
   each site's svelte-check count is judged against its own baseline
-  (scripts/typecheck-baselines.conf). backend runs once: it has no tenant.
+  (scripts/typecheck-baselines.conf). unit runs in full on the first site
+  and, on the others, only the tests their skvar branch carries.
+  backend runs once: it has no tenant.
 
   Each site is switched to with dev.sh, which moves the skvar branch and the
   .env symlink together, so the checkout is left on whichever site ran last.
@@ -884,11 +886,19 @@ suite_typecheck() {
 # the relationship rather than a literal, so they hold at either value, and
 # scripts/typecheck-baselines.sh still exercises the real one per site.
 #
-# $1 = 1 skips the tests that do not depend on the tenant (the release
-# scripts' git tests, listed in vite.config.ts): run in the first site's stage,
-# they would only repeat the same answer in the other four.
+# $1 = all runs the whole suite; $1 = own only the tests the checked-out skvar
+# branch carries (scripts/skvar-tests.sh). The rest give the same answer on
+# every tenant, so the first site's stage runs everything and the others their
+# own tests alone. Returning early when there are none matters: vitest given no
+# file filter runs every file.
 suite_unit() {
-    (cd "$FRONTEND_DIR" && BASE_PATH= SKIP_SITE_INDEPENDENT_TESTS="${1:-0}" npx vitest run)
+    local own
+    [[ "${1:-all}" == "all" ]] && { (cd "$FRONTEND_DIR" && BASE_PATH= npx vitest run); return; }
+    own="$(cd "$FRONTEND_DIR" && scripts/skvar-tests.sh)" || return 1
+    [[ -z "$own" ]] && { info "no tests of its own on this branch"; return 0; }
+    local files
+    mapfile -t files <<< "$own"
+    (cd "$FRONTEND_DIR" && BASE_PATH= npx vitest run "${files[@]}")
 }
 
 suite_backend() {
@@ -1271,8 +1281,8 @@ SITES_CONTEXT="$SITE_CONTEXT"
 
 for suite in "${SUITES[@]}"; do
     if suite_is_per_site "$suite"; then
-        # The tenant-independent unit tests run with the first site only.
-        skip_site_independent=0
+        # The whole unit suite with the first site, each tenant's own tests after.
+        unit_scope=all
         for ctx in "${CONTEXTS[@]}"; do
             # Checkout only (second arg 0): unit imports files, it does not
             # browse, so no server is started and none is torn down.
@@ -1280,8 +1290,8 @@ for suite in "${SUITES[@]}"; do
                 || { record "$suite ($ctx)" fail 0; continue; }
             case "$suite" in
                 unit) [[ "$SKIP_FRONTEND" == "1" ]] || {
-                        run_suite "unit ($ctx)" suite_unit "$skip_site_independent"
-                        skip_site_independent=1
+                        run_suite "unit ($ctx)" suite_unit "$unit_scope"
+                        unit_scope=own
                     } ;;
                 typecheck) [[ "$SKIP_FRONTEND" == "1" ]] || run_suite "typecheck ($ctx)" suite_typecheck "$ctx" ;;
                 *) fail "no per-site handler for suite: $suite"; record "$suite ($ctx)" fail 0 ;;

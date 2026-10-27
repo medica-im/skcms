@@ -63,21 +63,7 @@ export default defineConfig(({ mode }) => {
 							'**/node_modules/**',
 							'src/**/*.svelte.{test,spec}.{js,ts}',
 							// A site's own Playwright specs, in its skvar branch.
-							'src/routes/\\(skvar\\)/tests/**',
-							// test-all.sh runs this project once per tenant, and
-							// these do not depend on the tenant: they test the
-							// release scripts against throwaway git repositories.
-							// It sets SKIP_SITE_INDEPENDENT_TESTS=1 after the first
-							// site, so they run once per run, not five times.
-							// Here rather than --exclude on the command line: a
-							// project's own exclude replaces that one.
-							...(process.env.SKIP_SITE_INDEPENDENT_TESTS === '1'
-								? [
-										'src/lib/skvar-restore.test.ts',
-										'src/lib/image-tag.test.ts',
-										'src/lib/build-image-args.test.ts'
-									]
-								: [])
+							'src/routes/\\(skvar\\)/tests/**'
 						],
 						// Blocks ssh/scp/rsync/docker for every unit test, not just
 						// the one that was found reaching production. See the file
