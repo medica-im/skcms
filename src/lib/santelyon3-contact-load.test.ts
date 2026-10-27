@@ -1,7 +1,7 @@
 import { afterEach, describe, it, expect, vi } from 'vitest';
-import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
+import { skvarSource } from './skvarSource';
 
 /**
  * What the contact page's load does when the facility cannot be fetched.
@@ -27,9 +27,12 @@ import { join, relative, resolve } from 'node:path';
  * either way. A test that only runs in some checkouts is not a test of the
  * thing, it is a test of the checkout.
  *
- * So the module is read from git instead — `git show <branch>:contact/+page.server.ts`
- * — and evaluated here. Lyon 3's contact page is now checked on every run,
- * whichever tenant the submodule is sitting on. The route imports only
+ * So the module is read through skvarSource and evaluated here: test-all's
+ * snapshot when the run was started on Lyon 3, the working tree on a Lyon 3
+ * checkout, the committed branch otherwise. Lyon 3's contact page is checked
+ * on every run, whichever tenant the submodule is sitting on, and at the
+ * version under test — reading the branch alone missed a snapshot's
+ * uncommitted edits on every tenant but Lyon 3's. The route imports only
  * `@sveltejs/kit` and `$lib` modules, which resolve from this repository
  * regardless of branch, so nothing else has to be stubbed.
  *
@@ -49,38 +52,7 @@ const fetchReturning = (status: number, body: unknown = {}) =>
 		})
 	) as unknown as typeof fetch;
 
-/**
- * Lyon 3's contact page source, read from whichever branch carries it.
- *
- * Tried in order: the working tree (already on a Lyon 3 checkout), then the
- * tenant branches. Reading from git rather than the filesystem is what makes
- * this independent of the current checkout — the whole point of the change
- * described above.
- */
 const ROUTE_FILE = 'contact/+page.server.ts';
-
-function contactPageSource(): string {
-	const submodule = resolve(__dirname, '../routes/(skvar)');
-	const local = join(submodule, ROUTE_FILE);
-	if (existsSync(local)) return readFileSync(local, 'utf8');
-
-	for (const branch of ['santelyon3.fr', 'dev.santelyon3.fr']) {
-		try {
-			return execFileSync('git', ['show', `${branch}:${ROUTE_FILE}`], {
-				cwd: submodule,
-				encoding: 'utf8'
-			});
-		} catch {
-			// Branch missing from this clone; try the next.
-		}
-	}
-
-	throw new Error(
-		`Lyon 3 ${ROUTE_FILE} is in neither the working tree nor any known ` +
-			'skvar branch. The submodule may be unfetched — `git submodule update ' +
-			'--init` in this repository, or `git fetch` inside src/routes/(skvar).'
-	);
-}
 
 /**
  * The page's `load`, compiled from that source.
@@ -113,16 +85,16 @@ function contactPageSource(): string {
  * the pid so concurrent vitest workers cannot delete each other's copy.
  */
 async function loadContactPage() {
-	const real = resolve(__dirname, '../routes/(skvar)', ROUTE_FILE);
+	const page = skvarSource('santelyon3.fr', ROUTE_FILE);
 	const spec = (absolute: string) =>
 		/* @vite-ignore */ `./${relative(`${__dirname}/`, absolute)}`;
 
-	if (existsSync(real)) return (await import(spec(real))).load;
+	if (page.workingTreeFile) return (await import(spec(page.workingTreeFile))).load;
 
 	const scratch = resolve(__dirname, '../../.vitest-scratch');
 	mkdirSync(scratch, { recursive: true });
 	const temp = join(scratch, `contact-page.from-git.${process.pid}.ts`);
-	writeFileSync(temp, contactPageSource());
+	writeFileSync(temp, page.source);
 	try {
 		return (await import(spec(temp))).load;
 	} finally {
