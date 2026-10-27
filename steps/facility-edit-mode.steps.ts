@@ -25,8 +25,14 @@ const placePhotograph = (page: import('@playwright/test').Page) =>
  * The map's container rather than its canvas: maplibre recreates the canvas on
  * resize, so a canvas measured before a change may be detached afterwards even
  * though the map never moved.
+ *
+ * The facility's own map, not the edit dialog's picker: that one sits before it
+ * in the DOM, has no box while the dialog is closed, and was what `.first()`
+ * measured — the position was never compared, and on a facility without
+ * coordinates it was counted as a map appearing.
  */
-const map = (page: import('@playwright/test').Page) => page.locator('.maplibregl-map').first();
+const map = (page: import('@playwright/test').Page) =>
+	page.locator('.maplibregl-map:not(dialog .maplibregl-map)').first();
 
 /** Positions captured before edit mode, to prove the page does not shift. */
 const before: {

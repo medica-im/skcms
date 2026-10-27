@@ -143,11 +143,16 @@ assert directory, "no directory for site"
 # and Entry.active = true — a facility that only exists as a bare node with an
 # entry pointing at it, as an earlier version of this seed did, 404s from that
 # endpoint even though it exists via the plain /facilities/{uid} lookup.
+#
+# And a position, which the seed copies: without one the page has no map, and
+# "the map has not moved" has nothing to measure. 0/0 is no position either
+# (hasCoordinates).
 rows, _ = db.cypher_query("""
 MATCH (f:Facility)-[:LOCATED_IN_THE_ADMINISTRATIVE_TERRITORIAL_ENTITY]->(:Commune)-[:LOCATED_IN_THE_ADMINISTRATIVE_TERRITORIAL_ENTITY*]->(:Country)
+WHERE f.location IS NOT NULL AND NOT (f.location.latitude = 0 AND f.location.longitude = 0)
 RETURN f.uid LIMIT 1
 """)
-assert rows, "no facility with a full geography chain to model the seeded one on"
+assert rows, "no facility with a position and a full geography chain to model the seeded one on"
 model_uid = rows[0][0]
 
 rows, _ = db.cypher_query("""
