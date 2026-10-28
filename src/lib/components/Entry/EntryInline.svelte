@@ -1,11 +1,10 @@
 <script lang="ts">
 	import { base } from '$app/paths';
-	import { page } from '$app/state';
 	import { Avatar } from '@skeletonlabs/skeleton';
 	import { faUser } from '@fortawesome/free-solid-svg-icons';
 	import { entrySlugPageUrl } from '$lib/utils/utils.ts';
 	import Fa from 'svelte-fa';
-	import type { Entry, EntryFull } from '$lib/store/directoryStoreInterface';
+	import type { EntryCredit } from '$lib/store/directoryStoreInterface';
 
 	// Prefix only a path that exists. An entry without a picture yields
 	// undefined from every branch above, and `${base}${undefined}` is the
@@ -14,19 +13,23 @@
 	// Avatar component already handles by showing its own fallback.
 	const avatarPath = (p: string | undefined) => (p ? `${base}${p}` : undefined);
 
-	let {data} : {data: EntryFull} = $props();
-	const _entry: Entry = page.data.entries.find((e: Entry)=>e.uid==data.uid);
+	let { data }: { data: EntryCredit } = $props();
 </script>
 
-{#if data && _entry}
-	<a href={entrySlugPageUrl(_entry)} class="anchor">
+{#if data.active === false}
+	<div class="flex gap-2 items-center">
+		<Avatar width="w-10" class="shrink-0">
+			<Fa icon={faUser} />
+		</Avatar>
+		<div class="min-w-0">{data.name}, {data.effector_type.label}</div>
+	</div>
+{:else}
+	<a href={entrySlugPageUrl(data)} class="anchor">
 		<div class="flex gap-2 items-center">
-			<Avatar src={avatarPath(data?.avatar?.sm||data?.avatar?.raw)} width="w-10" class="shrink-0">
+			<Avatar src={avatarPath(data.avatar?.sm || data.avatar?.raw)} width="w-10" class="shrink-0">
 				<Fa icon={faUser} />
 			</Avatar>
-			<div class="min-w-0">{data?.name}, {data?.effector_type.label}</div>
+			<div class="min-w-0">{data.name}, {data.effector_type.label}</div>
 		</div>
 	</a>
-{:else}
-	data: {JSON.stringify(data)}
 {/if}

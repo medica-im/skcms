@@ -105,6 +105,15 @@ export interface EntryFull {
     access: string;
 }
 
+/** How a page credits a team member (GET /api/v2/entry-credits). An EntryFull fits it too. */
+export interface EntryCredit {
+    entrySlug: string;
+    name: string;
+    effector_type: Pick<Type, 'name' | 'label'>;
+    active: boolean | null;
+    avatar: Pick<Avatar, 'sm' | 'lg' | 'raw'> | null;
+}
+
 export interface AvailableDirectory {
     name: string;
     display_name: string;
