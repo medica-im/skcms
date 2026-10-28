@@ -56,6 +56,22 @@ describe('mergeCard', () => {
 		expect(card?.image_alt).toBeNull();
 	});
 
+	it("carries the page image's dimensions with it", () => {
+		const card = mergeCard(site, {
+			image_url: 'https://msp-vedene.fr/alimentation.png',
+			image_width: 1200,
+			image_height: 630
+		});
+		expect(card).toMatchObject({ image_width: 1200, image_height: 630 });
+	});
+
+	it("drops the site's image dimensions with the site's image", () => {
+		const sized = { ...site, image_width: 400, image_height: 400 };
+		const card = mergeCard(sized, { image_url: 'https://msp-vedene.fr/throne.jpg' });
+		expect(card?.image_width).toBeNull();
+		expect(card?.image_height).toBeNull();
+	});
+
 	it('is the page card alone on a site without one', () => {
 		expect(mergeCard(undefined, { title: 'Alimentation' })).toMatchObject({ title: 'Alimentation' });
 		expect(mergeCard(undefined, {})).toBeUndefined();

@@ -54,6 +54,29 @@ describe('OpenGraph', () => {
 		expect(og('og:type')).toBe('website');
 	});
 
+	it("declares the image's dimensions, so a first share shows it without waiting for the download", async () => {
+		render(OpenGraph, { props: { opengraph: { ...card, image_width: 1200, image_height: 630 } } });
+		await expect.poll(() => og('og:image:width')).toBe('1200');
+		expect(og('og:image:height')).toBe('630');
+	});
+
+	it('shows a wide image as a large card', async () => {
+		render(OpenGraph, { props: { opengraph: { ...card, image_width: 1200, image_height: 630 } } });
+		await expect.poll(() => tw('twitter:card')).toBe('summary_large_image');
+	});
+
+	it('keeps the small card for a square image, which a large card would crop', async () => {
+		render(OpenGraph, { props: { opengraph: { ...card, image_width: 400, image_height: 400 } } });
+		await expect.poll(() => tw('twitter:card')).toBe('summary');
+	});
+
+	it('keeps the small card and writes no dimensions for an image of unknown size', async () => {
+		render(OpenGraph, { props: { opengraph: card } });
+		await expect.poll(() => tw('twitter:card')).toBe('summary');
+		expect(og('og:image:width')).toBeNull();
+		expect(og('og:image:height')).toBeNull();
+	});
+
 	it('writes no image tags for a card without an image', async () => {
 		render(OpenGraph, { props: { opengraph: { ...card, image_url: null } as unknown as Card } });
 		await expect.poll(() => og('og:title')).toBe(card.title);

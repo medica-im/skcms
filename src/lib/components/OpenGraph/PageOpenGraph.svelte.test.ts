@@ -10,7 +10,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import PageOpenGraph from './PageOpenGraph.svelte';
 
-const state = vi.hoisted(() => ({ data: {} as Record<string, unknown> }));
+const state = vi.hoisted(() => ({ data: {} as Record<string, unknown>, locale: 'fr' }));
+vi.mock('$prgld/runtime.js', () => ({ getLocale: () => state.locale }));
 vi.mock('$app/state', () => ({
 	page: {
 		get data() {
@@ -33,7 +34,10 @@ const organization = { formatted_name: 'Maison de santé de Vedène' };
 const og = (p: string) => document.querySelector(`meta[property="${p}"]`)?.getAttribute('content') ?? null;
 const ogCount = (p: string) => document.querySelectorAll(`meta[property="${p}"]`).length;
 
-beforeEach(() => (state.data = {}));
+beforeEach(() => {
+	state.data = {};
+	state.locale = 'fr';
+});
 
 describe('PageOpenGraph', () => {
 	it("shares the site's card on a page that names nothing", async () => {
@@ -55,6 +59,19 @@ describe('PageOpenGraph', () => {
 		expect(og('og:description')).toBe('Les bons gestes au quotidien.');
 		expect(og('og:image')).toBe(site.image_url);
 		expect(ogCount('og:title')).toBe(1);
+	});
+
+	it("declares the page's language in the share", async () => {
+		state.data = { openGraph: site, organization };
+		render(PageOpenGraph);
+		await expect.poll(() => og('og:locale')).toBe('fr_FR');
+	});
+
+	it('declares English for a page in English', async () => {
+		state.data = { openGraph: site, organization };
+		state.locale = 'en';
+		render(PageOpenGraph);
+		await expect.poll(() => og('og:locale')).toBe('en_US');
 	});
 
 	it('writes nothing where neither the site nor the page has a card', async () => {

@@ -5,4 +5,6 @@ export interface OpenGraph {
     description: string;
     image_url: string | null;
     image_alt: string | null;
+    image_width?: number | null;
+    image_height?: number | null;
 }
