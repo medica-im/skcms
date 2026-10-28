@@ -6,11 +6,16 @@
  * server. unipa.fr/annuaire/sites answered 500 on reload while clicking to it
  * worked, so a suite that only navigates never sees that class of error.
  *
- * Each page is loaded in a fresh tab — a full SSR render and hydration, the
- * same as a reload — and fails on:
+ * Each page is loaded in a fresh browser context — a full SSR render and
+ * hydration with an empty cache, the same as a first visit. A shared context
+ * hands the next map page its tiles from cache, and Playwright never sees
+ * those requests finish: every map page after the first waited out the whole
+ * network-idle timeout. A page fails on:
  *   - an HTTP status of 400 or more for the document;
  *   - an uncaught exception in the page (hydration errors land here);
- *   - a console error.
+ *   - a console error;
+ *   - a navigation that times out twice. Once is forgiven and reported: a
+ *     check run straight after a release meets servers still warming up.
  *
  * Pages are found by following the site's own links, breadth first, from its
  * root. Dynamic routes are the same code for every slug, and there are
@@ -20,7 +25,7 @@
  * the built Node server, dev serves Vite, and an error that only exists in the
  * bundled SSR shows on staging alone.
  */
-import { expect, type Browser, type BrowserContext } from '@playwright/test';
+import { expect, type Browser } from '@playwright/test';
 import { basePathFor, originFor, type SiteName } from './sites';
 
 /**
@@ -97,8 +102,9 @@ async function sampleEntry(origin: string): Promise<{ entrySlug: string; facilit
 	return { entrySlug: entry.entrySlug!, facilitySlug: entry.facility!.slug || entry.facility!.uid! };
 }
 
-/** One cold load of `url` in a fresh tab: what failed, and the links it offers. */
-async function load(context: BrowserContext, url: string) {
+/** One cold load of `url` in a fresh context: what failed, and the links it offers. */
+async function load(browser: Browser, url: string) {
+	const context = await browser.newContext();
 	const page = await context.newPage();
 	const errors: string[] = [];
 	let throttled = false;
@@ -124,10 +130,12 @@ async function load(context: BrowserContext, url: string) {
 	} catch (e) {
 		errors.push(`navigation: ${e instanceof Error ? e.message.split('\n')[0] : String(e)}`);
 	} finally {
-		await page.close();
+		await context.close();
 	}
 	return { status, errors, hrefs, throttled };
 }
+
+const isNavigationTimeout = (error: string) => /^navigation: .*Timeout \d+ms exceeded/.test(error);
 
 /**
  * A logged-out visitor's "who am I": +layout.ts asks /api/v2/users/me in
@@ -213,36 +221,36 @@ export async function reloadEveryPage(browser: Browser, site: SiteName) {
 		return `${origin}${base}${path === '/' ? '/' : path}`;
 	};
 
-	const context = await browser.newContext();
-	try {
-		while (queue.length) {
-			const url = queue.shift()!;
-			visited.push(url);
-			expect(visited.length, `more than ${MAX_PAGES} pages; is a link multiplying?`).toBeLessThanOrEqual(
-				MAX_PAGES
-			);
+	const slowOnce: string[] = [];
+	while (queue.length) {
+		const url = queue.shift()!;
+		visited.push(url);
+		expect(visited.length, `more than ${MAX_PAGES} pages; is a link multiplying?`).toBeLessThanOrEqual(
+			MAX_PAGES
+		);
 
-			let visit = await load(context, url);
-			// Throttled by the staging nginx (30 r/s per IP, burst 200, shared by
-			// every vhost on the box): wait for the bucket to refill and load the
-			// page again, rather than report the rate limit as a page error.
-			for (let attempt = 0; visit.throttled && attempt < 2; attempt++) {
-				await new Promise((r) => setTimeout(r, 10_000));
-				visit = await load(context, url);
-			}
-			const { status, errors, hrefs } = visit;
-			if (visit.throttled) errors.push('still rate limited (429) after two pauses');
-			for (const href of hrefs) {
-				const next = accept(href);
-				if (next && !seen.has(next)) {
-					seen.add(next);
-					queue.push(next);
-				}
-			}
-			if (errors.length) failures.push({ url, status, errors });
+		let visit = await load(browser, url);
+		// Throttled by the staging nginx (30 r/s per IP, burst 200, shared by
+		// every vhost on the box): wait for the bucket to refill and load the
+		// page again, rather than report the rate limit as a page error.
+		for (let attempt = 0; visit.throttled && attempt < 2; attempt++) {
+			await new Promise((r) => setTimeout(r, 10_000));
+			visit = await load(browser, url);
 		}
-	} finally {
-		await context.close();
+		if (visit.errors.some(isNavigationTimeout)) {
+			visit = await load(browser, url);
+			if (!visit.errors.some(isNavigationTimeout)) slowOnce.push(url);
+		}
+		const { status, errors, hrefs } = visit;
+		if (visit.throttled) errors.push('still rate limited (429) after two pauses');
+		for (const href of hrefs) {
+			const next = accept(href);
+			if (next && !seen.has(next)) {
+				seen.add(next);
+				queue.push(next);
+			}
+		}
+		if (errors.length) failures.push({ url, status, errors });
 	}
 
 	const report = failures
@@ -252,5 +260,6 @@ export async function reloadEveryPage(browser: Browser, site: SiteName) {
 	for (const k of known.filter((k) => skippedKnown.has(k.path))) {
 		console.log(`  KNOWN ISSUE, not reloaded: ${k.path} (${k.why})`);
 	}
+	for (const url of slowOnce) console.log(`  TIMED OUT ONCE, passed on retry: ${url}`);
 	expect(failures, `pages that fail on a hard reload:\n${report}`).toEqual([]);
 }
