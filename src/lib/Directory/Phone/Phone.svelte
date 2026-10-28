@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { phoneTypes } from './phone';
+	import { formatPhone } from './formatPhone';
 	import { getEditMode } from '$lib/components/Directory/context.ts';
     import UpdatePhone from '$lib/Web/Phone/UpdatePhone.svelte';
 	import DeletePhone from '$lib/Web/Phone/DeletePhone.svelte';
@@ -26,7 +27,7 @@
 		<span class="w-4" aria-label={phoneTypes[data.type]}><Fa icon={getIcon(data.type)} size="sm" /></span>
 	</div>
 	<a class="unstyled underline underline-offset-4" aria-describedby="phonetype" href="tel:{data.phone}">
-		<div class="flex-initial">{data.phone}</div>
+		<div class="flex-initial">{formatPhone(data.phone)}</div>
 	</a>
 	{#if editMode}
     <UpdatePhone {data}/> <DeletePhone {data} />
