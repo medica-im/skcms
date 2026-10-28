@@ -605,6 +605,11 @@ site_server_port() {
 # the only way to tell "the right server" from "a server" without a request.
 site_stamp() { printf '%s/.e2e-workers/site-%s.started\n' "$FRONTEND_DIR" "$1"; }
 
+# The env directory a site server reads (ENV_DIR): its own file and nothing
+# else. Vite watches .env in its env directory and restarts on every change,
+# and the per-tenant stages move the checkout's .env symlink once per site.
+site_env_dir() { printf '%s/e2e-sites/%s/env\n' "$FRONTEND_DIR" "$1"; }
+
 # Is the server on this port the one *this context* started, for *this* origin?
 #
 # The stamp is the fix for the failure that motivated it: a server started at
@@ -628,6 +633,7 @@ site_server_is_ours() {
     # leaves another branch checked out there, that server renders the wrong
     # tenant again, so it is restarted onto its worktree.
     [[ "$(sed -n '3p' "$stamp")" == "$skvar" ]] || return 1
+    [[ "$(sed -n '4p' "$stamp")" == "$(site_env_dir "$ctx")" ]] || return 1
     pid_now="$(pid_on_port "$port")"
     [[ -n "$pid_now" && "$pid_now" == "$stamped_pid" ]]
 }
@@ -755,12 +761,13 @@ ensure_site_server_for() {
 
     info "starting the $ctx dev server for $host (:$port)..."
     mkdir -p "$FRONTEND_DIR/.e2e-workers"
-    # --mode <ctx> makes Vite load .env.<ctx> instead of the .env symlink, so
-    # this server serves its own tenant no matter which one the symlink points
-    # at. That is what lets several site servers run at once; without it the
-    # second would serve the first one's site on a different port.
-    local mode_env="$FRONTEND_DIR/.env.site.$ctx"
-    cp "$FRONTEND_DIR/$env_file" "$mode_env" 2>/dev/null || return 1
+    # --mode site.<ctx> with ENV_DIR at a directory holding only .env.site.<ctx>
+    # makes this server read its own tenant and nothing else: not the .env
+    # symlink, which --mode alone still loads underneath and watches. That is
+    # what lets several site servers run at once, and survive the per-tenant
+    # stages moving the symlink.
+    local env_dir; env_dir="$(site_env_dir "$ctx")"
+    mkdir -p "$env_dir" && cp "$FRONTEND_DIR/$env_file" "$env_dir/.env.site.$ctx" 2>/dev/null || return 1
     rm -f "$(site_stamp "$ctx")"
     # exec first, not a redirection on the call: see ensure_site_server.
     # ROUTES_DIR and SKVAR_DIR give it its tenant's routes. The three output
@@ -776,7 +783,7 @@ ensure_site_server_for() {
     (exec > "$FRONTEND_DIR/.e2e-workers/site-$ctx.log" 2>&1
      drop_lock
      cd "$FRONTEND_DIR" && \
-        ROUTES_DIR="$ROUTES_DIR" SKVAR_DIR="$SKVAR_DIR" \
+        ROUTES_DIR="$ROUTES_DIR" SKVAR_DIR="$SKVAR_DIR" ENV_DIR="$env_dir" \
         SVELTEKIT_OUT_DIR="$own/svelte-kit" \
         PARAGLIDE_OUT_DIR="./src/paraglide-site-$ctx" \
         VITE_CACHE_DIR="$own/vite" \
@@ -790,7 +797,7 @@ ensure_site_server_for() {
             # Stamped only once it actually answers, and with the pid that ended
             # up on the port rather than the one the subshell forked: `nohup npx
             # vite` is a launcher, and the server is its child.
-            printf '%s\n%s\n%s\n' "$origin" "$(pid_on_port "$port")" "$SKVAR_DIR" \
+            printf '%s\n%s\n%s\n%s\n' "$origin" "$(pid_on_port "$port")" "$SKVAR_DIR" "$env_dir" \
                 > "$(site_stamp "$ctx")"
             ok "$host answering through nginx (${waited}s)"
             return 0

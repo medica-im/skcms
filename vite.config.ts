@@ -18,14 +18,19 @@ const PARAGLIDE_OUT_DIR = process.env.PARAGLIDE_OUT_DIR || './src/paraglide';
 // "transport invoke timed out" until they are restarted.
 const CACHE_DIR = process.env.VITE_CACHE_DIR;
 
+// Where the env files are read and watched from. Kept in step with
+// svelte.config.js, which gives kit.env.dir the same directory.
+const ENV_DIR = process.env.ENV_DIR;
+
 export default defineConfig(({ mode }) => {
-	const env = loadEnv(mode, process.cwd());
+	const env = loadEnv(mode, ENV_DIR ?? process.cwd());
 	const API_URL = `${env.VITE_BASE_URI_DEV ?? 'http://localhost:3000'}`;
 	console.log("API_URL", API_URL);
 	return {
 		// Spread rather than set outright, so an ordinary `vite dev` keeps
 		// Vite's own default (node_modules/.vite) instead of an undefined.
 		...(CACHE_DIR ? { cacheDir: CACHE_DIR } : {}),
+		...(ENV_DIR ? { envDir: ENV_DIR } : {}),
 		plugins: [
 			devtoolsJson(),
 			sveltekit(),

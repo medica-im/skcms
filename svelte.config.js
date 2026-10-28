@@ -30,7 +30,12 @@ const MODE =
 	(modeArg !== -1 ? process.argv[modeArg + 1] : undefined) ??
 	process.env.NODE_ENV ??
 	'development';
-const fileEnv = loadEnv(MODE, process.cwd(), '');
+// Where the env files are read from: this checkout unless ENV_DIR says
+// otherwise. Kept in step with vite.config.ts, which gives Vite the same
+// directory; a site server in a test run is pointed at one holding only its own
+// file, so a switch of the .env symlink here neither restarts it nor reaches it.
+const ENV_DIR = process.env.ENV_DIR || process.cwd();
+const fileEnv = loadEnv(MODE, ENV_DIR, '');
 const BASE_PATH = process.env.BASE_PATH ?? fileEnv.BASE_PATH ?? '';
 
 // Kept in step with vite.config.ts, which passes the same value to
@@ -74,6 +79,9 @@ const config = {
 		// otherwise overwrite each other's generated types and manifest in the
 		// shared directory — every request 500s with ENOENT on proxy+layout.
 		outDir: process.env.SVELTEKIT_OUT_DIR || '.svelte-kit',
+		env: {
+			dir: ENV_DIR
+		},
 		files: {
 			routes: ROUTES_DIR
 		},
