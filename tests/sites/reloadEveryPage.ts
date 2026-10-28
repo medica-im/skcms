@@ -58,12 +58,6 @@ const SKIPPED = [
  * entry once its cause is fixed.
  */
 const KNOWN_ISSUES: Partial<Record<SiteName, { path: string; why: string }[]>> = {
-	'sante-gadagne.fr': [
-		{
-			path: '/education-therapeutique/polypathologie',
-			why: 'names inactive entries (Goolaerts, Deloche, Reusser as coordinator), which 404'
-		}
-	],
 	'msp-vedene.fr': [
 		{ path: '/form/nosmoking', why: 'linked from the blog post « Mois sans tabac »; no such page' }
 	]
