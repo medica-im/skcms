@@ -565,8 +565,7 @@ warm_site_servers() {
     for ctx in "$@"; do
         host="$(SITE_CONTEXT="$ctx" site_host)"
         origin="$(site_origin "$host")"
-        base="$(sed -n 's/^BASE_PATH="\?\([^"]*\)"\?/\1/p' \
-            "$FRONTEND_DIR/.env.$host" 2>/dev/null | head -1)"
+        base="$(site_base_path "$host")"
         result="$(site_curl -skL -o /dev/null -w '%{http_code} in %{time_total}s' \
             --max-time 120 "$origin$base/" 2>/dev/null)"
         info "warmed $origin$base/ (${result:-no answer})"
@@ -650,6 +649,28 @@ site_reports_slug() {
         "${JQ:-jq}" -r '.slug // empty' 2>/dev/null
 }
 
+# The app's base path on a host ("/annuaire" on unipa), or empty.
+site_base_path() {
+    sed -n 's/^BASE_PATH="\?\([^"]*\)"\?/\1/p' "$FRONTEND_DIR/.env.$1" 2>/dev/null | head -1
+}
+
+# Does the server answer both its page and its client modules?
+#
+# The page alone is not enough. A Vite whose restart was interrupted by another
+# one (.env changed twice within seconds, as the per-tenant stages do) is left
+# half-closed: SSR still renders, so the page is 200, but every module the
+# browser asks for is 504 "Outdated Request" and no page hydrates.
+site_server_answers() {
+    local host="$1" origin="$2" modules
+    site_curl -skfL -o /dev/null --max-time 10 "$origin/" || return 1
+    modules="$(site_curl -skL -o /dev/null -w '%{http_code}' --max-time 10 \
+        "$origin$(site_base_path "$host")/@vite/client" 2>/dev/null)"
+    [[ "$modules" == 200 ]] && return 0
+    warn "$host renders its page but not its client modules (@vite/client: HTTP ${modules:-none})"
+    warn "  (a Vite left half-closed by overlapping restarts; restarting it)"
+    return 1
+}
+
 ensure_site_server_for() {
     local ctx="$1" port host origin env_file branch
     port="$(site_server_port "$ctx")"
@@ -672,7 +693,7 @@ ensure_site_server_for() {
     #   * the stamp alone cannot see a server that has since gone wrong;
     #   * the slug alone cannot see a server started before a .env switch, whose
     #     403 the status check catches but whose cause it cannot name.
-    if site_curl -skfL -o /dev/null --max-time 10 "$origin/"; then
+    if site_server_answers "$host" "$origin"; then
         local serving
         serving="$(site_reports_slug "$origin")"
         if [[ -z "$serving" ]]; then
