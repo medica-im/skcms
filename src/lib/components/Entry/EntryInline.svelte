@@ -20,11 +20,11 @@
 
 {#if data && _entry}
 	<a href={entrySlugPageUrl(_entry)} class="anchor">
-		<div class="flex flex-wrap gap-2 items-center">
-			<Avatar src={avatarPath(data?.avatar?.sm||data?.avatar?.raw)} width="w-10">
+		<div class="flex gap-2 items-center">
+			<Avatar src={avatarPath(data?.avatar?.sm||data?.avatar?.raw)} width="w-10" class="shrink-0">
 				<Fa icon={faUser} />
 			</Avatar>
-			<div>{data?.name}, {data?.effector_type.label}</div>
+			<div class="min-w-0">{data?.name}, {data?.effector_type.label}</div>
 		</div>
 	</a>
 {:else}
