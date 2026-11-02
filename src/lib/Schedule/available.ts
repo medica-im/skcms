@@ -29,27 +29,16 @@ export const schedules: Schedule = {
     }
 };
 
+const secondsOfDay = (time: string) => {
+    const [h, m, s] = time.split(':').map((part) => parseInt(part, 10));
+    return h * 3600 + m * 60 + (s || 0);
+};
+
 export function validateTime(dateTime: Date, intervals: TimeInterval[]) {
-    const cH: number = dateTime.getHours();
-    const cM: number = dateTime.getMinutes();
-    const cS: number = dateTime.getSeconds();
-    //console.log(`cH=${cH} cM=${cM} cS=${cS}`);
-    //const time = dateTime.toTimeString().split(' ')[0];
-    for (const interval of intervals) {
-        const [startH, startM, startS] = interval[0].split(':');
-        //console.log(`startH=${parseInt(startH)} startM=${parseInt(startM)} startS=${parseInt(startS)}`);
-        if ( cH < parseInt(startH, 10) ) return false;
-        if ( cM < parseInt(startM, 10) ) return false;
-        if ( cS < parseInt(startS, 10) ) return false;
-        const [stopH, stopM, stopS] = interval[1].split(':');
-        //console.log(`stopH=${parseInt(stopH,10)} stopM=${parseInt(stopM,10)} stopS=${parseInt(stopS,10)}`);
-        //console.log(`cH < parseInt(stopH, 10) : ${cH < parseInt(stopH, 10)}`);
-        if ( cH < parseInt(stopH, 10) ) return true;
-        //console.log(`cH < parseInt(stopH, 10) : ${cH < parseInt(stopH, 10)}`);
-        if ( cM < parseInt(stopM, 10) ) return true;
-        if ( cS < parseInt(stopS, 10) ) return true;
-    };
-    return false;
+    const now = dateTime.getHours() * 3600 + dateTime.getMinutes() * 60 + dateTime.getSeconds();
+    return intervals.some(
+        ([start, stop]) => secondsOfDay(start) <= now && now < secondsOfDay(stop)
+    );
 }
 
 function isoDateString(dateTime: Date) {

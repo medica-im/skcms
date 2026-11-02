@@ -38,6 +38,18 @@ test('validateTime', () => {
     expect(validateTime(dt043000, intervals1)).toEqual(false);
 });
 
+test('validateTime compares the whole time of day, not hours and minutes separately', () => {
+    const morning = [["08:45:00", "12:00:00"]];
+    expect(validateTime(new Date('1970-01-01T08:44:59'), morning)).toEqual(false);
+    expect(validateTime(new Date('1970-01-01T08:45:00'), morning)).toEqual(true);
+    expect(validateTime(new Date('1970-01-01T09:30:00'), morning)).toEqual(true);
+    expect(validateTime(new Date('1970-01-01T11:59:59'), morning)).toEqual(true);
+    expect(validateTime(new Date('1970-01-01T12:00:00'), morning)).toEqual(false);
+    const split = [["08:00:00", "12:00:00"], ["14:30:00", "16:00:00"]];
+    expect(validateTime(new Date('1970-01-01T15:10:00'), split)).toEqual(true);
+    expect(validateTime(new Date('1970-01-01T13:00:00'), split)).toEqual(false);
+});
+
 const sunday000000 = new Date('2024-10-27T00:00:00');
 const monday000000 = new Date('2024-10-28T00:00:00');
 const monday090000 = new Date('2024-10-28T09:00:00');
