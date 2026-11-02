@@ -12,7 +12,7 @@ type Page = import('@playwright/test').Page;
 // entry-creation-flow.steps.ts (the feature carries its tag too); here, the
 // entry of the scenario, its former slugs and the organization's windows.
 
-const ctx: { entryUid?: string; slug?: string; formerSlug?: string; host?: string; windowsChanged?: boolean } = {};
+export const ctx: { entryUid?: string; slug?: string; formerSlug?: string; host?: string; windowsChanged?: boolean } = {};
 
 const organization = (host: string) =>
 	`from facility.models import Organization\norg = Organization.objects.get(site__domain=${JSON.stringify(host)})\n`;
