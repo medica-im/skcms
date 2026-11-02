@@ -5,6 +5,7 @@ import { authReq } from '$lib/utils/request';
 import { resolveOwnerCreator } from '$lib/Web/Users/ownerCreator.ts';
 import type { EntryFull } from '$lib/store/directoryStoreInterface';
 import { currentSlugFor, type TypeEditPermission } from '$lib/Web/Entry/entryType.ts';
+import type { ApiSchedule } from '$lib/Schedule/scheduleApi.ts';
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ fetch, params, cookies, parent, depends, url }) => {
@@ -58,10 +59,23 @@ export const load: PageServerLoad = async ({ fetch, params, cookies, parent, dep
       }
    }
 
+   // Public like the entry itself, but kept out of the full entry's payload:
+   // that one is scrubbed by role, and a schedule has nothing to scrub.
+   let schedules: ApiSchedule[] = [];
+   try {
+      const schedulesUrl = `${variables.BASE_URI}/api/v2/entries/${fullentry.uid}/schedules`;
+      const schedulesRes = await globalThis.fetch(authReq(schedulesUrl, 'GET', cookies));
+      if (schedulesRes.ok) schedules = await schedulesRes.json() as ApiSchedule[];
+      else console.error(`schedules fetch answered ${schedulesRes.status}`);
+   } catch (err) {
+      console.error('schedules fetch failed:', err);
+   }
+
    return {
       fullentry: fullentry,
       memberships: memberships,
       users: users,
       typeEdit: typeEdit,
+      schedules: schedules,
    }
 }

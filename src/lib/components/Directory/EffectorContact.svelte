@@ -24,6 +24,7 @@
 	import * as openStreetMap from '$lib/MapLibre/style/openStreetMap.json';
 	import SoMed from '$lib/SoMed/SoMed.svelte';
 	import Appointment from '$lib/components/Effector/Appointment/Appointments.svelte';
+	import Schedules from '$lib/Schedule/Schedules.svelte';
 	import Cost from '$lib/components/Effector/Cost/Cost.svelte';
 	import Payment from '$lib/Addressbook/Payment/Payment.svelte';
 	import FacilityLink from '$lib/Facility/FacilityLink.svelte';
@@ -124,6 +125,9 @@
 		</div>
 	</div>
 	<div class="grid grid-cols-1 lg:grid-cols-1 p-2 gap-4">
+		{#if data.schedules?.length || $editMode}
+			<Schedules data={data.schedules} entryUid={fullentry.uid} />
+		{/if}
 		{#if fullentry?.appointments?.length || $editMode}
 			<div class="d-flex justify-content-between align-items-start">
 				<Appointment data={fullentry.appointments} />
