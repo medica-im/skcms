@@ -9,9 +9,9 @@ const { Given, When, Then, After } = createBdd(test);
 
 const SITE_DOMAIN = process.env.SEED_SITE_DOMAIN ?? new URL(apiOrigin()).hostname;
 
-const ctx: { uid?: string; slug?: string } = {};
+export const ctx: { uid?: string; slug?: string } = {};
 
-const editDialog = (page: import('@playwright/test').Page) =>
+export const editDialog = (page: import('@playwright/test').Page) =>
 	page.locator('dialog[open]').filter({ has: page.locator('input[name="latitude"]') });
 
 /**
@@ -26,7 +26,7 @@ const BAN_BANID = '93507b74-65da-4da8-8028-74ff47dbe1d4';
 const python = (value: string | null | undefined) =>
 	value == null ? 'None' : JSON.stringify(value);
 
-async function seedFacility(options: {
+export async function seedFacility(options: {
 	located: boolean;
 	zoom?: number;
 	complement?: string | null;
