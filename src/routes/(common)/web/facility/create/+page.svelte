@@ -1,16 +1,14 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
-	import * as m from '$msgs';
 	import MissingGpsDialog from '$lib/Web/Facility/MissingGpsDialog.svelte';
 	import { hasCoordinates } from '$lib/components/Map/coordinates.ts';
-	import { slugify } from '$lib/helpers/stringHelpers.ts';
+	import SlugField from '$lib/Web/Facility/SlugField.svelte';
 	import { createFacility } from '$src/facility.remote.ts';
 	import {
 		faCheck,
 		faExclamationCircle
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
 	import type { AddressFeature } from '$lib/store/directoryStoreInterface';
 	import AddMarkerMap from '$lib/MapLibre/AddMarkerMap.svelte';
 	import Geocoder from '$lib/components/Geocoder/Geocoder.svelte';
@@ -99,15 +97,8 @@
 	});
 	let name: string = $state('');
 	let label: string = $state('');
-	let slug: string = $derived.by(() => {
-		if (name) {
-			return slugify(name);
-		} else if ($addressFeature) {
-			return slugify(`${$addressFeature.properties.housenumber}-${$addressFeature.properties.street}`);
-		} else {
-			return '';
-		}
-	});
+	let slug: string = $state('');
+	let slugOk: boolean = $state(false);
 	let building: string = $state('');
 	let geographical_complement: string = $state('');
 	let zip: string = $derived($addressFeature?.properties?.postcode || '');
@@ -122,7 +113,7 @@
 	});
 	let formResult = $derived(createFacility.result);
 	let disabled: boolean = $derived(!!createFacility.pending ||
-	!street || formResult?.success == true
+	!street || !slugOk || formResult?.success == true
 	);
 
 	const clear = () => {
@@ -221,20 +212,17 @@
 						value={commune.value}
 					/>
 				</label>
-				<label class="{createFacility.fields.slug.issues() ? '' : 'hidden'} flex label place-self-start place-items-center space-x-2 w-full">
-					<span>{capitalizeFirstLetter(m.slug())}</span>
-					{#each createFacility.fields.slug.issues() as issue}
-						<p class="issue">{issue.message}</p>
-					{/each}
-					<input
-						oninput={() => {}}
-						class="{createFacility.fields.slug.issues() ? '' : 'hidden'} input {inputClass.slug}"
-						name="slug"
-						type="text"
-						placeholder=""
-						bind:value={slug}
-					/>
-				</label>
+				<SlugField
+					{name}
+					commune={commune.label}
+					street={street ?? ''}
+					{zip}
+					bind:slug
+					bind:ok={slugOk}
+				/>
+				{#each createFacility.fields.slug.issues() as issue}
+					<p class="issue">{issue.message}</p>
+				{/each}
 				{#if geocoder}
 				<div
 					class="rounded-container-token {glow ? 'animate-pulse ring-4 ring-warning-500' : ''}"

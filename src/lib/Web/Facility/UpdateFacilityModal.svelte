@@ -8,7 +8,8 @@
 	import Fa from 'svelte-fa';
 	import { JsonView } from '@zerodevx/svelte-json-view';
 	import Dialog from '$lib/Web/Dialog.svelte';
-	import { capitalizeFirstLetter, slugify } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import SlugField from '$lib/Web/Facility/SlugField.svelte';
 	import type { LngLatLike } from 'svelte-maplibre';
 	import type { AddressFeature } from '$lib/store/directoryStoreInterface';
 	import AddMarkerMap from '$lib/MapLibre/AddMarkerMap.svelte';
@@ -83,11 +84,10 @@
 	});
 	let name: string | null = $state(facility.name);
 	let label: string | null = $state(facility.label);
-	let slug: string | null = $state(facility.slug);
+	let slug: string = $state(facility.slug ?? '');
+	let slugOk: boolean = $state(true);
 	let redirect: boolean = $derived(
-		!(slug == null && facility.slug == null) &&
-			slug != facility.slug &&
-			!page.url.pathname.startsWith('/web')
+		slug != (facility.slug ?? '') && !page.url.pathname.startsWith('/web')
 	);
 	let building: string | null = $state(facility.building);
 	let street: string = $derived($addressFeature?.properties?.name || facility.street);
@@ -116,10 +116,11 @@
 	let disabled: boolean = $derived(
 		!!updateFacility.for(uid).pending ||
 			!Object.values(validateForm).every((v) => v === true) ||
+			!slugOk ||
 			formResult?.success == true ||
 			(name == facility.name &&
 				label == facility.label &&
-				slug == facility.slug &&
+				slug == (facility.slug ?? '') &&
 				building == facility.building &&
 				street == facility.street &&
 				geographical_complement == (facility.geographical_complement ?? '') &&
@@ -233,14 +234,6 @@
 							bind:value={name}
 							onchange={() => {
 								validateName(name, inputClass, isRequired, validateForm);
-								// The URL is built from the slug, so a rename that keeps the old
-								// slug lets two facilities claim the same /sites/<slug> address.
-								// Only follow the name while the slug still matches it: a slug
-								// edited by hand is left alone.
-								if (name && slug === slugify(facility.name ?? '')) {
-									slug = slugify(name);
-									validateSlug(slug, inputClass, isRequired, validateForm);
-								}
 							}}
 						/>
 					</label>
@@ -261,20 +254,19 @@
 							}}
 						/>
 					</label>
-					<label class="label flex w-full flex-col items-start gap-1 place-self-start sm:flex-row sm:items-center sm:gap-2">
-						<span>Slug</span>
-						{#each updateFacility.for(uid).fields.slug.issues() as issue}
-							<p class="issue">{issue.message}</p>
-						{/each}
-						<input
-							oninput={() => {}}
-							class="input w-full {inputClass.slug}"
-							name="slug"
-							type="text"
-							placeholder=""
-							bind:value={slug}
-						/>
-					</label>
+					<SlugField
+						name={name ?? ''}
+						commune={facility.commune.name_fr}
+						{street}
+						zip={zip ?? ''}
+						original={facility.slug ?? ''}
+						exclude={uid}
+						bind:slug
+						bind:ok={slugOk}
+					/>
+					{#each updateFacility.for(uid).fields.slug.issues() as issue}
+						<p class="issue">{issue.message}</p>
+					{/each}
 					<div
 						class="rounded-container-token {glow ? 'animate-pulse ring-4 ring-warning-500' : ''}"
 						data-testid="geocoder-glow"

@@ -4,6 +4,7 @@ import * as z from "zod";
 import { authReq } from '$lib/utils/request.ts';
 import { variables } from '$lib/utils/constants.ts';
 import { latitude, longitude } from '$lib/Web/Facility/coordinateSchema.ts';
+import type { SlugCheck } from '$lib/Web/Facility/slugField.ts';
 
 // Whether someone may edit a facility is asked in sites/[slug]/+page.server.ts,
 // not here. As a remote query it had to be awaited in the component, where the
@@ -55,6 +56,27 @@ export const createFacility = form(postFacility, async (data) => {
 			data: json
 		}
 	}
+});
+
+const slugQuery = z.object({
+	name: z.string(),
+	commune: z.string().optional(),
+	street: z.string().optional(),
+	zip: z.string().optional(),
+	slug: z.string().optional(),
+	exclude: z.string().optional()
+});
+
+// The address a facility would get, or whether a typed one is free. A command
+// rather than a query: it is called with new arguments as the form changes.
+export const checkFacilitySlug = command(slugQuery, async (data): Promise<SlugCheck> => {
+	const params = new URLSearchParams({ name: data.name });
+	for (const key of ['commune', 'street', 'zip', 'slug', 'exclude'] as const) {
+		if (data[key]) params.set(key, data[key]);
+	}
+	const response = await fetch(`${variables.BASE_URI}/api/v2/facility-slugs?${params}`);
+	if (!response.ok) error(502, `facility-slugs answered ${response.status}`);
+	return (await response.json()) as SlugCheck;
 });
 
 const putFacility = z.object({
