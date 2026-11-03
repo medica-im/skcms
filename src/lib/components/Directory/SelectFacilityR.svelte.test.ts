@@ -5,7 +5,9 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render } from 'vitest-browser-svelte';
+import { page } from 'vitest/browser';
 import { writable } from 'svelte/store';
+import { SvelteURL } from 'svelte/reactivity';
 import * as m from '$msgs';
 import SelectFacilityR from './SelectFacilityR.svelte';
 import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
@@ -46,6 +48,25 @@ describe('SelectFacilityR', () => {
 		mount();
 		await choose(m.ADDRESSBOOK_FACILITIES_PLACEHOLDER(), 'Cabinet Lafayette | 3 cours Lafayette | Lyon');
 		await expect.poll(() => lastQuery(nav.goto)?.get('facility')).toBe('f-2');
+	});
+
+	it.each([
+		['has neither name nor label', { name: '', label: '' }, 'Étbl. | 1 Rue Robert | Lyon'],
+		['has a label and no name', { name: '', label: 'Cabinet Robert' }, 'Cabinet Robert | 1 Rue Robert | Lyon']
+	])('names a chosen facility as the list does when it %s', async (_, names, text) => {
+		const url = new SvelteURL('https://dev.santelyon3.fr/annuaire');
+		state.url = url;
+		render(SelectFacilityR, {
+			props: {
+				facilityOf: [{ uid: 'f-9', ...names, street: '1 Rue Robert', city: 'Lyon' }] as unknown as FacilityOf[]
+			},
+			context: new Map<string, unknown>([
+				['selectFacility', writable(null)],
+				['facilityChoice', writable(undefined)]
+			])
+		});
+		url.searchParams.set('facility', 'f-9');
+		await expect.element(page.getByText(text)).toBeVisible();
 	});
 
 	it('removes it from the address when cleared', async () => {

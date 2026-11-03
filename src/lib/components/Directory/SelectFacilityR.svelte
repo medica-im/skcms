@@ -15,13 +15,13 @@
 	const label = 'label';
 	const itemId = 'value';
 
+	const facilityLabel = (x: FacilityOf) => `${x.label || x.name || 'Étbl.'} | ${x.street} | ${x.city}`;
+
 	function getItems(facilities: FacilityOf[]) {
 		if (!facilities) return;
 		return facilities
 			.map(function (x) {
-				const name = x.label || x.name || 'Étbl.';
-				const label = `${name} | ${x.street} | ${x.city}`;
-				return { value: x.uid, label: label, city: x.city };
+				return { value: x.uid, label: facilityLabel(x), city: x.city };
 			})
 			.sort(function (a, b) {
 				return a.city.localeCompare(b.city) || a.label.localeCompare(b.label);
@@ -33,7 +33,7 @@
 		if (!facilityUid || !facilityOf) return null;
 		const facility = facilityOf.find((e) => e.uid == facilityUid);
 		if (!facility) return null;
-		return { label: facility.name, value: facilityUid };
+		return { label: facilityLabel(facility), value: facilityUid };
 	});
 
 	$effect(() => {
