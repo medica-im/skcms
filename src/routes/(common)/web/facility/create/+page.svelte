@@ -212,17 +212,6 @@
 						value={commune.value}
 					/>
 				</label>
-				<SlugField
-					{name}
-					commune={commune.label}
-					street={street ?? ''}
-					{zip}
-					bind:slug
-					bind:ok={slugOk}
-				/>
-				{#each createFacility.fields.slug.issues() as issue}
-					<p class="issue">{issue.message}</p>
-				{/each}
 				{#if geocoder}
 				<div
 					class="rounded-container-token {glow ? 'animate-pulse ring-4 ring-warning-500' : ''}"
@@ -237,10 +226,12 @@
 					/>
 				</div>
 				{/if}
+				{#if !$addressFeature}
 				<label class="flex label place-self-start place-items-center space-x-2 w-full">
 				<span class="text-sm">Je n'ai pas trouvé pas l'adresse exacte dans le géocodeur</span>
 					<input type="checkbox" checked={!geocoder} onchange={() => geocoder = !geocoder} />
 					</label>
+				{/if}
 				{#each createFacility.fields.ban_id.issues() as issue}
 					<p class="issue">{issue.message}</p>
 				{/each}
@@ -356,6 +347,19 @@
 						}}
 					/>
 				</label>
+				{#if street}
+					<SlugField
+						{name}
+						commune={commune.label}
+						{street}
+						{zip}
+						bind:slug
+						bind:ok={slugOk}
+					/>
+				{/if}
+				{#each createFacility.fields.slug.issues() as issue}
+					<p class="issue">{issue.message}</p>
+				{/each}
 			</div>
 			{#if showMap}
 			<div class="p-2 space-y-2 w-full h-full">

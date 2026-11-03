@@ -24,6 +24,39 @@ describe('the form can be confirmed only with an address that is free', () => {
 		expect(view({ typed: 'Cab!', check: invalid('Cab!') })).toMatchObject({ status: 'invalid', canConfirm: false });
 	});
 
+	test('a hyphen at the end, which is where typing stops mid-word, is named as the problem', () => {
+		const v = view({ typed: 'cabinet-lyon-', check: invalid('cabinet-lyon-') });
+		expect(v).toMatchObject({ status: 'invalid', canConfirm: false });
+		expect(v.message).toMatch(/tiret ne peut pas/);
+		expect(v.message).not.toMatch(/minuscules/);
+	});
+
+	test('but not while the field has the focus: a hyphen at the end is a word about to be typed', () => {
+		const v = view({ typed: 'cabinet-lyon-', check: invalid('cabinet-lyon-'), focused: true });
+		expect(v).toMatchObject({ status: 'idle', message: '', canConfirm: false });
+	});
+
+	test('it is still not confirmable while focused, and is named once the field is left', () => {
+		const typed = { typed: 'cabinet-lyon-', check: invalid('cabinet-lyon-') };
+		expect(view({ ...typed, focused: true }).canConfirm).toBe(false);
+		expect(view({ ...typed, focused: false }).message).toMatch(/tiret ne peut pas/);
+	});
+
+	test('any other mistake is named at once, focused or not', () => {
+		expect(view({ typed: 'Cabinet', check: invalid('Cabinet'), focused: true }).status).toBe('invalid');
+		expect(view({ typed: 'cabinet--lyon', check: invalid('cabinet--lyon'), focused: true }).status).toBe('invalid');
+		expect(view({ typed: '-cabinet', check: invalid('-cabinet'), focused: true }).status).toBe('invalid');
+	});
+
+	test('so is a hyphen at the start or a doubled one', () => {
+		expect(view({ typed: '-cabinet', check: invalid('-cabinet') }).message).toMatch(/tiret ne peut pas/);
+		expect(view({ typed: 'cabinet--lyon', check: invalid('cabinet--lyon') }).message).toMatch(/tiret ne peut pas/);
+	});
+
+	test('capitals, accents and spaces keep the message about lowercase letters', () => {
+		expect(view({ typed: 'Cabinet Lyon', check: invalid('Cabinet Lyon') }).message).toMatch(/minuscules/);
+	});
+
 	test('nothing can be confirmed before the first answer', () => {
 		expect(view({ check: null })).toMatchObject({ status: 'idle', canConfirm: false });
 	});

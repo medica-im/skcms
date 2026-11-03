@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
+	import { page } from '$app/state';
+	import { base } from '$app/paths';
 	import Fa from 'svelte-fa';
 	import { faCheck, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 	import { checkFacilitySlug } from '$src/facility.remote.ts';
@@ -35,7 +37,9 @@
 	let timer: ReturnType<typeof setTimeout> | undefined;
 	let latest = 0;
 
-	const view = $derived(slugView({ typed: slug, original, check, pending, failed }));
+	let focused = $state(false);
+
+	const view = $derived(slugView({ typed: slug, original, check, pending, failed, focused }));
 	$effect(() => {
 		ok = view.canConfirm;
 	});
@@ -108,9 +112,11 @@
 			spellcheck="false"
 			bind:value={slug}
 			oninput={typed}
+			onfocus={() => (focused = true)}
+			onblur={() => (focused = false)}
 		/>
 	</label>
-	<p class="opacity-80 break-all">/sites/{slug}</p>
+	<p class="opacity-80 break-all" data-testid="slug-url">{page.url.origin}{base}/sites/{slug}</p>
 	<p
 		class="flex items-center gap-2 {view.status === 'free' ? 'text-success-700 dark:text-success-400' : ''} {view.status === 'taken' || view.status === 'invalid' || view.status === 'error' ? 'text-error-700 dark:text-error-400' : ''}"
 		data-testid="slug-status"
@@ -131,7 +137,7 @@
 			{/each}
 		</div>
 	{/if}
-	{#if touched || original !== null}
+	{#if !slug.trim()}
 		<button type="button" class="btn variant-ghost-surface min-h-[44px]" onclick={regenerate}>
 			Proposer une adresse à partir du nom et du lieu
 		</button>
