@@ -136,7 +136,7 @@
 
 	<label class="label">
 		<span>{m.EMAIL_TEMPLATE_SUBJECT()}</span>
-		<input class="input" type="text" maxlength="998" bind:value={draft.subject} readonly={readOnly} data-testid="template-subject" />
+		<input class="input" type="text" maxlength="998" autocomplete="off" bind:value={draft.subject} readonly={readOnly} data-testid="template-subject" />
 		{@render fieldProblems('subject')}
 	</label>
 
@@ -183,6 +183,7 @@
 			class="textarea font-mono text-sm"
 			rows="18"
 			spellcheck="false"
+			autocomplete="off"
 			bind:value={draft.body}
 			readonly={readOnly}
 			data-testid="template-body"
@@ -197,6 +198,7 @@
 			<textarea
 				class="textarea font-mono text-sm"
 				rows="6"
+				autocomplete="off"
 				bind:value={draft.body_text}
 				readonly={readOnly}
 				data-testid="template-body-text"

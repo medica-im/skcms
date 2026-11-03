@@ -101,6 +101,25 @@ Given('my organization has no email images', async ({ baseURL }) => {
 	await clearEmails(baseURL);
 });
 
+/** The sign-in link keeps the saved template valid, whatever the wording. */
+const withSigninLink = (wording: string) => `<p>${wording}</p><a href="{{ signin_url }}">Entrer</a>`;
+
+Given('my organization has its own invitation email saying {string}', async ({ baseURL }, wording: string) => {
+	await clearEmails(baseURL);
+	await djangoShell(
+		`${organizationOf(baseURL)}from mailer.models import EmailTemplate\n` +
+			`EmailTemplate.objects.create(organization=org, kind="invitation", content_type="html", ` +
+			`subject="Invitation", body=${JSON.stringify(withSigninLink(wording))})`
+	);
+});
+
+When('the invitation email is changed in the database to say {string}', async ({ baseURL }, wording: string) => {
+	await djangoShell(
+		`${organizationOf(baseURL)}from mailer.models import EmailTemplate\n` +
+			`EmailTemplate.objects.filter(organization=org, kind="invitation").update(body=${JSON.stringify(withSigninLink(wording))})`
+	);
+});
+
 After({ tags: '@invitation-email' }, async ({ baseURL }) => {
 	await clearEmails(baseURL);
 	if (ctx.delegated) {
@@ -148,6 +167,26 @@ When('I open the images', async ({ page }) => {
 	await openTab(page, 'Images', 'image-gallery');
 });
 
+const PANELS = { template: 'template-editor', preview: 'template-preview', images: 'image-gallery' };
+
+/** Only that tab's content is on the page: a tab name above another tab's content is the bug. */
+for (const [tab, shown] of Object.entries(PANELS)) {
+	Then(`the ${tab} is showing`, async ({ page }) => {
+		await expect(page.getByTestId(shown)).toBeVisible({ timeout: 10_000 });
+		for (const other of Object.values(PANELS).filter((panel) => panel !== shown)) {
+			await expect(page.getByTestId(other)).toHaveCount(0);
+		}
+	});
+}
+
+Then('the address names the {string} tab', async ({ page }, tab: string) => {
+	await expect(page).toHaveURL(new RegExp(`[?&]tab=${tab}(&|#|$)`));
+});
+
+Then('the address names no tab', async ({ page }) => {
+	await expect.poll(() => new URL(page.url()).searchParams.has('tab')).toBe(false);
+});
+
 // --- The template -----------------------------------------------------------
 
 async function edit(page: Page, testId: string, value: string) {
@@ -192,6 +231,10 @@ Then("the template in effect is the organization's own", async ({ page }) => {
 Then('after reloading the page the subject is still {string}', async ({ page }, subject: string) => {
 	await page.reload({ waitUntil: 'domcontentloaded' });
 	await expect(page.getByTestId('template-subject')).toHaveValue(subject);
+});
+
+Then('the content reads {string}', async ({ page }, text: string) => {
+	await expect(page.getByTestId('template-body')).toHaveValue(new RegExp(text), { timeout: 10_000 });
 });
 
 const fieldValue = (page: Page, name: string) =>

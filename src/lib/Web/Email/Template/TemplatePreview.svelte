@@ -2,6 +2,7 @@
 	import Fa from 'svelte-fa';
 	import { faRotate } from '@fortawesome/free-solid-svg-icons';
 	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
+	import { untrack } from 'svelte';
 	import * as m from '$msgs';
 	import { problemMessage, type EmailPreview, type EmailTemplateDraft } from './emailTemplate';
 	import { previewEmailTemplate } from '../../../../emailTemplate.remote';
@@ -16,11 +17,12 @@
 	 * running and any link from navigating this page. srcdoc rather than a URL,
 	 * so nothing is stored to be previewed.
 	 */
-	let { draft }: { draft: EmailTemplateDraft } = $props();
+	let { draft, example }: { draft: EmailTemplateDraft; example: { name: string; email: string } } = $props();
 
-	// Blank means "the backend's made-up invitee".
-	let inviteeName = $state('');
-	let inviteeEmail = $state('');
+	// Starts on the backend's made-up invitee, so the email reads as sent at once.
+	// Emptied, a field falls back to that same example.
+	let inviteeName = $state(untrack(() => example.name));
+	let inviteeEmail = $state(untrack(() => example.email));
 	let preview = $state<EmailPreview | undefined>();
 	let failure = $state<string | undefined>();
 	let loading = $state(false);
@@ -69,11 +71,11 @@
 	<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 		<label class="label">
 			<span>{m.EMAIL_TEMPLATE_PREVIEW_NAME()}</span>
-			<input class="input" type="text" bind:value={inviteeName} placeholder="Camille Exemple" />
+			<input class="input" type="text" autocomplete="off" bind:value={inviteeName} placeholder={example.name} />
 		</label>
 		<label class="label">
 			<span>{m.EMAIL_TEMPLATE_PREVIEW_EMAIL()}</span>
-			<input class="input" type="email" bind:value={inviteeEmail} placeholder="camille.exemple@example.org" />
+			<input class="input" type="email" autocomplete="off" bind:value={inviteeEmail} placeholder={example.email} />
 		</label>
 	</div>
 

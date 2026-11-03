@@ -36,7 +36,7 @@ Feature: Wording the invitation email
       And there is no way to save the template
       And the subject cannot be edited
       When I open the preview
-      Then the text version of the preview reads "Bonjour Camille Exemple"
+      Then the text version of the preview reads "Bonjour Camille Fontaine"
       When I open the images
       Then there is no way to add an image
 
@@ -74,7 +74,7 @@ Feature: Wording the invitation email
       When I open the invitation email page
       Then the field "signin_url" shows this site's sign-in page
       And the field "organization_short_name" shows a value
-      And the field "invitee_name" shows the example "Camille Exemple"
+      And the field "invitee_name" shows the example "Camille Fontaine"
       And a screen reader hears the value of "signin_url" announced as this site's
 
     Scenario: Nothing can be saved before something changes
@@ -90,6 +90,67 @@ Feature: Wording the invitation email
       Then I am told under the content that the sign-in link is missing
       And the template in effect is the default one
 
+  Rule: the page shows the record as the database holds it, at every load
+
+    # An administrator edits the template in the admin or in another tab, then
+    # reloads. A page that kept showing the old wording would have them send
+    # an email they believe they changed.
+    Background:
+      Given I am signed in with the role "superuser"
+      And my organization has its own invitation email saying "Première version"
+
+    Scenario: A record changed behind the page's back appears after a reload
+      When I open the invitation email page
+      Then the content reads "Première version"
+      When the invitation email is changed in the database to say "Seconde version"
+      And I reload the page
+      Then the content reads "Seconde version"
+      When I open the preview
+      Then the preview reads "Seconde version"
+
+    Scenario: Every tab works after a reload
+      When I open the invitation email page
+      And I open the preview
+      And I reload the page
+      And I open the preview
+      And I open the images
+      And I open the template
+      Then the content reads "Première version"
+
+    # The browser restores the checked tab on reload; the page once started
+    # on the content again, so the tab said "Aperçu" above the content.
+    Scenario Outline: Reloading keeps the tab that was open
+      When I open the invitation email page
+      And I open the <tab>
+      And I reload the page
+      Then the <tab> is showing
+
+      Examples:
+        | tab      |
+        | preview  |
+        | images   |
+        | template |
+
+    # The address is what a reload, a bookmark and a shared link read, so it
+    # must say which tab is open -- and say nothing once the first one is back.
+    Scenario: The address follows the tab
+      When I open the invitation email page
+      And I open the preview
+      Then the address names the "preview" tab
+      When I open the images
+      Then the address names the "images" tab
+      When I open the template
+      Then the address names no tab
+
+    Scenario Outline: A tab named in the address opens at once
+      When I open "/web/invite/email-template?tab=<tab>"
+      Then the <tab> is showing
+
+      Examples:
+        | tab     |
+        | preview |
+        | images  |
+
   Rule: the preview shows the draft as a made-up invitee would receive it
 
     Background:
@@ -101,7 +162,7 @@ Feature: Wording the invitation email
       And I replace the content with "<p>Bonjour {{ invitee_name }}</p><a href=\"{{ signin_url }}\">Entrer</a>"
       And I choose the HTML format
       And I open the preview
-      Then the preview reads "Bonjour Camille Exemple"
+      Then the preview reads "Bonjour Camille Fontaine"
       And the email is framed as a panel, with the corners of a panel and not of a button
 
     # The html is pasted by an administrator. In the preview it runs in an

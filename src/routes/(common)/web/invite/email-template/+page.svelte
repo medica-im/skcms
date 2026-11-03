@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { base } from '$app/paths';
+	import { replaceState } from '$app/navigation';
 	import { untrack } from 'svelte';
 	import Fa from 'svelte-fa';
 	import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
@@ -15,7 +16,19 @@
 		type EmailTemplateDraft,
 		type TemplateSource
 	} from '$lib/Web/Email/Template/emailTemplate';
+	import { addressForTab, tabFromAddress } from '$lib/Web/Email/Template/tabAddress';
 	import { getInvitationTemplate } from '../../../../../emailTemplate.remote';
+
+	// The tab is in the address (?tab=preview) so a reload, and the server render
+	// that precedes it, open the tab the browser has checked. Left at 0, the
+	// browser restored "Aperçu" as checked above the content of "Contenu".
+	// Computed from location, not page.url: replaceState does not update page.url.
+	let tab = $state(tabFromAddress(page.url.search));
+
+	$effect(() => {
+		const address = addressForTab(location.href, tab);
+		if (address !== location.href) replaceState(address, page.state);
+	});
 
 	/**
 	 * The invitation email of this site's organization: its wording, a preview,
@@ -36,7 +49,6 @@
 	);
 	const unsaved = $derived(template ? isDraftChanged(draft, template) : false);
 
-	let tab = $state(0);
 
 	const sourceBadge: Record<TemplateSource, { label: () => string; classes: string }> = {
 		organization: { label: m.EMAIL_TEMPLATE_SOURCE_ORGANIZATION, classes: 'variant-filled-primary' },
@@ -83,7 +95,13 @@
 				{#if tab === 0}
 					<TemplateEditor {template} bind:draft />
 				{:else if tab === 1}
-					<TemplatePreview {draft} />
+					<TemplatePreview
+						{draft}
+						example={{
+							name: template.placeholder_values.invitee_name ?? '',
+							email: template.placeholder_values.invitee_email ?? ''
+						}}
+					/>
 				{:else}
 					<ImageGallery canEdit={template.can_edit} />
 				{/if}
