@@ -30,7 +30,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
 WORKERS="${2:-${E2E_WORKERS:-8}}"
-BASE_PORT="${E2E_BASE_PORT:-3100}"
+BASE_PORT="${E2E_BASE_PORT:-3300}"
 # The default is assigned separately rather than inline as
 # ${E2E_WORKER_DOMAIN:-w{i}.dev.medica.im}: bash reads the '}' of '{i}' as the
 # end of the parameter expansion, so that form yields "w{i.dev.medica.im}" —

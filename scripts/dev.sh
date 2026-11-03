@@ -7,8 +7,8 @@ SUBMODULE_PATH="src/routes/(skvar)"
 SKVAR_DIR="${SKVAR_DIR:-$REPO_ROOT/$SUBMODULE_PATH}"
 ENV_LINK="${ENV_LINK:-$REPO_ROOT/.env}"
 # The test servers the status names: scripts/e2e-workers.sh's, one per worker
-# from 3100, and test-all's site servers on each site's dev port + 200.
-E2E_PORTS="${E2E_PORTS:-3100-3131}"
+# from 3300, and test-all's site servers on each site's dev port + 200.
+E2E_PORTS="${E2E_PORTS:-3300-3331}"
 TEST_ALL_PORT_OFFSET="${TEST_ALL_PORT_OFFSET:-200}"
 BACKEND_DIR="${BACKEND_DIR:-$REPO_ROOT/../backend}"
 BACKEND_COMPOSE_FILE="${BACKEND_COMPOSE_FILE:-docker-compose-development.yml}"

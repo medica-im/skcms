@@ -59,9 +59,14 @@ NEO4J_CONTAINER="${NEO4J_CONTAINER:-backend-neo4j-1}"
 # per-project parallelism is half this number -- 8 here keeps the 4-wide runs
 # the suite was tuned for while adding the second shape.
 E2E_WORKERS="${E2E_WORKERS:-8}"
-# Left running after the suite by default: a cold Vite boot per worker costs
-# more than the whole BDD run, and the next invocation reuses them.
-E2E_STOP_AFTER="${E2E_STOP_AFTER:-0}"
+# Stopped after the suite by default: a run depends on nothing a previous run
+# or a developer left behind, and leaves nothing behind. A worker kept for
+# days is one more thing that can be slow or stale (the 2026-11-03 annuaire
+# failures came from a site server reused after 14 hours). E2E_STOP_AFTER=0
+# keeps them for the next invocation, whose cold Vite boot per worker is then
+# saved.
+E2E_STOP_AFTER="${E2E_STOP_AFTER:-1}"
+SERVERS_STARTED_BY_RUN=0
 
 # The site dev server the `sites` Playwright project browses.
 #
@@ -404,12 +409,12 @@ stop_dev_server() {
     local pid; pid="$(site_server_pid "$port")"
     [[ -z "$pid" ]] && return 0
 
-    # A worker must never be the thing we stop. They are :3100+ and the sites
+    # A worker must never be the thing we stop. They are :3300+ and the sites
     # are :3010-3019, but both are overridable and a mistake here would take
     # down the suite it is meant to help.
     local i
     for ((i = 0; i < E2E_WORKERS; i++)); do
-        if [[ "$port" == "$((${E2E_BASE_PORT:-3100} + i))" ]]; then
+        if [[ "$port" == "$((${E2E_BASE_PORT:-3300} + i))" ]]; then
             warn "$SITE_CONTEXT is on worker w$i's port ($port); not touching it"
             return 0
         fi
@@ -811,8 +816,45 @@ ensure_site_server_for() {
     return 1
 }
 
+# Stop every site server this script started, found by their stamps.
+#
+# The stamp names the pid that ended up on the port (the vite child, not the
+# npx launcher), so a developer's own dev server on the dev port is never
+# touched: this run's servers are on the dev port + SITE_TEST_PORT_OFFSET.
+stop_site_servers() {
+    local stamp pid waited
+    for stamp in "$FRONTEND_DIR"/.e2e-workers/site-*.started; do
+        [[ -f "$stamp" ]] || continue
+        pid="$(sed -n '2p' "$stamp")"
+        rm -f "$stamp"
+        [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null || continue
+        kill "$pid" 2>/dev/null || continue
+        waited=0
+        while (( waited < 10 )) && kill -0 "$pid" 2>/dev/null; do
+            sleep 1; waited=$((waited + 1))
+        done
+        kill -0 "$pid" 2>/dev/null && kill -9 "$pid" 2>/dev/null
+    done
+    return 0
+}
+
+# Close what the BDD stage started: the site servers always, the workers unless
+# E2E_STOP_AFTER=0. Does nothing for a run that never started them, so a
+# typecheck-only run cannot stop servers someone else is using.
+release_servers() {
+    (( SERVERS_STARTED_BY_RUN )) || return 0
+    SERVERS_STARTED_BY_RUN=0
+    info "stopping the site servers this run started"
+    stop_site_servers
+    if [[ "$E2E_STOP_AFTER" == "1" ]]; then
+        info "stopping worker dev servers"
+        "$FRONTEND_DIR/scripts/e2e-workers.sh" stop >/dev/null 2>&1 || true
+    fi
+}
+
 # Interrupting the run must not cost the user their dev server.
-trap 'start_dev_server' EXIT INT TERM
+trap 'start_dev_server' INT TERM
+trap 'start_dev_server; release_servers' EXIT
 
 ensure_e2e_workers() {
     # Reused only if they serve this run's code: workers left up by a run in
@@ -820,7 +862,7 @@ ensure_e2e_workers() {
     # just the same, and the scenarios would test that tree instead.
     local i pid foreign=()
     for ((i = 0; i < E2E_WORKERS; i++)); do
-        pid="$(pid_on_port "$((${E2E_BASE_PORT:-3100} + i))")"
+        pid="$(pid_on_port "$((${E2E_BASE_PORT:-3300} + i))")"
         [[ -n "$pid" && "$(readlink "/proc/$pid/cwd")" != "$FRONTEND_DIR" ]] && foreign+=("$pid")
     done
     if (( ${#foreign[@]} )); then
@@ -956,7 +998,12 @@ suite_bdd() {
         fi
     fi
     stop_dev_server
-    ensure_e2e_workers || { start_dev_server; return 1; }
+    SERVERS_STARTED_BY_RUN=1
+    # Leftover site servers (from a run that was killed, or one started with
+    # E2E_STOP_AFTER=0) are stopped, not reused: every run measures servers
+    # that booted for it.
+    stop_site_servers
+    ensure_e2e_workers || { start_dev_server; release_servers; return 1; }
     # The `sites` project browses the real dev.<site> hostname, not a worker
     # origin, so the worker servers above do not cover it. Started before
     # Playwright because a 502 here reads as a broken page.
@@ -1001,10 +1048,7 @@ suite_bdd() {
         info "install it with: sudo apt-get install xvfb"
     fi
     (cd "$FRONTEND_DIR" && "${runner[@]}" "${project_args[@]}") || rc=$?
-    if [[ "$E2E_STOP_AFTER" == "1" ]]; then
-        info "stopping worker dev servers"
-        "$FRONTEND_DIR/scripts/e2e-workers.sh" stop >/dev/null 2>&1 || true
-    fi
+    release_servers
     start_dev_server
     return "$rc"
 }
@@ -1137,7 +1181,7 @@ if [[ -n "$RUN_LOG" ]]; then
             sleep 0.1
         done
     }
-    trap 'start_dev_server; finish_run_log' EXIT
+    trap 'start_dev_server; release_servers; finish_run_log' EXIT
 fi
 
 # --- Run ---------------------------------------------------------------------
