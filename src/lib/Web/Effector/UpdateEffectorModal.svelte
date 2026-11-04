@@ -10,7 +10,7 @@
 	import { updateEffector } from '../../../effector.remote.ts';
 	import Fa from 'svelte-fa';
 	import { faCheck, faExclamationCircle, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
-	import { validateName, validateLabel, validateSlug, validateGender } from './validate.ts';
+	import { validateName, validateLabel, validateGender } from './validate.ts';
 	import type { EntryFull } from '$lib/store/directoryStoreInterface.ts';
 	import type {
 		InputClassUpdate as InputClass,
@@ -28,19 +28,16 @@
 	const inputClass: InputClass = $state({
 		name_fr: '',
 		label_fr: '',
-		slug_fr: '',
 		gender: ''
 	});
 	const isRequired: IsRequired = {
 		name_fr: true,
 		label_fr: false,
-		slug_fr: true,
 		gender: true
 	};
 	const validateForm: ValidateForm = $state({
 		name_fr: !isRequired.name_fr,
 		label_fr: !isRequired.label_fr,
-		slug_fr: !isRequired.slug_fr,
 		gender: !isRequired.gender
 	});
 	const genders = $derived(gendersFor(data.effector_type?.nature));
@@ -51,11 +48,10 @@
 	);
 	let name_fr: string = $state(data.name);
 	let label_fr: string = $state(data.label);
-	let slug_fr: string = $state(data.slug);
 	let gender: string | null = $state(initialGender);
 	let formResult = $derived(updateEffector.for(data.effector_uid).result);
 	let isModified: boolean = $derived(
-		name_fr != data.name || label_fr != data.label || slug_fr != data.slug || gender != initialGender
+		name_fr != data.name || label_fr != data.label || gender != initialGender
 	);
 	let disabled: boolean = $derived(!!updateEffector.for(data.effector_uid).pending ||
 		!Object.values(validateForm).every((v) => v === true) ||
@@ -65,13 +61,8 @@
 	const validateAll = () => {
 		validateName(name_fr, inputClass, isRequired, validateForm);
 		validateLabel(label_fr, inputClass, isRequired, validateForm);
-		validateSlug(slug_fr, inputClass, isRequired, validateForm);
 		validateGender(gender, inputClass, isRequired, validateForm);
 	};
-	let redirect: boolean = $derived(
-		!(slug_fr == null && data.slug == null) &&
-			slug_fr != data.slug);
-	let slugSuccess: boolean = $derived(page.url.searchParams.get('success') === 'true');
 	onMount(() => {
 		validateAll();
 	});
@@ -113,27 +104,6 @@
 						placeholder=""
 						value={data.effector_uid}
 					/>
-					<input
-						class="hidden"
-						name="path"
-						type="text"
-						placeholder=""
-						bind:value={page.url.pathname}
-					/>
-					<input
-						class="hidden"
-						name="oldSlug"
-						type="text"
-						placeholder=""
-						value={data.slug}
-					/>
-					<input
-						class="hidden"
-						name="redirect"
-						type="checkbox"
-						placeholder=""
-						bind:checked={redirect}
-					/>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
 						<span class="h4">Nom</span>
 						{#each updateEffector.for(data.effector_uid).fields.name_fr.issues() as issue}
@@ -166,22 +136,6 @@
 							}}
 						/>
 					</label>
-					<label class="flex label place-self-start place-items-center space-x-2 w-full">
-						<span class="h4">Slug</span>
-						{#each updateEffector.for(data.effector_uid).fields.slug_fr.issues() as issue}
-							<p class="issue">{issue.message}</p>
-						{/each}
-						<input
-							class="input {inputClass.slug_fr}"
-							name="slug_fr"
-							type="text"
-							placeholder=""
-							bind:value={slug_fr}
-							oninput={() => {
-								validateSlug(slug_fr, inputClass, isRequired, validateForm);
-							}}
-						/>
-					</label>
 					{#if genders.length}
 						<div class="space-y-1">
 							<label class="flex label place-self-start place-items-center space-x-2 w-full">
@@ -210,7 +164,7 @@
 					{/if}
 					<div class="flex gap-8">
 						<div class="flex gap-2 items-center">
-							{#if formResult?.success || slugSuccess}
+							{#if formResult?.success}
 								<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
 							{:else if formResult && formResult.success == false}
 								<span class="badge-icon variant-filled-error"
@@ -234,7 +188,7 @@
 									page.url.searchParams.set('success', 'false');
 							goto(`?${page.url.searchParams.toString()}`);
 									dialog?.close();
-								}}>{formResult?.success || slugSuccess ? 'Fermer' : 'Annuler'}</button
+								}}>{formResult?.success ? 'Fermer' : 'Annuler'}</button
 							>
 						</div>
 					</div>

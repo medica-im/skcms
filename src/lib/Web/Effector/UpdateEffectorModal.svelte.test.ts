@@ -91,6 +91,15 @@ describe('UpdateEffectorModal', () => {
 		await expect.element(send()).toBeDisabled();
 	});
 
+	it('leaves the slug alone: old links resolve through it, and the entry page address does not depend on it', async () => {
+		await open('profession', 'F');
+
+		for (const name of ['slug_fr', 'oldSlug', 'path', 'redirect']) {
+			expect(document.querySelector(`[name="${name}"]`), name).toBeNull();
+		}
+		await expect.element(page.getByText('Slug', { exact: true })).not.toBeInTheDocument();
+	});
+
 	it('gives an activity without a gender the neutral', async () => {
 		await open('activity', null);
 

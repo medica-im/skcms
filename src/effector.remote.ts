@@ -1,4 +1,4 @@
-import { error, redirect } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 import { getRequestEvent, query, form, command } from '$app/server';
 import * as z from "zod";
 import { authReq } from '$lib/utils/request.ts';
@@ -72,42 +72,20 @@ const effectorPatch = z.object({
     effector: z.string().regex(/^[0-9a-fA-F]{32}$/),
     name_fr: z.string(),
     label_fr: z.string(),
-    slug_fr: z.string(),
     gender: genderEnum,
-    redirect: z.coerce.boolean<boolean>(),
-    oldSlug: z.string(),
-    path: z.string(),
 });
 
 const EffectorPatchToSend = z.object({
     name_fr: z.string(),
     label_fr: z.string(),
-    slug_fr: z.string(),
     gender: genderEnum,
 });
 
-interface EffectorPath {
-    name_fr: string;
-    label_fr: string;
-    slug_fr: string;
-    gender: string;
-    effector?: string;
-    redirect?: boolean;
-    oldSlug?: string;
-    path?: string;
-}
-
 export const updateEffector = form(effectorPatch, async (data) => {
-    const dataToProcess: EffectorPath = structuredClone(data);
     const effector_uid = data.effector;
-    delete dataToProcess.effector;
-    const doRedirect: boolean = !!data.redirect;
-    delete dataToProcess.redirect;
-    const redirectPath = data.path.replace(data.oldSlug, data.slug_fr);
-    delete dataToProcess.oldSlug;
     let body;
     try {
-        body = EffectorPatchToSend.parse(dataToProcess);
+        body = EffectorPatchToSend.parse(data);
     } catch (error) {
         if (error instanceof z.ZodError) {
             throw Error(JSON.stringify(error.issues));
@@ -127,15 +105,12 @@ export const updateEffector = form(effectorPatch, async (data) => {
         }
     } else {
         const json = await response.json();
-        if (!doRedirect) {
-            return {
-                success: true,
-                status: response.status,
-                text: response.statusText,
-                data: json
-            }
+        return {
+            success: true,
+            status: response.status,
+            text: response.statusText,
+            data: json
         }
-        redirect(303, `${redirectPath}?success=true`);
     }
 });
 
