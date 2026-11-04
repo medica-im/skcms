@@ -36,7 +36,9 @@ const directory = (effector_types: { uid: string; label: string }[]) => ({
 	display_name: 'IPA',
 	owner: null,
 	list_owner_entry: true,
-	effector_types
+	effector_types,
+	main: false,
+	minimum_role: 'anonymous' as const
 });
 
 const answered = (effector_types: { uid: string; label: string }[]) => ({

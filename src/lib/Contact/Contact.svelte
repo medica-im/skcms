@@ -10,7 +10,7 @@
 	import Phones from '$lib/Directory/Phone/Phones.svelte';
 	import Emails from '$lib/Email/Emails.svelte';
 	import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
-	import * as openStreetMap from '$lib/MapLibre/style/openStreetMap.json';
+	import { openStreetMap } from '$lib/MapLibre/style/openStreetMap';
 	import Websites from '$lib/Website/Websites.svelte';
 	import type { EntryFull } from '$lib/store/directoryStoreInterface';
 

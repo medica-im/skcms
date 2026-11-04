@@ -21,7 +21,7 @@
 	import '$lib/MapLibre/worker';
 	import { createContactMapData } from '$lib/components/Map/mapData';
 	import { hasCoordinates } from '$lib/components/Map/coordinates';
-	import * as openStreetMap from '$lib/MapLibre/style/openStreetMap.json';
+	import { openStreetMap } from '$lib/MapLibre/style/openStreetMap';
 	import SoMed from '$lib/SoMed/SoMed.svelte';
 	import Appointment from '$lib/components/Effector/Appointment/Appointments.svelte';
 	import Schedules from '$lib/Schedule/Schedules.svelte';
