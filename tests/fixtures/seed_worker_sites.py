@@ -280,25 +280,46 @@ def reusable_images(kind, limit=6):
     return originals[:limit]
 
 
-def commune_with_geography():
-    """A Commune with the chain the entries query walks, and a point to sit on.
+# A real address, as the BAN (Base Adresse Nationale) returns it, so that the
+# worker sites' own facility agrees with itself: the street, postal code, commune
+# and department are one place, the coordinates are the BAN's point for it, and
+# ``ban_id``/``ban_banId`` are the identifiers the address form stores when an
+# address is picked from the geocoder. Fetched from
+#   https://api-adresse.data.gouv.fr/search/?q=11+boulevard+d'Arras+62480+Le+Portel
+# and written down rather than looked up on each run: a seed that needs a public
+# service to be up is a test suite that needs it too.
+BASE_ADDRESS = {
+    "street": "11 Boulevard d'Arras",
+    "zip": "62480",
+    "city": "Le Portel",
+    "department_code": "62",
+    "longitude": 1.580933,
+    "latitude": 50.712813,
+    "ban_id": "62667_0065_00011",
+    "ban_banId": "357f736e-44eb-439a-b811-3e8f1bb4796d",
+}
 
-    Returns ``(commune_uid, location)``. The point is borrowed from a facility
-    already in that commune rather than invented: it has to be a real Neo4j
-    ``POINT``, and one inside the commune keeps the map showing the right part
-    of France instead of the Gulf of Guinea.
+
+# The whole département, as a directory's postal_codes are prefixes: the
+# geocoder keeps an address when its postcode starts with one of them.
+WORKER_POSTAL_CODES = [BASE_ADDRESS["department_code"]]
+
+
+def commune_of_address():
+    """The Commune BASE_ADDRESS is in, with the chain the entries query walks.
+
+    Found by name *and* department: communes of that name exist elsewhere.
     """
     rows, _ = db.cypher_query(
         """
-        MATCH (c:Commune)-[:LOCATED_IN_THE_ADMINISTRATIVE_TERRITORIAL_ENTITY]->
-              (:DepartmentOfFrance)
-        MATCH (f:Facility)-[:LOCATED_IN_THE_ADMINISTRATIVE_TERRITORIAL_ENTITY]->(c)
-        WHERE f.location IS NOT NULL
-        RETURN c.uid, f.location LIMIT 1
-        """
+        MATCH (c:Commune {name_fr: $city})-[:LOCATED_IN_THE_ADMINISTRATIVE_TERRITORIAL_ENTITY]->
+              (:DepartmentOfFrance {code: $department_code})
+        RETURN c.uid LIMIT 1
+        """,
+        {"city": BASE_ADDRESS["city"], "department_code": BASE_ADDRESS["department_code"]},
     )
-    assert rows, "no Commune with a department chain and a located facility"
-    return rows[0][0], rows[0][1]
+    assert rows, f"no Commune {BASE_ADDRESS['city']} in department {BASE_ADDRESS['department_code']}"
+    return rows[0][0]
 
 
 # Cypher's randomUUID() returns a *hyphenated* UUID, but every uid in the real
@@ -331,7 +352,7 @@ def organization_type_uid():
 
 
 ORG_TYPE_UID = organization_type_uid()
-COMMUNE_UID, COMMUNE_LOCATION = commune_with_geography()
+COMMUNE_UID = commune_of_address()
 SOURCE_ENTRIES = source_entry_uids()
 AVATARS = reusable_images("profile_images")
 PLACE_IMAGES = reusable_images("place_images", limit=2)
@@ -363,11 +384,19 @@ for i in range(WORKERS):
             "name": dir_name,
             "slug": dir_name,
             "display_name": f"E2E worker {i}",
-            "postal_codes": template_dir.postal_codes,
+            "postal_codes": WORKER_POSTAL_CODES,
             "department_default": template_dir.department_default,
             "commune_default": template_dir.commune_default,
         },
     )
+    # Not only on creation: the template's codes (another département) were
+    # copied before the facilities moved to BASE_ADDRESS, and get_or_create
+    # leaves an existing directory as it found it. The geocoder offers only
+    # addresses within these codes, so a directory pointing at another
+    # département than its own facilities offers none of their neighbours.
+    if directory.postal_codes != WORKER_POSTAL_CODES:
+        directory.postal_codes = WORKER_POSTAL_CODES
+        directory.save(update_fields=["postal_codes"])
 
     # The Directory's one-to-one configuration rows, copied from the template so
     # a worker site renders the same controls and layout as the site it models.
@@ -490,12 +519,16 @@ for i in range(WORKERS):
         MERGE (f:Facility {slug: $facility_slug})
           ON CREATE SET f.uid = """ + NEW_UID + """
         SET f.name = $facility_name, f.label = $facility_name, f.e2eWorkerSite = true,
-            // A real point, copied from an existing facility in the same
-            // commune. Not decorative: addressbook's get_address reads
-            // facility.location.latitude unguarded, so a facility without one
-            // raises AttributeError inside the serializer and /api/v2/organization
-            // 500s — the map simply not rendering would be the least of it.
-            f.location = $location
+            // The BAN's point for the address. Not decorative: addressbook's
+            // get_address reads facility.location.latitude unguarded, so a
+            // facility without one raises AttributeError inside the serializer
+            // and /api/v2/organization 500s — the map simply not rendering would
+            // be the least of it.
+            f.location = point({longitude: $longitude, latitude: $latitude, crs: 'WGS-84'}),
+            f.zip = $zip,
+            f.street = $street,
+            f.ban_id = $ban_id,
+            f.ban_banId = $ban_banId
         // Replace, do not accumulate — same reasoning as the cloned facility
         // below: this MERGE guarantees an edge to $commune but leaves any
         // earlier one in place, and a facility standing in two communes makes
@@ -631,7 +664,12 @@ for i in range(WORKERS):
         """,
         {
             "commune": COMMUNE_UID,
-            "location": COMMUNE_LOCATION,
+            "longitude": BASE_ADDRESS["longitude"],
+            "latitude": BASE_ADDRESS["latitude"],
+            "zip": BASE_ADDRESS["zip"],
+            "street": BASE_ADDRESS["street"],
+            "ban_id": BASE_ADDRESS["ban_id"],
+            "ban_banId": BASE_ADDRESS["ban_banId"],
             "facility_slug": f"{dir_name}-facility",
             "facility_name": f"E2E worker {i} facility",
             "dir": dir_name,

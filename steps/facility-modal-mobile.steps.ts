@@ -22,6 +22,9 @@ const API_ORIGIN = apiOrigin();
  * Nothing here depends on *which* facility it is — the feature is about how the
  * dialog behaves on a small screen — so any facility of the site under test
  * will do, and asking the API for one keeps it right on every worker.
+ *
+ * It must have a postal code: each worker site also holds a seeded facility
+ * with none (e2e-wN-facility), and facility-edit-scope.feature needs the zip.
  */
 const facilityCtx: { slug?: string } = {};
 
@@ -31,8 +34,8 @@ async function facilitySlug(): Promise<string> {
 		headers: { Accept: 'application/json', 'Cache-Control': 'no-cache' }
 	});
 	expect(response.ok, `GET public/facilities -> ${response.status}`).toBeTruthy();
-	const facilities = (await response.json()) as { slug?: string }[];
-	const candidate = facilities.find((f) => f.slug);
+	const facilities = (await response.json()) as { slug?: string; address?: { zip?: string } }[];
+	const candidate = facilities.find((f) => f.slug && f.address?.zip);
 	expect(candidate, 'no facility with a slug on this site').toBeTruthy();
 	facilityCtx.slug = candidate!.slug;
 	return facilityCtx.slug!;
