@@ -41,6 +41,25 @@ async function search(text: string) {
 	await input.fill(text);
 }
 
+describe('Geocoder, with a notice', () => {
+	it('shows it only once the field is used', async () => {
+		render(Geocoder, { limitToZip: false, notice: 'Corrige une erreur.' });
+		await expect.element(page.getByText('Corrige une erreur.')).not.toBeInTheDocument();
+
+		await page.getByRole('searchbox').click();
+
+		await expect.element(page.getByText('Corrige une erreur.')).toBeVisible();
+	});
+
+	it('shows nothing when it has none', async () => {
+		render(Geocoder, { limitToZip: false });
+
+		await page.getByRole('searchbox').click();
+
+		await expect.element(page.getByTestId('geocoder-notice')).not.toBeInTheDocument();
+	});
+});
+
 describe('Geocoder, when the address service fails', () => {
 	it('says so when the service answers an error', async () => {
 		vi.stubGlobal('fetch', answering(504));

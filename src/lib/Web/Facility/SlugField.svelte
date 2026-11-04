@@ -12,6 +12,8 @@
 		commune,
 		street,
 		zip,
+		effectorType = undefined,
+		effector = undefined,
 		original = null,
 		exclude = null,
 		slug = $bindable(''),
@@ -21,6 +23,10 @@
 		commune: string;
 		street: string;
 		zip: string;
+		/** What names a facility with no name of its own: its occupation... */
+		effectorType?: string;
+		/** ...and its person (a service is named by its organisation). */
+		effector?: string;
 		/** The saved address of an existing facility; null while creating one. */
 		original?: string | null;
 		/** The facility being edited, which may keep its own address. */
@@ -54,6 +60,8 @@
 				commune,
 				street,
 				zip,
+				effector_type: effectorType,
+				effector,
 				slug: generate ? undefined : slug,
 				exclude: exclude ?? undefined
 			});
@@ -80,6 +88,8 @@
 		commune;
 		street;
 		zip;
+		effectorType;
+		effector;
 		if (touched || original !== null || !street) return;
 		untrack(() => later(true));
 	});

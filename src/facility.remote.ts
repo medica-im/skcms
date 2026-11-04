@@ -14,7 +14,7 @@ import type { SlugCheck } from '$lib/Web/Facility/slugField.ts';
 const postFacility = z.object({
 	name: z.string(),
     label: z.string(),
-    slug: z.string(),
+    slug: z.string().default(''),
     longitude,
     latitude,
     zoom: z.preprocess((val: string)=>{
@@ -59,19 +59,22 @@ export const createFacility = form(postFacility, async (data) => {
 });
 
 const slugQuery = z.object({
-	name: z.string(),
+	name: z.string().optional(),
 	commune: z.string().optional(),
 	street: z.string().optional(),
 	zip: z.string().optional(),
 	slug: z.string().optional(),
-	exclude: z.string().optional()
+	exclude: z.string().optional(),
+	// What names a facility that has no name of its own: its occupation and its person.
+	effector_type: z.string().optional(),
+	effector: z.string().optional()
 });
 
 // The address a facility would get, or whether a typed one is free. A command
 // rather than a query: it is called with new arguments as the form changes.
 export const checkFacilitySlug = command(slugQuery, async (data): Promise<SlugCheck> => {
-	const params = new URLSearchParams({ name: data.name });
-	for (const key of ['commune', 'street', 'zip', 'slug', 'exclude'] as const) {
+	const params = new URLSearchParams();
+	for (const key of ['name', 'commune', 'street', 'zip', 'slug', 'exclude', 'effector_type', 'effector'] as const) {
 		if (data[key]) params.set(key, data[key]);
 	}
 	const response = await fetch(`${variables.BASE_URI}/api/v2/facility-slugs?${params}`);

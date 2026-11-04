@@ -7,6 +7,7 @@
 	import { navigating, page } from '$app/state';
 	import * as m from '$msgs';
 	import DisplayFacility from '$lib/Web/DisplayFacility.svelte';
+	import FacilitySlugStep from '$lib/Web/Facility/FacilitySlugStep.svelte';
 	import type { Effector } from '$lib/interfaces/v2/effector.ts';
 	import type { SelectType } from '$lib/interfaces/select.ts';
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
@@ -38,6 +39,8 @@
 	let directory: string | undefined = $state();
 	let isOwner = $state(true);
 	let access = $state('anonymous');
+	let slugNeeded = $state(false);
+	let slugOk = $state(false);
 
 	const accessOptions = $derived.by(() => {
 		const role = page.data?.user?.role;
@@ -141,6 +144,13 @@ hasErrors: {hasErrors}-->
 				</label>
 				{#if facilityUid}
 					<DisplayFacility facilityUid={facilityUid} showEffectors={false} mapHeight={36} update={false} />
+					<FacilitySlugStep
+						{facilityUid}
+						effectorType={effector_type}
+						effector={effectorUid}
+						bind:needed={slugNeeded}
+						bind:ok={slugOk}
+					/>
 				{/if}
 				<label class="label w-full">
 					<span class="text-sm font-medium">Organisation</span>
@@ -216,7 +226,7 @@ hasErrors: {hasErrors}-->
 				<button
 					type="submit"
 					class="variant-filled-secondary btn"
-					disabled={!!createEntry.for(uid).pending}>Valider</button
+					disabled={!!createEntry.for(uid).pending || (slugNeeded && !slugOk)}>Valider</button
 				>
 				<button
 					type="button"

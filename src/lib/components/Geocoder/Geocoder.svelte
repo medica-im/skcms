@@ -18,14 +18,19 @@
 		placeholder = 'Adresse de l’usager',
 		inputClass = $bindable(''),
 		isValid = $bindable({geocoder: false}),
-		limitToZip = true
+		limitToZip = true,
+		notice = null
 	}: {
 		commune?: string | null;
 		placeholder?: string;
 		inputClass?: string;
 		isValid?: IsValid;
 		limitToZip?: boolean;
+		/** Said under the field once it has been clicked. */
+		notice?: string | null;
 	} = $props();
+
+	let used = $state(false);
 
 	let addressFeature = getAddressFeature();
 	let inputAddress = getGeoInputAddress();
@@ -189,6 +194,9 @@ $addressFeature: {JSON.stringify($addressFeature)}-->
 		autocomplete="off"
 		disabled={Boolean($addressFeature)}
 		{placeholder}
+		onfocus={() => {
+			used = true;
+		}}
 		oninput={() => {
 			fetchGeojson();
 		}}
@@ -205,6 +213,9 @@ $addressFeature: {JSON.stringify($addressFeature)}-->
 		<DocsIcon name="clear" width="w-5" height="h-5" />
 	</button>
 </div>
+{#if notice && used}
+	<p role="status" class="card variant-soft-warning p-3" data-testid="geocoder-notice">{notice}</p>
+{/if}
 {#if unavailable && $inputAddress}
 	<p role="alert" class="text-sm text-error-700-200-token">{m.ADDRESSBOOK_GEOCODER_UNAVAILABLE()}</p>
 {/if}

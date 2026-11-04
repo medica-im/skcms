@@ -65,6 +65,10 @@ const SAME_IN_BOTH = new Set([
 	'CALENDAR_ADD_WEBCAL',
 	// Made only of placeholders, a unit and punctuation.
 	'EMAIL_IMAGE_DIMENSIONS',
+	// Sample facility names, French in every language: that is how they are written.
+	'FACILITY_NAME_HINT_EXAMPLE_1',
+	'FACILITY_NAME_HINT_EXAMPLE_2',
+	'FACILITY_NAME_HINT_EXAMPLE_3',
 	// Plural forms whose two variants happen to match in both languages.
 	'SITE_COUNT',
 	'invitation',

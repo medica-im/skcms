@@ -26,7 +26,9 @@ const postEntry = z.object({
 	organization_category: z.string().optional(),
 	isOwner: z.boolean().default(true),
 	redeemEmail: z.preprocess((val) => val === '' ? undefined : val, z.email().optional()),
-	access: z.string().default('anonymous')
+	access: z.string().default('anonymous'),
+	// The address of a facility that has none yet, chosen on the confirmation form.
+	facility_slug: z.preprocess((val) => (val === '' ? undefined : val), z.string().optional())
 }
 );
 

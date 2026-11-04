@@ -1045,5 +1045,17 @@
   "EFFECTOR_GENDER_WHY": "To write the profession correctly on the entry page: {feminine} or {masculine}.",
   "EFFECTOR_GENDER_WHY_GENERIC": "To write the profession correctly on the entry page.",
   "EFFECTOR_GENDER_WHY_SAME": "For the words that refer to this person: une {word} or un {word}.",
-  "EFFECTOR_GENDER_SHOWN": "On the entry page: {label}"
+  "EFFECTOR_GENDER_SHOWN": "On the entry page: {label}",
+  "FACILITY_NAME_HINT_TITLE": "Why give it a name?",
+  "FACILITY_NAME_HINT_CLOSE": "Close the help",
+  "FACILITY_NAME_HINT_WHY": "A name helps people find the place, and it is the web address of the facility's page.",
+  "FACILITY_NAME_HINT_EXAMPLES_INTRO": "Even an office with no official name can be given one, for example:",
+  "FACILITY_NAME_HINT_EXAMPLE_1": "Cabinet médical des Lilas",
+  "FACILITY_NAME_HINT_EXAMPLE_2": "Centre de kinésithérapie du Parc",
+  "FACILITY_NAME_HINT_EXAMPLE_3": "Cabinet du Dr Martin",
+  "FACILITY_NAME_HINT_NO_NAME": "Without a name, the address is made of the category and the street.",
+  "FACILITY_NAME_PLACEHOLDER": "e.g. Cabinet médical des Lilas",
+  "FACILITY_GEOCODER_NOTICE": "This tool corrects an entry error on the same facility; it does not create a new facility. If an entry has moved to another facility, please contact an administrator.",
+  "FACILITY_SLUG_STEP_LABEL": "Facility web address",
+  "FACILITY_SLUG_STEP_HELP": "It is proposed from the name, the category and the person: you can change it."
 }

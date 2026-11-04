@@ -3,6 +3,8 @@
 	import MissingGpsDialog from '$lib/Web/Facility/MissingGpsDialog.svelte';
 	import { hasCoordinates } from '$lib/components/Map/coordinates.ts';
 	import SlugField from '$lib/Web/Facility/SlugField.svelte';
+	import NameHint from '$lib/Web/Facility/NameHint.svelte';
+	import * as m from '$msgs';
 	import { createFacility } from '$src/facility.remote.ts';
 	import {
 		faCheck,
@@ -40,6 +42,8 @@
 		department: { label: string; value: string };
 		selectedFacility?: { label: string; value: string };
 		facilityCreateOpen?: boolean;
+		/** Inside the entry wizard: the address is chosen with the entry, once its occupation and person are known. */
+		deferSlug?: boolean;
 	}
 
 	let {
@@ -47,7 +51,8 @@
 		commune,
 		department,
 		selectedFacility = $bindable(),
-		facilityCreateOpen = $bindable()
+		facilityCreateOpen = $bindable(),
+		deferSlug = false
 	}: Props = $props();
 
 	let geocoder: boolean = $state(true);
@@ -113,7 +118,7 @@
 	});
 	let formResult = $derived(createFacility.result);
 	let disabled: boolean = $derived(!!createFacility.pending ||
-	!street || !slugOk || formResult?.success == true
+	!street || (!deferSlug && !slugOk) || formResult?.success == true
 	);
 
 	const clear = () => {
@@ -315,6 +320,7 @@
 				</label>
 				<label class="{street ? '': 'hidden'} flex label place-self-start place-items-center space-x-2 w-full">
 					<span>Nom de l'établissement</span>
+					<NameHint />
 					{#each createFacility.fields.name.issues() as issue}
 						<p class="issue">{issue.message}</p>
 					{/each}
@@ -323,7 +329,7 @@
 						class="input {street ? '': 'hidden'} {inputClass.name}"
 						name="name"
 						type="text"
-						placeholder="Nom complet de l'établissement"
+						placeholder={m.FACILITY_NAME_PLACEHOLDER()}
 						bind:value={name}
 						onchange={() => {
 							validateName(name, inputClass, isRequired, validateForm, true);
@@ -347,7 +353,7 @@
 						}}
 					/>
 				</label>
-				{#if street}
+				{#if street && !deferSlug}
 					<SlugField
 						{name}
 						commune={commune.label}

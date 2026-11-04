@@ -134,6 +134,19 @@ describe('geocoder choices for an address inside the territory', () => {
 		expect(options).toHaveLength(1);
 	});
 
+	/**
+	 * A facility recorded under the wrong arrondissement has to be correctable
+	 * from the edit dialog: the postcode is not a filter, only the commune is.
+	 */
+	it('offers every arrondissement of the commune', () => {
+		const options = getAddressOptions(
+			[f('255', 'Rue Rachais', 'Lyon', '69007'), f('255', 'Rue Garibaldi', 'Lyon', '69003')],
+			lyon
+		);
+
+		expect(options.map((o) => o.label)).toEqual(['255 Rue Rachais', '255 Rue Garibaldi']);
+	});
+
 	it('excludes an address outside the directory departments', () => {
 		const options = getAddressOptions(
 			[f('255', 'Rue Lecourbe', 'Lyon', '75015')],

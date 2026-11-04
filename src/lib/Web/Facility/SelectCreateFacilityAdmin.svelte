@@ -94,6 +94,7 @@
 			commune={selectedCommune}
 			bind:facilityCreateOpen
 			{department}
+			deferSlug
 			bind:selectedFacility={facility}
 		/>
 	</CreateFacilityModal>

@@ -1045,5 +1045,17 @@
   "EFFECTOR_GENDER_WHY": "Pour écrire correctement la profession sur la fiche : {feminine} ou {masculine}.",
   "EFFECTOR_GENDER_WHY_GENERIC": "Pour écrire correctement la profession sur la fiche.",
   "EFFECTOR_GENDER_WHY_SAME": "Pour accorder ce qui désigne cette personne : une {word} ou un {word}.",
-  "EFFECTOR_GENDER_SHOWN": "Sur la fiche : {label}"
+  "EFFECTOR_GENDER_SHOWN": "Sur la fiche : {label}",
+  "FACILITY_NAME_HINT_TITLE": "Pourquoi donner un nom ?",
+  "FACILITY_NAME_HINT_CLOSE": "Fermer l'aide",
+  "FACILITY_NAME_HINT_WHY": "Un nom aide à retrouver le lieu, et il sert d'adresse web à la page de l'établissement.",
+  "FACILITY_NAME_HINT_EXAMPLES_INTRO": "Même un cabinet sans nom officiel peut en recevoir un, par exemple :",
+  "FACILITY_NAME_HINT_EXAMPLE_1": "Cabinet médical des Lilas",
+  "FACILITY_NAME_HINT_EXAMPLE_2": "Centre de kinésithérapie du Parc",
+  "FACILITY_NAME_HINT_EXAMPLE_3": "Cabinet du Dr Martin",
+  "FACILITY_NAME_HINT_NO_NAME": "Sans nom, l'adresse est composée de la catégorie et de la rue.",
+  "FACILITY_NAME_PLACEHOLDER": "ex. Cabinet médical des Lilas",
+  "FACILITY_GEOCODER_NOTICE": "Cet outil sert à corriger une erreur de saisie sur le même établissement, pas à créer un nouvel établissement. Si une entrée a changé d'établissement, veuillez contacter un administrateur.",
+  "FACILITY_SLUG_STEP_LABEL": "Adresse web de l'établissement",
+  "FACILITY_SLUG_STEP_HELP": "Elle est proposée à partir du nom, de la catégorie et de la personne : vous pouvez la modifier."
 }

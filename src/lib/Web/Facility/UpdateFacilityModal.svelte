@@ -28,8 +28,7 @@
 		validateSlug,
 		validateGeocoder,
 		validateZoom,
-		validateStreet,
-		validateZip
+		validateStreet
 	} from './validate.ts';
 	import type { FacilityV2 } from '$lib/interfaces/v2/facility.ts';
 	import type { InputClass, IsRequired, ValidateForm } from './validate.ts';
@@ -92,7 +91,7 @@
 	let building: string | null = $state(facility.building);
 	let street: string = $derived($addressFeature?.properties?.name || facility.street);
 	let geographical_complement: string = $state(facility.geographical_complement ?? '');
-	let zip: string | null = $derived($addressFeature?.properties?.postcode || facility.zip);
+	const zip: string | null = $derived($addressFeature?.properties?.postcode ?? facility.zip);
 	let zoom: number = $state(facility.zoom ?? 18);
 	let { lng, lat } = $derived.by(() => {
 		if ($addressFeature?.geometry.coordinates) {
@@ -123,6 +122,7 @@
 				slug == (facility.slug ?? '') &&
 				building == facility.building &&
 				street == facility.street &&
+				zip == facility.zip &&
 				geographical_complement == (facility.geographical_complement ?? '') &&
 				zoom == (facility.zoom ?? 18) &&
 				ban_banId == facility.ban_banId &&
@@ -155,7 +155,6 @@
 		validateStreet(street, inputClass, isRequired, validateForm);
 		validateZoom(zoom, inputClass, isRequired, validateForm);
 		validateSlug(slug, inputClass, isRequired, validateForm);
-		validateZip(zip, inputClass, isRequired, validateForm);
 		validateGeocoder($addressFeature, inputClass, isRequired, validateForm);
 	});
 </script>
@@ -274,6 +273,7 @@
 					>
 						<Geocoder
 							commune={facility.commune.name_fr}
+							notice={m.FACILITY_GEOCODER_NOTICE()}
 							placeholder={"Entrer l'adresse"}
 							inputClass={inputClass.geocoder}
 							bind:isValid={validateForm}
@@ -347,54 +347,69 @@
 							bind:value={geographical_complement}
 						/>
 					</label>
-					<label class="label flex w-full flex-col items-start gap-1 place-self-start sm:flex-row sm:items-center sm:gap-2">
-						<span>Code postal</span>
-						{#each updateFacility.for(uid).fields.zip.issues() as issue}
-							<p class="issue">{issue.message}</p>
-						{/each}
-						<input
-							oninput={() => {}}
-							class="input w-full {inputClass.zip}"
-							name="zip"
-							type="text"
-							placeholder=""
-							bind:value={zip}
-							onchange={() => {
-								validateZip(zip, inputClass, isRequired, validateForm);
-							}}
-						/>
-					</label>
-					<label class="label flex w-full flex-col items-start gap-1 place-self-start sm:flex-row sm:items-center sm:gap-2">
-						<span>Commune</span>
-						<input
-							disabled
-							class="input w-full"
-							type="text"
-							placeholder=""
-							value={facility.commune.name_fr}
-						/>
-					</label>
+					<div class="flex w-full flex-wrap gap-2">
+						<label class="label min-w-[8rem] flex-1">
+							<span>Code postal</span>
+							{#each updateFacility.for(uid).fields.zip.issues() as issue}
+								<p class="issue">{issue.message}</p>
+							{/each}
+							<input
+								readonly
+								class="input w-full opacity-60"
+								name="zip"
+								type="text"
+								placeholder=""
+								value={zip}
+							/>
+						</label>
+						<label class="label min-w-[8rem] flex-1">
+							<span>Commune</span>
+							<input
+								disabled
+								class="input w-full"
+								type="text"
+								placeholder=""
+								value={facility.commune.name_fr}
+							/>
+						</label>
+					</div>
 				</div>
 				<div class="p-2 space-y-2 w-full h-full">
-					<label class="label flex w-full flex-col items-start gap-1 place-self-start sm:flex-row sm:items-center sm:gap-2">
-						<span>Zoom</span>
-						{#each updateFacility.for(uid).fields.zoom.issues() as issue}
-							<p class="issue">{issue.message}</p>
-						{/each}
-						<input
-							oninput={() => {}}
-							class="input w-full {inputClass.zoom}"
-							name="zoom"
-							type="number"
-							min="0"
-							max="20"
-							placeholder=""
-							bind:value={zoom}
-							onchange={() => {
-								validateZoom(zoom, inputClass, isRequired, validateForm);
-							}}
-						/>
-					</label>
+					<div class="flex flex-wrap gap-2" data-testid="map-coordinates">
+						<label class="label min-w-[8rem] flex-1">
+							<span>Zoom</span>
+							{#each updateFacility.for(uid).fields.zoom.issues() as issue}
+								<p class="issue">{issue.message}</p>
+							{/each}
+							<input
+								oninput={() => {}}
+								class="input w-full {inputClass.zoom}"
+								name="zoom"
+								type="number"
+								min="0"
+								max="20"
+								placeholder=""
+								bind:value={zoom}
+								onchange={() => {
+									validateZoom(zoom, inputClass, isRequired, validateForm);
+								}}
+							/>
+						</label>
+						<label class="label min-w-[8rem] flex-[2]">
+							<span>Latitude</span>
+							<input name="latitude" class="input w-full" bind:value={lat} />
+							{#each updateFacility.for(uid).fields.latitude.issues() as issue}
+								<p class="issue">{issue.message}</p>
+							{/each}
+						</label>
+						<label class="label min-w-[8rem] flex-[2]">
+							<span>Longitude</span>
+							<input name="longitude" class="input w-full" bind:value={lng} />
+							{#each updateFacility.for(uid).fields.longitude.issues() as issue}
+								<p class="issue">{issue.message}</p>
+							{/each}
+						</label>
+					</div>
 					{#if open}
 						<AddMarkerMap
 							bind:lng
@@ -404,24 +419,9 @@
 							departmentCode={facility.commune.department?.code ?? null}
 						/>
 					{/if}
-					<label class="label flex w-full flex-col items-start gap-1 place-self-start sm:flex-row sm:items-center sm:gap-2">
-						<span>Latitude</span>
-						<input name="latitude" class="input w-full" bind:value={lat} />
-						{#each updateFacility.for(uid).fields.latitude.issues() as issue}
-							<p class="issue">{issue.message}</p>
-						{/each}
-					</label>
-					<label class="label flex w-full flex-col items-start gap-1 place-self-start sm:flex-row sm:items-center sm:gap-2">
-						<span>Longitude</span>
-
-						<input name="longitude" class="input w-full" bind:value={lng} />
-						{#each updateFacility.for(uid).fields.longitude.issues() as issue}
-							<p class="issue">{issue.message}</p>
-						{/each}
-					</label>
 				</div>
 			</div>
-			<div class="flex gap-8">
+			<div class="flex flex-wrap items-center justify-end gap-4 pt-2">
 				<div class="flex gap-2 items-center">
 					{#if formResult?.success || slugSuccess}
 						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
@@ -431,14 +431,14 @@
 					{/if}
 				</div>
 				<div class="w-auto justify-center">
-					<button type="submit" class="variant-filled-secondary btn w-min" {disabled}
+					<button type="submit" class="variant-filled-secondary btn w-min min-h-[44px]" {disabled}
 						>Envoyer</button
 					>
 				</div>
 				<div class="w-auto justify-center">
 					<button
 						type="button"
-						class="variant-filled-error btn w-min"
+						class="variant-filled-error btn w-min min-h-[44px]"
 						onclick={async () => {
 							dialog?.close();
 							if (formResult?.success) {
