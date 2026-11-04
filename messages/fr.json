@@ -1046,6 +1046,7 @@
   "EFFECTOR_GENDER_WHY_GENERIC": "Pour écrire correctement la profession sur la fiche.",
   "EFFECTOR_GENDER_WHY_SAME": "Pour accorder ce qui désigne cette personne : une {word} ou un {word}.",
   "EFFECTOR_GENDER_SHOWN": "Sur la fiche : {label}",
+  "EFFECTOR_EDIT_PERSON": "Modifier la personne",
   "FACILITY_NAME_HINT_TITLE": "Pourquoi donner un nom ?",
   "FACILITY_NAME_HINT_CLOSE": "Fermer l'aide",
   "FACILITY_NAME_HINT_WHY": "Un nom aide à retrouver le lieu, et il sert d'adresse web à la page de l'établissement.",

@@ -1046,6 +1046,7 @@
   "EFFECTOR_GENDER_WHY_GENERIC": "To write the profession correctly on the entry page.",
   "EFFECTOR_GENDER_WHY_SAME": "For the words that refer to this person: une {word} or un {word}.",
   "EFFECTOR_GENDER_SHOWN": "On the entry page: {label}",
+  "EFFECTOR_EDIT_PERSON": "Edit the person",
   "FACILITY_NAME_HINT_TITLE": "Why give it a name?",
   "FACILITY_NAME_HINT_CLOSE": "Close the help",
   "FACILITY_NAME_HINT_WHY": "A name helps people find the place, and it is the web address of the facility's page.",

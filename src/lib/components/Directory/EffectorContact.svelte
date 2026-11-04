@@ -86,7 +86,9 @@
 		<div class="flex flex-wrap-reverse justify-start lg:justify-end gap-4 lg:gap-8 min-w-0">
 			<div class="grid grid-cols-1 items-start content-start gap-2 min-w-0 max-w-prose">
 				<h2 class="h3 flex flex-wrap min-w-0 break-words place-items-center gap-4">
-					{fullentry.name}{#if $editMode}<UpdateEffector data={fullentry} />{/if}
+					<span class="min-w-0">
+						{fullentry.name}{#if $editMode}<span class="ml-2 align-middle"><UpdateEffector data={fullentry} /></span>{/if}
+					</span>
 					{#if fullentry.active === false}
 						<span class="badge variant-filled-error badge-sm" title={m.ENTRY_INACTIVE()}
 							>{m.INACTIVE()}</span

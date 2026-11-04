@@ -4,8 +4,6 @@
 	import { onMount, untrack } from 'svelte';
 	import { FIXED_GENDER, gendersFor, professionWords, type Gender } from './gender.ts';
 	import GenderHint from './GenderHint.svelte';
-	import { goto } from '$app/navigation';
-	import { invalidate } from '$app/navigation';
 	import Dialog from '$lib/Web/Dialog.svelte';
 	import { updateEffector } from '../../../effector.remote.ts';
 	import Fa from 'svelte-fa';
@@ -67,133 +65,112 @@
 		validateAll();
 	});
 </script>
-<!--
-{form}<br />
-{JSON.stringify(form)}<br />
-{form?.status}<br />
-{form?.type}
--->
 <button
 	onclick={async () => {
 		formResult = undefined;
 		dialog?.showModal();
 	}}
-	class="btn-icon"
-	title="Modifier"><Fa icon={faPenToSquare} /></button
+	class="btn-icon min-h-11 min-w-11"
+	title={m.EFFECTOR_EDIT_PERSON()}
+	aria-label={m.EFFECTOR_EDIT_PERSON()}><Fa icon={faPenToSquare} /></button
 >
 
-<Dialog bind:dialog classProp="w-full">
-	<div class="rounded-lg w-full p-4 variant-ghost-secondary items-center place-items-center">
-		<div class="rounded-lg p-6 variant-ghost-secondary space-y-6 items-center place-items-center">
-			<h3 class="h3 text-center">Modifier la personne physique ou morale</h3>
-			<div class="p-4 space-y-2 justify-items-stretch grid grid-cols-1 gap-6">
-				<form
-					{...updateEffector.for(data.effector_uid).enhance(async ({ submit }) => {
-						try {
-							await submit();
-						} catch (error) {
-							console.log(`Oh no! Something went wrong:${error}`);
-						}
-					})}
-					class=""
+<Dialog bind:dialog classProp="w-[90vw] sm:w-[32rem]">
+	<div class="p-6 space-y-4" data-testid="effector-edit-dialog">
+		<h2 class="h3">Modifier la personne physique ou morale</h2>
+		<form
+			{...updateEffector.for(data.effector_uid).enhance(async ({ submit }) => {
+				try {
+					await submit();
+				} catch (error) {
+					console.log(`Oh no! Something went wrong:${error}`);
+				}
+			})}
+			class="space-y-4"
+		>
+			<input
+				class="hidden"
+				name="effector"
+				type="text"
+				placeholder=""
+				value={data.effector_uid}
+			/>
+			<label class="label">
+				<span class="h4">Nom</span>
+				{#each updateEffector.for(data.effector_uid).fields.name_fr.issues() as issue}
+					<p class="issue">{issue.message}</p>
+				{/each}
+				<input
+					class="text-base input {inputClass.name_fr}"
+					name="name_fr"
+					type="text"
+					placeholder=""
+					bind:value={name_fr}
+					oninput={() => {
+						validateName(name_fr, inputClass, isRequired, validateForm);
+					}}
+				/>
+			</label>
+			<label class="label">
+				<span class="h4">Label</span>
+				{#each updateEffector.for(data.effector_uid).fields.label_fr.issues() as issue}
+					<p class="issue">{issue.message}</p>
+				{/each}
+				<input
+					class="text-base input {inputClass.label_fr}"
+					name="label_fr"
+					type="text"
+					placeholder=""
+					bind:value={label_fr}
+					oninput={() => {
+						validateLabel(label_fr, inputClass, isRequired, validateForm);
+					}}
+				/>
+			</label>
+			{#if genders.length}
+				<div class="space-y-2">
+					<label class="label">
+						<span class="h4">{m.EFFECTOR_GENDER_LABEL()}</span>
+						{#each updateEffector.for(data.effector_uid).fields.gender.issues() as issue}
+							<p class="issue">{issue.message}</p>
+						{/each}
+						<select
+							class="select {inputClass.gender} w-min"
+							name="gender"
+							size={genders.length}
+							bind:value={gender}
+							onchange={() => {
+								validateGender(gender, inputClass, isRequired, validateForm);
+							}}
+						>
+							{#each genders as g (g)}
+								<option value={g}>{genderName[g]?.()}</option>
+							{/each}
+						</select>
+					</label>
+					<GenderHint {words} {gender} />
+				</div>
+			{:else}
+				<input type="hidden" name="gender" value={gender} />
+			{/if}
+			<div class="flex flex-wrap items-center justify-end gap-2">
+				{#if formResult?.success}
+					<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
+				{:else if formResult && formResult.success == false}
+					<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span>
+					<span class="text-sm text-error-700-200-token">{formResult.text}</span>
+				{/if}
+				<button
+					type="button"
+					class="btn min-h-11 variant-ghost-surface"
+					onclick={() => dialog?.close()}
 				>
-					<input
-						class="hidden"
-						name="effector"
-						type="text"
-						placeholder=""
-						value={data.effector_uid}
-					/>
-					<label class="flex label place-self-start place-items-center space-x-2 w-full">
-						<span class="h4">Nom</span>
-						{#each updateEffector.for(data.effector_uid).fields.name_fr.issues() as issue}
-							<p class="issue">{issue.message}</p>
-						{/each}
-						<input
-							class="text-base input {inputClass.name_fr}"
-							name="name_fr"
-							type="text"
-							placeholder=""
-							bind:value={name_fr}
-							oninput={() => {
-								validateName(name_fr, inputClass, isRequired, validateForm);
-							}}
-						/>
-					</label>
-					<label class="flex label place-self-start place-items-center space-x-2 w-full">
-						<span class="h4">Label</span>
-						{#each updateEffector.for(data.effector_uid).fields.label_fr.issues() as issue}
-							<p class="issue">{issue.message}</p>
-						{/each}
-						<input
-							class="text-base input {inputClass.label_fr}"
-							name="label_fr"
-							type="text"
-							placeholder=""
-							bind:value={label_fr}
-							oninput={() => {
-								validateLabel(label_fr, inputClass, isRequired, validateForm);
-							}}
-						/>
-					</label>
-					{#if genders.length}
-						<div class="space-y-1">
-							<label class="flex label place-self-start place-items-center space-x-2 w-full">
-								<span class="h4">{m.EFFECTOR_GENDER_LABEL()}</span>
-								{#each updateEffector.for(data.effector_uid).fields.gender.issues() as issue}
-									<p class="issue">{issue.message}</p>
-								{/each}
-								<select
-									class="select {inputClass.gender} w-min"
-									name="gender"
-									size={genders.length}
-									bind:value={gender}
-									onchange={() => {
-										validateGender(gender, inputClass, isRequired, validateForm);
-									}}
-								>
-									{#each genders as g (g)}
-										<option value={g}>{genderName[g]?.()}</option>
-									{/each}
-								</select>
-							</label>
-							<GenderHint {words} {gender} />
-						</div>
-					{:else}
-						<input type="hidden" name="gender" value={gender} />
-					{/if}
-					<div class="flex gap-8">
-						<div class="flex gap-2 items-center">
-							{#if formResult?.success}
-								<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
-							{:else if formResult && formResult.success == false}
-								<span class="badge-icon variant-filled-error"
-									><Fa icon={faExclamationCircle} /></span
-								>{formResult.text}
-							{/if}
-						</div>
-						<div class="w-auto justify-center">
-							<button
-								type="submit"
-								class="variant-filled-secondary btn w-min"
-								{disabled}
-								>Envoyer</button
-							>
-						</div>
-						<div class="w-auto justify-center">
-							<button
-								type="button"
-								class="variant-filled-error btn w-min"
-								onclick={() => {
-									page.url.searchParams.set('success', 'false');
-							goto(`?${page.url.searchParams.toString()}`);
-									dialog?.close();
-								}}>{formResult?.success ? 'Fermer' : 'Annuler'}</button
-							>
-						</div>
-					</div>
-				</form>
+					{formResult?.success ? m.CLOSE() : m.CANCEL()}
+				</button>
+				<button type="submit" class="btn min-h-11 variant-filled-primary" {disabled}>
+					Envoyer
+				</button>
 			</div>
-		</div>
+		</form>
 	</div>
 </Dialog>
