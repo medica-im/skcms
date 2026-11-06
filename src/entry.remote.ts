@@ -108,21 +108,21 @@ export const patchCommand = command(Patch, async (data) => {
 });
 
 export const getPaymentMethods = query(async () => {
-	const res = await fetch(`${variables.BASE_URI}/api/v2/payment_methods/`);
+	const res = await fetch(`${variables.BASE_URI}/api/v2/payment_methods`);
 	if (res.ok) {
 		return await res.json();
 	}
 });
 
 export const getThirdPartyPayers = query(async () => {
-	const res = await fetch(`${variables.BASE_URI}/api/v2/third_party_payers/`);
+	const res = await fetch(`${variables.BASE_URI}/api/v2/third_party_payers`);
 	if (res.ok) {
 		return await res.json();
 	}
 });
 
 export const getConventions = query(async () => {
-	const res = await fetch(`${variables.BASE_URI}/api/v2/conventions/`);
+	const res = await fetch(`${variables.BASE_URI}/api/v2/conventions`);
 	if (res.ok) {
 		return await res.json();
 	}

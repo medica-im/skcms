@@ -14,7 +14,7 @@ const Create = z.object({
 	url: z.string(),
 });
 
-const path = '/api/v2/websites/';
+const path = '/api/v2/websites';
 
 export const create = form(Create, async (data) => {
 	console.log(`form data:${JSON.stringify(data)}`);
@@ -52,7 +52,7 @@ const Update = z.object({
 export const updateForm = form(Update, async (data) => {
 	console.log(`form data:${JSON.stringify(data)}`);
 	const { cookies } = getRequestEvent();
-	const url = `${variables.BASE_URI}${path}${data.id}`;
+	const url = `${variables.BASE_URI}${path}/${data.id}`;
 	const request = authReq(url, 'PUT', cookies, JSON.stringify(data));
 	const response = await fetch(request);
 	if (response.ok == false) {
@@ -78,7 +78,7 @@ const Destroy = z.object({
 
 export const destroy = form(Destroy, async (data) => {
 	const { cookies } = getRequestEvent();
-	const url = `${variables.BASE_URI}${path}${data.id}`;
+	const url = `${variables.BASE_URI}${path}/${data.id}`;
 	const request = authReq(url, 'DELETE', cookies);
 	const response = await fetch(request);
 	if (response.ok == false) {

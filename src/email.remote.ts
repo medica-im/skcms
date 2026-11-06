@@ -18,7 +18,7 @@ const CreateEmail = z.object({
 export const createEmail = form(CreateEmail, async (data) => {
 	console.log(`form data:${JSON.stringify(data)}`);
     const { cookies } = getRequestEvent();
-	const url = `${variables.BASE_URI}/api/v2/emails/`;
+	const url = `${variables.BASE_URI}/api/v2/emails`;
 	const request = authReq(url, 'POST', cookies, JSON.stringify(data));
 	const response = await fetch(request);
 	if (response.ok == false) {

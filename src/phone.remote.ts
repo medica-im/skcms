@@ -20,7 +20,7 @@ const CreatePhone = z.object({
 export const createPhone = form(CreatePhone, async (data) => {
 	console.log(`form data:${JSON.stringify(data)}`);
 	const { cookies } = getRequestEvent();
-	const url = `${variables.BASE_URI}/api/v2/phones/`;
+	const url = `${variables.BASE_URI}/api/v2/phones`;
 	const request = authReq(url, 'POST', cookies, JSON.stringify(data));
 	const response = await fetch(request);
 	if (response.ok == false) {

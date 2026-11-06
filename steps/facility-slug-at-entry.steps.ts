@@ -33,7 +33,7 @@ Given(
 		}[];
 		const commune = facilities.find((f) => f.commune)?.commune;
 		expect(commune, 'no commune found on this site').toBeTruthy();
-		const facility = await asStaff(origin, '/api/v2/facilities/', {
+		const facility = await asStaff(origin, '/api/v2/facilities', {
 			name: '',
 			label: '',
 			building: null,

@@ -67,7 +67,7 @@ async function createFacility(page: import('@playwright/test').Page) {
 	await page.goto('/', { waitUntil: 'domcontentloaded' });
 	return page.evaluate(
 		async ([communeUid, unique]) => {
-			const response = await fetch('/api/v2/facilities/', {
+			const response = await fetch('/api/v2/facilities', {
 				method: 'POST',
 				headers: { 'content-type': 'application/json' },
 				body: JSON.stringify({

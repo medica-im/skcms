@@ -32,7 +32,7 @@ const postFacility = z.object({
 export const createFacility = form(postFacility, async (data) => {
 	console.log(`form data: ${JSON.stringify(data)}`);
 	const { cookies } = getRequestEvent();
-	const url = `${variables.BASE_URI}/api/v2/facilities/`;
+	const url = `${variables.BASE_URI}/api/v2/facilities`;
 	console.log(url);
 	const request = authReq(url, 'POST', cookies, JSON.stringify(data));
 	const response = await fetch(request);

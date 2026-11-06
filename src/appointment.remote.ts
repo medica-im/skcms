@@ -19,7 +19,7 @@ const Create = z.object({
 
 export const createCommand = command(Create, async (data) => {
 	const { cookies } = getRequestEvent();
-	const url = `${variables.BASE_URI}/api/v2/appointments/`;
+	const url = `${variables.BASE_URI}/api/v2/appointments`;
 	const request = authReq(url, 'POST', cookies, JSON.stringify(data));
 	const response = await fetch(request);
 	if (response.ok == false) {

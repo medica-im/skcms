@@ -56,7 +56,7 @@ Given('a person and a facility created by a staff member of this site', async ({
 	const commune = facilities.find((f) => f.commune)?.commune;
 	expect(commune, 'no commune found on this site').toBeTruthy();
 	ctx.facilityName = `E2e lieu ${tag}`;
-	const facility = await asStaff(origin, '/api/v2/facilities/', {
+	const facility = await asStaff(origin, '/api/v2/facilities', {
 		name: ctx.facilityName,
 		label: ctx.facilityName,
 		slug: `e2e-lieu-${tag}`,
