@@ -28,12 +28,36 @@ DELETE r
 RETURN count(r)
 """)
 
-# Nodes the seeding helpers tag as their own.
-tagged, _ = db.cypher_query("""
-MATCH (n) WHERE n.${SEED_TAG} = true
-DETACH DELETE n
-RETURN count(n)
+# Nodes the seeding helpers tag as their own. The tag is per worker
+# (e2eSeed0, e2eSeed1, ...) and this runs outside any worker, where SEED_TAG is
+# the bare prefix: matched as a prefix, or nothing a worker left is found.
+TAGGED = "MATCH (n) WHERE any(k IN keys(n) WHERE k STARTS WITH '${SEED_TAG}' AND n[k] = true)"
+
+# What the mail side recorded for seeded invitations: a bounce left behind is
+# counted in the next run's "adresses à vérifier" banner.
+from mailer.models import EmailDelivery, EmailSuppression
+invitees, _ = db.cypher_query(TAGGED + " AND n:Invitee RETURN n.uid, n.email")
+EmailDelivery.objects.filter(invitee_uid__in=[uid for uid, _ in invitees]).delete()
+EmailSuppression.objects.filter(address__in=[email for _, email in invitees if email]).delete()
+
+tagged, _ = db.cypher_query(TAGGED + " DETACH DELETE n RETURN count(n)")
+
+# The people steps/entry-creation-flow.steps.ts creates, and their entries:
+# untagged, removed by its After hook, which an interrupted run skips. A
+# leftover entry sorts among a worker site's own and shifted its pictures.
+from addressbook.models import Contact
+created, _ = db.cypher_query("""
+MATCH (p:Effector) WHERE p.name_fr STARTS WITH 'E2e Création '
+OPTIONAL MATCH (p)<-[:HAS_EFFECTOR]-(e:Entry)
+RETURN collect(DISTINCT e.uid), count(DISTINCT p)
 """)
+Contact.objects.filter(neomodel_uid__in=created[0][0]).delete()
+db.cypher_query("""
+MATCH (p:Effector) WHERE p.name_fr STARTS WITH 'E2e Création '
+OPTIONAL MATCH (p)<-[:HAS_EFFECTOR]-(e:Entry)
+DETACH DELETE e, p
+""")
+tagged[0][0] += created[0][1]
 
 # Facilities created by the scenarios that make one from scratch.
 #
