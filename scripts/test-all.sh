@@ -978,6 +978,18 @@ suite_unit() {
 
 suite_backend() {
     ensure_stack || return 1
+    # Two pytest sessions share one test database: the second cannot create
+    # it, and every test after errors on the failed setup (1616 ERRORs, one
+    # cause). An interrupted run leaves its pytest running in the container,
+    # since stopping `compose exec` does not stop what it started.
+    local running
+    running="$(compose exec -T "$BACKEND_TEST_SERVICE" pgrep -af '[p]ython -m pytest' 2>/dev/null || true)"
+    if [[ -n "$running" ]]; then
+        warn "a pytest session is already running in the $BACKEND_TEST_SERVICE container:"
+        printf '      %s\n' "$running" >&2
+        warn "wait for it, or stop it: docker compose exec $BACKEND_TEST_SERVICE pkill -f 'python -m pytest'"
+        return 1
+    fi
     # PYTEST_ARGS lets you narrow the run, e.g. PYTEST_ARGS='-m "not integration"'
     # shellcheck disable=SC2086
     compose exec -T -w "$BACKEND_WORKDIR" "$BACKEND_TEST_SERVICE" \
