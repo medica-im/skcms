@@ -692,15 +692,27 @@ for i in range(WORKERS):
     # Only some entries get one, on purpose: the team carousel shows only
     # entries that have an avatar, while other scenarios need an entry without,
     # and features/avatar-access.feature needs at least one it can restrict.
+    #
+    # Roles go by the N of the seed's own `{dir}-entry-N` slugs, never by
+    # position: an entry a scenario left in the directory sorts among them
+    # (`e2e-creation-…` before `e2e-w1-entry-0`), and by position it shifted
+    # every role by one, clearing a carousel picture. Other entries are not
+    # touched.
+    entry_prefix = f"{dir_name}-entry-"
     rows, _ = db.cypher_query(
         "MATCH (d:Directory {name: $dir})-[:HAS_ENTRY]->(e:Entry) "
-        "WHERE e.slug <> $org_slug RETURN e.uid ORDER BY e.slug",
-        {"dir": dir_name, "org_slug": f"{dir_name}-organization"},
+        "WHERE e.slug STARTS WITH $prefix RETURN e.slug, e.uid",
+        {"dir": dir_name, "prefix": entry_prefix},
     )
-    entry_uids = [r[0] for r in rows]
+    seeded = sorted(
+        (int(slug[len(entry_prefix):]), uid)
+        for slug, uid in rows
+        if slug[len(entry_prefix):].isdigit()
+    )
+    entry_uids = [uid for _, uid in seeded]
     avatars_set = 0
     if AVATARS:
-        for n, entry_uid in enumerate(entry_uids):
+        for n, entry_uid in seeded:
             role = ENTRY_ROLES.get(n, "no-avatar")
             if role not in PICTURED_ROLES:
                 # Left bare on purpose — see ENTRY_ROLES. Cleared rather than
