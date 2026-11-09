@@ -133,7 +133,7 @@
 <Toast></Toast>
 
 <Drawer />
-<AppShell class="z-[90000]" slotHeader="relative z-20" regionpage="overflow-y-scroll" slotfooter="bg-black p-4" on:scroll="{scrollHandler}">
+<AppShell class="z-[90000]" slotHeader="relative z-[60]" regionpage="overflow-y-scroll" slotfooter="bg-black p-4" on:scroll="{scrollHandler}">
 		<svelte:fragment slot="header">
 			<SkeletonAppBar/>
 			{#if demoBanner}
