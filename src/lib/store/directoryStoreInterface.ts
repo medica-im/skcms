@@ -23,7 +23,9 @@ export interface Type {
     synonyms: string[] | null,
     uid: string,
     labels: string[],
-    nature?: Nature | null
+    nature?: Nature | null,
+    /** Its entries have no premises of their own (a help line): no address, map or facility link. */
+    immaterial?: boolean
 }
 
 export type Nature = 'profession' | 'service' | 'activity';
@@ -44,7 +46,24 @@ export interface Tag {
     effector_types: string[];
 }
 
-export interface Entry {
+export const CARE_LEVELS = ['emergency', 'primary', 'secondary', 'tertiary', 'prevention'] as const;
+export const WHO_CAN_CONTACT = ['anyone', 'referral', 'professionals'] as const;
+export const ACCESS_MODES = ['phone', 'walk_in', 'appointment', 'admission', 'online', 'teleexpertise', 'home_visit'] as const;
+export const AUDIENCES = ['students', 'caregivers', 'parents', 'women', 'men', 'lgbtqia', 'older_adults'] as const;
+
+/** Who an entry is for and how to reach it, as the backend stores it (backend/src/directory/facets.py). Null is unknown, never "no". */
+export interface EntryFacets {
+    age_min: number|null;
+    age_max: number|null;
+    care_levels: (typeof CARE_LEVELS)[number][]|null;
+    who_can_contact: (typeof WHO_CAN_CONTACT)[number]|null;
+    access_modes: (typeof ACCESS_MODES)[number][]|null;
+    audiences: (typeof AUDIENCES)[number][]|null;
+    free: boolean|null;
+    anonymous_care: boolean|null;
+}
+
+export interface Entry extends Partial<EntryFacets> {
     active: boolean|null;
     address: Address;
     avatar: Avatar;
@@ -68,7 +87,32 @@ export interface Entry {
     creator: string[]|null;
 }
 
-export interface EntryFull {
+/** A place an entry answers for (COVERS), widest first. */
+export interface Coverage {
+    uid: string;
+    name: string | null;
+    kind: 'country' | 'region' | 'department' | 'commune';
+}
+
+/** An entry linked to another: its porteur, or a service it runs (GET /api/v2/fullentries). */
+export interface RelatedEntry {
+    uid: string;
+    slug: string;
+    name: string;
+    label: string | null;
+    effector_type: string;
+    siren?: string | null;
+}
+
+export interface EntryFull extends Partial<EntryFacets> {
+    /** The entry that runs this one, if any. */
+    run_by?: RelatedEntry | null;
+    /** The entries this one runs. */
+    services?: RelatedEntry[] | null;
+    /** The slugs of what this entry handles (MANAGES). */
+    manages?: string[];
+    /** Where the entry answers (COVERS). */
+    coverage?: Coverage[];
     active: boolean;
     address: Address;
     appointments: Appointment[] | null;

@@ -6,7 +6,7 @@
  * filters actually read are filled in; `makeEntry` supplies the rest so each
  * test states just the part it is about.
  */
-import type { Entry, Situation, Tag, Type } from './directoryStoreInterface.ts';
+import type { Entry, EntryFacets, Situation, Tag, Type } from './directoryStoreInterface.ts';
 import type { Organization } from '$lib/interfaces/organization.ts';
 
 export const ORG_UID = '94d1371aff1f47208e79ce6f89c4a006';
@@ -66,6 +66,8 @@ type EntryOverrides = {
 	tags?: Tag[] | null;
 	longitude?: string | null;
 	latitude?: string | null;
+	/** The facets the API sends when the entry stores any; left out, the entry has none. */
+	facets?: Partial<EntryFacets>;
 };
 
 /** Builds an Entry with sane defaults; override only what the test is about. */
@@ -123,7 +125,8 @@ export function makeEntry(overrides: EntryOverrides = {}): Entry {
 		creator: [],
 		access: 'anonymous',
 		createdAt: 0,
-		updatedAt: 0
+		updatedAt: 0,
+		...overrides.facets
 	} as unknown as Entry;
 }
 
