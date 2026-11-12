@@ -14,7 +14,7 @@ import type { Labels } from '$lib/interfaces/label.interace.ts';
 
 export const term: Writable<string> = writable("");
 
-function normalize(x: string) {
+export function normalize(x: string) {
 	return x.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
 }
 export const distanceEffectorsF = (entries: Entry[], addressFeature: AddressFeature | null) => {
@@ -52,6 +52,10 @@ export const getSituationsV2 = async (fetch: Fetch): Promise<Situation[] | undef
 };
 
 function distanceOfEffector(entry: Entry, distEffectors: DistanceEffectors) {
+	// An entry without premises sits at its porteur's facility but is not there.
+	if (entry.effector_type?.immaterial) {
+		return undefined;
+	}
 	let uid = entry.address?.facility_uid;
 	if (uid) {
 		return distEffectors[uid];

@@ -75,6 +75,22 @@ describe('the address book map links to entries by their unique slug', () => {
 });
 
 /**
+ * An entry without premises (a help line) sits at its porteur's facility but is
+ * not there: it gets no marker, so the map never says the 3114 is at the hospital.
+ */
+describe('the address book map leaves out entries without premises', () => {
+	const line = entry({ effector_type: { name: 'ligne d’écoute', slug: 'ligne-ecoute', immaterial: true } });
+
+	it('draws no marker for an entry of an immaterial type', () => {
+		expect(createEntriesMapData([line, entry()] as never, false, null, null)).toHaveLength(1);
+	});
+
+	it('keeps every other entry', () => {
+		expect(createEntriesMapData([entry(), entry()] as never, false, null, null)).toHaveLength(2);
+	});
+});
+
+/**
  * Whether a facility marker's popup links to the facility.
  *
  * createEntriesMapData has always put a link in its popup, because an entry

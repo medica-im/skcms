@@ -106,7 +106,7 @@ function getTarget(addressFeature: AddressFeature) {
 
 export const createEntriesMapData = (entries: Entry[], tooltip = false, target: AddressFeature | null, org_category: string | null = null) => {
     const points: MapData[] = [];
-    entries.filter((entry) => hasCoordinates(entry.address?.latitude, entry.address?.longitude)).forEach((entry: Entry) => {
+    entries.filter((entry) => !entry.effector_type?.immaterial && hasCoordinates(entry.address?.latitude, entry.address?.longitude)).forEach((entry: Entry) => {
         let tooltipHtml = `
         <b>${entry.address?.tooltip_text || entry.name}</b>
         <br>

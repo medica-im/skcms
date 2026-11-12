@@ -49,6 +49,9 @@
 	import AvatarUploadModal from '$lib/Web/Avatar/AvatarUploadModal.svelte';
 	import { JsonView } from '@zerodevx/svelte-json-view';
 	import Affiliates from '$lib/Facility/Affiliates.svelte';
+	import EntryFacts from './EntryFacts.svelte';
+	import EntryRelated from './EntryRelated.svelte';
+	import EntryCoverage from './EntryCoverage.svelte';
 	import AccessControl from '$lib/Web/Entry/AccessControl.svelte';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 	import type { EntryFull } from '$lib/store/directoryStoreInterface';
@@ -127,6 +130,8 @@
 		</div>
 	</div>
 	<div class="grid grid-cols-1 lg:grid-cols-1 p-2 gap-4">
+		<EntryFacts entry={fullentry} />
+		<EntryRelated runBy={fullentry.run_by} services={fullentry.services} />
 		{#if data.schedules?.length || $editMode}
 			<Schedules data={data.schedules} entryUid={fullentry.uid} />
 		{/if}
@@ -229,7 +234,9 @@
 			</div>
 		{/if}
 	</div>
-	{#if fullentry.address}
+	{#if fullentry.effector_type?.immaterial}
+		<EntryCoverage coverage={fullentry.coverage} />
+	{:else if fullentry.address}
 		<div class="px-2">
 			<div class="flex items-center p-1">
 				<div class="w-9"><Fa icon={faMapLocationDot} size="sm" /></div>

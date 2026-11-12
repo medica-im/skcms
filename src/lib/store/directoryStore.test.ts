@@ -208,6 +208,15 @@ describe('categorizedFilteredEffectorsF', () => {
 		expect(result.get('infirmier')!.map((e) => e.uid)).toEqual(['near', 'far']);
 	});
 
+	it('sorts an entry without premises after the located ones, whatever its porteur is distance away', () => {
+		const line = { ...NURSE, uid: 'type-line', name: 'infirmier', immaterial: true } as typeof NURSE;
+		const help = makeEntry({ uid: 'help', name: 'Help', type: line, facilityUid: 'f-near' });
+		const near = makeEntry({ uid: 'near', name: 'Near', type: NURSE, facilityUid: 'f-near' });
+		const far = makeEntry({ uid: 'far', name: 'Far', type: NURSE, facilityUid: 'f-far' });
+		const result = categorizedFilteredEffectorsF([help, far, near], { 'f-near': 10, 'f-far': 5000 });
+		expect(result.get('infirmier')!.map((e) => e.uid)).toEqual(['near', 'far', 'help']);
+	});
+
 	it('returns an empty map for no entries', () => {
 		expect([...categorizedFilteredEffectorsF([]).keys()]).toEqual([]);
 	});
