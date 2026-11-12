@@ -17,7 +17,10 @@
 	import { faArrowsUpToLine } from '@fortawesome/free-solid-svg-icons';
 	import { logMap } from '$lib/utils/utils.ts';
 	import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
-	import type { Type, Tag } from '$lib/store/directoryStoreInterface.ts';
+	import SelectConcern from '$lib/components/Directory/SelectConcern.svelte';
+	import SelectFacets from '$lib/components/Directory/SelectFacets.svelte';
+	import type { Concern } from '$lib/store/concernTree.ts';
+	import type { Entry, Type, Tag } from '$lib/store/directoryStoreInterface.ts';
 	import type { Commune } from '$lib/interfaces/geography.interface.ts';
 	let {
 		data,
@@ -42,8 +45,17 @@
 		rFFE = [],
 		results = undefined,
 		geojson = null,
+		concerns = null,
+		seeAlso = [],
+		displayFacets = true,
+		facetEntries = [],
 	}: {
 		data: any;
+		concerns?: Concern[] | null;
+		seeAlso?: { concern: Concern; entries: unknown[] }[];
+		displayFacets?: boolean;
+		/** The entries the facet selectors may narrow: what they offer and when they show come from these. */
+		facetEntries?: Entry[];
 		displayCategory: boolean;
 		displayCommune: boolean;
 		displayDepartment: boolean;
@@ -94,6 +106,12 @@
 			{/if}
 			{#if displaySituation}
 				<SelectSituations />
+			{/if}
+			{#if concerns?.length}
+				<SelectConcern {concerns} {seeAlso} />
+			{/if}
+			{#if displayFacets}
+				<SelectFacets entries={facetEntries} />
 			{/if}
 			{#if displayDepartment}
 				<SelectDepartments {departmentOf} />

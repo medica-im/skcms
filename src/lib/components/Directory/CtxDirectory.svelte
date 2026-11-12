@@ -29,8 +29,14 @@
 		setGeoInputAddress,
 		setSelectedTags,
 		getSelectedTags,
-		setSelectedOwners
+		setSelectedOwners,
+		setSelectConcern,
+		getSelectConcern,
+		setFacetSelection,
+		getFacetSelection
 	} from './context';
+	import { filterByFacets } from '$lib/store/facetFilters.ts';
+	import { filterByConcern, seeAlsoOf, type Concern } from '$lib/store/concernTree.ts';
 	import {
 		fullFilteredEntriesF,
 		filteredEntriesF,
@@ -70,8 +76,14 @@
 		displaySelector = false,
 		results = undefined,
 		geojson = null,
+		concerns = null,
+		displayFacets = true,
 	}: {
 		data?: any;
+		/** The conditions and situations the directory offers (GET /api/v2/concerns); none, no selector. */
+		concerns?: Concern[] | null;
+		/** Whether the facet selectors may show. They show only when the entries could be narrowed by them. */
+		displayFacets?: boolean;
 		displayGeocoder?: boolean;
 		displaySituation?: boolean;
 		displayCommune?: boolean;
@@ -102,6 +114,8 @@
 	setSelectedCommunesUids();
 	setSelectedCommunesChoices();
 	setSelectSituation();
+	setSelectConcern();
+	setFacetSelection();
 	setAddressFeature();
 	setGeoInputAddress();
 	setFacilityChoice();
@@ -114,6 +128,8 @@
 	let term = getTerm();
 	let selectCategories = getSelectCategories();
 	let selectSituation = getSelectSituation();
+	let selectConcern = getSelectConcern();
+	let facetSelection = getFacetSelection();
 	let selectCommunes = getSelectedCommunesUids();
 	let selectDepartment = getSelectedDepartment();
 	let selectTags = getSelectedTags();
@@ -166,8 +182,11 @@
 		);
 	});
 
-	let rFilteredEntries = $derived.by(()=>{
-		return filteredEntriesF(
+	// The facets narrow the list as every user selector does; the picked condition
+	// comes last so "voir aussi" can count what the other selectors still let through.
+	const rBeforeConcern = $derived.by(() => {
+		return filterByFacets(
+			filteredEntriesF(
 				rFullFilteredEntries,
 				$selectCategories,
 				$selectDepartment,
@@ -175,9 +194,14 @@
 				$selectFacility,
 				$term,
 				$selectTags
-			);
-		}
-	);
+			),
+			$facetSelection
+		);
+	});
+	let rFilteredEntries = $derived.by(() => {
+		return filterByConcern(rBeforeConcern, concerns ?? [], $selectConcern);
+	});
+	const seeAlso = $derived(seeAlsoOf(rBeforeConcern, concerns ?? [], $selectConcern));
 	//$inspect("rFullFilteredEntries", rFullFilteredEntries);
 	//$inspect("rFilteredEntries", rFilteredEntries);
 
@@ -245,4 +269,8 @@
 		rFFE={rFilteredEntries}
 		{results}
 		{geojson}
+		{concerns}
+		{seeAlso}
+		{displayFacets}
+		facetEntries={rFullFilteredEntries}
 	/>

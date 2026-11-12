@@ -5,6 +5,7 @@ import type { Tag } from '$lib/store/directoryStoreInterface';
 
 import type { LimitCategoriesStore, AddressFeature, CurrentOrgStore, Type } from '$lib/store/directoryStoreInterface';
 import type { SelectType } from '$lib/interfaces/select';
+import { NO_FACETS, type FacetSelection } from '$lib/store/facetFilters.ts';
 
 export function setEffectorUid(uid:string) {
     setContext('effectorUid', uid)
@@ -118,6 +119,24 @@ export function setSelectSituation() {
 
 export function getSelectSituation() {
     return getContext<Writable<SelectType|undefined|null>>('selectSituation');
+}
+
+export function setSelectConcern() {
+    let selectConcern: Writable<string|null> = writable(null);
+    setContext('selectConcern', selectConcern);
+}
+
+export function getSelectConcern() {
+    return getContext<Writable<string|null>>('selectConcern');
+}
+
+export function setFacetSelection() {
+    let facetSelection: Writable<FacetSelection> = writable(NO_FACETS);
+    setContext('facetSelection', facetSelection);
+}
+
+export function getFacetSelection() {
+    return getContext<Writable<FacetSelection>>('facetSelection');
 }
 
 export function setAddressFeature() {
