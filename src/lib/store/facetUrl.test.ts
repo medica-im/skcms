@@ -18,12 +18,11 @@ describe('reading', () => {
 	it('reads every selector', () => {
 		expect(
 			facetsFromParams(
-				params('age=16&access=referral&modes=phone,online&levels=emergency&audiences=students,parents&free=1&anonymous=1')
+				params('age=16&access=referral&levels=emergency&audiences=students,parents&free=1&anonymous=1')
 			)
 		).toEqual({
 			age: 16,
 			access: 'referral',
-			accessModes: ['phone', 'online'],
 			careLevels: ['emergency'],
 			audiences: ['students', 'parents'],
 			free: true,
@@ -36,22 +35,26 @@ describe('reading', () => {
 	});
 
 	it('ignores what the vocabulary or the age range does not allow', () => {
-		const read = facetsFromParams(params('age=abc&access=everyone&modes=phone,teleport&levels=&free=yes'));
-		expect(read).toEqual({ ...NO_FACETS, accessModes: ['phone'] });
+		const read = facetsFromParams(params('age=abc&access=everyone&audiences=parents,teleport&levels=&free=yes'));
+		expect(read).toEqual({ ...NO_FACETS, audiences: ['parents'] });
 		expect(facetsFromParams(params('age=-3')).age).toBeNull();
 		expect(facetsFromParams(params('age=121')).age).toBeNull();
 		expect(facetsFromParams(params('age=16.5')).age).toBeNull();
+	});
+
+	it('ignores how to reach an entry, which an older link may still carry', () => {
+		expect(facetsFromParams(params('modes=phone'))).toEqual(NO_FACETS);
 	});
 });
 
 describe('writing', () => {
 	it('writes only what is chosen and leaves other parameters alone', () => {
 		const url = new URLSearchParams('situation=abc&age=40');
-		facetsToParams({ ...NO_FACETS, access: 'anyone', accessModes: ['phone', 'online'], free: true }, url);
+		facetsToParams({ ...NO_FACETS, access: 'anyone', audiences: ['students', 'parents'], free: true }, url);
 		expect(url.get('situation')).toBe('abc');
 		expect(url.has('age')).toBe(false);
 		expect(url.get('access')).toBe('anyone');
-		expect(url.get('modes')).toBe('phone,online');
+		expect(url.get('audiences')).toBe('students,parents');
 		expect(url.get('free')).toBe('1');
 		expect(url.has('anonymous')).toBe(false);
 	});
@@ -60,7 +63,6 @@ describe('writing', () => {
 		const selection = {
 			age: 0,
 			access: 'professionals' as const,
-			accessModes: ['teleexpertise' as const],
 			careLevels: ['primary' as const, 'secondary' as const],
 			audiences: ['older_adults' as const],
 			free: false,

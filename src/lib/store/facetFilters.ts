@@ -1,5 +1,4 @@
 import {
-	ACCESS_MODES,
 	AUDIENCES,
 	CARE_LEVELS,
 	WHO_CAN_CONTACT,
@@ -8,7 +7,7 @@ import {
 } from './directoryStoreInterface.ts';
 
 /**
- * Selectors over what an entry stores about who it is for and how to reach it.
+ * Selectors over what an entry stores about who it is for and who may contact it.
  *
  * Every facet is optional and null means unknown, never "no": a selector
  * over-includes, so a gap in the data drops nobody. A selector shows only when the
@@ -22,7 +21,6 @@ export interface FacetSelection {
 	age: number | null;
 	/** What the patient, or the professional asking, can do: see ACCESS below. */
 	access: Access | null;
-	accessModes: EntryFacets['access_modes'] & {};
 	careLevels: EntryFacets['care_levels'] & {};
 	audiences: EntryFacets['audiences'] & {};
 	free: boolean;
@@ -32,15 +30,18 @@ export interface FacetSelection {
 export const NO_FACETS: FacetSelection = {
 	age: null,
 	access: null,
-	accessModes: [],
 	careLevels: [],
 	audiences: [],
 	free: false,
 	anonymous: false
 };
 
-/** The selectors, in the order a professional with a patient uses them. */
-const ORDER = ['age', 'access', 'accessModes', 'careLevels', 'audiences', 'free', 'anonymous'] as const;
+/**
+ * The selectors, in the order a professional with a patient uses them. How to reach an
+ * entry (access_modes) is not one: one picks a resource for a reason, then uses whatever
+ * means it offers, which its page shows.
+ */
+const ORDER = ['age', 'access', 'careLevels', 'audiences', 'free', 'anonymous'] as const;
 export type SelectorKey = (typeof ORDER)[number];
 
 /**
@@ -56,14 +57,12 @@ const ACCESS: Record<Access, readonly Access[]> = {
 };
 
 const VOCABULARY = {
-	accessModes: ACCESS_MODES,
 	careLevels: CARE_LEVELS,
 	audiences: AUDIENCES,
 	access: WHO_CAN_CONTACT
 } as const;
 
 const FIELD = {
-	accessModes: 'access_modes',
 	careLevels: 'care_levels',
 	audiences: 'audiences',
 	access: 'who_can_contact'
@@ -77,15 +76,14 @@ const anyOf = (known: readonly string[] | null | undefined, chosen: readonly str
 
 /** The entries every chosen selector lets through; an entry's unknown facet always passes. */
 export const filterByFacets = (entries: Entry[], selection: FacetSelection): Entry[] => {
-	const { age, access, accessModes, careLevels, audiences, free, anonymous } = selection;
-	if (age === null && access === null && !accessModes.length && !careLevels.length && !audiences.length && !free && !anonymous) {
+	const { age, access, careLevels, audiences, free, anonymous } = selection;
+	if (age === null && access === null && !careLevels.length && !audiences.length && !free && !anonymous) {
 		return entries;
 	}
 	return entries.filter(
 		(entry) =>
 			(age === null || inAgeRange(entry, age)) &&
 			(access === null || entry.who_can_contact == null || ACCESS[access].includes(entry.who_can_contact)) &&
-			anyOf(entry.access_modes, accessModes) &&
 			anyOf(entry.care_levels, careLevels) &&
 			anyOf(entry.audiences, audiences) &&
 			(!free || entry.free !== false) &&

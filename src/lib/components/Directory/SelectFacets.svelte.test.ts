@@ -64,17 +64,24 @@ describe('SelectFacets', () => {
 		await expect.element(screen.getByText(`${m.DIRECTORY_ACCESS_PROFESSIONALS()} (1)`)).not.toBeInTheDocument();
 	});
 
+	it('never offers how to reach an entry: one picks a resource for a reason, then uses whatever means it offers', async () => {
+		mount();
+		await expect.element(screen.getByText(m.DIRECTORY_ACCESS_ANYONE(), { exact: false })).toBeVisible();
+		await expect.element(screen.getByText(m.DIRECTORY_FACET_MODES())).not.toBeInTheDocument();
+		await expect.element(screen.getByText(m.DIRECTORY_MODE_PHONE(), { exact: false })).not.toBeInTheDocument();
+	});
+
 	it('writes a chosen value to the address and leaves the other filters', async () => {
 		mount(ENTRIES, '?facility=f-1');
-		await screen.getByText(`${m.DIRECTORY_MODE_PHONE()} (1)`).click();
-		await expect.poll(() => lastQuery(nav.goto)?.get('modes')).toBe('phone');
+		await screen.getByText(`${m.DIRECTORY_ACCESS_ANYONE()} (1)`).click();
+		await expect.poll(() => lastQuery(nav.goto)?.get('access')).toBe('anyone');
 		expect(lastQuery(nav.goto)?.get('facility')).toBe('f-1');
 	});
 
 	it('removes a chosen value when it is chosen again', async () => {
-		mount(ENTRIES, '?modes=phone');
-		await screen.getByText(`${m.DIRECTORY_MODE_PHONE()} (1)`).click();
-		await expect.poll(() => lastQuery(nav.goto)?.has('modes')).toBe(false);
+		mount(ENTRIES, '?access=anyone');
+		await screen.getByText(`${m.DIRECTORY_ACCESS_ANYONE()} (1)`).click();
+		await expect.poll(() => lastQuery(nav.goto)?.has('access')).toBe(false);
 	});
 
 	it('writes the age', async () => {
@@ -85,21 +92,21 @@ describe('SelectFacets', () => {
 	});
 
 	it('clears every criterion at once and keeps the other filters', async () => {
-		mount(ENTRIES, '?modes=phone&access=anyone&facility=f-1');
+		mount(ENTRIES, '?free=1&access=anyone&facility=f-1');
 		await screen.getByText(m.DIRECTORY_FACET_CLEAR()).click();
-		await expect.poll(() => lastQuery(nav.goto)?.has('modes')).toBe(false);
+		await expect.poll(() => lastQuery(nav.goto)?.has('free')).toBe(false);
 		expect(lastQuery(nav.goto)?.has('access')).toBe(false);
 		expect(lastQuery(nav.goto)?.get('facility')).toBe('f-1');
 	});
 
 	it('publishes what the address chooses to the directory', async () => {
-		const store = mount(ENTRIES, '?access=referral&modes=walk_in');
+		const store = mount(ENTRIES, '?access=referral&free=1');
 		await expect
 			.poll(() => {
 				let current;
 				store.subscribe((value) => (current = value))();
 				return current;
 			})
-			.toMatchObject({ access: 'referral', accessModes: ['walk_in'] });
+			.toMatchObject({ access: 'referral', free: true });
 	});
 });

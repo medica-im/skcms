@@ -76,32 +76,26 @@ describe('access (who may contact)', () => {
 
 describe('multi-valued facets', () => {
 	const entries = [
-		entry('phone', { access_modes: ['phone'] }),
-		entry('walk', { access_modes: ['walk_in', 'appointment'] }),
-		entry('none', { access_modes: [] }),
+		entry('urgent', { care_levels: ['emergency'], audiences: ['students'] }),
+		entry('both', { care_levels: ['primary', 'secondary'], audiences: ['parents'] }),
+		entry('none', { care_levels: [] }),
 		entry('unknown')
 	];
 
-	it('keeps an entry that offers any chosen mode, and the unknown ones', () => {
-		expect(uids(filterByFacets(entries, select({ accessModes: ['phone', 'appointment'] })))).toEqual([
-			'phone',
-			'walk',
+	it('keeps an entry that carries any chosen value, and the unknown ones', () => {
+		expect(uids(filterByFacets(entries, select({ careLevels: ['emergency', 'secondary'] })))).toEqual([
+			'urgent',
+			'both',
 			'unknown'
 		]);
 	});
 
-	it('an entry known to offer nothing is not an unknown one', () => {
-		expect(uids(filterByFacets(entries, select({ accessModes: ['phone'] })))).not.toContain('none');
+	it('an entry known to carry nothing is not an unknown one', () => {
+		expect(uids(filterByFacets(entries, select({ careLevels: ['emergency'] })))).not.toContain('none');
 	});
 
-	it('works the same for care levels and audiences', () => {
-		const more = [
-			entry('urgent', { care_levels: ['emergency'], audiences: ['students'] }),
-			entry('primary', { care_levels: ['primary'], audiences: ['parents'] }),
-			entry('unknown')
-		];
-		expect(uids(filterByFacets(more, select({ careLevels: ['emergency'] })))).toEqual(['urgent', 'unknown']);
-		expect(uids(filterByFacets(more, select({ audiences: ['parents'] })))).toEqual(['primary', 'unknown']);
+	it('works the same for audiences', () => {
+		expect(uids(filterByFacets(entries, select({ audiences: ['parents'] })))).toEqual(['both', 'none', 'unknown']);
 	});
 });
 
@@ -121,11 +115,11 @@ describe('free and anonymous', () => {
 describe('selectors combine', () => {
 	it('an entry must pass every chosen selector', () => {
 		const entries = [
-			entry('both', { age_min: 16, access_modes: ['phone'] }),
-			entry('wrong-mode', { age_min: 16, access_modes: ['walk_in'] }),
-			entry('too-young-only', { age_min: 18, access_modes: ['phone'] })
+			entry('both', { age_min: 16, audiences: ['students'] }),
+			entry('wrong-audience', { age_min: 16, audiences: ['parents'] }),
+			entry('too-young-only', { age_min: 18, audiences: ['students'] })
 		];
-		expect(uids(filterByFacets(entries, select({ age: 16, accessModes: ['phone'] })))).toEqual(['both']);
+		expect(uids(filterByFacets(entries, select({ age: 16, audiences: ['students'] })))).toEqual(['both']);
 	});
 });
 
@@ -146,10 +140,15 @@ describe('which selectors show', () => {
 	});
 
 	it('a multi-valued facet needs two distinct values across the entries', () => {
-		const one = [entry('a', { access_modes: ['phone'] }), entry('b', { access_modes: ['phone'] })];
-		expect(selectorsShown(one)).not.toContain('accessModes');
-		const two = [entry('a', { access_modes: ['phone'] }), entry('b', { access_modes: ['walk_in'] })];
-		expect(selectorsShown(two)).toContain('accessModes');
+		const one = [entry('a', { audiences: ['students'] }), entry('b', { audiences: ['students'] })];
+		expect(selectorsShown(one)).not.toContain('audiences');
+		const two = [entry('a', { audiences: ['students'] }), entry('b', { audiences: ['parents'] })];
+		expect(selectorsShown(two)).toContain('audiences');
+	});
+
+	it('never offers how to reach an entry: one picks a resource for a reason, then uses whatever means it offers', () => {
+		const differ = [entry('a', { access_modes: ['phone'] }), entry('b', { access_modes: ['walk_in'] })];
+		expect(selectorsShown(differ)).toEqual([]);
 	});
 
 	it('free needs both a free and a paid entry: an unknown one narrows nothing', () => {
@@ -181,7 +180,6 @@ describe('which selectors show', () => {
 		expect(selectorsShown(entries)).toEqual([
 			'age',
 			'access',
-			'accessModes',
 			'careLevels',
 			'audiences',
 			'free',
@@ -193,13 +191,13 @@ describe('which selectors show', () => {
 describe('options of a selector', () => {
 	it('lists the values present, in the order of the vocabulary, with how many entries carry each', () => {
 		const entries = [
-			entry('a', { access_modes: ['online', 'phone'] }),
-			entry('b', { access_modes: ['phone'] }),
+			entry('a', { audiences: ['parents', 'students'] }),
+			entry('b', { audiences: ['parents'] }),
 			entry('c')
 		];
-		expect(optionsOf(entries, 'accessModes')).toEqual([
-			{ value: 'phone', count: 2 },
-			{ value: 'online', count: 1 }
+		expect(optionsOf(entries, 'audiences')).toEqual([
+			{ value: 'students', count: 1 },
+			{ value: 'parents', count: 2 }
 		]);
 	});
 

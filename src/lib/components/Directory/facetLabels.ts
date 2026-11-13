@@ -37,7 +37,6 @@ export const FACET_LABELS = {
 export const FACET_TITLES = {
 	age: m.DIRECTORY_FACET_AGE,
 	access: m.DIRECTORY_FACET_ACCESS,
-	accessModes: m.DIRECTORY_FACET_MODES,
 	careLevels: m.DIRECTORY_FACET_CARE_LEVELS,
 	audiences: m.DIRECTORY_FACET_AUDIENCES
 } as const;

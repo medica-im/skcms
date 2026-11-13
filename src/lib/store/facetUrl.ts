@@ -1,4 +1,4 @@
-import { ACCESS_MODES, AUDIENCES, CARE_LEVELS, WHO_CAN_CONTACT } from './directoryStoreInterface.ts';
+import { AUDIENCES, CARE_LEVELS, WHO_CAN_CONTACT } from './directoryStoreInterface.ts';
 import type { FacetSelection } from './facetFilters.ts';
 
 const MAX_AGE = 120;
@@ -13,7 +13,6 @@ export const facetsFromParams = (params: URLSearchParams): FacetSelection => {
 	return {
 		age: params.get('age') && Number.isInteger(age) && age >= 0 && age <= MAX_AGE ? age : null,
 		access: WHO_CAN_CONTACT.find((value) => value === access) ?? null,
-		accessModes: only(ACCESS_MODES, params.get('modes')),
 		careLevels: only(CARE_LEVELS, params.get('levels')),
 		audiences: only(AUDIENCES, params.get('audiences')),
 		free: params.get('free') === '1',
@@ -27,7 +26,6 @@ export const facetsToParams = (selection: FacetSelection, params: URLSearchParam
 		value === null || value === '' ? params.delete(name) : params.set(name, value);
 	set('age', selection.age === null ? null : String(selection.age));
 	set('access', selection.access);
-	set('modes', selection.accessModes.join(','));
 	set('levels', selection.careLevels.join(','));
 	set('audiences', selection.audiences.join(','));
 	set('free', selection.free ? '1' : null);

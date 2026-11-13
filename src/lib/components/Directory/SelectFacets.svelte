@@ -11,7 +11,7 @@
 	import type { Entry } from '$lib/store/directoryStoreInterface.ts';
 
 	/**
-	 * The selectors over who an entry is for and how to reach it. Each shows only
+	 * The selectors over who an entry is for and who may contact it. Each shows only
 	 * when the entries could be narrowed by it, so a directory that stores no facets
 	 * shows none. The selection lives in the page URL, like the other selectors.
 	 */
@@ -82,7 +82,7 @@
 						</button>
 					{/each}
 				</fieldset>
-			{:else if key === 'accessModes' || key === 'careLevels' || key === 'audiences'}
+			{:else if key === 'careLevels' || key === 'audiences'}
 				<fieldset class="flex flex-wrap items-center gap-2">
 					<legend class="mb-1 text-base">{TITLES[key]()}</legend>
 					{#each optionsOf(entries, key) as option (option.value)}
