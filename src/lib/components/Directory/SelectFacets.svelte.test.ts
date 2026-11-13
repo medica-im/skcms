@@ -94,6 +94,24 @@ describe('SelectFacets', () => {
 		await expect.poll(() => lastQuery(nav.goto)?.get('age')).toBe('17');
 	});
 
+	it('titles the age selector « Âge »', async () => {
+		mount();
+		await expect.element(screen.getByText('Âge', { exact: true })).toBeVisible();
+	});
+
+	it('resets the age with its own button and keeps the other choices', async () => {
+		mount(ENTRIES, '?age=17&access=anyone');
+		await screen.getByRole('button', { name: m.DIRECTORY_FACET_AGE_CLEAR() }).click();
+		await expect.poll(() => lastQuery(nav.goto)?.has('age')).toBe(false);
+		expect(lastQuery(nav.goto)?.get('access')).toBe('anyone');
+	});
+
+	it('offers no age reset while no age is set', async () => {
+		mount();
+		await expect.element(screen.getByRole('spinbutton')).toBeVisible();
+		await expect.element(screen.getByRole('button', { name: m.DIRECTORY_FACET_AGE_CLEAR() })).not.toBeInTheDocument();
+	});
+
 	it('clears every criterion at once and keeps the other filters', async () => {
 		mount(ENTRIES, '?free=1&access=anyone&facility=f-1');
 		await screen.getByText(m.DIRECTORY_FACET_CLEAR()).click();
@@ -116,10 +134,11 @@ describe('SelectFacets', () => {
 	for (const scheme of ['light', 'dark'] as const) {
 		it(`reads at AA in ${scheme} mode: titles, chips chosen or not, the age field and the clear button`, async () => {
 			await inScheme(scheme, async () => {
-				mount(ENTRIES, '?access=anyone');
+				mount(ENTRIES, '?access=anyone&age=17');
 				const parts = [
 					screen.getByText(m.DIRECTORY_FACET_ACCESS()),
-					screen.getByText(m.DIRECTORY_FACET_AGE()),
+					screen.getByText(m.DIRECTORY_FACET_AGE(), { exact: true }),
+					screen.getByRole('button', { name: m.DIRECTORY_FACET_AGE_CLEAR() }),
 					screen.getByText(`${m.DIRECTORY_ACCESS_ANYONE()} (1)`),
 					screen.getByText(`${m.DIRECTORY_ACCESS_REFERRAL()} (1)`),
 					screen.getByText(m.DIRECTORY_FACET_FREE()),

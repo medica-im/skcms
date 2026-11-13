@@ -3,7 +3,7 @@
 	import { page } from '$app/state';
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
-	import { faCheck } from '@fortawesome/free-solid-svg-icons';
+	import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 	import { getFacetSelection } from './context';
 	import { FACET_LABELS, FACET_TITLES } from './facetLabels';
 	import { NO_FACETS, optionsOf, selectorsShown, type FacetSelection } from '$lib/store/facetFilters.ts';
@@ -53,19 +53,32 @@
 	<div class="space-y-3 text-surface-700-200-token">
 		{#each shown as key (key)}
 			{#if key === 'age'}
-				<label class="flex flex-wrap items-center gap-2 text-base">
-					<span>{TITLES.age()}</span>
-					<input
-						type="number"
-						inputmode="numeric"
-						min="0"
-						max="120"
-						class="input w-24 min-h-[44px] rounded-token text-base"
-						value={selection.age ?? ''}
-						onchange={(event) => setAge(event.currentTarget.value)}
-					/>
-					<span>{m.DIRECTORY_FACET_AGE_UNIT()}</span>
-				</label>
+				<div class="flex flex-wrap items-center gap-2">
+					<label class="flex flex-wrap items-center gap-2 text-base">
+						<span>{TITLES.age()}</span>
+						<input
+							type="number"
+							inputmode="numeric"
+							min="0"
+							max="120"
+							class="input w-24 min-h-[44px] rounded-token text-base"
+							value={selection.age ?? ''}
+							onchange={(event) => setAge(event.currentTarget.value)}
+						/>
+						<span>{m.DIRECTORY_FACET_AGE_UNIT()}</span>
+					</label>
+					{#if selection.age !== null}
+						<button
+							type="button"
+							class="btn-icon variant-ringed-surface min-h-[44px] min-w-[44px] rounded-token"
+							aria-label={m.DIRECTORY_FACET_AGE_CLEAR()}
+							title={m.DIRECTORY_FACET_AGE_CLEAR()}
+							onclick={() => apply({ ...selection, age: null })}
+						>
+							<Fa icon={faXmark} />
+						</button>
+					{/if}
+				</div>
 			{:else if key === 'access'}
 				<fieldset class="flex flex-wrap items-center gap-2">
 					<legend class="mb-1 text-base">{TITLES.access()}</legend>
