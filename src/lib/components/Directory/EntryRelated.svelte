@@ -12,8 +12,12 @@
 </script>
 
 {#snippet link(entry: RelatedEntry)}
-	<a href="{base}/e/{entry.slug}" class="anchor inline-flex min-h-[44px] items-center text-base">
-		{name(entry)}<span class="ml-2 text-surface-600">· {entry.effector_type}</span>
+	<a
+		href="{base}/e/{entry.slug}"
+		class="inline-flex min-h-[44px] items-center gap-2 text-base text-primary-800-100-token hover:text-primary-900-50-token"
+	>
+		<span class="underline underline-offset-2">{name(entry)}</span>
+		<span class="text-surface-600-300-token">· {entry.effector_type}</span>
 	</a>
 {/snippet}
 

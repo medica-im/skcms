@@ -8,7 +8,10 @@ import { render } from 'vitest-browser-svelte';
 import { page as screen } from 'vitest/browser';
 import * as m from '$msgs';
 import EntryRelated from './EntryRelated.svelte';
+import { AA_TEXT, inScheme, legibility } from '$lib/testing/contrast.ts';
 import '../../../app.postcss';
+
+document.body.dataset.theme = 'wintry';
 
 vi.mock('$app/paths', () => ({ base: '' }));
 
@@ -36,4 +39,26 @@ describe('EntryRelated', () => {
 			.toHaveAttribute('href', '/e/esm-lyon-69');
 		await expect.element(screen.getByText(/hôpital de jour/)).toBeVisible();
 	});
+
+	for (const scheme of ['light', 'dark'] as const) {
+		it(`reads at AA in ${scheme} mode: the headings, the links and their type`, async () => {
+			await inScheme(scheme, async () => {
+				render(EntryRelated, { props: { runBy: MGEN, services: [ESM] } });
+				const parts = [
+					screen.getByText(m.DIRECTORY_ENTRY_PORTEUR()),
+					screen.getByText(m.DIRECTORY_ENTRY_SERVICES()),
+					screen.getByRole('link', { name: /MGEN/ }),
+					screen.getByRole('link', { name: /Établissement de santé mentale/ }),
+					screen.getByText(/organisme mutualiste/),
+					screen.getByText(/hôpital de jour/)
+				];
+				for (const part of parts) await expect.element(part).toBeVisible();
+				const unreadable = parts
+					.map((part) => part.element())
+					.map((el) => ({ text: el.textContent?.trim(), ratio: legibility(el) }))
+					.filter(({ ratio }) => ratio < AA_TEXT);
+				expect(unreadable).toEqual([]);
+			});
+		});
+	}
 });
