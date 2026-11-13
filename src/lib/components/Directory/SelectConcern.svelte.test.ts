@@ -11,7 +11,12 @@ import * as m from '$msgs';
 import SelectConcern from './SelectConcern.svelte';
 import { choose, clear, lastQuery } from '$lib/testing/directoryFilter';
 import type { Concern } from '$lib/store/concernTree';
+import { AA_TEXT, inScheme, legibility } from '$lib/testing/contrast.ts';
 import '../../../app.postcss';
+// As the root layout loads it: the select's colours come from here and the theme.
+import '$lib/assets/css/svelte-select.css';
+
+document.body.dataset.theme = 'wintry';
 
 const nav = vi.hoisted(() => ({ goto: vi.fn() }));
 const state = vi.hoisted(() => ({ url: new URL('https://dev.santelyon3.fr/annuaire') }));
@@ -98,4 +103,23 @@ describe('SelectConcern', () => {
 		await screen.getByText('Crise suicidaire (2)').click();
 		await expect.poll(() => lastQuery(nav.goto)?.get('concern')).toBe('s-cri');
 	});
+
+	for (const scheme of ['light', 'dark'] as const) {
+		it(`reads at AA in ${scheme} mode: the picked node, "voir aussi" and its buttons`, async () => {
+			await inScheme(scheme, async () => {
+				mount('?concern=c-add', [{ concern: CONCERNS[2], entries: ['e', 'f'] }]);
+				const parts = [
+					screen.getByText('Addictions', { exact: true }),
+					screen.getByText(m.DIRECTORY_CONCERN_SEE_ALSO()),
+					screen.getByText('Crise suicidaire (2)')
+				];
+				for (const part of parts) await expect.element(part).toBeVisible();
+				const unreadable = parts
+					.map((part) => part.element())
+					.map((el) => ({ text: el.textContent?.trim(), ratio: legibility(el) }))
+					.filter(({ ratio }) => ratio < AA_TEXT);
+				expect(unreadable).toEqual([]);
+			});
+		});
+	}
 });

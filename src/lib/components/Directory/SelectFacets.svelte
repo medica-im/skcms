@@ -46,11 +46,11 @@
 	}
 
 	const chip = (on: boolean) =>
-		`btn min-h-[44px] rounded-token ${on ? 'variant-filled' : 'variant-soft'}`;
+		`btn min-h-[44px] rounded-token ${on ? 'variant-filled' : 'variant-soft text-surface-900-50-token'}`;
 </script>
 
 {#if shown.length}
-	<div class="space-y-3 text-surface-700">
+	<div class="space-y-3 text-surface-700-200-token">
 		{#each shown as key (key)}
 			{#if key === 'age'}
 				<label class="flex flex-wrap items-center gap-2 text-base">
@@ -113,7 +113,7 @@
 			{/if}
 		{/each}
 		{#if chosen}
-			<button type="button" class="btn variant-ghost min-h-[44px] rounded-token" onclick={() => apply(NO_FACETS)}>
+			<button type="button" class="btn variant-ringed-surface min-h-[44px] rounded-token" onclick={() => apply(NO_FACETS)}>
 				{m.DIRECTORY_FACET_CLEAR()}
 			</button>
 		{/if}

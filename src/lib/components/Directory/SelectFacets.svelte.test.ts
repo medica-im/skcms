@@ -13,7 +13,10 @@ import SelectFacets from './SelectFacets.svelte';
 import { lastQuery } from '$lib/testing/directoryFilter';
 import { makeEntry } from '$lib/store/directoryStore.fixtures';
 import { NO_FACETS } from '$lib/store/facetFilters';
+import { AA_TEXT, inScheme, legibility } from '$lib/testing/contrast.ts';
 import '../../../app.postcss';
+
+document.body.dataset.theme = 'wintry';
 
 const nav = vi.hoisted(() => ({ goto: vi.fn() }));
 const state = vi.hoisted(() => ({ url: new URL('https://dev.santelyon3.fr/annuaire') }));
@@ -109,4 +112,27 @@ describe('SelectFacets', () => {
 			})
 			.toMatchObject({ access: 'referral', free: true });
 	});
+
+	for (const scheme of ['light', 'dark'] as const) {
+		it(`reads at AA in ${scheme} mode: titles, chips chosen or not, the age field and the clear button`, async () => {
+			await inScheme(scheme, async () => {
+				mount(ENTRIES, '?access=anyone');
+				const parts = [
+					screen.getByText(m.DIRECTORY_FACET_ACCESS()),
+					screen.getByText(m.DIRECTORY_FACET_AGE()),
+					screen.getByText(`${m.DIRECTORY_ACCESS_ANYONE()} (1)`),
+					screen.getByText(`${m.DIRECTORY_ACCESS_REFERRAL()} (1)`),
+					screen.getByText(m.DIRECTORY_FACET_FREE()),
+					screen.getByText(m.DIRECTORY_FACET_CLEAR()),
+					screen.getByRole('spinbutton')
+				];
+				for (const part of parts) await expect.element(part).toBeVisible();
+				const unreadable = parts
+					.map((part) => part.element())
+					.map((el) => ({ text: el.textContent?.trim() || el.tagName, ratio: legibility(el) }))
+					.filter(({ ratio }) => ratio < AA_TEXT);
+				expect(unreadable).toEqual([]);
+			});
+		});
+	}
 });

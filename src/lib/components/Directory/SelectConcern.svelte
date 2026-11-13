@@ -68,12 +68,12 @@
 	/>
 </div>
 {#if seeAlso.length}
-	<div class="flex flex-wrap items-center gap-2 text-surface-700">
+	<div class="flex flex-wrap items-center gap-2 text-surface-700-200-token">
 		<span class="text-base">{m.DIRECTORY_CONCERN_SEE_ALSO()}</span>
 		{#each seeAlso as item (item.concern.uid)}
 			<button
 				type="button"
-				class="btn variant-soft min-h-[44px] rounded-token"
+				class="btn variant-soft text-surface-900-50-token min-h-[44px] rounded-token"
 				onclick={() => pick(item.concern.uid)}
 			>
 				{item.concern.name} ({item.entries.length})

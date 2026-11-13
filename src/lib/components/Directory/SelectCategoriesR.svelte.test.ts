@@ -14,6 +14,7 @@ import { get, writable } from 'svelte/store';
 import SelectCategoriesR from './SelectCategoriesR.svelte';
 import Select from '$lib/Web/Select.svelte';
 import { IPA, NURSE } from '$lib/store/directoryStore.fixtures.ts';
+import { contrast, paintedBehind } from '$lib/testing/contrast.ts';
 import '../../../app.postcss';
 // As the root layout loads it: the selects' colours come from here and the theme.
 import '$lib/assets/css/svelte-select.css';
@@ -54,27 +55,6 @@ const disabled = () => input()?.disabled ?? null;
 const description = () => {
 	const id = input()?.getAttribute('aria-describedby');
 	return id ? (document.getElementById(id)?.textContent?.trim() ?? null) : null;
-};
-
-/** The first opaque background at or above `el`; the page's own when none is. */
-const paintedBehind = (el: Element): string => {
-	for (let node: Element | null = el; node; node = node.parentElement) {
-		const bg = getComputedStyle(node).backgroundColor;
-		if (!/rgba\(.*,\s*0\)$/.test(bg) && bg !== 'transparent') return bg;
-	}
-	return getComputedStyle(document.body).backgroundColor;
-};
-/** WCAG contrast ratio of two `rgb()` colours. */
-const contrast = (a: string, b: string): number => {
-	const lum = (c: string) => {
-		const [r, g, bl] = (c.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number).map((v) => {
-			const s = v / 255;
-			return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
-		});
-		return 0.2126 * r + 0.7152 * g + 0.0722 * bl;
-	};
-	const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x);
-	return (hi + 0.05) / (lo + 0.05);
 };
 
 describe('SelectCategoriesR with a single type offered', () => {
