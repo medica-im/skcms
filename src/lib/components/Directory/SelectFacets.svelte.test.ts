@@ -112,12 +112,10 @@ describe('SelectFacets', () => {
 		await expect.element(screen.getByRole('button', { name: m.DIRECTORY_FACET_AGE_CLEAR() })).not.toBeInTheDocument();
 	});
 
-	it('clears every criterion at once and keeps the other filters', async () => {
-		mount(ENTRIES, '?free=1&access=anyone&facility=f-1');
-		await screen.getByText(m.DIRECTORY_FACET_CLEAR()).click();
-		await expect.poll(() => lastQuery(nav.goto)?.has('free')).toBe(false);
-		expect(lastQuery(nav.goto)?.has('access')).toBe(false);
-		expect(lastQuery(nav.goto)?.get('facility')).toBe('f-1');
+	it('has no clear-all of its own: « Tout effacer » clears every filter', async () => {
+		mount(ENTRIES, '?free=1&access=anyone');
+		await expect.element(screen.getByText(`${m.DIRECTORY_ACCESS_ANYONE()} (1)`)).toBeVisible();
+		await expect.element(screen.getByText('Effacer les critères')).not.toBeInTheDocument();
 	});
 
 	it('publishes what the address chooses to the directory', async () => {
@@ -132,7 +130,7 @@ describe('SelectFacets', () => {
 	});
 
 	for (const scheme of ['light', 'dark'] as const) {
-		it(`reads at AA in ${scheme} mode: titles, chips chosen or not, the age field and the clear button`, async () => {
+		it(`reads at AA in ${scheme} mode: titles, chips chosen or not, the age field and its reset`, async () => {
 			await inScheme(scheme, async () => {
 				mount(ENTRIES, '?access=anyone&age=17');
 				const parts = [
@@ -142,7 +140,6 @@ describe('SelectFacets', () => {
 					screen.getByText(`${m.DIRECTORY_ACCESS_ANYONE()} (1)`),
 					screen.getByText(`${m.DIRECTORY_ACCESS_REFERRAL()} (1)`),
 					screen.getByText(m.DIRECTORY_FACET_FREE()),
-					screen.getByText(m.DIRECTORY_FACET_CLEAR()),
 					screen.getByRole('spinbutton')
 				];
 				for (const part of parts) await expect.element(part).toBeVisible();

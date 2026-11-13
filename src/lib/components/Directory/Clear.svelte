@@ -16,8 +16,11 @@
 		getFacilityChoice,
 		getDirectoryRedirect,
 		getAddressFeature,
-		getGeoInputAddress
+		getGeoInputAddress,
+		getFacetSelection,
+		getSelectConcern
 	} from './context.ts';
+	import { NO_FACETS } from '$lib/store/facetFilters.ts';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 
@@ -37,8 +40,12 @@
 	let addressFeature = getAddressFeature();
 	let geoInputAddress = getGeoInputAddress();
 	let selectTags = getSelectedTags();
+	let facetSelection = getFacetSelection();
+	let selectConcern = getSelectConcern();
 
 	let isDisabled = $derived(!(
+		JSON.stringify($facetSelection) !== JSON.stringify(NO_FACETS) ||
+		$selectConcern ||
 		$term ||
 		$selectedCommunesUids.length ||
 		$selectedCommunesChoices ||
@@ -66,6 +73,8 @@
 		geoInputAddress.set(null);
 		addressFeature.set(null);
 		selectTags.set(null);
+		facetSelection.set(NO_FACETS);
+		selectConcern.set(null);
 	}
 
 	function erase() {

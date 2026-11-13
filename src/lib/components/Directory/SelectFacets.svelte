@@ -6,7 +6,7 @@
 	import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 	import { getFacetSelection } from './context';
 	import { FACET_LABELS, FACET_TITLES } from './facetLabels';
-	import { NO_FACETS, optionsOf, selectorsShown, type FacetSelection } from '$lib/store/facetFilters.ts';
+	import { optionsOf, selectorsShown, type FacetSelection } from '$lib/store/facetFilters.ts';
 	import { facetsFromParams, facetsToParams } from '$lib/store/facetUrl.ts';
 	import type { Entry } from '$lib/store/directoryStoreInterface.ts';
 
@@ -21,7 +21,6 @@
 
 	const selection = $derived(facetsFromParams(page.url.searchParams));
 	const shown = $derived(selectorsShown(entries));
-	const chosen = $derived(JSON.stringify(selection) !== JSON.stringify(NO_FACETS));
 
 	$effect(() => {
 		facetSelection.set(selection);
@@ -125,10 +124,5 @@
 				</button>
 			{/if}
 		{/each}
-		{#if chosen}
-			<button type="button" class="btn variant-ringed-surface min-h-[44px] rounded-token" onclick={() => apply(NO_FACETS)}>
-				{m.DIRECTORY_FACET_CLEAR()}
-			</button>
-		{/if}
 	</div>
 {/if}
