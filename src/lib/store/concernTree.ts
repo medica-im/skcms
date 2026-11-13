@@ -16,7 +16,7 @@ export interface Concern {
 	/** Other names the search matches; never shown as the name. */
 	synonyms: string[];
 	entries: string[];
-	/** The uids of offered situations it can lead to. */
+	/** The uids of offered situations or conditions it can lead to. */
 	see_also: string[];
 }
 
@@ -62,7 +62,7 @@ export const filterByConcern = (entries: Entry[], concerns: Concern[], picked: s
 	return entries.filter((entry) => selected.has(entry.uid));
 };
 
-/** "Voir aussi": the offered situations the picked node can lead to, with the listed entries that manage them. */
+/** "Voir aussi": the offered situations or conditions the picked node can lead to, with the listed entries that manage them. */
 export const seeAlsoOf = (entries: Entry[], concerns: Concern[], picked: string | null) => {
 	const leadsTo = new Set(concerns.find((concern) => concern.uid === picked)?.see_also);
 	return concerns

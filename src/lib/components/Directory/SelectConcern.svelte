@@ -13,7 +13,7 @@
 		seeAlso = []
 	}: {
 		concerns: Concern[];
-		/** The situations the picked node can lead to, with the listed entries that manage them. */
+		/** The situations or conditions the picked node can lead to, with the listed entries that manage them. */
 		seeAlso?: { concern: Concern; entries: unknown[] }[];
 	} = $props();
 
