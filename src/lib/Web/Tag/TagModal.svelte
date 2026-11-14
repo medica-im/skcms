@@ -164,7 +164,7 @@
 		categoryChoices = await getCategoryChoices();
 		dialog?.showModal();
 	}}
-	class="btn btn-sm variant-ghost-surface"
+	class="btn btn-sm variant-ghost-surface w-fit self-start"
 	title={tags ? 'Modifier' : 'Ajouter'}
 >
 	<span>{tags ? 'Modifier les étiquettes' : 'Ajouter une étiquette'}</span>
