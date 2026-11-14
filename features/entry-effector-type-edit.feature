@@ -32,7 +32,8 @@ Feature: Changing an entry's occupation
     And its former address leads to it
 
   Scenario: An administrator past the window is told why, and offered the way out
-    Given the entry was created 40 days ago
+    Given the organization lets administrators change an occupation for 30 days
+    And the entry was created 40 days ago
     And I am signed in with the role "administrator"
     When I open that entry in edit mode
     Then the occupation cannot be changed any more
