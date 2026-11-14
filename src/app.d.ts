@@ -7,7 +7,7 @@ declare global {
 		interface Error {
 			// Extra fields passed to `error(status, { ... })` and read in +error.svelte
 			type?: string;
-			code?: string;
+			code?: number;
 			email?: string;
 		}
 		interface Locals {
