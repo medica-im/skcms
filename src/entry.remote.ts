@@ -78,7 +78,8 @@ const Patch = z.object({
 	owners: z.array(z.string()).optional(),
 	directories: z.array(z.string()).optional(),
 	redeemEmail: z.nullable(z.string().email()).optional(),
-	access: z.string().optional()
+	access: z.string().optional(),
+	description: z.nullable(z.string().max(2000)).optional()
 });
 
 export const patchCommand = command(Patch, async (data) => {

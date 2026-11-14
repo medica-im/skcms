@@ -41,6 +41,7 @@
 	import EntryToggleActive from '$lib/Web/Entry/EntryToggleActive.svelte';
 	import EffectorTypeEdit from '$lib/Web/Entry/EffectorTypeEdit.svelte';
 	import EntrySlugEdit from '$lib/Web/Entry/EntrySlugEdit.svelte';
+	import EntryDescription from '$lib/Web/Entry/EntryDescription.svelte';
 	import Tag from '$lib/Tag/Tag.svelte';
 	import { setEditMode, getEditMode, setEntryUid, setEffectorUid } from './context';
 	import MembershipSection from '$lib/components/Directory/MembershipSection.svelte';
@@ -133,6 +134,7 @@
 		</div>
 	</div>
 	<div class="grid grid-cols-1 lg:grid-cols-1 p-2 gap-4">
+		<EntryDescription entryUid={fullentry.uid} description={fullentry.description} editMode={$editMode} />
 		<EntryFacts entry={fullentry} />
 		<EntryRelated runBy={fullentry.run_by} services={fullentry.services} />
 		{#if data.schedules?.length || $editMode}

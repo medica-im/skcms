@@ -105,6 +105,8 @@ export interface RelatedEntry {
 }
 
 export interface EntryFull extends Partial<EntryFacets> {
+    /** What the service offers, for whom and on what terms, in the site's language. */
+    description?: string | null;
     /** The entry that runs this one, if any. */
     run_by?: RelatedEntry | null;
     /** The entries this one runs. */
