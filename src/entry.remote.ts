@@ -7,6 +7,7 @@ import { slugify } from '$lib/helpers/stringHelpers';
 import { redirect } from '@sveltejs/kit';
 import type { EntryFull } from './lib/store/directoryStoreInterface';
 import { base } from '$app/paths';
+import type { SlugCheck } from '$lib/Web/Slug/slugView.ts';
 
 const RoleEnum = z.enum(['anonymous', 'staff', 'administrator', 'superuser']);
 
@@ -175,5 +176,40 @@ export const changeEntryType = command(TypeChange, async ({ uid, effector_type }
 		code: typeof detail?.code === 'string' ? (detail.code as string) : undefined,
 		// duplicate: the slug of the entry that already has this person, place and type.
 		slug: typeof detail?.slug === 'string' ? (detail.slug as string) : undefined
+	};
+});
+
+/**
+ * Changing an entry's slug (backend api/routers/entry_slugs.py). A command rather than a
+ * query: the check is asked again as the person types. Values, not throws: a refusal is
+ * an answer the page words by its code.
+ */
+const SlugCheckQuery = z.object({ uid: z.string(), slug: z.string() });
+
+export const checkEntrySlug = command(SlugCheckQuery, async ({ uid, slug }): Promise<SlugCheck> => {
+	const { cookies } = getRequestEvent();
+	const url = `${variables.BASE_URI}/api/v2/entries/${uid}/slug/check?${new URLSearchParams({ slug })}`;
+	const response = await fetch(authReq(url, 'GET', cookies));
+	if (!response.ok) throw new Error(`entry slug check answered ${response.status}`);
+	return (await response.json()) as SlugCheck;
+});
+
+export const changeEntrySlug = command(SlugCheckQuery, async ({ uid, slug }) => {
+	const { cookies } = getRequestEvent();
+	const url = `${variables.BASE_URI}/api/v2/entries/${uid}/slug`;
+	const response = await fetch(authReq(url, 'PUT', cookies, JSON.stringify({ slug })));
+	let body: any = undefined;
+	try {
+		body = await response.json();
+	} catch {
+		// A proxy error page is not JSON; the status still says enough.
+	}
+	if (response.ok) return { success: true, status: response.status, slug: body?.slug as string };
+	console.error(`PUT ${url} -> ${response.status} ${JSON.stringify(body?.detail ?? '')}`);
+	const detail = body?.detail;
+	return {
+		success: false,
+		status: response.status,
+		code: typeof detail?.code === 'string' ? (detail.code as string) : undefined
 	};
 });

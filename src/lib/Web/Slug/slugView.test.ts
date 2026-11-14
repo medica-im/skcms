@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { slugView, type SlugCheck } from './slugField.ts';
+import { slugView, type SlugCheck } from './slugView.ts';
 
 const free = (slug: string): SlugCheck => ({ slug, free: true, reason: null, suggestions: [] });
 const taken = (slug: string): SlugCheck => ({ slug, free: false, reason: 'taken', suggestions: ['a-lyon', 'a-rue-x-lyon'] });
@@ -97,5 +97,27 @@ describe('an existing facility keeping its address', () => {
 	test('changing it to a taken one is still refused', () => {
 		const v = view({ typed: 'autre', original: 'cabinet', check: taken('autre') });
 		expect(v).toMatchObject({ status: 'taken', canConfirm: false });
+	});
+});
+
+describe('the wording is the caller\'s, the facility\'s by default', () => {
+	const entry = { taken: 'Déjà utilisée par une autre fiche.', changed: 'L’ancienne adresse redirigera vers la nouvelle.' };
+
+	test('a taken slug says what the caller says', () => {
+		expect(view({ check: taken('cabinet'), wording: entry }).message).toBe(entry.taken);
+	});
+
+	test('a changed slug warns in the caller\'s words', () => {
+		const v = view({ typed: 'cabinet-lyon', original: 'cabinet', check: free('cabinet-lyon'), wording: entry });
+		expect(v.warning).toBe(entry.changed);
+	});
+
+	test('a facility, which names no wording, keeps its own', () => {
+		expect(view({ check: taken('cabinet') }).message).toMatch(/autre établissement/);
+	});
+
+	test('a caller may say nothing when the slug changes: the redirect needs no warning', () => {
+		const v = view({ typed: 'cabinet-lyon', original: 'cabinet', check: free('cabinet-lyon'), wording: { ...entry, changed: null } });
+		expect(v).toMatchObject({ canConfirm: true, changed: true, warning: null });
 	});
 });

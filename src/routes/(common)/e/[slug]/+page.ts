@@ -67,6 +67,7 @@ export const load: PageLoad = async ({ fetch, params, depends, parent, data, url
             // From the server load only: the permission is per user and needs
             // the request's cookies, like users above.
             typeEdit: data?.typeEdit ?? null,
+            slugEdit: data?.slugEdit ?? null,
             schedules: data?.schedules ?? []
         };
     }

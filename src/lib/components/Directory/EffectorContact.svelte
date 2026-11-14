@@ -10,7 +10,8 @@
 		faPhone,
 		faMapLocationDot,
 		faPenToSquare,
-		faInfo
+		faInfo,
+		faLink
 	} from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
 	import Emails from '$lib/Email/Emails.svelte';
@@ -39,6 +40,7 @@
 	import UpdateEffector from '$lib/Web/Effector/UpdateEffectorModal.svelte';
 	import EntryToggleActive from '$lib/Web/Entry/EntryToggleActive.svelte';
 	import EffectorTypeEdit from '$lib/Web/Entry/EffectorTypeEdit.svelte';
+	import EntrySlugEdit from '$lib/Web/Entry/EntrySlugEdit.svelte';
 	import Tag from '$lib/Tag/Tag.svelte';
 	import { setEditMode, getEditMode, setEntryUid, setEffectorUid } from './context';
 	import MembershipSection from '$lib/components/Directory/MembershipSection.svelte';
@@ -58,6 +60,7 @@
 	import type { UserWithRoles } from '$lib/Web/Users/ownerCreator.ts';
 	let { data } = $props();
 	const r = $derived(userRoles(page.data?.user?.role));
+	const isAdmin = $derived(['superuser', 'administrator'].includes(page.data?.user?.role));
 
 	let fullentry: EntryFull = $derived(data.fullentry);
 	let memberships: Entry[] | null = $derived(data.memberships);
@@ -273,9 +276,28 @@
 	{#if r.Admin || fullentry.owner?.includes(page.data?.user?.uid)}
 		<AccessControl access={fullentry.access} editMode={$editMode} />
 	{/if}
-	{#if ['superuser', 'administrator'].includes(page.data?.user?.role)}
+	{#if isAdmin}
 		<CreatorOwner owner={fullentry.owner} creator={fullentry.creator} {users} />
 		<RedeemEmail data={fullentry} editMode={$editMode} />
+	{/if}
+	{#if $editMode && data.slugEdit?.allowed}
+		<div class="d-flex justify-content-between align-items-start">
+			<div class="flex items-center py-2">
+				<div class="w-9"><Fa icon={faLink} size="sm" /></div>
+				<div>
+					<h4 class="h4 flex place-items-center gap-1">
+						{m.ENTRY_SLUG_TITLE()}
+						<EntrySlugEdit entryUid={fullentry.uid} slug={fullentry.entrySlug} permission={data.slugEdit} />
+					</h4>
+				</div>
+			</div>
+			<div class="flex items-start p-1">
+				<div class="w-9"></div>
+				<span class="break-all" data-testid="entry-slug">/e/{fullentry.entrySlug}</span>
+			</div>
+		</div>
+	{/if}
+	{#if isAdmin}
 		<EntryDirectories data={fullentry} editMode={$editMode} />
 	{/if}
 	{#if $editMode}

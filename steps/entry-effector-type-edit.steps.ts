@@ -40,13 +40,13 @@ async function typeUid(origin: string, name: string): Promise<string> {
 	return type!.uid;
 }
 
-async function entryAs(origin: string, typeName: string) {
+export async function entryAs(origin: string, typeName: string, owner = false) {
 	return asStaff(origin, '/api/v2/entries', {
 		effector: creation.personUid,
 		facility: creation.facilityUid,
 		effector_type: await typeUid(origin, typeName),
 		access: 'anonymous',
-		isOwner: false,
+		isOwner: owner,
 		memberships: []
 	});
 }

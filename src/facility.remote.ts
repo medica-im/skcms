@@ -4,7 +4,7 @@ import * as z from "zod";
 import { authReq } from '$lib/utils/request.ts';
 import { variables } from '$lib/utils/constants.ts';
 import { latitude, longitude } from '$lib/Web/Facility/coordinateSchema.ts';
-import type { SlugCheck } from '$lib/Web/Facility/slugField.ts';
+import type { SlugCheck } from '$lib/Web/Slug/slugView.ts';
 
 // Whether someone may edit a facility is asked in sites/[slug]/+page.server.ts,
 // not here. As a remote query it had to be awaited in the component, where the

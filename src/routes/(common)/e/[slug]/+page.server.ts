@@ -59,6 +59,19 @@ export const load: PageServerLoad = async ({ fetch, params, cookies, parent, dep
       }
    }
 
+   // Per user and never cached, like the type permission: the pen next to the
+   // entry's address and the write it leads to must agree. Visitors have none.
+   let slugEdit: { allowed: boolean } | null = null;
+   if (user?.role) {
+      try {
+         const permissionUrl = `${variables.BASE_URI}/api/v2/entries/${fullentry.uid}/slug/permission`;
+         const permissionRes = await globalThis.fetch(authReq(permissionUrl, 'GET', cookies));
+         if (permissionRes.ok) slugEdit = await permissionRes.json() as { allowed: boolean };
+      } catch (err) {
+         console.error('entry slug permission fetch failed:', err);
+      }
+   }
+
    // Public like the entry itself, but kept out of the full entry's payload:
    // that one is scrubbed by role, and a schedule has nothing to scrub.
    let schedules: ApiSchedule[] = [];
@@ -76,6 +89,7 @@ export const load: PageServerLoad = async ({ fetch, params, cookies, parent, dep
       memberships: memberships,
       users: users,
       typeEdit: typeEdit,
+      slugEdit: slugEdit,
       schedules: schedules,
    }
 }
