@@ -20,7 +20,7 @@ DEV_PORT="${DEV_PORT:-}"
 NGINX_PORT_MAP="${NGINX_PORT_MAP:-$REPO_ROOT/scripts/nginx/dev-site-ports.conf}"
 
 usage() {
-    echo "Usage: $0 <name>"
+    echo "Usage: $0 [--foreground] <name>"
     echo "       $0 --list"
     echo "       $0"
     echo
@@ -35,13 +35,19 @@ usage() {
     echo "(starting them if needed), symlinks its env_file to .env, then runs"
     echo "vite on that context's own port from dev.yml."
     echo
+    echo "The server runs in the background, in its own session: a dropped SSH"
+    echo "connection does not stop it. It logs to logs/dev-<name>.log (follow it"
+    echo "with tail -f) and this script returns once the port answers."
+    echo "--foreground runs it attached to the terminal instead, as before."
+    echo
     echo "One site runs at a time. Any dev server already up — this context's"
     echo "or another's — is stopped first, and named as it is: left running it"
     echo "would serve the route manifest of the branch it booted with, which"
     echo "renders fine and then dies on hydration."
     echo
-    echo "  --list     print the contexts and their ports, marking the one running"
-    echo "  --restart  accepted for older callers; restarting is the default"
+    echo "  --list        print the contexts and their ports, marking the one running"
+    echo "  --foreground  run vite in this terminal (-f); Ctrl-C stops it"
+    echo "  --restart     accepted for older callers; restarting is the default"
 }
 
 if ! command -v yq >/dev/null 2>&1; then
@@ -152,6 +158,7 @@ if [[ $# -lt 1 ]]; then
 fi
 
 ARGS=()
+FOREGROUND=0
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --list)
@@ -159,6 +166,7 @@ while [[ $# -gt 0 ]]; do
             exit 0
             ;;
         --restart) shift ;;
+        --foreground|-f) FOREGROUND=1; shift ;;
         -h|--help) usage; exit 0 ;;
         -*) echo "error: unknown option '$1'" >&2; usage >&2; exit 1 ;;
         *) ARGS+=("$1"); shift ;;
@@ -348,4 +356,36 @@ echo "==> [$NAME] Starting dev server on port $DEV_PORT"
 #
 # --strictPort so a busy port fails loudly instead of silently serving this
 # context from a port nginx does not route.
-exec pnpm exec vite --port "$DEV_PORT" --strictPort
+if [[ "$FOREGROUND" == 1 ]]; then
+    exec pnpm exec vite --port "$DEV_PORT" --strictPort
+fi
+
+# In the background by default, in a session of its own with no terminal: a
+# server that is the SSH session's foreground process gets SIGHUP when the
+# connection drops, and a session that was working on a site loses it.
+LOG="$REPO_ROOT/logs/dev-$NAME.log"
+mkdir -p "$(dirname "$LOG")"
+setsid nohup pnpm exec vite --port "$DEV_PORT" --strictPort > "$LOG" 2>&1 < /dev/null &
+SERVER_PID=$!
+disown "$SERVER_PID" 2>/dev/null || true
+
+# Returns when the port answers, so what follows this script (a browser, a
+# test run) finds a server; fails with the log's end when vite dies first, as
+# --strictPort does on a busy port.
+for _ in $(seq 600); do
+    if ! port_free "$DEV_PORT"; then
+        echo -e "${GREEN}==> [$NAME] dev server answering on port $DEV_PORT (pid $(pid_on_port "$DEV_PORT"))${NC}"
+        echo "    log:        tail -f $LOG"
+        echo "    stop:       kill \$(ss -ltnpH 'sport = :$DEV_PORT' | grep -oP 'pid=\\K[0-9]+' | head -1)"
+        echo "    attached:   $0 --foreground $NAME"
+        exit 0
+    fi
+    if ! kill -0 "$SERVER_PID" 2>/dev/null; then
+        echo "error: the dev server exited before listening on port $DEV_PORT; the end of $LOG:" >&2
+        tail -n 20 "$LOG" >&2
+        exit 1
+    fi
+    sleep 0.1
+done
+echo "error: the dev server did not listen on port $DEV_PORT within 60s; see $LOG" >&2
+exit 1

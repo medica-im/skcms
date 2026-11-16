@@ -57,3 +57,46 @@ describe('dev.sh: stale Vite prebundles after a Svelte upgrade', () => {
 		expect(source).toMatch(/exclude\.has is not a function/);
 	});
 });
+
+/**
+ * A dev server started from an SSH session died with it: the script ended in `exec vite`, so
+ * the server was the session's own foreground process and a dropped connection sent it
+ * SIGHUP. It now starts detached by default, logs to logs/dev-<name>.log, and says when it
+ * answers; --foreground keeps the old attached run for a terminal that wants the output.
+ */
+describe('dev.sh: the server survives the SSH session', () => {
+	const launch = source.slice(source.indexOf('Starting dev server on port'));
+
+	it('starts the server in its own session, with no terminal input, by default', () => {
+		expect(launch).toMatch(/setsid nohup pnpm exec vite --port "\$DEV_PORT" --strictPort/);
+		expect(launch).toMatch(/< \/dev\/null/);
+	});
+
+	it('writes the server output to a log of the context, in the git-ignored logs/', () => {
+		expect(launch).toMatch(/LOG="\$REPO_ROOT\/logs\/dev-\$NAME\.log"/);
+		expect(launch).toMatch(/> "\$LOG" 2>&1/);
+	});
+
+	it('waits for the port and fails with the end of the log when the server does not come up', () => {
+		expect(launch).toMatch(/port_free "\$DEV_PORT"/);
+		expect(launch).toMatch(/kill -0 "\$SERVER_PID"/);
+		expect(launch).toMatch(/tail -n \d+ "\$LOG"/);
+		expect(launch).toMatch(/exit 1/);
+	});
+
+	it('says where the log is and how to stop it or run attached', () => {
+		expect(launch).toMatch(/tail -f \$LOG/);
+		expect(launch).toMatch(/--foreground/);
+	});
+
+	it('keeps an attached run behind --foreground, and takes it as an option', () => {
+		expect(source).toMatch(/--foreground\|-f\) FOREGROUND=1/);
+		expect(launch).toMatch(/if \[\[ "\$FOREGROUND" == 1 \]\]; then\s+exec pnpm exec vite --port "\$DEV_PORT" --strictPort/);
+	});
+
+	it('documents both in the usage', () => {
+		const usage = source.slice(source.indexOf('usage() {'), source.indexOf('if ! command -v yq'));
+		expect(usage).toMatch(/background/);
+		expect(usage).toMatch(/--foreground/);
+	});
+});

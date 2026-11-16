@@ -155,6 +155,6 @@ describe('dev.sh with no site named', () => {
 	});
 
 	it('still shows how to switch site', () => {
-		expect(run().out).toMatch(/Usage: .*dev\.sh <name>/);
+		expect(run().out).toMatch(/Usage: .*dev\.sh \[--foreground\] <name>/);
 	});
 });
