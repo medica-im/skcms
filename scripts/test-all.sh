@@ -565,15 +565,35 @@ ensure_all_site_servers() {
 #
 # The app root, not the origin's: on unipa the origin root is WordPress, and
 # warming it would compile nothing.
+#
+# And the routes the specs go on to visit, one by one: Vite compiles a route on
+# its first request and is single-threaded, so a spec's guard on the root waited
+# behind another worker's cold /e/<slug> and missed its 15s (three annuaire
+# specs on 2026-11-16, with the root warmed). The entry and the facility are the
+# first active ones of the same API the reload spec samples.
 warm_site_servers() {
-    local ctx host origin base result
+    local ctx host origin base path result sample
     for ctx in "$@"; do
         host="$(SITE_CONTEXT="$ctx" site_host)"
         origin="$(site_origin "$host")"
         base="$(site_base_path "$host")"
-        result="$(site_curl -skL -o /dev/null -w '%{http_code} in %{time_total}s' \
-            --max-time 120 "$origin$base/" 2>/dev/null)"
-        info "warmed $origin$base/ (${result:-no answer})"
+        sample="$(site_curl -sk --max-time 30 "$origin/api/v2/entries" 2>/dev/null | python3 -c '
+import json, sys
+try:
+    entries = json.load(sys.stdin)
+except ValueError:
+    entries = []
+for e in entries:
+    facility = e.get("facility") or {}
+    if e.get("active") and e.get("entrySlug") and (facility.get("slug") or facility.get("uid")):
+        print("/e/" + e["entrySlug"]); print("/sites/" + (facility.get("slug") or facility["uid"]))
+        break
+' 2>/dev/null)"
+        for path in "" /sites /contact $sample; do
+            result="$(site_curl -skL -o /dev/null -w '%{http_code} in %{time_total}s' \
+                --max-time 120 "$origin$base${path:-/}" 2>/dev/null)"
+            info "warmed $origin$base${path:-/} (${result:-no answer})"
+        done
     done
 }
 
@@ -1015,13 +1035,6 @@ suite_bdd() {
     # E2E_STOP_AFTER=0) are stopped, not reused: every run measures servers
     # that booted for it.
     stop_site_servers
-    ensure_e2e_workers || { start_dev_server; release_servers; return 1; }
-    # The `sites` project browses the real dev.<site> hostname, not a worker
-    # origin, so the worker servers above do not cover it. Started before
-    # Playwright because a 502 here reads as a broken page.
-    # Every tenant the sites project names, not just one: with a single server
-    # the specs for the other site skipped, so a "full" run quietly omitted them.
-    [[ "$E2E_STOP_DEV_SERVER" == "0" ]] && ensure_all_site_servers
     # The specs under .features-gen are generated from features/*.feature and are
     # not in git, so a fresh checkout has none and Playwright reports "No tests
     # found". Regenerating is also what picks up edits to the feature files.
@@ -1059,7 +1072,43 @@ suite_bdd() {
         warn "xvfb-run not found; Firefox scenarios will fail without a display"
         info "install it with: sudo apt-get install xvfb"
     fi
-    (cd "$FRONTEND_DIR" && "${runner[@]}" "${project_args[@]}") || rc=$?
+    # A phase BDD_GREP matches nothing in has not failed.
+    [[ -n "${BDD_GREP:-}" ]] && project_args+=(--pass-with-no-tests)
+
+    # Two phases, never at once (PLAYWRIGHT_PHASE in playwright.config.ts): the
+    # worker projects with the worker servers up, then the site projects with
+    # the site servers up. Together, a site server starved under eight worker
+    # Vites and their browsers and missed requireSite's 15s budget.
+    # BDD_PROJECT names one project, so it runs the phase that project is in.
+    local run_workers=1 run_sites=1
+    if [[ -n "${BDD_PROJECT:-}" ]]; then
+        if [[ "$BDD_PROJECT" == sites* ]]; then run_workers=0; else run_sites=0; fi
+    fi
+
+    if (( run_workers )); then
+        if ensure_e2e_workers; then
+            info "playwright: every project but the site ones"
+            (cd "$FRONTEND_DIR" && PLAYWRIGHT_PHASE=workers "${runner[@]}" "${project_args[@]}") || rc=$?
+        else
+            rc=1
+        fi
+        # Idle from here on: stopped now, so the site servers have the box.
+        if (( run_sites )) && [[ "$E2E_STOP_AFTER" == "1" ]]; then
+            info "stopping worker dev servers"
+            "$FRONTEND_DIR/scripts/e2e-workers.sh" stop >/dev/null 2>&1 || true
+        fi
+    fi
+
+    if (( run_sites )); then
+        # The `sites` project browses the real dev.<site> hostname, not a worker
+        # origin, so the worker servers do not cover it. Started before
+        # Playwright because a 502 here reads as a broken page.
+        # Every tenant the sites project names, not just one: with a single server
+        # the specs for the other site skipped, so a "full" run quietly omitted them.
+        [[ "$E2E_STOP_DEV_SERVER" == "0" ]] && ensure_all_site_servers
+        info "playwright: the site projects"
+        (cd "$FRONTEND_DIR" && PLAYWRIGHT_PHASE=sites "${runner[@]}" "${project_args[@]}") || rc=$?
+    fi
     release_servers
     start_dev_server
     return "$rc"

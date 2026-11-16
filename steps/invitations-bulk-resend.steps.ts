@@ -105,7 +105,9 @@ Given(
 
 When('I search for my invitations', async ({ page }) => {
 	await page.locator('input[type="search"]').fill(prefix);
-	await expect(page.getByText(invitees[0].name, { exact: true }).filter({ visible: true })).toBeVisible();
+	// Any of them, not the first by name: they share a creation time, and the list
+	// sorts by it, so with more than a page of them the first may be on another.
+	await expect(page.getByText(prefix).filter({ visible: true }).first()).toBeVisible();
 });
 
 const resendButton = (page: Page) => page.getByRole('button', { name: 'Relancer', exact: true });

@@ -11,12 +11,16 @@ import { apiOrigin, siteBasePath } from '../tests/fixtures/session';
  * scenarios also depend on, and the failures landed features away from the
  * cause. Picking by what an entry IS rather than by where it sorts makes the
  * choice deterministic.
+ *
+ * Also excludes the clones other workers seed (their slug carries SEED_TAG):
+ * the feed lists them while their scenario runs, and a scenario that picked
+ * one failed with "source entry not found" once its owner had deleted it.
  */
 export function selectableEntries<T extends { entrySlug?: string; active?: boolean }>(
 	entries: T[]
 ): T[] {
 	return entries.filter(
-		(e) => e.active && e.entrySlug && !e.entrySlug.includes('-ipa')
+		(e) => e.active && e.entrySlug && !e.entrySlug.includes('-ipa') && !/e2eseed/i.test(e.entrySlug)
 	);
 }
 

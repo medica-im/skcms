@@ -91,6 +91,22 @@ const setting = (name: string) => process.env[name] ?? settings[name];
 const E2E_WORKERS = Number(setting('E2E_WORKERS') ?? 8);
 
 /**
+ * Which half of the suite scripts/test-all.sh is running: `workers` (every
+ * project but the site ones, against the worker servers) or `sites` (the site
+ * projects alone, against the site servers, once the workers are stopped).
+ * Unset, everything runs, as a plain `playwright test` always has.
+ *
+ * Run together, the site servers starved: dev.annuaire.medica.im's, up and
+ * never restarted, missed requireSite's 15s budget twice under eight worker
+ * Vites and their browsers (2026-11-15).
+ *
+ * The sites phase writes under test-results/sites and playwright-report/sites,
+ * because Playwright empties its output folders when a run starts.
+ */
+const PHASE = process.env.PLAYWRIGHT_PHASE || undefined;
+const OUTPUT_DIR = PHASE === 'sites' ? 'test-results/sites' : 'test-results';
+
+/**
  * Features that measure or drag real layout boxes, and so need the machine to
  * themselves.
  *
@@ -137,10 +153,11 @@ export default defineConfig({
 	//           trace, browsable instead of copy-pasted out of a terminal.
 	//           `open: 'never'` so a run does not hijack a browser; read it with
 	//           `pnpm exec playwright show-report`.
+	outputDir: OUTPUT_DIR,
 	reporter: [
 		['list'],
-		['json', { outputFile: 'test-results/results.json' }],
-		['html', { open: 'never', outputFolder: 'playwright-report' }]
+		['json', { outputFile: `${OUTPUT_DIR}/results.json` }],
+		['html', { open: 'never', outputFolder: PHASE === 'sites' ? 'playwright-report/sites' : 'playwright-report' }]
 	],
 	// 60s, from the measured distribution rather than from headroom.
 	//
@@ -228,7 +245,7 @@ export default defineConfig({
 		baseURL: apiOrigin(0),
 		trace: 'on-first-retry'
 	},
-	projects: [
+	projects: inPhase([
 		// One chromium project over ALL the worker sites, not one per shape.
 		//
 		// Half the sites are served under a base path and half at their root
@@ -353,8 +370,15 @@ export default defineConfig({
 					}
 				]
 			: [])
-	]
+	])
 });
+
+/** The projects PHASE runs: the site ones for `sites`, the others for `workers`. */
+function inPhase<T extends { name?: string }>(projects: T[]): T[] {
+	if (!PHASE) return projects;
+	const isSites = (p: T) => p.name === 'sites' || !!p.name?.startsWith('sites-');
+	return projects.filter((p) => (PHASE === 'sites') === isSites(p));
+}
 
 /**
  * The `sites` project, split one per tenant, plus `sites` itself over all of
