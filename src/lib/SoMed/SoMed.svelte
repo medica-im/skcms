@@ -7,7 +7,12 @@
 		faLinkedin,
 		faInstagram,
 		faYoutube,
-		faSkype
+		faTiktok,
+		faPinterest,
+		faSnapchat,
+		faTwitch,
+		faBluesky,
+		faMastodon
 	} from '@fortawesome/free-brands-svg-icons';
 	import { getDrawerStore } from '@skeletonlabs/skeleton';
 	import Update from '$lib/Web/SocialMedia/Update.svelte';
@@ -74,7 +79,12 @@
 			LI: faLinkedin,
 			I: faInstagram,
 			YT: faYoutube,
-			S: faSkype
+			TT: faTiktok,
+			P: faPinterest,
+			SC: faSnapchat,
+			TH: faTwitch,
+			B: faBluesky,
+			M: faMastodon
 		};
 		return icons[type as keyof typeof icons];
 	}
