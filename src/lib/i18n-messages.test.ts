@@ -38,6 +38,7 @@ const SAME_IN_BOTH = new Set([
 	'admin_entries_col_type',
 	'ASSOCIATION_TITLE',
 	'CANCER',
+	'CLONE_SETTING_SOURCE',
 	'COL_ACTIONS',
 	'CONTACT_TITLE',
 	'DIRECTORY_AUDIENCE_LGBTQIA',
