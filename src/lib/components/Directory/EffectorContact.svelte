@@ -54,6 +54,7 @@
 	import Affiliates from '$lib/Facility/Affiliates.svelte';
 	import EntryFacts from './EntryFacts.svelte';
 	import CareSteps from './CareSteps.svelte';
+	import { entryTitle } from './entryTitle.ts';
 	import EntryRelated from './EntryRelated.svelte';
 	import EntryCoverage from './EntryCoverage.svelte';
 	import AccessControl from '$lib/Web/Entry/AccessControl.svelte';
@@ -74,6 +75,9 @@
 	const editMode = getEditMode();
 	const avatar = $derived(fullentry.avatar);
 	const userUid = $derived(page.data?.user?.uid);
+	const heading = $derived(
+		entryTitle({ name: fullentry.name, label: fullentry.label, nature: fullentry.effector_type?.nature })
+	);
 	const canEdit = $derived(
 		r.Admin || (r.Member && (fullentry.owner?.includes(userUid) || fullentry.creator?.includes(userUid)))
 	);
@@ -95,7 +99,7 @@
 			<div class="grid grid-cols-1 items-start content-start gap-2 min-w-0 max-w-prose">
 				<h2 class="h3 flex flex-wrap min-w-0 break-words place-items-center gap-4">
 					<span class="min-w-0">
-						{fullentry.name}{#if $editMode}<span class="ml-2 align-middle"><UpdateEffector data={fullentry} /></span>{/if}
+						{heading.title}{#if $editMode}<span class="ml-2 align-middle"><UpdateEffector data={fullentry} /></span>{/if}
 					</span>
 					{#if fullentry.active === false}
 						<span class="badge variant-filled-error badge-sm" title={m.ENTRY_INACTIVE()}
@@ -103,6 +107,9 @@
 						>
 					{/if}
 				</h2>
+				{#if heading.subtitle}
+					<p class="text-lg text-surface-700-200-token" data-testid="entry-full-name">{heading.subtitle}</p>
+				{/if}
 				<div class="flex flex-wrap items-center gap-2 min-w-0">
 					<h3 class="h4 italic">{fullentry?.effector_type?.label}</h3>
 					{#if $editMode}
