@@ -253,7 +253,7 @@
 		{/if}
 	</div>
 	{#if fullentry.effector_type?.immaterial}
-		<EntryCoverage coverage={fullentry.coverage} />
+		<EntryCoverage coverage={fullentry.coverage} entryUid={fullentry.uid} editMode={$editMode} />
 	{:else if fullentry.address}
 		<div class="px-2">
 			<div class="flex items-center p-1">

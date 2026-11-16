@@ -100,6 +100,9 @@ export interface Coverage {
     uid: string;
     name: string | null;
     kind: 'country' | 'region' | 'department' | 'commune';
+    code?: string | null;
+    /** A commune's département code: what tells the six Saint-Maurice apart. */
+    department?: string | null;
 }
 
 /** An entry linked to another: its porteur, or a service it runs (GET /api/v2/fullentries). */

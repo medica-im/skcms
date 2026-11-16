@@ -5,7 +5,7 @@ import { authReq } from '$lib/utils/request.ts';
 import { variables } from '$lib/utils/constants.ts';
 import { slugify } from '$lib/helpers/stringHelpers';
 import { redirect } from '@sveltejs/kit';
-import { OFFERS, type EntryFull } from './lib/store/directoryStoreInterface';
+import { OFFERS, type Coverage, type EntryFull } from './lib/store/directoryStoreInterface';
 import { base } from '$app/paths';
 import type { SlugCheck } from '$lib/Web/Slug/slugView.ts';
 
@@ -80,7 +80,8 @@ const Patch = z.object({
 	redeemEmail: z.nullable(z.string().email()).optional(),
 	access: z.string().optional(),
 	description: z.nullable(z.string().max(2000)).optional(),
-	offers: z.nullable(z.array(z.enum(OFFERS))).optional()
+	offers: z.nullable(z.array(z.enum(OFFERS))).optional(),
+	coverage: z.nullable(z.array(z.string())).optional()
 });
 
 export const patchCommand = command(Patch, async (data) => {
@@ -129,6 +130,16 @@ export const getConventions = query(async () => {
 	if (res.ok) {
 		return await res.json();
 	}
+});
+
+/**
+ * The communes, départements, regions and country matching a few typed letters. A command
+ * though it only reads: called from a typing handler, a query's argument reaches the server
+ * as undefined.
+ */
+export const searchPlaces = command(z.string().max(100), async (q): Promise<Coverage[]> => {
+	const res = await fetch(`${variables.BASE_URI}/api/v2/places?q=${encodeURIComponent(q)}`);
+	return res.ok ? await res.json() : [];
 });
 
 export const getAvailableDirectories = query(async () => {
