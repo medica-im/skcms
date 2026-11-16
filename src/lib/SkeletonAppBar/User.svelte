@@ -28,6 +28,7 @@
 		faHouse,
 		faMapLocationDot,
 		faAddressBook,
+		faClipboardCheck,
 		faEnvelope,
 		faBlog,
 		faRightToBracket,
@@ -172,6 +173,10 @@
 						<a href="{base}/web/directories">
 							<span class="w-6 text-center"><Fa icon={faAddressBook} /></span>
 							<span>{m.DIRECTORIES_NAV()}</span>
+						</a>
+						<a href="{base}/web/quality">
+							<span class="w-6 text-center"><Fa icon={faClipboardCheck} /></span>
+							<span>{m.QUALITY_NAV()}</span>
 						</a>
 						{/if}
 						{#if r.SuperUser}

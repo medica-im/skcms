@@ -68,6 +68,7 @@ export const load: PageLoad = async ({ fetch, params, depends, parent, data, url
             // the request's cookies, like users above.
             typeEdit: data?.typeEdit ?? null,
             slugEdit: data?.slugEdit ?? null,
+            quality: data?.quality ?? [],
             schedules: data?.schedules ?? []
         };
     }

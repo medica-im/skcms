@@ -55,6 +55,7 @@
 	import EntryFacts from './EntryFacts.svelte';
 	import CareSteps from './CareSteps.svelte';
 	import EntryOffers from './EntryOffers.svelte';
+	import EntryQuality from './EntryQuality.svelte';
 	import { entryTitle } from './entryTitle.ts';
 	import EntryRelated from './EntryRelated.svelte';
 	import EntryCoverage from './EntryCoverage.svelte';
@@ -143,6 +144,7 @@
 		</div>
 	</div>
 	<div class="grid grid-cols-1 lg:grid-cols-1 p-2 gap-4">
+		{#if $editMode}<EntryQuality problems={data.quality ?? []} />{/if}
 		<EntryDescription entryUid={fullentry.uid} description={fullentry.description} editMode={$editMode} />
 		<EntryOffers offers={fullentry.offers} entryUid={fullentry.uid} editMode={$editMode} />
 		<EntryFacts entry={fullentry} />

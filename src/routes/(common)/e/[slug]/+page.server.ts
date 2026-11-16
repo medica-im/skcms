@@ -6,6 +6,7 @@ import { resolveOwnerCreator } from '$lib/Web/Users/ownerCreator.ts';
 import type { EntryFull } from '$lib/store/directoryStoreInterface';
 import { currentSlugFor, type TypeEditPermission } from '$lib/Web/Entry/entryType.ts';
 import type { ApiSchedule } from '$lib/Schedule/scheduleApi.ts';
+import type { QualityProblem } from '$lib/Web/Quality/quality.ts';
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ fetch, params, cookies, parent, depends, url }) => {
@@ -72,6 +73,19 @@ export const load: PageServerLoad = async ({ fetch, params, cookies, parent, dep
       }
    }
 
+   // Per user and never cached: what the entry is missing is for whoever may edit it, and the
+   // backend answers 403 to anyone else, which here means no box.
+   let quality: QualityProblem[] = [];
+   if (user?.role) {
+      try {
+         const qualityUrl = `${variables.BASE_URI}/api/v2/entries/${fullentry.uid}/quality`;
+         const qualityRes = await globalThis.fetch(authReq(qualityUrl, 'GET', cookies));
+         if (qualityRes.ok) quality = await qualityRes.json() as QualityProblem[];
+      } catch (err) {
+         console.error('entry quality fetch failed:', err);
+      }
+   }
+
    // Public like the entry itself, but kept out of the full entry's payload:
    // that one is scrubbed by role, and a schedule has nothing to scrub.
    let schedules: ApiSchedule[] = [];
@@ -91,5 +105,6 @@ export const load: PageServerLoad = async ({ fetch, params, cookies, parent, dep
       typeEdit: typeEdit,
       slugEdit: slugEdit,
       schedules: schedules,
+      quality: quality,
    }
 }
