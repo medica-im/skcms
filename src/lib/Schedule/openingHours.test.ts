@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { isOpen, nextChange, summarize, type OpeningSchedule } from './openingHours.ts';
+import { isOpen, isRoundTheClock, nextChange, summarize, type OpeningSchedule } from './openingHours.ts';
 
 const PARIS = 'Europe/Paris';
 const NEW_YORK = 'America/New_York';
@@ -161,5 +161,27 @@ describe('summarize', () => {
 
 	test('a schedule with no open day has no groups', () => {
 		expect(summarize(closedWeek())).toEqual([]);
+	});
+});
+
+describe('isRoundTheClock', () => {
+	const all = { 1: [p('00:00', '24:00')], 2: [p('00:00', '24:00')], 3: [p('00:00', '24:00')], 4: [p('00:00', '24:00')], 5: [p('00:00', '24:00')], 6: [p('00:00', '24:00')], 7: [p('00:00', '24:00')] };
+
+	test('every day all day, holidays included, is 24 h/24 and 7 j/7', () => {
+		expect(isRoundTheClock(week(all, 'open'))).toBe(true);
+	});
+
+	test('closed on public holidays it is not, whatever the week says', () => {
+		expect(isRoundTheClock(week(all, 'closed'))).toBe(false);
+	});
+
+	test('a day short of the whole day is not', () => {
+		expect(isRoundTheClock(week({ ...all, 7: [] }, 'open'))).toBe(false);
+		expect(isRoundTheClock(week({ ...all, 3: [p('08:00', '24:00')] }, 'open'))).toBe(false);
+		expect(isRoundTheClock(week({ ...all, 3: [p('00:00', '02:00'), p('08:00', '24:00')] }, 'open'))).toBe(false);
+	});
+
+	test('an empty week is not', () => {
+		expect(isRoundTheClock(week({}, 'open'))).toBe(false);
 	});
 });

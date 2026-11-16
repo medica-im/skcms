@@ -143,3 +143,11 @@ export const summarize = (schedule: OpeningSchedule): DayGroup[] => {
 	}
 	return groups;
 };
+
+/** Open every hour of every day, public holidays included: « 24 h/24 et 7 j/7 ». */
+export const isRoundTheClock = (schedule: OpeningSchedule): boolean =>
+	schedule.holidays === 'open' &&
+	([1, 2, 3, 4, 5, 6, 7] as IsoDay[]).every((day) => {
+		const periods = schedule.days[day];
+		return periods.length === 1 && periods[0].opens === '00:00' && periods[0].closes === '24:00';
+	});

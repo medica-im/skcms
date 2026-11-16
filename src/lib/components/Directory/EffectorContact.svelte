@@ -53,6 +53,7 @@
 	import { JsonView } from '@zerodevx/svelte-json-view';
 	import Affiliates from '$lib/Facility/Affiliates.svelte';
 	import EntryFacts from './EntryFacts.svelte';
+	import CareSteps from './CareSteps.svelte';
 	import EntryRelated from './EntryRelated.svelte';
 	import EntryCoverage from './EntryCoverage.svelte';
 	import AccessControl from '$lib/Web/Entry/AccessControl.svelte';
@@ -136,6 +137,7 @@
 	<div class="grid grid-cols-1 lg:grid-cols-1 p-2 gap-4">
 		<EntryDescription entryUid={fullentry.uid} description={fullentry.description} editMode={$editMode} />
 		<EntryFacts entry={fullentry} />
+		<CareSteps levels={fullentry.care_levels} />
 		<EntryRelated runBy={fullentry.run_by} services={fullentry.services} />
 		{#if data.schedules?.length || $editMode}
 			<Schedules data={data.schedules} entryUid={fullentry.uid} />
