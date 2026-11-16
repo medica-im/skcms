@@ -59,6 +59,7 @@
 	import { entryTitle } from './entryTitle.ts';
 	import EntryRelated from './EntryRelated.svelte';
 	import EntryCoverage from './EntryCoverage.svelte';
+	import EntryManages from './EntryManages.svelte';
 	import AccessControl from '$lib/Web/Entry/AccessControl.svelte';
 	import type { Entry } from '$lib/store/directoryStoreInterface';
 	import type { EntryFull } from '$lib/store/directoryStoreInterface';
@@ -126,6 +127,7 @@
 					{/if}
 				</div>
 				<Tag data={fullentry?.tags} compact={false} />
+				<EntryManages managed={fullentry.managed} />
 				{#if $editMode}<TagModal tags={fullentry.tags} />{/if}
 				<MembershipSection {memberships} editMode={$editMode} uid={fullentry.uid} />
 			</div>

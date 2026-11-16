@@ -1002,6 +1002,7 @@
   "ENTRY_OFFERS_TITLE": "Ce que propose la fiche",
   "ENTRY_OFFERS_SAVE": "Enregistrer",
   "ENTRY_OFFERS_SAVED": "Enregistré",
+  "DIRECTORY_ENTRY_MANAGES": "Prend en charge",
   "ENTRY_COVERAGE_EDIT": "Modifier la zone couverte",
   "ENTRY_COVERAGE_SEARCH": "Ajouter une commune, un département, une région ou la France",
   "ENTRY_COVERAGE_NONE_FOUND": "Aucun lieu ne correspond.",

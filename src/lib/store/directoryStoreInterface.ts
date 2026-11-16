@@ -105,6 +105,13 @@ export interface Coverage {
     department?: string | null;
 }
 
+/** What an entry manages, by name: a condition, a situation, or the Need itself. */
+export interface Managed {
+    slug: string;
+    name: string;
+    kind: 'condition' | 'situation' | 'need';
+}
+
 /** An entry linked to another: its porteur, or a service it runs (GET /api/v2/fullentries). */
 export interface RelatedEntry {
     uid: string;
@@ -124,6 +131,7 @@ export interface EntryFull extends Partial<EntryFacets> {
     services?: RelatedEntry[] | null;
     /** The slugs of what this entry handles (MANAGES). */
     manages?: string[];
+    managed?: Managed[];
     /** Where the entry answers (COVERS). */
     coverage?: Coverage[];
     active: boolean;
