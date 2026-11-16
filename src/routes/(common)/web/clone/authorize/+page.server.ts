@@ -44,6 +44,6 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		// return would otherwise carry the token to a host of their choosing.
 		returnTo: returnTo.startsWith('/') ? returnTo : `${base}/web/clone/callback`,
 		instance: url.searchParams.get('instance') ?? '',
-		directory: url.searchParams.get('directory') ?? ''
+		sourceDirectory: url.searchParams.get('directory') ?? ''
 	};
 };
