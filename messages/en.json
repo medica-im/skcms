@@ -1192,5 +1192,19 @@
   "FACILITY_NAME_PLACEHOLDER": "e.g. Cabinet médical des Lilas",
   "FACILITY_GEOCODER_NOTICE": "This tool corrects an entry error on the same facility; it does not create a new facility. If an entry has moved to another facility, please contact an administrator.",
   "FACILITY_SLUG_STEP_LABEL": "Facility web address",
-  "FACILITY_SLUG_STEP_HELP": "It is proposed from the name, the category and the person: you can change it."
+  "FACILITY_SLUG_STEP_HELP": "It is proposed from the name, the category and the person: you can change it.",
+  "CLONE_DIRECTORY_SETTINGS": "Directory settings",
+  "CLONE_DIRECTORY_SETTINGS_HINT": "What decides which entries the directory shows. Ticked settings take the source's value.",
+  "CLONE_DIRECTORY_SETTINGS_SAME": "The same on both instances.",
+  "CLONE_DIRECTORY_SETTINGS_APPLY": "Apply the ticked settings",
+  "CLONE_DIRECTORY_SETTINGS_APPLIED": "Settings applied.",
+  "CLONE_DIRECTORY_SETTINGS_FAILED": "The settings could not be read or applied ({status}).",
+  "CLONE_SETTING_LISTS_NEEDS": "Listed needs",
+  "CLONE_SETTING_OFFERED_TYPES": "Offered categories",
+  "CLONE_SETTING_LIST_OWNER_ENTRY": "List the organization's entry",
+  "CLONE_SETTING_MINIMUM_ROLE": "Minimum role to read",
+  "CLONE_SETTING_SOURCE": "Source",
+  "CLONE_SETTING_HERE": "Here",
+  "CLONE_SETTING_EMPTY": "none",
+  "CLONE_SETTING_MISSING_HERE": "Not here, skipped: {names}"
 }

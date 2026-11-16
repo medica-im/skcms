@@ -7,6 +7,7 @@
 	import { cloneToken, takeTokenFromHash } from '$lib/Web/Clone/token.svelte.ts';
 	import { partition, type Preflight } from '$lib/Web/Clone/cloneState.ts';
 	import CloneEntriesTable from '$lib/Web/Clone/CloneEntriesTable.svelte';
+	import CloneDirectorySettings from '$lib/Web/Clone/CloneDirectorySettings.svelte';
 	import { DEFAULT_PAGE_SIZE } from '$lib/Web/Clone/cloneTable.ts';
 
 	/**
@@ -233,6 +234,9 @@
 		{:else if step === 'browse'}
 			<div class="card variant-soft p-4 space-y-4">
 				<h2 class="h3">2. Choisir les fiches</h2>
+				{#if token}
+					<CloneDirectorySettings {instance} {token} {directory} />
+				{/if}
 				{#if entries.length === 0}
 					<button class="btn variant-filled-primary" disabled={busy} onclick={browse}>
 						{busy ? 'Chargement…' : 'Charger les fiches'}

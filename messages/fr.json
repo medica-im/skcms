@@ -1192,5 +1192,19 @@
   "FACILITY_NAME_PLACEHOLDER": "ex. Cabinet médical des Lilas",
   "FACILITY_GEOCODER_NOTICE": "Cet outil sert à corriger une erreur de saisie sur le même établissement, pas à créer un nouvel établissement. Si une entrée a changé d'établissement, veuillez contacter un administrateur.",
   "FACILITY_SLUG_STEP_LABEL": "Adresse web de l'établissement",
-  "FACILITY_SLUG_STEP_HELP": "Elle est proposée à partir du nom, de la catégorie et de la personne : vous pouvez la modifier."
+  "FACILITY_SLUG_STEP_HELP": "Elle est proposée à partir du nom, de la catégorie et de la personne : vous pouvez la modifier.",
+  "CLONE_DIRECTORY_SETTINGS": "Réglages de l'annuaire",
+  "CLONE_DIRECTORY_SETTINGS_HINT": "Ce qui décide des fiches que l'annuaire affiche. Les réglages cochés prennent la valeur de la source.",
+  "CLONE_DIRECTORY_SETTINGS_SAME": "Identiques sur les deux instances.",
+  "CLONE_DIRECTORY_SETTINGS_APPLY": "Appliquer les réglages cochés",
+  "CLONE_DIRECTORY_SETTINGS_APPLIED": "Réglages appliqués.",
+  "CLONE_DIRECTORY_SETTINGS_FAILED": "Les réglages n'ont pas pu être lus ou appliqués ({status}).",
+  "CLONE_SETTING_LISTS_NEEDS": "Besoins listés",
+  "CLONE_SETTING_OFFERED_TYPES": "Catégories proposées",
+  "CLONE_SETTING_LIST_OWNER_ENTRY": "Afficher la fiche de l'organisation",
+  "CLONE_SETTING_MINIMUM_ROLE": "Rôle minimum pour consulter",
+  "CLONE_SETTING_SOURCE": "Source",
+  "CLONE_SETTING_HERE": "Ici",
+  "CLONE_SETTING_EMPTY": "aucun",
+  "CLONE_SETTING_MISSING_HERE": "Absent ici, ignoré : {names}"
 }

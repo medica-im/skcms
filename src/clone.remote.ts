@@ -59,6 +59,32 @@ export const listSourceEntries = command(relaySchema, async ({ instance, token, 
 	};
 });
 
+/** How the source directory's settings differ from this one's. */
+export const directoryDifferences = command(relaySchema, async ({ instance, token, directory }) => {
+	const { cookies } = getRequestEvent();
+	const url =
+		`${variables.BASE_URI}/api/v2/clone/relay/directory` +
+		`?instance=${encodeURIComponent(instance)}&token=${encodeURIComponent(token)}` +
+		(directory ? `&directory=${encodeURIComponent(directory)}` : '');
+	const res = await fetch(authReq(url, 'GET', cookies));
+	if (!res.ok) return { ok: false, status: res.status, differences: [] };
+	return { ok: true, status: 200, differences: await res.json() };
+});
+
+/** Copy the chosen settings; the backend reads their values from the source itself. */
+export const applyDirectorySettings = command(
+	relaySchema.extend({ keys: z.array(z.string()) }),
+	async (body) => {
+		const { cookies } = getRequestEvent();
+		const res = await fetch(
+			authReq(`${variables.BASE_URI}/api/v2/clone/directory/apply`, 'POST', cookies, JSON.stringify(body))
+		);
+		if (!res.ok) return { ok: false, status: res.status, applied: [], warnings: [] };
+		const data = await res.json();
+		return { ok: true, status: 200, applied: data.applied ?? [], warnings: data.warnings ?? [] };
+	}
+);
+
 const preflightSchema = z.object({
 	instance: z.string(),
 	token: z.string(),
