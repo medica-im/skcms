@@ -5,7 +5,7 @@ import { authReq } from '$lib/utils/request.ts';
 import { variables } from '$lib/utils/constants.ts';
 import { slugify } from '$lib/helpers/stringHelpers';
 import { redirect } from '@sveltejs/kit';
-import type { EntryFull } from './lib/store/directoryStoreInterface';
+import { OFFERS, type EntryFull } from './lib/store/directoryStoreInterface';
 import { base } from '$app/paths';
 import type { SlugCheck } from '$lib/Web/Slug/slugView.ts';
 
@@ -79,7 +79,8 @@ const Patch = z.object({
 	directories: z.array(z.string()).optional(),
 	redeemEmail: z.nullable(z.string().email()).optional(),
 	access: z.string().optional(),
-	description: z.nullable(z.string().max(2000)).optional()
+	description: z.nullable(z.string().max(2000)).optional(),
+	offers: z.nullable(z.array(z.enum(OFFERS))).optional()
 });
 
 export const patchCommand = command(Patch, async (data) => {

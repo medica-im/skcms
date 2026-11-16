@@ -50,6 +50,12 @@ export const CARE_LEVELS = ['emergency', 'primary', 'secondary', 'tertiary', 'pr
 export const WHO_CAN_CONTACT = ['anyone', 'referral', 'professionals'] as const;
 export const ACCESS_MODES = ['phone', 'walk_in', 'appointment', 'admission', 'online', 'teleexpertise', 'home_visit'] as const;
 export const AUDIENCES = ['students', 'caregivers', 'parents', 'women', 'men', 'lgbtqia', 'older_adults'] as const;
+export const OFFERS = [
+    'listening', 'information', 'orientation', 'accompaniment', 'peer_support', 'support_group', 'training', 'advocacy',
+    'consultation', 'assessment', 'psychotherapy', 'full_time_hospitalisation',
+    'day_hospitalisation', 'coordination', 'harm_reduction', 'screening',
+    'therapeutic_education'
+] as const;
 
 /** Who an entry is for and how to reach it, as the backend stores it (backend/src/directory/facets.py). Null is unknown, never "no". */
 export interface EntryFacets {
@@ -61,6 +67,8 @@ export interface EntryFacets {
     audiences: (typeof AUDIENCES)[number][]|null;
     free: boolean|null;
     anonymous_care: boolean|null;
+    /** What the service does for the person who comes. */
+    offers: (typeof OFFERS)[number][]|null;
 }
 
 export interface Entry extends Partial<EntryFacets> {
