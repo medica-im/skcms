@@ -13,6 +13,15 @@ import { variables } from '$lib/utils/constants.ts';
  * server and it relays.
  */
 
+/** This site's directories, the main one first: the one a clone lists and writes into. */
+export const listDirectories = query(async () => {
+	const { cookies } = getRequestEvent();
+	const res = await fetch(authReq(`${variables.BASE_URI}/api/v2/directories`, 'GET', cookies));
+	if (!res.ok) return [];
+	const rows = (await res.json()) as { name: string; display_name: string | null; main: boolean }[];
+	return rows.sort((a, b) => Number(b.main) - Number(a.main));
+});
+
 /** The peers this instance may pull from. */
 export const listInstances = query(async () => {
 	const { cookies } = getRequestEvent();
@@ -22,14 +31,19 @@ export const listInstances = query(async () => {
 	return res.ok ? await res.json() : [];
 });
 
-const relaySchema = z.object({ instance: z.string(), token: z.string() });
+const relaySchema = z.object({
+	instance: z.string(),
+	token: z.string(),
+	directory: z.string().nullable().optional()
+});
 
 /** The source's entries, fetched by our server with the token. */
-export const listSourceEntries = command(relaySchema, async ({ instance, token }) => {
+export const listSourceEntries = command(relaySchema, async ({ instance, token, directory }) => {
 	const { cookies } = getRequestEvent();
 	const url =
 		`${variables.BASE_URI}/api/v2/clone/relay/entries` +
-		`?instance=${encodeURIComponent(instance)}&token=${encodeURIComponent(token)}`;
+		`?instance=${encodeURIComponent(instance)}&token=${encodeURIComponent(token)}` +
+		(directory ? `&directory=${encodeURIComponent(directory)}` : '');
 	const res = await fetch(authReq(url, 'GET', cookies));
 	if (!res.ok) return { ok: false, status: res.status, entries: [], alreadyHere: {}, origin: '' };
 	const data = await res.json();
@@ -65,6 +79,7 @@ const executeSchema = z.object({
 	instance: z.string(),
 	token: z.string(),
 	source_org_entry: z.string().nullable().optional(),
+	directory: z.string().nullable().optional(),
 	resolutions: z.array(
 		z.object({
 			source_uid: z.string(),
@@ -89,15 +104,15 @@ export const executeClone = command(executeSchema, async (body) => {
 
 /** Mint a token on THIS instance, for a target that asked to read it. */
 export const mintExportToken = command(
-	z.object({ target_origin: z.string() }),
-	async ({ target_origin }) => {
+	z.object({ target_origin: z.string(), directory: z.string().nullable().optional() }),
+	async ({ target_origin, directory }) => {
 		const { cookies } = getRequestEvent();
 		const res = await fetch(
 			authReq(
 				`${variables.BASE_URI}/api/v2/clone/export-token`,
 				'POST',
 				cookies,
-				JSON.stringify({ target_origin, entry_uids: null })
+				JSON.stringify({ target_origin, entry_uids: null, directory: directory || null })
 			)
 		);
 		if (!res.ok) {
@@ -110,7 +125,7 @@ export const mintExportToken = command(
 			} catch {
 				/* an error page rather than JSON */
 			}
-			return { ok: false, status: res.status, token: '', orgEntry: '', detail };
+			return { ok: false, status: res.status, token: '', orgEntry: '', directory: '', detail };
 		}
 		const data = await res.json();
 		return {
@@ -121,6 +136,7 @@ export const mintExportToken = command(
 			// remap a MEMBER_OF edge pointing at it — the token is opaque to the
 			// target, so this cannot travel inside it.
 			orgEntry: (data.org_entry ?? '') as string,
+			directory: (data.directory ?? '') as string,
 			detail: ''
 		};
 	}

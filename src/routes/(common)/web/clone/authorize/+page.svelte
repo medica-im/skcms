@@ -11,7 +11,7 @@
 	async function approve() {
 		busy = true;
 		error = null;
-		const res = await mintExportToken({ target_origin: data.target });
+		const res = await mintExportToken({ target_origin: data.target, directory: data.directory || null });
 		busy = false;
 		if (!res.ok) {
 			error = res.detail || `This instance refused the request (${res.status}).`;
@@ -25,7 +25,8 @@
 		window.location.href =
 			`${data.target}${data.returnTo}#token=${encodeURIComponent(res.token)}` +
 			`&instance=${encodeURIComponent(data.instance)}` +
-			`&org=${encodeURIComponent(res.orgEntry ?? '')}`;
+			`&org=${encodeURIComponent(res.orgEntry ?? '')}` +
+			`&dir=${encodeURIComponent(res.directory ?? '')}`;
 	}
 </script>
 

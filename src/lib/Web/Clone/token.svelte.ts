@@ -18,10 +18,13 @@ export const cloneToken = $state<{
 	instance: string | null;
 	/** The source's organization Entry uid, for remapping MEMBER_OF edges. */
 	orgEntry: string | null;
+	/** The directory the token is scoped to; null is the site's own. */
+	directory: string | null;
 }>({
 	value: null,
 	instance: null,
-	orgEntry: null
+	orgEntry: null,
+	directory: null
 });
 
 /**
@@ -40,6 +43,7 @@ export function takeTokenFromHash(loc?: { hash: string }, scrub?: () => void): b
 	cloneToken.value = token;
 	cloneToken.instance = params.get('instance');
 	cloneToken.orgEntry = params.get('org');
+	cloneToken.directory = params.get('dir') || null;
 
 	// Out of the address bar before anything can copy it, and before a
 	// screenshot or a shared link can carry it.
@@ -56,4 +60,5 @@ export function clearToken() {
 	cloneToken.value = null;
 	cloneToken.instance = null;
 	cloneToken.orgEntry = null;
+	cloneToken.directory = null;
 }

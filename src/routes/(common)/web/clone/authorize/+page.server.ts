@@ -43,6 +43,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		// A path on the target, never an absolute URL: an attacker-supplied
 		// return would otherwise carry the token to a host of their choosing.
 		returnTo: returnTo.startsWith('/') ? returnTo : `${base}/web/clone/callback`,
-		instance: url.searchParams.get('instance') ?? ''
+		instance: url.searchParams.get('instance') ?? '',
+		directory: url.searchParams.get('directory') ?? ''
 	};
 };

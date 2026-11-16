@@ -3,7 +3,7 @@
 	import { invalidate } from '$app/navigation';
 	import { base } from '$app/paths';
 	import { userRoles } from '$lib/auth/roles.ts';
-	import { listInstances, listSourceEntries, preflight, executeClone } from '../../../../clone.remote.ts';
+	import { listDirectories, listInstances, listSourceEntries, preflight, executeClone } from '../../../../clone.remote.ts';
 	import { cloneToken, takeTokenFromHash } from '$lib/Web/Clone/token.svelte.ts';
 	import { partition, type Preflight } from '$lib/Web/Clone/cloneState.ts';
 	import CloneEntriesTable from '$lib/Web/Clone/CloneEntriesTable.svelte';
@@ -21,6 +21,9 @@
 	let step = $state<'instance' | 'browse' | 'verify' | 'done'>('instance');
 	let instances = $state<Array<{ name: string; display_name: string; origin: string }>>([]);
 	let instance = $state('');
+	let directories = $state<Array<{ name: string; display_name: string | null; main: boolean }>>([]);
+	/** This site's directory the clone lists and writes into; the source scopes its token to the same name. */
+	let directory = $state('');
 	let entries = $state<any[]>([]);
 	/** Source uid -> local slug, for entries this instance already has. */
 	let alreadyHere = $state<Record<string, string>>({});
@@ -91,12 +94,15 @@
 		takeTokenFromHash();
 		if (cloneToken.value && step === 'instance') {
 			if (cloneToken.instance) instance = cloneToken.instance;
+			if (cloneToken.directory) directory = cloneToken.directory;
 			step = 'browse';
 		}
 	});
 
 	async function loadInstances() {
 		instances = await listInstances();
+		directories = await listDirectories();
+		if (!directory) directory = directories[0]?.name ?? '';
 	}
 	loadInstances();
 
@@ -108,13 +114,14 @@
 		window.location.href =
 			`${peer.origin}${base}/web/clone/authorize` +
 			`?target=${encodeURIComponent(target)}&return=${encodeURIComponent(back)}` +
-			`&instance=${encodeURIComponent(peer.name)}`;
+			`&instance=${encodeURIComponent(peer.name)}` +
+			(directory ? `&directory=${encodeURIComponent(directory)}` : '');
 	}
 
 	async function browse() {
 		busy = true;
 		error = null;
-		const res = await listSourceEntries({ instance, token: token! });
+		const res = await listSourceEntries({ instance, token: token!, directory: directory || null });
 		busy = false;
 		if (!res.ok) {
 			error = `The source refused the entry list (${res.status}).`;
@@ -156,6 +163,7 @@
 			instance,
 			token: token!,
 			source_org_entry: cloneToken.orgEntry || null,
+			directory: directory || null,
 			resolutions
 		});
 		results = res.results;
@@ -204,6 +212,16 @@
 						<option value={i.name}>{i.display_name}</option>
 					{/each}
 				</select>
+				{#if directories.length > 1}
+					<label class="label">
+						<span>Annuaire</span>
+						<select class="select" bind:value={directory} data-testid="clone-directory">
+							{#each directories as d}
+								<option value={d.name}>{d.display_name || d.name}</option>
+							{/each}
+						</select>
+					</label>
+				{/if}
 				<p class="text-sm opacity-75">
 					Vous serez redirigé vers cette instance pour vous identifier. L'autorisation
 					dure 15&nbsp;minutes.

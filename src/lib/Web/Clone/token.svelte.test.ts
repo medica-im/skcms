@@ -43,8 +43,21 @@ describe('takeTokenFromHash', () => {
 	});
 
 	it('is cleared on demand, so leaving the wizard drops it', () => {
-		takeTokenFromHash({ hash: '#token=abc' }, vi.fn());
+		takeTokenFromHash({ hash: '#token=abc&dir=cpts-lyon-3-sante-mentale' }, vi.fn());
 		clearToken();
 		expect(cloneToken.value).toBeNull();
+		expect(cloneToken.directory).toBeNull();
+	});
+
+	it('keeps the directory the token is scoped to, which the clone lists and writes into', () => {
+		// A site may have several directories (santelyon3, and the santé mentale one): the
+		// source names the one it scoped the token to, beside the token.
+		takeTokenFromHash({ hash: '#token=abc&instance=dev&dir=cpts-lyon-3-sante-mentale' }, vi.fn());
+		expect(cloneToken.directory).toBe('cpts-lyon-3-sante-mentale');
+	});
+
+	it('has no directory when the source named none, so the site’s own is used', () => {
+		takeTokenFromHash({ hash: '#token=abc&instance=dev' }, vi.fn());
+		expect(cloneToken.directory).toBeNull();
 	});
 });
