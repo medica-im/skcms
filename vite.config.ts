@@ -83,6 +83,10 @@ export default defineConfig(({ mode }) => {
 					// components and anything asserting on computed style or layout
 					// do not behave faithfully under a DOM shim.
 					extends: true,
+					// Pre-bundled up front: a dependency the browser runner first meets
+					// mid-run (zod, imported by a test) makes Vite re-optimise and reload,
+					// which closes the browser session and leaves other files with 0 tests.
+					optimizeDeps: { include: ['zod'] },
 					test: {
 						name: 'component',
 						// Run with BASE_PATH empty:
