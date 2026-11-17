@@ -532,13 +532,20 @@ ensure_all_site_servers() {
     # too, so a listening socket proves nothing. Only dev-site-test.conf marks
     # its responses — whatever the status, a 502 from a server not yet started
     # included.
-    if [[ -n "$SITES_VIA" ]] && ! site_curl -sk -o /dev/null -D - --max-time 10 \
-            "https://$(site_host)/" 2>/dev/null | grep -qi '^x-dev-site-test: 1'; then
-        fail "nothing answers on $SITES_VIA for this run's site servers"
-        info "install it once:  sudo ln -s ${TEST_ALL_CHECKOUT:-$FRONTEND_DIR}/scripts/nginx/dev-site-test.conf /etc/nginx/sites-enabled/dev-site-test"
-        info "                  sudo nginx -t && sudo systemctl reload nginx"
-        info "or run on the dev ports, stopping any dev server there:  SITES_VIA= ${TEST_ALL_CHECKOUT:-$FRONTEND_DIR}/scripts/test-all.sh"
-        return 1
+    if [[ -n "$SITES_VIA" ]]; then
+        local probe=0
+        "$FRONTEND_DIR/scripts/site-test-route.sh" "$(site_host)" "$SITES_VIA" || probe=$?
+        if (( probe == 1 )); then
+            fail "the route to this run's site servers is not installed on $SITES_VIA"
+            info "install it once:  sudo ln -s ${TEST_ALL_CHECKOUT:-$FRONTEND_DIR}/scripts/nginx/dev-site-test.conf /etc/nginx/sites-enabled/dev-site-test"
+            info "                  sudo nginx -t && sudo systemctl reload nginx"
+        elif (( probe )); then
+            fail "nothing answers on $SITES_VIA for this run's site servers"
+        fi
+        if (( probe )); then
+            info "or run on the dev ports, stopping any dev server there:  SITES_VIA= ${TEST_ALL_CHECKOUT:-$FRONTEND_DIR}/scripts/test-all.sh"
+            return 1
+        fi
     fi
     while read -r site; do
         [[ -z "$site" ]] && continue
@@ -1105,9 +1112,14 @@ suite_bdd() {
         # Playwright because a 502 here reads as a broken page.
         # Every tenant the sites project names, not just one: with a single server
         # the specs for the other site skipped, so a "full" run quietly omitted them.
-        [[ "$E2E_STOP_DEV_SERVER" == "0" ]] && ensure_all_site_servers
-        info "playwright: the site projects"
-        (cd "$FRONTEND_DIR" && PLAYWRIGHT_PHASE=sites "${runner[@]}" "${project_args[@]}") || rc=$?
+        if [[ "$E2E_STOP_DEV_SERVER" == "0" ]] && ! ensure_all_site_servers; then
+            fail "site specs not run: their servers could not be set up (see above)"
+            record "bdd sites (setup)" fail 0
+            rc=1
+        else
+            info "playwright: the site projects"
+            (cd "$FRONTEND_DIR" && PLAYWRIGHT_PHASE=sites "${runner[@]}" "${project_args[@]}") || rc=$?
+        fi
     fi
     release_servers
     start_dev_server

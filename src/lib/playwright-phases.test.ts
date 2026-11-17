@@ -111,4 +111,23 @@ describe('test-all.sh', () => {
 		expect(siteServers).toBeGreaterThan(workers);
 		expect(sites).toBeGreaterThan(siteServers);
 	});
+
+	it('does not run the site specs on servers it could not set up', () => {
+		// On 2026-11-17 a failed route check still ran all 173 site specs: 104 failed on a
+		// 502 and 69 did not run, burying the one line that said what went wrong.
+		const setup = bdd.indexOf('! ensure_all_site_servers');
+		const sites = bdd.indexOf('PLAYWRIGHT_PHASE=sites');
+
+		expect(setup).toBeGreaterThan(-1);
+		expect(bdd.slice(setup, sites)).toMatch(/record "[^"]*setup[^"]*" fail/);
+		expect(bdd.slice(setup, sites)).toContain('else');
+	});
+
+	it('checks the route to the site servers with site-test-route.sh', () => {
+		const start = script.indexOf('ensure_all_site_servers() {');
+		const ensure = script.slice(start, script.indexOf('\n}\n', start));
+
+		expect(ensure).toContain('scripts/site-test-route.sh');
+		expect(ensure).not.toMatch(/\|\s*grep -qi '\^x-dev-site-test/);
+	});
 });
