@@ -7,21 +7,21 @@
 	import { faCheck, faPenToSquare, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import { JsonView } from '@zerodevx/svelte-json-view';
-	import Dialog from '$lib/Web/Dialog.svelte';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import SlugField from '$lib/Web/Facility/SlugField.svelte';
+	import Dialog from '#lib/Web/Dialog.svelte';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import SlugField from '#lib/Web/Facility/SlugField.svelte';
 	import type { LngLatLike } from 'svelte-maplibre';
-	import type { AddressFeature } from '$lib/store/directoryStoreInterface';
-	import AddMarkerMap from '$lib/MapLibre/AddMarkerMap.svelte';
-	import Geocoder from '$lib/components/Geocoder/Geocoder.svelte';
+	import type { AddressFeature } from '#lib/store/directoryStoreInterface.ts';
+	import AddMarkerMap from '#lib/MapLibre/AddMarkerMap.svelte';
+	import Geocoder from '#lib/components/Geocoder/Geocoder.svelte';
 	import MissingGpsDialog from './MissingGpsDialog.svelte';
-	import { hasCoordinates } from '$lib/components/Map/coordinates.ts';
+	import { hasCoordinates } from '#lib/components/Map/coordinates.ts';
 	import {
 		getAddressFeature,
 		setAddressFeature,
 		setGeoInputAddress
-	} from '$lib/components/Directory/context';
-	import { mspPostgres } from '$lib/constants.ts';
+	} from '#lib/components/Directory/context.ts';
+	import { mspPostgres } from '#lib/constants.ts';
 	import {
 		validateName,
 		validateLabel,
@@ -30,7 +30,7 @@
 		validateZoom,
 		validateStreet
 	} from './validate.ts';
-	import type { FacilityV2 } from '$lib/interfaces/v2/facility.ts';
+	import type { FacilityV2 } from '#lib/interfaces/v2/facility.ts';
 	import type { InputClass, IsRequired, ValidateForm } from './validate.ts';
 
 	let {
@@ -139,7 +139,7 @@
 	let glow = $state(false);
 
 	const useGeocoder = () => {
-		form?.querySelector<HTMLInputElement>('input[name="geocoder"]')?.focus();
+		form?.querySelector<HTMLInputElement>('input[data-field="geocoder"]')?.focus();
 		glow = true;
 		setTimeout(() => (glow = false), 3000);
 	};
@@ -211,10 +211,12 @@
 					{#each updateFacility.for(uid).fields.uid.issues() as issue}
 						<p class="issue">{issue.message}</p>
 					{/each}
-					<input class="input hidden" name="uid" type="text" placeholder="" bind:value={uid} />
-					<input
+					<input {...updateFacility.for(uid).fields.uid.as('hidden', uid ?? '')} />
+<input data-field="uid" class="input hidden" type="text" placeholder="" bind:value={uid} />
+					<input {...updateFacility.for(uid).fields.redirect.as('hidden', redirect)} />
+<input data-field="redirect"
 						class="hidden"
-						name="redirect"
+					
 						type="checkbox"
 						placeholder=""
 						bind:checked={redirect}
@@ -224,10 +226,11 @@
 						{#each updateFacility.for(uid).fields.name.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
-						<input
+						<input {...updateFacility.for(uid).fields.name.as('hidden', name ?? '')} />
+<input data-field="name"
 							oninput={() => {}}
 							class="input w-full {inputClass.name}"
-							name="name"
+						
 							type="text"
 							placeholder=""
 							bind:value={name}
@@ -241,10 +244,11 @@
 						{#each updateFacility.for(uid).fields.label.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
-						<input
+						<input {...updateFacility.for(uid).fields.label.as('hidden', label ?? '')} />
+<input data-field="label"
 							oninput={() => {}}
 							class="input w-full {inputClass.label}"
-							name="label"
+						
 							type="text"
 							placeholder=""
 							bind:value={label}
@@ -263,6 +267,7 @@
 						bind:slug
 						bind:ok={slugOk}
 					/>
+					<input {...updateFacility.for(uid).fields.slug.as('hidden', slug ?? '')} />
 					{#each updateFacility.for(uid).fields.slug.issues() as issue}
 						<p class="issue">{issue.message}</p>
 					{/each}
@@ -282,10 +287,11 @@
 					{#each updateFacility.for(uid).fields.ban_id.issues() as issue}
 						<p class="issue">{issue.message}</p>
 					{/each}
-					<input
+					<input {...updateFacility.for(uid).fields.ban_id.as('hidden', ban_id ?? '')} />
+<input data-field="ban_id"
 						oninput={() => {}}
 						class="input hidden"
-						name="ban_id"
+					
 						type="text"
 						placeholder=""
 						bind:value={ban_id}
@@ -293,10 +299,11 @@
 					{#each updateFacility.for(uid).fields.ban_banId.issues() as issue}
 						<p class="issue">{issue.message}</p>
 					{/each}
-					<input
+					<input {...updateFacility.for(uid).fields.ban_banId.as('hidden', ban_banId ?? '')} />
+<input data-field="ban_banId"
 						oninput={() => {}}
 						class="input hidden"
-						name="ban_banId"
+					
 						type="text"
 						placeholder=""
 						bind:value={ban_banId}
@@ -306,10 +313,11 @@
 						{#each updateFacility.for(uid).fields.building.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
-						<input
+						<input {...updateFacility.for(uid).fields.building.as('hidden', building ?? '')} />
+<input data-field="building"
 							oninput={() => {}}
 							class="input w-full {inputClass.building}"
-							name="building"
+						
 							type="text"
 							placeholder=""
 							bind:value={building}
@@ -320,10 +328,11 @@
 						{#each updateFacility.for(uid).fields.street.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
-						<input
+						<input {...updateFacility.for(uid).fields.street.as('hidden', street ?? '')} />
+<input data-field="street"
 							oninput={() => {}}
 							class="input w-full {inputClass.street}"
-							name="street"
+						
 							type="text"
 							placeholder=""
 							bind:value={street}
@@ -338,10 +347,11 @@
 						{#each updateFacility.for(uid).fields.geographical_complement.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
-						<input
+						<input {...updateFacility.for(uid).fields.geographical_complement.as('hidden', geographical_complement ?? '')} />
+<input data-field="geographical_complement"
 							oninput={() => {}}
 							class="input w-full {inputClass.geographical_complement}"
-							name="geographical_complement"
+						
 							type="text"
 							placeholder=""
 							bind:value={geographical_complement}
@@ -353,10 +363,11 @@
 							{#each updateFacility.for(uid).fields.zip.issues() as issue}
 								<p class="issue">{issue.message}</p>
 							{/each}
-							<input
+							<input {...updateFacility.for(uid).fields.zip.as('hidden', zip ?? '')} />
+<input data-field="zip"
 								readonly
 								class="input w-full opacity-60"
-								name="zip"
+							
 								type="text"
 								placeholder=""
 								value={zip}
@@ -381,10 +392,11 @@
 							{#each updateFacility.for(uid).fields.zoom.issues() as issue}
 								<p class="issue">{issue.message}</p>
 							{/each}
-							<input
+							<input {...updateFacility.for(uid).fields.zoom.as('hidden', String(zoom))} />
+<input data-field="zoom"
 								oninput={() => {}}
 								class="input w-full {inputClass.zoom}"
-								name="zoom"
+							
 								type="number"
 								min="0"
 								max="20"
@@ -397,14 +409,16 @@
 						</label>
 						<label class="label min-w-[8rem] flex-[2]">
 							<span>Latitude</span>
-							<input name="latitude" class="input w-full" bind:value={lat} />
+							<input {...updateFacility.for(uid).fields.latitude.as('hidden', String(lat ?? ''))} />
+<input data-field="latitude" class="input w-full" bind:value={lat} />
 							{#each updateFacility.for(uid).fields.latitude.issues() as issue}
 								<p class="issue">{issue.message}</p>
 							{/each}
 						</label>
 						<label class="label min-w-[8rem] flex-[2]">
 							<span>Longitude</span>
-							<input name="longitude" class="input w-full" bind:value={lng} />
+							<input {...updateFacility.for(uid).fields.longitude.as('hidden', String(lng ?? ''))} />
+<input data-field="longitude" class="input w-full" bind:value={lng} />
 							{#each updateFacility.for(uid).fields.longitude.issues() as issue}
 								<p class="issue">{issue.message}</p>
 							{/each}
@@ -451,8 +465,9 @@
 								// manual reload.
 								await invalidateAll();
 							}
-							page.url.searchParams.set('success', 'false');
-							goto(`?${page.url.searchParams.toString()}`);
+							const url = new URL(page.url.href);
+							url.searchParams.set('success', 'false');
+							goto(`?${url.searchParams.toString()}`);
 						}}>{formResult?.success || slugSuccess ? 'Fermer' : 'Annuler'}</button
 					>
 				</div>

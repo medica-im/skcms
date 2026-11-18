@@ -9,7 +9,8 @@ const { When, Then } = createBdd(test);
 
 const dialog = (page: import('@playwright/test').Page) => page.locator('dialog[open]');
 const field = (page: import('@playwright/test').Page, label: string) =>
-	dialog(page).locator('label', { hasText: label }).locator('input');
+	// The visible control: a remote form's value travels in a hidden input beside it.
+	dialog(page).locator('label', { hasText: label }).locator('input:not([type="hidden"])');
 
 Then('the postal code is shown and cannot be edited', async ({ page }) => {
 	const zip = field(page, 'Code postal');
@@ -25,7 +26,7 @@ Then('the commune cannot be edited', async ({ page }) => {
 });
 
 const geocoder = (page: import('@playwright/test').Page) =>
-	dialog(page).locator('input[name="geocoder"]');
+	dialog(page).locator('input[data-field="geocoder"]');
 
 // The address service is a public one we don't run: a stub keeps the scenario
 // about what the dialog does with an answer, not about the service's uptime.
@@ -69,7 +70,9 @@ Then('that address is offered', async ({ page }) => {
 });
 
 When('I choose the address offered', async ({ page }) => {
-	await dialog(page).getByRole('button', { name: /Rue du Correctif/ }).click();
+	await dialog(page)
+		.getByRole('button', { name: /Rue du Correctif/ })
+		.click();
 });
 
 Then('the postal code is that of the address chosen', async ({ page }) => {
@@ -98,7 +101,7 @@ Then(
 Then('zoom, latitude and longitude are on the same line', async ({ page }) => {
 	const tops = await Promise.all(
 		['zoom', 'latitude', 'longitude'].map(async (name) => {
-			const box = await dialog(page).locator(`input[name="${name}"]`).boundingBox();
+			const box = await dialog(page).locator(`input[data-field="${name}"]`).boundingBox();
 			expect(box, `no ${name} field`).toBeTruthy();
 			return Math.round(box!.y);
 		})

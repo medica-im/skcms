@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
-	import MissingGpsDialog from '$lib/Web/Facility/MissingGpsDialog.svelte';
-	import { hasCoordinates } from '$lib/components/Map/coordinates.ts';
-	import SlugField from '$lib/Web/Facility/SlugField.svelte';
-	import NameHint from '$lib/Web/Facility/NameHint.svelte';
+	import MissingGpsDialog from '#lib/Web/Facility/MissingGpsDialog.svelte';
+	import { hasCoordinates } from '#lib/components/Map/coordinates.ts';
+	import SlugField from '#lib/Web/Facility/SlugField.svelte';
+	import NameHint from '#lib/Web/Facility/NameHint.svelte';
 	import * as m from '$msgs';
 	import { createFacility } from '$src/facility.remote.ts';
 	import {
@@ -11,16 +11,16 @@
 		faExclamationCircle
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import type { AddressFeature } from '$lib/store/directoryStoreInterface';
-	import AddMarkerMap from '$lib/MapLibre/AddMarkerMap.svelte';
-	import Geocoder from '$lib/components/Geocoder/Geocoder.svelte';
+	import type { AddressFeature } from '#lib/store/directoryStoreInterface.ts';
+	import AddMarkerMap from '#lib/MapLibre/AddMarkerMap.svelte';
+	import Geocoder from '#lib/components/Geocoder/Geocoder.svelte';
 	import {
 		getAddressFeature,
 		getGeoInputAddress,
 		setAddressFeature,
 		setGeoInputAddress
-	} from '$lib/components/Directory/context';
-	import { mspPostgres } from '$lib/constants.ts';
+	} from '#lib/components/Directory/context.ts';
+	import { mspPostgres } from '#lib/constants.ts';
 	import {
 		validateName,
 		validateLabel,
@@ -29,8 +29,8 @@
 		validateZoom,
 		validateStreet,
 		validateZip
-	} from '$lib/Web/Facility/validate.ts';
-	import type { InputClass, IsRequired, ValidateForm } from '$lib/Web/Facility/validate.ts';
+	} from '#lib/Web/Facility/validate.ts';
+	import type { InputClass, IsRequired, ValidateForm } from '#lib/Web/Facility/validate.ts';
 	import type { PageData } from './$types';
 
 	interface Props {
@@ -143,7 +143,7 @@
 	const useGeocoder = async () => {
 		geocoder = true;
 		await tick();
-		form?.querySelector<HTMLInputElement>('input[name="geocoder"]')?.focus();
+		form?.querySelector<HTMLInputElement>('input[data-field="geocoder"]')?.focus();
 		glow = true;
 		setTimeout(() => (glow = false), 3000);
 	};
@@ -240,10 +240,11 @@
 				{#each createFacility.fields.ban_id.issues() as issue}
 					<p class="issue">{issue.message}</p>
 				{/each}
-				<input
+				<input {...createFacility.fields.ban_id.as('hidden', ban_id ?? '')} />
+<input data-field="ban_id"
 					oninput={() => {}}
 					class="input hidden"
-					name="ban_id"
+				
 					type="text"
 					placeholder=""
 					bind:value={ban_id}
@@ -251,10 +252,11 @@
 				{#each createFacility.fields.ban_banId.issues() as issue}
 					<p class="issue">{issue.message}</p>
 				{/each}
-				<input
+				<input {...createFacility.fields.ban_banId.as('hidden', ban_banId ?? '')} />
+<input data-field="ban_banId"
 					oninput={() => {}}
 					class="input hidden"
-					name="ban_banId"
+				
 					type="text"
 					placeholder=""
 					bind:value={ban_banId}
@@ -264,10 +266,11 @@
 					{#each createFacility.fields.building.issues() as issue}
 						<p class="issue">{issue.message}</p>
 					{/each}
-					<input
+					<input {...createFacility.fields.building.as('hidden', building ?? '')} />
+<input data-field="building"
 						oninput={() => {}}
 						class="input {street ? '' : 'hidden'} {inputClass.building}"
-						name="building"
+					
 						type="text"
 						placeholder=""
 						bind:value={building}
@@ -278,9 +281,10 @@
 					{#each createFacility.fields.street.issues() as issue}
 						<p class="issue">{issue.message}</p>
 					{/each}
-					<input
+					<input {...createFacility.fields.street.as('hidden', street ?? '')} />
+<input data-field="street"
 						class="input {geocoder ? 'hidden' : ''} {inputClass.street}"
-						name="street"
+					
 						type="text"
 						placeholder=""
 						bind:value={street}
@@ -295,10 +299,11 @@
 					{#each createFacility.fields.geographical_complement.issues() as issue}
 						<p class="issue">{issue.message}</p>
 					{/each}
-					<input
+					<input {...createFacility.fields.geographical_complement.as('hidden', geographical_complement ?? '')} />
+<input data-field="geographical_complement"
 						oninput={() => {}}
 						class="input {street ? '' : 'hidden'} {inputClass.geographical_complement}"
-						name="geographical_complement"
+					
 						type="text"
 						placeholder=""
 						bind:value={geographical_complement}
@@ -309,10 +314,11 @@
 					{#each createFacility.fields.zip.issues() as issue}
 						<p class="issue">{issue.message}</p>
 					{/each}
-					<input
+					<input {...createFacility.fields.zip.as('hidden', zip ?? '')} />
+<input data-field="zip"
 						class="input {geocoder && !$addressFeature?.properties.postcode ? 'hidden' : ''}"
 						readonly={geocoder && !!$addressFeature?.properties.postcode}
-						name="zip"
+					
 						type="text"
 						placeholder=""
 						bind:value={zip}
@@ -324,10 +330,11 @@
 					{#each createFacility.fields.name.issues() as issue}
 						<p class="issue">{issue.message}</p>
 					{/each}
-					<input
+					<input {...createFacility.fields.name.as('hidden', name ?? '')} />
+<input data-field="name"
 						oninput={() => {}}
 						class="input {street ? '': 'hidden'} {inputClass.name}"
-						name="name"
+					
 						type="text"
 						placeholder={m.FACILITY_NAME_PLACEHOLDER()}
 						bind:value={name}
@@ -341,10 +348,11 @@
 					{#each createFacility.fields.label.issues() as issue}
 						<p class="issue">{issue.message}</p>
 					{/each}
-					<input
+					<input {...createFacility.fields.label.as('hidden', label ?? '')} />
+<input data-field="label"
 						oninput={() => {}}
 						class="input {name.length > 30 ? '' : 'hidden'} {inputClass.label}"
-						name="label"
+					
 						type="text"
 						placeholder="Nom abrégé pour affichage"
 						bind:value={label}
@@ -363,6 +371,9 @@
 						bind:ok={slugOk}
 					/>
 				{/if}
+				<input
+					{...createFacility.fields.slug.as('hidden', street && !deferSlug ? slug : '')}
+				/>
 				{#each createFacility.fields.slug.issues() as issue}
 					<p class="issue">{issue.message}</p>
 				{/each}
@@ -374,10 +385,11 @@
 					{#each createFacility.fields.zoom.issues() as issue}
 						<p class="issue">{issue.message}</p>
 					{/each}
-					<input
+					<input {...createFacility.fields.zoom.as('hidden', String(zoom))} />
+<input data-field="zoom"
 						oninput={() => {}}
 						class="input {inputClass.zoom}"
-						name="zoom"
+					
 						type="number"
 						min="0"
 						max="20"

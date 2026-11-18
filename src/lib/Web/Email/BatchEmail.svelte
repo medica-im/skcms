@@ -3,15 +3,15 @@
 	import { goto } from '$app/navigation';
 	import { InputChip } from '@skeletonlabs/skeleton';
 	import { sendBatchEmail } from '../../../batchemail.remote.ts';
-	import { setSelectedOwners, getSelectedOwners } from '$lib/components/Directory/context';
-	import CtxDirectory from '$lib/components/Directory/CtxDirectory.svelte';
-	import StepProgress from '$lib/Web/StepProgress.svelte';
+	import { setSelectedOwners, getSelectedOwners } from '#lib/components/Directory/context.ts';
+	import CtxDirectory from '#lib/components/Directory/CtxDirectory.svelte';
+	import StepProgress from '#lib/Web/StepProgress.svelte';
 	import Fa from 'svelte-fa';
 	import { faPaperPlane, faArrowLeft, faCheck, faXmark, faExclamationCircle, faEnvelopeOpenText } from '@fortawesome/free-solid-svg-icons';
-	import type { OwnerInfo } from '$lib/components/Directory/context';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import type { OwnerInfo } from '#lib/components/Directory/context.ts';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import * as m from '$msgs';
-	import { base } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 
 	setSelectedOwners();
 
@@ -60,25 +60,28 @@
 </script>
 
 <div class="p-2">
-	<div class="flex flex-wrap gap-2 justify-between items-start p-2 lg:sticky lg:top-0 lg:z-20 lg:h-0 lg:overflow-visible">
-		<div class="w-fit">
-			<StepProgress {steps} compact />
-		</div>
+	<div
+		class="flex flex-wrap gap-2 justify-between items-start p-2 lg:sticky lg:top-0 lg:z-20 lg:h-0 lg:overflow-visible"
+	>
+		<div class="w-fit"><StepProgress steps={steps} compact /></div>
 		{#if currentStep === 0}
 			<div class="flex flex-wrap gap-2 max-w-44">
 				<div class="chip variant-filled-primary">{$selectedOwners.size} {m.selected({ count: $selectedOwners.size })}</div>
-			<button
-				type="button"
-				class="btn variant-ringed-surface shadow-lg p-2"
-				disabled={!hasSelection}
-				onclick={validateSelection}
-			>Valider
-			</button>
-			<a href="{base}/web/email" class="btn variant-ghost-surface p-2">
-				<Fa icon={faEnvelopeOpenText} class="mr-1" />
-				{capitalizeFirstLetter(m.sent_emails())}
-			</a>
-		</div>
+				<button
+					type="button"
+					class="btn variant-ringed-surface shadow-lg p-2"
+					disabled={!hasSelection}
+					onclick={validateSelection}
+				>Valider</button>
+
+				<a
+					href="{base()}/web/email"
+					class="btn variant-ghost-surface p-2"
+				>
+					<Fa icon={faEnvelopeOpenText} class="mr-1" />
+					{capitalizeFirstLetter(m.sent_emails())}
+				</a>
+			</div>
 		{/if}
 	</div>
 
@@ -113,16 +116,16 @@
 					}
 				})}
 			>
-				<input type="hidden" name="recipient_uids" bind:value={recipientUids} />
-				<input type="hidden" name="author_uid" value={page.data.user.uid} />
+				<input {...sendBatchEmail.fields.recipient_uids.as('hidden', recipientUids ?? '')} />
+
+				<input {...sendBatchEmail.fields.author_uid.as('hidden', page.data.user.uid ?? '')} />
 
 				<div class="space-y-4">
 					<label class="label">
 						<span>Objet</span>
 						<input
-							type="text"
+							{...sendBatchEmail.fields.subject.as('text')}
 							class="input"
-							name="subject"
 							placeholder="Objet du message"
 							required
 						/>
@@ -131,8 +134,8 @@
 					<label class="label">
 						<span>Message</span>
 						<textarea
+							{...sendBatchEmail.fields.body.as('text')}
 							class="textarea"
-							name="body"
 							rows="10"
 							placeholder="Contenu du message..."
 							required
@@ -147,18 +150,17 @@
 					{/if}
 
 					<div class="flex justify-between">
-						<button type="button" class="btn variant-ghost-surface" onclick={cancel}>
-							<Fa icon={faArrowLeft} class="mr-2" />
-							Annuler
-						</button>
+						<button
+							type="button"
+							class="btn variant-ghost-surface"
+							onclick={cancel}
+						><Fa icon={faArrowLeft} class="mr-2" /> Annuler</button>
+
 						<button
 							type="submit"
 							class="btn variant-filled-primary"
-							{disabled}
-						>
-							<Fa icon={faPaperPlane} class="mr-2" />
-							Envoyer
-						</button>
+							disabled={disabled}
+						><Fa icon={faPaperPlane} class="mr-2" /> Envoyer</button>
 					</div>
 				</div>
 			</form>

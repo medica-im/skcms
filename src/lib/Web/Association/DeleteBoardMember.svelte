@@ -5,7 +5,7 @@
 	import { faCheck, faExclamationCircle, faTrash, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Dialog from '../Dialog.svelte';
-	import type { BoardMember } from '$lib/interfaces/v2/association';
+	import type { BoardMember } from '#lib/interfaces/v2/association.ts';
 
 	let {
 		member
@@ -36,7 +36,8 @@
 				}
 			})}
 		>
-			<input class="hidden" name="uid" type="text" value={member.uid} />
+			<input {...deleteBoardMember.for(member.uid).fields.uid.as('hidden', member.uid ?? '')} />
+<input data-field="uid" class="hidden" type="text" value={member.uid} />
 			<div class="space-y-4">
 				<div class="flex items-start gap-2 max-w-prose">
 					<Fa icon={faTriangleExclamation} class="mt-1 shrink-0" />

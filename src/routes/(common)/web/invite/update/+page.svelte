@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { updateInvitee } from '$src/invitee.remote.ts';
 	import { goto } from '$app/navigation';
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faCheck, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
-	import Select from '$lib/Web/Select.svelte';
-	import type { Role, Invitee } from '$lib/interfaces/v2/invitee';
+	import Select from '#lib/Web/Select.svelte';
+	import type { Role, Invitee } from '#lib/interfaces/v2/invitee.ts';
 	import type { PageData } from './$types';
 	import type { SelectType } from '$src/lib/interfaces/select';
-	import { roleLabels } from '$lib/roles';
+	import { roleLabels } from '#lib/roles.ts';
 
 	interface Props {
 		data: {
@@ -48,14 +48,15 @@
 		class="grid grid-cols-1 gap-4 w-full max-w-xl"
 	>
 		<!-- Hidden field for invitee id -->
-		<input type="hidden" name="id" value={invitee?.uid} />
+		<input {...updateInvitee.for(data.invitee.uid).fields.id.as('hidden', invitee?.uid ?? '')} />
 
 		<!-- Email field -->
 		<label class="label">
 			<span>Email *</span>
-			<input
+			<input {...updateInvitee.for(data.invitee.uid).fields.email.as('hidden', email ?? '')} />
+<input data-field="email"
 				type="email"
-				name="email"
+			
 				bind:value={email}
 				class="input"
 				placeholder="utilisateur@example.com"
@@ -66,7 +67,8 @@
 		<!-- Name field -->
 		<label class="label">
 			<span>Nom (optionnel)</span>
-			<input type="text" name="name" bind:value={name} class="input" placeholder="Nom complet" />
+			<input {...updateInvitee.for(data.invitee.uid).fields.name.as('hidden', name ?? '')} />
+<input data-field="name" type="text" bind:value={name} class="input" placeholder="Nom complet" />
 		</label>
 
 		<!-- Role select -->
@@ -80,13 +82,13 @@
 				placeholder="Sélectionner un rôle"
 				hasError={!selectedRole}
 			/>
-			<input type="hidden" name="role" value={selectedRole?.value || ''} />
+			<input {...updateInvitee.for(data.invitee.uid).fields.role.as('hidden', selectedRole?.value || '')} />
 		</div>
 
 		<!-- Active toggle -->
 		<label class="flex items-center gap-3">
-			<input type="hidden" name="active" value={String(active)} />
-			<input class="checkbox" type="checkbox" bind:checked={active} />
+			<input {...updateInvitee.for(data.invitee.uid).fields.active.as('hidden', String(active) ?? '')} />
+			<input data-field="active" class="checkbox" type="checkbox" bind:checked={active} />
 			<span>Actif</span>
 		</label>
 
@@ -102,16 +104,18 @@
 				{/if}
 			</div>
 			<div class="w-auto justify-center">
-				<button type="submit" class="btn variant-filled-primary w-min" {disabled}>
-					{updateInvitee.for(data.invitee.uid).pending ? 'Envoi...' : 'Mettre à jour'}
-				</button>
+				<button
+					type="submit"
+					class="btn variant-filled-primary w-min"
+					disabled={disabled}
+				>{updateInvitee.for(data.invitee.uid).pending ? 'Envoi...' : 'Mettre à jour'}</button>
 			</div>
 			<div class="w-auto justify-center">
 				<button
 					type="button"
 					class="variant-filled-error btn w-min"
 					onclick={() => {
-						goto(`${base}/web/invite/invitees`);
+						goto(resolve(`web/invite/invitees`));
 					}}
 				>
 					{#if result?.success}Fermer{:else}Annuler{/if}

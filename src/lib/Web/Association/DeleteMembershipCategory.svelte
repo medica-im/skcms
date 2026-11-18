@@ -5,7 +5,7 @@
 	import { faCheck, faExclamationCircle, faTrash, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Dialog from '../Dialog.svelte';
-	import type { MembershipCategory } from '$lib/interfaces/v2/association';
+	import type { MembershipCategory } from '#lib/interfaces/v2/association.ts';
 
 	let {
 		category
@@ -36,7 +36,8 @@
 				}
 			})}
 		>
-			<input class="hidden" name="uid" type="text" value={category.uid} />
+			<input {...deleteMembershipCategory.for(category.uid).fields.uid.as('hidden', category.uid ?? '')} />
+<input data-field="uid" class="hidden" type="text" value={category.uid} />
 			<div class="space-y-4">
 				<p class="font-medium">{category.label}</p>
 				<div class="flex items-center gap-2">

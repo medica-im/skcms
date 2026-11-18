@@ -4,12 +4,12 @@
 	import { onMount, untrack } from 'svelte';
 	import { FIXED_GENDER, gendersFor, professionWords, type Gender } from './gender.ts';
 	import GenderHint from './GenderHint.svelte';
-	import Dialog from '$lib/Web/Dialog.svelte';
+	import Dialog from '#lib/Web/Dialog.svelte';
 	import { updateEffector } from '../../../effector.remote.ts';
 	import Fa from 'svelte-fa';
 	import { faCheck, faExclamationCircle, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 	import { validateName, validateLabel, validateGender } from './validate.ts';
-	import type { EntryFull } from '$lib/store/directoryStoreInterface.ts';
+	import type { EntryFull } from '#lib/store/directoryStoreInterface.ts';
 	import type {
 		InputClassUpdate as InputClass,
 		IsRequiredUpdate as IsRequired,
@@ -88,9 +88,10 @@
 			})}
 			class="space-y-4"
 		>
-			<input
+			<input {...updateEffector.for(data.effector_uid).fields.effector.as('hidden', data.effector_uid ?? '')} />
+<input data-field="effector"
 				class="hidden"
-				name="effector"
+			
 				type="text"
 				placeholder=""
 				value={data.effector_uid}
@@ -100,9 +101,10 @@
 				{#each updateEffector.for(data.effector_uid).fields.name_fr.issues() as issue}
 					<p class="issue">{issue.message}</p>
 				{/each}
-				<input
+				<input {...updateEffector.for(data.effector_uid).fields.name_fr.as('hidden', name_fr ?? '')} />
+<input data-field="name_fr"
 					class="text-base input {inputClass.name_fr}"
-					name="name_fr"
+				
 					type="text"
 					placeholder=""
 					bind:value={name_fr}
@@ -116,9 +118,10 @@
 				{#each updateEffector.for(data.effector_uid).fields.label_fr.issues() as issue}
 					<p class="issue">{issue.message}</p>
 				{/each}
-				<input
+				<input {...updateEffector.for(data.effector_uid).fields.label_fr.as('hidden', label_fr ?? '')} />
+<input data-field="label_fr"
 					class="text-base input {inputClass.label_fr}"
-					name="label_fr"
+				
 					type="text"
 					placeholder=""
 					bind:value={label_fr}
@@ -134,9 +137,10 @@
 						{#each updateEffector.for(data.effector_uid).fields.gender.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
-						<select
+						<input {...updateEffector.for(data.effector_uid).fields.gender.as('hidden', gender ?? '')} />
+<select data-field="gender"
 							class="select {inputClass.gender} w-min"
-							name="gender"
+						
 							size={genders.length}
 							bind:value={gender}
 							onchange={() => {
@@ -151,7 +155,7 @@
 					<GenderHint {words} {gender} />
 				</div>
 			{:else}
-				<input type="hidden" name="gender" value={gender} />
+				<input {...updateEffector.for(data.effector_uid).fields.gender.as('hidden', gender ?? '')} />
 			{/if}
 			<div class="flex flex-wrap items-center justify-end gap-2">
 				{#if formResult?.success}

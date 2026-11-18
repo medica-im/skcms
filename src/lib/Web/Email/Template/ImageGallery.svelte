@@ -42,8 +42,7 @@
 				<span><Fa icon={faUpload} /></span>
 				<span>{uploading ? m.EMAIL_IMAGE_UPLOADING() : m.EMAIL_IMAGE_ADD()}</span>
 				<input
-					type="file"
-					name="file"
+					{...uploadEmailImage.fields.file.as('file')}
 					class="sr-only"
 					accept="image/png,image/jpeg,image/gif"
 					disabled={uploading}

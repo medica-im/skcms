@@ -5,8 +5,8 @@
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faCheck, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
-	import Select from '$lib/Web/Select.svelte';
-	import type { EffectorType } from '$lib/interfaces/v2/effector';
+	import Select from '#lib/Web/Select.svelte';
+	import type { EffectorType } from '#lib/interfaces/v2/effector.ts';
 
 	interface Props {
 		data: {
@@ -94,8 +94,8 @@
 		onsubmit={handleSubmit}
 		class="grid grid-cols-1 gap-4 w-full"
 	>
-		<input type="hidden" name="uid" value={effectorType.uid} />
-		<input type="hidden" name="effector_type_uid" value={selectedParent?.value ?? ''} />
+		<input {...updateEffectorType.for(effectorType.uid).fields.uid.as('hidden', effectorType.uid ?? '')} />
+		<input {...updateEffectorType.for(effectorType.uid).fields.effector_type_uid.as('hidden', selectedParent?.value ?? '')} />
 
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-10">
 			<!-- Left column -->
@@ -103,25 +103,29 @@
 				<!-- Name -->
 				<label class="label">
 					<span>{m.EFFECTOR_TYPE_COL_NAME()} *</span>
-					<input type="text" name="name_fr" bind:value={name_fr} class="input" required />
+					<input {...updateEffectorType.for(effectorType.uid).fields.name_fr.as('hidden', name_fr ?? '')} />
+<input data-field="name_fr" type="text" bind:value={name_fr} class="input" required />
 				</label>
 
 				<!-- Label -->
 				<label class="label">
 					<span>{m.EFFECTOR_TYPE_COL_LABEL()} *</span>
-					<input type="text" name="label_fr" bind:value={label_fr} class="input" required />
+					<input {...updateEffectorType.for(effectorType.uid).fields.label_fr.as('hidden', label_fr ?? '')} />
+<input data-field="label_fr" type="text" bind:value={label_fr} class="input" required />
 				</label>
 
 				<!-- Slug -->
 				<label class="label">
 					<span>{m.EFFECTOR_TYPE_SLUG()} *</span>
-					<input type="text" name="slug_fr" bind:value={slug_fr} class="input" required />
+					<input {...updateEffectorType.for(effectorType.uid).fields.slug_fr.as('hidden', slug_fr ?? '')} />
+<input data-field="slug_fr" type="text" bind:value={slug_fr} class="input" required />
 				</label>
 
 				<!-- Synonyms -->
 				<label class="label">
 					<span>{m.EFFECTOR_TYPE_COL_SYNONYMS()}</span>
-					<input name="synonyms_fr" type="text" bind:value={synonyms_fr} class="input" placeholder="synonyme1, synonyme2, ..." />
+					<input {...updateEffectorType.for(effectorType.uid).fields.synonyms_fr.as('hidden', synonyms_fr ?? '')} />
+<input data-field="synonyms_fr" type="text" bind:value={synonyms_fr} class="input" placeholder="synonyme1, synonyme2, ..." />
 				</label>
 			</div>
 
@@ -130,7 +134,8 @@
 				<!-- Definition -->
 				<label class="label">
 					<span>{m.EFFECTOR_TYPE_DEFINITION()}</span>
-					<textarea name="definition_fr" bind:value={definition_fr} class="textarea" rows="3"></textarea>
+					<input {...updateEffectorType.for(effectorType.uid).fields.definition_fr.as('hidden', definition_fr ?? '')} />
+<textarea data-field="definition_fr" bind:value={definition_fr} class="textarea" rows="3"></textarea>
 				</label>
 
 				<!-- Parent -->
@@ -151,8 +156,8 @@
 				<!-- Neo4j Labels -->
 				<div class="grid grid-cols-1 gap-2">
 					<span class="label">Labels</span>
-					<input type="hidden" name="isHCW" value={String(isHCW)} />
-					<input type="hidden" name="isRPPS" value={String(isRPPS)} />
+					<input {...updateEffectorType.for(effectorType.uid).fields.isHCW.as('hidden', String(isHCW) ?? '')} />
+					<input {...updateEffectorType.for(effectorType.uid).fields.isRPPS.as('hidden', String(isRPPS) ?? '')} />
 					<div class="flex gap-2 flex-wrap">
 						<span class="chip variant-filled-surface cursor-default opacity-75">EffectorType</span>
 						<button
@@ -173,9 +178,9 @@
 
 		<!-- HCW fields -->
 		{#if isHCW}
-			<input type="hidden" name="unique_ID" value={unique_ID} />
-			<input type="hidden" name="concept_en" value={concept_en} />
-			<input type="hidden" name="concept_fr" value={concept_fr} />
+			<input {...updateEffectorType.for(effectorType.uid).fields.unique_ID.as('hidden', unique_ID ?? '')} />
+			<input {...updateEffectorType.for(effectorType.uid).fields.concept_en.as('hidden', concept_en ?? '')} />
+			<input {...updateEffectorType.for(effectorType.uid).fields.concept_fr.as('hidden', concept_fr ?? '')} />
 			<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 				<label class="label">
 					<span>{m.EFFECTOR_TYPE_MESH_UNIQUE_ID()}</span>

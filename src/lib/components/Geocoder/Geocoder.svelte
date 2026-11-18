@@ -4,10 +4,10 @@
 	import * as m from '$msgs';
 	import { faAddressCard } from '@fortawesome/free-regular-svg-icons';
 	import Fa from 'svelte-fa';
-	import DocsIcon from '$lib/Icon/Icon.svelte';
-	import SelectAddress from '$lib/Web/SelectAddress.svelte';
+	import DocsIcon from '#lib/Icon/Icon.svelte';
+	import SelectAddress from '#lib/Web/SelectAddress.svelte';
 	import { getAddressFeature, getGeoInputAddress } from '../Directory/context';
-	import type { AddressFeature, FeatureCollection } from '$lib/store/directoryStoreInterface';
+	import type { AddressFeature, FeatureCollection } from '#lib/store/directoryStoreInterface.ts';
 
 	interface IsValid {
 		geocoder: boolean
@@ -167,18 +167,18 @@
 	});
 
 	function updateUrlWithAddress(feature: AddressFeature) {
-		const url = new URL(page.url);
+		const url = new URL(page.url.href);
 		url.searchParams.set('address', JSON.stringify(feature));
-		goto(`${url.pathname}?${url.searchParams}`, { noScroll: true, keepFocus: true });
+		goto(`${url.pathname}?${url.searchParams}`, { reset: false });
 	}
 
 	function handleClear() {
 		$inputAddress = null;
 		$addressFeature = null;
-		const url = new URL(page.url);
+		const url = new URL(page.url.href);
 		url.searchParams.delete('address');
 		const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
-		goto(newUrl, { noScroll: true, keepFocus: true });
+		goto(newUrl, { reset: false });
 	}
 </script>
 <!--inputAddress:{$inputAddress}<br>
@@ -190,7 +190,7 @@ $addressFeature: {JSON.stringify($addressFeature)}-->
 	<input
 		class="input {inputClass}"
 		type="search"
-		name="geocoder"
+		data-field="geocoder"
 		autocomplete="off"
 		disabled={Boolean($addressFeature)}
 		{placeholder}

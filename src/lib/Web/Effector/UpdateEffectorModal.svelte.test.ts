@@ -14,7 +14,18 @@ const { form } = vi.hoisted(() => {
 	const form = {};
 	const hidden = (value: unknown) => ({ value, enumerable: false });
 	Object.defineProperties(form, {
-		fields: hidden(new Proxy({}, { get: () => ({ issues: () => [] }) })),
+		fields: hidden(
+			new Proxy(
+				{},
+				{
+					// `as` names an input as SvelteKit does: `<field>/<form id>`.
+					get: (_, field) => ({
+						issues: () => [],
+						as: (type: string, value?: unknown) => ({ name: `${String(field)}/form`, type, value })
+					})
+				}
+			)
+		),
 		pending: hidden(0),
 		result: hidden(undefined),
 		enhance: hidden(() => ({ method: 'POST' }))
@@ -28,8 +39,14 @@ vi.mock('$app/state', () => ({
 		url: new URL('http://localhost/entry'),
 		data: {
 			labels: {
-				't-nurse': { S: { F: 'infirmière', M: 'infirmier', N: 'infirmier' }, P: { F: 'infirmières', M: 'infirmiers', N: 'infirmiers' } },
-				't-speech': { S: { F: 'orthophoniste', M: 'orthophoniste', N: 'orthophoniste' }, P: { F: 'orthophonistes', M: 'orthophonistes', N: 'orthophonistes' } }
+				't-nurse': {
+					S: { F: 'infirmière', M: 'infirmier', N: 'infirmier' },
+					P: { F: 'infirmières', M: 'infirmiers', N: 'infirmiers' }
+				},
+				't-speech': {
+					S: { F: 'orthophoniste', M: 'orthophoniste', N: 'orthophoniste' },
+					P: { F: 'orthophonistes', M: 'orthophonistes', N: 'orthophonistes' }
+				}
 			}
 		}
 	}
@@ -40,13 +57,17 @@ import UpdateEffectorModal from './UpdateEffectorModal.svelte';
 type Nature = 'profession' | 'service' | 'activity' | null;
 const open = async (nature: Nature, gender: string | null, uid = 't-nurse') => {
 	const data = {
-		name: 'Alice Martin', label: 'Alice Martin', slug: 'alice-martin', gender, effector_uid: 'p1',
+		name: 'Alice Martin',
+		label: 'Alice Martin',
+		slug: 'alice-martin',
+		gender,
+		effector_uid: 'p1',
 		effector_type: { uid, name: 'x', nature }
 	};
 	render(UpdateEffectorModal, { data: data as never });
 	await page.getByRole('button', { name: 'Modifier' }).click();
 };
-const genderSelect = () => document.querySelector<HTMLSelectElement>('select[name="gender"]');
+const genderSelect = () => document.querySelector<HTMLSelectElement>('select[data-field="gender"]');
 const send = () => page.getByRole('button', { name: 'Envoyer' });
 
 describe('UpdateEffectorModal', () => {
@@ -54,7 +75,9 @@ describe('UpdateEffectorModal', () => {
 		await open('profession', 'F');
 
 		expect([...genderSelect()!.options].map((o) => o.text)).toEqual(['Féminin', 'Masculin']);
-		await expect.element(page.getByText('Sur la fiche : infirmière', { exact: true })).toBeVisible();
+		await expect
+			.element(page.getByText('Sur la fiche : infirmière', { exact: true }))
+			.toBeVisible();
 		await expect.element(page.getByText('infirmière ou infirmier')).not.toBeInTheDocument();
 	});
 
@@ -63,7 +86,11 @@ describe('UpdateEffectorModal', () => {
 
 		expect(genderSelect()!.value).toBe('');
 		await expect
-			.element(page.getByText('Pour écrire correctement la profession sur la fiche : infirmière ou infirmier.'))
+			.element(
+				page.getByText(
+					'Pour écrire correctement la profession sur la fiche : infirmière ou infirmier.'
+				)
+			)
 			.toBeVisible();
 		await expect.element(send()).toBeDisabled();
 		await page.getByRole('option', { name: 'Masculin' }).click();
@@ -77,7 +104,11 @@ describe('UpdateEffectorModal', () => {
 
 		expect([...genderSelect()!.options].map((o) => o.text)).toEqual(['Féminin', 'Masculin']);
 		await expect
-			.element(page.getByText('Pour accorder ce qui désigne cette personne : une orthophoniste ou un orthophoniste.'))
+			.element(
+				page.getByText(
+					'Pour accorder ce qui désigne cette personne : une orthophoniste ou un orthophoniste.'
+				)
+			)
 			.toBeVisible();
 		await expect.element(page.getByText('Sur la fiche', { exact: false })).not.toBeInTheDocument();
 	});
@@ -87,7 +118,7 @@ describe('UpdateEffectorModal', () => {
 
 		expect(genderSelect()).toBeNull();
 		await expect.element(page.getByText('Genre grammatical')).not.toBeInTheDocument();
-		expect(document.querySelector<HTMLInputElement>('input[name="gender"]')?.value).toBe('F');
+		expect(document.querySelector<HTMLInputElement>('input[name^="gender/"]')?.value).toBe('F');
 		await expect.element(send()).toBeDisabled();
 	});
 
@@ -95,7 +126,7 @@ describe('UpdateEffectorModal', () => {
 		await open('profession', 'F');
 
 		for (const name of ['slug_fr', 'oldSlug', 'path', 'redirect']) {
-			expect(document.querySelector(`[name="${name}"]`), name).toBeNull();
+			expect(document.querySelector(`[name^="${name}/"]`), name).toBeNull();
 		}
 		await expect.element(page.getByText('Slug', { exact: true })).not.toBeInTheDocument();
 	});
@@ -104,6 +135,6 @@ describe('UpdateEffectorModal', () => {
 		await open('activity', null);
 
 		expect(genderSelect()).toBeNull();
-		expect(document.querySelector<HTMLInputElement>('input[name="gender"]')?.value).toBe('N');
+		expect(document.querySelector<HTMLInputElement>('input[name^="gender/"]')?.value).toBe('N');
 	});
 });

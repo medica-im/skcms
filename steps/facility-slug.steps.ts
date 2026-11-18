@@ -10,9 +10,12 @@ const holder: { uid?: string; slug?: string } = {};
 const chosen: { slug?: string } = {};
 
 const unique = () => `${SEED_TAG.toLowerCase()}-${Math.random().toString(36).slice(2, 8)}`;
-const slugInput = (page: import('@playwright/test').Page) => editDialog(page).locator('input[name="slug"]');
-const status = (page: import('@playwright/test').Page) => editDialog(page).getByTestId('slug-status');
-const submit = (page: import('@playwright/test').Page) => editDialog(page).getByRole('button', { name: 'Envoyer' });
+const slugInput = (page: import('@playwright/test').Page) =>
+	editDialog(page).locator('input[data-field="slug"]');
+const status = (page: import('@playwright/test').Page) =>
+	editDialog(page).getByTestId('slug-status');
+const submit = (page: import('@playwright/test').Page) =>
+	editDialog(page).getByRole('button', { name: 'Envoyer' });
 
 /** The facility as stored in the graph, bypassing every API cache. */
 async function stored(): Promise<{ slug: string | null; name: string | null }> {
@@ -65,7 +68,7 @@ print("HOLDER_SEEDED", rows[0][0])
 });
 
 When('I rename it to {string}', async ({ page }, name: string) => {
-	const field = editDialog(page).locator('input[name="name"]');
+	const field = editDialog(page).locator('input[data-field="name"]');
 	await field.fill(name);
 	await field.blur();
 });
@@ -123,7 +126,9 @@ Then('the facility edit can be submitted', async ({ page }) => {
 });
 
 Then('the facility is still at its address', async ({ page }) => {
-	await expect(editDialog(page).getByRole('button', { name: 'Fermer' })).toBeVisible({ timeout: 10_000 });
+	await expect(editDialog(page).getByRole('button', { name: 'Fermer' })).toBeVisible({
+		timeout: 10_000
+	});
 	const facility = await stored();
 	expect(facility.name, 'the rename was not saved at all').toBe('Cabinet renommé');
 	expect(facility.slug).toBe(ctx.slug);

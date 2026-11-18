@@ -5,7 +5,7 @@
 	import { faCheck, faExclamationCircle, faTrash, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Dialog from '../Dialog.svelte';
-	import type { OrganizationRole } from '$lib/interfaces/v2/association';
+	import type { OrganizationRole } from '#lib/interfaces/v2/association.ts';
 
 	let {
 		role
@@ -36,7 +36,8 @@
 				}
 			})}
 		>
-			<input class="hidden" name="uid" type="text" value={role.uid} />
+			<input {...deleteOrganizationRole.for(role.uid).fields.uid.as('hidden', role.uid ?? '')} />
+<input data-field="uid" class="hidden" type="text" value={role.uid} />
 			<div class="space-y-4">
 				<p class="font-medium">{role.label}</p>
 				<div class="flex items-center gap-2">

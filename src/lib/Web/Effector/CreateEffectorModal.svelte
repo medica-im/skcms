@@ -2,17 +2,17 @@
 	import * as m from '$msgs';
 	import { page } from '$app/state';
 	import { onMount } from 'svelte';
-	import Dialog from '$lib/Web/Dialog.svelte';
+	import Dialog from '#lib/Web/Dialog.svelte';
 	import { createEffector } from '../../../effector.remote.ts';
 	import Fa from 'svelte-fa';
 	import { faPlus, faCheck, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 	import OrganizationRadio from './../OrganizationRadio.svelte';
-	import { slugify } from '$lib/helpers/stringHelpers';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import type { InputClass, IsRequired, ValidateForm } from '$lib/Web/Effector/validate.ts';
-	import type { Effector } from '$lib/interfaces/v2/effector.ts';
-	import type { SelectType } from '$lib/interfaces/select';
-	import type { Nature } from '$lib/store/directoryStoreInterface';
+	import { slugify } from '#lib/helpers/stringHelpers.ts';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import type { InputClass, IsRequired, ValidateForm } from '#lib/Web/Effector/validate.ts';
+	import type { Effector } from '#lib/interfaces/v2/effector.ts';
+	import type { SelectType } from '#lib/interfaces/select.ts';
+	import type { Nature } from '#lib/store/directoryStoreInterface.ts';
 	import { FIXED_GENDER, gendersFor, professionWords, type Gender } from './gender.ts';
 	import GenderHint from './GenderHint.svelte';
 
@@ -89,9 +89,10 @@
 		<h3 class="h3 text-center">Créer une nouvelle personne physique ou morale</h3>
 		<form {...createEffector.for(uuid)} class="space-y-6">
 			<div class="space-y-4 w-full">
-				<input
+				<input {...createEffector.for(uuid).fields.organization.as('hidden', page.data.organization.category.name ?? '')} />
+<input data-field="organization"
 					class="hidden"
-					name="organization"
+				
 					type="text"
 					placeholder=""
 					value={page.data.organization.category.name}
@@ -101,9 +102,10 @@
 					{#each createEffector.for(uuid).fields.name_fr.issues() as issue}
 						<p class="issue text-error-500">{issue.message}</p>
 					{/each}
-					<input
+					<input {...createEffector.for(uuid).fields.name_fr.as('hidden', name_fr ?? '')} />
+<input data-field="name_fr"
 						class="input w-full"
-						name="name_fr"
+					
 						type="text"
 						placeholder=""
 						bind:value={name_fr}
@@ -127,9 +129,10 @@
 					{#each createEffector.for(uuid).fields.slug_fr.issues() as issue}
 						<p class="issue text-error-500">{issue.message}</p>
 					{/each}
-					<input
+					<input {...createEffector.for(uuid).fields.slug_fr.as('hidden', slug_fr ?? '')} />
+<input data-field="slug_fr"
 						class="input hidden"
-						name="slug_fr"
+					
 						type="text"
 						placeholder=""
 						bind:value={slug_fr}
@@ -142,9 +145,10 @@
 							{#each createEffector.for(uuid).fields.gender.issues() as issue}
 								<p class="issue text-error-500">{issue.message}</p>
 							{/each}
-							<select
+							<input {...createEffector.for(uuid).fields.gender.as('hidden', gender ?? '')} />
+<select data-field="gender"
 								class="select w-min"
-								name="gender"
+							
 								size={genders.length}
 								bind:value={gender}
 							>
@@ -156,7 +160,7 @@
 						<GenderHint {words} {gender} />
 					</div>
 				{:else}
-					<input type="hidden" name="gender" value={FIXED_GENDER} />
+					<input {...createEffector.for(uuid).fields.gender.as('hidden', FIXED_GENDER ?? '')} />
 				{/if}
 				<label class="flex label place-self-start place-items-center space-x-2 w-full">
 					<span>Cette personne est-elle membre de {page.data.organization.formatted_name}?</span>

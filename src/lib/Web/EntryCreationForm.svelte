@@ -1,17 +1,17 @@
 <script lang="ts">
-	import { userRoles } from '$lib/auth/roles';
+	import { userRoles } from '#lib/auth/roles.ts';
 	import { createEntry } from '../../entry.remote.ts';
 	import Fa from 'svelte-fa';
 	import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 	import { faUser } from '@fortawesome/free-regular-svg-icons';
 	import { navigating, page } from '$app/state';
 	import * as m from '$msgs';
-	import DisplayFacility from '$lib/Web/DisplayFacility.svelte';
-	import FacilitySlugStep from '$lib/Web/Facility/FacilitySlugStep.svelte';
-	import type { Effector } from '$lib/interfaces/v2/effector.ts';
-	import type { SelectType } from '$lib/interfaces/select.ts';
+	import DisplayFacility from '#lib/Web/DisplayFacility.svelte';
+	import FacilitySlugStep from '#lib/Web/Facility/FacilitySlugStep.svelte';
+	import type { Effector } from '#lib/interfaces/v2/effector.ts';
+	import type { SelectType } from '#lib/interfaces/select.ts';
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
-	import { allAccessOptions, accessDescriptions } from '$lib/Web/Entry/access';
+	import { allAccessOptions, accessDescriptions } from '#lib/Web/Entry/access.ts';
 
 	let {
 		effector = $bindable(),
@@ -41,6 +41,7 @@
 	let access = $state('anonymous');
 	let slugNeeded = $state(false);
 	let slugOk = $state(false);
+	let facilitySlug = $state('');
 
 	const accessOptions = $derived.by(() => {
 		const role = page.data?.user?.role;
@@ -60,6 +61,9 @@
 	let formResult = $derived(createEntry.for(uid)?.result);
 	let hasBeenClicked = false;
 	// submitted is now a bindable prop
+	// SvelteKit 3 names the inputs of a remote form itself (`effector/<form id>`)
+	// and rejects any other: each one is a field's `.as(...)`, never `name="..."`.
+	const fields = $derived(createEntry.for(uid).fields);
 	const allIssues = $derived(createEntry.for(uid)?.fields?.allIssues() ?? []);
 	const hasErrors = $derived(allIssues.length > 0);
 	const isRedirecting = $derived(!!createEntry.for(uid)?.pending || !!navigating.to);
@@ -109,38 +113,17 @@ hasErrors: {hasErrors}-->
 			<div class="space-y-3 w-full">
 				<label class="label w-full">
 					<span class="text-sm font-medium">Personne</span>
-					<input
-						oninput={() => {}}
-						class="hidden input"
-						name="effector"
-						type="text"
-						placeholder=""
-						bind:value={effectorUid}
-					/>
+					<input class="hidden input" {...fields.effector.as('hidden', effectorUid ?? '')} />
 					<div class="badge variant-ghost-surface">{effector?.name_fr}</div>
 				</label>
 				<label class="label w-full">
 					<span class="text-sm font-medium">Catégorie</span>
-					<input
-						oninput={() => {}}
-						class="input hidden"
-						name="effector_type"
-						type="text"
-						placeholder=""
-						bind:value={effector_type}
-					/>
+					<input class="input hidden" {...fields.effector_type.as('hidden', effector_type ?? '')} />
 					<div class="badge variant-ghost-surface">{effectorType?.label}</div>
 				</label>
 				<label class="label w-full">
 					<span class="text-sm font-medium">Établissement</span>
-					<input
-						oninput={() => {}}
-						class="input hidden"
-						name="facility"
-						type="text"
-						placeholder=""
-						bind:value={facilityUid}
-					/>
+					<input class="input hidden" {...fields.facility.as('hidden', facilityUid ?? '')} />
 				</label>
 				{#if facilityUid}
 					<DisplayFacility facilityUid={facilityUid} showEffectors={false} mapHeight={36} update={false} />
@@ -150,17 +133,21 @@ hasErrors: {hasErrors}-->
 						effector={effectorUid}
 						bind:needed={slugNeeded}
 						bind:ok={slugOk}
+						bind:slug={facilitySlug}
 					/>
 				{/if}
+				<input
+					class="hidden"
+					{...fields.facility_slug.as('hidden', slugNeeded ? facilitySlug : '')}
+				/>
 				<label class="label w-full">
 					<span class="text-sm font-medium">Organisation</span>
 					<input
-						oninput={() => {}}
 						class="input hidden"
-						name="memberships"
-						type="text"
-						placeholder=""
-						value={memberships?.length ? memberships.map((e) => e.value) : ''}
+						{...fields.memberships.as(
+							'hidden',
+							memberships?.length ? memberships.map((e) => e.value).join(',') : ''
+						)}
 					/>
 					<div class="flex flex-wrap gap-1">
 						{#if memberships?.length}
@@ -174,16 +161,14 @@ hasErrors: {hasErrors}-->
 				</label>
 				<input
 					class="hidden"
-					name="organization_category"
-					type="text"
-					placeholder=""
-					value={page.data.organization.category.name}
+					{...fields.organization_category.as('hidden', page.data.organization.category.name)}
 				/>
 				<div class="w-full">
 					<span class="text-sm font-medium">{m['ACCESS.ACCESS_CONTROL']()}</span>
 					<div class="flex flex-col lg:flex-row lg:items-center gap-2 mt-1">
 						<label class="label">
-							<select class="select" name="access" bind:value={access}>
+							<input {...fields.access.as('hidden', access)} />
+							<select data-field="access" class="select" bind:value={access}>
 								{#each accessOptions as option}
 									<option value={option.value}>{option.label}</option>
 								{/each}
@@ -195,30 +180,18 @@ hasErrors: {hasErrors}-->
 				{#if isSuperUser}
 					<label class="label w-full">
 						<span class="text-sm font-medium">Annuaire</span>
-						<input
-							oninput={() => {}}
-							class="input w-full"
-							name="directory"
-							type="text"
-							placeholder=""
-							bind:value={directory}
-						/>
+						<input {...fields.directory.as('hidden', directory ?? '')} />
+						<input data-field="directory" class="input w-full" type="text" placeholder="" bind:value={directory} />
 					</label>
 				{/if}
 				{#if r.SuperUser || r.Admin}
-					<input type="hidden" name="b:isOwner" value={isOwner ? 'on' : ''} />
+					<input {...fields.isOwner.as('hidden', isOwner)} />
 					<label class="flex items-center gap-2">
 						<input type="checkbox" bind:checked={isOwner} /> {m.ENTRY_IS_OWNER()}
 					</label>
 					<label class="label w-full">
 						<span class="text-sm font-medium">{m.REDEEM_EMAIL()}</span>
-						<input
-							oninput={() => {}}
-							class="input w-full"
-							name="redeemEmail"
-							type="email"
-							placeholder=""
-						/>
+						<input class="input w-full" placeholder="" {...fields.redeemEmail.as('email')} />
 					</label>
 				{/if}
 			</div>

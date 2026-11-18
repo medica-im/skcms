@@ -1,15 +1,15 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import { createOfficer } from '../../../association.remote';
 	import { invalidate } from '$app/navigation';
 	import { faCheck, faExclamationCircle, faPlus } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import Select from '$lib/Web/Select.svelte';
+	import Select from '#lib/Web/Select.svelte';
 	import Dialog from '../Dialog.svelte';
-	import type { OrganizationRole } from '$lib/interfaces/v2/association';
-	import type { Effector } from '$lib/interfaces/v2/effector';
-	import type { SelectType } from '$lib/interfaces/select';
+	import type { OrganizationRole } from '#lib/interfaces/v2/association.ts';
+	import type { Effector } from '#lib/interfaces/v2/effector.ts';
+	import type { SelectType } from '#lib/interfaces/select.ts';
 
 	let {
 		effectors,
@@ -80,10 +80,14 @@
 			})}
 		>
 			<div class="space-y-4">
-				<input class="hidden" name="entry_uid" type="text" value={entryUid} />
-				<input class="hidden" name="effector_uid" type="text" bind:value={effectorUid} />
-				<input class="hidden" name="role_uid" type="text" bind:value={roleUid} />
-				<input class="hidden" name="role_label" type="text" bind:value={roleLabel} />
+				<input {...createOfficer.fields.entry_uid.as('hidden', entryUid ?? '')} />
+<input data-field="entry_uid" class="hidden" type="text" value={entryUid} />
+				<input {...createOfficer.fields.effector_uid.as('hidden', effectorUid ?? '')} />
+<input data-field="effector_uid" class="hidden" type="text" bind:value={effectorUid} />
+				<input {...createOfficer.fields.role_uid.as('hidden', roleUid ?? '')} />
+<input data-field="role_uid" class="hidden" type="text" bind:value={roleUid} />
+				<input {...createOfficer.fields.role_label.as('hidden', roleLabel ?? '')} />
+<input data-field="role_label" class="hidden" type="text" bind:value={roleLabel} />
 
 				<label class="label">
 					<span>{m.COL_EFFECTOR()}</span>

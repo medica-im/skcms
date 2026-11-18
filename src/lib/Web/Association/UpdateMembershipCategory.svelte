@@ -1,12 +1,12 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import { updateMembershipCategory } from '../../../association.remote';
 	import { invalidate } from '$app/navigation';
 	import { faCheck, faExclamationCircle, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Dialog from '../Dialog.svelte';
-	import type { MembershipCategory } from '$lib/interfaces/v2/association';
+	import type { MembershipCategory } from '#lib/interfaces/v2/association.ts';
 
 	let {
 		category
@@ -55,7 +55,8 @@
 			})}
 		>
 			<div class="space-y-4">
-				<input class="hidden" name="uid" type="text" value={category.uid} />
+				<input {...updateMembershipCategory.for(uuid).fields.uid.as('hidden', category.uid ?? '')} />
+<input data-field="uid" class="hidden" type="text" value={category.uid} />
 				<label class="label">
 					<span>{m.COL_LABEL()}</span>
 					{#each updateMembershipCategory.for(uuid).fields.label.issues() as issue}

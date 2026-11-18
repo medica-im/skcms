@@ -83,31 +83,37 @@ print("FACILITY_LOCATION", rows[0][0], rows[0][1])
  * wipe it, and the scenario would be exercising a reload — precisely what it
  * must not do.
  */
-When('I reach the facility page by following a link to that facility', async ({ page, baseURL }) => {
-	await page.goto('/', { waitUntil: 'networkidle' });
+When(
+	'I reach the facility page by following a link to that facility',
+	async ({ page, baseURL }) => {
+		await page.goto('/', { waitUntil: 'networkidle' });
 
-	// The href carries the base path, because this anchor stands in for one the
-	// app itself would render and those are built from `base`. page.goto is
-	// prefixed by the fixture in steps/fixtures.ts, but an href built here goes
-	// straight into the DOM and misses it -- so on a prefixed site the click
-	// landed on /sites/... and got a 404 page with no edit switch on it.
-	const prefix = basePathOf(baseURL);
+		// The href carries the base path, because this anchor stands in for one the
+		// app itself would render and those are built from `base`. page.goto is
+		// prefixed by the fixture in steps/fixtures.ts, but an href built here goes
+		// straight into the DOM and misses it -- so on a prefixed site the click
+		// landed on /sites/... and got a 404 page with no edit switch on it.
+		const prefix = basePathOf(baseURL);
 
-	await page.evaluate(({ slug, prefix }) => {
-		(window as any).__clientSideNav = true;
-		const anchor = document.createElement('a');
-		anchor.href = `${prefix}/sites/${slug}`;
-		anchor.textContent = 'to the facility';
-		anchor.id = 'e2e-facility-link';
-		document.body.prepend(anchor);
-	}, { slug: ctx.slug, prefix });
+		await page.evaluate(
+			({ slug, prefix }) => {
+				(window as any).__clientSideNav = true;
+				const anchor = document.createElement('a');
+				anchor.href = `${prefix}/sites/${slug}`;
+				anchor.textContent = 'to the facility';
+				anchor.id = 'e2e-facility-link';
+				document.body.prepend(anchor);
+			},
+			{ slug: ctx.slug, prefix }
+		);
 
-	await page.locator('#e2e-facility-link').click();
-	await page.waitForURL(`**/sites/${ctx.slug}`, { timeout: 8_000 });
+		await page.locator('#e2e-facility-link').click();
+		await page.waitForURL(`**/sites/${ctx.slug}`, { timeout: 8_000 });
 
-	const stayed = await page.evaluate(() => (window as any).__clientSideNav === true);
-	expect(stayed, 'the link caused a full page load, not a client-side navigation').toBe(true);
-});
+		const stayed = await page.evaluate(() => (window as any).__clientSideNav === true);
+		expect(stayed, 'the link caused a full page load, not a client-side navigation').toBe(true);
+	}
+);
 
 Then('I see the edit mode pencil', async ({ page }) => {
 	await expect(pencil(page)).toBeVisible({ timeout: 8_000 });
@@ -219,7 +225,7 @@ Then('the map has not moved', async ({ page }) => {
 Then('the closed edit dialog has not loaded its map', async ({ page }) => {
 	const dialog = page
 		.locator('dialog:not([open])')
-		.filter({ has: page.locator('input[name="latitude"]') });
+		.filter({ has: page.locator('input[data-field="latitude"]') });
 	await expect(dialog).toHaveCount(1);
 	await expect(dialog.getByTestId('add-marker-hint')).toHaveCount(0);
 	await expect(dialog.locator('.maplibregl-map')).toHaveCount(0);
@@ -256,10 +262,7 @@ Then('the editing buttons do not overlap the edit mode pencil', async ({ page })
 Then('the edit mode pencil is what receives a click on itself', async ({ page }) => {
 	const reached = await pencil(page).evaluate((element) => {
 		const rect = element.getBoundingClientRect();
-		const target = document.elementFromPoint(
-			rect.x + rect.width / 2,
-			rect.y + rect.height / 2
-		);
+		const target = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
 		return element.contains(target) || element === target;
 	});
 	expect(reached, 'something else sits on top of the pencil').toBe(true);
@@ -310,10 +313,12 @@ Then('the {string} button is semi-transparent', async ({ page }, label: string) 
  * the one that was given a picture, so the scenario can watch that picture stay
  * put when edit mode comes on.
  */
-Given('I am signed in as the owner of an entry at that facility', async ({ context, page, baseURL }) => {
-	expect(ctx.uid, 'no facility was chosen before this step').toBeTruthy();
+Given(
+	'I am signed in as the owner of an entry at that facility',
+	async ({ context, page, baseURL }) => {
+		expect(ctx.uid, 'no facility was chosen before this step').toBeTruthy();
 
-	const out = await djangoShell(`
+		const out = await djangoShell(`
 from neomodel import db
 
 rows, _ = db.cypher_query("""
@@ -326,12 +331,13 @@ RETURN e.uid
 assert rows, "no entry at this facility, or no staff test user"
 print("OWNER_LINKED", rows[0][0])
 `);
-	if (!out.includes('OWNER_LINKED')) throw new Error(`could not link owner: ${out}`);
-	await clearApiCache();
+		if (!out.includes('OWNER_LINKED')) throw new Error(`could not link owner: ${out}`);
+		await clearApiCache();
 
-	await addSessionCookie(context, 'staff', baseURL ?? 'http://localhost:3000');
-	await page.goto('/', { waitUntil: 'domcontentloaded' });
-});
+		await addSessionCookie(context, 'staff', baseURL ?? 'http://localhost:3000');
+		await page.goto('/', { waitUntil: 'domcontentloaded' });
+	}
+);
 
 /** Undoes the ownership this feature granted, so later runs start clean. */
 After(async () => {
