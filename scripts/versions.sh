@@ -22,9 +22,8 @@
 # "behind" counts the commits from the deployed one to the local tip that
 # change an image -- not a release script, a test or a feature file
 # (lib/image-inputs.sh) -- and each environment lists them under "to deploy".
-# The tips: main for skcms, the site's own branch for skvar, production for
-# the backend. Nothing is fetched, so they are as fresh as the last fetch or
-# pull.
+# The tips: main for skcms and the backend, the site's own branch for skvar.
+# Nothing is fetched, so they are as fresh as the last fetch or pull.
 set -uo pipefail
 export LC_ALL=C.UTF-8
 
@@ -34,7 +33,7 @@ FRONTEND_DIR="${FRONTEND_DIR:-$REPO_ROOT}"
 SKVAR_DIR="${SKVAR_DIR:-$FRONTEND_DIR/src/routes/(skvar)}"
 BACKEND_DIR="${BACKEND_DIR:-$(cd "$REPO_ROOT/.." && pwd)/backend}"
 FRONTEND_TIP="${FRONTEND_TIP:-main}"
-BACKEND_TIP="${BACKEND_TIP:-production}"
+BACKEND_TIP="${BACKEND_TIP:-main}"
 BACKEND_IMAGE="${BACKEND_IMAGE:-ghcr.io/medica-im/clinic-cms-backend}"
 VERSIONS_SSH="${VERSIONS_SSH:-ssh -o BatchMode=yes -o ConnectTimeout=8}"
 VERSIONS_LOCAL_IMAGES="${VERSIONS_LOCAL_IMAGES:-}"
