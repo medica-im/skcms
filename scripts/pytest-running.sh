@@ -24,7 +24,9 @@ py=python
 for p in /proc/[0-9]*; do
     pid=${p#/proc/}
     [ "$pid" = "$$" ] && continue
-    cmd=$(tr "\0" " " < "$p/cmdline" 2>/dev/null) || continue
+    # Grouped: a process can exit between the glob and the read, and the
+    # failed redirect is reported by the shell itself, not by tr.
+    cmd=$( { tr "\0" " " < "$p/cmdline"; } 2>/dev/null) || continue
     case "$cmd" in *"$py -m pytest"*) printf "%s %s\n" "$pid" "$cmd" ;; esac
 done'
 
