@@ -42,7 +42,6 @@ BACKEND_TEST_SERVICE="${BACKEND_TEST_SERVICE:-fastapi}"
 BACKEND_SHELL_SERVICE="${BACKEND_SHELL_SERVICE:-django}"
 BACKEND_WORKDIR="${BACKEND_WORKDIR:-/app}"
 NEO4J_SERVICE="${NEO4J_SERVICE:-neo4j}"
-NEO4J_CONTAINER="${NEO4J_CONTAINER:-backend-neo4j-1}"
 
 # Frontend dev servers used by the Playwright/BDD suite: one per worker, each
 # serving its own site over https through nginx (scripts/e2e-workers.sh).
@@ -298,6 +297,12 @@ EOF
 
 # --- Backend stack -----------------------------------------------------------
 compose() { (cd "$BACKEND_DIR" && $COMPOSE_CMD -f "$COMPOSE_FILE" "$@"); }
+# A helper script that asks about the stack, given the same compose command as
+# compose(): scoped to the dev stack's project, never to a container by name.
+compose_scoped() {
+    local helper="$1"; shift
+    (cd "$BACKEND_DIR" && COMPOSE="$COMPOSE_CMD -f $COMPOSE_FILE" "$FRONTEND_DIR/scripts/$helper" "$@")
+}
 
 stack_healthy() {
     local total up
@@ -311,7 +316,7 @@ wait_for_neo4j() {
     local waited=0
     while (( waited < NEO4J_HEALTH_TIMEOUT )); do
         local s
-        s=$(docker inspect "$NEO4J_CONTAINER" --format '{{.State.Health.Status}}' 2>/dev/null || echo missing)
+        s=$(compose_scoped neo4j-health.sh "$NEO4J_SERVICE")
         [[ "$s" == "healthy" ]] && return 0
         info "neo4j: $s (${waited}s)"
         sleep 10; waited=$((waited + 10))
@@ -1009,9 +1014,13 @@ suite_backend() {
     # it, and every test after errors on the failed setup (1616 ERRORs, one
     # cause). An interrupted run leaves its pytest running in the container,
     # since stopping `compose exec` does not stop what it started.
-    local running
-    running="$(compose exec -T "$BACKEND_TEST_SERVICE" pgrep -af '[p]ython -m pytest' 2>/dev/null || true)"
-    if [[ -n "$running" ]]; then
+    local running status=0
+    running="$(compose_scoped pytest-running.sh "$BACKEND_TEST_SERVICE")" || status=$?
+    if [[ $status -eq 2 ]]; then
+        fail "could not tell whether a pytest session is already running"
+        return 1
+    fi
+    if [[ $status -eq 0 ]]; then
         warn "a pytest session is already running in the $BACKEND_TEST_SERVICE container:"
         printf '      %s\n' "$running" >&2
         warn "wait for it, or stop it: docker compose exec $BACKEND_TEST_SERVICE pkill -f 'python -m pytest'"
