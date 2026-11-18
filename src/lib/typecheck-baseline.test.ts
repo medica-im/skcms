@@ -72,7 +72,12 @@ describe('typecheck-baseline-of.sh', () => {
 function committedBaselines(): Record<string, number> {
 	const out = execFileSync(
 		'bash',
-		['-c', 'source "$1"; for v in $(compgen -v TYPECHECK_BASELINE_); do echo "$v=${!v}"; done', '_', CONF],
+		[
+			'-c',
+			'source "$1"; for v in $(compgen -v TYPECHECK_BASELINE_); do echo "$v=${!v}"; done',
+			'_',
+			CONF
+		],
 		{ encoding: 'utf8', env: cleanEnv() }
 	);
 	return Object.fromEntries(

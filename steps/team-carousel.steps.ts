@@ -79,8 +79,7 @@ Then('a previous and a next button are visible', async ({ page }) => {
 });
 
 Then('at least one of them is clickable', async ({ page }) => {
-	const enabled =
-		(await prevButton(page).isEnabled()) || (await nextButton(page).isEnabled());
+	const enabled = (await prevButton(page).isEnabled()) || (await nextButton(page).isEnabled());
 	expect(enabled, 'neither the previous nor the next button is enabled').toBe(true);
 });
 

@@ -2,21 +2,22 @@
 
 	import * as m from '$msgs';
 	import { page } from '$app/state';
-	import { variables } from '$lib/utils/constants.ts';
-	import DocsIcon from '$lib/Icon/Icon.svelte';
+	import { variables } from '#lib/utils/constants.ts';
+	import DocsIcon from '#lib/Icon/Icon.svelte';
 	import { AppRail, AppRailTile, AppRailAnchor, getDrawerStore } from '@skeletonlabs/skeleton';
-	import SoMed from '$lib/SoMed/SoMed.svelte';
-	import Website from '$lib/components/Website/Website.svelte';
+	import SoMed from '#lib/SoMed/SoMed.svelte';
+	import Website from '#lib/components/Website/Website.svelte';
 	import Fa from 'svelte-fa';
-	import { org } from '$lib/state.svelte.js';
+	import { org } from '#lib/state.svelte.js';
 	import { faBlog, faCalendar } from '@fortawesome/free-solid-svg-icons';
 	import BookUser from '@lucide/svelte/icons/book-user';
 	import { menuNavCats } from '$var/variables.ts';
-	import { siteMenu, visibleItems, menuWithOwnPages } from '$lib/SiteMenu/siteMenu';
-	import ParentSiteTree from '$lib/SiteMenu/ParentSiteTree.svelte';
-	import ArchiveBadge from '$lib/ArchiveBadge/ArchiveBadge.svelte';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import { base } from '$app/paths';
+	import { siteMenu, visibleItems, menuWithOwnPages } from '#lib/SiteMenu/siteMenu.ts';
+	import ParentSiteTree from '#lib/SiteMenu/ParentSiteTree.svelte';
+	import ArchiveBadge from '#lib/ArchiveBadge/ArchiveBadge.svelte';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import { resolve } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 
 	let {
 		currentRailCategory = $bindable(),
@@ -39,11 +40,8 @@
 	 * What the drawer actually renders: the parent's menu plus this app's own
 	 * two pages, which nothing in the parent's markup links to.
 	 */
-	const drawerMenu = menuWithOwnPages(
-		base,
-		capitalizeFirstLetter(m.ADDRESSBOOK_TITLE(), variables.DEFAULT_LANGUAGE),
-		capitalizeFirstLetter(m.LEGAL_NOTICES(), variables.DEFAULT_LANGUAGE)
-	);
+	const drawerMenu = menuWithOwnPages(base(), capitalizeFirstLetter(m.ADDRESSBOOK_TITLE(), variables.DEFAULT_LANGUAGE), capitalizeFirstLetter(m.LEGAL_NOTICES(), variables.DEFAULT_LANGUAGE));
+
 	const dirPath = page.data.directory.setting.path || '/';
 	const drawerStore = getDrawerStore();
 
@@ -114,127 +112,127 @@
 		they are on, so the rail goes.
 	-->
 	{#if !parentMenu.length}
-	<!-- App Rail -->
+		<!-- App Rail -->
 	<AppRail background="!bg-transparent" border="border-r border-surface-500/30">
-		<AppRailAnchor
-			data-sveltekit-preload-data="off"
-			href="{base}/"
-			selected={page.url.pathname == '/' && !currentRailCategory}
-			class="lg:hidden"
-			on:click={() => {
-				onClickAnchor();
-			}}
-		>
+			<AppRailAnchor
+				data-sveltekit-preload-data="false"
+				href="{base()}/"
+				selected={page.url.pathname == '/' && !currentRailCategory}
+				class="lg:hidden"
+				on:click={() => {
+					onClickAnchor();
+				}}
+			>
 			<svelte:fragment slot="lead"
 				><DocsIcon name="home" width="w-6" height="h-6" /></svelte:fragment
 			>
-			<span>{m.HOME_TITLE()}</span>
-		</AppRailAnchor>
-		{#if dirPath != '/'}
-			<AppRailAnchor
-				href={dirPath}
-				selected={page.url.pathname.startsWith(dirPath) && !currentRailCategory}
-				class="lg:hidden"
-				on:click={() => {
-					onClickAnchor();
-				}}
-			>
+				<span>{m.HOME_TITLE()}</span>
+			</AppRailAnchor>
+			{#if dirPath != '/'}
+				<AppRailAnchor
+					href={dirPath}
+					selected={page.url.pathname.startsWith(dirPath) && !currentRailCategory}
+					class="lg:hidden"
+					on:click={() => {
+						onClickAnchor();
+					}}
+				>
 				<svelte:fragment slot="lead"
 					><DocsIcon name="addressBook" width="w-6" height="h-6" /></svelte:fragment
 				>
-				<span>{m.NAVBAR_ADDRESSBOOK()}</span>
-			</AppRailAnchor>
-		{/if}
-		<!--
+					<span>{m.NAVBAR_ADDRESSBOOK()}</span>
+				</AppRailAnchor>
+			{/if}
+			<!--
 			The sites page is not advertised on a site that asked for it to be
 			hidden. The route still resolves — this only stops linking to it.
 		-->
-		{#if siteMenu?.footer.showSites ?? true}
-			<AppRailAnchor
-				href="{base}/sites"
-				selected={page.url.pathname == '/sites' && !currentRailCategory}
-				class="lg:hidden"
-				on:click={() => {
-					onClickAnchor();
-				}}
-			>
+			{#if siteMenu?.footer.showSites ?? true}
+				<AppRailAnchor
+					href="{base()}/sites"
+					selected={page.url.pathname == '/sites' && !currentRailCategory}
+					class="lg:hidden"
+					on:click={() => {
+						onClickAnchor();
+					}}
+				>
 				<svelte:fragment slot="lead"
 					><DocsIcon name="mapLocationDot" width="w-6" height="h-6" /></svelte:fragment
 				>
-				<span>Sites</span>
-			</AppRailAnchor>
-		{/if}
-		{#if page.data.organization.google_calendar_id && page.data.organization.google_calendar_api_key}
-			<AppRailAnchor
-				href="{base}/calendrier"
-				selected={page.url.pathname == '/calendrier' && !currentRailCategory}
-				class="lg:hidden"
-				on:click={() => {
-					onClickAnchor();
-				}}
-			>
+					<span>Sites</span>
+				</AppRailAnchor>
+			{/if}
+			{#if page.data.organization.google_calendar_id && page.data.organization.google_calendar_api_key}
+				<AppRailAnchor
+					href="{base()}/calendrier"
+					selected={page.url.pathname == '/calendrier' && !currentRailCategory}
+					class="lg:hidden"
+					on:click={() => {
+						onClickAnchor();
+					}}
+				>
 				<svelte:fragment slot="lead"
 					><Fa icon={faCalendar} size="lg" class="inline-block outline-none" /></svelte:fragment
 				>
-				<span>{m.CALENDAR()}</span>
-			</AppRailAnchor>
-		{/if}
-		<!--tiles from menuNavCats:-->
-		{#each menuNavCats as navCat}
+					<span>{m.CALENDAR()}</span>
+				</AppRailAnchor>
+			{/if}
+			<!--tiles from menuNavCats:-->
+			{#each menuNavCats as navCat}
 			<AppRailTile bind:group={currentRailCategory} name={navCat.id} value={navCat.id}>
 				<svelte:fragment slot="lead">
 					<DocsIcon name={navCat.docsIcon} width="w-6" height="h-6" />
 				</svelte:fragment>
-				<span>{navCat.title[variables.DEFAULT_LANGUAGE]}</span>
-			</AppRailTile>
-		{/each}
-		{#if variables.BLOG_URI}
+					<span>{navCat.title[variables.DEFAULT_LANGUAGE]}</span>
+				</AppRailTile>
+			{/each}
+			{#if variables.BLOG_URI}
+				<AppRailAnchor
+					href={variables.BLOG_URI}
+					rel="external"
+					class="lg:hidden"
+					on:click={() => {
+						onClickAnchor();
+					}}
+				>
+				<svelte:fragment slot="lead"
+					><Fa icon={faBlog} size="lg" class="inline-block outline-none" /></svelte:fragment
+				>
+					<span>Blog</span>
+				</AppRailAnchor>
+			{/if}
+			{#if page.data.organization.contact?.socialnetworks}
+			<SoMed data={page.data.organization.contact.socialnetworks} appRail={true} />
+			{/if}
+			{#if page.data.organization.contact?.websites}
+				{#each page.data.organization.contact?.websites as website}
+					<!-- See SkeletonAppBar: hidden under a base path, where the
+				     organisation's site is the page hosting this one. -->
+					{#if !base()}
+						<Website website={website} appRail={true} />
+					{/if}
+				{/each}
+			{/if}
+			<!--
+			Contact belongs to the parent site where there is one: it is their
+			address, and ours would answer with the organisation behind the
+			directory rather than the one the visitor came looking for.
+		-->
 			<AppRailAnchor
-				href={variables.BLOG_URI}
-				rel="external"
+				href={siteMenu?.footer.contactHref ?? resolve(`contact`)}
+				rel={siteMenu ? 'noopener' : undefined}
+				selected={page.url.pathname == '/contact' && !currentRailCategory}
 				class="lg:hidden"
 				on:click={() => {
 					onClickAnchor();
 				}}
 			>
-				<svelte:fragment slot="lead"
-					><Fa icon={faBlog} size="lg" class="inline-block outline-none" /></svelte:fragment
-				>
-				<span>Blog</span>
-			</AppRailAnchor>
-		{/if}
-		{#if page.data.organization.contact?.socialnetworks}
-			<SoMed data={page.data.organization.contact.socialnetworks} appRail={true} />
-		{/if}
-		{#if page.data.organization.contact?.websites}
-			{#each page.data.organization.contact?.websites as website}
-				<!-- See SkeletonAppBar: hidden under a base path, where the
-				     organisation's site is the page hosting this one. -->
-				{#if !base}
-					<Website {website} appRail={true} />
-				{/if}
-			{/each}
-		{/if}
-		<!--
-			Contact belongs to the parent site where there is one: it is their
-			address, and ours would answer with the organisation behind the
-			directory rather than the one the visitor came looking for.
-		-->
-		<AppRailAnchor
-			href={siteMenu?.footer.contactHref ?? `${base}/contact`}
-			rel={siteMenu ? 'noopener' : undefined}
-			selected={page.url.pathname == '/contact' && !currentRailCategory}
-			class="lg:hidden"
-			on:click={() => {
-				onClickAnchor();
-			}}
-		>
 			<svelte:fragment slot="lead"
 				><DocsIcon name="envelope" width="w-6" height="h-6" /></svelte:fragment
 			>
-			<span>Contact</span>
-		</AppRailAnchor>
-	</AppRail>
+				<span>Contact</span>
+			</AppRailAnchor>
+		</AppRail>
 	{/if}
 	{#if navLinks?.length}
 		<!-- Nav Links -->
@@ -258,12 +256,12 @@
 						put a dead /maison-de-sante on every page of that section.
 					-->
 					<div
-					{id}
-					class="whitespace-normal px-4 font-bold uppercase text-primary-700 dark:text-primary-500"
-				>
+						id={id}
+						class="whitespace-normal px-4 font-bold uppercase text-primary-700 dark:text-primary-500"
+					>
 						{#if href}
 							<a
-								{href}
+								href={href}
 								class="hover:underline"
 								data-sveltekit-preload-data="hover"
 								onclick={() => {
@@ -282,7 +280,7 @@
 							{#each list.filter((e: any) => e.active != false) as { href, label, badge, archive }}
 								<li>
 									<a
-										{href}
+										href={href}
 										class={classesActive(href)}
 										data-sveltekit-preload-data="hover"
 										onclick={() => {

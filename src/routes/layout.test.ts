@@ -8,7 +8,7 @@
 import { describe, it, expect, vi } from 'vitest';
 
 vi.mock('$app/environment', () => ({ browser: false }));
-vi.mock('$lib/version', () => ({ checkVersion: () => {} }));
+vi.mock('#lib/version.ts', () => ({ checkVersion: () => {} }));
 
 import { load } from './+layout.ts';
 
@@ -29,7 +29,10 @@ const serverData = {
 describe('the root universal load', () => {
 	it('hands pages every key the server load returned', async () => {
 		vi.spyOn(console, 'log').mockImplementation(() => {});
-		const data = (await load({ fetch, data: serverData, depends: () => {} } as never)) as Record<string, unknown>;
+		const data = (await load({ fetch, data: serverData, depends: () => {} } as never)) as Record<
+			string,
+			unknown
+		>;
 		expect(data).toMatchObject(serverData);
 	});
 });

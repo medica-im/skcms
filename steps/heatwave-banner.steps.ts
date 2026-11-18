@@ -6,8 +6,7 @@ const { Given, When, Then } = createBdd(test);
 
 const DISMISSED_KEY = 'heatwave-alert-dismissed-until';
 
-const banner = (page: import('@playwright/test').Page) =>
-	page.getByTestId('heatwave-alert');
+const banner = (page: import('@playwright/test').Page) => page.getByTestId('heatwave-alert');
 const closeButton = (page: import('@playwright/test').Page) =>
 	page.getByTestId('heatwave-alert-close');
 

@@ -59,12 +59,15 @@ Given("this site's directory offers only {string}", async ({ baseURL }, list: st
 	await offerOnly(names(list));
 });
 
-const row = (page: Page) => page.locator(`[data-testid="directory-row"][data-directory="${ctx.directory}"]`);
+const row = (page: Page) =>
+	page.locator(`[data-testid="directory-row"][data-directory="${ctx.directory}"]`);
 const overlay = (page: Page) => row(page).getByTestId('directory-types-dialog');
 
 /** Waits for the command's round trip; a refusal would say so in the overlay. */
 async function saving(page: Page, act: () => Promise<void>) {
-	const saved = page.waitForResponse((r) => r.request().method() === 'POST' && r.url().includes('/_app/remote/'));
+	const saved = page.waitForResponse(
+		(r) => r.request().method() === 'POST' && r.url().includes('/_app/remote/')
+	);
 	await act();
 	await saved;
 	await expect(overlay(page).getByRole('alert')).toHaveCount(0);
@@ -99,7 +102,9 @@ When('I close the categories overlay', async ({ page }) => {
 });
 
 Then('the directories page shows the categories {string}', async ({ page }, list: string) => {
-	await expect(row(page).getByTestId('directory-types-summary').locator('li')).toHaveText(names(list));
+	await expect(row(page).getByTestId('directory-types-summary').locator('li')).toHaveText(
+		names(list)
+	);
 });
 
 Then('the directories page says every category is offered', async ({ page }) => {
@@ -137,7 +142,10 @@ Then("the categories' controls are at least 44 pixels tall", async ({ page }) =>
 	const controls = overlay(page).getByRole('button');
 	await expect(controls.first()).toBeVisible();
 	const heights = await controls.evaluateAll((els) =>
-		els.map((e) => [e.getAttribute('aria-label') ?? e.textContent?.trim(), e.getBoundingClientRect().height])
+		els.map((e) => [
+			e.getAttribute('aria-label') ?? e.textContent?.trim(),
+			e.getBoundingClientRect().height
+		])
 	);
 	for (const [name, height] of heights) {
 		expect(height, `${name}`).toBeGreaterThanOrEqual(44);

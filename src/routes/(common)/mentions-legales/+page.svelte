@@ -3,8 +3,8 @@
 	import { page } from '$app/state';
 	import * as m from '$msgs';
 	
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import LegalNotices from '$lib/LegalNotices/LegalNotices.svelte';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import LegalNotices from '#lib/LegalNotices/LegalNotices.svelte';
 </script>
 
 <svelte:head>

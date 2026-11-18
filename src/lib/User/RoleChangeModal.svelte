@@ -3,10 +3,10 @@
 	import Fa from 'svelte-fa';
 	import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
-	import Dialog from '$lib/Web/Dialog.svelte';
-	import RoleBadge from '$lib/RoleBadge.svelte';
-	import { roleLabel } from '$lib/roles';
-	import { grantableRoles } from '$lib/auth/grantable';
+	import Dialog from '#lib/Web/Dialog.svelte';
+	import RoleBadge from '#lib/RoleBadge.svelte';
+	import { roleLabel } from '#lib/roles.ts';
+	import { grantableRoles } from '#lib/auth/grantable.ts';
 	import { changeUserRole } from '../../user.remote.ts';
 
 	/**

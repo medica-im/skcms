@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import type { OpenGraph } from '$lib/interfaces/openGraph.interface';
+	import type { OpenGraph } from '#lib/interfaces/openGraph.interface.ts';
 
 	let { opengraph }: { opengraph: OpenGraph } = $props();
 	const { title, image_url, image_alt, image_width, image_height, description, twitter_description, username } =

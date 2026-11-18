@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { dateTime } from '$lib/store/dateTimeStore.ts';
+	import { dateTime } from '#lib/store/dateTimeStore.ts';
 	import Fa from 'svelte-fa';
 	import {
 		faSync,
 		faSms,
 	} from '@fortawesome/free-solid-svg-icons';
-	import { isServiceAvailable } from '$lib/Schedule/available.ts';
-	import { publicHolidays } from '$lib/store/publicHolidaysStore.ts';
+	import { isServiceAvailable } from '#lib/Schedule/available.ts';
+	import { publicHolidays } from '#lib/store/publicHolidaysStore.ts';
 </script>
 
 <div class="card h-full">

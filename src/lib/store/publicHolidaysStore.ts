@@ -1,20 +1,18 @@
-import publicHolidaysJson from '$lib/assets/json/metropole.json';
-import type { Organization } from '$lib/interfaces/organization';
+import publicHolidaysJson from '#lib/assets/json/metropole.json';
+import type { Organization } from '#lib/interfaces/organization.ts';
 
-
-export const publicHolidays =
-	async (organization: Organization) => {
-        const zone = organization.contact.address.public_holidays_zone;
-        const year = new Date().getFullYear();
-        const url = `https://calendrier.api.gouv.fr/jours-feries/${zone}/${year}.json`;
-    const response = await fetch(url);
-    if ( response.ok ) {
-    const data = await response.json();
-    return data;
-    } else {
-        console.error(response.status);
-        if (zone === "metropole") {
-            return publicHolidaysJson;
-        }
-    }
-    };
+export const publicHolidays = async (organization: Organization) => {
+	const zone = organization.contact.address.public_holidays_zone;
+	const year = new Date().getFullYear();
+	const url = `https://calendrier.api.gouv.fr/jours-feries/${zone}/${year}.json`;
+	const response = await fetch(url);
+	if (response.ok) {
+		const data = await response.json();
+		return data;
+	} else {
+		console.error(response.status);
+		if (zone === 'metropole') {
+			return publicHolidaysJson;
+		}
+	}
+};

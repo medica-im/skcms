@@ -2,7 +2,7 @@
  * An entry page's canonical address, title and description.
  * See entryMeta.test.ts for why each is built the way it is.
  */
-import { buttonLabel } from '$lib/Organization/occupationLabel';
+import { buttonLabel } from '#lib/Organization/occupationLabel.ts';
 
 /** What the page knows of an entry: the full entry, plus the list's raw_label and department. */
 export interface EntryMetaSource {

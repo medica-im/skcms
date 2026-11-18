@@ -12,7 +12,7 @@ import { cdp, server, userEvent } from 'vitest/browser';
 import * as m from '$msgs';
 import Select from './Select.svelte';
 import '../../app.postcss';
-import '$lib/assets/css/svelte-select.css';
+import '#lib/assets/css/svelte-select.css';
 
 const items = [
 	{ uid: 'a', label: 'Infirmier' },
@@ -31,7 +31,9 @@ describe('Select chevron', () => {
 	});
 
 	it('leaves it out when a caller asks', async () => {
-		render(Select, { props: { items, label: 'label', itemId: 'uid', showChevron: false } } as never);
+		render(Select, {
+			props: { items, label: 'label', itemId: 'uid', showChevron: false }
+		} as never);
 		await expect.poll(() => document.querySelector('.svelte-select .indicators')).not.toBeNull();
 		expect(document.querySelector('.svelte-select .chevron')).toBeNull();
 	});
@@ -78,7 +80,9 @@ describe.runIf(server.browser === 'chromium')('Select on a touch screen', () => 
 describe('Select with nothing to offer', () => {
 	it('says so in the site language, not in svelte-select English', async () => {
 		render(Select, { props: { items: [], listOpen: true } } as never);
-		await expect.poll(() => document.querySelector('.svelte-select-list')?.textContent?.trim()).toBe(m.NO_OPTIONS());
+		await expect
+			.poll(() => document.querySelector('.svelte-select-list')?.textContent?.trim())
+			.toBe(m.NO_OPTIONS());
 		expect(document.querySelector('.svelte-select-list .empty')).toBeNull();
 	});
 });
@@ -87,7 +91,9 @@ describe('Select callbacks', () => {
 	it('hands the chosen item itself to onchange', async () => {
 		const onchange = vi.fn();
 		// Exact: once focused, the screen-reader announcement names the hovered option too.
-		const view = await render(Select, { props: { items, label: 'label', itemId: 'uid', listOpen: true, onchange } } as never);
+		const view = await render(Select, {
+			props: { items, label: 'label', itemId: 'uid', listOpen: true, onchange }
+		} as never);
 		await userEvent.click(view.getByText('Médecin généraliste', { exact: true }));
 		await expect.poll(() => onchange.mock.calls.length).toBe(1);
 		expect(onchange.mock.calls[0][0]).toMatchObject(items[1]);

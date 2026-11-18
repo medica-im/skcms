@@ -117,7 +117,7 @@ describe('components use the shared maps', () => {
 		}
 		expect(
 			offenders,
-			`these files build their own role labels; import { roleLabels } from '$lib/roles' instead:\n  ${offenders.join('\n  ')}`
+			`these files build their own role labels; import { roleLabels } from '#lib/roles' instead:\n  ${offenders.join('\n  ')}`
 		).toEqual([]);
 	});
 
@@ -133,7 +133,7 @@ describe('components use the shared maps', () => {
 		}
 		expect(
 			offenders,
-			`these files build their own badge variants; import { roleVariants } from '$lib/roles' instead:\n  ${offenders.join('\n  ')}`
+			`these files build their own badge variants; import { roleVariants } from '#lib/roles' instead:\n  ${offenders.join('\n  ')}`
 		).toEqual([]);
 	});
 });

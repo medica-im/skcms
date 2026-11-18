@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { base } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 	import * as m from '$msgs';
-	import SortHeader from '$lib/components/Table/SortHeader.svelte';
-	import ListDateTime from '$lib/components/DateTime/ListDateTime.svelte';
-	import { ariaSort } from '$lib/components/Table/sortHeader';
+	import SortHeader from '#lib/components/Table/SortHeader.svelte';
+	import ListDateTime from '#lib/components/DateTime/ListDateTime.svelte';
+	import { ariaSort } from '#lib/components/Table/sortHeader.ts';
 	import {
 		sortEntries,
 		summarise,
@@ -63,14 +63,11 @@
 				type="button"
 				class="badge {state === key ? on : off}"
 				aria-pressed={state === key}
-				onclick={() => (state = state === key ? 'all' : (key as StateFilter))}
-			>
-				{count}&nbsp;{label}
-			</button>
+				onclick={() => state = state === key ? 'all' : key as StateFilter}
+			>{count} {label}</button>
 		{/each}
-		<span class="badge variant-soft-error">
-			{counts.withoutOwner}&nbsp;{m.admin_entries_without_owner({ count: counts.withoutOwner })}
-		</span>
+
+		<span class="badge variant-soft-error">{counts.withoutOwner} {m.admin_entries_without_owner({ count: counts.withoutOwner })}</span>
 	</div>
 
 	{#if sorted.length === 0}
@@ -83,9 +80,9 @@
 						{#each [['name', m.admin_entries_col_person()], ['type', m.admin_entries_col_type()], ['facility', m.admin_entries_col_facility()], ['active', m.admin_entries_col_state()], ['createdAt', m.admin_entries_col_created()], ['lastModified', m.admin_entries_col_modified()]] as [key, label]}
 							<th aria-sort={ariaSort(column === key, direction)}>
 								<SortHeader
-									{label}
+									label={label}
 									active={column === key}
-									{direction}
+									direction={direction}
 									onclick={() => sortBy(key as SortColumn)}
 								/>
 							</th>
@@ -101,7 +98,7 @@
 						<tr>
 							<td>
 								{#if entry.slug}
-									<a class="anchor" href="{base}/e/{entry.slug}">{entry.name ?? entry.slug}</a>
+									<a class="anchor" href="{base()}/e/{entry.slug}">{entry.name ?? entry.slug}</a>
 								{:else}
 									{entry.name ?? entry.uid}
 								{/if}
@@ -111,9 +108,11 @@
 								{#if entry.facility?.slug}
 									<!-- /sites/, not /web/facility/: the latter has only a
 									     create/ subroute and 404s for any slug. -->
-									<a class="anchor" href="{base}/sites/{entry.facility.slug}">
-										{entry.facility.name}
-									</a>
+
+									<a
+										class="anchor"
+										href="{base()}/sites/{entry.facility.slug}"
+									>{entry.facility.name}</a>
 								{:else}
 									{entry.facility?.name ?? '—'}
 								{/if}
@@ -149,16 +148,28 @@
 							<td class="whitespace-nowrap"><ListDateTime value={lastModifiedOf(entry)} /></td>
 							<td>
 								{#each entry.creators as user, i}
-									{#if i > 0},&nbsp;{/if}
-									<a class="anchor" href="{base}/web/users/{user.uid}">{user.name ?? user.uid}</a>
+									{#if i > 0}
+										,
+									{/if}
+
+									<a
+										class="anchor"
+										href="{base()}/web/users/{user.uid}"
+									>{user.name ?? user.uid}</a>
 								{:else}
 									—
 								{/each}
 							</td>
 							<td>
 								{#each entry.owners as user, i}
-									{#if i > 0},&nbsp;{/if}
-									<a class="anchor" href="{base}/web/users/{user.uid}">{user.name ?? user.uid}</a>
+									{#if i > 0}
+										,
+									{/if}
+
+									<a
+										class="anchor"
+										href="{base()}/web/users/{user.uid}"
+									>{user.name ?? user.uid}</a>
 								{:else}
 									<span class="badge variant-soft-error">{m.admin_entries_no_owner()}</span>
 								{/each}

@@ -168,9 +168,7 @@ Then('I see a preview of the cropped picture', async ({ page }) => {
 	await expect(preview(page)).toBeVisible({ timeout: 8_000 });
 	// A rendered image, not an empty box: the element must actually have decoded
 	// pixels, which a broken or unset src would not.
-	const width = await preview(page).evaluate(
-		(el) => (el as HTMLImageElement).naturalWidth ?? 0
-	);
+	const width = await preview(page).evaluate((el) => (el as HTMLImageElement).naturalWidth ?? 0);
 	expect(width, 'the preview has no decoded image').toBeGreaterThan(0);
 });
 
@@ -208,16 +206,17 @@ async function expectWithinWindow(
 	expect(box, `${what} has no box`).not.toBeNull();
 	expect(viewport, 'no viewport').not.toBeNull();
 	expect(box!.y, `${what} starts above the window`).toBeGreaterThanOrEqual(0);
-	expect(
-		box!.y + box!.height,
-		`${what} runs past the bottom of the window`
-	).toBeLessThanOrEqual(viewport!.height);
+	expect(box!.y + box!.height, `${what} runs past the bottom of the window`).toBeLessThanOrEqual(
+		viewport!.height
+	);
 }
 
 Then('the crop button is within the window', async ({ page }) => {
 	await expectWithinWindow(
 		page,
-		openDialog(page).getByRole('button', { name: /valider le recadrage/i }).first(),
+		openDialog(page)
+			.getByRole('button', { name: /valider le recadrage/i })
+			.first(),
 		'the crop button'
 	);
 });
@@ -225,7 +224,9 @@ Then('the crop button is within the window', async ({ page }) => {
 Then('the upload button is within the window', async ({ page }) => {
 	await expectWithinWindow(
 		page,
-		openDialog(page).getByRole('button', { name: /^envoyer$/i }).first(),
+		openDialog(page)
+			.getByRole('button', { name: /^envoyer$/i })
+			.first(),
 		'the upload button'
 	);
 });
@@ -238,7 +239,9 @@ const accessSelect = (page: import('@playwright/test').Page) =>
 	openDialog(page).locator('select[name="avatar-access"]');
 
 Then('the closing button is not styled as a warning', async ({ page }) => {
-	const closeButton = openDialog(page).getByRole('button', { name: /^fermer$/i }).first();
+	const closeButton = openDialog(page)
+		.getByRole('button', { name: /^fermer$/i })
+		.first();
 	await expect(closeButton).toBeVisible();
 	// The rendered colour, not the class list: what matters is that the button
 	// does not read as an error, however that styling is expressed.
@@ -304,22 +307,19 @@ const SHAPES: Record<string, [number, number]> = {
 	square: [1000, 1000]
 };
 
-When(
-	'I choose a {word} photograph to use as the avatar',
-	async ({ page }, shape: string) => {
-		const size = SHAPES[shape];
-		expect(size, `unknown photograph shape "${shape}"`).toBeTruthy();
-		const dataUrl = await makeImage(page, size[0], size[1]);
-		const buffer = Buffer.from(dataUrl.split(',')[1], 'base64');
-		await openDialog(page)
-			.locator('input[type="file"]')
-			.setInputFiles({ name: 'avatar.jpg', mimeType: 'image/jpeg', buffer });
-		await expect(cropper(page)).toBeVisible({ timeout: 8_000 });
-		// The cropper sizes its canvas from the image, which is laid out a frame
-		// or two after the element appears.
-		await page.waitForTimeout(1200);
-	}
-);
+When('I choose a {word} photograph to use as the avatar', async ({ page }, shape: string) => {
+	const size = SHAPES[shape];
+	expect(size, `unknown photograph shape "${shape}"`).toBeTruthy();
+	const dataUrl = await makeImage(page, size[0], size[1]);
+	const buffer = Buffer.from(dataUrl.split(',')[1], 'base64');
+	await openDialog(page)
+		.locator('input[type="file"]')
+		.setInputFiles({ name: 'avatar.jpg', mimeType: 'image/jpeg', buffer });
+	await expect(cropper(page)).toBeVisible({ timeout: 8_000 });
+	// The cropper sizes its canvas from the image, which is laid out a frame
+	// or two after the element appears.
+	await page.waitForTimeout(1200);
+});
 
 /** Same comparison as "still inside", read once for the initial placement. */
 async function selectionAndImage(page: import('@playwright/test').Page) {
@@ -426,7 +426,11 @@ When('I delete the picture', async ({ page }) => {
 });
 
 Then('the dialog confirms the picture was deleted', async ({ page }) => {
-	await expect(openDialog(page).getByText(/photo supprimée/i).first()).toBeVisible({
+	await expect(
+		openDialog(page)
+			.getByText(/photo supprimée/i)
+			.first()
+	).toBeVisible({
 		timeout: 8_000
 	});
 });
@@ -489,7 +493,9 @@ Then('no avatar has been uploaded yet', async () => {
 
 Then('the avatar is uploaded successfully', async ({ page }) => {
 	await expect(
-		openDialog(page).getByText(/photo (de profil )?(mise à jour|enregistrée)|succès/i).first()
+		openDialog(page)
+			.getByText(/photo (de profil )?(mise à jour|enregistrée)|succès/i)
+			.first()
 	).toBeVisible({ timeout: 8_000 });
 });
 

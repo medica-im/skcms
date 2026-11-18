@@ -2,19 +2,14 @@
 	import Fa from 'svelte-fa';
 	import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
 	import { faXmark } from '@fortawesome/free-solid-svg-icons';
-	import { enhance, applyAction } from '$app/forms';
+	import { enhance, applyAction, type SubmitFunction } from '$app/forms';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { getModalStore } from '@skeletonlabs/skeleton';
 	import * as m from '$msgs';
 
 	import type { ModalSettings } from '@skeletonlabs/skeleton';
-	import type { SubmitFunction } from '@sveltejs/kit';
-	import type {
-		GhostSiteResponse,
-		GhostSite,
-		GhostAddMemberError
-	} from '$lib/interfaces/ghost.interface';
+	import type { GhostSiteResponse, GhostSite, GhostAddMemberError } from '#lib/interfaces/ghost.interface.ts';
 
 	let { data }: { data: GhostSiteResponse | null } = $props();
 
@@ -41,12 +36,7 @@
 	};
 
 	const emailIsValid = (value: string) => {
-		return (
-			value &&
-			!!value.match(
-				/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-			)
-		);
+		return value && !!value.match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
 	};
 
 	$effect(() => {
@@ -125,13 +115,16 @@
 			class="card rounded-lg grid grid-cols-1 items-center place-items-center variant-ghost p-4 space-y-4 w-80"
 		>
 			<Fa icon={faEnvelope} size={'2x'} />
-			<h3 class="h3 text-center">Veuillez vérifier votre boîte de réception&#8239;!</h3>
+			<h3 class="h3 text-center">Veuillez vérifier votre boîte de réception !</h3>
 			<p class="text-center">
-				Pour confirmer votre inscription, veuillez cliquer le lien de confirmation dans l'e-mail que
-				vous allez recevoir. S’il ne vous parvient pas dans les 3 minutes, vérifiez votre dossier
-				d'indésirables&#8239;!
+				Pour confirmer votre inscription, veuillez cliquer le lien de confirmation dans l'e-mail que vous allez recevoir. S’il ne vous parvient pas dans les 3 minutes, vérifiez votre dossier d'indésirables !
 			</p>
-			<button type="button" class="btn variant-filled" onclick={() => (visible = false)}>
+
+			<button
+				type="button"
+				class="btn variant-filled"
+				onclick={() => visible = false}
+			>
 				<span><Fa icon={faXmark} size={'lg'} /></span>
 				<span>Fermer</span>
 			</button>
@@ -143,7 +136,7 @@
 			{#if ghostData}
 				<h3 class="h3 text-center">{ghostData.title}</h3>
 				<!--p>{ghostData.description}</p-->
-				<p>Inscrivez-vous pour recevoir les prochains billets&#8239;!</p>
+				<p>Inscrivez-vous pour recevoir les prochains billets !</p>
 			{/if}
 
 			<form
@@ -163,12 +156,21 @@
 						bind:value={email}
 					/>
 				</label>
-				<button type="submit" class="variant-filled-secondary btn" {disabled}>S'inscrire</button>
+
+				<button
+					type="submit"
+					class="variant-filled-secondary btn"
+					disabled={disabled}
+				>S'inscrire</button>
 			</form>
 			<p class="text-sm">
-				Déjà abonné&#8239;? <a href="/blog/#/portal/signin" rel="external" class="anchor"
-					>Se connecter</a
-				>
+				Déjà abonné ? 
+
+				<a
+					href="/blog/#/portal/signin"
+					rel="external"
+					class="anchor"
+				>Se connecter</a>
 			</p>
 		</div>
 	</div>

@@ -1,13 +1,13 @@
 import { getRequestEvent, form } from '$app/server';
 import * as z from 'zod';
-import { authReq } from '$lib/utils/request.ts';
-import { variables } from '$lib/utils/constants.ts';
+import { authReq } from '#lib/utils/request.ts';
+import { variables } from '#lib/utils/constants.ts';
 
 const BatchEmailPost = z.object({
 	recipient_uids: z.preprocess((val: string) => val.split(','), z.array(z.string())),
 	subject: z.string(),
 	body: z.string(),
-	author_uid: z.string(),
+	author_uid: z.string()
 });
 
 export const sendBatchEmail = form(BatchEmailPost, async (data) => {

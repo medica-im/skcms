@@ -4,11 +4,11 @@
 	import Fa from 'svelte-fa';
 	import * as m from '$msgs';
 	import { getLocale } from '../../paraglide/runtime.js';
-	import type { BoardMember, Officer, OrganizationRole } from '$lib/interfaces/v2/association';
-	import type { Entry } from '$lib/store/directoryStoreInterface';
-	import type { Labels } from '$lib/interfaces/label.interace';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import { base } from '$app/paths';
+	import type { BoardMember, Officer, OrganizationRole } from '#lib/interfaces/v2/association.ts';
+	import type { Entry } from '#lib/store/directoryStoreInterface.ts';
+	import type { Labels } from '#lib/interfaces/label.interace.ts';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import { resolve } from '$app/paths';
 
 	function formatDate(dateStr: string): string {
 		return new Date(dateStr).toLocaleDateString(getLocale(), {
@@ -64,7 +64,7 @@
 </script>
 
 <a
-	href={firstEntry ? `${base}/e/${firstEntry.entrySlug}` : undefined}
+	href={firstEntry ? resolve(`e/${firstEntry.entrySlug}`) : undefined}
 	class="flex flex-col lg:flex-row variant-soft-surface rounded-lg overflow-hidden hover:variant-ghost-primary transition-colors"
 >
 	<div class="p-4 shrink-0">

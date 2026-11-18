@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import Select from '$lib/Web/Select.svelte';
+	import Select from '#lib/Web/Select.svelte';
 	import { onMount } from 'svelte';
 	import * as m from '$msgs';
 	import { getSelectedDepartment } from './context';
-	import { getDepartments } from '$lib/Web/data';
-	import type { DepartmentOfFrance } from '$lib/interfaces/v2/facility';
-	import type { SelectType } from '$lib/interfaces/select';
+	import { getDepartments } from '#lib/Web/data.ts';
+	import type { DepartmentOfFrance } from '#lib/interfaces/v2/facility.ts';
+	import type { SelectType } from '#lib/interfaces/select.ts';
 
 	let { departmentOf }: { departmentOf: string[] } = $props();
 
@@ -53,18 +53,18 @@
 
 	function handleChange(selected: SelectType | undefined) {
 		if (selected) {
-			const url = new URL(page.url);
+			const url = new URL(page.url.href);
 			url.searchParams.set('department', JSON.stringify(selected.value));
-			goto(`${url.pathname}?${url.searchParams}`, { noScroll: true, keepFocus: true });
+			goto(`${url.pathname}?${url.searchParams}`, { reset: false });
 		}
 	}
 
 	const handleClear = (cleared: unknown) => {
 		if (cleared) {
-			const url = new URL(page.url);
+			const url = new URL(page.url.href);
 			url.searchParams.delete('department');
 			const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
-			goto(newUrl, { noScroll: true, keepFocus: true });
+			goto(newUrl, { reset: false });
 		}
 	};
 </script>

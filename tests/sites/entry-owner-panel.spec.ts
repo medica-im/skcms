@@ -88,10 +88,9 @@ test.describe('the owner / creator panel on an entry page', () => {
 		// The owner's email, because that is what the row renders for certain —
 		// the name field can be null on a user the panel still has to show.
 		const ownerEmail = await ownerEmailOf(ctx, entry.owner[0]);
-		expect(
-			html,
-			`the panel showed "${EMPTY}" for an entry owned by ${ownerEmail}`
-		).toContain(ownerEmail);
+		expect(html, `the panel showed "${EMPTY}" for an entry owned by ${ownerEmail}`).toContain(
+			ownerEmail
+		);
 
 		await ctx.dispose();
 	});

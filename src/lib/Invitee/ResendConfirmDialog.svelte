@@ -2,7 +2,7 @@
 	import Fa from 'svelte-fa';
 	import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
-	import Dialog from '$lib/Web/Dialog.svelte';
+	import Dialog from '#lib/Web/Dialog.svelte';
 
 	let {
 		dialog = $bindable(),

@@ -1,11 +1,11 @@
 <script lang="ts">
-	import * as m from "$msgs";	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import * as m from "$msgs";	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	
 	import Fa from 'svelte-fa';
 	import { faAddressBook, faEnvelope } from '@fortawesome/free-regular-svg-icons';
-	import Update from "$lib/Web/Email/Update.svelte";
-	import Delete from "$lib/Web/Email/Delete.svelte";
-	import type { Email } from '$lib/interfaces/email.interface';
+	import Update from "#lib/Web/Email/Update.svelte";
+	import Delete from "#lib/Web/Email/Delete.svelte";
+	import type { Email } from '#lib/interfaces/email.interface.ts';
 
 	let { data, editMode=false } : { data: Email; editMode?: boolean } = $props();
 </script>

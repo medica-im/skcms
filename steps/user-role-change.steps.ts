@@ -153,9 +153,10 @@ rows, _ = db.cypher_query(
 )
 print("SUSPENSION_SET", rows[0][0])
 `);
-	expect(out, `not exactly one ${role} access on ${host} to ${on ? 'suspend' : 'reinstate'}: ${out}`).toMatch(
-		/^SUSPENSION_SET 1$/m
-	);
+	expect(
+		out,
+		`not exactly one ${role} access on ${host} to ${on ? 'suspend' : 'reinstate'}: ${out}`
+	).toMatch(/^SUSPENSION_SET 1$/m);
 }
 
 /**
@@ -180,8 +181,7 @@ After(async () => {
 });
 
 const editButton = (page: import('@playwright/test').Page) => page.getByRole('switch').first();
-const roleSelect = (page: import('@playwright/test').Page) =>
-	page.getByTestId('role-select');
+const roleSelect = (page: import('@playwright/test').Page) => page.getByTestId('role-select');
 
 async function openUserPage(page: import('@playwright/test').Page, uid: string) {
 	// Watch for the history fetch leaving the *browser*, which is the whole
@@ -205,14 +205,11 @@ Given('I open the detail page of another user', async ({ page }) => {
 	await openUserPage(page, ctx.targetUid);
 });
 
-Given(
-	'I open the detail page of a user with the role {string}',
-	async ({ page }, role: string) => {
-		ctx.targetUid = await seedUser(role);
-		ctx.targetRole = role;
-		await openUserPage(page, ctx.targetUid);
-	}
-);
+Given('I open the detail page of a user with the role {string}', async ({ page }, role: string) => {
+	ctx.targetUid = await seedUser(role);
+	ctx.targetRole = role;
+	await openUserPage(page, ctx.targetUid);
+});
 
 // "no edit mode button is shown" is defined in edit-mode-toggle.steps.ts and
 // reused here — playwright-bdd rejects duplicate step definitions.
@@ -265,7 +262,11 @@ When('I change their role to {string}', async ({ page }, role: string) => {
 	// it": opening is a step of the mechanism, so it belongs here rather than
 	// in the feature file. Guarded so this step works whether or not a previous
 	// step already opened the dialog.
-	if (!(await roleSelect(page).isVisible().catch(() => false))) {
+	if (
+		!(await roleSelect(page)
+			.isVisible()
+			.catch(() => false))
+	) {
 		await page.getByTestId('role-edit').click();
 		await expect(roleSelect(page)).toBeVisible({ timeout: 8_000 });
 	}
@@ -293,9 +294,7 @@ Then(
 		// Both roles survive the change: the new one active, the old one kept
 		// with the time it ended. An audit trail nobody can see is one nobody
 		// can check, so this asserts on what is rendered.
-		const roles = await rows.evaluateAll((els) =>
-			els.map((el) => el.getAttribute('data-role'))
-		);
+		const roles = await rows.evaluateAll((els) => els.map((el) => el.getAttribute('data-role')));
 		expect(roles, `history showed ${JSON.stringify(roles)}`).toContain(to);
 		expect(roles, `history showed ${JSON.stringify(roles)}`).toContain(from);
 
@@ -341,10 +340,7 @@ Then('the history was fetched by the browser', async ({ page }) => {
 	const response = await page.request.get(
 		`${apiOrigin()}/api/v2/users/${ctx.targetUid}/access-history`
 	);
-	expect(
-		response.status(),
-		`the history endpoint answered ${response.status()}`
-	).toBe(200);
+	expect(response.status(), `the history endpoint answered ${response.status()}`).toBe(200);
 });
 
 Given('my access has been suspended', async ({ baseURL }) => {
@@ -366,34 +362,31 @@ Then('I am told my access is suspended', async ({ page }) => {
 	await expect(page.getByTestId('suspended-banner')).toBeVisible({ timeout: 8_000 });
 });
 
-Given(
-	'I am signed in with an email nobody has been invited with',
-	async ({ context, baseURL }) => {
-		// Not seeded anywhere, and deliberately so: this is the visitor the
-		// unknown-email warning was written for, and the only way to be that
-		// person is to be unknown to the graph.
-		const origin = baseURL ?? apiOrigin();
-		await context.addCookies([
-			{
-				name: sessionCookieName(origin),
-				value: await createSessionCookie(
-					{
-						sub: 'e2e-sub-stranger',
-						email: 'e2e-stranger@example.test',
-						name: 'E2E Stranger'
-					},
-					origin
-				),
-				domain: new URL(origin).hostname,
-				path: '/',
-				expires: Math.floor(Date.now() / 1000) + 3600,
-				httpOnly: true,
-				secure: new URL(origin).protocol === 'https:',
-				sameSite: 'Lax'
-			}
-		]);
-	}
-);
+Given('I am signed in with an email nobody has been invited with', async ({ context, baseURL }) => {
+	// Not seeded anywhere, and deliberately so: this is the visitor the
+	// unknown-email warning was written for, and the only way to be that
+	// person is to be unknown to the graph.
+	const origin = baseURL ?? apiOrigin();
+	await context.addCookies([
+		{
+			name: sessionCookieName(origin),
+			value: await createSessionCookie(
+				{
+					sub: 'e2e-sub-stranger',
+					email: 'e2e-stranger@example.test',
+					name: 'E2E Stranger'
+				},
+				origin
+			),
+			domain: new URL(origin).hostname,
+			path: '/',
+			expires: Math.floor(Date.now() / 1000) + 3600,
+			httpOnly: true,
+			secure: new URL(origin).protocol === 'https:',
+			sameSite: 'Lax'
+		}
+	]);
+});
 
 Then('I am told my email is unknown', async ({ page }) => {
 	await expect(page.getByTestId('unknown-email')).toBeVisible({ timeout: 8_000 });

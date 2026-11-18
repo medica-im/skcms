@@ -100,7 +100,10 @@ describe('warming the site servers', () => {
 
 describe('test-all.sh', () => {
 	const script = readFileSync(new URL('../../scripts/test-all.sh', import.meta.url), 'utf8');
-	const bdd = script.slice(script.indexOf('suite_bdd() {'), script.indexOf('\n}\n', script.indexOf('suite_bdd() {')));
+	const bdd = script.slice(
+		script.indexOf('suite_bdd() {'),
+		script.indexOf('\n}\n', script.indexOf('suite_bdd() {'))
+	);
 
 	it('starts the site servers only once the workers phase is over', () => {
 		const workers = bdd.indexOf('PLAYWRIGHT_PHASE=workers');

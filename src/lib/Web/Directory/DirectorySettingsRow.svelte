@@ -7,8 +7,8 @@
 	import Fa from 'svelte-fa';
 	import { faCheck } from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
-	import type { DirectorySettings, MinimumRole } from '$lib/interfaces/v2/directory.ts';
-	import { roleLabels } from '$lib/roles';
+	import type { DirectorySettings, MinimumRole } from '#lib/interfaces/v2/directory.ts';
+	import { roleLabels } from '#lib/roles.ts';
 	import {
 		setDirectoryMinimumRole,
 		setListOwnerEntry,

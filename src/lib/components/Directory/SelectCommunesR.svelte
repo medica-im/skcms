@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import Select from '$lib/Web/Select.svelte';
+	import Select from '#lib/Web/Select.svelte';
 	import * as m from '$msgs';
 	import { getSelectedCommunesUids, getSelectedCommunesChoices } from './context';
-	import type { Commune } from '$lib/interfaces/geography.interface.ts';
-	import type { SelectType } from '$lib/interfaces/select';
+	import type { Commune } from '#lib/interfaces/geography.interface.ts';
+	import type { SelectType } from '#lib/interfaces/select.ts';
 
 	let { communeOf }: { communeOf: Commune[] } = $props();
 
@@ -57,10 +57,10 @@
 
 	function handleClear(cleared: unknown) {
 		if (cleared) {
-			const url = new URL(page.url);
+			const url = new URL(page.url.href);
 			url.searchParams.delete('communes');
 			const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
-			goto(newUrl, { noScroll: true, keepFocus: true });
+			goto(newUrl, { reset: false });
 		}
 	}
 
@@ -72,9 +72,9 @@
 			} else {
 				uids = [selected.value];
 			}
-			const url = new URL(page.url);
+			const url = new URL(page.url.href);
 			url.searchParams.set('communes', JSON.stringify(uids));
-			goto(`${url.pathname}?${url.searchParams}`, { noScroll: true, keepFocus: true });
+			goto(`${url.pathname}?${url.searchParams}`, { reset: false });
 		}
 	}
 </script>

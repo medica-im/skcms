@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-    import { dateTime } from '$lib/store/dateTimeStore.ts'
+    import { dateTime } from '#lib/store/dateTimeStore.ts'
     export let size: number = 24;
 
 

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import { page } from 'vitest/browser';
 import Appointment from './Appointment.svelte';
-import type { Appointment as AppointmentType } from '$lib/interfaces/appointment.interface';
+import type { Appointment as AppointmentType } from '#lib/interfaces/appointment.interface.ts';
 
 /**
  * One appointment, rendered.

@@ -1,19 +1,19 @@
 <script lang="ts">
 	import { variables } from '$src/lib/utils/constants';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import * as m from '$msgs';
-	import FacilityPage from '$lib/Facility/FacilityPage.svelte';
-	import { hasCoordinates } from '$lib/components/Map/coordinates.ts';
-	import SitesLink from '$lib/components/Sites/SitesLink.svelte';
+	import FacilityPage from '#lib/Facility/FacilityPage.svelte';
+	import { hasCoordinates } from '#lib/components/Map/coordinates.ts';
+	import SitesLink from '#lib/components/Sites/SitesLink.svelte';
 	import { page } from '$app/state';
-	import UpdateFacilityModal from '$lib/Web/Facility/UpdateFacilityModal.svelte';
-	import PlaceImageUploadModal from '$lib/Web/Facility/PlaceImageUploadModal.svelte';
-	import Switch from '$lib/Switch/Switch.svelte';
+	import UpdateFacilityModal from '#lib/Web/Facility/UpdateFacilityModal.svelte';
+	import PlaceImageUploadModal from '#lib/Web/Facility/PlaceImageUploadModal.svelte';
+	import Switch from '#lib/Switch/Switch.svelte';
 	import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
-	import { setEditMode, getEditMode } from '$lib/components/Directory/context';
-	import Back from '$lib/components/Directory/Back.svelte';
-	import type { FacilityV2 } from '$lib/interfaces/v2/facility.ts';
-	import type { Facility } from '$lib/interfaces/facility.interface';
+	import { setEditMode, getEditMode } from '#lib/components/Directory/context.ts';
+	import Back from '#lib/components/Directory/Back.svelte';
+	import type { FacilityV2 } from '#lib/interfaces/v2/facility.ts';
+	import type { Facility } from '#lib/interfaces/facility.interface.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();

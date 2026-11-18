@@ -1,11 +1,7 @@
-import type { Thing, WithContext } from 'schema-dts'
+import type { Thing, WithContext } from 'schema-dts';
 
-export type Schema = Thing | WithContext<Thing>
+export type Schema = Thing | WithContext<Thing>;
 
 export function serializeSchema(thing: Schema) {
-  return `<script type="application/ld+json">${JSON.stringify(
-    thing,
-    null,
-    2
-  )}</script>`
+	return `<script type="application/ld+json">${JSON.stringify(thing, null, 2)}</script>`;
 }

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import EntryInline from './EntryInline.svelte';
-	import type { EntryCredit } from '$lib/store/directoryStoreInterface';
+	import type { EntryCredit } from '#lib/store/directoryStoreInterface.ts';
 
 	let { data }: { data: EntryCredit[] } = $props();
 </script>

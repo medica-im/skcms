@@ -57,7 +57,8 @@ export const themes: Theme[] = [
 				source: 'Google Fonts',
 				name: 'Quicksand',
 				file: 'Quicksand-VariableFont_wght.ttf',
-				import: 'https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap'
+				import:
+					'https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap'
 			}
 		]
 	},
@@ -71,7 +72,8 @@ export const themes: Theme[] = [
 				source: 'Google Fonts',
 				name: 'Space Grotesk',
 				file: 'SpaceGrotesk-VariableFont_wght.ttf',
-				import: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap'
+				import:
+					'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap'
 			}
 		]
 	},
@@ -129,7 +131,8 @@ export const themes: Theme[] = [
 				source: 'Google Fonts',
 				name: 'Quicksand',
 				file: 'Quicksand-VariableFont_wght.ttf',
-				import: 'https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap'
+				import:
+					'https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap'
 			}
 		]
 	},

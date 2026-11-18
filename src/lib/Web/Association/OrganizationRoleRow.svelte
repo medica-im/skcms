@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { OrganizationRole } from '$lib/interfaces/v2/association';
+	import type { OrganizationRole } from '#lib/interfaces/v2/association.ts';
 	import UpdateOrganizationRole from './UpdateOrganizationRole.svelte';
 	import DeleteOrganizationRole from './DeleteOrganizationRole.svelte';
 

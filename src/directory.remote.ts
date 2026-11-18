@@ -1,8 +1,8 @@
 import { getRequestEvent, query, command } from '$app/server';
 import * as z from 'zod';
-import { authReq } from '$lib/utils/request.ts';
-import { variables } from '$lib/utils/constants.ts';
-import type { DirectorySettings } from '$lib/interfaces/v2/directory.ts';
+import { authReq } from '#lib/utils/request.ts';
+import { variables } from '#lib/utils/constants.ts';
+import type { DirectorySettings } from '#lib/interfaces/v2/directory.ts';
 
 /**
  * This site's directories with their settings — superusers and administrators.
@@ -38,7 +38,10 @@ const ListOwnerEntry = z.object({
 });
 
 /** PATCH /directories/{uid} with only the settings to change. */
-async function patchDirectory(uid: string, body: Record<string, unknown>): Promise<DirectoryUpdateResult> {
+async function patchDirectory(
+	uid: string,
+	body: Record<string, unknown>
+): Promise<DirectoryUpdateResult> {
 	const { cookies } = getRequestEvent();
 	const url = `${variables.BASE_URI}/api/v2/directories/${uid}`;
 	const response = await fetch(authReq(url, 'PATCH', cookies, JSON.stringify(body)));

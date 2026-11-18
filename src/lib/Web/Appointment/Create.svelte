@@ -9,12 +9,12 @@
 		faExclamationCircle,
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import Select from '$lib/Web/Select.svelte';
+	import Select from '#lib/Web/Select.svelte';
 	import Dialog from '../Dialog.svelte';
-	import { getEntryUid } from '$lib/components/Directory/context';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import type { ThirdPartyPayer } from '$lib/interfaces/fullEffector.interface';
-	import type { FormResult } from '$lib/interfaces/v2/form';
+	import { getEntryUid } from '#lib/components/Directory/context.ts';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import type { ThirdPartyPayer } from '#lib/interfaces/fullEffector.interface.ts';
+	import type { FormResult } from '#lib/interfaces/v2/form.ts';
 
 	let res = $state();
 

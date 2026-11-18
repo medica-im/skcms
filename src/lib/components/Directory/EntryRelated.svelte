@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { base } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faBuilding, faSitemap } from '@fortawesome/free-solid-svg-icons';
-	import type { RelatedEntry } from '$lib/store/directoryStoreInterface.ts';
+	import type { RelatedEntry } from '#lib/store/directoryStoreInterface.ts';
 
 	/** The entry that runs this one, and the services it runs: links to their pages, never merged into the team. */
 	let { runBy = null, services = [] }: { runBy?: RelatedEntry | null; services?: RelatedEntry[] | null } = $props();
@@ -13,7 +13,7 @@
 
 {#snippet link(entry: RelatedEntry)}
 	<a
-		href="{base}/e/{entry.slug}"
+		href="{base()}/e/{entry.slug}"
 		class="inline-flex min-h-[44px] items-center gap-2 text-base text-primary-800-100-token hover:text-primary-900-50-token"
 	>
 		<span class="underline underline-offset-2">{name(entry)}</span>

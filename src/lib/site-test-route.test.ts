@@ -25,7 +25,10 @@ afterEach(() => rmSync(dir, { recursive: true, force: true }));
 /** A curl stand-in running `body` as a bash script. */
 function fakeCurl(body: string): string {
 	const file = join(dir, 'curl');
-	writeFileSync(file, `#!/usr/bin/env bash\nprintf '%s\\n' "$@" > "${join(dir, 'args')}"\n${body}\n`);
+	writeFileSync(
+		file,
+		`#!/usr/bin/env bash\nprintf '%s\\n' "$@" > "${join(dir, 'args')}"\n${body}\n`
+	);
 	chmodSync(file, 0o755);
 	return file;
 }
@@ -54,7 +57,9 @@ describe('site-test-route.sh', () => {
 	});
 
 	it('exits 1, naming the status, when an answer comes back unmarked', () => {
-		const { code, stderr } = probe(fakeCurl(String.raw`printf 'HTTP/1.1 200 OK\r\nServer: nginx\r\n\r\n'`));
+		const { code, stderr } = probe(
+			fakeCurl(String.raw`printf 'HTTP/1.1 200 OK\r\nServer: nginx\r\n\r\n'`)
+		);
 
 		expect(code).toBe(1);
 		expect(stderr).toContain('HTTP/1.1 200 OK');

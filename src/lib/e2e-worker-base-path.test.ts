@@ -23,7 +23,7 @@ import { siteBasePath } from '../../tests/fixtures/session';
  * Three files have to agree, and each has broken independently:
  *   - scripts/e2e-workers.sh   writes BASE_PATH into .env.test.wN
  *   - siteBasePath()           reads those files, so navigation is prefixed
- *   - svelte.config.js         reads the file vite's --mode selects, so the
+ *   - vite.config.ts           reads the file vite's --mode selects, so the
  *                              server is actually BUILT for that prefix
  *
  * A mismatch is silent in the worst way: the app serves one prefix while the

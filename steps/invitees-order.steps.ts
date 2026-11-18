@@ -109,17 +109,21 @@ async function order(page: import('@playwright/test').Page) {
 }
 
 Then('the most recently used invitation comes first, and the unused one last', async ({ page }) => {
-	await expect.poll(async () => {
-		const o = await order(page);
-		return o.recent < o.early && o.early < o.unused;
-	}).toBe(true);
+	await expect
+		.poll(async () => {
+			const o = await order(page);
+			return o.recent < o.early && o.early < o.unused;
+		})
+		.toBe(true);
 });
 
 Then('the earliest used invitation comes first, and the unused one last', async ({ page }) => {
-	await expect.poll(async () => {
-		const o = await order(page);
-		return o.early < o.recent && o.recent < o.unused;
-	}).toBe(true);
+	await expect
+		.poll(async () => {
+			const o = await order(page);
+			return o.early < o.recent && o.recent < o.unused;
+		})
+		.toBe(true);
 });
 
 // Before the page opens, so the page renders at that width from the start.
@@ -141,8 +145,10 @@ When('I choose to see the oldest invitations first', async ({ page }) => {
 });
 
 Then('the older invitation is listed before the newer one', async ({ page }) => {
-	await expect.poll(async () => {
-		const { newer, older } = await positions(page);
-		return older < newer;
-	}).toBe(true);
+	await expect
+		.poll(async () => {
+			const { newer, older } = await positions(page);
+			return older < newer;
+		})
+		.toBe(true);
 });

@@ -146,8 +146,10 @@ describe('saving something says so', () => {
 				return /!result\??\.success/.test(source) && !source.includes(SUCCESS_BADGE);
 			});
 
-		expect(asymmetric, `these widgets report failure but not success:\n  ${asymmetric.join('\n  ')}`)
-			.toEqual([]);
+		expect(
+			asymmetric,
+			`these widgets report failure but not success:\n  ${asymmetric.join('\n  ')}`
+		).toEqual([]);
 	});
 
 	it('keeps every exemption pointing at a widget that still exists', () => {

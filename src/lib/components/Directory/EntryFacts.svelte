@@ -3,8 +3,8 @@
 	import Fa from 'svelte-fa';
 	import { faDoorOpen, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 	import { FACET_LABELS } from './facetLabels';
-	import { ageRange } from '$lib/store/ageRange.ts';
-	import type { EntryFull } from '$lib/store/directoryStoreInterface.ts';
+	import { ageRange } from '#lib/store/ageRange.ts';
+	import type { EntryFull } from '#lib/store/directoryStoreInterface.ts';
 
 	/** Who the entry is for, and how to get in; nothing shows for what the entry does not say. */
 	let { entry }: { entry: Pick<EntryFull, 'age_min' | 'age_max' | 'who_can_contact' | 'access_modes' | 'audiences' | 'free' | 'anonymous_care'> } = $props();

@@ -1,4 +1,4 @@
-import type { SiteMenu, SiteMenuItem } from '$lib/interfaces/siteMenu.interface';
+import type { SiteMenu, SiteMenuItem } from '#lib/interfaces/siteMenu.interface.ts';
 
 /**
  * The parent site's menu, if this site has one.
@@ -24,10 +24,7 @@ import type { SiteMenu, SiteMenuItem } from '$lib/interfaces/siteMenu.interface'
  * is glob syntax, and in a build it matched nothing — staging.unipa.fr showed
  * the generic app bar. See src/lib/skvarAlias.test.ts.
  */
-const modules = import.meta.glob<{ siteMenu?: SiteMenu }>(
-	'$var/siteMenu.ts',
-	{ eager: true }
-);
+const modules = import.meta.glob<{ siteMenu?: SiteMenu }>('$var/siteMenu.ts', { eager: true });
 
 const loaded = Object.values(modules)[0]?.siteMenu;
 

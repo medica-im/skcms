@@ -75,7 +75,9 @@ export function problemMessage(problem: TemplateProblem): string {
 				names: (problem.names ?? []).map(placeholder).join(', ')
 			});
 		case 'missing_signin_url':
-			return m.EMAIL_TEMPLATE_PROBLEM_MISSING_SIGNIN_URL({ placeholder: placeholder('signin_url') });
+			return m.EMAIL_TEMPLATE_PROBLEM_MISSING_SIGNIN_URL({
+				placeholder: placeholder('signin_url')
+			});
 		case 'mjml_source':
 			return m.EMAIL_TEMPLATE_PROBLEM_MJML();
 		case 'required':

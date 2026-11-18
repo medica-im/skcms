@@ -27,7 +27,7 @@ import {
 	DOCTOR,
 	TAG_ONCO,
 	TAG_GERIA
-} from '$lib/store/directoryStore.fixtures.ts';
+} from '#lib/store/directoryStore.fixtures.ts';
 
 const alice = makeEntry({
 	uid: 'alice',

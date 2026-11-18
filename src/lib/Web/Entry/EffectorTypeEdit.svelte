@@ -19,11 +19,12 @@
 	import { faPenToSquare, faCheck, faPlus } from '@fortawesome/free-solid-svg-icons';
 	import { untrack } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 	import * as m from '$msgs';
-	import Dialog from '$lib/Web/Dialog.svelte';
-	import OfferedEffectorTypeSelect from '$lib/Web/OfferedEffectorTypeSelect.svelte';
-	import EntryToggleActive from '$lib/Web/Entry/EntryToggleActive.svelte';
+	import Dialog from '#lib/Web/Dialog.svelte';
+	import OfferedEffectorTypeSelect from '#lib/Web/OfferedEffectorTypeSelect.svelte';
+	import EntryToggleActive from '#lib/Web/Entry/EntryToggleActive.svelte';
 	import { changeEntryType, previewEntryTypeChange, type RemovedTag } from '../../../entry.remote';
 	import {
 		lockedExplanation,
@@ -91,7 +92,7 @@
 			const result = await changeEntryType({ uid: entryUid, effector_type: selected.value });
 			if (result.success && result.slug) {
 				saved = true;
-				await goto(`${base}/e/${result.slug}`, { invalidateAll: true });
+				await goto(resolve(`e/${result.slug}`), { invalidateAll: true });
 				dialog?.close();
 			} else {
 				refusal = {
@@ -162,8 +163,14 @@
 				<p class="text-sm text-surface-600-300-token">{m.ENTRY_TYPE_EDIT_SLUG_NOTE()}</p>
 				{#if refusal}
 					<p class="text-sm text-error-700-200-token" data-testid="entry-type-refusal">
-						{refusal.text}
-						{#if refusal.slug}<a class="anchor" href="{base}/e/{refusal.slug}">{m.ENTRY_TYPE_EDIT_SEE_DUPLICATE()}</a>{/if}
+						{refusal.text} 
+
+						{#if refusal.slug}
+							<a
+								class="anchor"
+								href="{base()}/e/{refusal.slug}"
+							>{m.ENTRY_TYPE_EDIT_SEE_DUPLICATE()}</a>
+						{/if}
 					</p>
 				{/if}
 				<div class="flex flex-wrap items-center justify-end gap-2">
@@ -171,9 +178,14 @@
 						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
 						<span>{m.ENTRY_TYPE_EDIT_SAVED()}</span>
 					{/if}
-					<button type="button" class="btn min-h-11 variant-ghost-surface" onclick={() => dialog?.close()} disabled={busy}>
-						{m.CANCEL()}
-					</button>
+
+					<button
+						type="button"
+						class="btn min-h-11 variant-ghost-surface"
+						onclick={() => dialog?.close()}
+						disabled={busy}
+					>{m.CANCEL()}</button>
+
 					<button
 						type="button"
 						class="btn min-h-11 variant-filled-primary"
@@ -191,7 +203,7 @@
 				{#if facilityUid && effectorUid}
 					<a
 						class="btn min-h-11 variant-filled-primary"
-						href={recreateEntryHref(base, facilityUid, effectorUid)}
+						href={recreateEntryHref(base(), facilityUid, effectorUid)}
 						data-testid="entry-type-recreate"
 					>
 						<span><Fa icon={faPlus} /></span>
@@ -200,7 +212,7 @@
 				{/if}
 				{#if active}
 					<p>{m.ENTRY_TYPE_EDIT_DEACTIVATE()}</p>
-					<EntryToggleActive {active} />
+					<EntryToggleActive active={active} />
 				{/if}
 				<div class="flex justify-end">
 					<button type="button" class="btn min-h-11 variant-ghost-surface" onclick={() => dialog?.close()}>

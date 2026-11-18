@@ -1,11 +1,16 @@
 import { describe, it, expect } from 'vitest';
 import {
-	sortEntries, lastModifiedOf, addressLine, allSelected,
+	sortEntries,
+	lastModifiedOf,
+	addressLine,
+	allSelected,
 	type SourceEntry
 } from './cloneTable';
 
 const e = (over: Partial<SourceEntry> = {}): SourceEntry => ({
-	uid: 'u1', name: 'Someone', ...over
+	uid: 'u1',
+	name: 'Someone',
+	...over
 });
 
 describe('lastModifiedOf', () => {
@@ -21,8 +26,9 @@ describe('lastModifiedOf', () => {
 
 describe('addressLine', () => {
 	it('reads as one line', () => {
-		expect(addressLine(e({ address: { street: '10 Cours Lafayette', zip: '69003', city: 'Lyon' } })))
-			.toBe('10 Cours Lafayette, 69003 Lyon');
+		expect(
+			addressLine(e({ address: { street: '10 Cours Lafayette', zip: '69003', city: 'Lyon' } }))
+		).toBe('10 Cours Lafayette, 69003 Lyon');
 	});
 
 	it('is empty rather than punctuation when there is no address', () => {

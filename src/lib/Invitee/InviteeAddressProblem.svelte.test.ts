@@ -35,11 +35,23 @@ import InviteeResend from './InviteeResend.svelte';
 import InviteeStatusFilter from './InviteeStatusFilter.svelte';
 
 const SINCE = '2026-10-06T12:00:00Z';
-const bouncedDelivery = { status: 'bounced', at: SINCE, error: '550 5.1.1 User unknown', errorKind: null };
+const bouncedDelivery = {
+	status: 'bounced',
+	at: SINCE,
+	error: '550 5.1.1 User unknown',
+	errorKind: null
+};
 const invitee = (extra: Record<string, unknown> = {}) =>
 	({
-		uid: 'u1', email: 'nobody@medica.im', name: 'Who', role: 'staff', active: true,
-		redeemedAt: null, createdAt: SINCE, createdBy: 'x', ...extra
+		uid: 'u1',
+		email: 'nobody@medica.im',
+		name: 'Who',
+		role: 'staff',
+		active: true,
+		redeemedAt: null,
+		createdAt: SINCE,
+		createdBy: 'x',
+		...extra
 	}) as never;
 
 beforeEach(() => {
@@ -62,11 +74,15 @@ describe('the flag next to the address', () => {
 			invitee: invitee({ addressIssue: { reason: 'refused', since: SINCE, detail: null } })
 		});
 
-		await expect.element(page.getByTestId('invitee-address-flag')).toHaveAttribute('title', 'Adresse invalide');
+		await expect
+			.element(page.getByTestId('invitee-address-flag'))
+			.toHaveAttribute('title', 'Adresse invalide');
 	});
 
 	it('is absent when the address is fine', async () => {
-		render(InviteeAddressFlag, { invitee: invitee({ emailDelivery: { ...bouncedDelivery, status: 'sent' } }) });
+		render(InviteeAddressFlag, {
+			invitee: invitee({ emailDelivery: { ...bouncedDelivery, status: 'sent' } })
+		});
 
 		await expect.element(page.getByTestId('invitee-address-flag')).not.toBeInTheDocument();
 	});
@@ -104,10 +120,15 @@ describe('the problem on the invitation page', () => {
 		await page.getByLabelText('Adresse corrigée').fill('right@medica.im');
 		await page.getByRole('button', { name: 'Corriger et renvoyer' }).click();
 
-		await expect.poll(() => remote.correctInviteeAddress.mock.calls[0]?.[0]).toEqual({
-			uid: 'u1', email: 'right@medica.im'
-		});
-		await expect.element(page.getByRole('status')).toHaveTextContent('envoyée à la nouvelle adresse');
+		await expect
+			.poll(() => remote.correctInviteeAddress.mock.calls[0]?.[0])
+			.toEqual({
+				uid: 'u1',
+				email: 'right@medica.im'
+			});
+		await expect
+			.element(page.getByRole('status'))
+			.toHaveTextContent('envoyée à la nouvelle adresse');
 	});
 
 	// The page reloads after the correction and the address is fine again, so
@@ -116,7 +137,10 @@ describe('the problem on the invitation page', () => {
 		remote.correctInviteeAddress.mockResolvedValue({ success: true, status: 200 });
 		render(InviteeAddressProblemHarness, {
 			before: invitee({ emailDelivery: bouncedDelivery }),
-			after: invitee({ email: 'right@medica.im', emailDelivery: { ...bouncedDelivery, status: 'queued', error: null } })
+			after: invitee({
+				email: 'right@medica.im',
+				emailDelivery: { ...bouncedDelivery, status: 'queued', error: null }
+			})
 		});
 
 		await page.getByLabelText('Adresse corrigée').fill('right@medica.im');
@@ -125,7 +149,9 @@ describe('the problem on the invitation page', () => {
 		await page.getByRole('button', { name: 'reload' }).click();
 
 		await expect.element(page.getByTestId('invitee-address-problem')).not.toBeInTheDocument();
-		await expect.element(page.getByRole('status')).toHaveTextContent('envoyée à la nouvelle adresse');
+		await expect
+			.element(page.getByRole('status'))
+			.toHaveTextContent('envoyée à la nouvelle adresse');
 	});
 
 	it('offers no fix when the person refused the organization’s mail', async () => {
@@ -133,8 +159,12 @@ describe('the problem on the invitation page', () => {
 			invitee: invitee({ addressIssue: { reason: 'complained', since: SINCE, detail: null } })
 		});
 
-		await expect.element(page.getByTestId('invitee-address-problem')).toHaveTextContent('indésirables');
-		await expect.element(page.getByRole('button', { name: 'Corriger et renvoyer' })).not.toBeInTheDocument();
+		await expect
+			.element(page.getByTestId('invitee-address-problem'))
+			.toHaveTextContent('indésirables');
+		await expect
+			.element(page.getByRole('button', { name: 'Corriger et renvoyer' }))
+			.not.toBeInTheDocument();
 	});
 
 	it('is absent when the address is fine', async () => {
@@ -147,23 +177,38 @@ describe('the problem on the invitation page', () => {
 describe('resending to an address that bounced', () => {
 	it('asks first, then sends anyway', async () => {
 		remote.resendInvitation
-			.mockResolvedValueOnce({ success: false, status: 409, code: 'address_rejected', since: SINCE })
+			.mockResolvedValueOnce({
+				success: false,
+				status: 409,
+				code: 'address_rejected',
+				since: SINCE
+			})
 			.mockResolvedValueOnce({ success: true, status: 200 });
 		render(InviteeResend, { uid: 'u1' });
 
 		await page.getByRole('button', { name: "Renvoyer l'invitation" }).click();
-		await expect.element(page.getByTestId('invitee-resend-confirm')).toHaveTextContent('rejetée le');
+		await expect
+			.element(page.getByTestId('invitee-resend-confirm'))
+			.toHaveTextContent('rejetée le');
 		await page.getByRole('button', { name: 'Renvoyer quand même' }).click();
 
-		await expect.poll(() => remote.resendInvitation.mock.calls[1]?.[0]).toEqual({ uid: 'u1', force: true });
+		await expect
+			.poll(() => remote.resendInvitation.mock.calls[1]?.[0])
+			.toEqual({ uid: 'u1', force: true });
 	});
 
 	it('explains a refusal of the organization’s mail, and stops there', async () => {
-		remote.resendInvitation.mockResolvedValue({ success: false, status: 409, code: 'address_opted_out' });
+		remote.resendInvitation.mockResolvedValue({
+			success: false,
+			status: 409,
+			code: 'address_opted_out'
+		});
 		render(InviteeResend, { uid: 'u1' });
 
 		await page.getByRole('button', { name: "Renvoyer l'invitation" }).click();
 		await expect.element(page.getByTestId('invitee-resend-outcome')).toHaveTextContent('refusé');
-		await expect.element(page.getByRole('button', { name: 'Renvoyer quand même' })).not.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: 'Renvoyer quand même' }))
+			.not.toBeInTheDocument();
 	});
 });

@@ -30,27 +30,31 @@ async function sample(page: Page) {
 const BROWSERS = { chromium, firefox };
 
 for (const [name, browserType] of Object.entries(BROWSERS))
-for (const role of ['anonymous', 'superuser'] as const) {
-	test(`the sidebar is still there 6 s after a reload (${name}, ${role})`, async () => {
-		const browser = await browserType.launch();
-		const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
-		if (role !== 'anonymous') {
-			await context.addCookies([
-				{ name: sessionCookieName(ORIGIN), value: await createSessionCookie(role, ORIGIN), url: ORIGIN }
-			]);
-		}
-		const page = await context.newPage();
-		const errors: string[] = [];
-		page.on('pageerror', (e) => errors.push(String(e)));
+	for (const role of ['anonymous', 'superuser'] as const) {
+		test(`the sidebar is still there 6 s after a reload (${name}, ${role})`, async () => {
+			const browser = await browserType.launch();
+			const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+			if (role !== 'anonymous') {
+				await context.addCookies([
+					{
+						name: sessionCookieName(ORIGIN),
+						value: await createSessionCookie(role, ORIGIN),
+						url: ORIGIN
+					}
+				]);
+			}
+			const page = await context.newPage();
+			const errors: string[] = [];
+			page.on('pageerror', (e) => errors.push(String(e)));
 
-		await page.goto(`${ORIGIN}${PATH}`);
-		await page.reload();
-		await page.locator(RAIL).waitFor({ timeout: 20_000 });
-		const samples = await sample(page);
+			await page.goto(`${ORIGIN}${PATH}`);
+			await page.reload();
+			await page.locator(RAIL).waitFor({ timeout: 20_000 });
+			const samples = await sample(page);
 
-		const gone = samples.filter((s) => !s.visible);
-		expect(gone, `the rail disappeared:\n${JSON.stringify(gone, null, 1)}`).toEqual([]);
-		expect(errors).toEqual([]);
-		await browser.close();
-	});
-}
+			const gone = samples.filter((s) => !s.visible);
+			expect(gone, `the rail disappeared:\n${JSON.stringify(gone, null, 1)}`).toEqual([]);
+			expect(errors).toEqual([]);
+			await browser.close();
+		});
+	}

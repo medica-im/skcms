@@ -1,53 +1,67 @@
-import { ORIGIN } from '$lib/utils/origin.ts';
-import { browser } from '$app/environment';
+import { ORIGIN } from '#lib/utils/origin.ts';
+import { browser } from '$app/env';
 import type { PageLoad } from './$types';
-import type { BoardMember, MembershipCategory, Officer, OrganizationRole } from '$lib/interfaces/v2/association';
-import type { Effector } from '$lib/interfaces/v2/effector';
+import type {
+	BoardMember,
+	MembershipCategory,
+	Officer,
+	OrganizationRole
+} from '#lib/interfaces/v2/association.ts';
+import type { Effector } from '#lib/interfaces/v2/effector.ts';
 
 async function fetchJson<T>(fetch: typeof globalThis.fetch, url: string): Promise<T | undefined> {
-    try {
-        const response = await fetch(url, {
-            credentials: 'include',
-            method: 'GET',
-            headers: { 'content-type': 'application/json' },
-        });
-        if (!response.ok) throw new Error(`Response status: ${response.status}`);
-        return await response.json() as T;
-    } catch (error: any) {
-        console.error(`Error fetching ${url}:`, error.message);
-        return undefined;
-    }
+	try {
+		const response = await fetch(url, {
+			credentials: 'include',
+			method: 'GET',
+			headers: { 'content-type': 'application/json' }
+		});
+		if (!response.ok) throw new Error(`Response status: ${response.status}`);
+		return (await response.json()) as T;
+	} catch (error: any) {
+		console.error(`Error fetching ${url}:`, error.message);
+		return undefined;
+	}
 }
 
 export const load: PageLoad = async ({ fetch, data, parent, depends }) => {
-    depends('association:data');
-    let boardMembers: BoardMember[] | undefined;
-    let officers: Officer[] | undefined;
-    let organizationRoles: OrganizationRole[] | undefined;
-    let membershipCategories: MembershipCategory[] | undefined;
-    let effectors: Effector[] | undefined;
+	depends('association:data');
+	let boardMembers: BoardMember[] | undefined;
+	let officers: Officer[] | undefined;
+	let organizationRoles: OrganizationRole[] | undefined;
+	let membershipCategories: MembershipCategory[] | undefined;
+	let effectors: Effector[] | undefined;
 
-    if (browser && import.meta.env.PROD) {
-        const { organization, user } = await parent();
-        const entryUid = organization?.uid;
+	if (browser && import.meta.env.PROD) {
+		const { organization, user } = await parent();
+		const entryUid = organization?.uid;
 
-        boardMembers = await fetchJson<BoardMember[]>(fetch, `${ORIGIN}/api/v2/board-members?entry_uid=${entryUid}`);
-        officers = await fetchJson<Officer[]>(fetch, `${ORIGIN}/api/v2/officers?entry_uid=${entryUid}`);
-        organizationRoles = await fetchJson<OrganizationRole[]>(fetch, `${ORIGIN}/api/v2/organization-roles`);
-        membershipCategories = await fetchJson<MembershipCategory[]>(fetch, `${ORIGIN}/api/v2/membership-categories?entry_uid=${entryUid}`);
+		boardMembers = await fetchJson<BoardMember[]>(
+			fetch,
+			`${ORIGIN}/api/v2/board-members?entry_uid=${entryUid}`
+		);
+		officers = await fetchJson<Officer[]>(fetch, `${ORIGIN}/api/v2/officers?entry_uid=${entryUid}`);
+		organizationRoles = await fetchJson<OrganizationRole[]>(
+			fetch,
+			`${ORIGIN}/api/v2/organization-roles`
+		);
+		membershipCategories = await fetchJson<MembershipCategory[]>(
+			fetch,
+			`${ORIGIN}/api/v2/membership-categories?entry_uid=${entryUid}`
+		);
 
-        if (user?.role === 'superuser') {
-            effectors = await fetchJson<Effector[]>(fetch, `${ORIGIN}/api/v2/superuser-effectors`);
-        } else if (user?.role === 'administrator') {
-            effectors = await fetchJson<Effector[]>(fetch, `${ORIGIN}/api/v2/administrator-effectors`);
-        }
-    }
+		if (user?.role === 'superuser') {
+			effectors = await fetchJson<Effector[]>(fetch, `${ORIGIN}/api/v2/superuser-effectors`);
+		} else if (user?.role === 'administrator') {
+			effectors = await fetchJson<Effector[]>(fetch, `${ORIGIN}/api/v2/administrator-effectors`);
+		}
+	}
 
-    return {
-        boardMembers: boardMembers || data.boardMembers,
-        officers: officers || data.officers,
-        organizationRoles: organizationRoles || data.organizationRoles,
-        membershipCategories: membershipCategories || data.membershipCategories,
-        effectors: effectors || data.effectors,
-    };
-}
+	return {
+		boardMembers: boardMembers || data.boardMembers,
+		officers: officers || data.officers,
+		organizationRoles: organizationRoles || data.organizationRoles,
+		membershipCategories: membershipCategories || data.membershipCategories,
+		effectors: effectors || data.effectors
+	};
+};

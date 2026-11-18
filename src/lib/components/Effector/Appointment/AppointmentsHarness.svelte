@@ -2,7 +2,7 @@
 	import { writable } from 'svelte/store';
 	import { setContext } from 'svelte';
 	import Appointments from './Appointments.svelte';
-	import type { Appointment as AppointmentType } from '$lib/interfaces/appointment.interface';
+	import type { Appointment as AppointmentType } from '#lib/interfaces/appointment.interface.ts';
 
 	// Appointments reads editMode and entryUid from context rather than props,
 	// so a test cannot render it directly. This supplies both.

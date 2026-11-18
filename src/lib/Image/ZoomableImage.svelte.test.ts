@@ -67,6 +67,8 @@ describe('ZoomableImage', () => {
 	it('shows the thumbnail in place when one is given', async () => {
 		render(ZoomableImage, { src: SRC, thumbnail: `${SRC}#thumb`, alt: 'Logo' });
 
-		await expect.element(page.getByRole('img', { name: 'Logo' })).toHaveAttribute('src', `${SRC}#thumb`);
+		await expect
+			.element(page.getByRole('img', { name: 'Logo' }))
+			.toHaveAttribute('src', `${SRC}#thumb`);
 	});
 });

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getEditMode } from '$lib/components/Directory/context';
+	import { getEditMode } from '#lib/components/Directory/context.ts';
 	import Phone from './Phone.svelte';
 	let { data } = $props();
 

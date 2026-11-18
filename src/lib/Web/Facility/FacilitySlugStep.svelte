@@ -1,14 +1,15 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import SlugField from '$lib/Web/Facility/SlugField.svelte';
-	import type { FacilityV2 } from '$lib/interfaces/v2/facility.ts';
+	import SlugField from '#lib/Web/Facility/SlugField.svelte';
+	import type { FacilityV2 } from '#lib/interfaces/v2/facility.ts';
 
 	let {
 		facilityUid,
 		effectorType,
 		effector,
 		needed = $bindable(false),
-		ok = $bindable(false)
+		ok = $bindable(false),
+		slug = $bindable('')
 	}: {
 		facilityUid: string;
 		effectorType: string | undefined;
@@ -17,6 +18,8 @@
 		needed?: boolean;
 		/** The address shown is one the server said is free. */
 		ok?: boolean;
+		/** The address chosen: the form that holds this step submits it. */
+		slug?: string;
 	} = $props();
 
 	async function fetchFacility(uid: string): Promise<FacilityV2 | null> {
@@ -25,7 +28,6 @@
 	}
 
 	const facility = $derived(await fetchFacility(facilityUid));
-	let slug = $state('');
 
 	$effect(() => {
 		needed = !!facility && !facility.slug;
@@ -47,6 +49,5 @@
 			bind:slug
 			bind:ok
 		/>
-		<input type="hidden" name="facility_slug" value={slug} />
 	</div>
 {/if}

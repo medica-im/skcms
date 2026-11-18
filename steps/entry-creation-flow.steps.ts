@@ -1,7 +1,12 @@
 import { createBdd } from 'playwright-bdd';
 import { test, expect } from './fixtures';
 import { djangoShell } from './seed';
-import { createSessionCookie, sessionCookieName, TEST_ACCOUNTS, type TestRole } from '../tests/fixtures/session';
+import {
+	createSessionCookie,
+	sessionCookieName,
+	TEST_ACCOUNTS,
+	type TestRole
+} from '../tests/fixtures/session';
 
 const { Given, When, Then, After } = createBdd(test);
 
@@ -10,7 +15,13 @@ type Page = import('@playwright/test').Page;
 // "I am signed in with the role ..." lives in common.steps.ts and "I start
 // creating an entry" in staff-creates-entry.steps.ts.
 
-export const ctx: { personUid?: string; personName?: string; facilityUid?: string; facilityName?: string; entrySlug?: string } = {};
+export const ctx: {
+	personUid?: string;
+	personName?: string;
+	facilityUid?: string;
+	facilityName?: string;
+	entrySlug?: string;
+} = {};
 
 /**
  * Everything a scenario made hangs off its own person: the entry created for
@@ -20,7 +31,13 @@ export const ctx: { personUid?: string; personName?: string; facilityUid?: strin
 After({ tags: '@entry-creation-flow' }, async () => {
 	const person = ctx.personUid;
 	const facility = ctx.facilityUid;
-	Object.assign(ctx, { personUid: undefined, personName: undefined, facilityUid: undefined, facilityName: undefined, entrySlug: undefined });
+	Object.assign(ctx, {
+		personUid: undefined,
+		personName: undefined,
+		facilityUid: undefined,
+		facilityName: undefined,
+		entrySlug: undefined
+	});
 	if (!person && !facility) return;
 	await djangoShell(
 		`from neomodel import db\n` +
@@ -42,7 +59,10 @@ export async function asStaff(origin: string, path: string, body: unknown) {
 		},
 		body: JSON.stringify(body)
 	});
-	expect(response.ok, `POST ${path} failed: ${response.status} ${await response.clone().text()}`).toBe(true);
+	expect(
+		response.ok,
+		`POST ${path} failed: ${response.status} ${await response.clone().text()}`
+	).toBe(true);
 	return response.json();
 }
 
@@ -52,7 +72,9 @@ Given('a person and a facility created by a staff member of this site', async ({
 	// facility must be the staff member's for each role's lists to show them.
 	const origin = new URL(baseURL).origin;
 	const tag = Date.now().toString(36);
-	const facilities = (await (await fetch(`${origin}/api/v2/public/facilities`)).json()) as { commune?: string }[];
+	const facilities = (await (await fetch(`${origin}/api/v2/public/facilities`)).json()) as {
+		commune?: string;
+	}[];
 	const commune = facilities.find((f) => f.commune)?.commune;
 	expect(commune, 'no commune found on this site').toBeTruthy();
 	ctx.facilityName = `E2e lieu ${tag}`;
@@ -154,19 +176,26 @@ When('I confirm the creation', async ({ page }) => {
 });
 
 Then("I am on the new entry's page", async ({ page }) => {
-	await expect(page.getByRole('heading', { name: ctx.personName! })).toBeVisible({ timeout: 15_000 });
+	await expect(page.getByRole('heading', { name: ctx.personName! })).toBeVisible({
+		timeout: 15_000
+	});
 });
 
-Then('the entry is recorded with the {string} test user as its creator', async ({}, role: string) => {
-	const out = await djangoShell(
-		`from neomodel import db\n` +
-			`rows, _ = db.cypher_query("MATCH (e:Entry {slug: $slug})-[:CREATED_BY]->(u:User) RETURN u.email", {"slug": ${JSON.stringify(ctx.entrySlug)}})\n` +
-			`print("creators", sorted(r[0] for r in rows))`,
-		{ readOnly: true }
-	);
-	const creators = out.split('creators')[1] ?? '';
-	expect(creators, `creators of ${ctx.entrySlug}`).toContain(TEST_ACCOUNTS[role as TestRole].email);
-});
+Then(
+	'the entry is recorded with the {string} test user as its creator',
+	async ({}, role: string) => {
+		const out = await djangoShell(
+			`from neomodel import db\n` +
+				`rows, _ = db.cypher_query("MATCH (e:Entry {slug: $slug})-[:CREATED_BY]->(u:User) RETURN u.email", {"slug": ${JSON.stringify(ctx.entrySlug)}})\n` +
+				`print("creators", sorted(r[0] for r in rows))`,
+			{ readOnly: true }
+		);
+		const creators = out.split('creators')[1] ?? '';
+		expect(creators, `creators of ${ctx.entrySlug}`).toContain(
+			TEST_ACCOUNTS[role as TestRole].email
+		);
+	}
+);
 
 When('I undo the occupation', async ({ page }) => {
 	await page.getByTitle('Supprimer la sélection').nth(1).click();
@@ -187,12 +216,19 @@ Then('the facility question is asked again', async ({ page }) => {
 });
 
 When('I open the creation page with that facility and that person', async ({ page }) => {
-	await page.goto(`/web/entry?facility=${ctx.facilityUid}&effector=${ctx.personUid}`, { waitUntil: 'networkidle' });
+	await page.goto(`/web/entry?facility=${ctx.facilityUid}&effector=${ctx.personUid}`, {
+		waitUntil: 'networkidle'
+	});
 });
 
-When('I open the creation page with a facility and a person that do not exist', async ({ page }) => {
-	await page.goto(`/web/entry?facility=${'0'.repeat(32)}&effector=${'0'.repeat(32)}`, { waitUntil: 'networkidle' });
-});
+When(
+	'I open the creation page with a facility and a person that do not exist',
+	async ({ page }) => {
+		await page.goto(`/web/entry?facility=${'0'.repeat(32)}&effector=${'0'.repeat(32)}`, {
+			waitUntil: 'networkidle'
+		});
+	}
+);
 
 Then('the facility is shown as chosen and the occupation question is asked', async ({ page }) => {
 	await expect(page.getByText('1 établissement sélectionné')).toBeVisible();
@@ -202,5 +238,7 @@ Then('the facility is shown as chosen and the occupation question is asked', asy
 
 Then('the person is shown as chosen, without being asked for', async ({ page }) => {
 	await expect(page.getByText('1 personne sélectionnée')).toBeVisible();
-	await expect(page.getByRole('button', { name: 'Sélectionner une personne existante' })).toHaveCount(0);
+	await expect(
+		page.getByRole('button', { name: 'Sélectionner une personne existante' })
+	).toHaveCount(0);
 });

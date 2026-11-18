@@ -1,22 +1,22 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { base } from '$app/paths';
-	import { replaceState } from '$app/navigation';
+	import { base } from '#lib/utils/base.ts';
+	import { goto } from '$app/navigation';
 	import { untrack } from 'svelte';
 	import Fa from 'svelte-fa';
 	import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 	import * as m from '$msgs';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import TemplateEditor from '$lib/Web/Email/Template/TemplateEditor.svelte';
-	import TemplatePreview from '$lib/Web/Email/Template/TemplatePreview.svelte';
-	import ImageGallery from '$lib/Web/Email/Template/ImageGallery.svelte';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import TemplateEditor from '#lib/Web/Email/Template/TemplateEditor.svelte';
+	import TemplatePreview from '#lib/Web/Email/Template/TemplatePreview.svelte';
+	import ImageGallery from '#lib/Web/Email/Template/ImageGallery.svelte';
 	import {
 		isDraftChanged,
 		type EmailTemplateDraft,
 		type TemplateSource
-	} from '$lib/Web/Email/Template/emailTemplate';
-	import { addressForTab, tabFromAddress } from '$lib/Web/Email/Template/tabAddress';
+	} from '#lib/Web/Email/Template/emailTemplate.ts';
+	import { addressForTab, tabFromAddress } from '#lib/Web/Email/Template/tabAddress.ts';
 	import { getInvitationTemplate } from '../../../../../emailTemplate.remote';
 
 	// The tab is in the address (?tab=preview) so a reload, and the server render
@@ -27,7 +27,7 @@
 
 	$effect(() => {
 		const address = addressForTab(location.href, tab);
-		if (address !== location.href) replaceState(address, page.state);
+		if (address !== location.href) goto(address, { shallow: true, replace: true, state: page.state });
 	});
 
 	/**
@@ -63,8 +63,13 @@
 	</title>
 </svelte:head>
 
-<div class="mx-auto w-full max-w-6xl space-y-6 p-4 py-4 md:py-8">
-	<a href="{base}/web/invite/invitees" class="btn min-h-11 variant-ghost-surface">
+<div
+	class="mx-auto w-full max-w-6xl space-y-6 p-4 py-4 md:py-8"
+>
+	<a
+		href="{base()}/web/invite/invitees"
+		class="btn min-h-11 variant-ghost-surface"
+	>
 		<span><Fa icon={faArrowLeft} /></span>
 		<span class="capitalize">{m.invitation({ count: 2 })}</span>
 	</a>
@@ -93,10 +98,10 @@
 			<Tab bind:group={tab} name="images" value={2}>{m.EMAIL_IMAGE_TITLE()}</Tab>
 			<svelte:fragment slot="panel">
 				{#if tab === 0}
-					<TemplateEditor {template} bind:draft />
+					<TemplateEditor template={template} bind:draft />
 				{:else if tab === 1}
 					<TemplatePreview
-						{draft}
+						draft={draft}
 						example={{
 							name: template.placeholder_values.invitee_name ?? '',
 							email: template.placeholder_values.invitee_email ?? ''

@@ -1,20 +1,20 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
-	import { variables } from '$lib/utils/constants.ts';
-	import { ORIGIN } from '$lib/utils/origin.ts';
+	import { variables } from '#lib/utils/constants.ts';
+	import { ORIGIN } from '#lib/utils/origin.ts';
 	import { page } from '$app/state';
 	import { SvelteSet } from 'svelte/reactivity';
-	import Dialog from '$lib/Web/Dialog.svelte';
+	import Dialog from '#lib/Web/Dialog.svelte';
 	import Fa from 'svelte-fa';
 	import { faPlus, faCheck, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
-	import Select from '$lib/Web/Select.svelte';
+	import Select from '#lib/Web/Select.svelte';
 	import OrganizationRadio from './../OrganizationRadio.svelte';
-	import { slugify } from '$lib/helpers/stringHelpers';
-	import type { Effector } from '$lib/interfaces/v2/effector.ts';
-	import type { SelectType } from '$lib/interfaces/select';
-	import type { EntryFull } from '$lib/store/directoryStoreInterface';
-	import type { Entry } from '$lib/store/directoryStoreInterface';
+	import { slugify } from '#lib/helpers/stringHelpers.ts';
+	import type { Effector } from '#lib/interfaces/v2/effector.ts';
+	import type { SelectType } from '#lib/interfaces/select.ts';
+	import type { EntryFull } from '#lib/store/directoryStoreInterface.ts';
+	import type { Entry } from '#lib/store/directoryStoreInterface.ts';
 
 	let {
 		memberships = $bindable(),

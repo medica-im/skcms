@@ -1,16 +1,16 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import * as m from '$msgs';
-	import Select from '$lib/Web/Select.svelte';
-	import EffectorTypeSelect from '$lib/Web/EffectorTypeSelect.svelte';
-	import FacilitySelect from '$lib/Web/FacilitySelect.svelte';
-	import OrganizationRadio from '$lib/Web/OrganizationRadio.svelte';
-	import type { Commune, DepartmentOfFrance, FacilityV2 } from '$lib/interfaces/v2/facility.ts';
-	import type { Effector } from '$lib/interfaces/v2/effector.ts';
-	import type { SelectType } from '$lib/interfaces/select.ts';
-	import type { Entry } from '$lib/store/directoryStoreInterface.ts';
-	import type { User } from '$lib/interfaces/user.interface.ts';
-	import type { IsRequired } from '$lib/Web/Effector/validate.ts';
+	import Select from '#lib/Web/Select.svelte';
+	import EffectorTypeSelect from '#lib/Web/EffectorTypeSelect.svelte';
+	import FacilitySelect from '#lib/Web/FacilitySelect.svelte';
+	import OrganizationRadio from '#lib/Web/OrganizationRadio.svelte';
+	import type { Commune, DepartmentOfFrance, FacilityV2 } from '#lib/interfaces/v2/facility.ts';
+	import type { Effector } from '#lib/interfaces/v2/effector.ts';
+	import type { SelectType } from '#lib/interfaces/select.ts';
+	import type { Entry } from '#lib/store/directoryStoreInterface.ts';
+	import type { User } from '#lib/interfaces/user.interface.ts';
+	import type { IsRequired } from '#lib/Web/Effector/validate.ts';
 
 	interface Props {
 	effector: Effector | undefined;

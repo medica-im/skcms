@@ -46,7 +46,10 @@ const routed = { SITES_VIA: '127.0.0.1', SITES_HOSTS: `other.example,${HOST}` };
 
 describe('sites-dns.cjs', () => {
 	it("sends fetch for a listed name to SITES_VIA, on the URL's own port", async () => {
-		const out = await node(`console.log(await (await fetch('http://${HOST}:${port}/')).text())`, routed);
+		const out = await node(
+			`console.log(await (await fetch('http://${HOST}:${port}/')).text())`,
+			routed
+		);
 		expect(out).toBe('reached');
 	});
 
@@ -90,10 +93,10 @@ describe('sites-dns.cjs', () => {
 		// the test's own 5s budget decides the failure, not whatever is
 		// underneath it.
 		await expect(
-			node(
-				`await fetch('http://${HOST}:${port}/', { signal: AbortSignal.timeout(5000) })`,
-				{ SITES_VIA: '', SITES_HOSTS: HOST }
-			)
+			node(`await fetch('http://${HOST}:${port}/', { signal: AbortSignal.timeout(5000) })`, {
+				SITES_VIA: '',
+				SITES_HOSTS: HOST
+			})
 		).rejects.toThrow();
 	});
 });

@@ -39,9 +39,21 @@ describe('age of the patient', () => {
 	];
 
 	it('matches inclusive bounds, an open bound and an unknown age range', () => {
-		expect(uids(filterByFacets(entries, select({ age: 16 })))).toEqual(['teens', 'everyone', 'unknown']);
-		expect(uids(filterByFacets(entries, select({ age: 17 })))).toEqual(['teens', 'everyone', 'unknown']);
-		expect(uids(filterByFacets(entries, select({ age: 18 })))).toEqual(['adults', 'everyone', 'unknown']);
+		expect(uids(filterByFacets(entries, select({ age: 16 })))).toEqual([
+			'teens',
+			'everyone',
+			'unknown'
+		]);
+		expect(uids(filterByFacets(entries, select({ age: 17 })))).toEqual([
+			'teens',
+			'everyone',
+			'unknown'
+		]);
+		expect(uids(filterByFacets(entries, select({ age: 18 })))).toEqual([
+			'adults',
+			'everyone',
+			'unknown'
+		]);
 	});
 
 	it('does not drop a 90-year-old from an adults service', () => {
@@ -49,7 +61,11 @@ describe('age of the patient', () => {
 	});
 
 	it('treats age 0 as a number, not as no selection', () => {
-		expect(uids(filterByFacets(entries, select({ age: 0 })))).toEqual(['children', 'everyone', 'unknown']);
+		expect(uids(filterByFacets(entries, select({ age: 0 })))).toEqual([
+			'children',
+			'everyone',
+			'unknown'
+		]);
 	});
 });
 
@@ -62,15 +78,25 @@ describe('access (who may contact)', () => {
 	];
 
 	it('a patient alone reaches what is open to anyone', () => {
-		expect(uids(filterByFacets(entries, select({ access: 'anyone' })))).toEqual(['open', 'unknown']);
+		expect(uids(filterByFacets(entries, select({ access: 'anyone' })))).toEqual([
+			'open',
+			'unknown'
+		]);
 	});
 
 	it('a patient with a letter reaches what is open to anyone or on referral', () => {
-		expect(uids(filterByFacets(entries, select({ access: 'referral' })))).toEqual(['open', 'letter', 'unknown']);
+		expect(uids(filterByFacets(entries, select({ access: 'referral' })))).toEqual([
+			'open',
+			'letter',
+			'unknown'
+		]);
 	});
 
 	it('professionals only: what is reserved to them', () => {
-		expect(uids(filterByFacets(entries, select({ access: 'professionals' })))).toEqual(['pros', 'unknown']);
+		expect(uids(filterByFacets(entries, select({ access: 'professionals' })))).toEqual([
+			'pros',
+			'unknown'
+		]);
 	});
 });
 
@@ -83,19 +109,23 @@ describe('multi-valued facets', () => {
 	];
 
 	it('keeps an entry that carries any chosen value, and the unknown ones', () => {
-		expect(uids(filterByFacets(entries, select({ careLevels: ['emergency', 'secondary'] })))).toEqual([
-			'urgent',
-			'both',
-			'unknown'
-		]);
+		expect(
+			uids(filterByFacets(entries, select({ careLevels: ['emergency', 'secondary'] })))
+		).toEqual(['urgent', 'both', 'unknown']);
 	});
 
 	it('an entry known to carry nothing is not an unknown one', () => {
-		expect(uids(filterByFacets(entries, select({ careLevels: ['emergency'] })))).not.toContain('none');
+		expect(uids(filterByFacets(entries, select({ careLevels: ['emergency'] })))).not.toContain(
+			'none'
+		);
 	});
 
 	it('works the same for audiences', () => {
-		expect(uids(filterByFacets(entries, select({ audiences: ['parents'] })))).toEqual(['both', 'none', 'unknown']);
+		expect(uids(filterByFacets(entries, select({ audiences: ['parents'] })))).toEqual([
+			'both',
+			'none',
+			'unknown'
+		]);
 	});
 });
 
@@ -119,7 +149,9 @@ describe('selectors combine', () => {
 			entry('wrong-audience', { age_min: 16, audiences: ['parents'] }),
 			entry('too-young-only', { age_min: 18, audiences: ['students'] })
 		];
-		expect(uids(filterByFacets(entries, select({ age: 16, audiences: ['students'] })))).toEqual(['both']);
+		expect(uids(filterByFacets(entries, select({ age: 16, audiences: ['students'] })))).toEqual([
+			'both'
+		]);
 	});
 });
 
@@ -133,9 +165,15 @@ describe('which selectors show', () => {
 	});
 
 	it('a single-valued facet needs two distinct values to narrow anything', () => {
-		const same = [entry('a', { who_can_contact: 'anyone' }), entry('b', { who_can_contact: 'anyone' })];
+		const same = [
+			entry('a', { who_can_contact: 'anyone' }),
+			entry('b', { who_can_contact: 'anyone' })
+		];
 		expect(selectorsShown(same)).not.toContain('access');
-		const differ = [entry('a', { who_can_contact: 'anyone' }), entry('b', { who_can_contact: 'referral' })];
+		const differ = [
+			entry('a', { who_can_contact: 'anyone' }),
+			entry('b', { who_can_contact: 'referral' })
+		];
 		expect(selectorsShown(differ)).toContain('access');
 	});
 
@@ -147,13 +185,18 @@ describe('which selectors show', () => {
 	});
 
 	it('never offers how to reach an entry: one picks a resource for a reason, then uses whatever means it offers', () => {
-		const differ = [entry('a', { access_modes: ['phone'] }), entry('b', { access_modes: ['walk_in'] })];
+		const differ = [
+			entry('a', { access_modes: ['phone'] }),
+			entry('b', { access_modes: ['walk_in'] })
+		];
 		expect(selectorsShown(differ)).toEqual([]);
 	});
 
 	it('free needs both a free and a paid entry: an unknown one narrows nothing', () => {
 		expect(selectorsShown([entry('a', { free: true }), entry('b')])).not.toContain('free');
-		expect(selectorsShown([entry('a', { free: true }), entry('b', { free: false })])).toContain('free');
+		expect(selectorsShown([entry('a', { free: true }), entry('b', { free: false })])).toContain(
+			'free'
+		);
 	});
 
 	it('comes back in the order a professional uses them', () => {

@@ -1,9 +1,9 @@
 import { redirect, invalid } from '@sveltejs/kit';
 import { getRequestEvent, query, form, command } from '$app/server';
-import { base } from '$app/paths';
-import * as z from "zod";
-import { authReq } from '$lib/utils/request.ts';
-import { variables } from '$lib/utils/constants.ts';
+import { resolve } from '$app/paths';
+import * as z from 'zod';
+import { authReq } from '#lib/utils/request.ts';
+import { variables } from '#lib/utils/constants.ts';
 
 const RoleEnum = z.enum(['anonymous', 'registered', 'staff', 'administrator', 'superuser']);
 
@@ -21,12 +21,12 @@ export const createInvitee = form(CreateInvitee, async (data, issue) => {
 	const url = `${variables.BASE_URI}/api/v2/invitees`;
 	const request = authReq(url, 'POST', cookies, JSON.stringify(data));
 	const response = await fetch(request);
-	const jsn = await response.json()
-	console.log(JSON.stringify(jsn))
+	const jsn = await response.json();
+	console.log(JSON.stringify(jsn));
 	if (response.ok == false) {
-		console.error(response.status)
-		console.error(response.statusText)
-		if ( ['DUPLICATE_EMAIL', 'ALREADY_MEMBER'].includes(jsn.detail?.code) ) {
+		console.error(response.status);
+		console.error(response.statusText);
+		if (['DUPLICATE_EMAIL', 'ALREADY_MEMBER'].includes(jsn.detail?.code)) {
 			invalid(issue.email(jsn.detail.message));
 		}
 		invalid(jsn.detail?.message ?? response.statusText);
@@ -38,7 +38,7 @@ export const createInvitee = form(CreateInvitee, async (data, issue) => {
 			status: response.status,
 			text: response.statusText,
 			response: jsn
-		}
+		};
 	}
 });
 
@@ -47,7 +47,10 @@ const UpdateInvitee = z.object({
 	email: z.string().email().optional(),
 	role: RoleEnum.optional(),
 	name: z.string().optional(),
-	active: z.string().transform((val) => val === 'true').pipe(z.boolean())
+	active: z
+		.string()
+		.transform((val) => val === 'true')
+		.pipe(z.boolean())
 });
 
 export const updateInvitee = form(UpdateInvitee, async (data) => {
@@ -58,16 +61,16 @@ export const updateInvitee = form(UpdateInvitee, async (data) => {
 	const request = authReq(url, 'PATCH', cookies, JSON.stringify(updateData));
 	const response = await fetch(request);
 	const json = await response.json();
-	console.log("PATCH json data", JSON.stringify(json));
+	console.log('PATCH json data', JSON.stringify(json));
 	if (response.ok == false) {
 		return {
 			success: false,
 			status: response.status,
 			text: response.statusText,
 			data: json
-		}
+		};
 	} else {
-		redirect(303, `${base}/web/invite/invitees`);
+		redirect(303, resolve(`web/invite/invitees`));
 	}
 });
 
@@ -87,19 +90,18 @@ export const deleteInvitee = form(DeleteInvitee, async (data) => {
 			success: false,
 			status: response.status,
 			text: response.statusText
-		}
+		};
 	} else {
 		if (!doRedirect) {
 			return {
 				success: true,
 				status: response.status,
 				text: response.statusText
-			}
+			};
 		}
-		redirect(303, `${base}/web/invite/invitees`);
+		redirect(303, resolve(`web/invite/invitees`));
 	}
 });
-
 
 /**
  * Send an invitation's email again. A value, not a throw: a refusal (used,
@@ -144,13 +146,19 @@ export const updateInvitationSettings = form(
 	async ({ resendAfterDays }) => {
 		const { cookies } = getRequestEvent();
 		const url = `${variables.BASE_URI}/api/v2/invitation-settings`;
-		const response = await fetch(authReq(url, 'PATCH', cookies, JSON.stringify({ resendAfterDays })));
+		const response = await fetch(
+			authReq(url, 'PATCH', cookies, JSON.stringify({ resendAfterDays }))
+		);
 		if (!response.ok) {
 			console.error(`PATCH ${url} -> ${response.status}`);
 			return { success: false, status: response.status };
 		}
 		const saved = await response.json();
-		return { success: true, status: response.status, resendAfterDays: saved.resendAfterDays as number };
+		return {
+			success: true,
+			status: response.status,
+			resendAfterDays: saved.resendAfterDays as number
+		};
 	}
 );
 
@@ -159,26 +167,29 @@ export const updateInvitationSettings = form(
  * not a throw: 409 batch_running (a batch of the organization is running) is
  * an answer the page words.
  */
-export const startBatchResend = command(z.object({ uids: z.array(z.string()).min(1).max(5000) }), async ({ uids }) => {
-	const { cookies } = getRequestEvent();
-	const url = `${variables.BASE_URI}/api/v2/batch-invitees/resend`;
-	const response = await fetch(authReq(url, 'POST', cookies, JSON.stringify({ uids })));
-	let body: any;
-	try {
-		body = await response.json();
-	} catch {
-		body = undefined;
+export const startBatchResend = command(
+	z.object({ uids: z.array(z.string()).min(1).max(5000) }),
+	async ({ uids }) => {
+		const { cookies } = getRequestEvent();
+		const url = `${variables.BASE_URI}/api/v2/batch-invitees/resend`;
+		const response = await fetch(authReq(url, 'POST', cookies, JSON.stringify({ uids })));
+		let body: any;
+		try {
+			body = await response.json();
+		} catch {
+			body = undefined;
+		}
+		if (!response.ok) {
+			console.error(`POST ${url} -> ${response.status} ${JSON.stringify(body?.detail ?? '')}`);
+		}
+		return {
+			success: response.ok,
+			status: response.status,
+			jobUid: response.ok ? (body?.job_uid as string) : undefined,
+			code: typeof body?.detail?.code === 'string' ? (body.detail.code as string) : undefined
+		};
 	}
-	if (!response.ok) {
-		console.error(`POST ${url} -> ${response.status} ${JSON.stringify(body?.detail ?? '')}`);
-	}
-	return {
-		success: response.ok,
-		status: response.status,
-		jobUid: response.ok ? (body?.job_uid as string) : undefined,
-		code: typeof body?.detail?.code === 'string' ? (body.detail.code as string) : undefined
-	};
-});
+);
 
 const CorrectAddress = z.object({ uid: z.string(), email: z.string().email() });
 

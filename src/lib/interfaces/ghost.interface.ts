@@ -1,25 +1,27 @@
 export type GhostSite = {
-    title: string;
-    description: string;
-    logo: string | null;
-    version: string;
-    url: string;
+	title: string;
+	description: string;
+	logo: string | null;
+	version: string;
+	url: string;
 };
 export type GhostError = {
-    message: string;
-    type: string;
+	message: string;
+	type: string;
 };
 
 export type GhostAddMemberError = {
-    message: string;
-    type: string;
-    context: string;
+	message: string;
+	type: string;
+	context: string;
 };
 
-export type GhostSiteResponse = {
-    success: false,
-    errors: GhostError[]
-} | {
-    success: true;
-    data: GhostSite;
-};
+export type GhostSiteResponse =
+	| {
+			success: false;
+			errors: GhostError[];
+	  }
+	| {
+			success: true;
+			data: GhostSite;
+	  };

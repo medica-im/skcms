@@ -3,10 +3,10 @@
 	import { variables } from '$src/lib/utils/constants';
 	import Fa from 'svelte-fa';
 	import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
-	import ArchiveBadge from '$lib/ArchiveBadge/ArchiveBadge.svelte';
-	import { getProgram } from '$lib/links.ts';
+	import ArchiveBadge from '#lib/ArchiveBadge/ArchiveBadge.svelte';
+	import { getProgram } from '#lib/links.ts';
 	import { programsCopy } from './copy.ts';
-	import type { ProgramsNavLinks } from '$lib/interfaces/variables.interface.ts';
+	import type { ProgramsNavLinks } from '#lib/interfaces/variables.interface.ts';
 
 	export let programsNavLinks: ProgramsNavLinks;
 	// Pass "" to drop the paragraph under the heading; leave it out to keep the

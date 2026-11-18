@@ -1,11 +1,11 @@
 <script lang="ts">
-	import Select from '$lib/Web/Select.svelte';
+	import Select from '#lib/Web/Select.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { getSelectSituation } from './context';
 	import * as m from '$msgs';
-	import type { Situation } from '$lib/store/directoryStoreInterface.ts';
-	import type { SelectType } from '$lib/interfaces/select';
+	import type { Situation } from '#lib/store/directoryStoreInterface.ts';
+	import type { SelectType } from '#lib/interfaces/select.ts';
 
 	const label = 'label';
 	const itemId = 'value';
@@ -40,18 +40,18 @@
 
 	function handleChange(selected: SelectType | undefined) {
 		if (selected) {
-			const url = new URL(page.url);
+			const url = new URL(page.url.href);
 			url.searchParams.set('situation', selected.value);
-			goto(`${url.pathname}?${url.searchParams}`, { noScroll: true, keepFocus: true });
+			goto(`${url.pathname}?${url.searchParams}`, { reset: false });
 		}
 	}
 
 	function handleClear(cleared: unknown) {
 		if (cleared) {
-			const url = new URL(page.url);
+			const url = new URL(page.url.href);
 			url.searchParams.delete('situation');
 			const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
-			goto(newUrl, { noScroll: true, keepFocus: true });
+			goto(newUrl, { reset: false });
 		}
 	}
 </script>

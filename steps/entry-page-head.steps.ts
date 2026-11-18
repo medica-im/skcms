@@ -23,7 +23,11 @@ After(async () => {
 Given('an entry of my own exists on the site', async ({ baseURL }) => {
 	const response = await fetch(`${new URL(baseURL).origin}/api/v2/entries`);
 	expect(response.ok, `GET /api/v2/entries -> ${response.status}`).toBe(true);
-	const entries = (await response.json()) as { uid?: string; entrySlug?: string; active?: boolean }[];
+	const entries = (await response.json()) as {
+		uid?: string;
+		entrySlug?: string;
+		active?: boolean;
+	}[];
 	const source = entries.find((e) => e.active && e.entrySlug?.endsWith('-entry-0'));
 	expect(source, 'no -entry-0 on this site: re-run seed_worker_sites.py').toBeTruthy();
 	ctx.clone = await cloneEntry({ sourceUid: source!.uid! });

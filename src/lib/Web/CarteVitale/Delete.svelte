@@ -11,12 +11,12 @@
 		faTriangleExclamation
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import type { Email } from '$lib/interfaces/email.interface.ts';
-	import Select from '$lib/Web/Select.svelte';
-	import Dialog from '$lib/Web/Dialog.svelte';
-	import { getEntryUid } from '$lib/components/Directory/context';
-	import type { SelectType } from '$lib/interfaces/select.ts';
-	import type { FormResult } from '$lib/interfaces/v2/form';
+	import type { Email } from '#lib/interfaces/email.interface.ts';
+	import Select from '#lib/Web/Select.svelte';
+	import Dialog from '#lib/Web/Dialog.svelte';
+	import { getEntryUid } from '#lib/components/Directory/context.ts';
+	import type { SelectType } from '#lib/interfaces/select.ts';
+	import type { FormResult } from '#lib/interfaces/v2/form.ts';
 
 	let {
 		data

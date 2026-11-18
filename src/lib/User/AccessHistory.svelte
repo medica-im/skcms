@@ -2,8 +2,8 @@
 	import Fa from 'svelte-fa';
 	import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
-	import RoleBadge from '$lib/RoleBadge.svelte';
-	import type { AccessHistory } from '$lib/interfaces/v2/user';
+	import RoleBadge from '#lib/RoleBadge.svelte';
+	import type { AccessHistory } from '#lib/interfaces/v2/user.ts';
 
 	/**
 	 * Every role this user has held here, newest first.

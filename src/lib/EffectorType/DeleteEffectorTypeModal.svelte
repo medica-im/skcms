@@ -1,9 +1,9 @@
 <script lang="ts">
     import { page } from '$app/state';
-    import { preloadData, pushState, goto } from '$app/navigation';
+    import { preloadData, goto } from '$app/navigation';
     import EffectorTypeModal from './EffectorTypeModal.svelte';
     import DeleteEffectorType from '$routes/(common)/web/effector-types/delete/+page.svelte';
-    import type { EffectorType } from '$lib/interfaces/v2/effector';
+    import type { EffectorType } from '#lib/interfaces/v2/effector.ts';
     import * as m from '$msgs';
 
     export async function handleDelete(effectorType: EffectorType) {
@@ -11,7 +11,10 @@
         const result = await preloadData(href);
 
         if (result.type === 'loaded' && result.status === 200) {
-            pushState(href, { deleting: { ...result.data, effectorType } });
+            goto(href, {
+                shallow: true,
+                state: { deleting: { ...result.data, effectorType } }
+            });
         } else {
             goto(href);
         }

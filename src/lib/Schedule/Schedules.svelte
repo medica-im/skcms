@@ -3,7 +3,7 @@
 	import { faClock } from '@fortawesome/free-regular-svg-icons';
 	import { faPlus } from '@fortawesome/free-solid-svg-icons';
 	import { page } from '$app/state';
-	import { getEditMode } from '$lib/components/Directory/context.ts';
+	import { getEditMode } from '#lib/components/Directory/context.ts';
 	import ScheduleCard from './ScheduleCard.svelte';
 	import ScheduleEditor from './ScheduleEditor.svelte';
 	import type { ApiSchedule } from './scheduleApi.ts';

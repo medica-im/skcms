@@ -8,8 +8,7 @@ import { apiOrigin } from '../tests/fixtures/session';
 const { Given, Then, After } = createBdd(test);
 
 /** The occupation buttons rendered by Occupations.svelte. */
-const occupationButtons = (page: import('@playwright/test').Page) =>
-	page.locator('a.btn[title]');
+const occupationButtons = (page: import('@playwright/test').Page) => page.locator('a.btn[title]');
 
 Given('the home page team section is displayed', async ({ page }) => {
 	await page.goto('/', { waitUntil: 'networkidle' });
@@ -76,14 +75,11 @@ Then("the button's tooltip shows {string}", async ({ page }, expected: string) =
 });
 
 /** The flexed label is shown in full when there is no acronym to substitute. */
-Then(
-	'no occupation button shows an abbreviation for {string}',
-	async ({ page }, name: string) => {
-		const button = occupationButtons(page).filter({ hasText: name }).first();
-		await expect(button, `no occupation button for "${name}"`).toBeVisible({ timeout: 8_000 });
-		await expect(button).toHaveAttribute('title', name);
-	}
-);
+Then('no occupation button shows an abbreviation for {string}', async ({ page }, name: string) => {
+	const button = occupationButtons(page).filter({ hasText: name }).first();
+	await expect(button, `no occupation button for "${name}"`).toBeVisible({ timeout: 8_000 });
+	await expect(button).toHaveAttribute('title', name);
+});
 
 /**
  * The rule is a pure function, so it is exercised directly rather than through

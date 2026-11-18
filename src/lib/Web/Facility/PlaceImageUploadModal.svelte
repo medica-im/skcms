@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 	// The prefix belongs on this one: /api/avatar and /api/facility are this
 	// APP's own routes (src/routes/api/...), not the backend API. On a site
 	// served under a base path the bare path leaves the app entirely -- on
@@ -7,7 +7,7 @@
 	// API is the opposite case and must stay unprefixed; see appUrl.ts.
 	import { invalidateAll } from '$app/navigation';
 	import * as m from '$msgs';
-	import Dialog from '$lib/Web/Dialog.svelte';
+	import Dialog from '#lib/Web/Dialog.svelte';
 	import Fa from 'svelte-fa';
 	import {
 		faCamera,
@@ -126,10 +126,7 @@
 			formData.append('file', blob, `place-${facilityUid}.jpg`);
 			formData.append('alt', altText);
 
-			const response = await fetch(`${base}/api/facility/${facilityUid}/image`, {
-				method: 'PUT',
-				body: formData
-			});
+			const response = await fetch(resolve(`api/facility/${facilityUid}/image`), { method: 'PUT', body: formData });
 
 			if (response.ok) {
 				result = { success: true, message: m.PLACE_IMAGE_UPLOAD_SUCCESS() };
@@ -159,7 +156,7 @@
 		result = undefined;
 
 		try {
-			const response = await fetch(`${base}/api/facility/${facilityUid}/image`, {
+			const response = await fetch(resolve(`api/facility/${facilityUid}/image`), {
 				method: 'PATCH',
 				headers: { 'content-type': 'application/json' },
 				body: JSON.stringify({ alt: altText })
@@ -184,9 +181,7 @@
 		result = undefined;
 
 		try {
-			const response = await fetch(`${base}/api/facility/${facilityUid}/image`, {
-				method: 'DELETE'
-			});
+			const response = await fetch(resolve(`api/facility/${facilityUid}/image`), { method: 'DELETE' });
 
 			if (response.ok) {
 				result = { success: true, message: m.PLACE_IMAGE_DELETED() };
@@ -263,7 +258,7 @@
 						src={imageSrc}
 						alt="Preview"
 						style="display:none;"
-						onload={(e) => initCropper(e.currentTarget)}
+						onload={(e) => initCropper(e.currentTarget as HTMLImageElement)}
 					/>
 				</div>
 			{/if}

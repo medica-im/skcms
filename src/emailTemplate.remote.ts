@@ -1,13 +1,13 @@
 import { getRequestEvent, query, command, form } from '$app/server';
 import * as z from 'zod';
-import { authReq, authMultipartReq, type Method } from '$lib/utils/request.ts';
-import { variables } from '$lib/utils/constants.ts';
+import { authReq, authMultipartReq, type Method } from '#lib/utils/request.ts';
+import { variables } from '#lib/utils/constants.ts';
 import type {
 	EmailImage,
 	EmailPreview,
 	EmailTemplate,
 	TemplateProblem
-} from '$lib/Web/Email/Template/emailTemplate.ts';
+} from '#lib/Web/Email/Template/emailTemplate.ts';
 
 /**
  * An organization's invitation email and the images it links.
@@ -55,7 +55,9 @@ async function outcome<T>(response: Response, what: string): Promise<Outcome<T>>
 		return { success: true, status: response.status, data: json as T };
 	}
 	const detail = json?.detail;
-	console.error(`${what} -> ${response.status} ${response.statusText} ${JSON.stringify(detail ?? '')}`);
+	console.error(
+		`${what} -> ${response.status} ${response.statusText} ${JSON.stringify(detail ?? '')}`
+	);
 	return {
 		success: false,
 		status: response.status,

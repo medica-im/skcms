@@ -9,7 +9,7 @@ import { page as screen } from 'vitest/browser';
 import * as m from '$msgs';
 import SlugFeedback from './SlugFeedback.svelte';
 import type { SlugView } from './slugView.ts';
-import { AA_TEXT, inScheme, legibility } from '$lib/testing/contrast.ts';
+import { AA_TEXT, inScheme, legibility } from '#lib/testing/contrast.ts';
 import '../../../app.postcss';
 
 document.body.dataset.theme = 'wintry';
@@ -26,7 +26,9 @@ const view = (over: Partial<SlugView> = {}): SlugView => ({
 
 describe('SlugFeedback', () => {
 	it('says what the check found, and for which status', async () => {
-		render(SlugFeedback, { props: { view: view({ status: 'taken', message: 'Déjà utilisée.' }), onchoose: vi.fn() } });
+		render(SlugFeedback, {
+			props: { view: view({ status: 'taken', message: 'Déjà utilisée.' }), onchoose: vi.fn() }
+		});
 		await expect.element(screen.getByTestId('slug-status')).toHaveTextContent('Déjà utilisée.');
 		await expect.element(screen.getByTestId('slug-status')).toHaveAttribute('data-status', 'taken');
 	});
@@ -38,7 +40,12 @@ describe('SlugFeedback', () => {
 
 	it('offers the free slugs, and a pick is handed to the form', async () => {
 		const onchoose = vi.fn();
-		render(SlugFeedback, { props: { view: view({ status: 'taken', suggestions: ['le-mas-69', 'le-mas-lyon'] }), onchoose } });
+		render(SlugFeedback, {
+			props: {
+				view: view({ status: 'taken', suggestions: ['le-mas-69', 'le-mas-lyon'] }),
+				onchoose
+			}
+		});
 		await expect.element(screen.getByText(m.SLUG_SUGGESTIONS())).toBeVisible();
 		await screen.getByRole('button', { name: 'le-mas-lyon' }).click();
 		expect(onchoose).toHaveBeenCalledWith('le-mas-lyon');
@@ -51,7 +58,12 @@ describe('SlugFeedback', () => {
 
 	const STATES: Record<string, SlugView> = {
 		free: view({ status: 'free', message: 'Adresse disponible.' }),
-		taken: view({ status: 'taken', message: 'Déjà utilisée.', suggestions: ['le-mas-69'], warning: 'Attention.' }),
+		taken: view({
+			status: 'taken',
+			message: 'Déjà utilisée.',
+			suggestions: ['le-mas-69'],
+			warning: 'Attention.'
+		}),
 		invalid: view({ status: 'invalid', message: 'Minuscules.' }),
 		error: view({ status: 'error', message: 'Impossible.' })
 	};
@@ -66,7 +78,10 @@ describe('SlugFeedback', () => {
 						screen.getByTestId('slug-status'),
 						...(state.warning ? [screen.getByTestId('slug-warning')] : []),
 						...(state.suggestions.length
-							? [screen.getByText(m.SLUG_SUGGESTIONS()), screen.getByRole('button', { name: state.suggestions[0] })]
+							? [
+									screen.getByText(m.SLUG_SUGGESTIONS()),
+									screen.getByRole('button', { name: state.suggestions[0] })
+								]
 							: [])
 					];
 					const unreadable = parts

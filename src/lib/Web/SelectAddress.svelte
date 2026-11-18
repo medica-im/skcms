@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { getGeoInputAddress } from '$lib/components/Directory/context.ts';
+	import { getGeoInputAddress } from '#lib/components/Directory/context.ts';
 	import MapPinHouse from '@lucide/svelte/icons/map-pin-house';
-	import type { AddressFeature } from '$lib/store/directoryStoreInterface';
+	import type { AddressFeature } from '#lib/store/directoryStoreInterface.ts';
 
 	type SelectOption = { value: AddressFeature; label: string };
 	interface IsValid {

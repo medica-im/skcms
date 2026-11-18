@@ -1,7 +1,7 @@
-import { ORIGIN } from '$lib/utils/origin.ts';
+import { ORIGIN } from '#lib/utils/origin.ts';
 import type { PageLoad } from './$types';
-import type { BatchEmailMessage } from '$lib/interfaces/v2/batchEmail';
-import type { User } from '$lib/interfaces/v2/user';
+import type { BatchEmailMessage } from '#lib/interfaces/v2/batchEmail.ts';
+import type { User } from '#lib/interfaces/v2/user.ts';
 
 export const load: PageLoad = async ({ fetch, data }) => {
 	let emails: BatchEmailMessage[] | undefined;

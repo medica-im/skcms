@@ -21,7 +21,7 @@
  * A change published while no stream is listening shows on the next visit.
  */
 import { createContext } from 'svelte';
-import type { EmailDelivery } from '$lib/interfaces/v2/invitee';
+import type { EmailDelivery } from '#lib/interfaces/v2/invitee.ts';
 import { withLatest } from './liveDeliveriesMerge';
 
 export class LiveDeliveries {
@@ -49,7 +49,9 @@ export class LiveDeliveries {
 		this.latest = { ...this.latest, [uid]: delivery };
 	}
 
-	apply<T extends { uid: string; emailDelivery?: EmailDelivery | null }>(list: T[] | undefined): T[] | undefined {
+	apply<T extends { uid: string; emailDelivery?: EmailDelivery | null }>(
+		list: T[] | undefined
+	): T[] | undefined {
 		return withLatest(list, this.latest);
 	}
 }

@@ -12,14 +12,26 @@ type Page = import('@playwright/test').Page;
 // entry-creation-flow.steps.ts (the feature carries its tag too); here, the
 // entry of the scenario, its former slugs and the organization's windows.
 
-export const ctx: { entryUid?: string; slug?: string; formerSlug?: string; host?: string; windowsChanged?: boolean } = {};
+export const ctx: {
+	entryUid?: string;
+	slug?: string;
+	formerSlug?: string;
+	host?: string;
+	windowsChanged?: boolean;
+} = {};
 
 const organization = (host: string) =>
 	`from facility.models import Organization\norg = Organization.objects.get(site__domain=${JSON.stringify(host)})\n`;
 
 After({ tags: '@entry-type-edit' }, async () => {
 	const { entryUid, host, windowsChanged } = ctx;
-	Object.assign(ctx, { entryUid: undefined, slug: undefined, formerSlug: undefined, host: undefined, windowsChanged: false });
+	Object.assign(ctx, {
+		entryUid: undefined,
+		slug: undefined,
+		formerSlug: undefined,
+		host: undefined,
+		windowsChanged: false
+	});
 	if (entryUid) {
 		await djangoShell(
 			`from directory.models import EntrySlug\nEntrySlug.objects.filter(entry_uid=${JSON.stringify(entryUid)}).delete()`,
@@ -34,7 +46,10 @@ After({ tags: '@entry-type-edit' }, async () => {
 });
 
 async function typeUid(origin: string, name: string): Promise<string> {
-	const types = (await (await fetch(`${origin}/api/v2/effector-types`)).json()) as { uid: string; name_fr: string }[];
+	const types = (await (await fetch(`${origin}/api/v2/effector-types`)).json()) as {
+		uid: string;
+		name_fr: string;
+	}[];
 	const type = types.find((t) => t.name_fr === name);
 	expect(type, `no effector type named ${name}`).toBeTruthy();
 	return type!.uid;
@@ -51,18 +66,24 @@ export async function entryAs(origin: string, typeName: string, owner = false) {
 	});
 }
 
-Given('an entry for them as {string}, created by that staff member', async ({ baseURL }, typeName: string) => {
-	const origin = new URL(baseURL).origin;
-	const entry = await entryAs(origin, typeName);
-	ctx.entryUid = entry.uid;
-	ctx.slug = entry.entrySlug ?? entry.slug;
-	ctx.host = new URL(baseURL).hostname;
-	expect(ctx.slug, `the new entry has no slug: ${JSON.stringify(entry)}`).toBeTruthy();
-});
+Given(
+	'an entry for them as {string}, created by that staff member',
+	async ({ baseURL }, typeName: string) => {
+		const origin = new URL(baseURL).origin;
+		const entry = await entryAs(origin, typeName);
+		ctx.entryUid = entry.uid;
+		ctx.slug = entry.entrySlug ?? entry.slug;
+		ctx.host = new URL(baseURL).hostname;
+		expect(ctx.slug, `the new entry has no slug: ${JSON.stringify(entry)}`).toBeTruthy();
+	}
+);
 
-Given('another entry for them as {string}, created by that staff member', async ({ baseURL }, typeName: string) => {
-	await entryAs(new URL(baseURL).origin, typeName);
-});
+Given(
+	'another entry for them as {string}, created by that staff member',
+	async ({ baseURL }, typeName: string) => {
+		await entryAs(new URL(baseURL).origin, typeName);
+	}
+);
 
 Given('the entry was created {int} days ago', async ({}, days: number) => {
 	const at = Date.now() - days * 24 * 60 * 60 * 1000;
@@ -71,11 +92,16 @@ Given('the entry was created {int} days ago', async ({}, days: number) => {
 	);
 });
 
-Given('the organization lets administrators change an occupation for {int} days', async ({ baseURL }, days: number) => {
-	ctx.host = new URL(baseURL).hostname;
-	ctx.windowsChanged = true;
-	await djangoShell(`${organization(ctx.host)}org.entry_type_edit_days_administrator = ${days}\norg.save()`);
-});
+Given(
+	'the organization lets administrators change an occupation for {int} days',
+	async ({ baseURL }, days: number) => {
+		ctx.host = new URL(baseURL).hostname;
+		ctx.windowsChanged = true;
+		await djangoShell(
+			`${organization(ctx.host)}org.entry_type_edit_days_administrator = ${days}\norg.save()`
+		);
+	}
+);
 
 When('I open that entry in edit mode', async ({ page }) => {
 	await page.goto(`/e/${ctx.slug}`, { waitUntil: 'networkidle' });
@@ -102,7 +128,9 @@ When('I change its occupation to {string}', async ({ page }, typeName: string) =
 });
 
 Then('the entry is listed as {string}', async ({ page }, typeName: string) => {
-	await expect(page.getByRole('heading', { level: 3, name: typeName })).toBeVisible({ timeout: 15_000 });
+	await expect(page.getByRole('heading', { level: 3, name: typeName })).toBeVisible({
+		timeout: 15_000
+	});
 	ctx.slug = new URL(page.url()).pathname.split('/e/')[1];
 });
 
@@ -137,11 +165,17 @@ Then('I am told it was created more than {int} days ago', async ({ page }, days:
 
 Then('I am offered to create a new entry with the same facility and person', async ({ page }) => {
 	const link = page.getByTestId('entry-type-recreate');
-	await expect(link).toHaveAttribute('href', new RegExp(`/web/entry\\?facility=${creation.facilityUid}&effector=${creation.personUid}$`));
+	await expect(link).toHaveAttribute(
+		'href',
+		new RegExp(`/web/entry\\?facility=${creation.facilityUid}&effector=${creation.personUid}$`)
+	);
 });
 
 Then('I am told such an entry already exists, with a link to it', async ({ page }) => {
 	const refusal = page.getByTestId('entry-type-refusal');
 	await expect(refusal).toContainText('Une entrée existe déjà');
-	await expect(refusal.getByRole('link', { name: 'Voir cette entrée' })).toHaveAttribute('href', /\/e\/.+/);
+	await expect(refusal.getByRole('link', { name: 'Voir cette entrée' })).toHaveAttribute(
+		'href',
+		/\/e\/.+/
+	);
 });

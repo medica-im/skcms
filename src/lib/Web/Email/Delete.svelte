@@ -12,9 +12,9 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Dialog from '../Dialog.svelte';
-    import Emails from '$lib/Email/Emails.svelte';
-	import type { FormResult } from '$lib/interfaces/v2/form';
-    import type { Email } from '$lib/interfaces/email.interface.ts';
+    import Emails from '#lib/Email/Emails.svelte';
+	import type { FormResult } from '#lib/interfaces/v2/form.ts';
+    import type { Email } from '#lib/interfaces/email.interface.ts';
 
 	let {
 		data

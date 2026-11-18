@@ -1,15 +1,15 @@
 import {
-		faGoogle,
-		faFacebook,
-		faLinkedin,
-		faInstagram,
-		faYoutube,
-	} from '@fortawesome/free-brands-svg-icons';
+	faGoogle,
+	faFacebook,
+	faLinkedin,
+	faInstagram,
+	faYoutube
+} from '@fortawesome/free-brands-svg-icons';
 
 export const providers = [
-		{
-			name: 'google',
-			label: 'Google',
-			icon: faGoogle
-		}
-	];
+	{
+		name: 'google',
+		label: 'Google',
+		icon: faGoogle
+	}
+];

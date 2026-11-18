@@ -1,17 +1,17 @@
 <script lang="ts">
-	import { base } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 	import { Avatar } from '@skeletonlabs/skeleton';
 	import { faUser } from '@fortawesome/free-solid-svg-icons';
-	import { entrySlugPageUrl } from '$lib/utils/utils.ts';
+	import { entrySlugPageUrl } from '#lib/utils/utils.ts';
 	import Fa from 'svelte-fa';
-	import type { EntryCredit } from '$lib/store/directoryStoreInterface';
+	import type { EntryCredit } from '#lib/store/directoryStoreInterface.ts';
 
 	// Prefix only a path that exists. An entry without a picture yields
 	// undefined from every branch above, and `${base}${undefined}` is the
 	// STRING "/annuaireundefined" — a src the browser dutifully requests and
 	// 404s on. Returning undefined keeps the original behaviour, which the
 	// Avatar component already handles by showing its own fallback.
-	const avatarPath = (p: string | undefined) => (p ? `${base}${p}` : undefined);
+	const avatarPath = (p: string | undefined) => p ? `${base()}${p}` : undefined;
 
 	let { data }: { data: EntryCredit } = $props();
 </script>

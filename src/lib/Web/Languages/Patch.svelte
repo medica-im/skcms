@@ -9,13 +9,13 @@
 		faExclamationCircle
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import Select from '$lib/Web/Select.svelte';
-	import Dialog from '$lib/Web/Dialog.svelte';
-	import { getEffectorUid } from '$lib/components/Directory/context';
+	import Select from '#lib/Web/Select.svelte';
+	import Dialog from '#lib/Web/Dialog.svelte';
+	import { getEffectorUid } from '#lib/components/Directory/context.ts';
 	import languagesFr from './languages_fr.json';
-	import { areArraysEqualSets } from '$lib/utils/utils';
-	import type { FormResult } from '$lib/interfaces/v2/form';
-	import type { SpokenLanguage } from '$lib/interfaces/fullEffector.interface';
+	import { areArraysEqualSets } from '#lib/utils/utils.ts';
+	import type { FormResult } from '#lib/interfaces/v2/form.ts';
+	import type { SpokenLanguage } from '#lib/interfaces/fullEffector.interface.ts';
 
 	let {
 		data

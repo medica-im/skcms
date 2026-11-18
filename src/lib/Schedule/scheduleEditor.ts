@@ -60,7 +60,10 @@ export const applyToDays = (
 	return next;
 };
 
-export const sharedPeriods = (days: Record<IsoDay, Period[]>, selected: IsoDay[]): Period[] | null => {
+export const sharedPeriods = (
+	days: Record<IsoDay, Period[]>,
+	selected: IsoDay[]
+): Period[] | null => {
 	if (selected.length === 0) return [];
 	const first = JSON.stringify(days[selected[0]]);
 	if (selected.some((day) => JSON.stringify(days[day]) !== first)) return null;

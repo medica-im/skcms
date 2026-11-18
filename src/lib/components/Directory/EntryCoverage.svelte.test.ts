@@ -13,7 +13,7 @@ import { render } from 'vitest-browser-svelte';
 import { page as screen } from 'vitest/browser';
 import * as m from '$msgs';
 import EntryCoverage from './EntryCoverage.svelte';
-import type { Coverage } from '$lib/store/directoryStoreInterface.ts';
+import type { Coverage } from '#lib/store/directoryStoreInterface.ts';
 import '../../../app.postcss';
 
 const remote = vi.hoisted(() => ({ patchCommand: vi.fn(), searchPlaces: vi.fn() }));
@@ -21,13 +21,43 @@ const nav = vi.hoisted(() => ({ invalidate: vi.fn() }));
 vi.mock('../../../entry.remote', () => remote);
 vi.mock('$app/navigation', () => nav);
 
-const FRANCE: Coverage = { uid: 'fr', name: 'France', kind: 'country', code: 'FR', department: null };
-const ARA: Coverage = { uid: 'ara', name: 'Auvergne-Rhône-Alpes', kind: 'region', code: '84', department: null };
-const RHONE: Coverage = { uid: 'd69', name: 'Rhône', kind: 'department', code: '69', department: null };
+const FRANCE: Coverage = {
+	uid: 'fr',
+	name: 'France',
+	kind: 'country',
+	code: 'FR',
+	department: null
+};
+const ARA: Coverage = {
+	uid: 'ara',
+	name: 'Auvergne-Rhône-Alpes',
+	kind: 'region',
+	code: '84',
+	department: null
+};
+const RHONE: Coverage = {
+	uid: 'd69',
+	name: 'Rhône',
+	kind: 'department',
+	code: '69',
+	department: null
+};
 const AIN: Coverage = { uid: 'd01', name: 'Ain', kind: 'department', code: '01', department: null };
 const LYON: Coverage = { uid: 'lyon', name: 'Lyon', kind: 'commune', code: null, department: '69' };
-const SAINT_MAURICE_94: Coverage = { uid: 'sm94', name: 'Saint-Maurice', kind: 'commune', code: null, department: '94' };
-const SAINT_MAURICE_01: Coverage = { uid: 'sm01', name: 'Saint-Maurice', kind: 'commune', code: null, department: '01' };
+const SAINT_MAURICE_94: Coverage = {
+	uid: 'sm94',
+	name: 'Saint-Maurice',
+	kind: 'commune',
+	code: null,
+	department: '94'
+};
+const SAINT_MAURICE_01: Coverage = {
+	uid: 'sm01',
+	name: 'Saint-Maurice',
+	kind: 'commune',
+	code: null,
+	department: '01'
+};
 
 const FOUND: Record<string, Coverage[]> = {
 	rhone: [RHONE, ARA],
@@ -73,8 +103,10 @@ describe('editing where an entry answers', () => {
 	const pen = () => screen.getByRole('button', { name: m.ENTRY_COVERAGE_EDIT() });
 	const search = () => screen.getByRole('searchbox', { name: m.ENTRY_COVERAGE_SEARCH() });
 	const save = () => screen.getByRole('button', { name: m.ENTRY_COVERAGE_SAVE() });
-	const found = (name: string) => screen.getByTestId('entry-coverage-found').getByRole('button', { name });
-	const remove = (name: string) => screen.getByRole('button', { name: m.ENTRY_COVERAGE_REMOVE({ name }) });
+	const found = (name: string) =>
+		screen.getByTestId('entry-coverage-found').getByRole('button', { name });
+	const remove = (name: string) =>
+		screen.getByRole('button', { name: m.ENTRY_COVERAGE_REMOVE({ name }) });
 
 	async function add(typed: string, name: string) {
 		await search().fill(typed);
@@ -121,7 +153,10 @@ describe('editing where an entry answers', () => {
 		await add('ain', 'Ain (01) Département');
 		await add('saint-maurice', 'Saint-Maurice (94) Commune');
 		await save().click();
-		expect(remote.patchCommand).toHaveBeenCalledWith({ entry: 'e1', coverage: ['d69', 'd01', 'sm94'] });
+		expect(remote.patchCommand).toHaveBeenCalledWith({
+			entry: 'e1',
+			coverage: ['d69', 'd01', 'sm94']
+		});
 	});
 
 	it('does not offer a place already covered', async () => {

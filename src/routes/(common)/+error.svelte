@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { emojis } from '$lib/Error/error';
-	import Error404 from '$lib/404/Error404.svelte';
+	import { emojis } from '#lib/Error/error.ts';
+	import Error404 from '#lib/404/Error404.svelte';
 </script>
 
 <section id="programs" class="bg-surface-100-800-token programs-gradient">

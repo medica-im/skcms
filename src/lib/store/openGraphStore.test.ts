@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 
-vi.mock('$lib/utils/origin.ts', () => ({ ORIGIN: 'https://site.test' }));
+vi.mock('#lib/utils/origin.ts', () => ({ ORIGIN: 'https://site.test' }));
 
 import { getOpenGraph } from './openGraphStore';
 

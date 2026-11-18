@@ -24,8 +24,7 @@ const load = (lang: string) =>
 
 const fr = load('fr');
 const en = load('en');
-const keys = (o: Record<string, unknown>) =>
-	Object.keys(o).filter((k) => !k.startsWith('$'));
+const keys = (o: Record<string, unknown>) => Object.keys(o).filter((k) => !k.startsWith('$'));
 
 /**
  * Words spelled the same in both languages. A translation identical to the

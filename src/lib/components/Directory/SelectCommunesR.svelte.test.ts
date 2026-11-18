@@ -9,8 +9,8 @@ import { render } from 'vitest-browser-svelte';
 import { writable } from 'svelte/store';
 import * as m from '$msgs';
 import SelectCommunesR from './SelectCommunesR.svelte';
-import type { Commune } from '$lib/interfaces/geography.interface.ts';
-import { choose, clear, lastQuery } from '$lib/testing/directoryFilter';
+import type { Commune } from '#lib/interfaces/geography.interface.ts';
+import { choose, clear, lastQuery } from '#lib/testing/directoryFilter.ts';
 import '../../../app.postcss';
 
 const nav = vi.hoisted(() => ({ goto: vi.fn() }));
@@ -46,7 +46,9 @@ describe('SelectCommunesR', () => {
 	it('writes the chosen commune to the address', async () => {
 		mount();
 		await choose(m.ADDRESSBOOK_COMMUNES_PLACEHOLDER(), 'Villeurbanne');
-		await expect.poll(() => lastQuery(nav.goto)?.get('communes')).toBe(JSON.stringify(['c-villeurbanne']));
+		await expect
+			.poll(() => lastQuery(nav.goto)?.get('communes'))
+			.toBe(JSON.stringify(['c-villeurbanne']));
 	});
 
 	it('removes it from the address when cleared', async () => {

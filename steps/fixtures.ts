@@ -24,7 +24,6 @@ export function selectableEntries<T extends { entrySlug?: string; active?: boole
 	);
 }
 
-
 /**
  * Why browser waits in these step files are 8 seconds.
  *
@@ -115,8 +114,6 @@ function workerSlot(testInfo: import('@playwright/test').TestInfo): number {
 	}
 	return testInfo.parallelIndex;
 }
-
-
 
 /**
  * The base path the site under test is served under, for a step that needs it.

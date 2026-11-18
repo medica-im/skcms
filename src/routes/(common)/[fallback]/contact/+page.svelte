@@ -2,9 +2,9 @@
 	import { variables } from '$src/lib/utils/constants';
 	import { page } from '$app/state';
 	
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import * as m from '$msgs';
-	import Contact from '$lib/Contact/Contact.svelte';
+	import Contact from '#lib/Contact/Contact.svelte';
     import type { PageProps } from './$types';
 	let { data }: PageProps = $props();
 </script>

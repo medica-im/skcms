@@ -3,7 +3,7 @@
 	import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
 	import Fa from 'svelte-fa';
 	import { faPlus, faTrashCan, faCheck, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
-	import Dialog from '$lib/Web/Dialog.svelte';
+	import Dialog from '#lib/Web/Dialog.svelte';
 	import { createCommand, putCommand, deleteCommand } from '../../schedule.remote';
 	import type { IsoDay, Period } from './openingHours.ts';
 	import {

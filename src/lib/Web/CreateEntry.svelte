@@ -7,41 +7,42 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import { page } from '$app/state';
-	import { preloadData, pushState, goto } from '$app/navigation';
+	import { preloadData, goto } from '$app/navigation';
 	import { tick, untrack } from 'svelte';
 	import { fade, slide } from 'svelte/transition';
 	import SelectEffector from '$routes/(common)/web/effector/select/+page.svelte';
-	import NewSelectEffectorModal from '$lib/Web/Effector/NewSelectEffectorModal.svelte';
+	import NewSelectEffectorModal from '#lib/Web/Effector/NewSelectEffectorModal.svelte';
 	import * as m from '$msgs';
-	import OfferedEffectorTypeSelect from '$lib/Web/OfferedEffectorTypeSelect.svelte';
-	import DisplayFacility from '$lib/Web/DisplayFacility.svelte';
-	import Effectors from '$lib/Web/Effectors.svelte';
-	import SelectCreateFacilityAdmin from '$lib/Web/Facility/SelectCreateFacilityAdmin.svelte';
-	import CreateEffectorModal from '$lib/Web/Effector/CreateEffectorModal.svelte';
+	import OfferedEffectorTypeSelect from '#lib/Web/OfferedEffectorTypeSelect.svelte';
+	import DisplayFacility from '#lib/Web/DisplayFacility.svelte';
+	import Effectors from '#lib/Web/Effectors.svelte';
+	import SelectCreateFacilityAdmin from '#lib/Web/Facility/SelectCreateFacilityAdmin.svelte';
+	import CreateEffectorModal from '#lib/Web/Effector/CreateEffectorModal.svelte';
 	import DisplayEffector from './DisplayEffector.svelte';
 	import { copy } from 'svelte-copy';
-	import EntryCreationForm from '$lib/Web/EntryCreationForm.svelte';
+	import EntryCreationForm from '#lib/Web/EntryCreationForm.svelte';
 	import SelectMembershipModal from './Membership/SelectMembershipModal.svelte';
-	import StepProgress from '$lib/Web/StepProgress.svelte';
-	import type { Effector } from '$lib/interfaces/v2/effector.ts';
-	import type { SelectType } from '$lib/interfaces/select.ts';
-	import type { User } from '$lib/interfaces/user.interface.ts';
-	import type { Nature } from '$lib/store/directoryStoreInterface';
-	import { base } from '$app/paths';
+	import StepProgress from '#lib/Web/StepProgress.svelte';
+	import type { Effector } from '#lib/interfaces/v2/effector.ts';
+	import type { SelectType } from '#lib/interfaces/select.ts';
+	import type { User } from '#lib/interfaces/user.interface.ts';
+	import type { Nature } from '#lib/store/directoryStoreInterface.ts';
+	import { base } from '#lib/utils/base.ts';
 
 	let {
 		user,
 		effectors,
 		initialFacility = undefined,
 		initialEffector = undefined
-	}: {
+
+		/** Preset from ?facility= (see creationPrefill): the step shows as answered. */
+		/** Preset from ?effector=: once a type is chosen, the person step shows as answered. */
+	}: { 
 		user: User;
 		effectors: Effector[];
-		/** Preset from ?facility= (see creationPrefill): the step shows as answered. */
 		initialFacility?: { label: string; value: string };
-		/** Preset from ?effector=: once a type is chosen, the person step shows as answered. */
-		initialEffector?: Effector;
-	} = $props();
+		initialEffector?: Effector
+	 } = $props();
 
 	const defaultDpt: SelectType | undefined = page.data.directory.department_default
 		? {
@@ -84,7 +85,7 @@ memberships: "{JSON.stringify(memberships)}"<br>
 membershipsDone: {membershipsDone}
 -->
 <div id="top"></div>
-<StepProgress {steps} />
+<StepProgress steps={steps} />
 {#if effector && facility && effectorType && membershipsDone}
 	<div
 		class="grid grid-cols-1 w-full p-2 place-items-center"
@@ -99,7 +100,7 @@ membershipsDone: {membershipsDone}
 			bind:submitted
 			bind:memberships
 			bind:membershipsDone
-			{displayMembershipStep}
+			displayMembershipStep={displayMembershipStep}
 		/>
 	</div>
 {:else}
@@ -185,15 +186,12 @@ membershipsDone: {membershipsDone}
 						<Effectors effectorType={effectorTypeValue} facility={facility.value} />
 					{/if}
 					{#if effectors?.length}
-					<a
-						href="{base}/web/effector/select"
-						onclick={async (e) => {
-							if (
-								e.shiftKey || // or the link is opened in a new window
-								e.metaKey ||
-								e.ctrlKey // or a new tab (mac: metaKey, win/linux: ctrlKey)
+						<a
+							href="{base()}/web/effector/select"
+							onclick={async (e) => {
+								if (e.shiftKey || // or the link is opened in a new window
+								e.metaKey || e.ctrlKey) // or a new tab (mac: metaKey, win/linux: ctrlKey)
 								// should also consider clicking with a mouse scroll wheel
-							)
 								return;
 
 							// prevent navigation
@@ -205,22 +203,29 @@ membershipsDone: {membershipsDone}
 							// that are already running because of `data-sveltekit-preload-data`)
 							const result = await preloadData(href);
 
-							if (result.type === 'loaded' && result.status === 200) {
-								pushState(href, { selected: result.data });
-							} else {
-								// something bad happened! try navigating
-								goto(href);
-							}
-						}}
-					>
-						<button class="btn variant-filled-primary subtle-glow" title="Sélectionner une personne"
-							><span><Fa icon={faMagnifyingGlass} /></span><span
-								>Sélectionner une personne existante</span
-							></button
+								if (result.type === 'loaded' && result.status === 200) {
+									goto(href, { shallow: true, state: { selected: result.data } });
+								} else {
+									// something bad happened! try navigating
+									goto(href);
+								}
+							}}
 						>
-					</a>
+							<button
+								class="btn variant-filled-primary subtle-glow"
+								title="Sélectionner une personne"
+							>
+								<span><Fa icon={faMagnifyingGlass} /></span>
+								<span>Sélectionner une personne existante</span>
+							</button>
+						</a>
 					{/if}
-					<CreateEffectorModal bind:memberships bind:effector {effectorType} />
+
+					<CreateEffectorModal
+						bind:memberships
+						bind:effector
+						effectorType={effectorType}
+					/>
 				{/if}
 			</div>
 		{/if}
@@ -239,8 +244,11 @@ membershipsDone: {membershipsDone}
 						document.getElementById('top')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 					}}
 					class="btn variant-filled-primary"
-					title="Passer"><span><Fa icon={faChevronRight} /></span><span>Passer</span></button
+					title="Passer"
 				>
+					<span><Fa icon={faChevronRight} /></span>
+					<span>Passer</span>
+				</button>
 			</div>
 		{/if}
 	</div>
@@ -248,7 +256,7 @@ membershipsDone: {membershipsDone}
 {#if page.state.selected}
 	<NewSelectEffectorModal
 		bind:this={selectEffectorModal}
-		{effector}
+		effector={effector}
 		onresult={(result) => {
 			console.log('result', result);
 			history.back();

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import type { BoardMember, MembershipCategory } from '$lib/interfaces/v2/association';
-	import type { Effector } from '$lib/interfaces/v2/effector';
+	import type { BoardMember, MembershipCategory } from '#lib/interfaces/v2/association.ts';
+	import type { Effector } from '#lib/interfaces/v2/effector.ts';
 	import UpdateBoardMember from './UpdateBoardMember.svelte';
 	import DeleteBoardMember from './DeleteBoardMember.svelte';
 

@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import Spinner from '$lib/Spinner/Spinner.svelte';
-	import EntryGroup from '$lib/components/Directory/EntryGroup.svelte';
-	import EntrySelector from '$lib/components/Directory/EntrySelector.svelte';
-	import Clear from '$lib/components/Directory/Clear.svelte';
+	import Spinner from '#lib/Spinner/Spinner.svelte';
+	import EntryGroup from '#lib/components/Directory/EntryGroup.svelte';
+	import EntrySelector from '#lib/components/Directory/EntrySelector.svelte';
+	import Clear from '#lib/components/Directory/Clear.svelte';
 	import MapSelector from './MapSelector.svelte';
 	import FacilityMap from '../FacilityMap/FacilityMap.svelte';
-	import { setDisplayMap, getDisplayMap } from '$lib/components/Directory/context.ts';
-	import type { Entry } from '$lib/store/directoryStoreInterface';
+	import { setDisplayMap, getDisplayMap } from '#lib/components/Directory/context.ts';
+	import type { Entry } from '#lib/store/directoryStoreInterface.ts';
 
 	let { data, avatar = true, displaySelector = false, geojson = null }: { data: Map<string, Entry[]>; avatar: boolean; displaySelector: boolean; geojson?: any } = $props();
 	setDisplayMap();
@@ -21,14 +21,14 @@
 	});
 
 	function toggleMap(value: boolean) {
-		const url = new URL(page.url);
+		const url = new URL(page.url.href);
 		if (value) {
 			url.searchParams.set('map', '');
 		} else {
 			url.searchParams.delete('map');
 		}
 		const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
-		goto(newUrl, { noScroll: true, keepFocus: true });
+		goto(newUrl, { reset: false });
 	}
 
 	function contactCount(entryMap: Map<string,Entry[]>) {

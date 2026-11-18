@@ -3,8 +3,8 @@
 	import Fa from 'svelte-fa';
 	import { faPenToSquare, faBan, faRotateLeft } from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
-	import Dialog from '$lib/Web/Dialog.svelte';
-	import { maySuspend } from '$lib/auth/grantable';
+	import Dialog from '#lib/Web/Dialog.svelte';
+	import { maySuspend } from '#lib/auth/grantable.ts';
 	import { suspendUser, restoreUser } from '../../user.remote.ts';
 
 	/**

@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import EditEffectorTypeModal from '$lib/EffectorType/EditEffectorTypeModal.svelte';
-	import DeleteEffectorTypeModal from '$lib/EffectorType/DeleteEffectorTypeModal.svelte';
+	import EditEffectorTypeModal from '#lib/EffectorType/EditEffectorTypeModal.svelte';
+	import DeleteEffectorTypeModal from '#lib/EffectorType/DeleteEffectorTypeModal.svelte';
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faPenToSquare, faTrash, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
-	import meshLogo from '$lib/assets/images/meshLogo.jpg';
-	import UuidHex from '$lib/Uuid/UuidHex.svelte';
-	import type { EffectorType } from '$lib/interfaces/v2/effector';
+	import meshLogo from '#lib/assets/images/meshLogo.jpg';
+	import UuidHex from '#lib/Uuid/UuidHex.svelte';
+	import type { EffectorType } from '#lib/interfaces/v2/effector.ts';
 	import type { PageData } from './$types';
-	import { base } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 
 	let { data }: { data: PageData } = $props();
 	let et: EffectorType = $derived(data.effectorType);
@@ -20,7 +20,11 @@
 
 <div class="max-w-screen-lg mx-auto p-4">
 	<!-- Back link -->
-	<a href="{base}/web/effector-types" class="btn btn-sm variant-ghost-surface mb-4">
+
+	<a
+		href="{base()}/web/effector-types"
+		class="btn btn-sm variant-ghost-surface mb-4"
+	>
 		<Fa icon={faArrowLeft} class="mr-2" />
 		{m.EFFECTOR_TYPE_TITLE()}
 	</a>
@@ -104,9 +108,10 @@
 				<dt class="text-sm font-semibold text-surface-500">{m.EFFECTOR_TYPE_COL_PARENT()}</dt>
 				<dd>
 					{#if et.effector_type_uid && et.effector_type_label_fr}
-						<a href="{base}/web/effector-types/{et.effector_type_uid}" class="anchor">
-							{et.effector_type_label_fr}
-						</a>
+						<a
+							href="{base()}/web/effector-types/{et.effector_type_uid}"
+							class="anchor"
+						>{et.effector_type_label_fr}</a>
 					{:else}
 						<span class="text-surface-400">{m.EFFECTOR_TYPE_NO_PARENT()}</span>
 					{/if}

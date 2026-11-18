@@ -33,7 +33,7 @@ const ENTRY_ROUTE_FILES = ['+page.svelte', '+page.ts'].map((f) => join(ENTRY_ROU
 const TOGGLE_BANNER = join(src, 'lib/components/Directory/EffectorContact.svelte');
 
 const ALIASES: [string, string][] = [
-	['$lib/', join(src, 'lib/')],
+	['#lib/', join(src, 'lib/')],
 	['$assets/', join(src, 'assets/')]
 ];
 
@@ -50,7 +50,7 @@ const IMPORT = /(?:\bfrom\s*|\bimport\s*\(\s*|^\s*import\s+)['"]([^'"]+)['"]/gm;
  */
 const RENDERS_DIALOG = /<Dialog[\s>]|<dialog[\s>]/;
 
-const Z_CLASS =/(?<![\w-])z-(?:\[(\d+)\]|(\d+))(?![\w-])/g;
+const Z_CLASS = /(?<![\w-])z-(?:\[(\d+)\]|(\d+))(?![\w-])/g;
 const Z_CSS = /\bz-index:\s*(\d+)/g;
 
 function zIndexes(source: string): number[] {

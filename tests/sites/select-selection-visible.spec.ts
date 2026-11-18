@@ -216,10 +216,9 @@ for (const scheme of ['light', 'dark'] as const) {
 					// And can undo it. An invisible cross is a control the reader
 					// cannot find, which is the same as not having one.
 					expect(c.clearPresent, `${where}: no clear cross after choosing`).toBe(true);
-					expect(
-						c.clearOpacity ?? 1,
-						`${where}: the clear cross is transparent`
-					).toBeGreaterThan(0.1);
+					expect(c.clearOpacity ?? 1, `${where}: the clear cross is transparent`).toBeGreaterThan(
+						0.1
+					);
 					expect(
 						contrast(c.clearColour!, c.background),
 						`${where}: the clear cross is ${c.clearColour} on ${c.background} — invisible`

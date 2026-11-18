@@ -1,4 +1,4 @@
-import { dev } from '$app/environment';
+import { dev } from '$app/env';
 import { error } from '@sveltejs/kit';
 
 // A design fixture, not a page of the site: it mimics /sites/[slug] with

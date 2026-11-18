@@ -53,10 +53,10 @@
 		FillLayer,
 		LineLayer
 	} from 'svelte-maplibre';
-	import '$lib/MapLibre/worker';
+	import '#lib/MapLibre/worker.ts';
 	import type { Map as MapInstance, GeoJSONSource, LngLatBoundsLike } from 'maplibre-gl';
-	import type { MapData } from '$lib/interfaces/mapData.interface.js';
-	import { openStreetMap } from '$lib/MapLibre/style/openStreetMap';
+	import type { MapData } from '#lib/interfaces/mapData.interface.js';
+	import { openStreetMap } from '#lib/MapLibre/style/openStreetMap.ts';
 
 	let {
 		data,

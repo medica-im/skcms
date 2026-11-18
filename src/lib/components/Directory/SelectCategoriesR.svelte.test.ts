@@ -12,18 +12,18 @@ import { render } from 'vitest-browser-svelte';
 import { page as screen, userEvent } from 'vitest/browser';
 import { get, writable } from 'svelte/store';
 import SelectCategoriesR from './SelectCategoriesR.svelte';
-import Select from '$lib/Web/Select.svelte';
-import { IPA, NURSE } from '$lib/store/directoryStore.fixtures.ts';
-import { contrast, paintedBehind } from '$lib/testing/contrast.ts';
+import Select from '#lib/Web/Select.svelte';
+import { IPA, NURSE } from '#lib/store/directoryStore.fixtures.ts';
+import { contrast, paintedBehind } from '#lib/testing/contrast.ts';
 import '../../../app.postcss';
 // As the root layout loads it: the selects' colours come from here and the theme.
-import '$lib/assets/css/svelte-select.css';
+import '#lib/assets/css/svelte-select.css';
 
 document.body.dataset.theme = 'wintry';
 
 const nav = vi.hoisted(() => ({ goto: vi.fn() }));
 vi.mock('$app/navigation', () => nav);
-vi.mock('$app/paths', () => ({ base: '' }));
+vi.mock('$app/paths', () => ({ resolve: (path: string) => `/${path}` }));
 vi.mock('$app/state', () => ({
 	page: {
 		data: { directory: { setting: { path: '/annuaire' } } },
@@ -78,15 +78,22 @@ describe('SelectCategoriesR with a single type offered', () => {
 		const item = { uid: 'x', label: 'un choix', name: 'un choix' };
 		const chosen = document.createElement('div');
 		document.body.appendChild(chosen);
-		render(Select, { target: chosen, props: { items: [item], value: item, label: 'label', itemId: 'uid' } } as never);
+		render(Select, {
+			target: chosen,
+			props: { items: [item], value: item, label: 'label', itemId: 'uid' }
+		} as never);
 		// A disabled select is told apart by its box: darker background, paler border.
 		const box = (root: Element) => {
 			const el = root.querySelector('.svelte-select .svelte-select, .svelte-select');
 			const inner = root.querySelector('[data-testid="only-type"] .svelte-select') ?? el;
-			return inner ? `${getComputedStyle(inner).backgroundColor} / ${getComputedStyle(inner).borderColor}` : null;
+			return inner
+				? `${getComputedStyle(inner).backgroundColor} / ${getComputedStyle(inner).borderColor}`
+				: null;
 		};
 		await expect.poll(() => box(chosen)).not.toBeNull();
-		await expect.poll(() => box(screen.getByTestId('only-type').element().parentElement!)).toBe(box(chosen));
+		await expect
+			.poll(() => box(screen.getByTestId('only-type').element().parentElement!))
+			.toBe(box(chosen));
 	});
 
 	it('tells a visitor who taps it why it does not open', async () => {
@@ -105,7 +112,9 @@ describe('SelectCategoriesR with a single type offered', () => {
 				const status = screen.getByRole('status');
 				await expect.element(status).toHaveTextContent(ONLY_ONE);
 				const text = getComputedStyle(status.element()).color;
-				await expect.poll(() => contrast(text, paintedBehind(status.element()))).toBeGreaterThanOrEqual(4.5);
+				await expect
+					.poll(() => contrast(text, paintedBehind(status.element())))
+					.toBeGreaterThanOrEqual(4.5);
 			} finally {
 				document.documentElement.classList.remove('dark');
 			}

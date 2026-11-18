@@ -1,8 +1,8 @@
 import { getRequestEvent, query, command } from '$app/server';
-import * as z from "zod";
-import { authReq } from '$lib/utils/request.ts';
-import { variables } from '$lib/utils/constants.ts';
-import type { Tag, TagCategory } from '$lib/store/directoryStoreInterface';
+import * as z from 'zod';
+import { authReq } from '#lib/utils/request.ts';
+import { variables } from '#lib/utils/constants.ts';
+import type { Tag, TagCategory } from '#lib/store/directoryStoreInterface.ts';
 
 const RoleEnum = z.enum(['anonymous', 'staff', 'administrator', 'superuser']);
 
@@ -10,8 +10,7 @@ const EntryTag = z.object({
 	entry: z.string(),
 	addTags: z.array(z.string()).nullable(),
 	removeTags: z.array(z.string()).nullable()
-}
-);
+});
 
 export const postEntryTag = command(EntryTag, async (data) => {
 	console.log(`entry_tag form data: ${JSON.stringify(data)}`);
@@ -20,17 +19,17 @@ export const postEntryTag = command(EntryTag, async (data) => {
 	const request = authReq(url, 'POST', cookies, JSON.stringify(data));
 	const response = await fetch(request);
 	if (response.ok == false) {
-		const json = await response.json()
-		console.error(JSON.stringify(json))
-		console.error(response.status)
-		console.error(response.statusText)
+		const json = await response.json();
+		console.error(JSON.stringify(json));
+		console.error(response.status);
+		console.error(response.statusText);
 		return {
 			success: false,
 			status: response.status,
 			text: response.statusText
-		}
+		};
 	} else {
-		const json = await response.json()
+		const json = await response.json();
 		console.log(`Success! Status: ${response.status} Status text: ${response.statusText}`);
 		console.log(json);
 		return {
@@ -38,14 +37,14 @@ export const postEntryTag = command(EntryTag, async (data) => {
 			status: response.status,
 			text: response.statusText,
 			data: json
-		}
+		};
 	}
 });
 
 export const getTagCategories = query(async () => {
 	const res = await fetch(`${variables.BASE_URI}/api/v2/tag_categories`);
 	if (res.ok) {
-		return await res.json() as TagCategory[];
+		return (await res.json()) as TagCategory[];
 	}
 });
 
@@ -68,6 +67,6 @@ export const getTagCategories = query(async () => {
 export const getTags = query(async () => {
 	const res = await fetch(`${variables.BASE_URI}/api/v2/tags`);
 	if (res.ok) {
-		return await res.json() as Tag[];
+		return (await res.json()) as Tag[];
 	}
 });

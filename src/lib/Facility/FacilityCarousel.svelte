@@ -1,10 +1,10 @@
 <script lang="ts">
 	import Carousel from 'svelte-light-carousel';
-	import { browser } from '$app/environment';
-	import CarouselArrow from '$lib/Carousel/CarouselArrow.svelte';
-	import { variables } from '$lib/utils/constants';
-	import type { Facility } from '$lib/interfaces/facility.interface';
-	import { base } from '$app/paths';
+	import { browser } from '$app/env';
+	import CarouselArrow from '#lib/Carousel/CarouselArrow.svelte';
+	import { variables } from '#lib/utils/constants.ts';
+	import type { Facility } from '#lib/interfaces/facility.interface.ts';
+	import { base } from '#lib/utils/base.ts';
 
 	let { data }: { data: Facility[] } = $props();
 
@@ -50,7 +50,7 @@
 		-->
 		{#key slideCount}
 			<Carousel
-				{slides}
+				slides={slides}
 				key="uid"
 				autoPlay={slides.length > 1 ? AUTOPLAY_SECONDS : 0}
 				pauseOnHover
@@ -59,7 +59,10 @@
 			>
 				{#snippet slide({ slide }: { slide: Facility })}
 					<figure class="mx-auto w-full text-center">
-						<a href="{base}/sites/{slide.slug}" class="block">
+						<a
+							href="{base()}/sites/{slide.slug}"
+							class="block"
+						>
 							<img
 								class="mx-auto h-auto max-w-full"
 								src={pictureSrc(slide)}
@@ -67,9 +70,10 @@
 							/>
 						</a>
 						<figcaption class="mt-2">
-							<a href="{base}/sites/{slide.slug}" class="anchor text-primary">
-								{slide.name}
-							</a>
+							<a
+								href="{base()}/sites/{slide.slug}"
+								class="anchor text-primary"
+							>{slide.name}</a>
 						</figcaption>
 					</figure>
 				{/snippet}
@@ -101,14 +105,25 @@
 			Mirrors what the carousel produces for a slide, so the picture is the
 			same size before and after hydration. Keep the two in step.
 		-->
-		<figure class="mx-auto w-64 lg:w-80 max-w-full px-5 text-center">
-			<a href="{base}/sites/{facility.slug}" class="block">
-				<img class="mx-auto h-auto max-w-full" src={pictureSrc(facility)} alt={pictureAlt(facility)} />
+
+		<figure
+			class="mx-auto w-64 lg:w-80 max-w-full px-5 text-center"
+		>
+			<a
+				href="{base()}/sites/{facility.slug}"
+				class="block"
+			>
+				<img
+					class="mx-auto h-auto max-w-full"
+					src={pictureSrc(facility)}
+					alt={pictureAlt(facility)}
+				/>
 			</a>
 			<figcaption class="mt-2">
-				<a href="{base}/sites/{facility.slug}" class="anchor text-primary">
-					{facility.name}
-				</a>
+				<a
+					href="{base()}/sites/{facility.slug}"
+					class="anchor text-primary"
+				>{facility.name}</a>
 			</figcaption>
 		</figure>
 	{/if}

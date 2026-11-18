@@ -39,8 +39,16 @@ describe('resendCounts', () => {
 	});
 
 	it('counts only what was processed when stopped part way', () => {
-		expect(resendCounts(job({ status: 'cancelled', emails_processed: 4, email_skipped_count: 1, failed_email_count: 0 })))
-			.toEqual({ sent: 3, skipped: 1, failed: 0 });
+		expect(
+			resendCounts(
+				job({
+					status: 'cancelled',
+					emails_processed: 4,
+					email_skipped_count: 1,
+					failed_email_count: 0
+				})
+			)
+		).toEqual({ sent: 3, skipped: 1, failed: 0 });
 	});
 });
 
@@ -50,6 +58,8 @@ describe('progressOf', () => {
 	});
 
 	it('is at zero before the first email', () => {
-		expect(progressOf(job({ status: 'pending', emails_total: 0, emails_processed: 0 })).percentage).toBe(0);
+		expect(
+			progressOf(job({ status: 'pending', emails_total: 0, emails_processed: 0 })).percentage
+		).toBe(0);
 	});
 });

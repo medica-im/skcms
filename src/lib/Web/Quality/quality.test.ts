@@ -16,12 +16,14 @@ describe('qualityText', () => {
 		}
 	});
 
-	it('names the fix for a ligne d\'écoute without a phone', () => {
+	it("names the fix for a ligne d'écoute without a phone", () => {
 		expect(qualityText('line_without_phone')).toMatch(/téléphone/i);
 	});
 
 	it('says a day hospital lacks a day at the hospital', () => {
-		expect(qualityText('day_hospital_without_day_hospitalisation')).toMatch(/hospitalisation de jour/);
+		expect(qualityText('day_hospital_without_day_hospitalisation')).toMatch(
+			/hospitalisation de jour/
+		);
 	});
 
 	it('falls back to the code itself for a rule this page does not know yet', () => {
@@ -37,7 +39,9 @@ describe('bySeverity', () => {
 	];
 
 	it('puts what is missing first and keeps the order within a severity', () => {
-		expect(bySeverity(items).map((group) => [group.severity, group.items.map((i) => i.code)])).toEqual([
+		expect(
+			bySeverity(items).map((group) => [group.severity, group.items.map((i) => i.code)])
+		).toEqual([
 			['missing', ['no_contact']],
 			['incomplete', ['no_description', 'no_offers']]
 		]);

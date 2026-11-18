@@ -18,7 +18,9 @@ describe('reading', () => {
 	it('reads every selector', () => {
 		expect(
 			facetsFromParams(
-				params('age=16&access=referral&levels=emergency&audiences=students,parents&free=1&anonymous=1')
+				params(
+					'age=16&access=referral&levels=emergency&audiences=students,parents&free=1&anonymous=1'
+				)
 			)
 		).toEqual({
 			age: 16,
@@ -35,7 +37,9 @@ describe('reading', () => {
 	});
 
 	it('ignores what the vocabulary or the age range does not allow', () => {
-		const read = facetsFromParams(params('age=abc&access=everyone&audiences=parents,teleport&levels=&free=yes'));
+		const read = facetsFromParams(
+			params('age=abc&access=everyone&audiences=parents,teleport&levels=&free=yes')
+		);
 		expect(read).toEqual({ ...NO_FACETS, audiences: ['parents'] });
 		expect(facetsFromParams(params('age=-3')).age).toBeNull();
 		expect(facetsFromParams(params('age=121')).age).toBeNull();
@@ -50,7 +54,10 @@ describe('reading', () => {
 describe('writing', () => {
 	it('writes only what is chosen and leaves other parameters alone', () => {
 		const url = new URLSearchParams('situation=abc&age=40');
-		facetsToParams({ ...NO_FACETS, access: 'anyone', audiences: ['students', 'parents'], free: true }, url);
+		facetsToParams(
+			{ ...NO_FACETS, access: 'anyone', audiences: ['students', 'parents'], free: true },
+			url
+		);
 		expect(url.get('situation')).toBe('abc');
 		expect(url.has('age')).toBe(false);
 		expect(url.get('access')).toBe('anyone');

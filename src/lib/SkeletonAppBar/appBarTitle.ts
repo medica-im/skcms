@@ -1,4 +1,4 @@
-import type { Organization } from '$lib/interfaces/organization.ts';
+import type { Organization } from '#lib/interfaces/organization.ts';
 
 /**
  * The organisation name to show in the app bar.

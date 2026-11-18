@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { base } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 	import Fa from 'svelte-fa';
 	import { faDeleteLeft, faEraser } from '@fortawesome/free-solid-svg-icons';
 	import {
@@ -20,11 +20,11 @@
 		getFacetSelection,
 		getSelectConcern
 	} from './context.ts';
-	import { NO_FACETS } from '$lib/store/facetFilters.ts';
+	import { NO_FACETS } from '#lib/store/facetFilters.ts';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 
-	const dirPath = `${base}${page.data.directory.setting.path || "/"}`;
+	const dirPath = `${base()}${page.data.directory.setting.path || "/"}`;
 
 	let term = getTerm();
 	let selectedCommunesChoices = getSelectedCommunesChoices();

@@ -7,7 +7,7 @@
 		faMapLocationDot,
 		faLocationDot
 	} from '@fortawesome/free-solid-svg-icons';
-	import type { Address } from '$lib/interfaces/facility.interface.ts';
+	import type { Address } from '#lib/interfaces/facility.interface.ts';
 	import Distance from './Distance.svelte';
 	let { data, distance=true }:{ data:Address; distance:boolean; }=$props();
 </script>

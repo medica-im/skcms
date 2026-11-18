@@ -58,7 +58,9 @@ describe('build-image.sh arguments', () => {
 			['no-such-image', '--keep-skvar']
 		]) {
 			const { out } = run(...args);
-			expect(out, `args ${args.join(' ')} were not parsed`).toContain("no entry named 'no-such-image'");
+			expect(out, `args ${args.join(' ')} were not parsed`).toContain(
+				"no entry named 'no-such-image'"
+			);
 		}
 	});
 
@@ -108,7 +110,7 @@ describe('build-image.sh arguments', () => {
  */
 describe('the app version stamped into the image', () => {
 	const dockerfile = readFileSync(resolve(__dirname, '../../Dockerfile'), 'utf8');
-	const config = readFileSync(resolve(__dirname, '../../svelte.config.js'), 'utf8');
+	const config = readFileSync(resolve(__dirname, '../../vite.config.ts'), 'utf8');
 
 	it('is sent to the builder stage as a build arg', () => {
 		expect(source).toMatch(/--build-arg\s+APP_VERSION=/);
@@ -122,7 +124,7 @@ describe('the app version stamped into the image', () => {
 
 	it('reaches the stage that runs the build, not only the runtime stage', () => {
 		// GIT_SHA and SUBMODULE_SHA are declared in the production stage, where
-		// they become labels. This one is read by svelte.config.js during
+		// they become labels. This one is read by vite.config.ts during
 		// `pnpm run -r build`, so it must be declared in the builder.
 		const builder = dockerfile.slice(
 			dockerfile.indexOf('AS builder'),
@@ -132,7 +134,7 @@ describe('the app version stamped into the image', () => {
 		expect(builder).toMatch(/ENV APP_VERSION/);
 	});
 
-	it('is what svelte.config.js names the version', () => {
+	it('is what the SvelteKit config in vite.config.ts names the version', () => {
 		expect(config).toMatch(/version:\s*\{[^}]*name:/);
 		expect(config).toMatch(/APP_VERSION/);
 	});

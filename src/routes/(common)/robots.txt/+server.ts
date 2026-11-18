@@ -1,4 +1,4 @@
-import { variables } from '$lib/utils/constants';
+import { variables } from '#lib/utils/constants.ts';
 
 /**
  * robots.txt, generated per site rather than shipped as a static file.

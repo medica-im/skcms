@@ -1,17 +1,17 @@
 <script lang="ts">
 	import { variables } from '$src/lib/utils/constants';
 	import { MultipleIntersectionObserver } from 'svelte-intersection-observer';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	
 	import { page } from '$app/state';
-	import FacilityCard from '$lib/Facility/FacilityCard.svelte';
+	import FacilityCard from '#lib/Facility/FacilityCard.svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 	import type { FacilityIntersect } from '$src/lib/interfaces/facility.interface';
-	import type { Address, Avatar } from '$lib/interfaces/facility.interface';
-	import type { SocialNetwork } from '$lib/interfaces/socialnetwork.interface';
-	import type { Website } from '$lib/interfaces/website.interface';
-	import type { Email } from '$lib/interfaces/email.interface.ts';
-	import type { Phone } from '$lib/interfaces/phone.interface';
+	import type { Address, Avatar } from '#lib/interfaces/facility.interface.ts';
+	import type { SocialNetwork } from '#lib/interfaces/socialnetwork.interface.ts';
+	import type { Website } from '#lib/interfaces/website.interface.ts';
+	import type { Email } from '#lib/interfaces/email.interface.ts';
+	import type { Phone } from '#lib/interfaces/phone.interface.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();

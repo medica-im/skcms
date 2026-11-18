@@ -1,7 +1,7 @@
 import { getRequestEvent, form } from '$app/server';
-import * as z from "zod";
-import { authReq } from '$lib/utils/request.ts';
-import { variables } from '$lib/utils/constants.ts';
+import * as z from 'zod';
+import { authReq } from '#lib/utils/request.ts';
+import { variables } from '#lib/utils/constants.ts';
 
 // ── Board Members ──
 
@@ -10,7 +10,7 @@ const CreateBoardMember = z.object({
 	effector_uid: z.string().min(1),
 	category_uid: z.string().optional(),
 	start: z.string().min(1),
-	stop: z.string().optional(),
+	stop: z.string().optional()
 });
 
 export const createBoardMember = form(CreateBoardMember, async (data) => {
@@ -19,7 +19,7 @@ export const createBoardMember = form(CreateBoardMember, async (data) => {
 	const body: Record<string, unknown> = {
 		entry_uid: data.entry_uid,
 		effector_uid: data.effector_uid,
-		start: data.start,
+		start: data.start
 	};
 	if (data.category_uid) body.category_uid = data.category_uid;
 	if (data.stop) body.stop = data.stop;
@@ -43,7 +43,7 @@ export const createBoardMember = form(CreateBoardMember, async (data) => {
 const UpdateBoardMember = z.object({
 	uid: z.string(),
 	start: z.string().optional(),
-	stop: z.string().optional(),
+	stop: z.string().optional()
 });
 
 export const updateBoardMember = form(UpdateBoardMember, async (data) => {
@@ -70,7 +70,7 @@ export const updateBoardMember = form(UpdateBoardMember, async (data) => {
 });
 
 const DeleteBoardMember = z.object({
-	uid: z.string(),
+	uid: z.string()
 });
 
 export const deleteBoardMember = form(DeleteBoardMember, async (data) => {
@@ -101,7 +101,7 @@ const CreateOfficer = z.object({
 	role_uid: z.string().min(1),
 	role_label: z.string().optional(),
 	start: z.string().min(1),
-	stop: z.string().optional(),
+	stop: z.string().optional()
 });
 
 export const createOfficer = form(CreateOfficer, async (data) => {
@@ -110,7 +110,7 @@ export const createOfficer = form(CreateOfficer, async (data) => {
 		entry_uid: data.entry_uid,
 		effector_uid: data.effector_uid,
 		role_uid: data.role_uid,
-		start: data.start,
+		start: data.start
 	};
 	if (data.role_label) body.role_label = data.role_label;
 	if (data.stop) body.stop = data.stop;
@@ -140,7 +140,7 @@ const UpdateOfficer = z.object({
 	uid: z.string(),
 	role_label: z.string().optional(),
 	start: z.string().optional(),
-	stop: z.string().optional(),
+	stop: z.string().optional()
 });
 
 export const updateOfficer = form(UpdateOfficer, async (data) => {
@@ -168,7 +168,7 @@ export const updateOfficer = form(UpdateOfficer, async (data) => {
 });
 
 const DeleteOfficer = z.object({
-	uid: z.string(),
+	uid: z.string()
 });
 
 export const deleteOfficer = form(DeleteOfficer, async (data) => {
@@ -194,7 +194,7 @@ export const deleteOfficer = form(DeleteOfficer, async (data) => {
 // ── Organization Roles ──
 
 const CreateOrganizationRole = z.object({
-	label: z.string().min(1),
+	label: z.string().min(1)
 });
 
 export const createOrganizationRole = form(CreateOrganizationRole, async (data) => {
@@ -219,7 +219,7 @@ export const createOrganizationRole = form(CreateOrganizationRole, async (data) 
 
 const UpdateOrganizationRole = z.object({
 	uid: z.string(),
-	label: z.string().min(1),
+	label: z.string().min(1)
 });
 
 export const updateOrganizationRole = form(UpdateOrganizationRole, async (data) => {
@@ -243,7 +243,7 @@ export const updateOrganizationRole = form(UpdateOrganizationRole, async (data) 
 });
 
 const DeleteOrganizationRole = z.object({
-	uid: z.string(),
+	uid: z.string()
 });
 
 export const deleteOrganizationRole = form(DeleteOrganizationRole, async (data) => {
@@ -270,7 +270,7 @@ export const deleteOrganizationRole = form(DeleteOrganizationRole, async (data) 
 
 const CreateMembershipCategory = z.object({
 	entry_uid: z.string(),
-	label: z.string().min(1),
+	label: z.string().min(1)
 });
 
 export const createMembershipCategory = form(CreateMembershipCategory, async (data) => {
@@ -295,7 +295,7 @@ export const createMembershipCategory = form(CreateMembershipCategory, async (da
 
 const UpdateMembershipCategory = z.object({
 	uid: z.string(),
-	label: z.string().min(1),
+	label: z.string().min(1)
 });
 
 export const updateMembershipCategory = form(UpdateMembershipCategory, async (data) => {
@@ -319,7 +319,7 @@ export const updateMembershipCategory = form(UpdateMembershipCategory, async (da
 });
 
 const DeleteMembershipCategory = z.object({
-	uid: z.string(),
+	uid: z.string()
 });
 
 export const deleteMembershipCategory = form(DeleteMembershipCategory, async (data) => {

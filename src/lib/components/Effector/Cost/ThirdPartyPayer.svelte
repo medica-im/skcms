@@ -1,8 +1,8 @@
 <script lang="ts">
     import * as m from '$msgs';
-    import EditTPP from '$lib/Web/Entry/ThirdPartyPayer/Patch.svelte';
-	import DeleteTPP from '$lib/Web/Entry/ThirdPartyPayer/Delete.svelte';
-    import type { ThirdPartyPayer } from '$lib/interfaces/fullEffector.interface';
+    import EditTPP from '#lib/Web/Entry/ThirdPartyPayer/Patch.svelte';
+	import DeleteTPP from '#lib/Web/Entry/ThirdPartyPayer/Delete.svelte';
+    import type { ThirdPartyPayer } from '#lib/interfaces/fullEffector.interface.ts';
 
     let { data, editMode = false }: { data: ThirdPartyPayer[] | null; editMode?: boolean } = $props();
 

@@ -314,12 +314,9 @@ When('I navigate back to the home page', async ({ page, baseURL }) => {
  * from the app's own invalidation, so the assertion deliberately never calls
  * page.reload().
  */
-Then(
-	"the team carousel shows the entry's picture without a page reload",
-	async ({ page }) => {
-		await expect(carouselPicture(page).first()).toBeAttached({ timeout: 8_000 });
-	}
-);
+Then("the team carousel shows the entry's picture without a page reload", async ({ page }) => {
+	await expect(carouselPicture(page).first()).toBeAttached({ timeout: 8_000 });
+});
 
 Then(
 	"the team carousel does not show the entry's picture without a page reload",

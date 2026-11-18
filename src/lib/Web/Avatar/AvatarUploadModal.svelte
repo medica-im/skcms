@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 	// The prefix belongs on this one: /api/avatar and /api/facility are this
 	// APP's own routes (src/routes/api/...), not the backend API. On a site
 	// served under a base path the bare path leaves the app entirely -- on
@@ -7,7 +7,7 @@
 	// API is the opposite case and must stay unprefixed; see appUrl.ts.
 	import { invalidate } from '$app/navigation';
 	import * as m from '$msgs';
-	import Dialog from '$lib/Web/Dialog.svelte';
+	import Dialog from '#lib/Web/Dialog.svelte';
 	import { avatarAccessOptions, DEFAULT_AVATAR_ACCESS } from './avatarAccess';
 	import Fa from 'svelte-fa';
 	import {
@@ -274,10 +274,7 @@
 			formData.append('file', blob, `avatar-${entryUid}.jpg`);
 			formData.append('access', selectedAccess);
 
-			const response = await fetch(`${base}/api/avatar/${entryUid}`, {
-				method: 'PUT',
-				body: formData
-			});
+			const response = await fetch(resolve(`api/avatar/${entryUid}`), { method: 'PUT', body: formData });
 
 			if (response.ok) {
 				result = { success: true };
@@ -302,7 +299,7 @@
 		result = undefined;
 
 		try {
-			const response = await fetch(`${base}/api/avatar/${entryUid}`, {
+			const response = await fetch(resolve(`api/avatar/${entryUid}`), {
 				method: 'PATCH',
 				headers: { 'content-type': 'application/json' },
 				body: JSON.stringify({ access: selectedAccess })
@@ -327,9 +324,7 @@
 		result = undefined;
 
 		try {
-			const response = await fetch(`${base}/api/avatar/${entryUid}`, {
-				method: 'DELETE'
-			});
+			const response = await fetch(resolve(`api/avatar/${entryUid}`), { method: 'DELETE' });
 
 			if (response.ok) {
 				result = { success: true, message: m.AVATAR_DELETE_SUCCESS() };
@@ -434,7 +429,7 @@
 						src={imageSrc}
 						alt="Preview"
 						style="display:none;"
-						onload={(e) => initCropper(e.currentTarget)}
+						onload={(e) => initCropper(e.currentTarget as HTMLImageElement)}
 					/>
 				</div>
 			{/if}
@@ -498,9 +493,12 @@
 						{m.AVATAR_CROP_BTN()}
 					</button>
 				{:else if croppedPreview && !result?.success}
-					<button onclick={adjustCrop} class="variant-ghost-surface btn" disabled={uploading}>
-						{m.AVATAR_CROP_ADJUST()}
-					</button>
+					<button
+						onclick={adjustCrop}
+						class="variant-ghost-surface btn"
+						disabled={uploading}
+					>{m.AVATAR_CROP_ADJUST()}</button>
+
 					<button
 						onclick={uploadCropped}
 						class="variant-filled-secondary btn"

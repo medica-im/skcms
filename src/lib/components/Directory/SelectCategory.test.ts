@@ -5,14 +5,25 @@
  */
 import { describe, expect, it } from 'vitest';
 import { getTypeItems } from './SelectCategory.ts';
-import type { EffectorType } from '$lib/interfaces/v2/effector';
+import type { EffectorType } from '#lib/interfaces/v2/effector.ts';
 
 const type = (uid: string, name_fr: string, nature: EffectorType['nature']) =>
-	({ uid, name_fr, label_fr: name_fr, synonyms_fr: null, definition_fr: null, slug_fr: uid, nature }) as EffectorType;
+	({
+		uid,
+		name_fr,
+		label_fr: name_fr,
+		synonyms_fr: null,
+		definition_fr: null,
+		slug_fr: uid,
+		nature
+	}) as EffectorType;
 
 describe('getTypeItems', () => {
 	it('keeps each type’s nature on its option', () => {
-		const items = getTypeItems([type('t-pharmacy', 'pharmacie', 'service'), type('t-nurse', 'infirmière', 'profession')], '');
+		const items = getTypeItems(
+			[type('t-pharmacy', 'pharmacie', 'service'), type('t-nurse', 'infirmière', 'profession')],
+			''
+		);
 
 		expect(items).toEqual([
 			{ value: 't-nurse', label: 'infirmière', nature: 'profession' },

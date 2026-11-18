@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import CreateEntry from '$lib/Web/CreateEntry.svelte';
-	import { browser } from '$app/environment';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import CreateEntry from '#lib/Web/CreateEntry.svelte';
+	import { browser } from '$app/env';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();

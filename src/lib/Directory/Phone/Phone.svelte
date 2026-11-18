@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { phoneTypes } from './phone';
 	import { formatPhone } from './formatPhone';
-	import { getEditMode } from '$lib/components/Directory/context.ts';
-    import UpdatePhone from '$lib/Web/Phone/UpdatePhone.svelte';
-	import DeletePhone from '$lib/Web/Phone/DeletePhone.svelte';
+	import { getEditMode } from '#lib/components/Directory/context.ts';
+    import UpdatePhone from '#lib/Web/Phone/UpdatePhone.svelte';
+	import DeletePhone from '#lib/Web/Phone/DeletePhone.svelte';
 	import Fa from 'svelte-fa';
 	import { faMobileScreen, faPhone, faFax, faHeadset } from '@fortawesome/free-solid-svg-icons';
-	import type { Phone } from '$lib/interfaces/phone.interface.ts';
+	import type { Phone } from '#lib/interfaces/phone.interface.ts';
 	let { data, editMode }:{data: Phone; editMode?: boolean} = $props();
 
 	const iconDict: object = {

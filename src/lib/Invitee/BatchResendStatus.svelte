@@ -2,10 +2,10 @@
 	import Fa from 'svelte-fa';
 	import { faSpinner, faStop } from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
-	import { base } from '$app/paths';
-	import { APP_URL } from '$lib/utils/appUrl';
-	import { formatFullDateTime } from '$lib/utils/dateTimeFormat';
-	import DismissibleAlert from '$lib/Alert/DismissibleAlert.svelte';
+	import { base } from '#lib/utils/base.ts';
+	import { APP_URL } from '#lib/utils/appUrl.ts';
+	import { formatFullDateTime } from '#lib/utils/dateTimeFormat.ts';
+	import DismissibleAlert from '#lib/Alert/DismissibleAlert.svelte';
 	import BatchProgressBar from './BatchProgressBar.svelte';
 	import { isRunning, progressOf, resendCounts, type ResendJob } from './batchResend';
 	import { getLocale } from '$prgld/runtime.js';
@@ -32,7 +32,7 @@
 				credentials: 'include'
 			});
 			if (!response.ok) return;
-			const next: ResendJob = { ...current, ...(await response.json()) };
+			const next: ResendJob = { ...current, ...await response.json() };
 			current = next;
 			if (!isRunning(next)) onfinished?.();
 		} catch {
@@ -88,8 +88,16 @@
 					{m.INVITEE_RESEND_STOPPED({ date, processed: current.emails_processed, total: current.emails_total })}
 				{/if}
 			</p>
-			<a class="anchor" href="{base}/web/invite/batch-logs/{uid}">{m.INVITEE_RESEND_REPORT()}</a>
-			<a class="anchor" href="{base}/web/invite/reminder-logs">{m.REMINDER_LOGS_TITLE()}</a>
+
+			<a
+				class="anchor"
+				href="{base()}/web/invite/batch-logs/{uid}"
+			>{m.INVITEE_RESEND_REPORT()}</a>
+
+			<a
+				class="anchor"
+				href="{base()}/web/invite/reminder-logs"
+			>{m.REMINDER_LOGS_TITLE()}</a>
 		</DismissibleAlert>
 	</div>
 {/if}

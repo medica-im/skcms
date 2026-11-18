@@ -6,9 +6,9 @@
 	import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 	import { getFacetSelection } from './context';
 	import { FACET_LABELS, FACET_TITLES } from './facetLabels';
-	import { optionsOf, selectorsShown, type FacetSelection } from '$lib/store/facetFilters.ts';
-	import { facetsFromParams, facetsToParams } from '$lib/store/facetUrl.ts';
-	import type { Entry } from '$lib/store/directoryStoreInterface.ts';
+	import { optionsOf, selectorsShown, type FacetSelection } from '#lib/store/facetFilters.ts';
+	import { facetsFromParams, facetsToParams } from '#lib/store/facetUrl.ts';
+	import type { Entry } from '#lib/store/directoryStoreInterface.ts';
 
 	/**
 	 * The selectors over who an entry is for and who may contact it. Each shows only
@@ -19,7 +19,7 @@
 
 	const facetSelection = getFacetSelection();
 
-	const selection = $derived(facetsFromParams(page.url.searchParams));
+	const selection = $derived(facetsFromParams(new URLSearchParams(page.url.searchParams.toString())));
 	const shown = $derived(selectorsShown(entries));
 
 	$effect(() => {
@@ -30,10 +30,10 @@
 	const TITLES = FACET_TITLES;
 
 	function apply(next: FacetSelection) {
-		const url = new URL(page.url);
+		const url = new URL(page.url.href);
 		facetsToParams(next, url.searchParams);
 		const query = url.searchParams.toString();
-		goto(query ? `${url.pathname}?${query}` : url.pathname, { noScroll: true, keepFocus: true });
+		goto(query ? `${url.pathname}?${query}` : url.pathname, { reset: false });
 	}
 
 	const toggle = <T extends string>(list: T[], value: T): T[] =>

@@ -61,9 +61,7 @@ describe('RoleBadge', () => {
 		// carry the full wording independently, or the abbreviation is all some
 		// users ever get.
 		render(RoleBadge, { role: 'registered' });
-		await expect
-			.element(page.getByLabelText(roleLabels.registered))
-			.toBeVisible();
+		await expect.element(page.getByLabelText(roleLabels.registered)).toBeVisible();
 	});
 
 	it('does not repeat itself when it already shows the full label', async () => {

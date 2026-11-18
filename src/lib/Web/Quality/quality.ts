@@ -10,7 +10,13 @@ export interface QualityProblem {
 export interface RuleReport {
 	code: string;
 	severity: 'missing' | 'incomplete' | string;
-	entries: { uid: string; slug: string | null; name: string; label: string | null; type: string | null }[];
+	entries: {
+		uid: string;
+		slug: string | null;
+		name: string;
+		label: string | null;
+		type: string | null;
+	}[];
 }
 
 const TEXT: Record<string, () => string> = {
@@ -48,7 +54,10 @@ export const qualityText = (code: string): string => TEXT[code]?.() ?? code;
 const SEVERITIES = ['missing', 'incomplete'] as const;
 
 /** Items grouped by severity, what is missing first; a severity with nothing is left out. */
-export const bySeverity = <T extends { severity: string }>(items: T[]): { severity: string; items: T[] }[] =>
-	SEVERITIES.map((severity) => ({ severity, items: items.filter((item) => item.severity === severity) })).filter(
-		(group) => group.items.length
-	);
+export const bySeverity = <T extends { severity: string }>(
+	items: T[]
+): { severity: string; items: T[] }[] =>
+	SEVERITIES.map((severity) => ({
+		severity,
+		items: items.filter((item) => item.severity === severity)
+	})).filter((group) => group.items.length);

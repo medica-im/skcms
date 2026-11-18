@@ -22,10 +22,10 @@
 	 * up once a long label wraps, which most of these do on a phone.
 	 */
 	import { page } from '$app/state';
-	import type { SiteMenuItem } from '$lib/interfaces/siteMenu.interface';
-	import { displayLabel } from '$lib/SiteMenu/siteMenu';
+	import type { SiteMenuItem } from '#lib/interfaces/siteMenu.interface.ts';
+	import { displayLabel } from '#lib/SiteMenu/siteMenu.ts';
 	// Importing itself rather than `<svelte:self>`, which Svelte 5 deprecates.
-	import ParentSiteTree from '$lib/SiteMenu/ParentSiteTree.svelte';
+	import ParentSiteTree from '#lib/SiteMenu/ParentSiteTree.svelte';
 
 	let {
 		items,

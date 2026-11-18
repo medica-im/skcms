@@ -20,10 +20,14 @@ async function openDialog(page: Page) {
 When('I add {string} to the area covered', async ({ page }, place: string) => {
 	await openDialog(page);
 	// Typed as a person would: the name, without the code that tells homonyms apart.
-	await dialog(page).getByRole('searchbox').fill(place.replace(/\s*\(.*\)$/, ''));
+	await dialog(page)
+		.getByRole('searchbox')
+		.fill(place.replace(/\s*\(.*\)$/, ''));
 	const result = page.getByTestId('entry-coverage-found').getByRole('button', { name: place });
 	await result.first().click({ timeout: 8_000 });
-	await expect(dialog(page).getByRole('button', { name: new RegExp(`${place.replace(/[()]/g, '\\$&')}$`) })).toBeVisible();
+	await expect(
+		dialog(page).getByRole('button', { name: new RegExp(`${place.replace(/[()]/g, '\\$&')}$`) })
+	).toBeVisible();
 });
 
 When('I save the area covered', async ({ page }) => {

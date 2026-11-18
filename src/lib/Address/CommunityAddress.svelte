@@ -8,7 +8,7 @@
 		faMapLocationDot,
 		faLocationDot
 	} from '@fortawesome/free-solid-svg-icons';
-	import Distance from '$lib/Directory/Distance.svelte';
+	import Distance from '#lib/Directory/Distance.svelte';
 	let { data } = $props();
 	const displayNavigation = $derived(page.data?.directory?.setting?.list_navigation);
 </script>

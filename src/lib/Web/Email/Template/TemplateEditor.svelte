@@ -9,8 +9,8 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
 	import * as m from '$msgs';
-	import Dialog from '$lib/Web/Dialog.svelte';
-	import CopyButton from '$lib/Web/CopyButton.svelte';
+	import Dialog from '#lib/Web/Dialog.svelte';
+	import CopyButton from '#lib/Web/CopyButton.svelte';
 	import {
 		isDraftChanged,
 		isInviteeField,

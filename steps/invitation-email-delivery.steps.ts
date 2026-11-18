@@ -27,9 +27,18 @@ After({ tags: '@invitation-email-delivery' }, async () => {
 });
 
 /** An invitation, and one recorded attempt at emailing it (mailer.delivery). */
-async function invitationWithDelivery(baseURL: string, which: Which, fields: string, redeemedAt?: number) {
+async function invitationWithDelivery(
+	baseURL: string,
+	which: Which,
+	fields: string,
+	redeemedAt?: number
+) {
 	const name = `Envoi ${which} ${Math.random().toString(36).slice(2, 8)}`;
-	const { uid, email } = await seedInvitee({ siteDomain: new URL(baseURL).hostname, name, redeemedAt });
+	const { uid, email } = await seedInvitee({
+		siteDomain: new URL(baseURL).hostname,
+		name,
+		redeemedAt
+	});
 	seeded[which] = { uid, name };
 	// readOnly: an EmailDelivery is in no cached API payload; the invitations
 	// list is read uncached.
@@ -41,11 +50,19 @@ async function invitationWithDelivery(baseURL: string, which: Which, fields: str
 }
 
 Given('an invitation whose email was refused with {string}', async ({ baseURL }, error: string) => {
-	await invitationWithDelivery(baseURL, 'refused', `status="failed", error=${JSON.stringify(error)}`);
+	await invitationWithDelivery(
+		baseURL,
+		'refused',
+		`status="failed", error=${JSON.stringify(error)}`
+	);
 });
 
 Given('an invitation whose email was sent', async ({ baseURL }) => {
-	await invitationWithDelivery(baseURL, 'sent', `status="sent", provider_message_id="<e2e@mail.example.org>"`);
+	await invitationWithDelivery(
+		baseURL,
+		'sent',
+		`status="sent", provider_message_id="<e2e@mail.example.org>"`
+	);
 });
 
 // Each invitation is rendered twice -- a compact card for narrow screens and
@@ -56,18 +73,22 @@ const row = (page: Page, which: Which) =>
 		.filter({ hasText: seeded[which]!.name })
 		.filter({ visible: true });
 
-Then('the invitation whose email was refused is flagged {string}', async ({ page }, words: string) => {
-	const flag = row(page, 'refused').getByTestId('invitee-email-delivery');
-	await expect(flag).toHaveAttribute('data-state', 'failed');
-	await expect(flag).toHaveText(words);
-});
+Then(
+	'the invitation whose email was refused is flagged {string}',
+	async ({ page }, words: string) => {
+		const flag = row(page, 'refused').getByTestId('invitee-email-delivery');
+		await expect(flag).toHaveAttribute('data-state', 'failed');
+		await expect(flag).toHaveText(words);
+	}
+);
 
 Then('the invitation whose email was sent carries no email warning', async ({ page }) => {
 	await expect(row(page, 'sent')).toBeVisible();
 	await expect(row(page, 'sent').getByTestId('invitee-email-delivery')).toHaveCount(0);
 });
 
-const column = (page: Page, which: Which) => row(page, which).getByTestId('invitee-email-delivery-column');
+const column = (page: Page, which: Which) =>
+	row(page, which).getByTestId('invitee-email-delivery-column');
 
 Then(
 	'in the {string} column the invitation whose email was refused is a red cross leading to its page',
@@ -75,7 +96,10 @@ Then(
 		await expect(page.getByText(header, { exact: true }).filter({ visible: true })).toBeVisible();
 		const cell = column(page, 'refused');
 		await expect(cell).toHaveAttribute('data-state', 'failed');
-		await expect(cell).toHaveAttribute('href', new RegExp(`/web/invite/invitees/${seeded.refused!.uid}$`));
+		await expect(cell).toHaveAttribute(
+			'href',
+			new RegExp(`/web/invite/invitees/${seeded.refused!.uid}$`)
+		);
 		await expect(cell.getByTestId('invitee-email-delivery-cross')).toBeVisible();
 	}
 );

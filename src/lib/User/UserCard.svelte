@@ -1,11 +1,11 @@
 <script lang="ts">
-	import type { User } from '$lib/interfaces/v2/user';
-	import type { Role } from '$lib/interfaces/v2/invitee';
+	import type { User } from '#lib/interfaces/v2/user.ts';
+	import type { Role } from '#lib/interfaces/v2/invitee.ts';
 	import Fa from 'svelte-fa';
 	import { faEnvelope, faUser, faEye } from '@fortawesome/free-solid-svg-icons';
-	import RoleBadge from '$lib/RoleBadge.svelte';
-	import { base } from '$app/paths';
-	import ListDateTime from '$lib/components/DateTime/ListDateTime.svelte';
+	import RoleBadge from '#lib/RoleBadge.svelte';
+	import { base } from '#lib/utils/base.ts';
+	import ListDateTime from '#lib/components/DateTime/ListDateTime.svelte';
 
 	let { user, showLink = true }: { user: User; showLink?: boolean } = $props();
 
@@ -41,8 +41,9 @@
 
 	<!-- Detail Link -->
 	{#if showLink}
-		<a href="{base}/web/users/{user.uid}" class="btn-icon btn-icon-sm variant-ghost-primary">
-			<Fa icon={faEye} />
-		</a>
+		<a
+			href="{base()}/web/users/{user.uid}"
+			class="btn-icon btn-icon-sm variant-ghost-primary"
+		><Fa icon={faEye} /></a>
 	{/if}
 </div>

@@ -2,7 +2,7 @@
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-	import Dialog from '$lib/Web/Dialog.svelte';
+	import Dialog from '#lib/Web/Dialog.svelte';
 
 	let {
 		dialog = $bindable(),

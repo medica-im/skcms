@@ -1,9 +1,10 @@
 <script lang="ts">
 	import Carousel from 'svelte-light-carousel';
-	import { browser } from '$app/environment';
+	import { browser } from '$app/env';
 	import CarouselArrow from './CarouselArrow.svelte';
-	import type { Entry } from '$lib/store/directoryStoreInterface.js';
-	import { base } from '$app/paths';
+	import type { Entry } from '#lib/store/directoryStoreInterface.js';
+	import { resolve } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 
 	let { data }: { data: Entry[] } = $props();
 
@@ -36,14 +37,14 @@
 		return entry.name;
 	}
 	function getLink(entry: Entry) {
-		return `${base}/e/${entry.entrySlug}`;
+		return resolve(`e/${entry.entrySlug}`);
 	}
 	function avatarSrc(entry: Entry) {
 		// The payload's path is root-relative (/media/...), so it needs the
 		// prefix to stay inside this app's namespace rather than landing on
 		// whatever serves the site root.
 		const path = entry.avatar?.lg || entry.avatar?.sm || entry.avatar?.raw;
-		return path ? `${base}${path}` : path;
+		return path ? `${base()}${path}` : path;
 	}
 </script>
 
@@ -73,28 +74,28 @@
 			Covered by features/avatar-access.feature and features/team-carousel.feature.
 		-->
 		{#key slideCount}
-		<Carousel
-			slides={data}
-			key="uid"
-			autoPlay={data.length > 1 ? AUTOPLAY_SECONDS : 0}
-			pauseOnHover
-			containerClass="!flex-row !min-w-0 w-fit items-center justify-center gap-2 sm:gap-4"
-			class="!p-0 w-64 shrink-0"
-		>
-			{#snippet slide({ slide }: { slide: Entry })}
-				<figure class="mx-auto w-full max-w-xs text-center">
-					<a href={getLink(slide)} class="block">
+			<Carousel
+				slides={data}
+				key="uid"
+				autoPlay={data.length > 1 ? AUTOPLAY_SECONDS : 0}
+				pauseOnHover
+				containerClass="!flex-row !min-w-0 w-fit items-center justify-center gap-2 sm:gap-4"
+				class="!p-0 w-64 shrink-0"
+			>
+				{#snippet slide({ slide }: { slide: Entry })}
+					<figure class="mx-auto w-full max-w-xs text-center">
+						<a href={getLink(slide)} class="block">
 						<img class="mx-auto h-auto max-w-full" src={avatarSrc(slide)} alt={slide.name} />
-					</a>
+						</a>
 					<figcaption class="mt-2">
 						<a href={getLink(slide)} class="anchor text-primary">
 							{displayName(slide)}, {getLabels(slide)}
 						</a>
 					</figcaption>
-				</figure>
-			{/snippet}
+					</figure>
+				{/snippet}
 
-			<!--
+				<!--
 				Arrows are opt-in snippets; nothing renders without them. The library
 				renders them after the track, so flex `order` puts prev on the left
 				and next on the right without absolute positioning.
@@ -102,26 +103,26 @@
 				CarouselArrow owns the styling, and the spacers below render through it
 				too so the two cannot drift apart.
 			-->
-			{#snippet prev({ canScrollPrev, prev, a11y })}
-				<CarouselArrow
-					direction="prev"
-					class="order-first"
-					onclick={prev}
-					disabled={!canScrollPrev}
-					{...a11y}
-				/>
-			{/snippet}
+				{#snippet prev({ canScrollPrev, prev, a11y })}
+					<CarouselArrow
+						direction="prev"
+						class="order-first"
+						onclick={prev}
+						disabled={!canScrollPrev}
+						{...a11y}
+					/>
+				{/snippet}
 
-			{#snippet next({ canScrollNext, next, a11y })}
-				<CarouselArrow
-					direction="next"
-					class="order-last"
-					onclick={next}
-					disabled={!canScrollNext}
-					{...a11y}
-				/>
-			{/snippet}
-		</Carousel>
+				{#snippet next({ canScrollNext, next, a11y })}
+					<CarouselArrow
+						direction="next"
+						class="order-last"
+						onclick={next}
+						disabled={!canScrollNext}
+						{...a11y}
+					/>
+				{/snippet}
+			</Carousel>
 		{/key}
 	{:else}
 		{@const entry = data[0]}

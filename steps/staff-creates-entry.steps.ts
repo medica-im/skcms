@@ -45,9 +45,9 @@ When('I start creating an entry', async ({ page }) => {
  * person to describe the place they work at.
  */
 Then('I can create a facility from there', async ({ page }) => {
-	await expect(
-		page.getByRole('button', { name: /Créer un établissement/i }).first()
-	).toBeVisible({ timeout: 8_000 });
+	await expect(page.getByRole('button', { name: /Créer un établissement/i }).first()).toBeVisible({
+		timeout: 8_000
+	});
 });
 
 /** A commune is required by FacilityPost, so borrow one the site already uses. */

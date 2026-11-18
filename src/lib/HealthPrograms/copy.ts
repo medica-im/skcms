@@ -1,5 +1,5 @@
 import * as m from '$msgs';
-import { cptsPostgres } from '$lib/constants';
+import { cptsPostgres } from '#lib/constants.ts';
 
 // The same set of programme links is framed differently depending on what the
 // organization is: an MSP delivers care and presents these as what it offers

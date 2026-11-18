@@ -69,7 +69,8 @@ const FIELD = {
 } as const;
 
 const inAgeRange = (entry: Entry, age: number) =>
-	(entry.age_min == null || entry.age_min <= age) && (entry.age_max == null || age <= entry.age_max);
+	(entry.age_min == null || entry.age_min <= age) &&
+	(entry.age_max == null || age <= entry.age_max);
 
 const anyOf = (known: readonly string[] | null | undefined, chosen: readonly string[]) =>
 	!chosen.length || known == null || chosen.some((value) => known.includes(value));
@@ -77,13 +78,22 @@ const anyOf = (known: readonly string[] | null | undefined, chosen: readonly str
 /** The entries every chosen selector lets through; an entry's unknown facet always passes. */
 export const filterByFacets = (entries: Entry[], selection: FacetSelection): Entry[] => {
 	const { age, access, careLevels, audiences, free, anonymous } = selection;
-	if (age === null && access === null && !careLevels.length && !audiences.length && !free && !anonymous) {
+	if (
+		age === null &&
+		access === null &&
+		!careLevels.length &&
+		!audiences.length &&
+		!free &&
+		!anonymous
+	) {
 		return entries;
 	}
 	return entries.filter(
 		(entry) =>
 			(age === null || inAgeRange(entry, age)) &&
-			(access === null || entry.who_can_contact == null || ACCESS[access].includes(entry.who_can_contact)) &&
+			(access === null ||
+				entry.who_can_contact == null ||
+				ACCESS[access].includes(entry.who_can_contact)) &&
 			anyOf(entry.care_levels, careLevels) &&
 			anyOf(entry.audiences, audiences) &&
 			(!free || entry.free !== false) &&
@@ -97,7 +107,10 @@ const valuesOf = (entry: Entry, key: keyof typeof FIELD): string[] => {
 };
 
 /** The values of a selector that the entries carry, in the vocabulary's order, with how many entries carry each. */
-export const optionsOf = (entries: Entry[], key: keyof typeof FIELD): { value: string; count: number }[] => {
+export const optionsOf = (
+	entries: Entry[],
+	key: keyof typeof FIELD
+): { value: string; count: number }[] => {
 	const counts = new Map<string, number>();
 	for (const entry of entries) {
 		for (const value of new Set(valuesOf(entry, key))) {

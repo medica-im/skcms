@@ -3,9 +3,9 @@
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faQuestion, faXmark } from '@fortawesome/free-solid-svg-icons';
-	import UnknownEmail from '$lib/Auth/UnknownEmail.svelte';
-	import { emojis } from '$lib/Error/error';
-	import { base } from '$app/paths';
+	import UnknownEmail from '#lib/Auth/UnknownEmail.svelte';
+	import { emojis } from '#lib/Error/error.ts';
+	import { base } from '#lib/utils/base.ts';
 
 	let visible: boolean = $state(true);
 	let session = $derived(page.data.session);
@@ -21,7 +21,7 @@
 		{#if unknownRole && visible}
 			<aside class="alert variant-ghost">
 				<div><Fa style="font-size:3em" icon={faQuestion} /></div>
-				<UnknownEmail {session} />
+				<UnknownEmail session={session} />
 				<div class="alert-actions">
 					<button
 						onclick={() => {
@@ -39,8 +39,17 @@
 			</div>
 		{/if}
 		<div class="flex gap-4 mt-6">
-			<a href="{base}/" title={m.ADDRESSBOOK_TITLE()} class="btn variant-ghost-primary">{m.ADDRESSBOOK_TITLE()}</a>
-			<a href="{base}/contact" title="Contact" class="btn variant-ghost-primary">Contact</a>
+			<a
+				href="{base()}/"
+				title={m.ADDRESSBOOK_TITLE()}
+				class="btn variant-ghost-primary"
+			>{m.ADDRESSBOOK_TITLE()}</a>
+
+			<a
+				href="{base()}/contact"
+				title="Contact"
+				class="btn variant-ghost-primary"
+			>Contact</a>
 		</div>
 	{/if}
 </section>

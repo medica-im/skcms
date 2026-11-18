@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import { ORIGIN } from '$lib/utils/origin.ts';
-	import { addressCheckWords } from '$lib/Invitee/emailDelivery';
-	import BatchProgressBar, { type BatchPhase } from '$lib/Invitee/BatchProgressBar.svelte';
+	import { ORIGIN } from '#lib/utils/origin.ts';
+	import { addressCheckWords } from '#lib/Invitee/emailDelivery.ts';
+	import BatchProgressBar, { type BatchPhase } from '#lib/Invitee/BatchProgressBar.svelte';
 	import Fa from 'svelte-fa';
 	import {
 		faArrowLeft,
@@ -16,12 +16,13 @@
 		faExternalLinkAlt,
 		faClockRotateLeft
 	} from '@fortawesome/free-solid-svg-icons';
-	import Select from '$lib/Web/Select.svelte';
+	import Select from '#lib/Web/Select.svelte';
 	import * as m from '$msgs';
-	import type { Role } from '$lib/interfaces/v2/invitee';
+	import type { Role } from '#lib/interfaces/v2/invitee.ts';
 	import type { PageData } from './$types';
-	import { roleLabels } from '$lib/roles';
-	import { base } from '$app/paths';
+	import { roleLabels } from '#lib/roles.ts';
+	import { resolve } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 
 	let { data }: { data: PageData } = $props();
 
@@ -88,7 +89,7 @@
 	let submitError: string = $state('');
 
 	// Derived
-	let columnOptions = $derived(columns.map(c => ({ value: c, label: c })));
+	let columnOptions = $derived(columns.map((c) => ({ value: c, label: c })));
 	// Suspect addresses in the file, before anything is sent (backend
 	// mailer.addresscheck): typos, domains without mail, known bad ones.
 	// Warnings only; the report flags them again after sending.
@@ -104,10 +105,9 @@
 		const formData = new FormData();
 		formData.append('file', file);
 		formData.append('mapping_json', JSON.stringify({ email_column: column }));
-		fetch(`${ORIGIN}/api/v2/batch-invitees/check`, { method: 'POST', credentials: 'include', body: formData })
-			.then((response) => (response.ok ? response.json() : []))
-			.then((rows: AddressCheckRow[]) => {
-				if (request === checkRequest) addressChecks = rows;
+
+		fetch(`${ORIGIN}/api/v2/batch-invitees/check`, { method: 'POST', credentials: 'include', body: formData }).then((response) => response.ok ? response.json() : []).then((rows: AddressCheckRow[]) => {
+			if (request === checkRequest) addressChecks = rows;
 			})
 			.catch((e) => console.error('Checking the addresses failed', e));
 	});
@@ -115,32 +115,27 @@
 	function addressCheckText(check: AddressCheckRow): string {
 		if (check.suggestion) return m.BATCH_INVITEE_CHECK_SUGGEST({ email: check.suggestion });
 		if (check.problem === 'invalid') return m.BATCH_INVITEE_CHECK_INVALID();
-		return (check.problem && addressCheckWords[check.problem]?.()) || '';
+		return check.problem && addressCheckWords[check.problem]?.() || '';
 	}
 
-	let mappingValid = $derived(
-		emailColumn &&
-		(splitName ? (firstNameColumn || lastNameColumn) : true) &&
-		selectedRole &&
-		!tooManyRows
-	);
+	let mappingValid = $derived(emailColumn && (splitName ? firstNameColumn || lastNameColumn : true) && selectedRole && !tooManyRows);
 
 	let previewName = $derived.by(() => {
 		if (!previewRows.length) return ['', ''];
-		return previewRows.map(row => {
+		return previewRows.map((row) => {
 			if (splitName) {
 				const parts = [];
 				if (firstNameColumn && row[firstNameColumn]) parts.push(row[firstNameColumn]);
 				if (lastNameColumn && row[lastNameColumn]) parts.push(row[lastNameColumn]);
 				return parts.join(' ');
 			}
-			return nameColumn ? (row[nameColumn] || '') : '';
+			return nameColumn ? row[nameColumn] || '' : '';
 		});
 	});
 
 	let previewEmail = $derived.by(() => {
 		if (!previewRows.length || !emailColumn) return ['', ''];
-		return previewRows.map(row => row[emailColumn] || '');
+		return previewRows.map((row) => row[emailColumn] || '');
 	});
 
 	async function handleFileSelect() {
@@ -223,23 +218,23 @@
 
 	function startPolling() {
 		pollInterval = setInterval(async () => {
-			try {
+				try {
 				const response = await fetch(
 					`${ORIGIN}/api/v2/batch-invitees/${jobUid}/progress`,
 					{ credentials: 'include' }
 				);
-				if (!response.ok) return;
-				const data = await response.json();
-				progress = data;
+					if (!response.ok) return;
+					const data = await response.json();
+					progress = data;
 
-				if (data.status === 'completed' || data.status === 'cancelled' || data.status === 'failed') {
-					stopPolling();
-					await loadSummary();
-					step = 'done';
+					if (data.status === 'completed' || data.status === 'cancelled' || data.status === 'failed') {
+						stopPolling();
+						await loadSummary();
+						step = 'done';
+					}
+				} catch {
+					// retry on next interval
 				}
-			} catch {
-				// retry on next interval
-			}
 		}, 1000);
 	}
 
@@ -315,11 +310,18 @@
 	<!-- Header -->
 	<header class="mb-6">
 		<div class="flex items-center justify-between mb-4">
-			<a href="{base}/web/invite/invitees" class="btn btn-sm variant-ghost">
+			<a
+				href="{base()}/web/invite/invitees"
+				class="btn btn-sm variant-ghost"
+			>
 				<Fa icon={faArrowLeft} class="mr-2" />
 				{m.BATCH_INVITEE_BACK()}
 			</a>
-			<a href="{base}/web/invite/batch-logs" class="btn btn-sm variant-ghost-surface">
+
+			<a
+				href="{base()}/web/invite/batch-logs"
+				class="btn btn-sm variant-ghost-surface"
+			>
 				<Fa icon={faClockRotateLeft} class="mr-2" />
 				{m.BATCH_INVITEE_LOGS()}
 			</a>
@@ -522,10 +524,9 @@
 			<div class="flex gap-4 justify-end">
 				<button
 					class="btn variant-ghost"
-					onclick={() => goto(`${base}/web/invite/invitees`)}
-				>
-					{m.BATCH_INVITEE_CANCEL()}
-				</button>
+					onclick={() => goto(resolve(`web/invite/invitees`))}
+				>{m.BATCH_INVITEE_CANCEL()}</button>
+
 				<button
 					class="btn variant-filled-primary"
 					disabled={!mappingValid}
@@ -545,7 +546,7 @@
 				{m.BATCH_INVITEE_PROCESSING()}
 			</h3>
 
-			<BatchProgressBar {progress} />
+			<BatchProgressBar progress={progress} />
 
 			<!-- Live counters -->
 			<div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -662,7 +663,7 @@
 									<td>
 										{#if row.existing_invitee_uid}
 											<a
-												href="{base}/web/invite/invitees/{row.existing_invitee_uid}"
+												href="{base()}/web/invite/invitees/{row.existing_invitee_uid}"
 												target="_blank"
 												rel="noopener noreferrer"
 												class="btn btn-sm variant-ghost-warning"
@@ -681,9 +682,10 @@
 
 			<!-- Actions -->
 			<div class="flex gap-4 justify-end">
-				<a href="{base}/web/invite/invitees" class="btn variant-filled-primary">
-					{m.BATCH_INVITEE_VIEW_INVITEES()}
-				</a>
+				<a
+					href="{base()}/web/invite/invitees"
+					class="btn variant-filled-primary"
+				>{m.BATCH_INVITEE_VIEW_INVITEES()}</a>
 			</div>
 		</div>
 	{/if}

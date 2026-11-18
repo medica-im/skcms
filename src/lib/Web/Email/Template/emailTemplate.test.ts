@@ -26,14 +26,24 @@ const IMAGE: EmailImage = {
 
 describe('what the backend refused, in words', () => {
 	it('names the unknown placeholders', () => {
-		const text = problemMessage({ field: 'body', code: 'unknown_placeholder', names: ['invitee_nam', 'x'] });
+		const text = problemMessage({
+			field: 'body',
+			code: 'unknown_placeholder',
+			names: ['invitee_nam', 'x']
+		});
 
 		expect(text).toContain('{{ invitee_nam }}');
 		expect(text).toContain('{{ x }}');
 	});
 
 	it('has a message for every code the backend sends', () => {
-		for (const code of ['syntax', 'unknown_placeholder', 'missing_signin_url', 'mjml_source', 'required']) {
+		for (const code of [
+			'syntax',
+			'unknown_placeholder',
+			'missing_signin_url',
+			'mjml_source',
+			'required'
+		]) {
 			expect(problemMessage({ field: 'body', code, names: [] })).not.toBe('');
 		}
 	});
@@ -45,7 +55,13 @@ describe('what the backend refused, in words', () => {
 	});
 
 	it('explains every refused upload', () => {
-		for (const code of ['too_large', 'unsupported_type', 'not_an_image', 'name_taken', 'name_required']) {
+		for (const code of [
+			'too_large',
+			'unsupported_type',
+			'not_an_image',
+			'name_taken',
+			'name_required'
+		]) {
 			expect(imageErrorMessage(code)).not.toBe(m.EMAIL_IMAGE_ERROR_UNKNOWN());
 		}
 		expect(imageErrorMessage(undefined)).toBe(m.EMAIL_IMAGE_ERROR_UNKNOWN());

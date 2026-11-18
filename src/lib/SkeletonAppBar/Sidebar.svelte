@@ -1,12 +1,12 @@
 <script lang="ts">
 	import * as m from '$msgs';
 	import { page } from '$app/state';
-	import DocsIcon from '$lib/Icon/Icon.svelte';
+	import DocsIcon from '#lib/Icon/Icon.svelte';
 	import { menuNavCats } from '$var/variables.ts';
 	import { AppRail, AppRailTile } from '@skeletonlabs/skeleton';
-	import { variables } from '$lib/utils/constants';
+	import { variables } from '#lib/utils/constants.ts';
 	import MenuNavLinks from './MenuNavLinks.svelte';
-	import ArchiveBadge from '$lib/ArchiveBadge/ArchiveBadge.svelte';
+	import ArchiveBadge from '#lib/ArchiveBadge/ArchiveBadge.svelte';
 
 	let currentRailCategory: string | undefined = $derived(
 		menuNavCats.find((cat) =>

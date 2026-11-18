@@ -26,7 +26,7 @@ const remote = vi.hoisted(() => ({
 }));
 vi.mock('../../../../entry.remote', () => remote);
 vi.mock('$app/navigation', () => ({ invalidate: vi.fn() }));
-vi.mock('$lib/components/Directory/context', () => ({ getEntryUid: () => 'entry-uid' }));
+vi.mock('#lib/components/Directory/context', () => ({ getEntryUid: () => 'entry-uid' }));
 
 /** The schema of `patchCommand` in entry.remote.ts, for the two fields under test. */
 const schema = z.object({
@@ -59,8 +59,20 @@ describe('the schema of the entry patch', () => {
 });
 
 describe.each([
-	{ form: 'third-party payers', Patch: ThirdPartyPayerPatch, Delete: ThirdPartyPayerDelete, field: 'third_party_payer', data: [payers[0]] },
-	{ form: 'payment methods', Patch: PaymentPatch, Delete: PaymentDelete, field: 'payment', data: [methods[0]] }
+	{
+		form: 'third-party payers',
+		Patch: ThirdPartyPayerPatch,
+		Delete: ThirdPartyPayerDelete,
+		field: 'third_party_payer',
+		data: [payers[0]]
+	},
+	{
+		form: 'payment methods',
+		Patch: PaymentPatch,
+		Delete: PaymentDelete,
+		field: 'payment',
+		data: [methods[0]]
+	}
 ])('the $form form', ({ Patch, Delete, field, data }) => {
 	it('sends null when the entry loses them all', async () => {
 		render(Delete, { props: { data } });

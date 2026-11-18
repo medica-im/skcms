@@ -6,8 +6,8 @@
 	import {
 		faCircleQuestion
 	} from '@fortawesome/free-regular-svg-icons';
-	import { removeSpaces } from '$lib/helpers/stringHelpers';
-	import { base } from '$app/paths';
+	import { removeSpaces } from '#lib/helpers/stringHelpers.ts';
+	import { base } from '#lib/utils/base.ts';
 	export let w: string;
 
 	let randString = Math.random().toString(36).substring(2);
@@ -28,21 +28,31 @@
 	{#if dict[w][0] in dict}
 		<h4 class="h4">
 			<dfn><abbr>{w}</abbr> {dict[w][0]}</dfn>
-			<br>
-			{dict[dict[w][0]][0]}
+			<br />
+			{dict[dict[w][0]][0]} 
 			{#if dict[dict[w][0]][1]}
-		<br><a data-sveltekit-reload href="{base}/maison-de-sante/lexique#{removeSpaces(dict[w][0])}">{m.LEARN_MORE()}</a>
-		{/if}
+				<br />
+
+				<a
+					data-sveltekit-reload
+					href="{base()}/maison-de-sante/lexique#{removeSpaces(dict[w][0])}"
+				>{m.LEARN_MORE()}</a>
+			{/if}
 		</h4>
 	{:else}
-	<h4 class="h4">
-		<dfn>{w}</dfn>
-		<br>
-	    {dict[w][0]}
-		{#if dict[w][1]}
-		<br><a data-sveltekit-reload href="{base}/maison-de-sante/lexique#{removeSpaces(w)}">{m.LEARN_MORE()}</a>
-		{/if}
-	</h4>
+		<h4 class="h4">
+			<dfn>{w}</dfn>
+			<br />
+			{dict[w][0]} 
+			{#if dict[w][1]}
+				<br />
+
+				<a
+					data-sveltekit-reload
+					href="{base()}/maison-de-sante/lexique#{removeSpaces(w)}"
+				>{m.LEARN_MORE()}</a>
+			{/if}
+		</h4>
 	{/if}
 	<div class="arrow variant-filled-secondary"></div>
 </div>

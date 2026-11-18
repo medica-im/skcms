@@ -4,7 +4,7 @@
 		DEFAULT_PAGE_SIZE,
 		type SourceEntry, type CloneSortColumn, type SortDirection
 	} from './cloneTable';
-	import { paginate } from '$lib/utils/paginate';
+	import { paginate } from '#lib/utils/paginate.ts';
 
 	/**
 	 * The source instance's entries, to pick from.

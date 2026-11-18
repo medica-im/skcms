@@ -3,9 +3,9 @@
 	import Fa from 'svelte-fa';
 	import { faInfo, faUser, faQuestion, faXmark } from '@fortawesome/free-solid-svg-icons';
 	import { JsonView } from '@zerodevx/svelte-json-view';
-	import { providers } from '$lib/Auth/data.ts';
-	import { roleLabel } from '$lib/roles';
-	import UnknownEmail from '$lib/Auth/UnknownEmail.svelte';
+	import { providers } from '#lib/Auth/data.ts';
+	import { roleLabel } from '#lib/roles.ts';
+	import UnknownEmail from '#lib/Auth/UnknownEmail.svelte';
 	import defaultProfilePicture from '$assets/images/profile/default_profile_picture.png';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 

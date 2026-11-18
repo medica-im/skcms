@@ -92,9 +92,7 @@ describe('svelte-select is only ever used through the wrapper', () => {
 		// what the user picked. Nothing looks wrong on screen, which is what makes
 		// this worth pinning.
 		const wrapper = readFileSync(join(SRC, WRAPPER), 'utf8');
-		const bindable = new Set(
-			[...wrapper.matchAll(/(\w+)\s*=\s*\$bindable\(/g)].map((m) => m[1])
-		);
+		const bindable = new Set([...wrapper.matchAll(/(\w+)\s*=\s*\$bindable\(/g)].map((m) => m[1]));
 
 		const bound = new Set<string>();
 		for (const f of files) {

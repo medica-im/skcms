@@ -2,12 +2,12 @@
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faEuroSign } from '@fortawesome/free-solid-svg-icons';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import CarteVitale from './CarteVitale.svelte';
 	import ThirdPartyPayer from './ThirdPartyPayer.svelte';
 	import Convention from './Convention.svelte';
-	import { getEditMode } from '$lib/components/Directory/context';
-	import type { EntryFull } from '$lib/store/directoryStoreInterface';
+	import { getEditMode } from '#lib/components/Directory/context.ts';
+	import type { EntryFull } from '#lib/store/directoryStoreInterface.ts';
 	let { data }: { data: EntryFull } = $props();
 
 	let cvData = $derived(data.carte_vitale);

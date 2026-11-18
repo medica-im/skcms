@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { base } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 	import * as m from "$msgs";
 </script>
 
@@ -11,10 +11,13 @@
 				<span class="text-danger">{m.ERROR404_OOPS()}</span>
 				{m.ERROR404_PAGENOTFOUND()}
 			</p>
-			<p>
-				{m.ERROR404_DOESNOTEXIST()}
-			</p>
-			<a href="{base}/" class="btn variant-ghost-primary w-min">{m.ERROR404_HOME()}</a>
+
+			<p>{m.ERROR404_DOESNOTEXIST()}</p>
+
+			<a
+				href="{base()}/"
+				class="btn variant-ghost-primary w-min"
+			>{m.ERROR404_HOME()}</a>
 		</div>
 	</div>
 </div>

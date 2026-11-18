@@ -10,10 +10,10 @@ import { page as screen } from 'vitest/browser';
 import { writable } from 'svelte/store';
 import * as m from '$msgs';
 import SelectFacets from './SelectFacets.svelte';
-import { lastQuery } from '$lib/testing/directoryFilter';
-import { makeEntry } from '$lib/store/directoryStore.fixtures';
-import { NO_FACETS } from '$lib/store/facetFilters';
-import { AA_TEXT, inScheme, legibility } from '$lib/testing/contrast.ts';
+import { lastQuery } from '#lib/testing/directoryFilter.ts';
+import { makeEntry } from '#lib/store/directoryStore.fixtures.ts';
+import { NO_FACETS } from '#lib/store/facetFilters.ts';
+import { AA_TEXT, inScheme, legibility } from '#lib/testing/contrast.ts';
 import '../../../app.postcss';
 
 document.body.dataset.theme = 'wintry';
@@ -64,14 +64,20 @@ describe('SelectFacets', () => {
 		mount();
 		await expect.element(screen.getByText(`${m.DIRECTORY_ACCESS_ANYONE()} (1)`)).toBeVisible();
 		await expect.element(screen.getByText(`${m.DIRECTORY_ACCESS_REFERRAL()} (1)`)).toBeVisible();
-		await expect.element(screen.getByText(`${m.DIRECTORY_ACCESS_PROFESSIONALS()} (1)`)).not.toBeInTheDocument();
+		await expect
+			.element(screen.getByText(`${m.DIRECTORY_ACCESS_PROFESSIONALS()} (1)`))
+			.not.toBeInTheDocument();
 	});
 
 	it('never offers how to reach an entry: one picks a resource for a reason, then uses whatever means it offers', async () => {
 		mount();
-		await expect.element(screen.getByText(m.DIRECTORY_ACCESS_ANYONE(), { exact: false })).toBeVisible();
+		await expect
+			.element(screen.getByText(m.DIRECTORY_ACCESS_ANYONE(), { exact: false }))
+			.toBeVisible();
 		await expect.element(screen.getByText(m.DIRECTORY_FACET_MODES())).not.toBeInTheDocument();
-		await expect.element(screen.getByText(m.DIRECTORY_MODE_PHONE(), { exact: false })).not.toBeInTheDocument();
+		await expect
+			.element(screen.getByText(m.DIRECTORY_MODE_PHONE(), { exact: false }))
+			.not.toBeInTheDocument();
 	});
 
 	it('writes a chosen value to the address and leaves the other filters', async () => {
@@ -90,7 +96,10 @@ describe('SelectFacets', () => {
 	it('writes the age', async () => {
 		mount();
 		await screen.getByRole('spinbutton').fill('17');
-		await screen.getByRole('spinbutton').element().dispatchEvent(new Event('change', { bubbles: true }));
+		await screen
+			.getByRole('spinbutton')
+			.element()
+			.dispatchEvent(new Event('change', { bubbles: true }));
 		await expect.poll(() => lastQuery(nav.goto)?.get('age')).toBe('17');
 	});
 
@@ -109,7 +118,9 @@ describe('SelectFacets', () => {
 	it('offers no age reset while no age is set', async () => {
 		mount();
 		await expect.element(screen.getByRole('spinbutton')).toBeVisible();
-		await expect.element(screen.getByRole('button', { name: m.DIRECTORY_FACET_AGE_CLEAR() })).not.toBeInTheDocument();
+		await expect
+			.element(screen.getByRole('button', { name: m.DIRECTORY_FACET_AGE_CLEAR() }))
+			.not.toBeInTheDocument();
 	});
 
 	it('has no clear-all of its own: « Tout effacer » clears every filter', async () => {

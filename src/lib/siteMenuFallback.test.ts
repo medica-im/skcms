@@ -47,12 +47,12 @@ describe('the shared components without a parent site', () => {
 	});
 
 	it('falls back to this app’s own contact and sites links', () => {
-		// `?? base` and `?? true`, so a site with no parent emits exactly the
+		// `?? resolve(...)` and `?? true`, so a site with no parent emits exactly the
 		// URL it emitted before. A bare `siteMenu.footer.contactHref` would be
 		// undefined there, and `href={undefined}` renders a link to the current
 		// page — a dead control rather than a visible error.
 		const mobile = read('src/lib/SkeletonAppBar/MobileSidebar.svelte');
-		expect(mobile).toContain('siteMenu?.footer.contactHref ?? `${base}/contact`');
+		expect(mobile).toContain('siteMenu?.footer.contactHref ?? resolve(`contact`)');
 		expect(mobile).toContain('siteMenu?.footer.showSites ?? true');
 	});
 
@@ -63,8 +63,8 @@ describe('the shared components without a parent site', () => {
 		const appBar = read('src/lib/SkeletonAppBar/SkeletonAppBar.svelte');
 		expect(appBar).toContain('{#if !siteMenu}');
 		expect(appBar).toContain('m.NAVBAR_NAVIGATE()');
-		expect(appBar).toContain('href="{base}/sites"');
-		expect(appBar).toContain('href="{base}/contact"');
+		expect(appBar).toContain('href="{base()}/sites"');
+		expect(appBar).toContain('href="{base()}/contact"');
 	});
 
 	it('reads the menu from skvar, so it is absent unless that site has one', () => {
@@ -83,9 +83,7 @@ describe('the shared components without a parent site', () => {
 		// No site named in the code itself. Comments may name one — explaining
 		// which site forced a decision is the useful half of a comment — so the
 		// check is on the source with them stripped.
-		const code = loader
-			.replace(/\/\*[\s\S]*?\*\//g, '')
-			.replace(/\/\/.*$/gm, '');
+		const code = loader.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
 		expect(code).not.toMatch(/unipa|gadagne|santelyon|annuaire\.medica/i);
 	});
 
@@ -93,11 +91,10 @@ describe('the shared components without a parent site', () => {
 		// The programme menu that the standalone sites drive from
 		// $var/variables.ts is a separate mechanism, and this feature must not
 		// have touched it.
-		const files = execFileSync(
-			'git',
-			['diff', '--name-only', 'main...HEAD'],
-			{ cwd: ROOT, encoding: 'utf8' }
-		)
+		const files = execFileSync('git', ['diff', '--name-only', 'main...HEAD'], {
+			cwd: ROOT,
+			encoding: 'utf8'
+		})
 			.split('\n')
 			.filter(Boolean);
 

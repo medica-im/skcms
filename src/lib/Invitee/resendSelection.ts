@@ -2,7 +2,7 @@
  * Which invitations a reminder may go to, and which start ticked.
  * The rules and why: see resendSelection.test.ts.
  */
-import type { Invitee } from '$lib/interfaces/v2/invitee';
+import type { Invitee } from '#lib/interfaces/v2/invitee.ts';
 import { inviteeStatusOf, needsCheck } from './inviteeFilter';
 
 const DAY = 86_400_000;
@@ -14,11 +14,16 @@ export type ResendEligibility =
 	| { sendable: true; preselected: true }
 	| { sendable: true; preselected: false; excludedBecause: 'recent' };
 
-export function resendEligibility(invitee: Invitee, now: number, resendAfterDays: number): ResendEligibility {
+export function resendEligibility(
+	invitee: Invitee,
+	now: number,
+	resendAfterDays: number
+): ResendEligibility {
 	const status = inviteeStatusOf(invitee);
 	if (status !== 'active') return { sendable: false, reason: status };
 	const delivery = invitee.emailDelivery;
-	if (delivery?.status === 'queued' && !delivery.timedOut) return { sendable: false, reason: 'queued' };
+	if (delivery?.status === 'queued' && !delivery.timedOut)
+		return { sendable: false, reason: 'queued' };
 	if (needsCheck(invitee)) return { sendable: false, reason: 'address' };
 
 	const arrived = delivery && delivery.status !== 'failed' && !delivery.timedOut;
@@ -28,7 +33,11 @@ export function resendEligibility(invitee: Invitee, now: number, resendAfterDays
 	return { sendable: true, preselected: true };
 }
 
-export function initialResendSelection(invitees: Invitee[], now: number, resendAfterDays: number): Set<string> {
+export function initialResendSelection(
+	invitees: Invitee[],
+	now: number,
+	resendAfterDays: number
+): Set<string> {
 	return new Set(
 		invitees
 			.filter((invitee) => {

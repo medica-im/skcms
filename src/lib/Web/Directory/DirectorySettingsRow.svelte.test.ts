@@ -23,12 +23,12 @@ vi.mock('../../../directory.remote', () => remote);
 const state = vi.hoisted(() => ({ page: { data: { user: { role: 'superuser' } } } }));
 vi.mock('$app/state', () => state);
 vi.mock('$app/navigation', () => ({ invalidate: vi.fn() }));
-vi.mock('$lib/Web/EffectorTypeSelect.svelte', async () => ({
+vi.mock('#lib/Web/EffectorTypeSelect.svelte', async () => ({
 	default: (await import('../Entry/EffectorTypeSelectStub.svelte')).default
 }));
 
 import DirectorySettingsRow from './DirectorySettingsRow.svelte';
-import type { DirectorySettings } from '$lib/interfaces/v2/directory';
+import type { DirectorySettings } from '#lib/interfaces/v2/directory.ts';
 
 const directory = (overrides: Partial<DirectorySettings> = {}): DirectorySettings => ({
 	uid: 'd2',
@@ -59,7 +59,9 @@ describe('DirectorySettingsRow: who may see it', () => {
 	it('says the main directory is always public, and offers no choice', async () => {
 		render(DirectorySettingsRow, { props: { directory: directory({ main: true }) } });
 
-		await expect.element(page.getByText('Annuaire principal du site : toujours public.')).toBeVisible();
+		await expect
+			.element(page.getByText('Annuaire principal du site : toujours public.'))
+			.toBeVisible();
 		await expect.element(selector()).not.toBeInTheDocument();
 	});
 
@@ -69,7 +71,10 @@ describe('DirectorySettingsRow: who may see it', () => {
 
 		await selector().selectOptions('staff');
 
-		expect(remote.setDirectoryMinimumRole).toHaveBeenCalledWith({ uid: 'd2', minimum_role: 'staff' });
+		expect(remote.setDirectoryMinimumRole).toHaveBeenCalledWith({
+			uid: 'd2',
+			minimum_role: 'staff'
+		});
 		await expect.element(page.getByTestId('minimum-role-saved')).toBeVisible();
 	});
 

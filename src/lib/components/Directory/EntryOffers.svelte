@@ -24,9 +24,9 @@
 		type IconDefinition
 	} from '@fortawesome/free-solid-svg-icons';
 	import { invalidate } from '$app/navigation';
-	import Dialog from '$lib/Web/Dialog.svelte';
+	import Dialog from '#lib/Web/Dialog.svelte';
 	import { patchCommand } from '../../../entry.remote';
-	import { OFFERS, type EntryFacets } from '$lib/store/directoryStoreInterface.ts';
+	import { OFFERS, type EntryFacets } from '#lib/store/directoryStoreInterface.ts';
 
 	/**
 	 * What the entry offers the person who comes, as short chips with an icon; in edit mode,

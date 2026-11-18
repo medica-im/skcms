@@ -24,7 +24,6 @@ const editFacilityButton = (page: import('@playwright/test').Page) =>
 	page.getByRole('button', { name: /Modifier l'établissement/i }).first();
 const openDialog = (page: import('@playwright/test').Page) => page.locator('dialog[open]');
 
-
 /** Per-scenario state. */
 /**
  * uid/slug/status/body live in facilityContext so that steps shared with other
@@ -105,7 +104,9 @@ print("STAFF_LINKED")
 `;
 
 async function linkStaff(link: StaffLink, uid: string) {
-	const out = await djangoShell(`from neomodel import db\n${staffLinkPython(link, JSON.stringify(uid))}`);
+	const out = await djangoShell(
+		`from neomodel import db\n${staffLinkPython(link, JSON.stringify(uid))}`
+	);
 	if (!out.includes('STAFF_LINKED')) throw new Error(`could not link ${link}: ${out}`);
 }
 
@@ -319,22 +320,25 @@ When('I open the facility page for that facility', async ({ page }) => {
 
 // --- The button --------------------------------------------------------------
 
-Then('I see the {string} button under the edit facility button', async ({ page }, label: string) => {
-	expect(label).toBe('add picture');
-	await enterEditMode(page);
-	const edit = editFacilityButton(page);
-	const add = addPictureButton(page);
-	await expect(edit).toBeVisible({ timeout: 8_000 });
-	await expect(add).toBeVisible({ timeout: 8_000 });
+Then(
+	'I see the {string} button under the edit facility button',
+	async ({ page }, label: string) => {
+		expect(label).toBe('add picture');
+		await enterEditMode(page);
+		const edit = editFacilityButton(page);
+		const add = addPictureButton(page);
+		await expect(edit).toBeVisible({ timeout: 8_000 });
+		await expect(add).toBeVisible({ timeout: 8_000 });
 
-	// "Under" is the point of the placement, so assert the geometry rather than
-	// merely that both buttons exist somewhere on the page.
-	const editBox = await edit.boundingBox();
-	const addBox = await add.boundingBox();
-	expect(editBox, 'edit button has no box').toBeTruthy();
-	expect(addBox, 'add picture button has no box').toBeTruthy();
-	expect(addBox!.y).toBeGreaterThan(editBox!.y);
-});
+		// "Under" is the point of the placement, so assert the geometry rather than
+		// merely that both buttons exist somewhere on the page.
+		const editBox = await edit.boundingBox();
+		const addBox = await add.boundingBox();
+		expect(editBox, 'edit button has no box').toBeTruthy();
+		expect(addBox, 'add picture button has no box').toBeTruthy();
+		expect(addBox!.y).toBeGreaterThan(editBox!.y);
+	}
+);
 
 Then('I do not see the {string} button', async ({ page }, label: string) => {
 	expect(label).toBe('add picture');
@@ -347,9 +351,9 @@ Then('I do not see the edit facility button', async ({ page }) => {
 
 Then('the button offers to modify the picture rather than add one', async ({ page }) => {
 	await enterEditMode(page);
-	await expect(page.getByRole('button', { name: /Modifier la photo du lieu/i }).first()).toBeVisible(
-		{ timeout: 8_000 }
-	);
+	await expect(
+		page.getByRole('button', { name: /Modifier la photo du lieu/i }).first()
+	).toBeVisible({ timeout: 8_000 });
 	await expect(page.getByRole('button', { name: /Ajouter une photo du lieu/i })).toHaveCount(0);
 });
 
@@ -362,12 +366,18 @@ When('I open the place picture dialog', async ({ page }) => {
 });
 
 Then('the dialog explains what to photograph', async ({ page }) => {
-	await expect(openDialog(page).getByText(/bâtiment|entrée/i).first()).toBeVisible();
+	await expect(
+		openDialog(page)
+			.getByText(/bâtiment|entrée/i)
+			.first()
+	).toBeVisible();
 });
 
 Then('the dialog offers a description field for the image', async ({ page }) => {
 	await expect(
-		openDialog(page).getByText(/Description de l'image/i).first()
+		openDialog(page)
+			.getByText(/Description de l'image/i)
+			.first()
 	).toBeVisible();
 });
 
@@ -439,24 +449,30 @@ When('I upload a facility picture through the API', async ({ page, baseURL }) =>
 	ctx.status = result.status;
 });
 
-When('I upload a {string} facility picture through the API', async ({ page, baseURL }, shape: string) => {
-	const facility = await aFacility();
-	ctx.uid = facility.uid;
-	const [width, height] = SHAPES[shape];
-	await page.goto('/', { waitUntil: 'domcontentloaded' });
-	const result = await uploadThroughApi(page, facility.uid, width, height, basePathOf(baseURL));
-	ctx.status = result.status;
-	ctx.body = result.body;
-});
+When(
+	'I upload a {string} facility picture through the API',
+	async ({ page, baseURL }, shape: string) => {
+		const facility = await aFacility();
+		ctx.uid = facility.uid;
+		const [width, height] = SHAPES[shape];
+		await page.goto('/', { waitUntil: 'domcontentloaded' });
+		const result = await uploadThroughApi(page, facility.uid, width, height, basePathOf(baseURL));
+		ctx.status = result.status;
+		ctx.body = result.body;
+	}
+);
 
-When('I upload a facility picture measuring {int}x{int}', async ({ page, baseURL }, w: number, h: number) => {
-	const facility = await aFacility();
-	ctx.uid = facility.uid;
-	await page.goto('/', { waitUntil: 'domcontentloaded' });
-	const result = await uploadThroughApi(page, facility.uid, w, h, basePathOf(baseURL));
-	ctx.status = result.status;
-	ctx.body = result.body;
-});
+When(
+	'I upload a facility picture measuring {int}x{int}',
+	async ({ page, baseURL }, w: number, h: number) => {
+		const facility = await aFacility();
+		ctx.uid = facility.uid;
+		await page.goto('/', { waitUntil: 'domcontentloaded' });
+		const result = await uploadThroughApi(page, facility.uid, w, h, basePathOf(baseURL));
+		ctx.status = result.status;
+		ctx.body = result.body;
+	}
+);
 
 /**
  * Makes the staff test user the owner of an entry at a facility, so the
@@ -573,7 +589,9 @@ When('I write a description for the picture', async ({ page }) => {
 
 /** The control that commits the change, whatever it ends up being called. */
 const saveButton = (page: import('@playwright/test').Page) =>
-	openDialog(page).getByRole('button', { name: /Valider|Envoyer|Enregistrer/i }).first();
+	openDialog(page)
+		.getByRole('button', { name: /Valider|Envoyer|Enregistrer/i })
+		.first();
 
 Then('the dialog offers to save the change', async ({ page }) => {
 	const button = saveButton(page);

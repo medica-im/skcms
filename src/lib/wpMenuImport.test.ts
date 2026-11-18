@@ -91,7 +91,14 @@ const NAV_HTML = `
  * Returns the parsed tree the script emits as JSON.
  */
 function runImport(html: string, existing?: unknown) {
-	const args = [SCRIPT, '--emit-json', '--site-url', 'https://dev.unipa.fr', '--base-path', '/annuaire'];
+	const args = [
+		SCRIPT,
+		'--emit-json',
+		'--site-url',
+		'https://dev.unipa.fr',
+		'--base-path',
+		'/annuaire'
+	];
 	if (existing !== undefined) args.push('--merge-json', JSON.stringify(existing));
 	const out = execFileSync('python3', args, { input: html, encoding: 'utf8' });
 	return JSON.parse(out);
@@ -269,14 +276,14 @@ describe('re-running the import over a curated file', () => {
 
 describe('how a parent-site label is shown', () => {
 	it('sentence-cases a shouted label', async () => {
-		const { displayLabel } = await import('$lib/SiteMenu/siteMenu');
+		const { displayLabel } = await import('#lib/SiteMenu/siteMenu.ts');
 		expect(displayLabel('QUI SOMMES-NOUS ?')).toBe('Qui sommes-nous ?');
 		expect(displayLabel('BOÎTE À OUTILS')).toBe('Boîte à outils');
 	});
 
 	it('leaves an acronym in capitals', () => {
 		// "Ipa" reads as a mistake: it is the profession the whole site is about.
-		return import('$lib/SiteMenu/siteMenu').then(({ displayLabel }) => {
+		return import('#lib/SiteMenu/siteMenu.ts').then(({ displayLabel }) => {
 			expect(displayLabel('IPA : UN MÉTIER INNOVANT')).toBe('IPA : un métier innovant');
 		});
 	});
@@ -284,7 +291,7 @@ describe('how a parent-site label is shown', () => {
 	it('capitalises the first letter even when it is accented', async () => {
 		// toUpperCase on a lone accented char is the kind of thing that works in
 		// one locale and not another; pinning it is cheaper than reasoning twice.
-		const { displayLabel } = await import('$lib/SiteMenu/siteMenu');
+		const { displayLabel } = await import('#lib/SiteMenu/siteMenu.ts');
 		expect(displayLabel('ÉVÉNEMENTS')).toBe('Événements');
 	});
 });
@@ -306,17 +313,15 @@ describe('the unipa theme meets the contrast bar', () => {
 		const v = c / 255;
 		return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
 	};
-	const luminance = ([r, g, b]: number[]) =>
-		0.2126 * srgb(r) + 0.7152 * srgb(g) + 0.0722 * srgb(b);
+	const luminance = ([r, g, b]: number[]) => 0.2126 * srgb(r) + 0.7152 * srgb(g) + 0.0722 * srgb(b);
 	const contrast = (a: number[], b: number[]) => {
 		const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
 		return (hi + 0.05) / (lo + 0.05);
 	};
-	const token = (theme: Record<string, string>, name: string) =>
-		theme[name].split(' ').map(Number);
+	const token = (theme: Record<string, string>, name: string) => theme[name].split(' ').map(Number);
 
 	it('keeps link text readable on its own light surface', async () => {
-		const { unipaTheme } = await import('$lib/themes/unipa');
+		const { unipaTheme } = await import('#lib/themes/unipa.ts');
 		const p = unipaTheme.properties as Record<string, string>;
 		// `.anchor` in light mode, on the lightest surface the drawer uses.
 		const ratio = contrast(token(p, '--color-primary-700'), token(p, '--color-surface-50'));
@@ -324,7 +329,7 @@ describe('the unipa theme meets the contrast bar', () => {
 	});
 
 	it('keeps link text readable on its own dark surface', async () => {
-		const { unipaTheme } = await import('$lib/themes/unipa');
+		const { unipaTheme } = await import('#lib/themes/unipa.ts');
 		const p = unipaTheme.properties as Record<string, string>;
 		// `.anchor` switches to primary-500 in dark mode.
 		const ratio = contrast(token(p, '--color-primary-500'), token(p, '--color-surface-800'));
@@ -334,10 +339,11 @@ describe('the unipa theme meets the contrast bar', () => {
 	it('keeps the primary ramp getting darker, step by step', async () => {
 		// The fix darkened 600-900 by hand. A ramp that doubles back would make
 		// some `variant-*` pairing unreadable somewhere else in the app.
-		const { unipaTheme } = await import('$lib/themes/unipa');
+		const { unipaTheme } = await import('#lib/themes/unipa.ts');
 		const p = unipaTheme.properties as Record<string, string>;
-		const steps = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900]
-			.map((n) => luminance(token(p, `--color-primary-${n}`)));
+		const steps = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900].map((n) =>
+			luminance(token(p, `--color-primary-${n}`))
+		);
 		for (let i = 1; i < steps.length; i++) {
 			expect(steps[i]).toBeLessThan(steps[i - 1]);
 		}
@@ -366,11 +372,15 @@ describe('the app’s own pages in the drawer', () => {
 			{ label: 'ACCUEIL', href: 'https://p.example/', external: true },
 			{ label: 'CACHÉ', href: 'https://p.example/cache/', external: true, hidden: true }
 		],
-		footer: { showSites: false, contactHref: 'https://p.example/contact/', legalHref: 'mentions-legales' }
+		footer: {
+			showSites: false,
+			contactHref: 'https://p.example/contact/',
+			legalHref: 'mentions-legales'
+		}
 	};
 
 	it('appends the directory and its legal notice, and marks them as ours', async () => {
-		const { menuWithOwnPages } = await import('$lib/SiteMenu/siteMenu');
+		const { menuWithOwnPages } = await import('#lib/SiteMenu/siteMenu.ts');
 		const items = menuWithOwnPages('/annuaire', 'Annuaire', 'Mentions légales', MENU as never);
 		const own = items[items.length - 1];
 
@@ -386,7 +396,7 @@ describe('the app’s own pages in the drawer', () => {
 		// Appended, never merged into the scraped tree: the curated file has to
 		// stay a faithful copy of what the parent site publishes. Hidden entries
 		// are still dropped on the way through.
-		const { menuWithOwnPages } = await import('$lib/SiteMenu/siteMenu');
+		const { menuWithOwnPages } = await import('#lib/SiteMenu/siteMenu.ts');
 		const items = menuWithOwnPages('/annuaire', 'Annuaire', 'Mentions légales', MENU as never);
 
 		expect(items.map((i) => i.label)).toEqual(['ACCUEIL', 'Annuaire']);
@@ -395,7 +405,7 @@ describe('the app’s own pages in the drawer', () => {
 	it('returns just the parent menu on a site that has none', async () => {
 		// Every site but the embedded one. Nothing to append, and nothing that
 		// throws for trying.
-		const { menuWithOwnPages } = await import('$lib/SiteMenu/siteMenu');
+		const { menuWithOwnPages } = await import('#lib/SiteMenu/siteMenu.ts');
 		expect(menuWithOwnPages('', 'Annuaire', 'Mentions légales', null)).toEqual([]);
 	});
 });

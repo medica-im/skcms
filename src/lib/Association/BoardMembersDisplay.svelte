@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import type { BoardMember, MembershipCategory } from '$lib/interfaces/v2/association';
-	import type { Entry } from '$lib/store/directoryStoreInterface';
+	import type { BoardMember, MembershipCategory } from '#lib/interfaces/v2/association.ts';
+	import type { Entry } from '#lib/store/directoryStoreInterface.ts';
 	import MemberCard from './MemberCard.svelte';
 
 	let {

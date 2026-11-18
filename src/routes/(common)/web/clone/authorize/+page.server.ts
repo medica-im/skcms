@@ -1,5 +1,5 @@
 import { redirect } from '@sveltejs/kit';
-import { base } from '$app/paths';
+import { resolve } from '$app/paths';
 import type { PageServerLoad } from './$types';
 
 /**
@@ -13,7 +13,7 @@ import type { PageServerLoad } from './$types';
  */
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const session = await locals.auth();
-	if (!session) redirect(303, `${base}/signin?redirectTo=${url.pathname}${url.search}`);
+	if (!session) redirect(303, resolve(`signin?redirectTo=${url.pathname}${url.search}`));
 	// The target has to be an absolute https origin, checked here rather than
 	// trusted from the query string. Empty or relative, the browser resolves
 	// `${target}${returnTo}` against the current document and produces a
@@ -35,14 +35,14 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			: 'No target instance was given — open this page from the clone wizard.';
 	}
 
-	const returnTo = url.searchParams.get('return') ?? `${base}/web/clone/callback`;
+	const returnTo = url.searchParams.get('return') ?? resolve(`web/clone/callback`);
 	return {
 		session,
 		target,
 		targetError,
 		// A path on the target, never an absolute URL: an attacker-supplied
 		// return would otherwise carry the token to a host of their choosing.
-		returnTo: returnTo.startsWith('/') ? returnTo : `${base}/web/clone/callback`,
+		returnTo: returnTo.startsWith('/') ? returnTo : resolve(`web/clone/callback`),
 		instance: url.searchParams.get('instance') ?? '',
 		sourceDirectory: url.searchParams.get('directory') ?? ''
 	};

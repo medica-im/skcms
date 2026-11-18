@@ -1,7 +1,7 @@
 import { getRequestEvent, command } from '$app/server';
 import * as z from 'zod';
-import { authReq } from '$lib/utils/request.ts';
-import { variables } from '$lib/utils/constants.ts';
+import { authReq } from '#lib/utils/request.ts';
+import { variables } from '#lib/utils/constants.ts';
 
 const Uid = z.string().regex(/^[0-9a-fA-F]{32}$/);
 const Time = z.string().regex(/^\d{2}:\d{2}$/);
@@ -11,10 +11,7 @@ const Schedule = z.object({
 	channel: z.enum(['on_site', 'phone', 'sms', 'online']),
 	label: z.nullable(z.string().max(100)),
 	holidays: z.enum(['closed', 'open']),
-	days: z.record(
-		z.string().regex(/^[1-7]$/),
-		z.array(z.object({ opens: Time, closes: Time }))
-	)
+	days: z.record(z.string().regex(/^[1-7]$/), z.array(z.object({ opens: Time, closes: Time })))
 });
 
 const outcome = async (response: Response) => {

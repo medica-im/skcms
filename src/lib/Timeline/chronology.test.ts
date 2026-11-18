@@ -21,7 +21,10 @@ function chronology() {
 			type: 'title',
 			value: {
 				text: { headline: 'Maison de santé', text: 'Depuis 2012' },
-				media: { url: `${OLD}/seminaire.original.jpg`, thumbnail: `${OLD}/seminaire.max-165x165.jpg` }
+				media: {
+					url: `${OLD}/seminaire.original.jpg`,
+					thumbnail: `${OLD}/seminaire.max-165x165.jpg`
+				}
 			}
 		},
 		{
@@ -31,7 +34,10 @@ function chronology() {
 					start_date: date(2013, 1, 1),
 					end_date: date(2015, 9, 30),
 					text: { headline: 'Construction' },
-					media: { url: `${OLD}/chantier.original.jpg`, thumbnail: `${OLD}/chantier.max-165x165.jpg` }
+					media: {
+						url: `${OLD}/chantier.original.jpg`,
+						thumbnail: `${OLD}/chantier.max-165x165.jpg`
+					}
 				},
 				{
 					start_date: date(2016, 6, 1),
@@ -60,7 +66,13 @@ describe('toTimelineData', () => {
 
 	it('gives TimelineJS an empty string for every date part that is null', () => {
 		const [construction] = toTimelineData(chronology()).events;
-		expect(construction.start_date).toMatchObject({ year: 2013, month: 1, day: 1, hour: '', millisecond: '' });
+		expect(construction.start_date).toMatchObject({
+			year: 2013,
+			month: 1,
+			day: 1,
+			hour: '',
+			millisecond: ''
+		});
 		expect(construction.end_date).toMatchObject({ year: 2015, hour: '' });
 	});
 

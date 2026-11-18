@@ -24,7 +24,9 @@ describe('currentSlugFor', () => {
 		expect(await currentSlugFor('https://api.example.org', 'dupont-jean-mg-69', fetchFn)).toBe(
 			'dupont-jean-ipa-69'
 		);
-		expect(fetchFn).toHaveBeenCalledWith('https://api.example.org/api/v2/entry-slugs/dupont-jean-mg-69');
+		expect(fetchFn).toHaveBeenCalledWith(
+			'https://api.example.org/api/v2/entry-slugs/dupont-jean-mg-69'
+		);
 	});
 
 	it('gives nothing for a slug that was never an entry’s', async () => {
@@ -34,7 +36,9 @@ describe('currentSlugFor', () => {
 	it('gives nothing when the answer is the same slug, so a page cannot redirect to itself', async () => {
 		const fetchFn = answering(200, { uid: 'u1', slug: 'dupont-jean-mg-69' });
 
-		expect(await currentSlugFor('https://api.example.org', 'dupont-jean-mg-69', fetchFn)).toBeNull();
+		expect(
+			await currentSlugFor('https://api.example.org', 'dupont-jean-mg-69', fetchFn)
+		).toBeNull();
 	});
 
 	it('gives nothing when the lookup itself fails', async () => {
@@ -60,7 +64,9 @@ describe('currentSlugFor', () => {
  */
 describe('recreateEntryHref', () => {
 	it('opens the creation page with the place and the person', () => {
-		expect(recreateEntryHref('/annuaire', 'f1', 'p1')).toBe('/annuaire/web/entry?facility=f1&effector=p1');
+		expect(recreateEntryHref('/annuaire', 'f1', 'p1')).toBe(
+			'/annuaire/web/entry?facility=f1&effector=p1'
+		);
 	});
 
 	it('works at the root of a site', () => {
@@ -97,7 +103,9 @@ describe('lockedExplanation', () => {
 	});
 
 	it('says when the creation date is unknown', () => {
-		expect(lockedExplanation({ reason: 'no_date', window_days: 30 })).toBe(m.ENTRY_TYPE_EDIT_NO_DATE());
+		expect(lockedExplanation({ reason: 'no_date', window_days: 30 })).toBe(
+			m.ENTRY_TYPE_EDIT_NO_DATE()
+		);
 	});
 });
 
@@ -113,18 +121,28 @@ describe('creationPrefill', () => {
 		[`${api}/effectors/p1`]: { uid: 'p1', name_fr: 'Jean Dupont' }
 	};
 	const fetchFn = vi.fn(async (url: string) =>
-		url in answers ? new Response(JSON.stringify(answers[url])) : new Response(null, { status: 404 })
+		url in answers
+			? new Response(JSON.stringify(answers[url]))
+			: new Response(null, { status: 404 })
 	);
 
 	it('gives the facility as a choice and the person as they are', async () => {
-		const prefill = await creationPrefill(api, new URLSearchParams('facility=f1&effector=p1'), fetchFn);
+		const prefill = await creationPrefill(
+			api,
+			new URLSearchParams('facility=f1&effector=p1'),
+			fetchFn
+		);
 
 		expect(prefill.facility).toEqual({ label: 'Cabinet du centre', value: 'f1' });
 		expect(prefill.effector).toEqual({ uid: 'p1', name_fr: 'Jean Dupont' });
 	});
 
 	it('leaves out what is not found', async () => {
-		const prefill = await creationPrefill(api, new URLSearchParams('facility=nope&effector=p1'), fetchFn);
+		const prefill = await creationPrefill(
+			api,
+			new URLSearchParams('facility=nope&effector=p1'),
+			fetchFn
+		);
 
 		expect(prefill.facility).toBeUndefined();
 		expect(prefill.effector?.uid).toBe('p1');

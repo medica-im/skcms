@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { base } from '$app/paths';
+import { resolve } from '$app/paths';
+
 import { createEntriesMapData, createFacilitiesMapData, createMapData2 } from './mapData';
 
 /**
@@ -41,14 +42,14 @@ const popupFor = (e: ReturnType<typeof entry>, orgCategory: string | null = null
 
 describe('the address book map links to entries by their unique slug', () => {
 	it('points a marker at /e/<entrySlug>', () => {
-		expect(popupFor(entry())).toBe(`${base}/e/paul-bartoli-mg-69`);
+		expect(popupFor(entry())).toBe(resolve(`e/paul-bartoli-mg-69`));
 	});
 
 	// The organization category used to pick between two URL shapes. It has no
 	// bearing on where an entry lives, so the same entry gets the same link
 	// whoever is asking.
 	it.each([['cpts'], ['msp'], [null]])('is the same link for a %s organization', (category) => {
-		expect(popupFor(entry(), category as string | null)).toBe(`${base}/e/paul-bartoli-mg-69`);
+		expect(popupFor(entry(), category as string | null)).toBe(resolve(`e/paul-bartoli-mg-69`));
 	});
 
 	// The parts the old scheme was composed from are all still on the entry, so
@@ -64,8 +65,8 @@ describe('the address book map links to entries by their unique slug', () => {
 	// /e/undefined is a 404 that looks like a routing bug. Leave it out instead.
 	it('omits the link rather than pointing at /e/undefined', () => {
 		const text =
-			createEntriesMapData([entry({ entrySlug: undefined }) as never], false, null, null)[0]
-				.popup?.text ?? '';
+			createEntriesMapData([entry({ entrySlug: undefined }) as never], false, null, null)[0].popup
+				?.text ?? '';
 		expect(text).not.toContain('/e/undefined');
 		expect(text).not.toContain('href');
 		// The name is still worth showing: a marker with no link is better than
@@ -79,7 +80,9 @@ describe('the address book map links to entries by their unique slug', () => {
  * not there: it gets no marker, so the map never says the 3114 is at the hospital.
  */
 describe('the address book map leaves out entries without premises', () => {
-	const line = entry({ effector_type: { name: 'ligne d’écoute', slug: 'ligne-ecoute', immaterial: true } });
+	const line = entry({
+		effector_type: { name: 'ligne d’écoute', slug: 'ligne-ecoute', immaterial: true }
+	});
 
 	it('draws no marker for an entry of an immaterial type', () => {
 		expect(createEntriesMapData([line, entry()] as never, false, null, null)).toHaveLength(1);
@@ -137,7 +140,7 @@ describe('a facility marker links to the facility page only when asked', () => {
 	});
 
 	it('points at /sites/<slug> when anchor is true', () => {
-		expect(hrefOf(facilityPopup(facility(), true))).toBe(`${base}/sites/pole-sante-gare`);
+		expect(hrefOf(facilityPopup(facility(), true))).toBe(resolve(`sites/pole-sante-gare`));
 	});
 
 	// The label is what the unlinked popup showed, so it stays the link text:
@@ -155,7 +158,7 @@ describe('a facility marker links to the facility page only when asked', () => {
 	// so a facility whose slug never arrived still reaches its page.
 	it('addresses a facility with no slug by its uid', () => {
 		expect(hrefOf(facilityPopup(facility({ slug: null, uid: 'a4f1c2e' }), true))).toBe(
-			`${base}/sites/a4f1c2e`
+			resolve(`sites/a4f1c2e`)
 		);
 	});
 
@@ -192,10 +195,7 @@ describe('a facility marker links to the facility page only when asked', () => {
  * would drag in MapLibre, the carousel and page.data to answer it.
  */
 describe('Facility.svelte asks for linked markers by default', () => {
-	const source = readFileSync(
-		new URL('../../Facility/Facility.svelte', import.meta.url),
-		'utf-8'
-	);
+	const source = readFileSync(new URL('../../Facility/Facility.svelte', import.meta.url), 'utf-8');
 
 	it('defaults mapAnchor to true', () => {
 		expect(source).toMatch(/mapAnchor\s*=\s*true/);
@@ -239,9 +239,10 @@ describe('a marker without a position is left off the map', () => {
 	});
 
 	it.each(noPosition)('skips a facility with %s', (_, address) => {
-		const points = createFacilitiesMapData(
-			[facility({ address: { ...facility().address, ...address } }), facility()] as never
-		);
+		const points = createFacilitiesMapData([
+			facility({ address: { ...facility().address, ...address } }),
+			facility()
+		] as never);
 		expect(points).toHaveLength(1);
 	});
 
@@ -251,6 +252,8 @@ describe('a marker without a position is left off the map', () => {
 
 	it('still draws a single facility that has a position', () => {
 		const location = { latitude: '43.492949', longitude: '-1.463151' };
-		expect(createMapData2({ name: 'Pôle Santé Gare', zoom: 17, location } as never)).toHaveLength(1);
+		expect(createMapData2({ name: 'Pôle Santé Gare', zoom: 17, location } as never)).toHaveLength(
+			1
+		);
 	});
 });

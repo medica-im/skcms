@@ -4,7 +4,8 @@ import { DAY_NAMES } from './scheduleEditor.ts';
 const capitalized = (text: string) => `${text[0].toUpperCase()}${text.slice(1)}`;
 
 export const formatPeriods = (periods: Period[]): string => {
-	if (periods.length === 1 && periods[0].opens === '00:00' && periods[0].closes === '24:00') return '24h/24';
+	if (periods.length === 1 && periods[0].opens === '00:00' && periods[0].closes === '24:00')
+		return '24h/24';
 	const items = periods.map((p) => `${p.opens}–${p.closes}`);
 	if (items.length < 2) return items.join('');
 	return `${items.slice(0, -1).join(', ')} et ${items[items.length - 1]}`;

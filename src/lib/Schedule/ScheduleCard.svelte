@@ -3,7 +3,7 @@
 	import Fa from 'svelte-fa';
 	import { faPen, faClock } from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
-	import { dateTime } from '$lib/store/dateTimeStore.ts';
+	import { dateTime } from '#lib/store/dateTimeStore.ts';
 	import { holidaysFor, timeZoneOf } from './holidays.ts';
 	import { isOpen, isoDayAt, isRoundTheClock, nextChange, summarize } from './openingHours.ts';
 	import { toOpeningSchedule, type ApiSchedule } from './scheduleApi.ts';

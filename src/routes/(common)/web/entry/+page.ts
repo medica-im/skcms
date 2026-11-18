@@ -1,15 +1,14 @@
-import { ORIGIN } from '$lib/utils/origin.ts';
+import { ORIGIN } from '#lib/utils/origin.ts';
 import type { Effector } from '$src/lib/interfaces/v2/effector';
 import type { PageLoad } from './$types';
 import type { User } from '$src/lib/interfaces/user.interface';
 
-
 export const load: PageLoad = async ({ params, fetch, parent, data }) => {
-    return {
-        user: data.user,
-        effectors: data.effectors,
-        session: data.session,
-        initialFacility: data.initialFacility,
-        initialEffector: data.initialEffector
-    }
-}
+	return {
+		user: data.user,
+		effectors: data.effectors,
+		session: data.session,
+		initialFacility: data.initialFacility,
+		initialEffector: data.initialEffector
+	};
+};

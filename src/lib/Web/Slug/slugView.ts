@@ -54,7 +54,15 @@ const view = (status: SlugStatus, message: string, over: Partial<SlugView> = {})
 	...over
 });
 
-export function slugView({ typed, original, check, pending, failed, focused = false, wording = FACILITY_WORDING }: Input): SlugView {
+export function slugView({
+	typed,
+	original,
+	check,
+	pending,
+	failed,
+	focused = false,
+	wording = FACILITY_WORDING
+}: Input): SlugView {
 	const slug = typed.trim();
 	const changed = original !== null && slug !== original;
 	const warning = changed ? wording.changed : null;
@@ -68,7 +76,8 @@ export function slugView({ typed, original, check, pending, failed, focused = fa
 	if (failed) return view('error', 'Vérification impossible, réessayez.', { changed, warning });
 	if (!slug) return view('invalid', 'Indiquez une adresse.', { changed, warning });
 	if (!check || check.slug !== slug) return view('idle', '', { changed, warning });
-	if (check.free) return view('free', 'Adresse disponible.', { canConfirm: true, changed, warning });
+	if (check.free)
+		return view('free', 'Adresse disponible.', { canConfirm: true, changed, warning });
 	if (check.reason === 'taken') {
 		return view('taken', wording.taken, {
 			suggestions: check.suggestions,

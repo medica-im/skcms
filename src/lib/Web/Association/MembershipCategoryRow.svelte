@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { MembershipCategory } from '$lib/interfaces/v2/association';
+	import type { MembershipCategory } from '#lib/interfaces/v2/association.ts';
 	import UpdateMembershipCategory from './UpdateMembershipCategory.svelte';
 	import DeleteMembershipCategory from './DeleteMembershipCategory.svelte';
 

@@ -77,7 +77,9 @@ const organizationOf = (baseURL: string) =>
 
 Given('my organization lets its administrators change its emails', async ({ baseURL }) => {
 	ctx.delegated = true;
-	await djangoShell(`${organizationOf(baseURL)}org.email_template_editor_role = "administrator"\norg.save()`);
+	await djangoShell(
+		`${organizationOf(baseURL)}org.email_template_editor_role = "administrator"\norg.save()`
+	);
 });
 
 /**
@@ -102,29 +104,38 @@ Given('my organization has no email images', async ({ baseURL }) => {
 });
 
 /** The sign-in link keeps the saved template valid, whatever the wording. */
-const withSigninLink = (wording: string) => `<p>${wording}</p><a href="{{ signin_url }}">Entrer</a>`;
+const withSigninLink = (wording: string) =>
+	`<p>${wording}</p><a href="{{ signin_url }}">Entrer</a>`;
 
-Given('my organization has its own invitation email saying {string}', async ({ baseURL }, wording: string) => {
-	await clearEmails(baseURL);
-	await djangoShell(
-		`${organizationOf(baseURL)}from mailer.models import EmailTemplate\n` +
-			`EmailTemplate.objects.create(organization=org, kind="invitation", content_type="html", ` +
-			`subject="Invitation", body=${JSON.stringify(withSigninLink(wording))})`
-	);
-});
+Given(
+	'my organization has its own invitation email saying {string}',
+	async ({ baseURL }, wording: string) => {
+		await clearEmails(baseURL);
+		await djangoShell(
+			`${organizationOf(baseURL)}from mailer.models import EmailTemplate\n` +
+				`EmailTemplate.objects.create(organization=org, kind="invitation", content_type="html", ` +
+				`subject="Invitation", body=${JSON.stringify(withSigninLink(wording))})`
+		);
+	}
+);
 
-When('the invitation email is changed in the database to say {string}', async ({ baseURL }, wording: string) => {
-	await djangoShell(
-		`${organizationOf(baseURL)}from mailer.models import EmailTemplate\n` +
-			`EmailTemplate.objects.filter(organization=org, kind="invitation").update(body=${JSON.stringify(withSigninLink(wording))})`
-	);
-});
+When(
+	'the invitation email is changed in the database to say {string}',
+	async ({ baseURL }, wording: string) => {
+		await djangoShell(
+			`${organizationOf(baseURL)}from mailer.models import EmailTemplate\n` +
+				`EmailTemplate.objects.filter(organization=org, kind="invitation").update(body=${JSON.stringify(withSigninLink(wording))})`
+		);
+	}
+);
 
 After({ tags: '@invitation-email' }, async ({ baseURL }) => {
 	await clearEmails(baseURL);
 	if (ctx.delegated) {
 		ctx.delegated = false;
-		await djangoShell(`${organizationOf(baseURL)}org.email_template_editor_role = "superuser"\norg.save()`);
+		await djangoShell(
+			`${organizationOf(baseURL)}org.email_template_editor_role = "superuser"\norg.save()`
+		);
 	}
 });
 
@@ -136,7 +147,9 @@ When('I open the invitation email page', async ({ page }) => {
 
 Then('I am sent to sign in before the invitation email page', async ({ page, baseURL }) => {
 	const prefix = basePathOf(baseURL);
-	await expect(page).toHaveURL(new RegExp(`${prefix}/signin\\?redirectTo=${prefix}${PAGE_PATH}`.replace(/\//g, '\\/')));
+	await expect(page).toHaveURL(
+		new RegExp(`${prefix}/signin\\?redirectTo=${prefix}${PAGE_PATH}`.replace(/\//g, '\\/'))
+	);
 });
 
 /**
@@ -167,7 +180,11 @@ When('I open the images', async ({ page }) => {
 	await openTab(page, 'Images', 'image-gallery');
 });
 
-const PANELS = { template: 'template-editor', preview: 'template-preview', images: 'image-gallery' };
+const PANELS = {
+	template: 'template-editor',
+	preview: 'template-preview',
+	images: 'image-gallery'
+};
 
 /** Only that tab's content is on the page: a tab name above another tab's content is the bug. */
 for (const [tab, shown] of Object.entries(PANELS)) {
@@ -228,44 +245,60 @@ Then("the template in effect is the organization's own", async ({ page }) => {
 	await expect(page.getByTestId('template-source')).toHaveText('Modèle personnalisé');
 });
 
-Then('after reloading the page the subject is still {string}', async ({ page }, subject: string) => {
-	await page.reload({ waitUntil: 'domcontentloaded' });
-	await expect(page.getByTestId('template-subject')).toHaveValue(subject);
-});
+Then(
+	'after reloading the page the subject is still {string}',
+	async ({ page }, subject: string) => {
+		await page.reload({ waitUntil: 'domcontentloaded' });
+		await expect(page.getByTestId('template-subject')).toHaveValue(subject);
+	}
+);
 
 Then('the content reads {string}', async ({ page }, text: string) => {
-	await expect(page.getByTestId('template-body')).toHaveValue(new RegExp(text), { timeout: 10_000 });
+	await expect(page.getByTestId('template-body')).toHaveValue(new RegExp(text), {
+		timeout: 10_000
+	});
 });
 
 const fieldValue = (page: Page, name: string) =>
 	page.getByTestId(`placeholder-${name}`).getByTestId('placeholder-value');
 
-Then('the field {string} shows this site\'s sign-in page', async ({ page, baseURL }, name: string) => {
-	// The root of the site as the backend knows it: its public_base_url, or
-	// https://<domain> -- which on the e2e workers is the origin either way.
-	await expect(fieldValue(page, name)).toHaveText(`${new URL(baseURL).origin}/signin`);
-});
+Then(
+	"the field {string} shows this site's sign-in page",
+	async ({ page, baseURL }, name: string) => {
+		// The root of the site as the backend knows it: its public_base_url, or
+		// https://<domain> -- which on the e2e workers is the origin either way.
+		await expect(fieldValue(page, name)).toHaveText(`${new URL(baseURL).origin}/signin`);
+	}
+);
 
 Then('the field {string} shows a value', async ({ page }, name: string) => {
 	await expect(fieldValue(page, name)).toHaveText(/\S/);
 });
 
-Then('the field {string} shows the example {string}', async ({ page }, name: string, example: string) => {
-	const field = page.getByTestId(`placeholder-${name}`);
-	await expect(field.getByTestId('placeholder-value')).toHaveText(example);
-	await expect(field.locator('dd')).toContainText(`ex. ${example}`);
-});
+Then(
+	'the field {string} shows the example {string}',
+	async ({ page }, name: string, example: string) => {
+		const field = page.getByTestId(`placeholder-${name}`);
+		await expect(field.getByTestId('placeholder-value')).toHaveText(example);
+		await expect(field.locator('dd')).toContainText(`ex. ${example}`);
+	}
+);
 
-Then('a screen reader hears the value of {string} announced as this site\'s', async ({ page }, name: string) => {
-	const definition = page.getByTestId(`placeholder-${name}`).locator('dd');
-	// The ";" is decoration, hidden from assistive technology; the spoken
-	// prefix is what introduces the value.
-	await expect(definition.locator('[aria-hidden="true"]')).toHaveText(';');
-	await expect(definition.locator('.sr-only')).toHaveText('sur votre site :');
-});
+Then(
+	"a screen reader hears the value of {string} announced as this site's",
+	async ({ page }, name: string) => {
+		const definition = page.getByTestId(`placeholder-${name}`).locator('dd');
+		// The ";" is decoration, hidden from assistive technology; the spoken
+		// prefix is what introduces the value.
+		await expect(definition.locator('[aria-hidden="true"]')).toHaveText(';');
+		await expect(definition.locator('.sr-only')).toHaveText('sur votre site :');
+	}
+);
 
 Then('I am told only super administrators may change the emails', async ({ page }) => {
-	await expect(page.getByTestId('template-read-only')).toContainText('Seuls les super-administrateurs');
+	await expect(page.getByTestId('template-read-only')).toContainText(
+		'Seuls les super-administrateurs'
+	);
 });
 
 Then('there is no way to save the template', async ({ page }) => {
@@ -306,22 +339,25 @@ Then('the preview reads {string}', async ({ page }, text: string) => {
  * background. Compared with the theme's own variables, so it holds on any
  * site whose two radii differ.
  */
-Then('the email is framed as a panel, with the corners of a panel and not of a button', async ({ page }) => {
-	for (const testId of ['preview-frame', 'preview-text', 'preview-subject-bar']) {
-		for (const tab of testId === 'preview-text' ? ['Texte'] : ['HTML']) {
-			await page.getByRole('tab', { name: tab, exact: true }).click();
+Then(
+	'the email is framed as a panel, with the corners of a panel and not of a button',
+	async ({ page }) => {
+		for (const testId of ['preview-frame', 'preview-text', 'preview-subject-bar']) {
+			for (const tab of testId === 'preview-text' ? ['Texte'] : ['HTML']) {
+				await page.getByRole('tab', { name: tab, exact: true }).click();
+			}
+			const radii = await page.getByTestId(testId).evaluate((el) => {
+				const probe = document.createElement('div');
+				probe.style.borderRadius = 'var(--theme-rounded-container)';
+				document.body.append(probe);
+				const container = getComputedStyle(probe).borderTopLeftRadius;
+				probe.remove();
+				return { block: getComputedStyle(el).borderTopLeftRadius, container };
+			});
+			expect(radii.block, testId).toBe(radii.container);
 		}
-		const radii = await page.getByTestId(testId).evaluate((el) => {
-			const probe = document.createElement('div');
-			probe.style.borderRadius = 'var(--theme-rounded-container)';
-			document.body.append(probe);
-			const container = getComputedStyle(probe).borderTopLeftRadius;
-			probe.remove();
-			return { block: getComputedStyle(el).borderTopLeftRadius, container };
-		});
-		expect(radii.block, testId).toBe(radii.container);
 	}
-});
+);
 
 // The seeded default is plain text: its preview has no html frame.
 Then('the text version of the preview reads {string}', async ({ page }, text: string) => {

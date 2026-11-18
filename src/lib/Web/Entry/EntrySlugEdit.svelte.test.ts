@@ -11,7 +11,7 @@ import { render } from 'vitest-browser-svelte';
 import { page as screen } from 'vitest/browser';
 import * as m from '$msgs';
 import EntrySlugEdit from './EntrySlugEdit.svelte';
-import { AA_TEXT, inScheme, legibility } from '$lib/testing/contrast.ts';
+import { AA_TEXT, inScheme, legibility } from '#lib/testing/contrast.ts';
 import '../../../app.postcss';
 
 document.body.dataset.theme = 'wintry';
@@ -20,12 +20,19 @@ const remote = vi.hoisted(() => ({ checkEntrySlug: vi.fn(), changeEntrySlug: vi.
 const nav = vi.hoisted(() => ({ goto: vi.fn() }));
 vi.mock('../../../entry.remote', () => remote);
 vi.mock('$app/navigation', () => nav);
-vi.mock('$app/paths', () => ({ base: '' }));
-vi.mock('$app/state', () => ({ page: { url: new URL('https://dev.santelyon3.fr/e/le-mas-gem-69') } }));
+vi.mock('$app/paths', () => ({ resolve: (path: string) => `/${path}` }));
+vi.mock('$app/state', () => ({
+	page: { url: new URL('https://dev.santelyon3.fr/e/le-mas-gem-69') }
+}));
 
 const CURRENT = 'le-mas-gem-69';
 const free = (slug: string) => ({ slug, free: true, reason: null, suggestions: [] });
-const taken = (slug: string) => ({ slug, free: false, reason: 'taken', suggestions: ['le-mas-association-69', 'le-mas-lyon'] });
+const taken = (slug: string) => ({
+	slug,
+	free: false,
+	reason: 'taken',
+	suggestions: ['le-mas-association-69', 'le-mas-lyon']
+});
 
 const mount = (permission: { allowed: boolean } | null = { allowed: true }) =>
 	render(EntrySlugEdit, { props: { entryUid: 'e1', slug: CURRENT, permission } });
@@ -50,12 +57,16 @@ beforeEach(() => {
 describe('who sees the pen', () => {
 	it('nobody without a permission, or without the right', async () => {
 		mount(null);
-		await expect.element(screen.getByRole('button', { name: m.ENTRY_SLUG_EDIT() })).not.toBeInTheDocument();
+		await expect
+			.element(screen.getByRole('button', { name: m.ENTRY_SLUG_EDIT() }))
+			.not.toBeInTheDocument();
 	});
 
 	it('not someone who may not change it', async () => {
 		mount({ allowed: false });
-		await expect.element(screen.getByRole('button', { name: m.ENTRY_SLUG_EDIT() })).not.toBeInTheDocument();
+		await expect
+			.element(screen.getByRole('button', { name: m.ENTRY_SLUG_EDIT() }))
+			.not.toBeInTheDocument();
 	});
 
 	it('someone who may', async () => {
@@ -77,12 +88,17 @@ describe('the dialog', () => {
 		await open();
 		await type('le-mas-association-69');
 		await expect.element(screen.getByTestId('slug-status')).toHaveAttribute('data-status', 'free');
-		expect(remote.checkEntrySlug).toHaveBeenCalledWith({ uid: 'e1', slug: 'le-mas-association-69' });
+		expect(remote.checkEntrySlug).toHaveBeenCalledWith({
+			uid: 'e1',
+			slug: 'le-mas-association-69'
+		});
 		await expect.element(save()).toBeEnabled();
-		await expect.element(screen.getByTestId('slug-warning')).toHaveTextContent(m.ENTRY_SLUG_REDIRECT());
+		await expect
+			.element(screen.getByTestId('slug-warning'))
+			.toHaveTextContent(m.ENTRY_SLUG_REDIRECT());
 	});
 
-	it('refuses a taken address in the entry\'s words and offers free ones, which fill the field', async () => {
+	it("refuses a taken address in the entry's words and offers free ones, which fill the field", async () => {
 		remote.checkEntrySlug.mockImplementation(async ({ slug }: { slug: string }) =>
 			slug === 'le-mas-lyon' ? free(slug) : taken(slug)
 		);
@@ -97,18 +113,29 @@ describe('the dialog', () => {
 	});
 
 	it('saves, then goes to the new address', async () => {
-		remote.changeEntrySlug.mockResolvedValue({ success: true, status: 200, slug: 'le-mas-association-69' });
+		remote.changeEntrySlug.mockResolvedValue({
+			success: true,
+			status: 200,
+			slug: 'le-mas-association-69'
+		});
 		mount();
 		await open();
 		await type('le-mas-association-69');
 		await expect.element(save()).toBeEnabled();
 		await save().click();
-		expect(remote.changeEntrySlug).toHaveBeenCalledWith({ uid: 'e1', slug: 'le-mas-association-69' });
+		expect(remote.changeEntrySlug).toHaveBeenCalledWith({
+			uid: 'e1',
+			slug: 'le-mas-association-69'
+		});
 		await expect.poll(() => nav.goto.mock.lastCall?.[0]).toBe('/e/le-mas-association-69');
 	});
 
 	it('confirms the change, as every widget that saves does', async () => {
-		remote.changeEntrySlug.mockResolvedValue({ success: true, status: 200, slug: 'le-mas-association-69' });
+		remote.changeEntrySlug.mockResolvedValue({
+			success: true,
+			status: 200,
+			slug: 'le-mas-association-69'
+		});
 		nav.goto.mockImplementation(() => new Promise(() => {}));
 		mount();
 		await open();

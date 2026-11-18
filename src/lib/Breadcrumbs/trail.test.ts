@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { programTrail } from './trail';
-import type { ProgramsNavLinks } from '$lib/interfaces/variables.interface';
+import type { ProgramsNavLinks } from '#lib/interfaces/variables.interface.ts';
 
 const programsNavLinks = {
 	'acces-aux-soins': {
@@ -8,8 +8,18 @@ const programsNavLinks = {
 		title: { en: 'Healthcare access', fr: 'Accès aux soins' },
 		href: '/acces-aux-soins',
 		list: [
-			{ href: '/acces-aux-soins/medecin-traitant', label: 'Médecin traitant', category: 'program', active: true },
-			{ href: '/acces-aux-soins/soins-non-programmes', label: 'Soins non programmés', category: 'program', active: true }
+			{
+				href: '/acces-aux-soins/medecin-traitant',
+				label: 'Médecin traitant',
+				category: 'program',
+				active: true
+			},
+			{
+				href: '/acces-aux-soins/soins-non-programmes',
+				label: 'Soins non programmés',
+				category: 'program',
+				active: true
+			}
 		]
 	},
 	prevention: {
@@ -52,7 +62,9 @@ const programsNavLinks = {
  */
 describe('the programme breadcrumb trail', () => {
 	it('is just home on a page outside the programmes', () => {
-		expect(programTrail('/contact', programsNavLinks)).toEqual([{ label: 'Accueil', href: '/', current: false }]);
+		expect(programTrail('/contact', programsNavLinks)).toEqual([
+			{ label: 'Accueil', href: '/', current: false }
+		]);
 	});
 
 	it('names the category on a category landing page', () => {
@@ -116,7 +128,11 @@ describe('the programme breadcrumb trail', () => {
 			programTrail('/parcours-pluriprofessionnels/sante-mentale/tele-expertise', programsNavLinks)
 		).toEqual([
 			{ label: 'Accueil', href: '/', current: false },
-			{ label: 'Parcours pluriprofessionnels', href: '/parcours-pluriprofessionnels', current: false },
+			{
+				label: 'Parcours pluriprofessionnels',
+				href: '/parcours-pluriprofessionnels',
+				current: false
+			},
 			{
 				label: 'Santé mentale',
 				href: '/parcours-pluriprofessionnels/sante-mentale',

@@ -28,7 +28,9 @@ const byName = (a: Concern, b: Concern) => a.name.localeCompare(b.name);
 
 /** The tree: nodes with no offered parent at the top, each level by name. */
 export const buildTree = (concerns: Concern[]): ConcernNode[] => {
-	const nodes = new Map(concerns.map((concern) => [concern.uid, { ...concern, children: [] as ConcernNode[] }]));
+	const nodes = new Map(
+		concerns.map((concern) => [concern.uid, { ...concern, children: [] as ConcernNode[] }])
+	);
 	const top: ConcernNode[] = [];
 	for (const node of nodes.values()) {
 		const parent = node.parent === null ? undefined : nodes.get(node.parent);
@@ -49,12 +51,18 @@ export const searchConcerns = (concerns: Concern[], term: string): Concern[] => 
 		return [];
 	}
 	return concerns
-		.filter((concern) => [concern.name, ...concern.synonyms].some((name) => normalize(name).includes(wanted)))
+		.filter((concern) =>
+			[concern.name, ...concern.synonyms].some((name) => normalize(name).includes(wanted))
+		)
 		.sort(byName);
 };
 
 /** The entries the picked node selects; every entry when nothing is picked. */
-export const filterByConcern = (entries: Entry[], concerns: Concern[], picked: string | null): Entry[] => {
+export const filterByConcern = (
+	entries: Entry[],
+	concerns: Concern[],
+	picked: string | null
+): Entry[] => {
 	if (picked === null) {
 		return entries;
 	}

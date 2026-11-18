@@ -13,14 +13,14 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	    import { JsonView } from '@zerodevx/svelte-json-view';
-	import type { Email } from '$lib/interfaces/email.interface.ts';
-	import Select from '$lib/Web/Select.svelte';
+	import type { Email } from '#lib/interfaces/email.interface.ts';
+	import Select from '#lib/Web/Select.svelte';
 	import Dialog from '../Dialog.svelte';
-	import { getEntryUid } from '$lib/components/Directory/context';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import type { ThirdPartyPayer } from '$lib/interfaces/fullEffector.interface';
-	import type { FormResult } from '$lib/interfaces/v2/form';
-	import type { Appointment } from '$lib/interfaces/appointment.interface';
+	import { getEntryUid } from '#lib/components/Directory/context.ts';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import type { ThirdPartyPayer } from '#lib/interfaces/fullEffector.interface.ts';
+	import type { FormResult } from '#lib/interfaces/v2/form.ts';
+	import type { Appointment } from '#lib/interfaces/appointment.interface.ts';
 
 	let {
 		data

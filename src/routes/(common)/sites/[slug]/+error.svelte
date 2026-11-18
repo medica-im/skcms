@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import Error from '$lib/Error/Error.svelte';
-	import type { SveltekitError } from '$lib/interfaces/error.interface';
+	import Error from '#lib/Error/Error.svelte';
+	import type { SveltekitError } from '#lib/interfaces/error.interface.ts';
 </script>
 
 {#if page.error}

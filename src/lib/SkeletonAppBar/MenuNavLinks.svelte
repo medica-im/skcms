@@ -21,7 +21,7 @@
 		faPersonChalkboard
 	} from '@fortawesome/free-solid-svg-icons';
 	import { menuNavCats } from '$var/variables.ts';
-	import ArchiveBadge from '$lib/ArchiveBadge/ArchiveBadge.svelte';
+	import ArchiveBadge from '#lib/ArchiveBadge/ArchiveBadge.svelte';
 
 	const lang = variables.DEFAULT_LANGUAGE;
 	function getNavGroups(id: string) {

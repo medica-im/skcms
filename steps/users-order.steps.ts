@@ -14,9 +14,9 @@ type Page = import('@playwright/test').Page;
  */
 async function listedDates(page: Page): Promise<number[]> {
 	await expect(page.locator('main time[datetime]').first()).toBeVisible();
-	const values = await page.locator('main time[datetime]').evaluateAll((els) =>
-		els.map((el) => el.getAttribute('datetime')!)
-	);
+	const values = await page
+		.locator('main time[datetime]')
+		.evaluateAll((els) => els.map((el) => el.getAttribute('datetime')!));
 	return values.map((v) => Date.parse(v));
 }
 

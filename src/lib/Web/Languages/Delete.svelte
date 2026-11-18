@@ -9,11 +9,11 @@
 		faTriangleExclamation
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import Dialog from '$lib/Web/Dialog.svelte';
-	import { getEffectorUid } from '$lib/components/Directory/context';
-	import Languages from '$lib/components/Effector/Info/Languages.svelte';
-	import type { FormResult } from '$lib/interfaces/v2/form';
-	import type { SpokenLanguage } from "$lib/interfaces/fullEffector.interface";
+	import Dialog from '#lib/Web/Dialog.svelte';
+	import { getEffectorUid } from '#lib/components/Directory/context.ts';
+	import Languages from '#lib/components/Effector/Info/Languages.svelte';
+	import type { FormResult } from '#lib/interfaces/v2/form.ts';
+	import type { SpokenLanguage } from "#lib/interfaces/fullEffector.interface.ts";
 
 	let {
 		data

@@ -12,7 +12,7 @@ import {
 	type IconDefinition
 } from '@fortawesome/free-solid-svg-icons';
 import * as m from '$msgs';
-import type { EmailDeliveryStatus, EmailErrorKind } from '$lib/interfaces/v2/invitee';
+import type { EmailDeliveryStatus, EmailErrorKind } from '#lib/interfaces/v2/invitee.ts';
 import { needsCheck } from './inviteeFilter';
 
 export type DeliveryState = EmailDeliveryStatus | 'unknown';
@@ -28,19 +28,76 @@ type Look = {
 const FAILURE_TONE = 'text-error-700-200-token font-bold';
 
 export const deliveryLook: Record<DeliveryState, Look> = {
-	sent: { icon: faPaperPlane, words: m.INVITEE_EMAIL_SENT, short: m.INVITEE_EMAIL_SENT_SHORT, tone: 'text-success-800-100-token', hint: m.INVITEE_EMAIL_SENT_HINT },
-	delivered: { icon: faCircleCheck, words: m.INVITEE_EMAIL_DELIVERED, short: m.INVITEE_EMAIL_DELIVERED_SHORT, tone: 'text-success-800-100-token', hint: m.INVITEE_EMAIL_DELIVERED_HINT },
-	queued: { icon: faHourglassHalf, words: m.INVITEE_EMAIL_QUEUED, short: m.INVITEE_EMAIL_QUEUED_SHORT, tone: 'text-surface-700-200-token' },
-	deferred: { icon: faClock, words: m.INVITEE_EMAIL_DEFERRED, short: m.INVITEE_EMAIL_DEFERRED_SHORT, tone: 'text-warning-800-100-token', hint: m.INVITEE_EMAIL_DEFERRED_HINT },
-	failed: { icon: faCircleXmark, words: m.INVITEE_EMAIL_FAILED, short: m.INVITEE_EMAIL_FAILED_SHORT, tone: FAILURE_TONE },
-	bounced: { icon: faCircleXmark, words: m.INVITEE_EMAIL_BOUNCED, short: m.INVITEE_EMAIL_BOUNCED_SHORT, tone: FAILURE_TONE, hint: m.INVITEE_EMAIL_BOUNCED_HINT },
-	complained: { icon: faCircleXmark, words: m.INVITEE_EMAIL_COMPLAINED, short: m.INVITEE_EMAIL_COMPLAINED_SHORT, tone: FAILURE_TONE, hint: m.INVITEE_EMAIL_COMPLAINED_HINT },
-	suppressed: { icon: faCircleXmark, words: m.INVITEE_EMAIL_SUPPRESSED, short: m.INVITEE_EMAIL_SUPPRESSED_SHORT, tone: FAILURE_TONE, hint: m.INVITEE_EMAIL_SUPPRESSED_HINT },
-	unknown: { icon: faCircleQuestion, words: m.INVITEE_EMAIL_UNKNOWN, short: () => '—', tone: 'text-surface-600-300-token', hint: m.INVITEE_EMAIL_UNKNOWN_HINT }
+	sent: {
+		icon: faPaperPlane,
+		words: m.INVITEE_EMAIL_SENT,
+		short: m.INVITEE_EMAIL_SENT_SHORT,
+		tone: 'text-success-800-100-token',
+		hint: m.INVITEE_EMAIL_SENT_HINT
+	},
+	delivered: {
+		icon: faCircleCheck,
+		words: m.INVITEE_EMAIL_DELIVERED,
+		short: m.INVITEE_EMAIL_DELIVERED_SHORT,
+		tone: 'text-success-800-100-token',
+		hint: m.INVITEE_EMAIL_DELIVERED_HINT
+	},
+	queued: {
+		icon: faHourglassHalf,
+		words: m.INVITEE_EMAIL_QUEUED,
+		short: m.INVITEE_EMAIL_QUEUED_SHORT,
+		tone: 'text-surface-700-200-token'
+	},
+	deferred: {
+		icon: faClock,
+		words: m.INVITEE_EMAIL_DEFERRED,
+		short: m.INVITEE_EMAIL_DEFERRED_SHORT,
+		tone: 'text-warning-800-100-token',
+		hint: m.INVITEE_EMAIL_DEFERRED_HINT
+	},
+	failed: {
+		icon: faCircleXmark,
+		words: m.INVITEE_EMAIL_FAILED,
+		short: m.INVITEE_EMAIL_FAILED_SHORT,
+		tone: FAILURE_TONE
+	},
+	bounced: {
+		icon: faCircleXmark,
+		words: m.INVITEE_EMAIL_BOUNCED,
+		short: m.INVITEE_EMAIL_BOUNCED_SHORT,
+		tone: FAILURE_TONE,
+		hint: m.INVITEE_EMAIL_BOUNCED_HINT
+	},
+	complained: {
+		icon: faCircleXmark,
+		words: m.INVITEE_EMAIL_COMPLAINED,
+		short: m.INVITEE_EMAIL_COMPLAINED_SHORT,
+		tone: FAILURE_TONE,
+		hint: m.INVITEE_EMAIL_COMPLAINED_HINT
+	},
+	suppressed: {
+		icon: faCircleXmark,
+		words: m.INVITEE_EMAIL_SUPPRESSED,
+		short: m.INVITEE_EMAIL_SUPPRESSED_SHORT,
+		tone: FAILURE_TONE,
+		hint: m.INVITEE_EMAIL_SUPPRESSED_HINT
+	},
+	unknown: {
+		icon: faCircleQuestion,
+		words: m.INVITEE_EMAIL_UNKNOWN,
+		short: () => '—',
+		tone: 'text-surface-600-300-token',
+		hint: m.INVITEE_EMAIL_UNKNOWN_HINT
+	}
 };
 
 /** Did not reach the invitee and needs someone to act: the red cross, a link to the invitation. */
-export const NEEDS_ACTION: ReadonlySet<DeliveryState> = new Set(['failed', 'bounced', 'complained', 'suppressed']);
+export const NEEDS_ACTION: ReadonlySet<DeliveryState> = new Set([
+	'failed',
+	'bounced',
+	'complained',
+	'suppressed'
+]);
 
 /** Went as far as it should: nothing to flag on the compact card. */
 export const SETTLED_OK: ReadonlySet<DeliveryState> = new Set(['sent', 'delivered', 'unknown']);
@@ -107,7 +164,11 @@ export const addressProblemWords: Record<AddressProblem, () => string> = {
 
 /** A date as the invitation pages write it: "6 octobre 2026". */
 export function dayOf(iso: string): string {
-	return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+	return new Date(iso).toLocaleDateString('fr-FR', {
+		day: 'numeric',
+		month: 'long',
+		year: 'numeric'
+	});
 }
 
 /** What a check before sending found (backend mailer.addresscheck), in words. */

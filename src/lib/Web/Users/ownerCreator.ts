@@ -1,7 +1,7 @@
-import { authReq } from '$lib/utils/request';
-import { variables } from '$lib/utils/constants.ts';
+import { authReq } from '#lib/utils/request.ts';
+import { variables } from '#lib/utils/constants.ts';
 import type { Cookies } from '@sveltejs/kit';
-import type { User } from '$lib/interfaces/v2/user.ts';
+import type { User } from '#lib/interfaces/v2/user.ts';
 
 /**
  * A user an entry names, and in which of the two capacities.
@@ -55,9 +55,7 @@ export async function resolveOwnerCreator(
 				return null;
 			}
 			if (!response.ok) {
-				throw new Error(
-					`Failed to fetch user ${uid}: ${response.status} ${response.statusText}`
-				);
+				throw new Error(`Failed to fetch user ${uid}: ${response.status} ${response.statusText}`);
 			}
 			const user = (await response.json()) as User;
 			return {

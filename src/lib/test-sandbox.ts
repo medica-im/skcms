@@ -57,7 +57,17 @@ import { afterAll, beforeAll } from 'vitest';
  * The lesson generalises: it is the *binary name* that gets faked, so a family
  * of related tools needs every member listed.
  */
-const FORBIDDEN = ['ssh', 'ssh-add', 'ssh-agent', 'ssh-keyscan', 'scp', 'sftp', 'rsync', 'docker', 'docker-compose'];
+const FORBIDDEN = [
+	'ssh',
+	'ssh-add',
+	'ssh-agent',
+	'ssh-keyscan',
+	'scp',
+	'sftp',
+	'rsync',
+	'docker',
+	'docker-compose'
+];
 
 let sandboxDir: string | undefined;
 

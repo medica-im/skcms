@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { entrySlugPageUrl } from '$lib/utils/utils.ts';
-    import type { Entry } from '$lib/store/directoryStoreInterface';
+	import { entrySlugPageUrl } from '#lib/utils/utils.ts';
+    import type { Entry } from '#lib/store/directoryStoreInterface.ts';
 
     let { data } : { data: Entry[]} = $props();
 </script>

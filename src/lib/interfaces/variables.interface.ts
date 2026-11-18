@@ -1,4 +1,4 @@
-import type { IconDefinition } from "@fortawesome/free-solid-svg-icons";
+import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
 export interface Variables {
 	//readonly DEV: boolean
@@ -19,7 +19,7 @@ export interface Variables {
 }
 
 export interface ProgramsNavLinks {
-	[key: string]: Nav
+	[key: string]: Nav;
 }
 
 export interface MenuNavCat {
@@ -36,23 +36,23 @@ export interface MenuNavCat {
  * A page named by the breadcrumb but absent from the nav. See Link.subPages.
  */
 export interface SubPage {
-	href: string,
-	label: string
-};
+	href: string;
+	label: string;
+}
 
 export interface Link {
-	href: string,
-	label: string,
-	keywords: string,
-	icon: object|null,
-	category?: string,
-	active?: boolean,
+	href: string;
+	label: string;
+	keywords: string;
+	icon: object | null;
+	category?: string;
+	active?: boolean;
 	/**
 	 * A programme that has ended but whose page is kept: still listed, marked
 	 * with an ArchiveBadge. `active: false` instead hides the link.
 	 */
-	archive?: boolean,
-	preload?: string,
+	archive?: boolean;
+	preload?: string;
 	/**
 	 * Pages below this one that the breadcrumb may name.
 	 *
@@ -65,15 +65,15 @@ export interface Link {
 	 * which is why a sub-page carries no keywords or icon. A crumb is a name
 	 * and a destination, nothing else.
 	 */
-	subPages?: SubPage[]
-};
+	subPages?: SubPage[];
+}
 
 export interface Nav {
-	id: string,
+	id: string;
 	title: {
-		en: string,
-	    fr: string
-	},
+		en: string;
+		fr: string;
+	};
 	/**
 	 * The category's own landing page, when it has one.
 	 *
@@ -87,7 +87,7 @@ export interface Nav {
 	 * replaces: the menu rendered a link on every page of the section, and all
 	 * of them 404ed.
 	 */
-	href?: string,
-	icon?: IconDefinition,
-	list: Link[]
-};
+	href?: string;
+	icon?: IconDefinition;
+	list: Link[];
+}

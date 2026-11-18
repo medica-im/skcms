@@ -47,8 +47,11 @@ interface Feature {
 /** Mirrors getAddressOptions() in Geocoder.svelte. */
 function getAddressOptions(
 	features: Feature[],
-	{ commune, postalCodes, limitToZip = true }:
-		{ commune: string | null; postalCodes: string[]; limitToZip?: boolean }
+	{
+		commune,
+		postalCodes,
+		limitToZip = true
+	}: { commune: string | null; postalCodes: string[]; limitToZip?: boolean }
 ) {
 	return features
 		.filter((e) => e.properties.housenumber)
@@ -126,10 +129,7 @@ describe('geocoder choices for an address inside the territory', () => {
 
 	it('keeps a Lyon address whose arrondissement postcode differs', () => {
 		// 69003 and 69007 are both Lyon; the filter compares only "69".
-		const options = getAddressOptions(
-			[f('255', 'Rue Rachais', 'Lyon', '69007')],
-			lyon
-		);
+		const options = getAddressOptions([f('255', 'Rue Rachais', 'Lyon', '69007')], lyon);
 
 		expect(options).toHaveLength(1);
 	});
@@ -148,10 +148,7 @@ describe('geocoder choices for an address inside the territory', () => {
 	});
 
 	it('excludes an address outside the directory departments', () => {
-		const options = getAddressOptions(
-			[f('255', 'Rue Lecourbe', 'Lyon', '75015')],
-			lyon
-		);
+		const options = getAddressOptions([f('255', 'Rue Lecourbe', 'Lyon', '75015')], lyon);
 
 		expect(options).toHaveLength(0);
 	});
@@ -209,10 +206,7 @@ describe('geocoder choices for an address inside the territory', () => {
 
 	it('offers 255 Rue Garibaldi when editing a Lyon facility', () => {
 		// The live API returns exactly this row for "255 RUE GARIBALDI Lyon".
-		const options = getAddressOptions(
-			[f('255', 'Rue Garibaldi', 'Lyon', '69003')],
-			lyon
-		);
+		const options = getAddressOptions([f('255', 'Rue Garibaldi', 'Lyon', '69003')], lyon);
 
 		expect(options).toHaveLength(1);
 		expect(options[0].label).toBe('255 Rue Garibaldi');
@@ -275,23 +269,21 @@ describe('geocoder choices for an address inside the territory', () => {
 	it('still excludes another arrondissement under an exact postcode', () => {
 		const lyon7 = [f('255', 'Rue Rachais', 'Lyon', '69007')];
 
-		expect(
-			getAddressOptions(lyon7, { commune: 'Lyon', postalCodes: ['69003'] })
-		).toHaveLength(0);
+		expect(getAddressOptions(lyon7, { commune: 'Lyon', postalCodes: ['69003'] })).toHaveLength(0);
 		// and still excludes another department entirely
 		expect(
-			getAddressOptions(
-				[f('255', 'Rue Lecourbe', 'Lyon', '75015')],
-				{ commune: 'Lyon', postalCodes: ['69'] }
-			)
+			getAddressOptions([f('255', 'Rue Lecourbe', 'Lyon', '75015')], {
+				commune: 'Lyon',
+				postalCodes: ['69']
+			})
 		).toHaveLength(0);
 	});
 
 	it('ignores the department filter when limitToZip is false', () => {
-		const options = getAddressOptions(
-			[f('255', 'Rue Lecourbe', 'Lyon', '75015')],
-			{ ...lyon, limitToZip: false }
-		);
+		const options = getAddressOptions([f('255', 'Rue Lecourbe', 'Lyon', '75015')], {
+			...lyon,
+			limitToZip: false
+		});
 
 		expect(options).toHaveLength(1);
 	});

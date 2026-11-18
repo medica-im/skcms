@@ -1,8 +1,8 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import type { BoardMember, MembershipCategory } from '$lib/interfaces/v2/association';
-	import type { Effector } from '$lib/interfaces/v2/effector';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import type { BoardMember, MembershipCategory } from '#lib/interfaces/v2/association.ts';
+	import type { Effector } from '#lib/interfaces/v2/effector.ts';
 	import BoardMemberRow from './BoardMemberRow.svelte';
 	import CreateBoardMember from './CreateBoardMember.svelte';
 

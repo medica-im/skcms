@@ -78,5 +78,8 @@ test('a French select says nothing in English', async ({ context, page, baseURL 
 	}
 	// Proves the region was actually populated, so an empty one cannot pass this
 	// by saying nothing at all.
-	expect(announced.join(' ').length, 'nothing was announced, so nothing was checked').toBeGreaterThan(0);
+	expect(
+		announced.join(' ').length,
+		'nothing was announced, so nothing was checked'
+	).toBeGreaterThan(0);
 });

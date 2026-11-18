@@ -11,7 +11,7 @@ import { describe, it, expect } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import { page } from 'vitest/browser';
 import EntryInline from './EntryInline.svelte';
-import type { EntryCredit } from '$lib/store/directoryStoreInterface';
+import type { EntryCredit } from '#lib/store/directoryStoreInterface.ts';
 
 const credit = (active: boolean): EntryCredit => ({
 	entrySlug: 'charlotte-goolaerts-mg-84',
@@ -24,7 +24,9 @@ const credit = (active: boolean): EntryCredit => ({
 describe('EntryInline', () => {
 	it('credits a retired member by name and occupation', async () => {
 		render(EntryInline, { data: credit(false) });
-		await expect.element(page.getByText('Charlotte Goolaerts, médecin généraliste')).toBeInTheDocument();
+		await expect
+			.element(page.getByText('Charlotte Goolaerts, médecin généraliste'))
+			.toBeInTheDocument();
 	});
 
 	it('does not link a retired member to their page, which is gone', async () => {
@@ -40,9 +42,11 @@ describe('EntryInline', () => {
 		expect(document.body.querySelector('img')).toBeNull();
 	});
 
-	it("links an active member to their page, with their picture", async () => {
+	it('links an active member to their page, with their picture', async () => {
 		render(EntryInline, { data: credit(true) });
-		await expect.element(page.getByRole('link')).toHaveAttribute('href', '/e/charlotte-goolaerts-mg-84');
+		await expect
+			.element(page.getByRole('link'))
+			.toHaveAttribute('href', '/e/charlotte-goolaerts-mg-84');
 		expect(document.body.querySelector('img')?.getAttribute('src')).toBe('/media/sm.png');
 	});
 });

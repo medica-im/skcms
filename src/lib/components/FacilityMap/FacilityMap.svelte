@@ -1,9 +1,9 @@
 <script lang="ts">
-	import Maplibre from '$lib/MapLibre/MapLibre.svelte';
-	import { createEntriesMapData } from '$lib/components/Map/mapData.ts';
+	import Maplibre from '#lib/MapLibre/MapLibre.svelte';
+	import { createEntriesMapData } from '#lib/components/Map/mapData.ts';
 	import { page } from '$app/state';
-	import type { Entry } from '$lib/store/directoryStoreInterface.ts';
-	import { getAddressFeature } from '$lib/components/Directory/context.ts';
+	import type { Entry } from '#lib/store/directoryStoreInterface.ts';
+	import { getAddressFeature } from '#lib/components/Directory/context.ts';
 
 	let { data, geojson = null } : { data: Map<string, Entry[]>; geojson?: any } = $props();
 	const entries = $derived(Object.values(Object.fromEntries(data)).flat());

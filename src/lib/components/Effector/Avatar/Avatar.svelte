@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { variables } from '$lib/utils/constants';
+	import { variables } from '#lib/utils/constants.ts';
 	import * as m from '$msgs';
 	import type { Avatar } from '$src/lib/interfaces/facility.interface';
 	import { avatarSrc, type AvatarSize } from './avatarUrl.ts';
-	import { PUBLIC_URL } from '$lib/utils/appUrl';
+	import { PUBLIC_URL } from '#lib/utils/appUrl.ts';
 
 	let { avatar, name, size }: { avatar: Avatar; name: string; size: AvatarSize; } = $props();
 

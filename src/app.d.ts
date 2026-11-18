@@ -21,9 +21,9 @@ declare global {
 		}
 		interface PageData {
 			/** The site's sharing card, from the root layout. */
-			openGraph?: import('$lib/interfaces/openGraph.interface').OpenGraph;
+			openGraph?: import('#lib/interfaces/openGraph.interface.ts').OpenGraph;
 			/** A page's own sharing values, laid over the site's card (mergeCard). */
-			card?: import('$lib/components/OpenGraph/mergeCard').PageCard;
+			card?: import('#lib/components/OpenGraph/mergeCard.ts').PageCard;
 		}
 		interface PageState {
 			selected?: unknown;
@@ -36,17 +36,17 @@ declare global {
 	interface Window {
 		PointerEvent: any;
 		TouchEvent: any;
-	  }
+	}
 }
 
 declare module '@fortawesome/free-solid-svg-icons/index.es' {
 	export * from '@fortawesome/free-solid-svg-icons';
-  }
+}
 declare module '@fortawesome/free-regular-svg-icons/index.es' {
 	export * from '@fortawesome/free-regular-svg-icons';
-  }
+}
 declare module '@fortawesome/free-brands-svg-icons/index.es' {
 	export * from '@fortawesome/free-brands-svg-icons';
-  }
+}
 
 export {};

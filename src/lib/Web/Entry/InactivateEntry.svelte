@@ -12,9 +12,9 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Dialog from '../Dialog.svelte';
-	import { getEntryUid } from '$lib/components/Directory/context';
-	import Convention from '$lib/components/Effector/Cost/Convention.svelte';
-	import type { FormResult } from '$lib/interfaces/v2/form';
+	import { getEntryUid } from '#lib/components/Directory/context.ts';
+	import Convention from '#lib/components/Effector/Cost/Convention.svelte';
+	import type { FormResult } from '#lib/interfaces/v2/form.ts';
 
 	let res = $state();
 

@@ -1,12 +1,11 @@
 <script lang="ts">
 
 	import { page } from '$app/state';
-	import { browser } from '$app/environment';
-	import { enhance } from '$app/forms';
-	import type { SubmitFunction } from '@sveltejs/kit';
-	import { variables } from '$lib/utils/constants';
+	import { browser } from '$app/env';
+	import { enhance, type SubmitFunction } from '$app/forms';
+	import { variables } from '#lib/utils/constants.ts';
 	import Fa from 'svelte-fa';
-	import { org } from '$lib/state.svelte.js';
+	import { org } from '#lib/state.svelte.js';
 	import { faCaretSquareDown } from '@fortawesome/free-regular-svg-icons';
 	import {
 		faBars,
@@ -26,33 +25,33 @@
 		faCalendar
 	} from '@fortawesome/free-solid-svg-icons';
 	import BookUser from '@lucide/svelte/icons/book-user';
-	import User from '$lib/SkeletonAppBar/User.svelte';
+	import User from '#lib/SkeletonAppBar/User.svelte';
 	// Types
 	import type { ModalSettings } from '@skeletonlabs/skeleton';
 	import type { DrawerSettings } from '@skeletonlabs/skeleton';
 	// Docs
-	import OutpatientClinicLogo from '$lib/Logos/OutpatientClinicLogo.svelte';
-	import AddressBookLogo from '$lib/Logos/AddressBookLogo.svelte';
+	import OutpatientClinicLogo from '#lib/Logos/OutpatientClinicLogo.svelte';
+	import AddressBookLogo from '#lib/Logos/AddressBookLogo.svelte';
 	import SocialNetworks from '../SoMed/SoMed.svelte';
-	import Website from '$lib/components/Website/Website.svelte';
+	import Website from '#lib/components/Website/Website.svelte';
 	// Components
 	import { AppBar } from '@skeletonlabs/skeleton';
 	import { LightSwitch } from '@skeletonlabs/skeleton';
-	import MenuNavLinks from '$lib/SkeletonAppBar/MenuNavLinks.svelte';
-	import ParentSiteNav from '$lib/SiteMenu/ParentSiteNav.svelte';
-	import { siteMenu, visibleItems } from '$lib/SiteMenu/siteMenu';
+	import MenuNavLinks from '#lib/SkeletonAppBar/MenuNavLinks.svelte';
+	import ParentSiteNav from '#lib/SiteMenu/ParentSiteNav.svelte';
+	import { siteMenu, visibleItems } from '#lib/SiteMenu/siteMenu.ts';
 	// Utilities
 	import { popup } from '@skeletonlabs/skeleton';
 	import { getModalStore } from '@skeletonlabs/skeleton';
 
 	// Stores
-	import { storeTheme } from '$lib/store/skeletonStores';
-	import { initialTheme } from '$lib/theme/initialTheme';
+	import { storeTheme } from '#lib/store/skeletonStores.ts';
+	import { initialTheme } from '#lib/theme/initialTheme.ts';
 	import { getDrawerStore } from '@skeletonlabs/skeleton';
 	import * as m from '$msgs';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import { appBarTitle } from '$lib/SkeletonAppBar/appBarTitle.ts';
-	import { base } from '$app/paths';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import { appBarTitle } from '#lib/SkeletonAppBar/appBarTitle.ts';
+	import { base } from '#lib/utils/base.ts';
 
 	// A connected user already knows which site they are on, and the trail fills
 	// up with their account controls — so they get the shorter label when the
@@ -64,7 +63,7 @@
 		)
 	);
 
-	const dirPath = `${base}${page.data?.directory?.setting?.path || "/"}`;
+	const dirPath = `${base()}${page.data?.directory?.setting?.path || "/"}`;
 	const drawerStore = getDrawerStore();
 	const modalStore = getModalStore();
 	const isMSP = page.data?.organization?.category?.name == "msp";
@@ -112,15 +111,15 @@
 		// in a list of neutral ones. Which theme that is comes from the site's
 		// own data — naming it here would put one tenant's id in the component
 		// every tenant renders.
-		...(siteMenu?.parentSite.theme
+		...siteMenu?.parentSite.theme
 			? [
-					{
-						type: siteMenu.parentSite.theme,
-						name: siteMenu.parentSite.name,
-						icon: siteMenu.parentSite.themeIcon ?? '🎨'
-					}
-				]
-			: []),
+				{
+					type: siteMenu.parentSite.theme,
+					name: siteMenu.parentSite.name,
+					icon: siteMenu.parentSite.themeIcon ?? '🎨'
+				}
+			]
+			: [],
 		{ type: 'skeleton', name: 'Skeleton', icon: '💀' },
 		{ type: 'wintry', name: 'Wintry', icon: '🌨️' },
 		{ type: 'modern', name: 'Modern', icon: '🤖' },
@@ -172,7 +171,7 @@
 </script>
 
 <!-- NOTE: using stopPropagation to override Chrome for Windows search shortcut -->
-<svelte:window on:keydown|stopPropagation={onWindowKeydown} />
+<svelte:window on:keydown|stopPropagation={onWindowKeydown}></svelte:window>
 
 <!--
 	Tighter padding and a smaller gap below lg, Skeleton's `p-4`/`gap-4` from
@@ -254,7 +253,7 @@
 		-->
 		<div class="flex items-center lg:gap-2 -ml-2 xl:ml-0">
 			<a
-				data-sveltekit-preload-data="off"
+				data-sveltekit-preload-data="false"
 				href={siteMenu.parentSite.url}
 				rel="noopener"
 				title={m.NAVBAR_GO_PARENT_SITE({ site: siteMenu.parentSite.name })}
@@ -278,7 +277,7 @@
 				/>
 			</a>
 			<a
-				href="{base}/"
+				href="{base()}/"
 				title={m.NAVBAR_GO_DIRECTORY_HOME()}
 				class="flex items-center min-h-11 px-1"
 			>
@@ -287,7 +286,7 @@
 			</a>
 		</div>
 	{:else}
-		<a data-sveltekit-preload-data="off" href="/" title={m.NAVBAR_GO_HOME()}>
+		<a data-sveltekit-preload-data="false" href="/" title={m.NAVBAR_GO_HOME()}>
 			<!-- gap only from lg, where there is a logo for it to separate. -->
 			<div class="flex items-center lg:gap-2">
 				<!--
@@ -335,97 +334,107 @@
 			in the footer, and the drawer still carries the full rail on mobile.
 		-->
 		{#if !siteMenu}
-		<div class="relative hidden xl:block">
-			<!-- trigger -->
-			<button
-				class="btn hover:variant-soft-primary"
-				use:popup={{ event: 'click', target: 'features' }}
-			>
-				<span>{m.NAVBAR_NAVIGATE()}</span>
-				<span class="opacity-50"><Fa icon={faCaretDown} size="sm" /></span>
-			</button>
-			<!-- popup -->
-			<!-- prettier-ignore -->
+			<div class="relative hidden xl:block">
+				<!-- trigger -->
+				<button
+					class="btn hover:variant-soft-primary"
+					use:popup={{ event: 'click', target: 'features' }}
+				>
+					<span>{m.NAVBAR_NAVIGATE()}</span>
+					<span class="opacity-50"><Fa icon={faCaretDown} size="sm" /></span>
+				</button>
+				<!-- popup -->
+				<!-- prettier-ignore -->
 			<div class="card p-4 w-60 shadow-xl" data-popup="features">
-				<nav class="list-nav">
-					<ul>
-						{#if dirPath !== "/"}
-						<li>
-							<a data-sveltekit-preload-data="off" href="{base}/">
-								<span class="w-6 text-center"><Fa icon={faHouse} /></span>
-								<span>{m.HOME_TITLE()}</span>
-							</a>
-						</li>
-						{/if}
-						<li>
-							<a data-sveltekit-preload-data="tap" href={dirPath}>
-								<span class="w-6 text-center"><Fa icon={faAddressBook} /></span>
-								<span>{m.NAVBAR_ADDRESSBOOK()}</span>
-							</a>
-						</li>
-						<li>
-							<a href="{base}/sites">
-								<span class="w-6 text-center"><Fa icon={faMapLocationDot} /></span>
-								<span>Sites</span>
-							</a>
-						</li>
-						{#if page.data.organization.google_calendar_id && page.data.organization.google_calendar_api_key}
-						<li>
-							<a href="{base}/calendrier">
-								<span class="w-6 text-center"><Fa icon={faCalendar} /></span>
-								<span>{m.CALENDAR()}</span>
-							</a>
-						</li>
-						{/if}
-						<li>
-							<a href="{base}/contact">
-								<span class="w-6 text-center"><Fa icon={faEnvelope} /></span>
-								<span>Contact</span>
-							</a>
-						</li>
-					</ul>
-				</nav>
+					<nav class="list-nav">
+						<ul>
+							{#if dirPath !== "/"}
+								<li>
+									<a
+										data-sveltekit-preload-data="false"
+										href="{base()}/"
+									>
+										<span class="w-6 text-center"><Fa icon={faHouse} /></span>
+										<span>{m.HOME_TITLE()}</span>
+									</a>
+								</li>
+							{/if}
+							<li>
+								<a data-sveltekit-preload-data="tap" href={dirPath}>
+									<span class="w-6 text-center"><Fa icon={faAddressBook} /></span>
+									<span>{m.NAVBAR_ADDRESSBOOK()}</span>
+								</a>
+							</li>
+							<li>
+								<a href="{base()}/sites">
+									<span class="w-6 text-center"><Fa icon={faMapLocationDot} /></span>
+									<span>Sites</span>
+								</a>
+							</li>
+							{#if page.data.organization.google_calendar_id && page.data.organization.google_calendar_api_key}
+								<li>
+									<a href="{base()}/calendrier">
+										<span class="w-6 text-center"><Fa icon={faCalendar} /></span>
+										<span>{m.CALENDAR()}</span>
+									</a>
+								</li>
+							{/if}
+							<li>
+								<a href="{base()}/contact">
+									<span class="w-6 text-center"><Fa icon={faEnvelope} /></span>
+									<span>Contact</span>
+								</a>
+							</li>
+						</ul>
+					</nav>
+				</div>
 			</div>
-		</div>
 		{/if}
 		{#if isMSP}
-		<div class="hidden">
-			<!-- trigger -->
-			<button
-				class="btn hover:variant-soft-primary"
-				use:popup={{ event: 'click', target: 'facility' }}
-			>
-				<span>{m.OUTPATIENT_CLINIC()}</span>
-				<span class="opacity-50"><Fa icon={faCaretDown} /></span>
-			</button>
-			<!-- popup -->
-			<!-- prettier-ignore -->
+			<div class="hidden">
+				<!-- trigger -->
+				<button
+					class="btn hover:variant-soft-primary"
+					use:popup={{ event: 'click', target: 'facility' }}
+				>
+					<span>{m.OUTPATIENT_CLINIC()}</span>
+					<span class="opacity-50"><Fa icon={faCaretDown} /></span>
+				</button>
+				<!-- popup -->
+				<!-- prettier-ignore -->
 			<div class="card p-4 w-60 shadow-xl" data-popup="facility">
-				<nav class="list-nav">
-					<ul>
-						{#if page.data?.organization?.category?.name == "msp"}
-						<li>
-							<a href="{base}/{ page.data.organization.category.slug }/a-propos">
-								<span class="w-6 text-center"><Fa icon={faInfo} /></span>
-								<span>{m.NAVBAR_ABOUT()}</span>
-							</a>
-							{#if variables.TIMELINE}
-							<a href="{base}/{ page.data.organization.category.slug }/chronologie">
-								<span class="w-6 text-center"><Fa icon={faTimeline} /></span>
-								<span>{m.NAVBAR_TIMELINE()}</span>
-							</a>
+					<nav class="list-nav">
+						<ul>
+							{#if page.data?.organization?.category?.name == "msp"}
+								<li>
+									<a
+										href="{base()}/{page.data.organization.category.slug}/a-propos"
+									>
+										<span class="w-6 text-center"><Fa icon={faInfo} /></span>
+										<span>{m.NAVBAR_ABOUT()}</span>
+									</a>
+									{#if variables.TIMELINE}
+										<a
+											href="{base()}/{page.data.organization.category.slug}/chronologie"
+										>
+											<span class="w-6 text-center"><Fa icon={faTimeline} /></span>
+											<span>{m.NAVBAR_TIMELINE()}</span>
+										</a>
+									{/if}
+									<!--hr class="my-4"-->
+
+									<a
+										href="{base()}/{page.data.organization.category.slug}/projet-de-sante"
+									>
+										<span class="w-6 text-center"><Fa icon={faBookMedical} /></span>
+										<span>{m.NAVBAR_HEALTH_PROJECT()}</span>
+									</a>
+								</li>
 							{/if}
-							<!--hr class="my-4"-->
-							<a href="{base}/{page.data.organization.category.slug }/projet-de-sante">
-								<span class="w-6 text-center"><Fa icon={faBookMedical} /></span>
-								<span>{m.NAVBAR_HEALTH_PROJECT()}</span>
-							</a>
-						</li>
-					{/if}
-					</ul>
-				</nav>
+						</ul>
+					</nav>
+				</div>
 			</div>
-		</div>
 		{/if}
 		<div class="relative hidden xl:block">
 			<!--
@@ -466,8 +475,15 @@
 					<LightSwitch />
 				</section>
 				<hr class="my-4" />
-				<nav class="list-nav p-4 -m-4 max-h-64 lg:max-h-[500px] overflow-y-auto">
-					<form action="{base}/?/setTheme" method="POST" use:enhance={setTheme}>
+
+				<nav
+					class="list-nav p-4 -m-4 max-h-64 lg:max-h-[500px] overflow-y-auto"
+				>
+					<form
+						action="{base()}/?/setTheme"
+						method="POST"
+						use:enhance={setTheme}
+					>
 						<ul>
 							{#each themes as { icon, name, type }}
 								<li>
@@ -506,13 +522,13 @@
 			     path the app is a section of someone else's site — the
 			     organisation's own website is the page around it, so linking
 			     out to it from the toolbar sends a visitor in a circle. -->
-			{#if !base}
-			<Website {website} appBar={true} />
-			{/if}
-			{/each}
+					{#if !base()}
+						<Website website={website} appBar={true} />
+					{/if}
+				{/each}
 			{/if}
 
-        </div>
+		</div>
 
 		<User />
 		<!--

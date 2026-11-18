@@ -34,7 +34,12 @@ describe('authMultipartReq', () => {
 	});
 
 	it('forwards the session cookie and nothing else', () => {
-		const request = authMultipartReq('https://api.example.org/x', 'POST', cookies(SESSION), new FormData());
+		const request = authMultipartReq(
+			'https://api.example.org/x',
+			'POST',
+			cookies(SESSION),
+			new FormData()
+		);
 
 		expect(request.headers.get('cookie')).toBe('authjs.session-token=abc');
 	});

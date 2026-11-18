@@ -15,13 +15,13 @@
 	 *   - the directory's home, so there is always a way back into this app
 	 *     without going out through the parent site.
 	 */
-	import { base } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 	import * as m from '$msgs';
-	import { variables } from '$lib/utils/constants';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import type { SiteMenu, SiteMenuItem } from '$lib/interfaces/siteMenu.interface';
-	import ParentSiteTree from '$lib/SiteMenu/ParentSiteTree.svelte';
-	import { menuWithOwnPages } from '$lib/SiteMenu/siteMenu';
+	import { variables } from '#lib/utils/constants.ts';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import type { SiteMenu, SiteMenuItem } from '#lib/interfaces/siteMenu.interface.ts';
+	import ParentSiteTree from '#lib/SiteMenu/ParentSiteTree.svelte';
+	import { menuWithOwnPages } from '#lib/SiteMenu/siteMenu.ts';
 
 	let { menu }: { menu: SiteMenu } = $props();
 
@@ -38,13 +38,7 @@
 	 * is the entry this tree ends with. Listing them twice in one footer is
 	 * what made it read as two competing menus.
 	 */
-	const treeItems = $derived(
-		menuWithOwnPages(
-			base,
-			capitalizeFirstLetter(m.ADDRESSBOOK_TITLE(), lang),
-			capitalizeFirstLetter(m.LEGAL_NOTICES(), lang)
-		)
-	);
+	const treeItems = $derived(menuWithOwnPages(base(), capitalizeFirstLetter(m.ADDRESSBOOK_TITLE(), lang), capitalizeFirstLetter(m.LEGAL_NOTICES(), lang)));
 </script>
 
 <footer class="page-footer text-xs md:text-base">

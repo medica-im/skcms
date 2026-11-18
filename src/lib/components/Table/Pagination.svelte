@@ -2,7 +2,7 @@
 	import Fa from 'svelte-fa';
 	import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
-	import { PAGE_SIZES, type PageSize } from '$lib/utils/paginate';
+	import { PAGE_SIZES, type PageSize } from '#lib/utils/paginate.ts';
 
 	let {
 		page,

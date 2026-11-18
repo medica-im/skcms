@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import * as m from '$msgs';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
-	import BoardMembersPanel from '$lib/Web/Association/BoardMembersPanel.svelte';
-	import OfficersPanel from '$lib/Web/Association/OfficersPanel.svelte';
-	import OrganizationRolesPanel from '$lib/Web/Association/OrganizationRolesPanel.svelte';
-	import MembershipCategoriesPanel from '$lib/Web/Association/MembershipCategoriesPanel.svelte';
+	import BoardMembersPanel from '#lib/Web/Association/BoardMembersPanel.svelte';
+	import OfficersPanel from '#lib/Web/Association/OfficersPanel.svelte';
+	import OrganizationRolesPanel from '#lib/Web/Association/OrganizationRolesPanel.svelte';
+	import MembershipCategoriesPanel from '#lib/Web/Association/MembershipCategoriesPanel.svelte';
 
 	let { data } = $props();
 

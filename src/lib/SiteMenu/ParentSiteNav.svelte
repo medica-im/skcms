@@ -14,8 +14,8 @@
 	import { popup } from '@skeletonlabs/skeleton';
 	import Fa from 'svelte-fa';
 	import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
-	import type { SiteMenuItem } from '$lib/interfaces/siteMenu.interface';
-	import { displayLabel } from '$lib/SiteMenu/siteMenu';
+	import type { SiteMenuItem } from '#lib/interfaces/siteMenu.interface.ts';
+	import { displayLabel } from '#lib/SiteMenu/siteMenu.ts';
 
 	let { items }: { items: SiteMenuItem[] } = $props();
 

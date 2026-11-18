@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { modeCurrent } from '@skeletonlabs/skeleton';
-	import logo_light from '$lib/assets/images/logo_light.png';
-	import logo_dark from '$lib/assets/images/logo_dark.png';    
+	import logo_light from '#lib/assets/images/logo_light.png';
+	import logo_dark from '#lib/assets/images/logo_dark.png';    
     export let data: number = 96;
 </script>
 

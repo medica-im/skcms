@@ -1,9 +1,9 @@
 <script lang="ts">
     import { page } from "$app/state";
-    import UserCard from "$lib/Dashboard/UserCard.svelte";
-    import { UserEntries } from "$lib/User";
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-    import type { OauthSession } from "$lib/interfaces/oidc";
+    import UserCard from "#lib/Dashboard/UserCard.svelte";
+    import { UserEntries } from "#lib/User/index.ts";
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+    import type { OauthSession } from "#lib/interfaces/oidc.ts";
     import Fa from 'svelte-fa';
     import { faBan } from '@fortawesome/free-solid-svg-icons';
     import * as m from '$msgs';

@@ -2,14 +2,14 @@
 	import * as m from '$msgs';
 	import { getLocale } from '../../paraglide/runtime.js';
 	import { page } from '$app/state';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import type { SveltekitError } from '$lib/interfaces/error.interface.ts';
-	import { base } from '$app/paths';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import type { SveltekitError } from '#lib/interfaces/error.interface.ts';
+	import { base } from '#lib/utils/base.ts';
 
 	let { data }: { data: SveltekitError } = $props();
 	console.log(getLocale());
 	const addressbookUrl = () => {
-		return `${base}${page.data.directory.setting.path || '/'}`
+		return `${base()}${page.data.directory.setting.path || '/'}`;
 	};
 </script>
 
@@ -39,16 +39,24 @@
 			</div>
 		{/if}
 	{:else if data.type === 'site'}
-			<p>
+		<p>
 				Le site que vous recherchez n'existe pas. L'addresse <code>{page.url.pathname}</code> ne correspond
 				à aucun site. Peut-être a-t-il été supprimé?
-			</p>
-			<div>
-			<a href="{base}/" title="Sites" class="btn variant-ghost-primary">Sites</a>
-			</div>
+		</p>
+		<div>
+			<a
+				href="{base()}/"
+				title="Sites"
+				class="btn variant-ghost-primary"
+			>Sites</a>
+		</div>
 	{/if}
 	<div>
-		<a href="{base}/contact" title="Contact" class="btn variant-ghost-primary">Contact</a>
+		<a
+			href="{base()}/contact"
+			title="Contact"
+			class="btn variant-ghost-primary"
+		>Contact</a>
 	</div>
 </div>
 

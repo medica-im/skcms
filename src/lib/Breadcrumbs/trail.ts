@@ -1,5 +1,5 @@
-import { variables } from '$lib/utils/constants';
-import type { ProgramsNavLinks } from '$lib/interfaces/variables.interface';
+import { variables } from '#lib/utils/constants.ts';
+import type { ProgramsNavLinks } from '#lib/interfaces/variables.interface.ts';
 
 export interface Crumb {
 	label: string;
@@ -53,9 +53,7 @@ export const programTrail = (
 	if (programme) trail.push({ label: programme.label, href: programme.href, current: true });
 	else {
 		// A sub-page: name the programme it sits under, if that is listed.
-		const parent = category.list.find(
-			(l) => path.startsWith(l.href + '/') && l.active !== false
-		);
+		const parent = category.list.find((l) => path.startsWith(l.href + '/') && l.active !== false);
 		// A parent, not the current page: keep it a link.
 		if (parent) {
 			trail.push({ label: parent.label, href: parent.href, current: false });

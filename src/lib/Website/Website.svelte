@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { variables } from '$src/lib/utils/constants';
 	import * as m from '$msgs';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	
 	import Fa from 'svelte-fa';
 	import { faGlobe, faBlog } from '@fortawesome/free-solid-svg-icons';
-	import Update from '$lib/Web/Website/Update.svelte';
-	import Delete from '$lib/Web/Website/Delete.svelte';
-	import type { Website as WebsiteType } from '$lib/interfaces/website.interface';
+	import Update from '#lib/Web/Website/Update.svelte';
+	import Delete from '#lib/Web/Website/Delete.svelte';
+	import type { Website as WebsiteType } from '#lib/interfaces/website.interface.ts';
 
 	let { data, editMode } : { data: WebsiteType; editMode: boolean } = $props();
 

@@ -1,15 +1,15 @@
-import type { Reroute } from '@sveltejs/kit';
-import { base } from '$app/paths';
+import type { Reroute } from '@sveltejs/kit/hooks';
+import { resolve } from '$app/paths';
+import { base } from '#lib/utils/base.ts';
 import { deLocalizeUrl } from '$prgld/runtime.js';
-import { isContactPath } from '$lib/contactPath';
+import { isContactPath } from '#lib/contactPath.ts';
 
 // Through the $skvar alias, not ./routes/(skvar): a test site server serves its
 // tenant's skvar from a worktree (scripts/site-routes.sh), and the hardcoded
 // path read the shared checkout's branch instead — annuaire's server saw Lyon
 // 3's contact page there and 404'd rather than falling back.
-const skvarContactExists = Object.keys(
-	import.meta.glob('$skvar/contact/+page.svelte', { eager: false })
-).length > 0;
+const skvarContactExists =
+	Object.keys(import.meta.glob('$skvar/contact/+page.svelte', { eager: false })).length > 0;
 
 export const reroute: Reroute = ({ url }) => {
 	// `url.pathname` carries the base path, so the comparison and the route
@@ -17,12 +17,11 @@ export const reroute: Reroute = ({ url }) => {
 	// stopped working on an instance served under /annuaire: the pathname is
 	// '/annuaire/contact', the branch never fired, and a tenant whose skvar has
 	// no contact page got a 404 instead of the fallback.
-	if (isContactPath(url.pathname, base)) {
+	if (isContactPath(url.pathname, base())) {
 		if (!skvarContactExists) {
-			return `${base}/fallback/contact`;
+			return resolve(`fallback/contact`);
 		}
 		return;
 	}
 	return deLocalizeUrl(url).pathname;
 };
-

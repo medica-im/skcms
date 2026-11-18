@@ -2,12 +2,12 @@
 	import * as m from '$msgs';
 	import { page } from '$app/state';
 	import { onMount } from 'svelte';
-	import Select from '$lib/Web/Select.svelte';
-	import type { SelectType } from '$lib/interfaces/select.ts';
-	import type { Commune, DepartmentOfFrance, FacilityV2 } from '$lib/interfaces/v2/facility.ts';
+	import Select from '#lib/Web/Select.svelte';
+	import type { SelectType } from '#lib/interfaces/select.ts';
+	import type { Commune, DepartmentOfFrance, FacilityV2 } from '#lib/interfaces/v2/facility.ts';
 	import { getCommunesByDpt, getDepartments, getFacilities } from './data';
-	import { normalize } from '$lib/helpers/stringHelpers.ts';
-	import { userRoles } from '$lib/auth/roles';
+	import { normalize } from '#lib/helpers/stringHelpers.ts';
+	import { userRoles } from '#lib/auth/roles.ts';
 	import { facilityMatches, facilityOptionLabel, facilitySearchText } from './facilityOption';
 
 	const communeFilter = (label: any, filterText: any) => {

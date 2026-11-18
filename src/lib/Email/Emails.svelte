@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Email from '$lib/Email/Email.svelte';
-	import Mssante from '$lib/Email/Mssante.svelte';
-	import type { Email as EmailType } from '$lib/interfaces/email.interface';
+	import Email from '#lib/Email/Email.svelte';
+	import Mssante from '#lib/Email/Mssante.svelte';
+	import type { Email as EmailType } from '#lib/interfaces/email.interface.ts';
 
 	let { data, editMode=false }: { data: EmailType[]; editMode?: boolean } = $props();
 

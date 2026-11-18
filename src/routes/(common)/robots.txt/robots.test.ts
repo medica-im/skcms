@@ -23,7 +23,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 /** Load the route fresh with NOINDEX forced either way. */
 async function robotsFor(noindex: boolean) {
 	vi.resetModules();
-	vi.doMock('$lib/utils/constants', () => ({ variables: { NOINDEX: noindex } }));
+	vi.doMock('#lib/utils/constants.ts', () => ({ variables: { NOINDEX: noindex } }));
 	const { GET } = await import('./+server.ts');
 	const response = GET();
 	return {

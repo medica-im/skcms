@@ -49,7 +49,9 @@ const SHAPES: Record<string, () => Promise<string | null>> = {
 		return entry ? `/sites/${entry.facility.slug}` : null;
 	},
 	'/web/users/': async () => {
-		const entry = (await entries()).find((e: any) => e.active && (e.owner?.length || e.creator?.length));
+		const entry = (await entries()).find(
+			(e: any) => e.active && (e.owner?.length || e.creator?.length)
+		);
 		const uid = entry?.owner?.[0] ?? entry?.creator?.[0];
 		return uid ? `/web/users/${uid}` : null;
 	}

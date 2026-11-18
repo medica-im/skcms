@@ -1,13 +1,13 @@
 import { invalid } from '@sveltejs/kit';
 import { getRequestEvent, query, form, command } from '$app/server';
-import * as z from "zod";
-import { authReq } from '$lib/utils/request.ts';
-import { variables } from '$lib/utils/constants.ts';
-import { slugify } from '$lib/helpers/stringHelpers';
+import * as z from 'zod';
+import { authReq } from '#lib/utils/request.ts';
+import { variables } from '#lib/utils/constants.ts';
+import { slugify } from '#lib/helpers/stringHelpers.ts';
 import { redirect } from '@sveltejs/kit';
 import { OFFERS, type Coverage, type EntryFull } from './lib/store/directoryStoreInterface';
-import { base } from '$app/paths';
-import type { SlugCheck } from '$lib/Web/Slug/slugView.ts';
+import { resolve } from '$app/paths';
+import type { SlugCheck } from '#lib/Web/Slug/slugView.ts';
 
 const RoleEnum = z.enum(['anonymous', 'staff', 'administrator', 'superuser']);
 
@@ -19,19 +19,23 @@ const postEntry = z.object({
 		if (val) {
 			return val.split(',');
 		} else {
-			return null
+			return null;
 		}
-	}, z.array(z.string()).nullable()
-	),
+	}, z.array(z.string()).nullable()),
 	directory: z.string().optional(),
 	organization_category: z.string().optional(),
 	isOwner: z.boolean().default(true),
-	redeemEmail: z.preprocess((val: string | undefined) => val === '' ? undefined : val, z.email().optional()),
+	redeemEmail: z.preprocess(
+		(val: string | undefined) => (val === '' ? undefined : val),
+		z.email().optional()
+	),
 	access: z.string().default('anonymous'),
 	// The address of a facility that has none yet, chosen on the confirmation form.
-	facility_slug: z.preprocess((val: string | undefined) => (val === '' ? undefined : val), z.string().optional())
-}
-);
+	facility_slug: z.preprocess(
+		(val: string | undefined) => (val === '' ? undefined : val),
+		z.string().optional()
+	)
+});
 
 export const createEntry = form(postEntry, async (data, issue) => {
 	console.log(`entry form data: ${JSON.stringify(data)}`);
@@ -42,21 +46,21 @@ export const createEntry = form(postEntry, async (data, issue) => {
 	const request = authReq(url, 'POST', cookies, JSON.stringify(data));
 	const response = await fetch(request);
 	if (response.ok == false) {
-		const json = await response.json()
-		console.error(JSON.stringify(json))
-		console.error(response.status)
-		console.error(response.statusText)
+		const json = await response.json();
+		console.error(JSON.stringify(json));
+		console.error(response.status);
+		console.error(response.statusText);
 		// A refusal with a code (type_not_offered) is passed as its code; the
 		// form words it.
 		const detail = typeof json.detail?.code === 'string' ? json.detail.code : json.detail;
 		invalid(detail ?? `${response.status} ${response.statusText}`);
 	} else {
-		const json = await response.json() as EntryFull;
+		const json = (await response.json()) as EntryFull;
 		console.log(`Success! Status: ${response.status} Status text: ${response.statusText}`);
 		console.log(json);
-		const redirectPath = `${base}/e/${json.entrySlug}`;
+		const redirectPath = resolve(`e/${json.entrySlug}`);
 		const redirectURL = `${redirectPath}?invalidateEntries`;
-		redirect(303, redirectURL)
+		redirect(303, redirectURL);
 		/*return {
 			success: true,
 			status: response.status,
@@ -95,19 +99,19 @@ export const patchCommand = command(Patch, async (data) => {
 	//const jsn = await response.json();
 	if (response.ok == false) {
 		//console.log("patchCommand json", JSON.stringify(jsn));
-		console.error(response.status)
-		console.error(response.statusText)
+		console.error(response.status);
+		console.error(response.statusText);
 		return {
 			success: false,
 			status: response.status,
 			text: response.statusText
-		}
+		};
 	} else {
 		return {
 			success: true,
 			status: response.status,
 			text: response.statusText
-		}
+		};
 	}
 });
 
@@ -179,7 +183,12 @@ export const changeEntryType = command(TypeChange, async ({ uid, effector_type }
 		// A proxy error page is not JSON; the status still says enough.
 	}
 	if (response.ok) {
-		return { success: true, status: response.status, slug: body?.slug as string, removedTags: (body?.removed_tags ?? []) as RemovedTag[] };
+		return {
+			success: true,
+			status: response.status,
+			slug: body?.slug as string,
+			removedTags: (body?.removed_tags ?? []) as RemovedTag[]
+		};
 	}
 	console.error(`PUT ${url} -> ${response.status} ${JSON.stringify(body?.detail ?? '')}`);
 	const detail = body?.detail;

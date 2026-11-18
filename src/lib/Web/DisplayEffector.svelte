@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { ORIGIN } from '$lib/utils/origin.ts';
-	import type { Effector } from '$lib/interfaces/v2/effector';
+	import { ORIGIN } from '#lib/utils/origin.ts';
+	import type { Effector } from '#lib/interfaces/v2/effector.ts';
 	let { effectorUid }: { effectorUid: string | undefined } = $props();
 	async function fetchEffector(): Promise<Effector | number> {
 		const response = await fetch(`${ORIGIN}/api/v2/effectors/${effectorUid}`);

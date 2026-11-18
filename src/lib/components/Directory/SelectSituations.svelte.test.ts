@@ -8,7 +8,7 @@ import { render } from 'vitest-browser-svelte';
 import { writable } from 'svelte/store';
 import * as m from '$msgs';
 import SelectSituations from './SelectSituations.svelte';
-import { choose, clear, lastQuery } from '$lib/testing/directoryFilter';
+import { choose, clear, lastQuery } from '#lib/testing/directoryFilter.ts';
 import '../../../app.postcss';
 
 const nav = vi.hoisted(() => ({ goto: vi.fn() }));

@@ -1,11 +1,11 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import Fa from 'svelte-fa';
 	import { faGlobe, faBlog } from '@fortawesome/free-solid-svg-icons';
 	import { AppRailAnchor } from '@skeletonlabs/skeleton';
-	import { getHostnameFromURL } from '$lib/utils/utils';
-	import type { Website } from '$lib/interfaces/website.interface';
+	import { getHostnameFromURL } from '#lib/utils/utils.ts';
+	import type { Website } from '#lib/interfaces/website.interface.ts';
 
 	let {
 		website,

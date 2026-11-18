@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { base } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 	import { page } from '$app/state';
-	import type { Entry } from '$lib/store/directoryStoreInterface.js';
-	import { buttonLabel, tooltipLabel } from '$lib/Organization/occupationLabel.js';
+	import type { Entry } from '#lib/store/directoryStoreInterface.js';
+	import { buttonLabel, tooltipLabel } from '#lib/Organization/occupationLabel.js';
 
 	let { data }: { data: Map<string, Entry[]> | [string, Entry[]][] } = $props();
 
-	const dirPath = `${base}${page.data.directory.setting.path || '/'}`;
+	const dirPath = `${base()}${page.data.directory.setting.path || '/'}`;
 	const typeSlug = page.data.directory.setting.type_slug;
 
 	function getHref(value: Entry[]): string {

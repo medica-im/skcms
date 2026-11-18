@@ -3,9 +3,9 @@
 	import Fa from 'svelte-fa';
 	import { faCheck, faEarthEurope, faPenToSquare, faXmark } from '@fortawesome/free-solid-svg-icons';
 	import { invalidate } from '$app/navigation';
-	import Dialog from '$lib/Web/Dialog.svelte';
+	import Dialog from '#lib/Web/Dialog.svelte';
 	import { patchCommand, searchPlaces } from '../../../entry.remote';
-	import type { Coverage } from '$lib/store/directoryStoreInterface.ts';
+	import type { Coverage } from '#lib/store/directoryStoreInterface.ts';
 
 	/**
 	 * Where an entry without premises answers, shown in place of an address; in edit mode, a

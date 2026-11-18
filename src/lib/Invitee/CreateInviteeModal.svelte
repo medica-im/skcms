@@ -1,9 +1,9 @@
 <script lang="ts">
     import { onMount } from 'svelte'
-    import Modal from '$lib/Modal.svelte'
+    import Modal from '#lib/Modal.svelte'
     import type { Snippet } from 'svelte'
-    import type { Effector } from '$lib/interfaces/v2/effector.ts';
-    import type { SelectType } from '$lib/interfaces/select.ts';
+    import type { Effector } from '#lib/interfaces/v2/effector.ts';
+    import type { SelectType } from '#lib/interfaces/select.ts';
 
   interface Props {
     title: string

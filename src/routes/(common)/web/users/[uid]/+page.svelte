@@ -1,19 +1,19 @@
 <script lang="ts">
     import { page } from '$app/state';
     import { invalidateAll } from '$app/navigation';
-    import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-    import { UserCard, UserEntries } from '$lib/User';
+    import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+    import { UserCard, UserEntries } from '#lib/User/index.ts';
     import * as m from '$msgs';
     import Fa from 'svelte-fa';
     import { faArrowLeft, faKey, faShieldHalved, faClipboardList, faCircle, faPenToSquare, faBan } from '@fortawesome/free-solid-svg-icons';
     import type { PageData } from './$types';
-    import RoleBadge from '$lib/RoleBadge.svelte';
-    import Switch from '$lib/Switch/Switch.svelte';
-    import { setEditMode, getEditMode } from '$lib/components/Directory/context';
-    import RoleChangeModal from '$lib/User/RoleChangeModal.svelte';
-    import SuspensionModal from '$lib/User/SuspensionModal.svelte';
-    import AccessHistory from '$lib/User/AccessHistory.svelte';
-    import { base } from '$app/paths';
+    import RoleBadge from '#lib/RoleBadge.svelte';
+    import Switch from '#lib/Switch/Switch.svelte';
+    import { setEditMode, getEditMode } from '#lib/components/Directory/context.ts';
+    import RoleChangeModal from '#lib/User/RoleChangeModal.svelte';
+    import SuspensionModal from '#lib/User/SuspensionModal.svelte';
+    import AccessHistory from '#lib/User/AccessHistory.svelte';
+    import { base } from '#lib/utils/base.ts';
 
     let { data }: { data: PageData } = $props();
     let userDetail = $derived(data.userDetail);
@@ -56,7 +56,10 @@
 {#if isAuthorized}
     <div class="container mx-auto p-4">
         <header class="mb-6">
-            <a href="{base}/web/users" class="btn variant-ghost-primary mb-4">
+            <a
+                href="{base()}/web/users"
+                class="btn variant-ghost-primary mb-4"
+            >
                 <span class="badge variant-filled-primary"><Fa icon={faArrowLeft} /></span>
                 <span>Retour à la liste</span>
             </a>
@@ -140,8 +143,8 @@
                                             {#if $editMode && access.active}
                                                 <RoleChangeModal
                                                     userUid={userDetail.uid}
-                                                    {currentRole}
-                                                    {suspended}
+                                                    currentRole={currentRole}
+                                                    suspended={suspended}
                                                     onchanged={() => invalidateAll()}
                                                 />
                                             {/if}
@@ -181,7 +184,7 @@
                                             {#if $editMode && access.active}
                                                 <SuspensionModal
                                                     userUid={userDetail.uid}
-                                                    {suspended}
+                                                    suspended={suspended}
                                                     suspensionReason={access.suspensionReason}
                                                     onchanged={() => invalidateAll()}
                                                 />

@@ -13,7 +13,12 @@ const programsNavLinks = {
 		title: { en: 'Health education', fr: 'Éducation pour la santé' },
 		href: '/education-sante',
 		list: [
-			{ href: '/education-sante/parentalite', label: 'Parentalité', category: 'program', archive: true },
+			{
+				href: '/education-sante/parentalite',
+				label: 'Parentalité',
+				category: 'program',
+				archive: true
+			},
 			{ href: '/education-sante/sommeil', label: 'Sommeil', category: 'program' }
 		]
 	}

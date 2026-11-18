@@ -1,12 +1,12 @@
-import { variables } from '$lib/utils/constants';
-import { browser } from "$app/environment"
+import { variables } from '#lib/utils/constants.ts';
+import { browser } from '$app/env';
 
 const key = variables.GHOST_API_KEY;
 const apiUrl = `${variables.BLOG_URI}/ghost/api/v3/content/posts/?key=${key}&fields=title,url,custom_excerpt,feature_image,feature_image_alt,published_at&limit=2`;
 
 export const ghost = async () => {
 	var cachelife = 600;
-	const cacheName = "ghost";
+	const cacheName = 'ghost';
 	let cachedData;
 	let expired: boolean = true;
 	let empty: boolean = true;
@@ -30,13 +30,13 @@ export const ghost = async () => {
 			if (response?.ok) {
 				const articles = await response.json();
 				if (browser) {
-					var json = { data: articles, cachetime: Date.now() }
+					var json = { data: articles, cachetime: Date.now() };
 					localStorage.setItem(`${cacheName}`, JSON.stringify(json));
 				}
 				return articles;
 			} else {
 				const error = `HTTP Response Code: ${response?.status}`;
-				console.error(error)
+				console.error(error);
 				throw new Error(error);
 			}
 		} catch (error) {

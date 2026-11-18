@@ -1,8 +1,8 @@
 import { getRequestEvent, query, command } from '$app/server';
 import * as z from 'zod';
-import { authReq, type Method } from '$lib/utils/request.ts';
-import { variables } from '$lib/utils/constants.ts';
-import type { User } from '$lib/interfaces/v2/user.ts';
+import { authReq, type Method } from '#lib/utils/request.ts';
+import { variables } from '#lib/utils/constants.ts';
+import type { User } from '#lib/interfaces/v2/user.ts';
 
 /**
  * One user, or `null` if this site has never heard of them.
@@ -26,7 +26,7 @@ export const getUser = query(z.string(), async (uid) => {
 	const request = authReq(url, 'GET', cookies);
 	const response = await fetch(request);
 	if (response.ok) {
-		return await response.json() as User;
+		return (await response.json()) as User;
 	}
 	if (response.status === 404) {
 		return null;
@@ -41,7 +41,7 @@ export const getUsers = query(async () => {
 	const request = authReq(url, 'GET', cookies);
 	const response = await fetch(request);
 	if (response.ok) {
-		return await response.json() as User[];
+		return (await response.json()) as User[];
 	}
 	console.error(`Failed to fetch users: ${response.status} ${response.statusText}`);
 });

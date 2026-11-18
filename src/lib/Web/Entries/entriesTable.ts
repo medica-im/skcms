@@ -6,7 +6,7 @@
  * sorted as 1970, an accent sorted after Z, an entry counted as owned because
  * somebody created it.
  */
-import { compareDateTimes, type SortDirection } from '$lib/utils/dateTimeSort';
+import { compareDateTimes, type SortDirection } from '#lib/utils/dateTimeSort.ts';
 
 export type AdminUser = {
 	uid: string;

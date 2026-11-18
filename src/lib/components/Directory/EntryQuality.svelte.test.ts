@@ -10,7 +10,7 @@ import { render } from 'vitest-browser-svelte';
 import { page as screen } from 'vitest/browser';
 import * as m from '$msgs';
 import EntryQuality from './EntryQuality.svelte';
-import { AA_TEXT, inScheme, legibility } from '$lib/testing/contrast.ts';
+import { AA_TEXT, inScheme, legibility } from '#lib/testing/contrast.ts';
 import '../../../app.postcss';
 
 document.body.dataset.theme = 'wintry';
@@ -29,9 +29,18 @@ describe('EntryQuality', () => {
 
 	it('lists what is missing first, under its own heading, then what is to complete', async () => {
 		render(EntryQuality, { props: { problems: PROBLEMS } });
-		const headings = screen.getByRole('region', { name: m.QUALITY_TITLE() }).getByRole('heading', { level: 5 }).elements();
-		expect(headings.map((h) => h.textContent?.trim())).toEqual([m.QUALITY_MISSING(), m.QUALITY_INCOMPLETE()]);
-		const sentences = screen.getByRole('region', { name: m.QUALITY_TITLE() }).getByRole('listitem').elements();
+		const headings = screen
+			.getByRole('region', { name: m.QUALITY_TITLE() })
+			.getByRole('heading', { level: 5 })
+			.elements();
+		expect(headings.map((h) => h.textContent?.trim())).toEqual([
+			m.QUALITY_MISSING(),
+			m.QUALITY_INCOMPLETE()
+		]);
+		const sentences = screen
+			.getByRole('region', { name: m.QUALITY_TITLE() })
+			.getByRole('listitem')
+			.elements();
 		expect(sentences.map((li) => li.textContent?.trim())).toEqual([
 			m.QUALITY_LINE_WITHOUT_PHONE(),
 			m.QUALITY_NO_DESCRIPTION(),

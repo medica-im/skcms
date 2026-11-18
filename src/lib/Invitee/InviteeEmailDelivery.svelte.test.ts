@@ -76,7 +76,11 @@ describe("InviteeEmailDelivery in the list's column", () => {
 		['refused by the mail service', delivery('failed', '401: Forbidden')],
 		['never settled (timed out)', delivery('failed', null, true)]
 	])('makes an email %s a link to the invitation, with a red cross', async (_why, failed) => {
-		render(InviteeEmailDelivery, { delivery: failed, variant: 'column', href: '/web/invite/invitees/u1' });
+		render(InviteeEmailDelivery, {
+			delivery: failed,
+			variant: 'column',
+			href: '/web/invite/invitees/u1'
+		});
 
 		const link = page.getByRole('link', { name: /Échec/ });
 		await expect.element(link).toHaveAttribute('href', '/web/invite/invitees/u1');
@@ -84,7 +88,11 @@ describe("InviteeEmailDelivery in the list's column", () => {
 	});
 
 	it('links nowhere when the email went out', async () => {
-		render(InviteeEmailDelivery, { delivery: delivery('sent'), variant: 'column', href: '/web/invite/invitees/u1' });
+		render(InviteeEmailDelivery, {
+			delivery: delivery('sent'),
+			variant: 'column',
+			href: '/web/invite/invitees/u1'
+		});
 
 		await expect.element(page.getByRole('link')).not.toBeInTheDocument();
 	});
@@ -107,26 +115,34 @@ describe('InviteeEmailDelivery on the detail page', () => {
 	});
 
 	it('gives the reason of a failure', async () => {
-		render(InviteeEmailDelivery, { delivery: delivery('failed', '401: Forbidden'), variant: 'detail' });
+		render(InviteeEmailDelivery, {
+			delivery: delivery('failed', '401: Forbidden'),
+			variant: 'detail'
+		});
 
-		await expect.element(page.getByTestId('invitee-email-delivery-error')).toHaveTextContent('401: Forbidden');
+		await expect
+			.element(page.getByTestId('invitee-email-delivery-error'))
+			.toHaveTextContent('401: Forbidden');
 	});
 
 	it('says an email nobody settled most likely never left', async () => {
 		render(InviteeEmailDelivery, { delivery: delivery('failed', null, true), variant: 'detail' });
 
 		await expect.element(badge()).toHaveTextContent("Échec de l'envoi");
-		await expect.element(page.getByTestId('invitee-email-delivery-error')).toHaveTextContent(
-			'Aucune confirmation d’envoi après 15 minutes'
-		);
+		await expect
+			.element(page.getByTestId('invitee-email-delivery-error'))
+			.toHaveTextContent('Aucune confirmation d’envoi après 15 minutes');
 	});
 
 	// One icon for a failure wherever it is shown, so it reads the same.
-	it.each(['flag', 'detail'] as const)('shows a failure with the red cross in the %s', async (variant) => {
-		render(InviteeEmailDelivery, { delivery: delivery('failed', '401: Forbidden'), variant });
+	it.each(['flag', 'detail'] as const)(
+		'shows a failure with the red cross in the %s',
+		async (variant) => {
+			render(InviteeEmailDelivery, { delivery: delivery('failed', '401: Forbidden'), variant });
 
-		await expect.element(page.getByTestId('invitee-email-delivery-cross')).toBeVisible();
-	});
+			await expect.element(page.getByTestId('invitee-email-delivery-cross')).toBeVisible();
+		}
+	);
 
 	it('says when no attempt was recorded', async () => {
 		render(InviteeEmailDelivery, { delivery: null, variant: 'detail' });
@@ -166,13 +182,20 @@ describe('InviteeEmailDelivery through the lifecycle', () => {
 		await expect.element(cell()).toHaveTextContent(words);
 	});
 
-	it.each(['bounced', 'complained', 'suppressed'])('treats a %s email as a failure to act on', async (status) => {
-		render(InviteeEmailDelivery, { delivery: delivery(status), variant: 'column', href: '/web/invite/invitees/u1' });
+	it.each(['bounced', 'complained', 'suppressed'])(
+		'treats a %s email as a failure to act on',
+		async (status) => {
+			render(InviteeEmailDelivery, {
+				delivery: delivery(status),
+				variant: 'column',
+				href: '/web/invite/invitees/u1'
+			});
 
-		const link = page.getByRole('link');
-		await expect.element(link).toHaveAttribute('href', '/web/invite/invitees/u1');
-		await expect.element(link.getByTestId('invitee-email-delivery-cross')).toBeVisible();
-	});
+			const link = page.getByRole('link');
+			await expect.element(link).toHaveAttribute('href', '/web/invite/invitees/u1');
+			await expect.element(link.getByTestId('invitee-email-delivery-cross')).toBeVisible();
+		}
+	);
 
 	it('does not flag a delivered email on the compact card', async () => {
 		render(InviteeEmailDelivery, { delivery: delivery('delivered') });
@@ -189,7 +212,7 @@ describe('InviteeEmailDelivery through the lifecycle', () => {
 
 describe('InviteeEmailDelivery says why a failure happened', () => {
 	it.each([
-		['invalid_request', "corrigez-la"],
+		['invalid_request', 'corrigez-la'],
 		['misconfigured', 'super-administrateur'],
 		['rate_limited', 'renvoyez plus tard'],
 		['provider_unavailable', 'indisponible'],
@@ -202,8 +225,13 @@ describe('InviteeEmailDelivery says why a failure happened', () => {
 	});
 
 	it("keeps the service's own words, for whoever digs further", async () => {
-		render(InviteeEmailDelivery, { delivery: withKind('failed', 'invalid_request', '400: bad address'), variant: 'detail' });
+		render(InviteeEmailDelivery, {
+			delivery: withKind('failed', 'invalid_request', '400: bad address'),
+			variant: 'detail'
+		});
 
-		await expect.element(page.getByTestId('invitee-email-delivery-raw')).toHaveTextContent('400: bad address');
+		await expect
+			.element(page.getByTestId('invitee-email-delivery-raw'))
+			.toHaveTextContent('400: bad address');
 	});
 });

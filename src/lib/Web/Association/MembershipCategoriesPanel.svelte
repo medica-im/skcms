@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import type { MembershipCategory } from '$lib/interfaces/v2/association';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import type { MembershipCategory } from '#lib/interfaces/v2/association.ts';
 	import MembershipCategoryRow from './MembershipCategoryRow.svelte';
 	import CreateMembershipCategory from './CreateMembershipCategory.svelte';
 

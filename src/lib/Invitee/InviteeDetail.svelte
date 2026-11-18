@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { Invitee } from '$lib/interfaces/v2/invitee';
-	import type { User } from '$lib/interfaces/v2/user';
+	import type { Invitee } from '#lib/interfaces/v2/invitee.ts';
+	import type { User } from '#lib/interfaces/v2/user.ts';
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faEnvelope, faUser, faPenToSquare, faTrash, faUserPlus, faClock, faShieldHalved, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
@@ -11,8 +11,8 @@
 	import InviteeAddressProblem from './InviteeAddressProblem.svelte';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import FileJson from '@lucide/svelte/icons/file-json';
-	import RoleBadge from '$lib/RoleBadge.svelte';
-	import { base } from '$app/paths';
+	import RoleBadge from '#lib/RoleBadge.svelte';
+	import { base } from '#lib/utils/base.ts';
 
 	let { invitee, createdByUser, onEdit, onDelete }: { invitee: Invitee; createdByUser?: User; onEdit?: (invitee: Invitee) => void; onDelete?: (invitee: Invitee) => void } = $props();
 
@@ -45,7 +45,7 @@
 			</span>
 			<p class="font-semibold flex items-center gap-2">
 				<span class="break-all">{invitee.email}</span>
-				<InviteeAddressFlag {invitee} />
+				<InviteeAddressFlag invitee={invitee} />
 			</p>
 		</div>
 
@@ -88,10 +88,7 @@
 		</div>
 
 		<!-- A bad address: what happened, what to do, and the fix in place -->
-		<div class="md:col-span-2">
-			<InviteeAddressProblem {invitee} />
-		</div>
-
+		<div class="md:col-span-2"><InviteeAddressProblem invitee={invitee} /></div>
 		<!-- Created at -->
 		<div>
 			<span class="text-sm text-surface-500 flex items-center gap-1">
@@ -108,7 +105,10 @@
 				Créé par
 			</span>
 			<p class="font-semibold">
-				<a href="{base}/web/users/{invitee.createdBy}" class="anchor">{createdByUser?.name || createdByUser?.email || invitee.createdBy}</a>
+				<a
+					href="{base()}/web/users/{invitee.createdBy}"
+					class="anchor"
+				>{createdByUser?.name || createdByUser?.email || invitee.createdBy}</a>
 			</p>
 		</div>
 

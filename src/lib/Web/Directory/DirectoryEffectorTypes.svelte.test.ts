@@ -21,7 +21,7 @@ const remote = vi.hoisted(() => ({
 	withdrawAllEffectorTypes: vi.fn()
 }));
 vi.mock('../../../directory.remote', () => remote);
-vi.mock('$lib/Web/EffectorTypeSelect.svelte', async () => ({
+vi.mock('#lib/Web/EffectorTypeSelect.svelte', async () => ({
 	default: (await import('../Entry/EffectorTypeSelectStub.svelte')).default
 }));
 
@@ -71,7 +71,9 @@ describe('DirectoryEffectorTypes on the page', () => {
 
 		await expect.element(summary()).toHaveTextContent('Infirmier');
 		await expect.element(summary()).toHaveTextContent('IPA');
-		await expect.element(page.getByRole('button', { name: 'Retirer Infirmier' })).not.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: 'Retirer Infirmier' }))
+			.not.toBeInTheDocument();
 		await expect.element(page.getByRole('button', { name: 'Ajouter' })).not.toBeInTheDocument();
 		await expect.element(overlay()).not.toBeVisible();
 	});
@@ -90,7 +92,12 @@ describe('DirectoryEffectorTypes overlay', () => {
 		render(DirectoryEffectorTypes, { directory: directory([NURSE, IPA]) });
 		await openOverlay();
 
-		for (const name of ['Retirer Infirmier', 'Ajouter', 'Retirer toutes les catégories', 'Fermer']) {
+		for (const name of [
+			'Retirer Infirmier',
+			'Ajouter',
+			'Retirer toutes les catégories',
+			'Fermer'
+		]) {
 			expect(height(name), name).toBeGreaterThanOrEqual(44);
 		}
 	});
@@ -128,7 +135,9 @@ describe('DirectoryEffectorTypes overlay', () => {
 		await page.getByRole('button', { name: 'Retirer Infirmier' }).click();
 
 		expect(remote.withdrawEffectorType).toHaveBeenCalledWith({ uid: 'd1', effector_type: 't1' });
-		await expect.element(page.getByRole('button', { name: 'Retirer Infirmier' })).not.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: 'Retirer Infirmier' }))
+			.not.toBeInTheDocument();
 		await expect.element(summary()).not.toHaveTextContent('Infirmier');
 	});
 

@@ -1,27 +1,27 @@
 <script lang="ts">
 	import { getSelectSituation } from './context.ts';
-	import { scrollY } from '$lib/store/scrollStore.ts';
-	import { variables } from '$lib/utils/constants.ts';
-	import Spinner from '$lib/Spinner/Spinner.svelte';
-	import SearchDirectory from '$lib/components/Directory/SearchDirectory.svelte';
-	import SelectCommunes from '$lib/components/Directory/SelectCommunesR.svelte';
-	import SelectCategories from '$lib/components/Directory/SelectCategoriesR.svelte';
-	import SelectDepartments from '$lib/components/Directory/SelectDepartmentsR.svelte';
-	import SelectCategoriesChips from '$lib/components/Directory/SelectCategoriesChips.svelte';
-	import SelectSituations from '$lib/components/Directory/SelectSituations.svelte';
-	import SelectTags from '$lib/components/Directory/SelectTagsR.svelte';
-	import SelectFacility from '$lib/components/Directory/SelectFacilityR.svelte';
-	import List from '$lib/components/Directory/List.svelte';
-	import Geocoder from '$lib/components/Geocoder/Geocoder.svelte';
+	import { scrollY } from '#lib/store/scrollStore.ts';
+	import { variables } from '#lib/utils/constants.ts';
+	import Spinner from '#lib/Spinner/Spinner.svelte';
+	import SearchDirectory from '#lib/components/Directory/SearchDirectory.svelte';
+	import SelectCommunes from '#lib/components/Directory/SelectCommunesR.svelte';
+	import SelectCategories from '#lib/components/Directory/SelectCategoriesR.svelte';
+	import SelectDepartments from '#lib/components/Directory/SelectDepartmentsR.svelte';
+	import SelectCategoriesChips from '#lib/components/Directory/SelectCategoriesChips.svelte';
+	import SelectSituations from '#lib/components/Directory/SelectSituations.svelte';
+	import SelectTags from '#lib/components/Directory/SelectTagsR.svelte';
+	import SelectFacility from '#lib/components/Directory/SelectFacilityR.svelte';
+	import List from '#lib/components/Directory/List.svelte';
+	import Geocoder from '#lib/components/Geocoder/Geocoder.svelte';
 	import Fa from 'svelte-fa';
 	import { faArrowsUpToLine } from '@fortawesome/free-solid-svg-icons';
-	import { logMap } from '$lib/utils/utils.ts';
-	import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
-	import SelectConcern from '$lib/components/Directory/SelectConcern.svelte';
-	import SelectFacets from '$lib/components/Directory/SelectFacets.svelte';
-	import type { Concern } from '$lib/store/concernTree.ts';
-	import type { Entry, Type, Tag } from '$lib/store/directoryStoreInterface.ts';
-	import type { Commune } from '$lib/interfaces/geography.interface.ts';
+	import { logMap } from '#lib/utils/utils.ts';
+	import type { FacilityOf } from '#lib/interfaces/facility.interface.ts';
+	import SelectConcern from '#lib/components/Directory/SelectConcern.svelte';
+	import SelectFacets from '#lib/components/Directory/SelectFacets.svelte';
+	import type { Concern } from '#lib/store/concernTree.ts';
+	import type { Entry, Type, Tag } from '#lib/store/directoryStoreInterface.ts';
+	import type { Commune } from '#lib/interfaces/geography.interface.ts';
 	let {
 		data,
 		displayCommune,

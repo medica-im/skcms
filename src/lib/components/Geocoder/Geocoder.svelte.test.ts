@@ -67,7 +67,9 @@ describe('Geocoder, when the address service fails', () => {
 
 		await search('2 rue de Andelaroche');
 
-		await expect.element(page.getByRole('alert')).toHaveTextContent(m.ADDRESSBOOK_GEOCODER_UNAVAILABLE());
+		await expect
+			.element(page.getByRole('alert'))
+			.toHaveTextContent(m.ADDRESSBOOK_GEOCODER_UNAVAILABLE());
 	});
 
 	it('says so when the service cannot be reached', async () => {
@@ -91,7 +93,9 @@ describe('Geocoder, when the address service fails', () => {
 		await search('2 rue de Andelaroche');
 		await expect.element(page.getByRole('alert')).toBeInTheDocument();
 
-		fetchFn.mockImplementation(async () => new Response(JSON.stringify({ features: [] }), { status: 200 }));
+		fetchFn.mockImplementation(
+			async () => new Response(JSON.stringify({ features: [] }), { status: 200 })
+		);
 		await search('2 rue de Andelaroches');
 
 		await expect.element(page.getByRole('alert')).not.toBeInTheDocument();

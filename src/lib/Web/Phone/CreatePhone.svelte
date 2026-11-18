@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import { phoneTypes } from '$lib/Directory/Phone/phone.ts';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { phoneTypes } from '#lib/Directory/Phone/phone.ts';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import { createPhone } from '../../../phone.remote';
 	import { invalidate } from '$app/navigation';
 	import {
@@ -14,13 +14,13 @@
 		faSquarePlus
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import type { Phone } from '$lib/interfaces/phone.interface.ts';
-	import Select from '$lib/Web/Select.svelte';
+	import type { Phone } from '#lib/interfaces/phone.interface.ts';
+	import Select from '#lib/Web/Select.svelte';
 	import Dialog from '../Dialog.svelte';
 	import { copy } from 'svelte-copy';
 	import { page } from '$app/state';
-	import { accessSelectTypes, getRoles } from '$lib/Web/access.ts';
-	import type { SelectType } from '$lib/interfaces/select.ts';
+	import { accessSelectTypes, getRoles } from '#lib/Web/access.ts';
+	import type { SelectType } from '#lib/interfaces/select.ts';
 
 	let {
 		entry

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
 	import * as m from '$msgs';
-	import FacilityCard from '$lib/Facility/FacilityCardDisplay.svelte';
-	import type { FacilityV2, Commune } from '$lib/interfaces/v2/facility.ts';
+	import FacilityCard from '#lib/Facility/FacilityCardDisplay.svelte';
+	import type { FacilityV2, Commune } from '#lib/interfaces/v2/facility.ts';
 	import { page } from '$app/state';
 
 	let {

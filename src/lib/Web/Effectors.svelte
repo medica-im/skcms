@@ -1,18 +1,18 @@
 <script lang="ts">
-	import { base } from '$app/paths';
-	import { ORIGIN } from '$lib/utils/origin.ts';
+	import { base } from '#lib/utils/base.ts';
+	import { ORIGIN } from '#lib/utils/origin.ts';
 	import * as m from '$msgs';
 	import { Avatar } from '@skeletonlabs/skeleton';
 	import { faUser } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import type { Effector } from '$lib/interfaces/v2/effector';
+	import type { Effector } from '#lib/interfaces/v2/effector.ts';
 
 	let { effectorType, facility }: { effectorType: string; facility: string } = $props();
 
 	async function getEffectors() {
 		const url = `${ORIGIN}/api/v2/effectors?facility=${facility}&effector_type=${effectorType}`;
 		const response = await fetch(url);
-		const data = (await response.json()) as Effector[];
+		const data = await response.json() as Effector[];
 		return data;
 	}
 </script>
@@ -26,7 +26,7 @@
 			<p>{count} personne{count > 1 ? 's' : ''} de cette catégorie dans cet établissement:</p>
 			<div class="flex flex-wrap gap-4">
 				{#each data as effector}
-					<a href="{base}/" class="anchor">
+					<a href="{base()}/" class="anchor">
 						<div class="btn variant-ghost p-2 w-min">
 							<Avatar src="" width="w-10">
 								<Fa icon={faUser} />

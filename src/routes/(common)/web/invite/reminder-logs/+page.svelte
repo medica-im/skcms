@@ -3,10 +3,10 @@
 	import { faArrowLeft, faEye } from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
 	import type { PageData } from './$types';
-	import { base } from '$app/paths';
-	import ListDateTime from '$lib/components/DateTime/ListDateTime.svelte';
-	import { batchJobStatus } from '$lib/Invitee/batchJobStatus';
-	import { resendCounts } from '$lib/Invitee/batchResend';
+	import { base } from '#lib/utils/base.ts';
+	import ListDateTime from '#lib/components/DateTime/ListDateTime.svelte';
+	import { batchJobStatus } from '#lib/Invitee/batchJobStatus.ts';
+	import { resendCounts } from '#lib/Invitee/batchResend.ts';
 
 	let { data }: { data: PageData } = $props();
 	let jobs = $derived(data.jobs ?? []);
@@ -14,7 +14,10 @@
 
 <div class="container mx-auto p-4 max-w-4xl">
 	<header class="mb-6">
-		<a href="{base}/web/invite/invitees" class="btn min-h-11 variant-ghost mb-4">
+		<a
+			href="{base()}/web/invite/invitees"
+			class="btn min-h-11 variant-ghost mb-4"
+		>
 			<Fa icon={faArrowLeft} class="mr-2" />
 			{m.INVITEE_BACK_TO_LIST()}
 		</a>
@@ -57,7 +60,7 @@
 							<td class="text-center text-error-500">{counts.failed}</td>
 							<td>
 								<a
-									href="{base}/web/invite/batch-logs/{job.uid}"
+									href="{base()}/web/invite/batch-logs/{job.uid}"
 									class="btn-icon variant-ghost-primary"
 									aria-label={m.INVITEE_RESEND_REPORT()}
 									title={m.INVITEE_RESEND_REPORT()}

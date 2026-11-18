@@ -35,8 +35,8 @@
 		setFacetSelection,
 		getFacetSelection
 	} from './context';
-	import { filterByFacets } from '$lib/store/facetFilters.ts';
-	import { filterByConcern, seeAlsoOf, type Concern } from '$lib/store/concernTree.ts';
+	import { filterByFacets } from '#lib/store/facetFilters.ts';
+	import { filterByConcern, seeAlsoOf, type Concern } from '#lib/store/concernTree.ts';
 	import {
 		fullFilteredEntriesF,
 		filteredEntriesF,
@@ -48,13 +48,13 @@
 		facilityOfF,
 		departmentOfF,
 		tagOfF,
-	} from '$lib/store/directoryStore.ts';
+	} from '#lib/store/directoryStore.ts';
 	import FullDirectory from './FullDirectory.svelte';
 	import type {
 		Entry,
 		AddressFeature,
 		DistanceEffectors,
-	} from '$lib/store/directoryStoreInterface.ts';
+	} from '#lib/store/directoryStoreInterface.ts';
 
 	let {
 		data = null,

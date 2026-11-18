@@ -1,7 +1,7 @@
 <script lang="ts">
-	import EntryComponent from '$lib/components/Directory/Entry.svelte';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers.ts';
-	import type { Entry } from '$lib/store/directoryStoreInterface';
+	import EntryComponent from '#lib/components/Directory/Entry.svelte';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import type { Entry } from '#lib/store/directoryStoreInterface.ts';
 
 	let { data, avatar = true }: { data: Map<string, Entry[]>; avatar: boolean } = $props();
 </script>

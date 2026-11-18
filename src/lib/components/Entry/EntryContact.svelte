@@ -1,11 +1,11 @@
 <script lang="ts">
-	import Phones from '$lib/Directory/Phone/Phones.svelte';
-	import Emails from '$lib/Email/Emails.svelte';
-	import FacilityLink from '$lib/Facility/FacilityLink.svelte';
-	import AvatarList from '$lib/components/Effector/Avatar/AvatarList.svelte';
+	import Phones from '#lib/Directory/Phone/Phones.svelte';
+	import Emails from '#lib/Email/Emails.svelte';
+	import FacilityLink from '#lib/Facility/FacilityLink.svelte';
+	import AvatarList from '#lib/components/Effector/Avatar/AvatarList.svelte';
 	import { goto } from '$app/navigation';
-	import { entrySlugPageUrl } from '$lib/utils/utils';
-	import type { EntryFull } from '$lib/store/directoryStoreInterface';
+	import { entrySlugPageUrl } from '#lib/utils/utils.ts';
+	import type { EntryFull } from '#lib/store/directoryStoreInterface.ts';
 	export let entry: EntryFull;
 	export let avatar: boolean;
 
