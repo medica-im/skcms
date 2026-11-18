@@ -1,0 +1,54 @@
+diff --git a/dist/actions.js b/dist/actions.js
+index 45ef0af1816902b3036bbfa5a331142d3946ba5c..20e1cb16c9a3ca124fbe1e1a4a51a4604368bb1b 100644
+--- a/dist/actions.js
++++ b/dist/actions.js
+@@ -45,7 +45,9 @@ export async function signIn(provider, options = {}, authorizationParams, config
+         event.cookies.set(c.name, c.value, { path: "/", ...c.options });
+     }
+     if (shouldRedirect) {
+-        return redirect(302, res.redirect);
++        // The provider's authorization page: SvelteKit 3 refuses an external
++        // redirect unless told to.
++        return redirect(302, res.redirect, { external: true });
+     }
+     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     return res.redirect;
+diff --git a/dist/client.js b/dist/client.js
+index 011c78aaa83e47befdbac5feb7487958ff0cfe38..816224d04dca4d6d2c8c86dced2bef79f65d3e2c 100644
+--- a/dist/client.js
++++ b/dist/client.js
+@@ -1,4 +1,5 @@
+-import { base } from "$app/paths";
++// SvelteKit 3 removed `base` from $app/paths.
++const base = "";
+ export async function signIn(provider, options, authorizationParams) {
+     const { callbackUrl, ...rest } = options ?? {};
+     const { redirect = true, redirectTo = callbackUrl ?? window.location.href, ...signInParams } = rest;
+diff --git a/dist/env.js b/dist/env.js
+index a1a26c80305ed6c96cb4352a2cdea717362f47db..b7b2eb87f5f0e063f6737bed531fe147787dcb31 100644
+--- a/dist/env.js
++++ b/dist/env.js
+@@ -1,9 +1,10 @@
+ import { setEnvDefaults as coreSetEnvDefaults, skipCSRFCheck } from "@auth/core";
+ import { dev, building } from "$app/environment";
+-import { base } from "$app/paths";
++// SvelteKit 3 removed `base` from $app/paths: a site under a base path passes
++// basePath itself.
+ export function setEnvDefaults(envObject, config) {
+     config.trustHost ??= dev;
+-    config.basePath = `${base}/auth`;
++    config.basePath ??= "/auth";
+     config.skipCSRFCheck = skipCSRFCheck;
+     if (building)
+         return;
+diff --git a/dist/webauthn.js b/dist/webauthn.js
+index 651aa3d6d9d60182927f1cf753b55bba88bfe3d0..4d1b5c2929d2e3253a7cf8457e85618ab372dfef 100644
+--- a/dist/webauthn.js
++++ b/dist/webauthn.js
+@@ -1,4 +1,5 @@
+-import { base } from "$app/paths";
++// SvelteKit 3 removed `base` from $app/paths.
++const base = "";
+ import { startAuthentication, startRegistration } from "@simplewebauthn/browser";
+ const logger = {
+     debug: console.debug,
