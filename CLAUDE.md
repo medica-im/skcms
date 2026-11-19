@@ -13,7 +13,7 @@ It's not necessary to systematically build the sveltekit app to verify after eac
 
 * **Relative path**: `../backend`
 * **Git repo**: https://github.com/medica-im/clinic-cms-backend.git
-* **Active branches**: `production` (live code) and `dev` (development) — the `main` branch does not reflect current code
+* **Active branch**: `main` (active tip for both frontend and backend)
 * **Communication**: the frontend communicates with the backend exclusively through a REST API
 
 ## User interface design
