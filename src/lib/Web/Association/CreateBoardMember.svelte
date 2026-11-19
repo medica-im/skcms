@@ -1,15 +1,15 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import { capitalizeFirstLetter, normalize } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter, normalize } from '#lib/helpers/stringHelpers.ts';
 	import { createBoardMember } from '../../../association.remote';
 	import { invalidate } from '$app/navigation';
 	import { faCheck, faExclamationCircle, faPlus } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import Select from '$lib/Web/Select.svelte';
+	import Select from '#lib/Web/Select.svelte';
 	import Dialog from '../Dialog.svelte';
-	import type { Effector } from '$lib/interfaces/v2/effector';
-	import type { MembershipCategory } from '$lib/interfaces/v2/association';
-	import type { SelectType } from '$lib/interfaces/select';
+	import type { Effector } from '#lib/interfaces/v2/effector.ts';
+	import type { MembershipCategory } from '#lib/interfaces/v2/association.ts';
+	import type { SelectType } from '#lib/interfaces/select.ts';
 
 	let {
 		effectors,
@@ -76,9 +76,12 @@
 			})}
 		>
 			<div class="space-y-4">
-				<input class="hidden" name="entry_uid" type="text" value={entryUid} />
-				<input class="hidden" name="effector_uid" type="text" bind:value={effectorUid} />
-				<input class="hidden" name="category_uid" type="text" bind:value={categoryUid} />
+				<input {...createBoardMember.fields.entry_uid.as('hidden', entryUid ?? '')} />
+<input data-field="entry_uid" class="hidden" type="text" value={entryUid} />
+				<input {...createBoardMember.fields.effector_uid.as('hidden', effectorUid ?? '')} />
+<input data-field="effector_uid" class="hidden" type="text" bind:value={effectorUid} />
+				<input {...createBoardMember.fields.category_uid.as('hidden', categoryUid ?? '')} />
+<input data-field="category_uid" class="hidden" type="text" bind:value={categoryUid} />
 
 				<label class="label">
 					<span>{m.COL_EFFECTOR()}</span>

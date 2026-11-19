@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { base } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 	import { page } from '$app/state';
 	import { getLocale } from "$prgld/runtime.js";
 	import * as m from "$msgs";
-	import { variables } from '$lib/utils/constants';
+	import { variables } from '#lib/utils/constants.ts';
 	import SocialNetworks from '../SoMed/SoMed.svelte';
-	import BlogIconLink from '$lib/Ghost/BlogIconLink.svelte';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import OutpatientClinicLogo from '$lib/Logos/OutpatientClinicLogo.svelte';
+	import BlogIconLink from '#lib/Ghost/BlogIconLink.svelte';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import OutpatientClinicLogo from '#lib/Logos/OutpatientClinicLogo.svelte';
 	import { programsNavLinks } from '$var/variables.ts';
 
 	const dirPath = page.data.directory.setting.path;
@@ -17,16 +17,20 @@
 		<!-- Row 1 -->
 		<div class="md:flex md:justify-between">
 			<div class="mb-6 md:mb-0">
-				<a data-sveltekit-preload-data="off" href="{base}/" title={m.NAVBAR_GO_HOME()}>
+				<a
+					data-sveltekit-preload-data="false"
+					href="{base()}/"
+					title={m.NAVBAR_GO_HOME()}
+				>
 					<div class="flex space-x-2 lg:space-x-4">
 						<span class="flex w-8 h-8 lg:w-12 lg:h-12"><OutpatientClinicLogo /></span>
-                        <div>
+						<div>
 						<h4 class="h4">
 							{capitalizeFirstLetter(page.data.organization.formatted_name, getLocale())}
 						</h4>
-						<p>{page.data.organization.contact.address.street}</p>
-						<p>{page.data.organization.city.name}</p>
-					</div>
+							<p>{page.data.organization.contact.address.street}</p>
+							<p>{page.data.organization.city.name}</p>
+						</div>
 					</div>
 				</a>
 			</div>
@@ -37,26 +41,26 @@
 					</h6>
 					<ul class="font-medium">
 						<li class="mb-4">
-							<a data-sveltekit-preload-data="off" href="{base}/">
-								{m.HOME_TITLE()}
-							</a>
+							<a
+								data-sveltekit-preload-data="false"
+								href="{base()}/"
+							>{m.HOME_TITLE()}</a>
 						</li>
 						{#if dirPath != "/"}
-						<li class="mb-4">
-							<a href={`${base}${page.data.directory.setting.path || '/'}`}>{m.ADDRESSBOOK_TITLE() }</a>
-						</li>
-						{/if}
-						<li class="mb-4">
-							<a href="{base}/sites"> Sites </a>
-						</li>
-						{#if page.data.organization.google_calendar_id && page.data.organization.google_calendar_api_key}
 							<li class="mb-4">
-								<a href="{base}/calendrier"> {m.CALENDAR()} </a>
+								<a
+									href={`${base()}${page.data.directory.setting.path || '/'}`}
+								>{m.ADDRESSBOOK_TITLE()}</a>
 							</li>
 						{/if}
-						<li class="mb-4">
-							<a href="{base}/contact"> Contact </a>
-						</li>
+
+						<li class="mb-4"><a href="{base()}/sites">Sites</a></li>
+
+						{#if page.data.organization.google_calendar_id && page.data.organization.google_calendar_api_key}
+							<li class="mb-4"><a href="{base()}/calendrier">{m.CALENDAR()}</a></li>
+						{/if}
+
+						<li class="mb-4"><a href="{base()}/contact">Contact</a></li>
 					</ul>
 				</div>
 				{#if page.data.organization.category.name=="msp"}
@@ -84,9 +88,10 @@
 							>
 						</li-->
 						<li class="mb-4">
-							<a href="{base}/mentions-legales" class="hover:underline"
-								>{capitalizeFirstLetter(m.LEGAL_NOTICES(), variables.DEFAULT_LANGUAGE)}</a
-							>
+							<a
+								href="{base()}/mentions-legales"
+								class="hover:underline"
+							>{capitalizeFirstLetter(m.LEGAL_NOTICES(), variables.DEFAULT_LANGUAGE)}</a>
 						</li>
 					</ul>
 				</div>
@@ -95,9 +100,11 @@
 		<hr class="my-6 sm:mx-auto lg:my-8 !border-t-2" />
 		<!-- Row 2 -->
 		<div class="flex justify-between items-center">
-			<div class="text-sm"
-				>© {new Date().getFullYear()} <a href="{base}/" class="hover:underline">{page.data.organization.company_name}</a>.
-		</div>
+			<div class="text-sm">
+				© {new Date().getFullYear()} 
+				<a href="{base()}/" class="hover:underline">{page.data.organization.company_name}</a>
+				.
+			</div>
 			<div class="flex space-x-6 justify-center">
 				{#if page.data.organization?.contact?.socialnetworks}
 				<SocialNetworks data={page.data.organization.contact.socialnetworks} appBar={true} />

@@ -11,14 +11,14 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import { JsonView } from '@zerodevx/svelte-json-view';
-	import Select from '$lib/Web/Select.svelte';
+	import Select from '#lib/Web/Select.svelte';
 	import Dialog from '../Dialog.svelte';
-	import { getEntryUid } from '$lib/components/Directory/context';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { getEntryUid } from '#lib/components/Directory/context.ts';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
-	import type { Tag } from '$lib/store/directoryStoreInterface.ts';
-	import type { FormResult } from '$lib/interfaces/v2/form';
-	import type { SelectType } from '$lib/interfaces/select.ts';
+	import type { Tag } from '#lib/store/directoryStoreInterface.ts';
+	import type { FormResult } from '#lib/interfaces/v2/form.ts';
+	import type { SelectType } from '#lib/interfaces/select.ts';
 
 	let { tags }: { tags: Tag[] | null } = $props();
 

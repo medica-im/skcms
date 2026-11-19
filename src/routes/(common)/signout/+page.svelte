@@ -3,9 +3,9 @@
 	import * as m from "$msgs";
 	import { page } from '$app/state';
 	import Fa from 'svelte-fa';
-	import { providers } from '$lib/Auth/data.ts'; 
+	import { providers } from '#lib/Auth/data.ts'; 
 	import { SignOut } from '@auth/sveltekit/components';
-	import { base } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 
 	// SignOut builds action={`/${signOutPage}`} with no base path, exactly like
 	// SignIn. On an instance served under one the form posts to the site root —
@@ -13,10 +13,10 @@
 	// as "Unexpected token '<' ... is not valid JSON".
 	//
 	// `base` is '' for a site at its own root, so this stays "signout" there.
-	const signOutPath = base ? `${base.slice(1)}/signout` : 'signout';
+	const signOutPath = base() ? `${base().slice(1)}/signout` : 'signout';
 
 	let session = $derived(page.data.session);
-    let provider = providers.find(e=>e.name==session?.user?.provider)
+	let provider = providers.find((e) => e.name == session?.user?.provider);
 </script>
 	<header>
 		<div class="section-container">
@@ -31,16 +31,16 @@
 	>
 		<div class="section-container">
 			<div class="grid cols-1 gap-6">
-					<SignOut
-						signOutPage={signOutPath}
-						provider={provider?.name}
-						class="gap-2 p-4 variant-ghost w-fit"
-					>
+				<SignOut
+					signOutPage={signOutPath}
+					provider={provider?.name}
+					class="gap-2 p-4 variant-ghost w-fit"
+				>
 						<div class="flex gap-2 place-items-center" slot="submitButton">
-							<Fa icon={provider?.icon} />
-							{m.signout()} {m.from()} {provider.label}
-						</div>
-					</SignOut>
+						<Fa icon={provider?.icon} />
+						{m.signout()} {m.from()} {provider.label}
+					</div>
+				</SignOut>
 			</div>
 		</div>
 	</section>

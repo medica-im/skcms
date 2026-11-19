@@ -22,7 +22,7 @@ import { resolve } from 'node:path';
 const modal = readFileSync(resolve(__dirname, 'TagModal.svelte'), 'utf8');
 const remote = readFileSync(resolve(__dirname, '../../../tag.remote.ts'), 'utf8');
 
-describe('TagModal fetching a category\'s tags', () => {
+describe("TagModal fetching a category's tags", () => {
 	it('does not build an API url from ORIGIN', () => {
 		// ORIGIN is `base` in the browser, and the API does not live under it.
 		expect(modal).not.toMatch(/\$\{ORIGIN\}\/api/);

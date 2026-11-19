@@ -2,12 +2,12 @@
 	import { faPlus } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import { page } from '$app/state';
-	import { preloadData, pushState, goto } from '$app/navigation';
-	import FacilitySelect from '$lib/Web/FacilitySelect.svelte';
+	import { preloadData, goto } from '$app/navigation';
+	import FacilitySelect from '#lib/Web/FacilitySelect.svelte';
 	import CreateFacilityModal from './CreateFacilityModal.svelte';
 	import CreateFacility from '$routes/(common)/web/facility/create/+page.svelte';
-	import type { SelectType } from '$lib/interfaces/select.ts';
-	import { base } from '$app/paths';
+	import type { SelectType } from '#lib/interfaces/select.ts';
+	import { base } from '#lib/utils/base.ts';
 
 	let {
 		facility = $bindable(),
@@ -56,7 +56,7 @@
 	<p>{facilityLabel()}</p>
 	{#if !facility && selectedCommune}
 		<a
-			href="{base}/web/facility/create"
+			href="{base()}/web/facility/create"
 			onclick={async (e) => {
 				if (e.shiftKey || e.metaKey || e.ctrlKey) return;
 
@@ -66,7 +66,7 @@
 
 				if (result.type === 'loaded' && result.status === 200) {
 					facilityCreateOpen = true;
-					pushState(href, { facilityCreate: result.data });
+					goto(href, { shallow: true, state: { facilityCreate: result.data } });
 				} else {
 					goto(href);
 				}
@@ -77,13 +77,15 @@
 			>
 		</a>
 	{:else}
-		<button disabled class="btn variant-filled-primary" title="Créer"
-			><span><Fa icon={faPlus} /></span><span>Créer un établissement</span></button
+		<button
+			disabled
+			class="btn variant-filled-primary"
+			title="Créer"
 		>
-		<div class="card p-2 variant-ghost-warning">
-			Pour créer un nouvel établissement, vous devez sélectionner un département et une
-			commune.
-		</div>
+			<span><Fa icon={faPlus} /></span>
+			<span>Créer un établissement</span>
+		</button>
+		<div class="card p-2 variant-ghost-warning">Pour créer un nouvel établissement, vous devez sélectionner un département et une commune.</div>
 	{/if}
 </div>
 
@@ -93,7 +95,7 @@
 			data={page.state.facilityCreate as any}
 			commune={selectedCommune}
 			bind:facilityCreateOpen
-			{department}
+			department={department}
 			deferSlug
 			bind:selectedFacility={facility}
 		/>

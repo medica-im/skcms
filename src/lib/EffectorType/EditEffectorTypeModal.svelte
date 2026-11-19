@@ -1,9 +1,9 @@
 <script lang="ts">
     import { page } from '$app/state';
-    import { preloadData, pushState, goto } from '$app/navigation';
+    import { preloadData, goto } from '$app/navigation';
     import EffectorTypeModal from './EffectorTypeModal.svelte';
     import UpdateEffectorType from '$routes/(common)/web/effector-types/update/+page.svelte';
-    import type { EffectorType } from '$lib/interfaces/v2/effector';
+    import type { EffectorType } from '#lib/interfaces/v2/effector.ts';
     import * as m from '$msgs';
 
     export async function handleEdit(effectorType: EffectorType) {
@@ -11,7 +11,10 @@
         const result = await preloadData(href);
 
         if (result.type === 'loaded' && result.status === 200) {
-            pushState(href, { editing: { ...result.data, effectorType } });
+            goto(href, {
+                shallow: true,
+                state: { editing: { ...result.data, effectorType } }
+            });
         } else {
             goto(href);
         }

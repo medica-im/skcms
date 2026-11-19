@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { base } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 	import Fa from 'svelte-fa';
 	import {
 		faCircleInfo,
@@ -10,7 +10,7 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	// Google's "Créer une adresse e-mail" screen, rendered from a saved copy of
 	// the page, with a ring drawn around the button invitees must click.
-	import googleCreateEmail from '$lib/assets/images/google-create-email.png';
+	import googleCreateEmail from '#lib/assets/images/google-create-email.png';
 
 	// Long-form help prose is written in French in the markup, like the user
 	// guide and UnknownEmail.svelte: no message keys exist for it.
@@ -141,11 +141,20 @@
 	</section>
 
 	<footer class="flex flex-wrap gap-4">
-		<a href="{base}/signin" class="btn variant-filled-primary">
-			<Fa icon={faRightToBracket} /><span>Se connecter</span>
+		<a
+			href="{base()}/signin"
+			class="btn variant-filled-primary"
+		>
+			<Fa icon={faRightToBracket} />
+			<span>Se connecter</span>
 		</a>
-		<a href="{base}/contact" class="btn variant-ghost-surface">
-			<Fa icon={faEnvelope} /><span>Nous contacter</span>
+
+		<a
+			href="{base()}/contact"
+			class="btn variant-ghost-surface"
+		>
+			<Fa icon={faEnvelope} />
+			<span>Nous contacter</span>
 		</a>
 	</footer>
 </article>

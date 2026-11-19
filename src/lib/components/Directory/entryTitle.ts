@@ -1,4 +1,4 @@
-import type { Nature } from '$lib/store/directoryStoreInterface.ts';
+import type { Nature } from '#lib/store/directoryStoreInterface.ts';
 
 /** The page title of an entry, and its full name below it when the title is a short one. */
 export const entryTitle = ({

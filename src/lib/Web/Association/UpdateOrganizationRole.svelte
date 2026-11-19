@@ -1,12 +1,12 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import { updateOrganizationRole } from '../../../association.remote';
 	import { invalidate } from '$app/navigation';
 	import { faCheck, faExclamationCircle, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Dialog from '../Dialog.svelte';
-	import type { OrganizationRole } from '$lib/interfaces/v2/association';
+	import type { OrganizationRole } from '#lib/interfaces/v2/association.ts';
 
 	let {
 		role
@@ -55,7 +55,8 @@
 			})}
 		>
 			<div class="space-y-4">
-				<input class="hidden" name="uid" type="text" value={role.uid} />
+				<input {...updateOrganizationRole.for(uuid).fields.uid.as('hidden', role.uid ?? '')} />
+<input data-field="uid" class="hidden" type="text" value={role.uid} />
 				<label class="label">
 					<span>{m.COL_LABEL()}</span>
 					{#each updateOrganizationRole.for(uuid).fields.label.issues() as issue}

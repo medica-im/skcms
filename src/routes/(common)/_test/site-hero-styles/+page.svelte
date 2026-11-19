@@ -18,10 +18,10 @@
 	 * Dev-only: +page.ts throws 404 outside `dev`.
 	 */
 	import { Avatar, RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
-	import MapLibre from '$lib/MapLibre/MapLibre.svelte';
-	import { createFacilitiesMapData } from '$lib/components/Map/mapData.ts';
-	import { PUBLIC_URL } from '$lib/utils/appUrl';
-	import type { Facility } from '$lib/interfaces/facility.interface.js';
+	import MapLibre from '#lib/MapLibre/MapLibre.svelte';
+	import { createFacilitiesMapData } from '#lib/components/Map/mapData.ts';
+	import { PUBLIC_URL } from '#lib/utils/appUrl.ts';
+	import type { Facility } from '#lib/interfaces/facility.interface.js';
 	import Fa from 'svelte-fa';
 	import { faUser } from '@fortawesome/free-solid-svg-icons';
 

@@ -87,7 +87,10 @@ async function seedJob(baseURL: string, fields: string) {
 Given(
 	'a reminder of my organization is running, {int} emails of {int} sent',
 	async ({ baseURL }, done: number, total: number) => {
-		await seedJob(baseURL, `status="processing", total_rows=${total}, emails_total=${total}, emails_processed=${done}`);
+		await seedJob(
+			baseURL,
+			`status="processing", total_rows=${total}, emails_total=${total}, emails_processed=${done}`
+		);
 	}
 );
 
@@ -120,26 +123,34 @@ When('I start a reminder', async ({ page }) => {
 	}).toPass();
 });
 
-const checkbox = (page: Page, email: string) => page.getByRole('checkbox', { name: `Relancer ${email}` });
-const row = (page: Page, email: string) => page.getByTestId('resend-row').filter({ has: checkbox(page, email) });
+const checkbox = (page: Page, email: string) =>
+	page.getByRole('checkbox', { name: `Relancer ${email}` });
+const row = (page: Page, email: string) =>
+	page.getByTestId('resend-row').filter({ has: checkbox(page, email) });
 
-Then('the {word} of them is not ticked and reads {string}', async ({ page }, which: Ordinal, words: string) => {
-	const { email } = invitees[ordinal[which]];
-	await expect(checkbox(page, email)).not.toBeChecked();
-	await expect(checkbox(page, email)).toBeEnabled();
-	await expect(row(page, email).getByTestId('resend-reason')).toContainText(words);
-});
+Then(
+	'the {word} of them is not ticked and reads {string}',
+	async ({ page }, which: Ordinal, words: string) => {
+		const { email } = invitees[ordinal[which]];
+		await expect(checkbox(page, email)).not.toBeChecked();
+		await expect(checkbox(page, email)).toBeEnabled();
+		await expect(row(page, email).getByTestId('resend-reason')).toContainText(words);
+	}
+);
 
 Then('the {word} of them is ticked', async ({ page }, which: Ordinal) => {
 	await expect(checkbox(page, invitees[ordinal[which]].email)).toBeChecked();
 });
 
-Then('the {word} of them cannot be ticked and reads {string}', async ({ page }, which: Ordinal, words: string) => {
-	const { email } = invitees[ordinal[which]];
-	await expect(checkbox(page, email)).toBeDisabled();
-	await expect(checkbox(page, email)).not.toBeChecked();
-	await expect(row(page, email).getByTestId('resend-reason')).toContainText(words);
-});
+Then(
+	'the {word} of them cannot be ticked and reads {string}',
+	async ({ page }, which: Ordinal, words: string) => {
+		const { email } = invitees[ordinal[which]];
+		await expect(checkbox(page, email)).toBeDisabled();
+		await expect(checkbox(page, email)).not.toBeChecked();
+		await expect(row(page, email).getByTestId('resend-reason')).toContainText(words);
+	}
+);
 
 When('I untick the first invitation of the page', async ({ page }) => {
 	const box = page.getByTestId('resend-row').first().getByRole('checkbox');
@@ -171,7 +182,10 @@ When('I tick the first and the second of them', async ({ page }) => {
 });
 
 When('I ask to send', async ({ page }) => {
-	await page.getByTestId('resend-bar').getByRole('button', { name: /^Renvoyer \(/ }).click();
+	await page
+		.getByTestId('resend-bar')
+		.getByRole('button', { name: /^Renvoyer \(/ })
+		.click();
 });
 
 Then('the confirmation reads {string}', async ({ page }, words: string) => {
@@ -222,10 +236,14 @@ When("I close the reminder's summary", async ({ page }) => {
 	}).toPass();
 });
 
-const reportLink = (page: Page) => page.locator(`a[href$="/web/invite/batch-logs/${jobUids.at(-1)}"]`);
+const reportLink = (page: Page) =>
+	page.locator(`a[href$="/web/invite/batch-logs/${jobUids.at(-1)}"]`);
 
 Then('the reminder is listed with {int} sent', async ({ page }, sent: number) => {
-	const row = page.getByTestId('reminder-logs').locator('tr').filter({ has: reportLink(page) });
+	const row = page
+		.getByTestId('reminder-logs')
+		.locator('tr')
+		.filter({ has: reportLink(page) });
 	await expect(row).toBeVisible();
 	await expect(row.locator('td').nth(3)).toHaveText(String(sent));
 });
@@ -236,11 +254,16 @@ When("I open the reminder's report", async ({ page }) => {
 });
 
 Then('its way back reads {string}', async ({ page }, words: string) => {
-	await expect(page.getByRole('link', { name: words })).toHaveAttribute('href', /\/web\/invite\/reminder-logs$/);
+	await expect(page.getByRole('link', { name: words })).toHaveAttribute(
+		'href',
+		/\/web\/invite\/reminder-logs$/
+	);
 });
 
 Then('the reminder is not listed', async ({ page }) => {
-	await expect(page.getByRole('heading', { name: 'Historique des créations en masse' })).toBeVisible();
+	await expect(
+		page.getByRole('heading', { name: 'Historique des créations en masse' })
+	).toBeVisible();
 	await expect(reportLink(page)).toHaveCount(0);
 });
 

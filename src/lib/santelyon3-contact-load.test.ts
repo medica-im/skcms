@@ -33,7 +33,7 @@ import { skvarSource } from './skvarSource';
  * on every run, whichever tenant the submodule is sitting on, and at the
  * version under test — reading the branch alone missed a snapshot's
  * uncommitted edits on every tenant but Lyon 3's. The route imports only
- * `@sveltejs/kit` and `$lib` modules, which resolve from this repository
+ * `@sveltejs/kit` and `#lib` modules, which resolve from this repository
  * regardless of branch, so nothing else has to be stubbed.
  *
  * The load runs on the server for each request (+page.server.ts): the contact
@@ -45,11 +45,12 @@ import { skvarSource } from './skvarSource';
 
 /** A fetch that answers every request with this status. */
 const fetchReturning = (status: number, body: unknown = {}) =>
-	vi.fn(async () =>
-		new Response(JSON.stringify(body), {
-			status,
-			headers: { 'content-type': 'application/json' }
-		})
+	vi.fn(
+		async () =>
+			new Response(JSON.stringify(body), {
+				status,
+				headers: { 'content-type': 'application/json' }
+			})
 	) as unknown as typeof fetch;
 
 const ROUTE_FILE = 'contact/+page.server.ts';
@@ -77,7 +78,7 @@ const ROUTE_FILE = 'contact/+page.server.ts';
  * test-results). Those walkers all root at src/ and never climb above it, so
  * nothing there is in their way. It stays inside the project root rather than
  * going to os.tmpdir() because Vite only serves files from within the root, and
- * this module's `$lib` and `@sveltejs/kit` imports have to resolve.
+ * this module's `#lib` and `@sveltejs/kit` imports have to resolve.
  *
  * The specifier is built at runtime rather than written as a literal, so
  * svelte-check does not try to resolve a file that exists only while this test
@@ -86,8 +87,7 @@ const ROUTE_FILE = 'contact/+page.server.ts';
  */
 async function loadContactPage() {
 	const page = skvarSource('santelyon3.fr', ROUTE_FILE);
-	const spec = (absolute: string) =>
-		/* @vite-ignore */ `./${relative(`${__dirname}/`, absolute)}`;
+	const spec = (absolute: string) => /* @vite-ignore */ `./${relative(`${__dirname}/`, absolute)}`;
 
 	if (page.workingTreeFile) return (await import(spec(page.workingTreeFile))).load;
 
@@ -134,8 +134,10 @@ const api = (routes: Record<string, () => Response>) =>
 		return new Response('{}', { status: 404 });
 	}) as unknown as typeof fetch & ReturnType<typeof vi.fn>;
 
-const json = (body: unknown, status = 200) => () =>
-	new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
+const json =
+	(body: unknown, status = 200) =>
+	() =>
+		new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 
 describe('the contact page load', () => {
 	it('returns the facility when the slug resolves', async () => {
@@ -177,7 +179,9 @@ describe('the contact person on the contact page', () => {
 	const person = { uid: 'e1', name: 'Camille Bordagaray' };
 
 	it('is returned as the backend gave it for this visitor', async () => {
-		const result = await run(api({ 'facilities-slug': facility, 'fullentries/slug/': json(person) }));
+		const result = await run(
+			api({ 'facilities-slug': facility, 'fullentries/slug/': json(person) })
+		);
 		expect(result.contact).toMatchObject(person);
 	});
 
@@ -202,7 +206,9 @@ describe('the contact person on the contact page', () => {
 	});
 
 	it('is left out, without failing the page, when the backend errors', async () => {
-		const result = await run(api({ 'facilities-slug': facility, 'fullentries/slug/': json({}, 500) }));
+		const result = await run(
+			api({ 'facilities-slug': facility, 'fullentries/slug/': json({}, 500) })
+		);
 		expect(result.facility).toMatchObject({ slug: 'coordination-cpts-lyon-3' });
 		expect(result.contact).toBeNull();
 	});

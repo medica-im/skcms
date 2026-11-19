@@ -2,7 +2,7 @@
 	import * as m from "$msgs";
 	import Fa from 'svelte-fa';
 	import { faEuroSign } from '@fortawesome/free-solid-svg-icons';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	export let data;
 </script>
 

@@ -3,12 +3,18 @@
  */
 import { describe, it, expect, vi } from 'vitest';
 
-vi.mock('$app/paths', () => ({ base: '' }));
+vi.mock('$app/paths', () => ({ resolve: (path: string) => `/${path}` }));
 
 import { menuPaths, pageUrls } from './pages';
-import type { MenuNavCat } from '$lib/interfaces/variables.interface';
+import type { MenuNavCat } from '#lib/interfaces/variables.interface.ts';
 
-const link = (href: string, extra = {}) => ({ href, label: href, keywords: '', icon: null, ...extra });
+const link = (href: string, extra = {}) => ({
+	href,
+	label: href,
+	keywords: '',
+	icon: null,
+	...extra
+});
 
 const menu = [
 	{

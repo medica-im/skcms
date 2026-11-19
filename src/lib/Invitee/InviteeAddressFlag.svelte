@@ -9,7 +9,7 @@
 	import Fa from 'svelte-fa';
 	import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
-	import type { Invitee } from '$lib/interfaces/v2/invitee';
+	import type { Invitee } from '#lib/interfaces/v2/invitee.ts';
 	import { addressProblemOf, addressProblemShort } from './emailDelivery';
 
 	let { invitee }: { invitee: Invitee } = $props();

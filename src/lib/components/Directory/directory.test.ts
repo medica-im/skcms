@@ -1,15 +1,23 @@
 import { describe, it, expect } from 'vitest';
 import { getAvatars } from './directory';
-import type { Entry } from '$lib/store/directoryStoreInterface';
+import type { Entry } from '#lib/store/directoryStoreInterface.ts';
 
 const ORG = 'org-msp';
 
-const entry = (uid: string, memberships: string[], active = true, avatar: object | null = { sm: `/${uid}.jpg` }) =>
-	({ uid, memberships, active, avatar }) as unknown as Entry;
+const entry = (
+	uid: string,
+	memberships: string[],
+	active = true,
+	avatar: object | null = { sm: `/${uid}.jpg` }
+) => ({ uid, memberships, active, avatar }) as unknown as Entry;
 
 describe('getAvatars: the team gallery on a home page', () => {
 	it('shows the members of the organization who have a photo', () => {
-		const entries = [entry('member', [ORG]), entry('outsider', ['another-org']), entry('no-photo', [ORG], true, null)];
+		const entries = [
+			entry('member', [ORG]),
+			entry('outsider', ['another-org']),
+			entry('no-photo', [ORG], true, null)
+		];
 
 		expect(getAvatars(entries, ORG).map((e) => e.uid)).toEqual(['member']);
 	});

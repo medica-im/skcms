@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { isHttpError } from '@sveltejs/kit';
 import { effectorTypePage } from './effectorTypePage';
-import type { Entry } from '$lib/store/directoryStoreInterface';
-import type { Labels } from '$lib/interfaces/label.interace';
+import type { Entry } from '#lib/store/directoryStoreInterface.ts';
+import type { Labels } from '#lib/interfaces/label.interace.ts';
 
 const ORG = 'org-msp';
 const GP = { uid: 'type-mg', slug: 'medecin-generaliste', name: 'médecin généraliste' };
@@ -37,11 +37,11 @@ function statusOf(run: () => unknown): number | undefined {
 }
 
 describe('effectorTypePage', () => {
-	it('answers 404 for a slug that is no effector type, such as a person\'s name', () => {
+	it("answers 404 for a slug that is no effector type, such as a person's name", () => {
 		expect(statusOf(() => effectorTypePage('alexis-bernal', context))).toBe(404);
 	});
 
-	it('answers 404 for a type none of the organization\'s members has', () => {
+	it("answers 404 for a type none of the organization's members has", () => {
 		expect(statusOf(() => effectorTypePage('infirmiere', context))).toBe(404);
 	});
 

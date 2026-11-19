@@ -90,7 +90,8 @@ import { needsCheck } from './inviteeFilter';
 
 const delivery = (status: string, errorKind: string | null = null) =>
 	({ status, at: '2026-10-06T12:00:00Z', error: null, errorKind }) as never;
-const issue = (reason: string) => ({ reason, since: '2026-10-06T12:00:00Z', detail: null }) as never;
+const issue = (reason: string) =>
+	({ reason, since: '2026-10-06T12:00:00Z', detail: null }) as never;
 
 describe('needsCheck', () => {
 	it.each(['bounced', 'complained', 'suppressed'])('an email %s', (status) => {
@@ -98,19 +99,26 @@ describe('needsCheck', () => {
 	});
 
 	it('an address refused as written', () => {
-		expect(needsCheck({ ...active, emailDelivery: delivery('failed', 'invalid_request') })).toBe(true);
+		expect(needsCheck({ ...active, emailDelivery: delivery('failed', 'invalid_request') })).toBe(
+			true
+		);
 	});
 
 	it('a remembered address, before any new attempt', () => {
-		expect(needsCheck({ ...active, emailDelivery: delivery('sent'), addressIssue: issue('bounced') })).toBe(true);
+		expect(
+			needsCheck({ ...active, emailDelivery: delivery('sent'), addressIssue: issue('bounced') })
+		).toBe(true);
 	});
 
-	it.each(['provider_unavailable', 'misconfigured', 'rate_limited', 'unreachable', 'outcome_unknown'])(
-		'not a failure that is not the address’s fault (%s)',
-		(kind) => {
-			expect(needsCheck({ ...active, emailDelivery: delivery('failed', kind) })).toBe(false);
-		}
-	);
+	it.each([
+		'provider_unavailable',
+		'misconfigured',
+		'rate_limited',
+		'unreachable',
+		'outcome_unknown'
+	])('not a failure that is not the address’s fault (%s)', (kind) => {
+		expect(needsCheck({ ...active, emailDelivery: delivery('failed', kind) })).toBe(false);
+	});
 
 	it.each(['sent', 'delivered', 'queued', 'deferred'])('not an email %s', (status) => {
 		expect(needsCheck({ ...active, emailDelivery: delivery(status) })).toBe(false);

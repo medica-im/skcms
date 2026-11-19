@@ -16,7 +16,8 @@ After(async () => {
 
 const addressField = (page: Page) => page.getByPlaceholder('utilisateur@example.com');
 const createButton = (page: Page) => page.getByRole('button', { name: "Créer l'invitation" });
-const refusal = (page: Page) => page.getByText(`Une invitation adressée à ${seeded.email} existe déjà.`);
+const refusal = (page: Page) =>
+	page.getByText(`Une invitation adressée à ${seeded.email} existe déjà.`);
 
 // Filled until the field holds it: before hydration the value is lost.
 async function typeAddress(page: Page, address: string) {
@@ -27,10 +28,13 @@ async function typeAddress(page: Page, address: string) {
 }
 
 Given('an invitation already exists for an address', async ({ baseURL }) => {
-	Object.assign(seeded, await seedInvitee({
-		siteDomain: new URL(baseURL!).hostname,
-		name: `Déjà invité ${Date.now()}`,
-	}));
+	Object.assign(
+		seeded,
+		await seedInvitee({
+			siteDomain: new URL(baseURL!).hostname,
+			name: `Déjà invité ${Date.now()}`
+		})
+	);
 });
 
 When('I invite that address as staff', async ({ page }) => {

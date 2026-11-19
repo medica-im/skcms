@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { getEntryUid } from '$lib/components/Directory/context';
+	import { getEntryUid } from '#lib/components/Directory/context.ts';
 	import { invalidateAll } from '$app/navigation';
 	import { patchCommand } from '../../../entry.remote';
 	import { getUsers } from '../../../user.remote';
-	import RoleBadge from '$lib/RoleBadge.svelte';
-	import Dialog from '$lib/Web/Dialog.svelte';
+	import RoleBadge from '#lib/RoleBadge.svelte';
+	import Dialog from '#lib/Web/Dialog.svelte';
 	import Fa from 'svelte-fa';
 	import {
 		faPlus,
@@ -22,11 +22,11 @@
 		faExpand,
 		faCompress
 	} from '@fortawesome/free-solid-svg-icons';
-	import { areArraysEqualSets } from '$lib/utils/utils.ts';
-	import { sortByDateTime } from '$lib/utils/dateTimeSort';
-	import type { User } from '$lib/interfaces/v2/user.ts';
-	import type { Role } from '$lib/interfaces/v2/invitee.ts';
-	import type { FormResult } from '$lib/interfaces/v2/form';
+	import { areArraysEqualSets } from '#lib/utils/utils.ts';
+	import { sortByDateTime } from '#lib/utils/dateTimeSort.ts';
+	import type { User } from '#lib/interfaces/v2/user.ts';
+	import type { Role } from '#lib/interfaces/v2/invitee.ts';
+	import type { FormResult } from '#lib/interfaces/v2/form.ts';
 
 	let { currentOwners }: { currentOwners: string[] | null } = $props();
 

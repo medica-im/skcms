@@ -1,10 +1,10 @@
 <script lang="ts">
 	import * as m from "$msgs";
 	import { variables } from '$src/lib/utils/constants';
-	import { capitalizeFirstLetter, lowercaseFirstLetter } from '$lib/helpers/stringHelpers.ts';
-	import { getProgram, getIsOther } from '$lib/links.ts';
+	import { capitalizeFirstLetter, lowercaseFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import { getProgram, getIsOther } from '#lib/links.ts';
 	import Fa from "svelte-fa";
-	import ArchiveBadge from '$lib/ArchiveBadge/ArchiveBadge.svelte';
+	import ArchiveBadge from '#lib/ArchiveBadge/ArchiveBadge.svelte';
 	import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
 	let { pathname, programsNavLinks } = $props();

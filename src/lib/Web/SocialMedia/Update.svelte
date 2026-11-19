@@ -3,7 +3,7 @@
 	import { getSomedTypes } from './fetch.ts';
 	import * as m from '$msgs';
 	import { updateForm } from '../../../socialmedia.remote';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import { invalidate } from '$app/navigation';
 	import {
 		faCheck,
@@ -13,14 +13,14 @@
 		faTrashCanArrowUp
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import type { Website } from '$lib/interfaces/website.interface.ts';
-	import Select from '$lib/Web/Select.svelte';
+	import type { Website } from '#lib/interfaces/website.interface.ts';
+	import Select from '#lib/Web/Select.svelte';
 	import Dialog from '../Dialog.svelte';
-	import { accessSelectTypes, getAccess, getRoles, getSelectedAccess } from '$lib/Web/access.ts';
-	import type { SelectType } from '$lib/interfaces/select.ts';
-	import type { FormResult } from '$lib/interfaces/v2/form';
-	import WebsiteComponent from '$lib/Website/Website.svelte';
-	import type { SocialNetwork } from '$lib/interfaces/socialnetwork.interface.js';
+	import { accessSelectTypes, getAccess, getRoles, getSelectedAccess } from '#lib/Web/access.ts';
+	import type { SelectType } from '#lib/interfaces/select.ts';
+	import type { FormResult } from '#lib/interfaces/v2/form.ts';
+	import WebsiteComponent from '#lib/Website/Website.svelte';
+	import type { SocialNetwork } from '#lib/interfaces/socialnetwork.interface.js';
 
 	let {
 		data

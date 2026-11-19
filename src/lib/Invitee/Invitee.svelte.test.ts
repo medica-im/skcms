@@ -14,10 +14,10 @@ import { render } from 'vitest-browser-svelte';
 import { page } from 'vitest/browser';
 
 vi.mock('$app/state', () => ({ page: { data: { user: { role: 'superuser' } } } }));
-vi.mock('$app/paths', () => ({ base: '' }));
+vi.mock('$app/paths', () => ({ resolve: (path: string) => `/${path}` }));
 
 import Invitee from './Invitee.svelte';
-import type { Invitee as InviteeData } from '$lib/interfaces/v2/invitee';
+import type { Invitee as InviteeData } from '#lib/interfaces/v2/invitee.ts';
 
 const base: InviteeData = {
 	uid: 'inv-1',

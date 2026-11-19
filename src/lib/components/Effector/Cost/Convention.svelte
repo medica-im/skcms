@@ -1,8 +1,8 @@
 <script lang="ts">
     import * as m from '$msgs';
-    import EditConvention from '$lib/Web/Entry/Convention/Patch.svelte';
-	import DeleteConvention from '$lib/Web/Entry/Convention/Delete.svelte';
-    import type { Convention } from '$lib/interfaces/fullEffector.interface';
+    import EditConvention from '#lib/Web/Entry/Convention/Patch.svelte';
+	import DeleteConvention from '#lib/Web/Entry/Convention/Delete.svelte';
+    import type { Convention } from '#lib/interfaces/fullEffector.interface.ts';
 
     let { data, editMode = false }: { data: Convention | null; editMode?: boolean } = $props();
 

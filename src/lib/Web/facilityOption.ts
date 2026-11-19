@@ -2,8 +2,8 @@
  * How a facility reads in the facility select, and what its search matches.
  * The rules and why: see facilityOption.test.ts.
  */
-import type { FacilityV2 } from '$lib/interfaces/v2/facility.ts';
-import { normalize } from '$lib/helpers/stringHelpers.ts';
+import type { FacilityV2 } from '#lib/interfaces/v2/facility.ts';
+import { normalize } from '#lib/helpers/stringHelpers.ts';
 
 /**
  * The facility's name or, unnamed, the people working there, then its label.
@@ -43,8 +43,7 @@ export function facilitySearchText(facility: FacilityV2, label: string): string 
 }
 
 /** Lower case, no accents, hyphens and apostrophes as spaces. */
-const fold = (s: string) =>
-	normalize(s).replace(/[-'’]/g, ' ');
+const fold = (s: string) => normalize(s).replace(/[-'’]/g, ' ');
 
 /**
  * Every word typed appears somewhere in the search text, in any order, as a

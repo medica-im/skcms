@@ -1,6 +1,5 @@
-
 export interface Website {
-    id: number,
-    url: string,
-    roles: string[]
+	id: number;
+	url: string;
+	roles: string[];
 }

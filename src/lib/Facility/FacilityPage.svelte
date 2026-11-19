@@ -1,20 +1,20 @@
 <script lang="ts">
-	import { base } from '$app/paths';
-	import Types from '$lib/components/Directory/Types.svelte';
-	import MapLibre from '$lib/MapLibre/MapLibre.svelte';
-	import Address from '$lib/Address/Address.svelte';
-	import Navigation from '$lib/Navigation/Navigation.svelte';
-	import Email from '$lib/Email/Email.svelte';
-	import SoMed from '$lib/SoMed/SoMed.svelte';
-	import Website from '$lib/components/Website/Website.svelte';
-	import { browser } from '$app/environment';
-	import { isMobile } from '$lib/helpers/deviceDetector';
-	import { createFacilitiesMapData } from '$lib/components/Map/mapData';
-	import { hasCoordinates } from '$lib/components/Map/coordinates';
-	import { variables } from '$lib/utils/constants';
-	import type { Facility } from '$lib/interfaces/facility.interface.ts';
-	import type { Entry } from '$lib/store/directoryStoreInterface';
-	import { PUBLIC_URL } from '$lib/utils/appUrl';
+	import { resolve } from '$app/paths';
+	import Types from '#lib/components/Directory/Types.svelte';
+	import MapLibre from '#lib/MapLibre/MapLibre.svelte';
+	import Address from '#lib/Address/Address.svelte';
+	import Navigation from '#lib/Navigation/Navigation.svelte';
+	import Email from '#lib/Email/Email.svelte';
+	import SoMed from '#lib/SoMed/SoMed.svelte';
+	import Website from '#lib/components/Website/Website.svelte';
+	import { browser } from '$app/env';
+	import { isMobile } from '#lib/helpers/deviceDetector.ts';
+	import { createFacilitiesMapData } from '#lib/components/Map/mapData.ts';
+	import { hasCoordinates } from '#lib/components/Map/coordinates.ts';
+	import { variables } from '#lib/utils/constants.ts';
+	import type { Facility } from '#lib/interfaces/facility.interface.ts';
+	import type { Entry } from '#lib/store/directoryStoreInterface.ts';
+	import { PUBLIC_URL } from '#lib/utils/appUrl.ts';
 
 	export let facility: Facility;
 	export let entries: Map<any, any>;
@@ -62,7 +62,7 @@
 			<span class="inline-block align-middle space-x-1">
 				{#if facility?.websites}
 					{#each facility.websites as website}
-						<Website {website} />
+						<Website website={website} />
 					{/each}
 				{/if}
 				{#if facility?.socialnetworks}

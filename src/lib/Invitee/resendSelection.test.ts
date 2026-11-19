@@ -12,7 +12,7 @@
  * by reflex. A failed attempt does not count: that email never arrived.
  */
 import { describe, it, expect } from 'vitest';
-import type { Invitee } from '$lib/interfaces/v2/invitee';
+import type { Invitee } from '#lib/interfaces/v2/invitee.ts';
 import { resendEligibility, initialResendSelection } from './resendSelection';
 
 const NOW = Date.parse('2026-10-20T12:00:00Z');
@@ -33,8 +33,13 @@ const invitee = (over: Partial<Invitee> = {}): Invitee => ({
 	...over
 });
 
-const delivered = (days: number) => ({ status: 'delivered' as const, at: daysAgo(days), error: null });
-const eligibility = (over: Partial<Invitee>, days = 30) => resendEligibility(invitee(over), NOW, days);
+const delivered = (days: number) => ({
+	status: 'delivered' as const,
+	at: daysAgo(days),
+	error: null
+});
+const eligibility = (over: Partial<Invitee>, days = 30) =>
+	resendEligibility(invitee(over), NOW, days);
 
 describe('resendEligibility', () => {
 	it('leaves out a used invitation', () => {
@@ -51,7 +56,12 @@ describe('resendEligibility', () => {
 	});
 
 	it('takes back one whose email waited too long to leave', () => {
-		const emailDelivery = { status: 'queued' as const, at: daysAgo(1), error: null, timedOut: true };
+		const emailDelivery = {
+			status: 'queued' as const,
+			at: daysAgo(1),
+			error: null,
+			timedOut: true
+		};
 		expect(eligibility({ emailDelivery })).toEqual({ sendable: true, preselected: true });
 	});
 
@@ -70,11 +80,17 @@ describe('resendEligibility', () => {
 	});
 
 	it('ticks one emailed longer ago than the organization waits', () => {
-		expect(eligibility({ emailDelivery: delivered(31) })).toEqual({ sendable: true, preselected: true });
+		expect(eligibility({ emailDelivery: delivered(31) })).toEqual({
+			sendable: true,
+			preselected: true
+		});
 	});
 
 	it('ticks one emailed exactly that many days ago', () => {
-		expect(eligibility({ emailDelivery: delivered(30) })).toEqual({ sendable: true, preselected: true });
+		expect(eligibility({ emailDelivery: delivered(30) })).toEqual({
+			sendable: true,
+			preselected: true
+		});
 	});
 
 	it('leaves unticked one emailed more recently', () => {
@@ -86,12 +102,20 @@ describe('resendEligibility', () => {
 	});
 
 	it('ticks one whose recent email failed', () => {
-		const emailDelivery = { status: 'failed' as const, at: daysAgo(2), error: '503', errorKind: 'provider_unavailable' as const };
+		const emailDelivery = {
+			status: 'failed' as const,
+			at: daysAgo(2),
+			error: '503',
+			errorKind: 'provider_unavailable' as const
+		};
 		expect(eligibility({ emailDelivery })).toEqual({ sendable: true, preselected: true });
 	});
 
 	it("waits the organization's number of days", () => {
-		expect(eligibility({ emailDelivery: delivered(10) }, 7)).toEqual({ sendable: true, preselected: true });
+		expect(eligibility({ emailDelivery: delivered(10) }, 7)).toEqual({
+			sendable: true,
+			preselected: true
+		});
 	});
 });
 

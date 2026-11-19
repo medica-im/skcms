@@ -4,39 +4,39 @@
 	import { setLocale } from "../paraglide/runtime.js";
 	import { initializeStores, Modal } from '@skeletonlabs/skeleton';
     import '../app.postcss';
-	import '$lib/assets/css/svelte-select.css';
+	import '#lib/assets/css/svelte-select.css';
     import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
     import { storePopup } from '@skeletonlabs/skeleton';
-    import Sidebar from '$lib/SkeletonAppBar/Sidebar.svelte';
+    import Sidebar from '#lib/SkeletonAppBar/Sidebar.svelte';
     import { afterNavigate } from '$app/navigation';
     import { fly } from 'svelte/transition';
     import { page } from '$app/state';
-    import { variables } from '$lib/utils/constants';
+    import { variables } from '#lib/utils/constants.ts';
     import favIcon from '$assets/favicon/favicon.svg';
     import maskIcon from '$assets/favicon/mask-icon.svg';
     import appleTouchIcon from '$assets/favicon/apple-touch-icon.png';
     import { AppShell } from '@skeletonlabs/skeleton';
     import { Toast } from '@skeletonlabs/skeleton';
     // Modal Components
-    import Search from '$lib/Search/Search.svelte';
-    import PageOpenGraph from '$lib/components/OpenGraph/PageOpenGraph.svelte';
+    import Search from '#lib/Search/Search.svelte';
+    import PageOpenGraph from '#lib/components/OpenGraph/PageOpenGraph.svelte';
     // Types
     import type { ModalComponent } from '@skeletonlabs/skeleton';
     // components
-    import SkeletonAppBar from '$lib/SkeletonAppBar/SkeletonAppBar.svelte';
-    import Drawer from '$lib/Drawer/Drawer.svelte';
-    import Footer from '$lib/Footer/Footer.svelte';
-	import AddressbookFooter from '$lib/Footer/AddressbookFooter.svelte';
-	import ParentSiteFooter from '$lib/SiteMenu/ParentSiteFooter.svelte';
-	import { siteMenu } from '$lib/SiteMenu/siteMenu';
-	import DemoBanner from '$lib/DemoBanner/DemoBanner.svelte';
-	import { demoBanner } from '$lib/DemoBanner/demoBanner';
+    import SkeletonAppBar from '#lib/SkeletonAppBar/SkeletonAppBar.svelte';
+    import Drawer from '#lib/Drawer/Drawer.svelte';
+    import Footer from '#lib/Footer/Footer.svelte';
+	import AddressbookFooter from '#lib/Footer/AddressbookFooter.svelte';
+	import ParentSiteFooter from '#lib/SiteMenu/ParentSiteFooter.svelte';
+	import { siteMenu } from '#lib/SiteMenu/siteMenu.ts';
+	import DemoBanner from '#lib/DemoBanner/DemoBanner.svelte';
+	import { demoBanner } from '#lib/DemoBanner/demoBanner.ts';
 
-    // Theme stylesheet is loaded from LayoutServerData
+	// Theme stylesheet is loaded from LayoutServerData
     import { QueryClientProvider, QueryClient } from '@tanstack/svelte-query'
-    import type { ComponentProps } from 'svelte';
-    import { scrollY } from '$lib/store/scrollStore';
-	import { PUBLIC_PLAUSIBLE_SCRIPT_SRC } from '$env/static/public';
+	import type { ComponentProps } from 'svelte';
+	import { scrollY } from '#lib/store/scrollStore.ts';
+	import { PUBLIC_PLAUSIBLE_SCRIPT_SRC } from '$app/env/public';
 
 	// Polling only sets `updated.current`; nothing in SvelteKit reads it. This
 	// turns that flag into the full page load that leaves a superseded build
@@ -44,7 +44,9 @@
 	// own (it calls updated.check() when a node fails to load, and again on any
 	// status >= 400), so this stays a shortcut for the case polling has already
 	// noticed, not a second implementation of it.
-	beforeNavigate(({ willUnload, to }) => {
+	beforeNavigate(({ willUnload, to, shallow, type }) => {
+		if (shallow && type === 'goto') return;
+
 		if (updated.current && !willUnload && to?.url) {
 			location.href = to.url.href;
 		}
@@ -73,7 +75,9 @@
 
     storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 
-    afterNavigate((params: any) => {
+	afterNavigate((params: any) => {
+		if (params.shallow && params.type === 'goto') return;
+
 		// Scroll to top
 		const isNewPage: boolean =
 			params.from && params.to && params.from.route.id !== params.to.route.id;
@@ -116,39 +120,46 @@
 
 <svelte:head>
 	<!-- autoModeWatcher now runs from src/app.html: see the note there. -->
-	<link rel="icon" href="{favIcon}">
-	<link rel="mask-icon" href="{maskIcon}" color="#000000">
-	<link rel="apple-touch-icon" href="{appleTouchIcon}">
+	<link rel="icon" href={favIcon} />
+	<link rel="mask-icon" href={maskIcon} color="#000000" />
+	<link rel="apple-touch-icon" href={appleTouchIcon} />
 	{#if PUBLIC_PLAUSIBLE_SCRIPT_SRC}
 	<script defer data-domain={dataDomain()} src={PUBLIC_PLAUSIBLE_SCRIPT_SRC}></script>
 	{/if}
-	<!--set .env variable VITE_NOINDEX to "true" to prevent all search engines that support the noindex rule (including Google) from indexing a page on your site--> 
-	{#if variables.NOINDEX==true}
-	<meta name="robots" content="noindex">
+	<!--set .env variable VITE_NOINDEX to "true" to prevent all search engines that support the noindex rule (including Google) from indexing a page on your site-->
+	{#if variables.NOINDEX == true}
+		<meta name="robots" content="noindex" />
 	{/if}
 	<PageOpenGraph />
 </svelte:head>
 <!-- Overlays -->
-<Modal components="{modalComponentRegistry}"></Modal>
-<Toast></Toast>
+<Modal components={modalComponentRegistry} />
+<Toast />
 
 <Drawer />
-<AppShell class="z-[90000]" slotHeader="relative z-[60]" regionpage="overflow-y-scroll" slotfooter="bg-black p-4" on:scroll="{scrollHandler}">
-		<svelte:fragment slot="header">
+
+<AppShell
+	class="z-[90000]"
+	slotHeader="relative z-[60]"
+	regionpage="overflow-y-scroll"
+	slotfooter="bg-black p-4"
+	on:scroll={scrollHandler}
+>
+	<svelte:fragment slot="header">
 			<SkeletonAppBar/>
-			{#if demoBanner}
-				<DemoBanner text={demoBanner} />
-			{/if}
-		</svelte:fragment>
+		{#if demoBanner}
+			<DemoBanner text={demoBanner} />
+		{/if}
+	</svelte:fragment>
 		<svelte:fragment slot="sidebarLeft">
 			<Sidebar/>
 		</svelte:fragment>
-		<!-- Page Content -->
+	<!-- Page Content -->
 		<QueryClientProvider client={queryClient}>
 			<slot></slot>
 		</QueryClientProvider>
-		<svelte:fragment slot="pageFooter">
-			<!--
+	<svelte:fragment slot="pageFooter">
+		<!--
 				A site embedded in another one gets that site's footer instead of
 				ours. Checked before the category, not as part of it: unipa is
 				typed `cpts` like several standalone sites, so branching on the

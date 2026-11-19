@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { variables } from '$lib/utils/constants';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { variables } from '#lib/utils/constants.ts';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import { getUsers } from '../../../user.remote.ts';
 	import { getSelectedOwners } from './context';
-	import Tag from '$lib/Tag/Tag.svelte';
+	import Tag from '#lib/Tag/Tag.svelte';
 	import * as m from '$msgs';
-	import type { Entry } from '$lib/store/directoryStoreInterface';
-	import type { User } from '$lib/interfaces/v2/user.ts';
+	import type { Entry } from '#lib/store/directoryStoreInterface.ts';
+	import type { User } from '#lib/interfaces/v2/user.ts';
 	import type { OwnerInfo } from './context';
 
 	let { data, avatar = true }: { data: Map<string, Entry[]>; avatar: boolean } = $props();

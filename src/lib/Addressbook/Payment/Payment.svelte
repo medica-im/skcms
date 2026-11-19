@@ -2,10 +2,10 @@
 	import * as m from "$msgs";
 	import Fa from 'svelte-fa';
 	import { faCreditCard } from '@fortawesome/free-regular-svg-icons';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import Patch from '$lib/Web/Entry/Payment/Patch.svelte';
-	import Delete from '$lib/Web/Entry/Payment/Delete.svelte';
-	import type { PaymentMethod } from '$lib/interfaces/fullEffector.interface'
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import Patch from '#lib/Web/Entry/Payment/Patch.svelte';
+	import Delete from '#lib/Web/Entry/Payment/Delete.svelte';
+	import type { PaymentMethod } from '#lib/interfaces/fullEffector.interface.ts'
 	
 	let { data, editMode=false}: {data: PaymentMethod[]|null, editMode?: boolean} = $props();
 

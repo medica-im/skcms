@@ -43,7 +43,8 @@ const localMoment = (instant: Date, timeZone: string): LocalMoment => {
 	};
 };
 
-export const isoDayAt = (instant: Date, timeZone: string): IsoDay => localMoment(instant, timeZone).isoDay;
+export const isoDayAt = (instant: Date, timeZone: string): IsoDay =>
+	localMoment(instant, timeZone).isoDay;
 
 const shiftDate = (dateKey: string, days: number) => {
 	const [y, m, d] = dateKey.split('-').map(Number);
@@ -84,7 +85,10 @@ const openIntervals = (
 		const dateKey = shiftDate(now.dateKey, ahead);
 		const isoDay = shiftDay(now.isoDay, ahead);
 		for (const p of periodsOn(schedule, dateKey, isoDay, holidays)) {
-			intervals.push([ahead * DAY_MINUTES + minutesOf(p.opens), ahead * DAY_MINUTES + minutesOf(p.closes)]);
+			intervals.push([
+				ahead * DAY_MINUTES + minutesOf(p.opens),
+				ahead * DAY_MINUTES + minutesOf(p.closes)
+			]);
 		}
 	}
 	intervals.sort((a, b) => a[0] - b[0]);

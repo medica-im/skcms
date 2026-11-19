@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import type { Officer, OrganizationRole } from '$lib/interfaces/v2/association';
-	import type { Effector } from '$lib/interfaces/v2/effector';
+	import type { Officer, OrganizationRole } from '#lib/interfaces/v2/association.ts';
+	import type { Effector } from '#lib/interfaces/v2/effector.ts';
 	import UpdateOfficer from './UpdateOfficer.svelte';
 	import DeleteOfficer from './DeleteOfficer.svelte';
 

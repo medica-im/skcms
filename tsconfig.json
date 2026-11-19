@@ -1,16 +1,12 @@
 {
-	"extends": "./.svelte-kit/tsconfig.json",
+	"extends": "$app/tsconfig",
 	"compilerOptions": {
-		"verbatimModuleSyntax": true,
 		"plugins": [],
-		"allowJs": true,
-		"checkJs": true,
-		"esModuleInterop": true,
-		"forceConsistentCasingInFileNames": true,
-		"resolveJsonModule": true,
-		"skipLibCheck": true,
 		"sourceMap": true,
 		"strict": true,
-		"allowImportingTsExtensions": true,
-	}
+		// TypeScript 6 turns this on by default: every `import '../app.postcss'`
+		// (a stylesheet, resolved by Vite, with no declaration) became an error.
+		"noUncheckedSideEffectImports": false
+	},
+	"include": ["src", "vite.config.ts", "playwright.config.ts", "tests", "./src/lib/auth.ts"]
 }

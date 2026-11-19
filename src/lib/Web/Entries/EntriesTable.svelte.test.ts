@@ -68,18 +68,15 @@ describe('EntriesTable', () => {
 	it('shows why an inactive entry was deactivated', async () => {
 		// The reason is on the node and was invisible everywhere before this
 		// table existed.
-		render(
-			EntriesTable,
-			{
-				entries: [
-					entry({
-						active: false,
-						deactivation_reason: 'Départ à la retraite',
-						deactivation_datetime: '2026-03-01'
-					})
-				]
-			}
-		);
+		render(EntriesTable, {
+			entries: [
+				entry({
+					active: false,
+					deactivation_reason: 'Départ à la retraite',
+					deactivation_datetime: '2026-03-01'
+				})
+			]
+		});
 
 		// The row badge, not the summary count above it — both read
 		// "inactives", and the one carrying the reason is inside the table.
@@ -108,7 +105,8 @@ describe('EntriesTable', () => {
 		});
 
 		await expect.element(page.getByRole('button', { name: '2 actives' })).toBeVisible();
-		await expect.element(page.getByRole('cell', { name: 'active', exact: true }).first())
+		await expect
+			.element(page.getByRole('cell', { name: 'active', exact: true }).first())
 			.toBeVisible();
 	});
 
@@ -163,10 +161,7 @@ describe('EntriesTable', () => {
 		// Otherwise clicking "1 inactive" would leave "0 actives" beside it and
 		// the numbers would describe the view rather than the directory.
 		render(EntriesTable, {
-			entries: [
-				entry({ uid: 'a', active: true }),
-				entry({ uid: 'i', active: false })
-			]
+			entries: [entry({ uid: 'a', active: true }), entry({ uid: 'i', active: false })]
 		});
 
 		await page.getByRole('button', { name: /inactive/ }).click();

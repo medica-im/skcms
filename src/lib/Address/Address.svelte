@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Phones from '$lib/Directory/Phone/Phones.svelte';
+	import Phones from '#lib/Directory/Phone/Phones.svelte';
 	import Fa from 'svelte-fa';
 	import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
 	import { faGlobe, faMobileScreen, faPhone } from '@fortawesome/free-solid-svg-icons';

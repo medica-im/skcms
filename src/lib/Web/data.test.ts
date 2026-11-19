@@ -9,7 +9,7 @@
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-vi.mock('$lib/utils/origin.ts', () => ({ ORIGIN: 'https://api.test' }));
+vi.mock('#lib/utils/origin.ts', () => ({ ORIGIN: 'https://api.test' }));
 
 import { getFacilities } from './data';
 

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Carousel from 'svelte-light-carousel';
-	import { browser } from '$app/environment';
+	import { browser } from '$app/env';
 	import CarouselArrow from './CarouselArrow.svelte';
 
 	let { images, alt }: { images: string[]; alt: string } = $props();
@@ -20,7 +20,7 @@
 		-->
 		{#key slides.length}
 			<Carousel
-				{slides}
+				slides={slides}
 				key="src"
 				autoPlay={slides.length > 1 ? AUTOPLAY_SECONDS : 0}
 				pauseOnHover
@@ -28,7 +28,11 @@
 				class="!p-0 w-72 sm:w-96 shrink-0"
 			>
 				{#snippet slide({ slide }: { slide: { src: string } })}
-					<img class="mx-auto h-auto max-w-full rounded-container-token" src={slide.src} {alt} />
+					<img
+						class="mx-auto h-auto max-w-full rounded-container-token"
+						src={slide.src}
+						alt={alt}
+					/>
 				{/snippet}
 
 				{#snippet prev({ canScrollPrev, prev, a11y })}
@@ -54,6 +58,11 @@
 		{/key}
 	{:else if images.length}
 		<!-- What the carousel shows first, at the same size. Keep the two in step. -->
-		<img class="mx-auto w-72 sm:w-96 h-auto max-w-full rounded-container-token" src={images[0]} {alt} />
+
+		<img
+			class="mx-auto w-72 sm:w-96 h-auto max-w-full rounded-container-token"
+			src={images[0]}
+			alt={alt}
+		/>
 	{/if}
 </div>

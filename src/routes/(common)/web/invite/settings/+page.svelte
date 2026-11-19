@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
-	import { base } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 	import Fa from 'svelte-fa';
 	import { faArrowLeft, faCheck } from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
@@ -17,7 +17,10 @@
 </script>
 
 <div class="container mx-auto max-w-xl p-4 space-y-6">
-	<a href="{base}/web/invite/invitees" class="btn min-h-11 variant-ghost">
+	<a
+		href="{base()}/web/invite/invitees"
+		class="btn min-h-11 variant-ghost"
+	>
 		<span><Fa icon={faArrowLeft} /></span>
 		<span>{m.INVITEE_BACK_TO_LIST()}</span>
 	</a>
@@ -44,9 +47,12 @@
 		<p class="text-sm text-surface-600-300-token">{m.INVITATION_SETTINGS_RESEND_AFTER_HINT()}</p>
 
 		<div class="flex items-center gap-3">
-			<button type="submit" class="btn min-h-11 variant-filled-primary" {disabled}>
-				{m.INVITATION_SETTINGS_SAVE()}
-			</button>
+			<button
+				type="submit"
+				class="btn min-h-11 variant-filled-primary"
+				disabled={disabled}
+			>{m.INVITATION_SETTINGS_SAVE()}</button>
+
 			{#if result?.success && !hasChanges}
 				<span class="flex items-center gap-2 text-success-700-200-token" role="status" data-testid="settings-saved">
 					<Fa icon={faCheck} />

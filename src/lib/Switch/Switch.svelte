@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getEditMode } from '$lib/components/Directory/context';
+	import { getEditMode } from '#lib/components/Directory/context.ts';
 	import Fa from 'svelte-fa';
 	import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';

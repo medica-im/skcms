@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { base } from '$app/paths';
-	import Select from '$lib/Web/Select.svelte';
+	import { base } from '#lib/utils/base.ts';
+	import Select from '#lib/Web/Select.svelte';
 	import * as m from '$msgs';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
@@ -9,21 +9,20 @@
 		getSelCatVal,
 		getDirectoryRedirect,
 		getSelectFacility
-	} from '$lib/components/Directory/context';
-	import { normalize } from '$lib/helpers/stringHelpers.ts';
-	import type { Type } from '$lib/store/directoryStoreInterface';
+	} from '#lib/components/Directory/context.ts';
+	import { normalize } from '#lib/helpers/stringHelpers.ts';
+	import type { Type } from '#lib/store/directoryStoreInterface.ts';
 
 	let { categoryOf }: { categoryOf: Type[] } = $props();
 
-	const dirPath = `${base}${page.data.directory.setting.path || "/"}`;
+	const dirPath = `${base()}${page.data.directory.setting.path || "/"}`;
 
 	const itemFilter = (label: any, filterText: any, option: any) => {
 		const normalizedFilterText = normalize(filterText);
 		const name = normalize(option.name);
 		const synonyms = option.synonyms?.map((s: string) => normalize(s));
-		return (
-			name.includes(normalizedFilterText) || synonyms?.some((s: string) => s.includes(normalizedFilterText))
-		);
+
+		return name.includes(normalizedFilterText) || synonyms?.some((s: string) => s.includes(normalizedFilterText));
 	};
 	let items = $derived.by(() => {
 		return [...categoryOf].sort(function (a, b) {
@@ -56,7 +55,7 @@
 	function explainOnlyType() {
 		explaining = true;
 		clearTimeout(explainTimer);
-		explainTimer = setTimeout(() => (explaining = false), 4000);
+		explainTimer = setTimeout(() => explaining = false, 4000);
 	}
 
 	$effect(() => {
@@ -86,10 +85,10 @@
 					await goto(dirPath);
 				}
 			} else {
-				const url = new URL(page.url);
+				const url = new URL(page.url.href);
 				url.searchParams.delete('types');
 				const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
-				goto(newUrl, { noScroll: true, keepFocus: true });
+				goto(newUrl, { reset: false });
 			}
 		} else {
 			if (srcElement) srcElement.blur();
@@ -107,9 +106,9 @@
 				}
 				goto(`${dirPath}${urlParams}`);
 			} else {
-				const url = new URL(page.url);
+				const url = new URL(page.url.href);
 				url.searchParams.set('types', JSON.stringify([selected.uid]));
-				goto(`${url.pathname}?${url.searchParams}`, { noScroll: true, keepFocus: true });
+				goto(`${url.pathname}?${url.searchParams}`, { reset: false });
 			}
 		} else {
 			if (srcElement) srcElement.blur();
@@ -125,9 +124,9 @@
 	<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 	<div class="text-surface-700 svelte-select only-type" data-testid="only-type" onclick={explainOnlyType}>
 		<Select
-			{label}
-			{itemId}
-			{items}
+			label={label}
+			itemId={itemId}
+			items={items}
 			value={onlyType}
 			disabled={true}
 			showChevron={false}
@@ -142,12 +141,12 @@
 {:else}
 	<div class="text-surface-700 svelte-select">
 		<Select
-			{itemFilter}
-			{label}
-			{itemId}
-			{items}
-			{focused}
-			{listOpen}
+			itemFilter={itemFilter}
+			label={label}
+			itemId={itemId}
+			items={items}
+			focused={focused}
+			listOpen={listOpen}
 			searchable={true}
 			onfocus={handleFocus}
 			onchange={handleChange}

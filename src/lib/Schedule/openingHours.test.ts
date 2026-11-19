@@ -1,5 +1,11 @@
 import { describe, expect, test } from 'vitest';
-import { isOpen, isRoundTheClock, nextChange, summarize, type OpeningSchedule } from './openingHours.ts';
+import {
+	isOpen,
+	isRoundTheClock,
+	nextChange,
+	summarize,
+	type OpeningSchedule
+} from './openingHours.ts';
 
 const PARIS = 'Europe/Paris';
 const NEW_YORK = 'America/New_York';
@@ -9,7 +15,10 @@ const closedWeek = (): OpeningSchedule => ({
 	holidays: 'closed'
 });
 
-const week = (days: Partial<OpeningSchedule['days']>, holidays: 'closed' | 'open' = 'closed'): OpeningSchedule => ({
+const week = (
+	days: Partial<OpeningSchedule['days']>,
+	holidays: 'closed' | 'open' = 'closed'
+): OpeningSchedule => ({
 	days: { ...closedWeek().days, ...days },
 	holidays
 });
@@ -70,15 +79,21 @@ describe('isOpen', () => {
 		const friday = { 5: [p('08:00', '18:00')] };
 
 		test('a service that closes on holidays is closed on one', () => {
-			expect(isOpen(week(friday, 'closed'), new Date('2026-12-25T09:00:00Z'), christmas2026, PARIS)).toBe(false);
+			expect(
+				isOpen(week(friday, 'closed'), new Date('2026-12-25T09:00:00Z'), christmas2026, PARIS)
+			).toBe(false);
 		});
 
 		test('a service that stays open on holidays follows its weekly hours', () => {
-			expect(isOpen(week(friday, 'open'), new Date('2026-12-25T09:00:00Z'), christmas2026, PARIS)).toBe(true);
+			expect(
+				isOpen(week(friday, 'open'), new Date('2026-12-25T09:00:00Z'), christmas2026, PARIS)
+			).toBe(true);
 		});
 
 		test('an ordinary Friday is unaffected by the holiday setting', () => {
-			expect(isOpen(week(friday, 'closed'), new Date('2026-12-18T09:00:00Z'), christmas2026, PARIS)).toBe(true);
+			expect(
+				isOpen(week(friday, 'closed'), new Date('2026-12-18T09:00:00Z'), christmas2026, PARIS)
+			).toBe(true);
 		});
 
 		test('the holiday is looked up on the local date, not the UTC one', () => {
@@ -98,38 +113,76 @@ describe('nextChange', () => {
 
 	test('while open, it names the closing time', () => {
 		const at = new Date('2026-11-02T08:30:00Z'); // Monday 09:30
-		expect(nextChange(s, at, noHolidays, PARIS)).toEqual({ opens: false, isoDay: 1, time: '12:00', daysAhead: 0 });
+		expect(nextChange(s, at, noHolidays, PARIS)).toEqual({
+			opens: false,
+			isoDay: 1,
+			time: '12:00',
+			daysAhead: 0
+		});
 	});
 
 	test('between two periods, it names the next opening the same day', () => {
 		const at = new Date('2026-11-02T11:30:00Z'); // Monday 12:30
-		expect(nextChange(s, at, noHolidays, PARIS)).toEqual({ opens: true, isoDay: 1, time: '14:00', daysAhead: 0 });
+		expect(nextChange(s, at, noHolidays, PARIS)).toEqual({
+			opens: true,
+			isoDay: 1,
+			time: '14:00',
+			daysAhead: 0
+		});
 	});
 
 	test('after the last period of the week, it names the next open day', () => {
 		const at = new Date('2026-11-06T17:30:00Z'); // Friday 18:30
-		expect(nextChange(s, at, noHolidays, PARIS)).toEqual({ opens: true, isoDay: 1, time: '08:45', daysAhead: 3 });
+		expect(nextChange(s, at, noHolidays, PARIS)).toEqual({
+			opens: true,
+			isoDay: 1,
+			time: '08:45',
+			daysAhead: 3
+		});
 	});
 
 	test('a holiday that closes the service is skipped', () => {
 		const at = new Date('2026-11-06T17:30:00Z'); // Friday 18:30
 		const holidays = { '2026-11-09': 'Jour férié' };
-		expect(nextChange(s, at, holidays, PARIS)).toEqual({ opens: true, isoDay: 2, time: '08:45', daysAhead: 4 });
+		expect(nextChange(s, at, holidays, PARIS)).toEqual({
+			opens: true,
+			isoDay: 2,
+			time: '08:45',
+			daysAhead: 4
+		});
 	});
 
 	test('periods that meet at midnight count as one: the change is where they end', () => {
 		const night = week({ 1: [p('18:00', '24:00')], 2: [p('00:00', '08:00')] });
 		const at = new Date('2026-11-02T18:00:00Z'); // Monday 19:00
-		expect(nextChange(night, at, noHolidays, PARIS)).toEqual({ opens: false, isoDay: 2, time: '08:00', daysAhead: 1 });
+		expect(nextChange(night, at, noHolidays, PARIS)).toEqual({
+			opens: false,
+			isoDay: 2,
+			time: '08:00',
+			daysAhead: 1
+		});
 	});
 
 	test('a service that never closes has no next change', () => {
-		const always = week({ 1: [p('00:00', '24:00')], 2: [p('00:00', '24:00')], 3: [p('00:00', '24:00')], 4: [p('00:00', '24:00')], 5: [p('00:00', '24:00')], 6: [p('00:00', '24:00')], 7: [p('00:00', '24:00')] }, 'open');
+		const always = week(
+			{
+				1: [p('00:00', '24:00')],
+				2: [p('00:00', '24:00')],
+				3: [p('00:00', '24:00')],
+				4: [p('00:00', '24:00')],
+				5: [p('00:00', '24:00')],
+				6: [p('00:00', '24:00')],
+				7: [p('00:00', '24:00')]
+			},
+			'open'
+		);
 		expect(nextChange(always, new Date('2026-11-02T10:00:00Z'), noHolidays, PARIS)).toBeNull();
 	});
 
 	test('a service that never opens has no next change', () => {
-		expect(nextChange(closedWeek(), new Date('2026-11-02T10:00:00Z'), noHolidays, PARIS)).toBeNull();
+		expect(
+			nextChange(closedWeek(), new Date('2026-11-02T10:00:00Z'), noHolidays, PARIS)
+		).toBeNull();
 	});
 });
 
@@ -165,7 +218,15 @@ describe('summarize', () => {
 });
 
 describe('isRoundTheClock', () => {
-	const all = { 1: [p('00:00', '24:00')], 2: [p('00:00', '24:00')], 3: [p('00:00', '24:00')], 4: [p('00:00', '24:00')], 5: [p('00:00', '24:00')], 6: [p('00:00', '24:00')], 7: [p('00:00', '24:00')] };
+	const all = {
+		1: [p('00:00', '24:00')],
+		2: [p('00:00', '24:00')],
+		3: [p('00:00', '24:00')],
+		4: [p('00:00', '24:00')],
+		5: [p('00:00', '24:00')],
+		6: [p('00:00', '24:00')],
+		7: [p('00:00', '24:00')]
+	};
 
 	test('every day all day, holidays included, is 24 h/24 and 7 j/7', () => {
 		expect(isRoundTheClock(week(all, 'open'))).toBe(true);
@@ -178,7 +239,9 @@ describe('isRoundTheClock', () => {
 	test('a day short of the whole day is not', () => {
 		expect(isRoundTheClock(week({ ...all, 7: [] }, 'open'))).toBe(false);
 		expect(isRoundTheClock(week({ ...all, 3: [p('08:00', '24:00')] }, 'open'))).toBe(false);
-		expect(isRoundTheClock(week({ ...all, 3: [p('00:00', '02:00'), p('08:00', '24:00')] }, 'open'))).toBe(false);
+		expect(
+			isRoundTheClock(week({ ...all, 3: [p('00:00', '02:00'), p('08:00', '24:00')] }, 'open'))
+		).toBe(false);
 	});
 
 	test('an empty week is not', () => {

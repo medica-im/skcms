@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { BatchEmailMessage } from '$lib/interfaces/v2/batchEmail';
+	import type { BatchEmailMessage } from '#lib/interfaces/v2/batchEmail.ts';
 	import Fa from 'svelte-fa';
 	import { faCheck, faXmark, faEnvelope, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
-	import { base } from '$app/paths';
-	import ListDateTime from '$lib/components/DateTime/ListDateTime.svelte';
+	import { base } from '#lib/utils/base.ts';
+	import ListDateTime from '#lib/components/DateTime/ListDateTime.svelte';
 
 	let {
 		email,
@@ -26,9 +26,10 @@
 
 	<!-- Author -->
 	<div class="flex items-center gap-2 min-w-0">
-		<a href="{base}/web/users/{authorUid}" class="anchor truncate">
-			{authorName || authorUid.slice(0, 8) + '…'}
-		</a>
+		<a
+			href="{base()}/web/users/{authorUid}"
+			class="anchor truncate"
+		>{authorName || authorUid.slice(0, 8) + '…'}</a>
 	</div>
 
 	<!-- Subject -->
@@ -51,8 +52,9 @@
 			</span>
 		{/if}
 
-		<a href="{base}/web/email/{email.id}" class="btn-icon btn-icon-sm variant-ghost-primary">
-			<Fa icon={faMagnifyingGlass} />
-		</a>
+		<a
+			href="{base()}/web/email/{email.id}"
+			class="btn-icon btn-icon-sm variant-ghost-primary"
+		><Fa icon={faMagnifyingGlass} /></a>
 	</div>
 </div>

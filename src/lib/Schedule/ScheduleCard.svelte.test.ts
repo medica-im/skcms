@@ -9,18 +9,32 @@ import { render } from 'vitest-browser-svelte';
 import { page as screen } from 'vitest/browser';
 import * as m from '$msgs';
 import ScheduleCard from './ScheduleCard.svelte';
-import { AA_TEXT, inScheme, legibility } from '$lib/testing/contrast.ts';
+import { AA_TEXT, inScheme, legibility } from '#lib/testing/contrast.ts';
 import '../../app.postcss';
 
 document.body.dataset.theme = 'wintry';
 
-vi.mock('./holidays.ts', () => ({ holidaysFor: async () => ({}), timeZoneOf: () => 'Europe/Paris' }));
+vi.mock('./holidays.ts', () => ({
+	holidaysFor: async () => ({}),
+	timeZoneOf: () => 'Europe/Paris'
+}));
 
 const day = (periods: { opens: string; closes: string }[]) => periods;
 const ALL = [{ opens: '00:00', closes: '24:00' }];
-const week = (each: ReturnType<typeof day>) => ({ 1: each, 2: each, 3: each, 4: each, 5: each, 6: each, 7: each });
+const week = (each: ReturnType<typeof day>) => ({
+	1: each,
+	2: each,
+	3: each,
+	4: each,
+	5: each,
+	6: each,
+	7: each
+});
 
-const schedule = (days: Record<string, { opens: string; closes: string }[]>, holidays: 'open' | 'closed') => ({
+const schedule = (
+	days: Record<string, { opens: string; closes: string }[]>,
+	holidays: 'open' | 'closed'
+) => ({
 	uid: 's1',
 	entry: 'e1',
 	channel: 'phone' as const,
@@ -32,15 +46,22 @@ const schedule = (days: Record<string, { opens: string; closes: string }[]>, hol
 describe('ScheduleCard', () => {
 	it('says 24 h/24 · 7 j/7 in one line for a line that never closes', async () => {
 		render(ScheduleCard, { props: { schedule: schedule(week(ALL), 'open'), zone: 'metropole' } });
-		await expect.element(screen.getByTestId('schedule-round-the-clock')).toHaveTextContent(m.SCHEDULE_ROUND_THE_CLOCK());
+		await expect
+			.element(screen.getByTestId('schedule-round-the-clock'))
+			.toHaveTextContent(m.SCHEDULE_ROUND_THE_CLOCK());
 		await expect.element(screen.getByText(m.SCHEDULE_HOLIDAYS_INCLUDED())).toBeVisible();
 		await expect.element(screen.getByTestId('schedule-status')).not.toBeInTheDocument();
-		await expect.element(screen.getByText('Tous les jours', { exact: false })).not.toBeInTheDocument();
+		await expect
+			.element(screen.getByText('Tous les jours', { exact: false }))
+			.not.toBeInTheDocument();
 	});
 
 	it('lists the days of a schedule that closes, even when it is open all day on weekdays', async () => {
 		render(ScheduleCard, {
-			props: { schedule: schedule({ ...week([]), 1: ALL, 2: ALL, 3: ALL, 4: ALL, 5: ALL }, 'open'), zone: 'metropole' }
+			props: {
+				schedule: schedule({ ...week([]), 1: ALL, 2: ALL, 3: ALL, 4: ALL, 5: ALL }, 'open'),
+				zone: 'metropole'
+			}
 		});
 		await expect.element(screen.getByTestId('schedule-round-the-clock')).not.toBeInTheDocument();
 		await expect.element(screen.getByText('Lundi au vendredi', { exact: false })).toBeVisible();
@@ -55,7 +76,9 @@ describe('ScheduleCard', () => {
 	for (const scheme of ['light', 'dark'] as const) {
 		it(`reads at AA in ${scheme} mode`, async () => {
 			await inScheme(scheme, async () => {
-				render(ScheduleCard, { props: { schedule: schedule(week(ALL), 'open'), zone: 'metropole' } });
+				render(ScheduleCard, {
+					props: { schedule: schedule(week(ALL), 'open'), zone: 'metropole' }
+				});
 				const parts = [
 					screen.getByTestId('schedule-round-the-clock').element(),
 					screen.getByText(m.SCHEDULE_HOLIDAYS_INCLUDED()).element(),

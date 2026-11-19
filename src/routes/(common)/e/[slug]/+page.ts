@@ -1,93 +1,90 @@
 import type { PageLoad } from './$types';
-import { variables } from '$lib/utils/constants.ts';
-import DefaultComponent from '$lib/components/Directory/EffectorContact.svelte';
-import CareHomePage from '$lib/Directory/CareHomePage.svelte';
-import UsldPage from '$lib/Directory/UsldPage.svelte';
-import { getMemberships } from '$lib/components/Directory/directory.ts';
+import { variables } from '#lib/utils/constants.ts';
+import DefaultComponent from '#lib/components/Directory/EffectorContact.svelte';
+import CareHomePage from '#lib/Directory/CareHomePage.svelte';
+import UsldPage from '#lib/Directory/UsldPage.svelte';
+import { getMemberships } from '#lib/components/Directory/directory.ts';
 import { error } from '@sveltejs/kit';
-import { browser } from '$app/environment';
-import { fetchCareHome } from '$lib/utils/fetchCareHome.ts';
-import type { EntryFull, Entry } from '$lib/store/directoryStoreInterface';
-import { base } from '$app/paths';
-import { entryCanonicalUrl, entryDescription, entryTitle } from '$lib/seo/entryMeta';
+import { browser } from '$app/env';
+import { fetchCareHome } from '#lib/utils/fetchCareHome.ts';
+import type { EntryFull, Entry } from '#lib/store/directoryStoreInterface.ts';
+import { base } from '#lib/utils/base.ts';
+import { entryCanonicalUrl, entryDescription, entryTitle } from '#lib/seo/entryMeta.ts';
 
 export const load: PageLoad = async ({ fetch, params, depends, parent, data, url }) => {
-    depends('entry:now');
-    const { entries } = await parent();
-    if (entries === undefined) throw new Error("entries undefined")
-    let componentData;
-    let component;
-    let fullentry: EntryFull | undefined;
-    let memberships: Entry[] | null;
-    // Always the server load's answer, on both branches below. Resolving the
-    // owner/creator users needs the request's cookies, which exist only on the
-    // server, and the client-side refetch of the entry does not change who owns
-    // it. See resolveOwnerCreator for why this is not a remote query.
-    const users = data?.users ?? [];
-    if (browser && import.meta.env.PROD) {
-        const url = `${variables.BASE_URI}/api/v2/fullentries/slug/${params.slug}`;
-        const res = await fetch(url, {
-        credentials: 'include',
-        method: 'GET',
-        headers: { "content-type": "application/json" },
-      });
-        if (!res.ok) {
-            console.error("fetch error in PageLoad", res.status);
-            error(res.status, {
-                message: 'Une erreur est survenue.',
-                code: res.status
-            });
-        }
-        fullentry = await res.json() as EntryFull;
-        memberships = fullentry.memberships ? getMemberships(entries, fullentry.memberships) : null;
-    } else {
-        fullentry = data.fullentry;
-        memberships = data.memberships
-    }
-    const careHomeSlugArray = ['ehpad', 'usld'];
-    if (careHomeSlugArray.includes(fullentry.effector_type.slug)) {
-        const careHomeData = await fetchCareHome(fetch, fullentry.effector_uid);
-        componentData = {
-            fullentry: fullentry,
-            careHomeData: careHomeData,
-            memberships: memberships,
-            users: users
-        };
-        if (fullentry.effector_type.slug == "ehpad") {
-            component = CareHomePage
-        } else if (fullentry.effector_type.slug == "usld") {
-            component = UsldPage
-        }
-    } else {
-        component = DefaultComponent
-        componentData = {
-            fullentry: fullentry,
-            memberships: memberships,
-            users: users,
-            // From the server load only: the permission is per user and needs
-            // the request's cookies, like users above.
-            typeEdit: data?.typeEdit ?? null,
-            slugEdit: data?.slugEdit ?? null,
-            quality: data?.quality ?? [],
-            schedules: data?.schedules ?? []
-        };
-    }
-    // The list row carries what the full entry lacks: the type's raw_label
-    // (the acronym the title prefers) and the department.
-    const listed = entries.find((e: Entry) => e.entrySlug === params.slug);
-    const metaSource = {
-        ...fullentry,
-        effector_type: { ...fullentry.effector_type, raw_label: listed?.effector_type?.raw_label },
-        department: listed?.department
-    };
-    return {
-        componentData: componentData,
-        component: component,
-        // The public origin, never variables.BASE_URI: that is the backend's
-        // address, and made every unipa.fr/annuaire entry page declare
-        // https://ipa.medica.im/e/<slug> as its real address.
-        canonicalUrl: entryCanonicalUrl(url.origin, base, params.slug),
-        title: entryTitle(metaSource),
-        description: entryDescription(metaSource),
-    }
-}
+	depends('entry:now');
+	const { entries } = await parent();
+	if (entries === undefined) throw new Error('entries undefined');
+	let componentData;
+	let component;
+	let fullentry: EntryFull | undefined;
+	let memberships: Entry[] | null;
+	// Always the server load's answer, on both branches below. Resolving the
+	// owner/creator users needs the request's cookies, which exist only on the
+	// server, and the client-side refetch of the entry does not change who owns
+	// it. See resolveOwnerCreator for why this is not a remote query.
+	const users = data?.users ?? [];
+	if (browser && import.meta.env.PROD) {
+		const url = `${variables.BASE_URI}/api/v2/fullentries/slug/${params.slug}`;
+		const res = await fetch(url, {
+			credentials: 'include',
+			method: 'GET',
+			headers: { 'content-type': 'application/json' }
+		});
+		if (!res.ok) {
+			console.error('fetch error in PageLoad', res.status);
+			error(res.status, {
+				message: 'Une erreur est survenue.',
+				code: res.status
+			});
+		}
+		fullentry = (await res.json()) as EntryFull;
+		memberships = fullentry.memberships ? getMemberships(entries, fullentry.memberships) : null;
+	} else {
+		fullentry = data.fullentry;
+		memberships = data.memberships;
+	}
+	const careHomeSlugArray = ['ehpad', 'usld'];
+	if (careHomeSlugArray.includes(fullentry.effector_type.slug)) {
+		const careHomeData = await fetchCareHome(fetch, fullentry.effector_uid);
+
+		componentData = { fullentry, careHomeData, memberships, users };
+
+		if (fullentry.effector_type.slug == 'ehpad') {
+			component = CareHomePage;
+		} else if (fullentry.effector_type.slug == 'usld') {
+			component = UsldPage;
+		}
+	} else {
+		component = DefaultComponent;
+		componentData = {
+			fullentry,
+			memberships,
+			users,
+			// From the server load only: the permission is per user and needs
+			// the request's cookies, like users above.
+			typeEdit: data?.typeEdit ?? null,
+			slugEdit: data?.slugEdit ?? null,
+			quality: data?.quality ?? [],
+			schedules: data?.schedules ?? []
+		};
+	}
+	// The list row carries what the full entry lacks: the type's raw_label
+	// (the acronym the title prefers) and the department.
+	const listed = entries.find((e: Entry) => e.entrySlug === params.slug);
+	const metaSource = {
+		...fullentry,
+		effector_type: { ...fullentry.effector_type, raw_label: listed?.effector_type?.raw_label },
+		department: listed?.department
+	};
+	return {
+		componentData,
+		component,
+		// The public origin, never variables.BASE_URI: that is the backend's
+		// address, and made every unipa.fr/annuaire entry page declare
+		// https://ipa.medica.im/e/<slug> as its real address.
+		canonicalUrl: entryCanonicalUrl(url.origin, base(), params.slug),
+		title: entryTitle(metaSource),
+		description: entryDescription(metaSource)
+	};
+};

@@ -9,13 +9,13 @@ import { render } from 'vitest-browser-svelte';
 import { page as screen } from 'vitest/browser';
 import { get, writable, type Writable } from 'svelte/store';
 import Clear from './Clear.svelte';
-import { NO_FACETS, type FacetSelection } from '$lib/store/facetFilters';
+import { NO_FACETS, type FacetSelection } from '#lib/store/facetFilters.ts';
 import '../../../app.postcss';
 
 const nav = vi.hoisted(() => ({ goto: vi.fn() }));
 const state = vi.hoisted(() => ({ url: new URL('https://dev.santelyon3.fr/annuaire') }));
 vi.mock('$app/navigation', () => nav);
-vi.mock('$app/paths', () => ({ base: '' }));
+vi.mock('$app/paths', () => ({ resolve: (path: string) => `/${path}` }));
 vi.mock('$app/state', () => ({
 	page: {
 		get url() {
@@ -25,7 +25,11 @@ vi.mock('$app/state', () => ({
 	}
 }));
 
-const mount = (search: string, facets: FacetSelection = NO_FACETS, concern: string | null = null) => {
+const mount = (
+	search: string,
+	facets: FacetSelection = NO_FACETS,
+	concern: string | null = null
+) => {
 	state.url = new URL(`https://dev.santelyon3.fr/annuaire${search}`);
 	const facetSelection: Writable<FacetSelection> = writable(facets);
 	const selectConcern = writable<string | null>(concern);
@@ -63,7 +67,11 @@ describe('Tout effacer', () => {
 	});
 
 	it('is enabled by a facet alone, and clears it from the address and the selection', async () => {
-		const { facetSelection } = mount('?age=17&access=anyone', { ...NO_FACETS, age: 17, access: 'anyone' });
+		const { facetSelection } = mount('?age=17&access=anyone', {
+			...NO_FACETS,
+			age: 17,
+			access: 'anyone'
+		});
 		await expect.element(button()).toBeEnabled();
 		await button().click();
 		await expect.poll(lastUrl).toBe('?');

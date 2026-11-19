@@ -1,4 +1,4 @@
-import metropole from '$lib/assets/json/metropole.json';
+import metropole from '#lib/assets/json/metropole.json';
 import type { PublicHolidays } from './schedule.interface.ts';
 
 type FetchFn = (url: string) => Promise<Response>;

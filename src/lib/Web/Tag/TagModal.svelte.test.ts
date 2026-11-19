@@ -7,7 +7,11 @@ import { render } from 'vitest-browser-svelte';
 import TagModal from './TagModal.svelte';
 import '../../../app.postcss';
 
-vi.mock('../../../tag.remote.ts', () => ({ postEntryTag: vi.fn(), getTagCategories: vi.fn(), getTags: vi.fn() }));
+vi.mock('../../../tag.remote.ts', () => ({
+	postEntryTag: vi.fn(),
+	getTagCategories: vi.fn(),
+	getTags: vi.fn()
+}));
 vi.mock('$app/navigation', () => ({ invalidate: vi.fn() }));
 
 const COLUMN = 600;
@@ -17,7 +21,11 @@ const mount = (tags: unknown) => {
 	column.className = 'flex flex-col';
 	column.style.width = `${COLUMN}px`;
 	document.body.appendChild(column);
-	render(TagModal, { target: column, props: { tags }, context: new Map([['entryUid', 'e1']]) } as never);
+	render(TagModal, {
+		target: column,
+		props: { tags },
+		context: new Map([['entryUid', 'e1']])
+	} as never);
 	return column;
 };
 

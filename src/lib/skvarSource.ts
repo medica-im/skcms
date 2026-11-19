@@ -59,8 +59,13 @@ export function skvarSource(
 	}
 	if (checkedOut === branch) {
 		const file = join(submodule, path);
-		if (!existsSync(file)) throw new Error(`${path} is not in the working tree on ${branch} (${submodule})`);
-		return { source: readFileSync(file, 'utf8'), origin: `the working tree on ${branch}`, workingTreeFile: file };
+		if (!existsSync(file))
+			throw new Error(`${path} is not in the working tree on ${branch} (${submodule})`);
+		return {
+			source: readFileSync(file, 'utf8'),
+			origin: `the working tree on ${branch}`,
+			workingTreeFile: file
+		};
 	}
 
 	return show(branch, `branch ${branch}`);

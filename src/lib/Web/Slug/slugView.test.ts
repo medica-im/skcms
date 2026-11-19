@@ -2,11 +2,28 @@ import { describe, expect, test } from 'vitest';
 import { slugView, type SlugCheck } from './slugView.ts';
 
 const free = (slug: string): SlugCheck => ({ slug, free: true, reason: null, suggestions: [] });
-const taken = (slug: string): SlugCheck => ({ slug, free: false, reason: 'taken', suggestions: ['a-lyon', 'a-rue-x-lyon'] });
-const invalid = (slug: string): SlugCheck => ({ slug, free: false, reason: 'invalid', suggestions: ['b'] });
+const taken = (slug: string): SlugCheck => ({
+	slug,
+	free: false,
+	reason: 'taken',
+	suggestions: ['a-lyon', 'a-rue-x-lyon']
+});
+const invalid = (slug: string): SlugCheck => ({
+	slug,
+	free: false,
+	reason: 'invalid',
+	suggestions: ['b']
+});
 
 const view = (over: Partial<Parameters<typeof slugView>[0]> = {}) =>
-	slugView({ typed: 'cabinet', original: null, check: null, pending: false, failed: false, ...over });
+	slugView({
+		typed: 'cabinet',
+		original: null,
+		check: null,
+		pending: false,
+		failed: false,
+		...over
+	});
 
 describe('the form can be confirmed only with an address that is free', () => {
 	test('a free slug can be confirmed', () => {
@@ -21,7 +38,10 @@ describe('the form can be confirmed only with an address that is free', () => {
 	});
 
 	test('a slug that is not words and hyphens cannot', () => {
-		expect(view({ typed: 'Cab!', check: invalid('Cab!') })).toMatchObject({ status: 'invalid', canConfirm: false });
+		expect(view({ typed: 'Cab!', check: invalid('Cab!') })).toMatchObject({
+			status: 'invalid',
+			canConfirm: false
+		});
 	});
 
 	test('a hyphen at the end, which is where typing stops mid-word, is named as the problem', () => {
@@ -43,18 +63,30 @@ describe('the form can be confirmed only with an address that is free', () => {
 	});
 
 	test('any other mistake is named at once, focused or not', () => {
-		expect(view({ typed: 'Cabinet', check: invalid('Cabinet'), focused: true }).status).toBe('invalid');
-		expect(view({ typed: 'cabinet--lyon', check: invalid('cabinet--lyon'), focused: true }).status).toBe('invalid');
-		expect(view({ typed: '-cabinet', check: invalid('-cabinet'), focused: true }).status).toBe('invalid');
+		expect(view({ typed: 'Cabinet', check: invalid('Cabinet'), focused: true }).status).toBe(
+			'invalid'
+		);
+		expect(
+			view({ typed: 'cabinet--lyon', check: invalid('cabinet--lyon'), focused: true }).status
+		).toBe('invalid');
+		expect(view({ typed: '-cabinet', check: invalid('-cabinet'), focused: true }).status).toBe(
+			'invalid'
+		);
 	});
 
 	test('so is a hyphen at the start or a doubled one', () => {
-		expect(view({ typed: '-cabinet', check: invalid('-cabinet') }).message).toMatch(/tiret ne peut pas/);
-		expect(view({ typed: 'cabinet--lyon', check: invalid('cabinet--lyon') }).message).toMatch(/tiret ne peut pas/);
+		expect(view({ typed: '-cabinet', check: invalid('-cabinet') }).message).toMatch(
+			/tiret ne peut pas/
+		);
+		expect(view({ typed: 'cabinet--lyon', check: invalid('cabinet--lyon') }).message).toMatch(
+			/tiret ne peut pas/
+		);
 	});
 
 	test('capitals, accents and spaces keep the message about lowercase letters', () => {
-		expect(view({ typed: 'Cabinet Lyon', check: invalid('Cabinet Lyon') }).message).toMatch(/minuscules/);
+		expect(view({ typed: 'Cabinet Lyon', check: invalid('Cabinet Lyon') }).message).toMatch(
+			/minuscules/
+		);
 	});
 
 	test('nothing can be confirmed before the first answer', () => {
@@ -62,7 +94,10 @@ describe('the form can be confirmed only with an address that is free', () => {
 	});
 
 	test('nor while the check is under way, whatever the previous answer was', () => {
-		expect(view({ check: free('cabinet'), pending: true })).toMatchObject({ status: 'checking', canConfirm: false });
+		expect(view({ check: free('cabinet'), pending: true })).toMatchObject({
+			status: 'checking',
+			canConfirm: false
+		});
 	});
 
 	test('nor when the check could not be made', () => {
@@ -70,11 +105,16 @@ describe('the form can be confirmed only with an address that is free', () => {
 	});
 
 	test('nor with an empty slug', () => {
-		expect(view({ typed: '  ', check: free('') })).toMatchObject({ status: 'invalid', canConfirm: false });
+		expect(view({ typed: '  ', check: free('') })).toMatchObject({
+			status: 'invalid',
+			canConfirm: false
+		});
 	});
 
 	test('an answer about another slug than the one typed is not an answer', () => {
-		expect(view({ typed: 'cabinet-lyon', check: free('cabinet') })).toMatchObject({ canConfirm: false });
+		expect(view({ typed: 'cabinet-lyon', check: free('cabinet') })).toMatchObject({
+			canConfirm: false
+		});
 	});
 });
 
@@ -100,15 +140,23 @@ describe('an existing facility keeping its address', () => {
 	});
 });
 
-describe('the wording is the caller\'s, the facility\'s by default', () => {
-	const entry = { taken: 'Déjà utilisée par une autre fiche.', changed: 'L’ancienne adresse redirigera vers la nouvelle.' };
+describe("the wording is the caller's, the facility's by default", () => {
+	const entry = {
+		taken: 'Déjà utilisée par une autre fiche.',
+		changed: 'L’ancienne adresse redirigera vers la nouvelle.'
+	};
 
 	test('a taken slug says what the caller says', () => {
 		expect(view({ check: taken('cabinet'), wording: entry }).message).toBe(entry.taken);
 	});
 
-	test('a changed slug warns in the caller\'s words', () => {
-		const v = view({ typed: 'cabinet-lyon', original: 'cabinet', check: free('cabinet-lyon'), wording: entry });
+	test("a changed slug warns in the caller's words", () => {
+		const v = view({
+			typed: 'cabinet-lyon',
+			original: 'cabinet',
+			check: free('cabinet-lyon'),
+			wording: entry
+		});
 		expect(v.warning).toBe(entry.changed);
 	});
 
@@ -117,7 +165,12 @@ describe('the wording is the caller\'s, the facility\'s by default', () => {
 	});
 
 	test('a caller may say nothing when the slug changes: the redirect needs no warning', () => {
-		const v = view({ typed: 'cabinet-lyon', original: 'cabinet', check: free('cabinet-lyon'), wording: { ...entry, changed: null } });
+		const v = view({
+			typed: 'cabinet-lyon',
+			original: 'cabinet',
+			check: free('cabinet-lyon'),
+			wording: { ...entry, changed: null }
+		});
 		expect(v).toMatchObject({ canConfirm: true, changed: true, warning: null });
 	});
 });

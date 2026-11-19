@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { EffectorType } from '$lib/interfaces/v2/effector';
+	import type { EffectorType } from '#lib/interfaces/v2/effector.ts';
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
-	import { base } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 
 	let { effectorType, highlighted = false, onEdit, onDelete }: {
 		effectorType: EffectorType;
@@ -27,8 +27,12 @@
 >
 	<!-- Name -->
 	<span class="font-semibold truncate">
-		<span class="lg:hidden text-sm text-surface-500">{m.EFFECTOR_TYPE_COL_NAME()}: </span>
-		<a href="{base}/web/effector-types/{effectorType.uid}" class="anchor">{effectorType.name_fr}</a>
+		<span class="lg:hidden text-sm text-surface-500">{m.EFFECTOR_TYPE_COL_NAME()}:</span>
+
+		<a
+			href="{base()}/web/effector-types/{effectorType.uid}"
+			class="anchor"
+		>{effectorType.name_fr}</a>
 	</span>
 
 	<!-- Label -->

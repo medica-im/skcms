@@ -12,7 +12,8 @@ import { formatListDateTime, formatFullDateTime, formatDate } from './dateTimeFo
 
 const now = new Date(2026, 8, 28, 16, 0); // 28 Sep 2026, 16:00 local
 const at = (d: number, h: number, m: number) => new Date(2026, 8, d, h, m).getTime();
-const fr = (value: Parameters<typeof formatListDateTime>[0]) => formatListDateTime(value, { locale: 'fr', now });
+const fr = (value: Parameters<typeof formatListDateTime>[0]) =>
+	formatListDateTime(value, { locale: 'fr', now });
 
 describe('formatListDateTime', () => {
 	it('says "now" for the last minute', () => {
@@ -52,8 +53,12 @@ describe('formatListDateTime', () => {
 	});
 
 	it('follows the locale', () => {
-		expect(formatListDateTime(now.getTime() - 5 * 60_000, { locale: 'en', now })).toBe('5 minutes ago');
-		expect(formatListDateTime(at(27, 9, 5), { locale: 'en', now })).toMatch(/^Yesterday, 9:05\sAM$/);
+		expect(formatListDateTime(now.getTime() - 5 * 60_000, { locale: 'en', now })).toBe(
+			'5 minutes ago'
+		);
+		expect(formatListDateTime(at(27, 9, 5), { locale: 'en', now })).toMatch(
+			/^Yesterday, 9:05\sAM$/
+		);
 	});
 });
 
@@ -77,17 +82,17 @@ describe('formatDate', () => {
 
 	it('writes the day in full, in the locale', () => {
 		expect(formatDate('2026-09-28T10:00:00.000+02:00', paris)).toBe('28 septembre 2026');
-		expect(formatDate('2026-09-28T10:00:00.000+02:00', { locale: 'en', timeZone: 'Europe/Paris' })).toBe(
-			'September 28, 2026'
-		);
+		expect(
+			formatDate('2026-09-28T10:00:00.000+02:00', { locale: 'en', timeZone: 'Europe/Paris' })
+		).toBe('September 28, 2026');
 	});
 
 	it('counts the day in the organization’s time zone, not the server’s', () => {
 		// 00:30 in Paris is still the 27th in UTC.
 		expect(formatDate('2026-09-27T22:30:00.000Z', paris)).toBe('28 septembre 2026');
-		expect(formatDate('2026-09-27T22:30:00.000Z', { locale: 'fr', timeZone: 'America/Martinique' })).toBe(
-			'27 septembre 2026'
-		);
+		expect(
+			formatDate('2026-09-27T22:30:00.000Z', { locale: 'fr', timeZone: 'America/Martinique' })
+		).toBe('27 septembre 2026');
 	});
 
 	it('is null when there is no date', () => {

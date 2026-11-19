@@ -2,19 +2,19 @@
 	import { page } from '$app/state';
 	import { Avatar } from '@skeletonlabs/skeleton';
 	import { faUser, faCheck } from '@fortawesome/free-solid-svg-icons';
-	import { entrySlugPageUrl } from '$lib/utils/utils.ts';
+	import { entrySlugPageUrl } from '#lib/utils/utils.ts';
 	import Fa from 'svelte-fa';
-	import type { Entry } from '$lib/store/directoryStoreInterface';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import type { Entry } from '#lib/store/directoryStoreInterface.ts';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import * as m from '$msgs';
-	import { base } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 
 	// Prefix only a path that exists. An entry without a picture yields
 	// undefined from every branch above, and `${base}${undefined}` is the
 	// STRING "/annuaireundefined" — a src the browser dutifully requests and
 	// 404s on. Returning undefined keeps the original behaviour, which the
 	// Avatar component already handles by showing its own fallback.
-	const avatarPath = (p: string | undefined) => (p ? `${base}${p}` : undefined);
+	const avatarPath = (p: string | undefined) => p ? `${base()}${p}` : undefined;
 
 	let { userUid }: { userUid: string } = $props();
 
@@ -131,7 +131,10 @@
 	</div>
 {:else if userUid==user.uid}
 	<div class="flex justify-center py-4">
-		<a href="{base}/web/entry" class="btn btn-lg variant-ghost-primary text-lg font-semibold px-8 py-4 shadow-md hover:shadow-lg transition-shadow">{m.create_entry_cta()}</a>
+		<a
+			href="{base()}/web/entry"
+			class="btn btn-lg variant-ghost-primary text-lg font-semibold px-8 py-4 shadow-md hover:shadow-lg transition-shadow"
+		>{m.create_entry_cta()}</a>
 	</div>
 	{:else}
 	<p>Cet utilisateur n'a aucune entrée dans l'annuaire.</p>

@@ -1,12 +1,12 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import { updateBoardMember } from '../../../association.remote';
 	import { invalidate } from '$app/navigation';
 	import { faCheck, faExclamationCircle, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Dialog from '../Dialog.svelte';
-	import type { BoardMember } from '$lib/interfaces/v2/association';
+	import type { BoardMember } from '#lib/interfaces/v2/association.ts';
 
 	let {
 		member
@@ -57,7 +57,8 @@
 			})}
 		>
 			<div class="space-y-4">
-				<input class="hidden" name="uid" type="text" value={member.uid} />
+				<input {...updateBoardMember.for(uuid).fields.uid.as('hidden', member.uid ?? '')} />
+<input data-field="uid" class="hidden" type="text" value={member.uid} />
 
 				<label class="label">
 					<span>{m.COL_START()}</span>

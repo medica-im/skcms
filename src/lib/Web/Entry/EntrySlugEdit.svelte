@@ -12,11 +12,12 @@
 	import { faCheck, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 	import * as m from '$msgs';
-	import Dialog from '$lib/Web/Dialog.svelte';
-	import SlugFeedback from '$lib/Web/Slug/SlugFeedback.svelte';
-	import { slugView, type SlugCheck } from '$lib/Web/Slug/slugView.ts';
+	import Dialog from '#lib/Web/Dialog.svelte';
+	import SlugFeedback from '#lib/Web/Slug/SlugFeedback.svelte';
+	import { slugView, type SlugCheck } from '#lib/Web/Slug/slugView.ts';
 	import { changeEntrySlug, checkEntrySlug } from '../../../entry.remote';
 
 	let {
@@ -99,7 +100,7 @@
 			const result = await changeEntrySlug({ uid: entryUid, slug: typed.trim() });
 			if (result.success && result.slug) {
 				saved = true;
-				await goto(`${base}/e/${result.slug}`, { invalidateAll: true });
+				await goto(resolve(`e/${result.slug}`), { invalidateAll: true });
 				dialog?.close();
 			} else {
 				refusal = refusalText(result.status, result.code);
@@ -140,12 +141,18 @@
 					spellcheck="false"
 					bind:value={typed}
 					oninput={() => later()}
-					onfocus={() => (focused = true)}
-					onblur={() => (focused = false)}
+					onfocus={() => focused = true}
+					onblur={() => focused = false}
 				/>
 			</label>
-			<p class="text-surface-600-300-token break-all" data-testid="entry-slug-url">{page.url.origin}{base}/e/{typed}</p>
-			<SlugFeedback {view} onchoose={choose} />
+
+			<p
+				class="text-surface-600-300-token break-all"
+				data-testid="entry-slug-url"
+			>{page.url.origin}{base()}/e/{typed}</p>
+
+			<SlugFeedback view={view} onchoose={choose} />
+
 			{#if refusal}
 				<p class="text-error-700-200-token" data-testid="entry-slug-refusal">{refusal}</p>
 			{/if}

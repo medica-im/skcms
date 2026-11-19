@@ -12,7 +12,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import { facilityMatches, facilityOptionLabel, facilitySearchText } from './facilityOption';
-import type { FacilityV2 } from '$lib/interfaces/v2/facility.ts';
+import type { FacilityV2 } from '#lib/interfaces/v2/facility.ts';
 
 const facility = (overrides: Partial<FacilityV2> = {}): FacilityV2 =>
 	({
@@ -49,16 +49,18 @@ describe('facilityOptionLabel', () => {
 	});
 
 	it('skips an empty street rather than leaving a gap', () => {
-		expect(facilityOptionLabel(facility({ street: '' }))).toBe('Maison de santé du Parc, Lyon, Rhône');
+		expect(facilityOptionLabel(facility({ street: '' }))).toBe(
+			'Maison de santé du Parc, Lyon, Rhône'
+		);
 		expect(facilityOptionLabel(facility({ street: null as unknown as string }))).toBe(
 			'Maison de santé du Parc, Lyon, Rhône'
 		);
 	});
 
 	it('trims the stray spaces names and streets come with', () => {
-		expect(facilityOptionLabel(facility({ name: 'CH Guillaume Regnier ', street: ' Bd Leclerc ' }))).toBe(
-			'CH Guillaume Regnier, Bd Leclerc, Lyon, Rhône'
-		);
+		expect(
+			facilityOptionLabel(facility({ name: 'CH Guillaume Regnier ', street: ' Bd Leclerc ' }))
+		).toBe('CH Guillaume Regnier, Bd Leclerc, Lyon, Rhône');
 	});
 
 	it('never shows a uid: no name, no people, it falls back on the label, then on the address', () => {
@@ -105,7 +107,11 @@ describe('facilityMatches', () => {
 		name: "L'Hôpital Saint-Étienne",
 		label: 'CHU Nord',
 		street: '12 rue de la République',
-		commune: { uid: 'c1', name_fr: 'Lyon', department: { code: '69', name: 'Rhône' } } as FacilityV2['commune']
+		commune: {
+			uid: 'c1',
+			name_fr: 'Lyon',
+			department: { code: '69', name: 'Rhône' }
+		} as FacilityV2['commune']
 	});
 	const text = facilitySearchText(f, facilityOptionLabel(f));
 	const matches = (query: string) => facilityMatches(text, query);
@@ -144,7 +150,9 @@ describe('facilityMatches', () => {
 		expect(matches('saint etienne')).toBe(true);
 		expect(matches('saint-etienne')).toBe(true);
 		const spaced = facility({ name: 'Saint Étienne', label: null });
-		expect(facilityMatches(facilitySearchText(spaced, facilityOptionLabel(spaced)), 'saint-étienne')).toBe(true);
+		expect(
+			facilityMatches(facilitySearchText(spaced, facilityOptionLabel(spaced)), 'saint-étienne')
+		).toBe(true);
 	});
 
 	it('treats apostrophes, straight or curly, as a space', () => {

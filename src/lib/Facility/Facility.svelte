@@ -1,16 +1,16 @@
 <script lang="ts">
-	import FacilityCarousel from '$lib/Facility/FacilityCarousel.svelte';
-	import Map from '$lib/MapLibre/MapLibreClustered.svelte';
-	import { createFacilitiesMapData } from '$lib/components/Map/mapData.ts';
+	import FacilityCarousel from '#lib/Facility/FacilityCarousel.svelte';
+	import Map from '#lib/MapLibre/MapLibreClustered.svelte';
+	import { createFacilitiesMapData } from '#lib/components/Map/mapData.ts';
 	import { scale } from 'svelte/transition';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faBuilding } from '@fortawesome/free-regular-svg-icons';
 	import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 	import { page } from '$app/state';
-	import type { Facility } from '$lib/interfaces/facility.interface.js';
-	import { base } from '$app/paths';
+	import type { Facility } from '#lib/interfaces/facility.interface.js';
+	import { base } from '#lib/utils/base.ts';
 
 	// mapAnchor: whether a map marker's popup links to the facility it marks.
 	// On by default because this component draws a *list* of facilities — the
@@ -293,11 +293,10 @@
 	const isMsp = $derived(page.data.organization?.category?.slug === 'msp');
 	const heading = $derived(
 		isMsp
-			? capitalizeFirstLetter(m.SITE_COUNT({ count: data.length }))
-			: capitalizeFirstLetter(m.FACILITY({ count: data.length }))
-	);
-	const allLabel = $derived(isMsp ? m.SITES_ALL() : m.FACILITIES_ALL());
+		? capitalizeFirstLetter(m.SITE_COUNT({ count: data.length }))
+		: capitalizeFirstLetter(m.FACILITY({ count: data.length })));
 
+	const allLabel = $derived(isMsp ? m.SITES_ALL() : m.FACILITIES_ALL());
 	const lgCols = carousel ? 3 : 2;
 	/**
 	 * Only facilities with a picture belong in the carousel — an empty frame
@@ -315,7 +314,7 @@
 	}
 </script>
 
-<svelte:window onpointerdown={onWindowPointerDown} />
+<svelte:window onpointerdown={onWindowPointerDown}></svelte:window>
 
 <div class="facility-layout grid grid-cols-1 gap-6 lg:gap-10 items-start">
 	<div class="text-center">
@@ -337,8 +336,8 @@
 			bind:this={mapComponent}
 			data={mapPoints}
 			clusterRadius={22}
-			{highlight}
-			{geojson}
+			highlight={highlight}
+			geojson={geojson}
 			onfacilityclick={onMarkerClick}
 			onfacilityhover={onMarkerHover}
 			onmapbackgroundtap={onMapBackgroundTap}
@@ -350,11 +349,11 @@
 		
 		<div class="facility-buttons flex flex-wrap items-center gap-4 text-center">
 			{#each sorted as facility, i}
-					<a
-						href="{base}/sites/{facility.slug||facility.uid}"
-						title={facility.name}
-						data-facility-button
-						class="btn btn-sm w-fit"
+				<a
+					href="{base()}/sites/{facility.slug || facility.uid}"
+					title={facility.name}
+					data-facility-button
+					class="btn btn-sm w-fit"
 						class:variant-ghost-primary={!(isolateOnSelect &&
 							picked === mapPoints[i]?.popup?.text)}
 						class:variant-filled-primary={isolateOnSelect &&
@@ -369,15 +368,15 @@
 						selected === mapPoints[i]?.popup?.text
 							? facilityHintId
 							: undefined}
-						onmouseenter={() => onButtonEnter(mapPoints[i]?.popup?.text ?? null)}
-						onmouseleave={onButtonLeave}
-						onfocus={() => onButtonEnter(mapPoints[i]?.popup?.text ?? null)}
-						onblur={onButtonLeave}
-						onpointerdown={notePointerType}
-						onclick={(e) => onButtonClick(e, mapPoints[i]?.popup?.text ?? null)}
-					>
-						{facility.label || facility.name}
-						<!--
+					onmouseenter={() => onButtonEnter(mapPoints[i]?.popup?.text ?? null)}
+					onmouseleave={onButtonLeave}
+					onfocus={() => onButtonEnter(mapPoints[i]?.popup?.text ?? null)}
+					onblur={onButtonLeave}
+					onpointerdown={notePointerType}
+					onclick={(e) => onButtonClick(e, mapPoints[i]?.popup?.text ?? null)}
+				>
+					{facility.label || facility.name} 
+					<!--
 							The second-tap affordance. Only on the one button whose
 							behaviour has just changed, and only when a finger made
 							the selection — a mouse click navigates directly, so an
@@ -394,8 +393,13 @@
 					>
 			{/each}
 			{#if data.length > 1}
-				<a href="{base}/sites" class="btn variant-ghost-surface" data-sveltekit-preload-data="hover">
-					<span><Fa icon={faBuilding} /></span><span>{allLabel}</span>
+				<a
+					href="{base()}/sites"
+					class="btn variant-ghost-surface"
+					data-sveltekit-preload-data="hover"
+				>
+					<span><Fa icon={faBuilding} /></span>
+					<span>{allLabel}</span>
 				</a>
 			{/if}
 		</div>

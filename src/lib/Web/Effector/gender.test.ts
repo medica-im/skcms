@@ -30,10 +30,16 @@ describe('gendersFor', () => {
 });
 
 describe('professionWords', () => {
-	const forms = (F: string | null, M: string | null) => ({ S: { F, M, N: M }, P: { F: null, M: null, N: null } });
+	const forms = (F: string | null, M: string | null) => ({
+		S: { F, M, N: M },
+		P: { F: null, M: null, N: null }
+	});
 
 	it('gives the singular feminine and masculine a person’s entry will show', () => {
-		expect(professionWords({ t: forms('infirmière', 'infirmier') }, 't')).toEqual({ F: 'infirmière', M: 'infirmier' });
+		expect(professionWords({ t: forms('infirmière', 'infirmier') }, 't')).toEqual({
+			F: 'infirmière',
+			M: 'infirmier'
+		});
 	});
 
 	it('gives nothing when the type has no label, or lacks either form', () => {

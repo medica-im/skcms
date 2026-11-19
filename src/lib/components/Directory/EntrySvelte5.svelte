@@ -1,10 +1,10 @@
 <script lang="ts">
-	import Phones from '$lib/Directory/Phone/Phones.svelte';
-	import FacilityLink from '$lib/Facility/FacilityLink.svelte';
-	import AvatarList from '$lib/components/Effector/Avatar/AvatarList.svelte';
+	import Phones from '#lib/Directory/Phone/Phones.svelte';
+	import FacilityLink from '#lib/Facility/FacilityLink.svelte';
+	import AvatarList from '#lib/components/Effector/Avatar/AvatarList.svelte';
 	import { goto } from '$app/navigation';
-	import { entrySlugPageUrl } from '$lib/utils/utils.ts';
-	import type { Entry } from '$lib/store/directoryStoreInterface';
+	import { entrySlugPageUrl } from '#lib/utils/utils.ts';
+	import type { Entry } from '#lib/store/directoryStoreInterface.ts';
 	let { entry, avatar }: { entry: Entry; avatar: boolean } = $props();
 
 	const goTo = () => {

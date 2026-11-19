@@ -1,5 +1,5 @@
-import { base } from '$app/paths';
-import type { Avatar } from '$lib/interfaces/facility.interface';
+import { resolve } from '$app/paths';
+import type { Avatar } from '#lib/interfaces/facility.interface.ts';
 
 export type AvatarSize = 'lg' | 'sm';
 
@@ -18,7 +18,7 @@ export type AvatarSize = 'lg' | 'sm';
  * literal, and reading it at module scope would freeze whatever it was when
  * this module first loaded.
  */
-const placeholder = () => `${base}/media/profile_images/default_profile_picture.png`;
+const placeholder = () => resolve(`media/profile_images/default_profile_picture.png`);
 
 /**
  * The URL to render an entry's avatar from.
@@ -33,8 +33,7 @@ export function avatarSrc(
 	size: AvatarSize,
 	baseUri: string
 ): string {
-	const path =
-		(size === 'lg' && avatar?.lg) || (size === 'sm' && avatar?.sm) || avatar?.raw || '';
+	const path = (size === 'lg' && avatar?.lg) || (size === 'sm' && avatar?.sm) || avatar?.raw || '';
 
 	// No `base` here: baseUri is variables.BASE_URI, which already carries the
 	// base path on an instance served under one (VITE_BASE_URI_* is set to

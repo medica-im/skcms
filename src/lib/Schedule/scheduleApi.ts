@@ -24,7 +24,15 @@ export const ISO_DAYS: IsoDay[] = [1, 2, 3, 4, 5, 6, 7];
 // Not structuredClone: that refuses the proxy Svelte's $state puts around a draft.
 export const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value));
 
-export const emptyDays = (): Record<IsoDay, Period[]> => ({ 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] });
+export const emptyDays = (): Record<IsoDay, Period[]> => ({
+	1: [],
+	2: [],
+	3: [],
+	4: [],
+	5: [],
+	6: [],
+	7: []
+});
 
 export const toOpeningSchedule = (schedule: ApiSchedule): OpeningSchedule => {
 	const days = emptyDays();
@@ -44,5 +52,7 @@ export const toPayload = (entry: string, draft: ScheduleDraft) => ({
 	channel: draft.channel,
 	label: draft.label.trim() || null,
 	holidays: draft.holidays,
-	days: Object.fromEntries(ISO_DAYS.filter((day) => draft.days[day].length > 0).map((day) => [day, draft.days[day]]))
+	days: Object.fromEntries(
+		ISO_DAYS.filter((day) => draft.days[day].length > 0).map((day) => [day, draft.days[day]])
+	)
 });

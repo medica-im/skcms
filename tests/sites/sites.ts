@@ -193,9 +193,7 @@ export function originFor(site: SiteName): string {
 	}
 	const origin = SITE_ORIGINS[site];
 	if (!origin) {
-		throw new Error(
-			`unknown site "${site}"; add it to SITE_ORIGINS in tests/sites/sites.ts`
-		);
+		throw new Error(`unknown site "${site}"; add it to SITE_ORIGINS in tests/sites/sites.ts`);
 	}
 	return origin;
 }
@@ -299,10 +297,10 @@ export async function requireSite(site: SiteName): Promise<void> {
 	// answering; the real cause was a loaded box, and the specs passed on retry.
 	if (timedOut) {
 		const check = where
-			// -L because the guard follows redirects too: without it this prints
-			// the 301 these origins answer with, which reads as a failure when
-			// the server is fine.
-			? `Check whether it is up and how fast it answers:\n` +
+			? // -L because the guard follows redirects too: without it this prints
+				// the 301 these origins answer with, which reads as a failure when
+				// the server is fine.
+				`Check whether it is up and how fast it answers:\n` +
 				`    curl -sL -o /dev/null -w '%{http_code} in %{time_total}s\\n' ${origin}/\n` +
 				`    (that origin is served from :${where.port}.)\n\n` +
 				`If nothing is listening, start it with:\n` +
@@ -350,9 +348,9 @@ export function specsBySite(dir: string): Map<SiteName, string[]> {
 		if (!file.endsWith('.spec.ts')) continue;
 		// The first quoted site on the `const SITE` line, so both a plain literal
 		// and an env-var default (`?? 'santelyon3.fr'`) are read the same way.
-		const site = /^const SITE\b[^\n]*?'([^']+)'/m.exec(readFileSync(join(dir, file), 'utf8'))?.[1] as
-			| SiteName
-			| undefined;
+		const site = /^const SITE\b[^\n]*?'([^']+)'/m.exec(
+			readFileSync(join(dir, file), 'utf8')
+		)?.[1] as SiteName | undefined;
 		if (!site || !(site in SITE_ORIGINS)) {
 			throw new Error(
 				`${dir}/${file} does not declare which site it runs against by default.\n` +

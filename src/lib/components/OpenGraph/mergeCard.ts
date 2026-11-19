@@ -1,14 +1,22 @@
-import type { OpenGraph } from '$lib/interfaces/openGraph.interface';
+import type { OpenGraph } from '#lib/interfaces/openGraph.interface.ts';
 
 /** What a page may say about itself in a share; the rest is the site's card. */
-export type PageCard = Partial<Record<'title' | 'description' | 'image_url' | 'image_alt', string | null>> &
+export type PageCard = Partial<
+	Record<'title' | 'description' | 'image_url' | 'image_alt', string | null>
+> &
 	Partial<Record<'image_width' | 'image_height', number | null>>;
 
 const given = (value: unknown): value is string => typeof value === 'string' && value !== '';
 
 export function mergeCard(site: OpenGraph, page: PageCard | undefined): OpenGraph;
-export function mergeCard(site: OpenGraph | undefined, page: PageCard | undefined): OpenGraph | undefined;
-export function mergeCard(site: OpenGraph | undefined, page: PageCard | undefined): OpenGraph | undefined {
+export function mergeCard(
+	site: OpenGraph | undefined,
+	page: PageCard | undefined
+): OpenGraph | undefined;
+export function mergeCard(
+	site: OpenGraph | undefined,
+	page: PageCard | undefined
+): OpenGraph | undefined {
 	const p = page ?? {};
 	if (!site && !Object.values(p).some(given)) return undefined;
 	return {

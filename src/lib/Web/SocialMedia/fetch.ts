@@ -1,14 +1,16 @@
-import { ORIGIN } from '$lib/utils/origin.ts';
+import { ORIGIN } from '#lib/utils/origin.ts';
 
-type SomedTypesJson = [[string, string]]
+type SomedTypesJson = [[string, string]];
 
-export const getSomedTypes =  async () => {
+export const getSomedTypes = async () => {
 	const response = await fetch(`${ORIGIN}/api/v2/socialmediatypes`);
 	if (!response.ok) {
-		console.error("error while fetching socialmediatypes", response.status)
-		return
+		console.error('error while fetching socialmediatypes', response.status);
+		return;
 	}
-	const somedTypesJson = await response.json() as SomedTypesJson;
+	const somedTypesJson = (await response.json()) as SomedTypesJson;
 	console.log(somedTypesJson);
-	return somedTypesJson.map((e)=>{return {value: e[0], label: e[1]}})
-}
+	return somedTypesJson.map((e) => {
+		return { value: e[0], label: e[1] };
+	});
+};

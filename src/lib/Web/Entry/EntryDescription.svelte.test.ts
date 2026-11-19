@@ -11,7 +11,7 @@ import { render } from 'vitest-browser-svelte';
 import { page as screen } from 'vitest/browser';
 import * as m from '$msgs';
 import EntryDescription from './EntryDescription.svelte';
-import { AA_TEXT, inScheme, legibility } from '$lib/testing/contrast.ts';
+import { AA_TEXT, inScheme, legibility } from '#lib/testing/contrast.ts';
 import '../../../app.postcss';
 
 document.body.dataset.theme = 'wintry';
@@ -21,7 +21,8 @@ const nav = vi.hoisted(() => ({ invalidate: vi.fn() }));
 vi.mock('../../../entry.remote', () => remote);
 vi.mock('$app/navigation', () => nav);
 
-const ALSM = "Permanences d'écoute gratuites et anonymes, sans rendez-vous.\nAssurées par un psychologue et un acteur de prévention.";
+const ALSM =
+	"Permanences d'écoute gratuites et anonymes, sans rendez-vous.\nAssurées par un psychologue et un acteur de prévention.";
 
 const mount = (description: string | null, editMode = true) =>
 	render(EntryDescription, { props: { entryUid: 'e1', description, editMode } });
@@ -51,7 +52,9 @@ describe('on the page', () => {
 
 	it('shows nothing when there is none, outside edit mode', async () => {
 		mount(null, false);
-		await expect.element(screen.getByRole('heading', { name: m.ENTRY_DESCRIPTION_TITLE() })).not.toBeInTheDocument();
+		await expect
+			.element(screen.getByRole('heading', { name: m.ENTRY_DESCRIPTION_TITLE() }))
+			.not.toBeInTheDocument();
 	});
 
 	it('offers to write one in edit mode when there is none', async () => {
@@ -75,7 +78,10 @@ describe('the dialog', () => {
 		await open();
 		await field().fill('Permanences sans rendez-vous.');
 		await save().click();
-		expect(remote.patchCommand).toHaveBeenCalledWith({ entry: 'e1', description: 'Permanences sans rendez-vous.' });
+		expect(remote.patchCommand).toHaveBeenCalledWith({
+			entry: 'e1',
+			description: 'Permanences sans rendez-vous.'
+		});
 		await expect.element(screen.getByText(m.ENTRY_DESCRIPTION_SAVED())).toBeVisible();
 		expect(nav.invalidate).toHaveBeenCalledWith('entry:now');
 	});

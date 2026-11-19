@@ -7,7 +7,13 @@
  * synonyms without regard to accents or case, and intersects.
  */
 import { describe, it, expect } from 'vitest';
-import { buildTree, searchConcerns, filterByConcern, seeAlsoOf, type Concern } from './concernTree.ts';
+import {
+	buildTree,
+	searchConcerns,
+	filterByConcern,
+	seeAlsoOf,
+	type Concern
+} from './concernTree.ts';
 import { makeEntry } from './directoryStore.fixtures.ts';
 
 const concern = (uid: string, patch: Partial<Concern> = {}): Concern => ({
@@ -23,10 +29,20 @@ const concern = (uid: string, patch: Partial<Concern> = {}): Concern => ({
 });
 
 const CONCERNS: Concern[] = [
-	concern('addictions', { name: 'Addictions', kind: 'chapter', synonyms: ['dépendance', 'toxicomanie'], entries: ['e1', 'e2'] }),
+	concern('addictions', {
+		name: 'Addictions',
+		kind: 'chapter',
+		synonyms: ['dépendance', 'toxicomanie'],
+		entries: ['e1', 'e2']
+	}),
 	concern('alcool', { name: 'Alcool', parent: 'addictions', entries: ['e1'] }),
 	concern('cannabis', { name: 'Cannabis', parent: 'addictions', entries: ['e2'] }),
-	concern('depression', { name: 'Dépression', kind: 'chapter', entries: ['e3'], see_also: ['crise'] }),
+	concern('depression', {
+		name: 'Dépression',
+		kind: 'chapter',
+		entries: ['e3'],
+		see_also: ['crise']
+	}),
 	concern('crise', { name: 'Crise suicidaire', kind: 'situation', entries: ['e4'] })
 ];
 
@@ -64,7 +80,10 @@ describe('selecting', () => {
 	const entries = ['e1', 'e2', 'e3', 'e4', 'e5'].map((uid) => makeEntry({ uid }));
 
 	it('keeps the entries of the node and of its descendants', () => {
-		expect(filterByConcern(entries, CONCERNS, 'addictions').map((e) => e.uid)).toEqual(['e1', 'e2']);
+		expect(filterByConcern(entries, CONCERNS, 'addictions').map((e) => e.uid)).toEqual([
+			'e1',
+			'e2'
+		]);
 		expect(filterByConcern(entries, CONCERNS, 'alcool').map((e) => e.uid)).toEqual(['e1']);
 	});
 

@@ -49,7 +49,9 @@ describe('checking an address as it is typed', () => {
 		render(AddressCheckHintHarness, { initial: '' });
 
 		await page.getByLabelText('Email').fill('gone@medica.im');
-		await expect.element(page.getByTestId('address-check-hint')).toHaveTextContent('déjà été rejetée');
+		await expect
+			.element(page.getByTestId('address-check-hint'))
+			.toHaveTextContent('déjà été rejetée');
 	});
 
 	it('says nothing of a fine address, and does not ask for an incomplete one', async () => {

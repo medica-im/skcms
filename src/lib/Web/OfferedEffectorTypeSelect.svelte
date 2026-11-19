@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import { SlideToggle } from '@skeletonlabs/skeleton';
 	import * as m from '$msgs';
-	import EffectorTypeSelect from '$lib/Web/EffectorTypeSelect.svelte';
+	import EffectorTypeSelect from '#lib/Web/EffectorTypeSelect.svelte';
 
 	/**
 	 * The category picker for an entry being created or changed: the categories

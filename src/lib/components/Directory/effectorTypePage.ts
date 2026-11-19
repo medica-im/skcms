@@ -1,8 +1,8 @@
 import { error } from '@sveltejs/kit';
 import { filterEntries } from './directory.ts';
-import { genderedLabel } from '$lib/store/directoryStore.ts';
-import type { Entry } from '$lib/store/directoryStoreInterface';
-import type { Labels } from '$lib/interfaces/label.interace.ts';
+import { genderedLabel } from '#lib/store/directoryStore.ts';
+import type { Entry } from '#lib/store/directoryStoreInterface.ts';
+import type { Labels } from '#lib/interfaces/label.interace.ts';
 
 /**
  * The data for /annuaire/[slug]: the organization's members of one effector
@@ -11,7 +11,11 @@ import type { Labels } from '$lib/interfaces/label.interace.ts';
  */
 export function effectorTypePage(
 	slug: string,
-	{ organization, entries, labels }: { organization: { uid: string }; entries: Entry[]; labels: Labels }
+	{
+		organization,
+		entries,
+		labels
+	}: { organization: { uid: string }; entries: Entry[]; labels: Labels }
 ) {
 	const members = filterEntries(entries, true, organization.uid) ?? [];
 	const uid = members.find((e) => e.effector_type.slug == slug)?.effector_type.uid;

@@ -1,11 +1,11 @@
 <script lang="ts">
 	import * as m from '$msgs';
 	import { MapLibre, MapEvents, DefaultMarker } from 'svelte-maplibre';
-	import '$lib/MapLibre/worker';
-	import { openStreetMap } from '$lib/MapLibre/style/openStreetMap';
+	import '#lib/MapLibre/worker.ts';
+	import { openStreetMap } from '#lib/MapLibre/style/openStreetMap.ts';
 	import type { MapMouseEvent } from 'maplibre-gl';
-	import { hasCoordinates, distanceKm } from '$lib/components/Map/coordinates.ts';
-	import { communeCentre } from '$lib/components/Geocoder/communeCentre.ts';
+	import { hasCoordinates, distanceKm } from '#lib/components/Map/coordinates.ts';
+	import { communeCentre } from '#lib/components/Geocoder/communeCentre.ts';
 
 	let {
 		lng = $bindable(),

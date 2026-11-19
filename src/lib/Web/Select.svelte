@@ -2,7 +2,7 @@
 	import Select from 'svelte-select';
 	import type { Snippet } from 'svelte';
 	import * as m from '$msgs';
-	import NoOptions from '$lib/Web/NoOptions.svelte';
+	import NoOptions from '#lib/Web/NoOptions.svelte';
 
 	/**
 	 * svelte-select with its dropdown positioned against the viewport.

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import type { Managed } from '$lib/store/directoryStoreInterface.ts';
+	import type { Managed } from '#lib/store/directoryStoreInterface.ts';
 
 	/** What the entry deals with, as étiquettes: conditions, situations, the Need, by name. */
 	let { managed = [] }: { managed?: Managed[] } = $props();

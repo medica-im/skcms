@@ -31,9 +31,7 @@ Given('the site is in dark mode', async ({ page }) => {
 	// the backdrop is resolved in the theme under test.
 	await page.emulateMedia({ colorScheme: 'dark' });
 	await page.addInitScript(() => {
-		document.addEventListener('DOMContentLoaded', () =>
-			document.body.classList.add('dark')
-		);
+		document.addEventListener('DOMContentLoaded', () => document.body.classList.add('dark'));
 	});
 });
 

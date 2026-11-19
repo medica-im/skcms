@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as m from '$msgs';
 	import { page } from '$app/state';
-	import { base } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 </script>
 
 {#if page.error}
@@ -17,9 +17,18 @@
 			<p>L'entrée que vous recherchez n'existe pas. L'addresse <code>{page.url.pathname}</code> ne correspond à aucune entrée. Peut-être a-t-elle été supprimée?</p>
 		{/if}
 		<div class="flex gap-4">
-				<a href="{base}/" title={m.ADDRESSBOOK_TITLE()} class="btn variant-ghost-primary">Annuaire</a>
-				<a href="{base}/contact" title="Contact" class="btn variant-ghost-primary">Contact</a>
-			</div>
+			<a
+				href="{base()}/"
+				title={m.ADDRESSBOOK_TITLE()}
+				class="btn variant-ghost-primary"
+			>Annuaire</a>
+
+			<a
+				href="{base()}/contact"
+				title="Contact"
+				class="btn variant-ghost-primary"
+			>Contact</a>
+		</div>
 	</div>
 {/if}
 

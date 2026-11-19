@@ -31,7 +31,8 @@ const job = (over: Partial<ResendJob> = {}): ResendJob => ({
 	...over
 });
 
-const answer = (body: unknown) => Promise.resolve(new Response(JSON.stringify(body), { status: 200 }));
+const answer = (body: unknown) =>
+	Promise.resolve(new Response(JSON.stringify(body), { status: 200 }));
 
 afterEach(() => {
 	vi.unstubAllGlobals();
@@ -39,26 +40,50 @@ afterEach(() => {
 
 describe('BatchResendStatus', () => {
 	it('shows a running reminder as a progress bar, with a way to stop it', async () => {
-		vi.stubGlobal('fetch', vi.fn(() => answer(job())));
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(() => answer(job()))
+		);
 		render(BatchResendStatus, { job: job(), pollMs: 60_000 });
 
 		await expect.element(page.getByText('Relance en cours')).toBeVisible();
-		await expect.element(page.getByTestId('batch-progress-count')).toHaveTextContent('4 / 10 (40%)');
+		await expect
+			.element(page.getByTestId('batch-progress-count'))
+			.toHaveTextContent('4 / 10 (40%)');
 		await expect.element(page.getByRole('button', { name: 'Arrêter l’envoi' })).toBeVisible();
 	});
 
 	it('follows the reminder until it has finished, then says so', async () => {
-		vi.stubGlobal('fetch', vi.fn(() => answer({ ...job(), status: 'completed', emails_processed: 10, email_skipped_count: 2, failed_email_count: 1 })));
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(() =>
+				answer({
+					...job(),
+					status: 'completed',
+					emails_processed: 10,
+					email_skipped_count: 2,
+					failed_email_count: 1
+				})
+			)
+		);
 		const onfinished = vi.fn();
 		render(BatchResendStatus, { job: job(), pollMs: 10, onfinished });
 
-		await expect.element(page.getByTestId('resend-summary')).toHaveTextContent('envoyés : 7 · ignorés : 2 · en échec : 1');
+		await expect
+			.element(page.getByTestId('resend-summary'))
+			.toHaveTextContent('envoyés : 7 · ignorés : 2 · en échec : 1');
 		expect(onfinished).toHaveBeenCalledOnce();
-		expect(fetch).toHaveBeenCalledWith(expect.stringMatching(/\/api\/v2\/batch-invitees\/job-1\/progress$/), expect.anything());
+		expect(fetch).toHaveBeenCalledWith(
+			expect.stringMatching(/\/api\/v2\/batch-invitees\/job-1\/progress$/),
+			expect.anything()
+		);
 	});
 
 	it('asks the server to stop', async () => {
-		vi.stubGlobal('fetch', vi.fn(() => answer({})));
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(() => answer({}))
+		);
 		render(BatchResendStatus, { job: job(), pollMs: 60_000 });
 
 		await page.getByRole('button', { name: 'Arrêter l’envoi' }).click();
@@ -72,29 +97,36 @@ describe('BatchResendStatus', () => {
 	it('shows a finished reminder with its report', async () => {
 		vi.stubGlobal('fetch', vi.fn());
 		render(BatchResendStatus, {
-			job: job({ status: 'completed', emails_processed: 10, email_skipped_count: 2, failed_email_count: 1 })
+			job: job({
+				status: 'completed',
+				emails_processed: 10,
+				email_skipped_count: 2,
+				failed_email_count: 1
+			})
 		});
 
-		await expect.element(page.getByTestId('resend-summary')).toHaveTextContent('envoyés : 7 · ignorés : 2 · en échec : 1');
-		await expect.element(page.getByRole('link', { name: 'Voir le rapport' })).toHaveAttribute(
-			'href',
-			expect.stringMatching(/\/web\/invite\/batch-logs\/job-1$/)
-		);
+		await expect
+			.element(page.getByTestId('resend-summary'))
+			.toHaveTextContent('envoyés : 7 · ignorés : 2 · en échec : 1');
+		await expect
+			.element(page.getByRole('link', { name: 'Voir le rapport' }))
+			.toHaveAttribute('href', expect.stringMatching(/\/web\/invite\/batch-logs\/job-1$/));
 		expect(fetch).not.toHaveBeenCalled();
 	});
 
 	it('leads to the history of the reminders', async () => {
 		render(BatchResendStatus, { job: job({ status: 'completed', emails_processed: 10 }) });
 
-		await expect.element(page.getByRole('link', { name: 'Historique des relances' })).toHaveAttribute(
-			'href',
-			expect.stringMatching(/\/web\/invite\/reminder-logs$/)
-		);
+		await expect
+			.element(page.getByRole('link', { name: 'Historique des relances' }))
+			.toHaveAttribute('href', expect.stringMatching(/\/web\/invite\/reminder-logs$/));
 	});
 
 	it('says where a stopped reminder got to', async () => {
 		render(BatchResendStatus, { job: job({ status: 'cancelled', emails_processed: 4 }) });
 
-		await expect.element(page.getByTestId('resend-summary')).toHaveTextContent('arrêtée après 4 e-mails sur 10');
+		await expect
+			.element(page.getByTestId('resend-summary'))
+			.toHaveTextContent('arrêtée après 4 e-mails sur 10');
 	});
 });

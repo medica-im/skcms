@@ -9,12 +9,12 @@
 		faExclamationCircle
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import Select from '$lib/Web/Select.svelte';
-	import Dialog from '$lib/Web/Dialog.svelte';
-	import { getEntryUid } from '$lib/components/Directory/context';
-	import { areArraysEqualSets } from '$lib/utils/utils.ts';
-	import type { FormResult } from '$lib/interfaces/v2/form';
-	import type { EntryFull, AvailableDirectory } from '$lib/store/directoryStoreInterface';
+	import Select from '#lib/Web/Select.svelte';
+	import Dialog from '#lib/Web/Dialog.svelte';
+	import { getEntryUid } from '#lib/components/Directory/context.ts';
+	import { areArraysEqualSets } from '#lib/utils/utils.ts';
+	import type { FormResult } from '#lib/interfaces/v2/form.ts';
+	import type { EntryFull, AvailableDirectory } from '#lib/store/directoryStoreInterface.ts';
 
 	let { data, editMode = false }: { data: EntryFull; editMode?: boolean } = $props();
 

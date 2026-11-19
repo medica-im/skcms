@@ -4,7 +4,7 @@ import Fa from 'svelte-fa';
 import { faRoute } from '@fortawesome/free-solid-svg-icons';
 import { getLocale } from "$prgld/runtime.js";
 
-import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 export let geoData;
 </script>
 

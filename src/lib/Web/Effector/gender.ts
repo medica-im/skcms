@@ -1,5 +1,5 @@
-import type { Labels } from '$lib/interfaces/label.interace.ts';
-import type { Nature } from '$lib/store/directoryStoreInterface';
+import type { Labels } from '#lib/interfaces/label.interace.ts';
+import type { Nature } from '#lib/store/directoryStoreInterface.ts';
 
 export type Gender = 'F' | 'M' | 'N';
 
@@ -11,7 +11,10 @@ export const gendersFor = (nature: Nature | null | undefined): Gender[] =>
 export const FIXED_GENDER: Gender = 'N';
 
 /** The profession's word for a woman and for a man, as the entry page will show it. */
-export function professionWords(labels: Labels | undefined, uid: string | undefined): { F: string; M: string } | null {
+export function professionWords(
+	labels: Labels | undefined,
+	uid: string | undefined
+): { F: string; M: string } | null {
 	const singular = uid ? labels?.[uid]?.S : undefined;
 	return singular?.F && singular?.M ? { F: singular.F, M: singular.M } : null;
 }

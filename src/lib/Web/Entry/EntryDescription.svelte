@@ -10,7 +10,7 @@
 	import { faFileLines } from '@fortawesome/free-regular-svg-icons';
 	import { invalidate } from '$app/navigation';
 	import * as m from '$msgs';
-	import Dialog from '$lib/Web/Dialog.svelte';
+	import Dialog from '#lib/Web/Dialog.svelte';
 	import { patchCommand } from '../../../entry.remote';
 
 	let {

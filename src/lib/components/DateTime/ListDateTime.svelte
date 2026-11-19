@@ -5,8 +5,8 @@
 	 * every list, so scanning one reads like scanning any other.
 	 */
 	import { getLocale } from '../../../paraglide/runtime.js';
-	import { formatFullDateTime, formatListDateTime } from '$lib/utils/dateTimeFormat';
-	import { toTime, type DateTimeValue } from '$lib/utils/dateTimeSort';
+	import { formatFullDateTime, formatListDateTime } from '#lib/utils/dateTimeFormat.ts';
+	import { toTime, type DateTimeValue } from '#lib/utils/dateTimeSort.ts';
 
 	let { value }: { value: DateTimeValue } = $props();
 

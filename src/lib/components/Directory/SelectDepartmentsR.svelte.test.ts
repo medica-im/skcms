@@ -8,7 +8,7 @@ import { render } from 'vitest-browser-svelte';
 import { writable } from 'svelte/store';
 import * as m from '$msgs';
 import SelectDepartmentsR from './SelectDepartmentsR.svelte';
-import { choose, clear, lastQuery } from '$lib/testing/directoryFilter';
+import { choose, clear, lastQuery } from '#lib/testing/directoryFilter.ts';
 import '../../../app.postcss';
 
 const nav = vi.hoisted(() => ({ goto: vi.fn() }));
@@ -21,7 +21,7 @@ vi.mock('$app/state', () => ({
 		}
 	}
 }));
-vi.mock('$lib/Web/data', () => ({
+vi.mock('#lib/Web/data.ts', () => ({
 	getDepartments: async () => [
 		{ uid: 'd-69', name: 'Rhône', code: '69', slug: 'rhone', wikidata: '' },
 		{ uid: 'd-84', name: 'Vaucluse', code: '84', slug: 'vaucluse', wikidata: '' }

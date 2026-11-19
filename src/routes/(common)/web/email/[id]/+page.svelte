@@ -1,10 +1,10 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import type { BatchEmailMessageDetail } from '$lib/interfaces/v2/batchEmail';
-	import type { User } from '$lib/interfaces/v2/user';
+	import type { BatchEmailMessageDetail } from '#lib/interfaces/v2/batchEmail.ts';
+	import type { User } from '#lib/interfaces/v2/user.ts';
 	import Fa from 'svelte-fa';
 	import { faArrowLeft, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
-	import { base } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 
 	let { data }: { data: PageData } = $props();
 	let email = $derived(data.email as BatchEmailMessageDetail | undefined);
@@ -30,10 +30,10 @@
 {#if email}
 	<div class="container mx-auto p-4 max-w-4xl space-y-4">
 		<!-- Back button -->
-		<a href="{base}/web/email" class="btn btn-sm variant-ghost-surface">
-			<Fa icon={faArrowLeft} class="mr-2" />
-			Retour
-		</a>
+		<a
+			href="{base()}/web/email"
+			class="btn btn-sm variant-ghost-surface"
+		><Fa icon={faArrowLeft} class="mr-2" /> Retour</a>
 
 		<div class="card p-6 space-y-4">
 			<!-- Header -->
@@ -57,9 +57,11 @@
 				<!-- From -->
 				<div class="flex gap-2">
 					<span class="font-semibold text-surface-500 w-12">De</span>
-					<a href="{base}/web/users/{email.author_uid}" class="anchor">
-						{getUserName(email.author_uid)}
-					</a>
+
+					<a
+						href="{base()}/web/users/{email.author_uid}"
+						class="anchor"
+					>{getUserName(email.author_uid)}</a>
 				</div>
 
 				<!-- Date -->
@@ -73,9 +75,10 @@
 					<span class="font-semibold text-surface-500 w-12 flex-shrink-0 pt-1">À</span>
 					<div class="max-h-48 overflow-y-auto flex flex-wrap gap-1">
 						{#each email.recipient_uids as uid (uid)}
-							<a href="{base}/web/users/{uid}" class="chip variant-filled hover:variant-soft-primary transition-colors no-underline">
-								{getUserName(uid)}
-							</a>
+							<a
+								href="{base()}/web/users/{uid}"
+								class="chip variant-filled hover:variant-soft-primary transition-colors no-underline"
+							>{getUserName(uid)}</a>
 						{/each}
 					</div>
 				</div>

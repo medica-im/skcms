@@ -1,17 +1,17 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { createInvitee } from '$src/invitee.remote.ts';
-	import AddressCheckHint from '$lib/Invitee/AddressCheckHint.svelte';
-	import { addressStillRefused } from '$lib/Invitee/refusedAddress';
+	import AddressCheckHint from '#lib/Invitee/AddressCheckHint.svelte';
+	import { addressStillRefused } from '#lib/Invitee/refusedAddress.ts';
 	import { goto } from '$app/navigation';
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faCheck, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
-	import Select from '$lib/Web/Select.svelte';
-	import type { Role } from '$lib/interfaces/v2/invitee';
+	import Select from '#lib/Web/Select.svelte';
+	import type { Role } from '#lib/interfaces/v2/invitee.ts';
 	import type { PageData } from './$types';
-	import { roleLabels } from '$lib/roles';
+	import { roleLabels } from '#lib/roles.ts';
 
 	let { data, onclose }: { data: PageData; onclose?: () => void } = $props();
 
@@ -60,12 +60,12 @@
 
 	<form
 		{...createInvitee.for(formKey)}
-		onsubmitcapture={() => (submittedEmail = email)}
+		onsubmitcapture={() => submittedEmail = email}
 		class="grid grid-cols-1 gap-4 w-full max-w-xl"
 	>
 		<!-- Hidden fields -->
-		<input type="hidden" name="entry" value={entry} />
-		<input type="hidden" name="createdBy" value={createdBy} />
+		<input {...createInvitee.for(formKey).fields.entry.as('hidden', entry ?? '')} />
+		<input {...createInvitee.for(formKey).fields.createdBy.as('hidden', createdBy ?? '')} />
 
 		<!-- Email field -->
 		<label class="label">
@@ -96,7 +96,7 @@
 		<div class="grid grid-cols-1 gap-2">
 			<label class="label">
 				<span>Rôle *</span>
-				<input type="hidden" name="role" value={selectedRole?.value || ''} />
+				<input {...createInvitee.for(formKey).fields.role.as('hidden', selectedRole?.value || '')} />
 			</label>
 			<Select
 				items={getRoleOptions()}
@@ -106,36 +106,42 @@
 			/>
 		</div>
 		<!-- Submit button -->
-		 <div class="flex flex-wrap gap-8 justify-end">
-				<div class="flex gap-2 items-center">
-					{#if result?.success && !email}
-						<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
+		<div class="flex flex-wrap gap-8 justify-end">
+			<div class="flex gap-2 items-center">
+				{#if result?.success && !email}
+					<span class="badge-icon variant-filled-success"><Fa icon={faCheck} /></span>
 					{:else if result?.success==false}
-						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span>
-						<span class="text-base">{result?.response?.detail || result?.text}</span>
-					{/if}
-					{#each (createInvitee.for(formKey).fields.allIssues() ?? []).filter((iss) => refused || iss.path[0] !== 'email') as iss}
-						<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span>
-						<span class="text-base">{iss.message}</span>
-					{/each}
-				</div>
-				<div class="w-auto justify-center">
-					<button type="submit" class="btn variant-filled-primary w-min" {disabled}>
-			{createInvitee.for(formKey).pending ? 'Envoi...' : 'Créer l\'invitation'}
-		</button>
-				</div>
-				<div class="w-auto justify-center">
-					<button
-						type="button"
-						class="variant-filled-error btn w-min"
-						onclick={() => {
-							if (onclose) onclose();
-							else goto(`${base}/web/invite/invitees`);
-						}}
-						>{#if result?.success}Fermer{:else}Annuler{/if}</button
-					>
-				</div>
+					<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span>
+					<span class="text-base">{result?.response?.detail || result?.text}</span>
+				{/if}
+				{#each (createInvitee.for(formKey).fields.allIssues() ?? []).filter((iss) => refused || iss.path[0] !== 'email') as iss}
+					<span class="badge-icon variant-filled-error"><Fa icon={faExclamationCircle} /></span>
+					<span class="text-base">{iss.message}</span>
+				{/each}
 			</div>
+			<div class="w-auto justify-center">
+				<button
+					type="submit"
+					class="btn variant-filled-primary w-min"
+					disabled={disabled}
+				>{createInvitee.for(formKey).pending ? 'Envoi...' : 'Créer l\'invitation'}</button>
+			</div>
+			<div class="w-auto justify-center">
+				<button
+					type="button"
+					class="variant-filled-error btn w-min"
+					onclick={() => {
+						if (onclose) onclose(); else goto(resolve(`web/invite/invitees`));
+					}}
+				>
+					{#if result?.success}
+						Fermer
+					{:else}
+						Annuler
+					{/if}
+				</button>
+			</div>
+		</div>
 		
 	</form>
 </div>

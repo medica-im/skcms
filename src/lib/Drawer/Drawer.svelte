@@ -2,8 +2,8 @@
 	import { page } from '$app/state';
 	import { menuNavCats } from '$var/variables.ts';
 	import { getDrawerStore, Drawer } from '@skeletonlabs/skeleton';
-	import Sidebar from '$lib/SkeletonAppBar/Sidebar.svelte';
-	import MobileSidebar from '$lib/SkeletonAppBar/MobileSidebar.svelte';
+	import Sidebar from '#lib/SkeletonAppBar/Sidebar.svelte';
+	import MobileSidebar from '#lib/SkeletonAppBar/MobileSidebar.svelte';
 
 	const drawerStore = getDrawerStore();
 	let currentRailCategory: string | undefined = $derived(

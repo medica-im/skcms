@@ -89,11 +89,19 @@ async function sampleEntry(origin: string): Promise<{ entrySlug: string; facilit
 		signal: AbortSignal.timeout(30_000)
 	});
 	if (!response.ok) throw new Error(`HTTP ${response.status}`);
-	const entries: { active?: boolean; entrySlug?: string; facility?: { slug?: string; uid?: string } }[] =
-		await response.json();
-	const entry = entries.find((e) => e.active && e.entrySlug && (e.facility?.slug || e.facility?.uid));
+	const entries: {
+		active?: boolean;
+		entrySlug?: string;
+		facility?: { slug?: string; uid?: string };
+	}[] = await response.json();
+	const entry = entries.find(
+		(e) => e.active && e.entrySlug && (e.facility?.slug || e.facility?.uid)
+	);
 	if (!entry) throw new Error(`none of ${entries.length} entries is active with a facility`);
-	return { entrySlug: entry.entrySlug!, facilitySlug: entry.facility!.slug || entry.facility!.uid! };
+	return {
+		entrySlug: entry.entrySlug!,
+		facilitySlug: entry.facility!.slug || entry.facility!.uid!
+	};
 }
 
 /** One cold load of `url` in a fresh context: what failed, and the links it offers. */
@@ -108,7 +116,8 @@ async function load(browser: Browser, url: string) {
 	page.on('pageerror', (e) => errors.push(`exception: ${e.message}`));
 	page.on('console', (m) => {
 		const where = m.location().url;
-		if (m.type() !== 'error' || isAnonymousUserCheck(m.text(), where) || isThirdParty(where, url)) return;
+		if (m.type() !== 'error' || isAnonymousUserCheck(m.text(), where) || isThirdParty(where, url))
+			return;
 		errors.push(`console: ${m.text()}${where && where !== url ? ` (${where})` : ''}`);
 	});
 
@@ -172,12 +181,17 @@ export async function reloadEveryPage(browser: Browser, site: SiteName) {
 	// the one failing.
 	try {
 		const sample = await sampleEntry(origin);
-		queue.push(`${origin}${base}/e/${sample.entrySlug}`, `${origin}${base}/sites/${sample.facilitySlug}`);
+		queue.push(
+			`${origin}${base}/e/${sample.entrySlug}`,
+			`${origin}${base}/sites/${sample.facilitySlug}`
+		);
 		sampled.add('/e/[slug]').add('/sites/[slug]');
 	} catch (e) {
 		failures.push({
 			url: `${origin}/api/v2/entries`,
-			errors: [`no entry to sample /e/[slug] and /sites/[slug]: ${e instanceof Error ? e.message : e}`]
+			errors: [
+				`no entry to sample /e/[slug] and /sites/[slug]: ${e instanceof Error ? e.message : e}`
+			]
 		});
 	}
 	const seen = new Set<string>(queue);
@@ -219,9 +233,10 @@ export async function reloadEveryPage(browser: Browser, site: SiteName) {
 	while (queue.length) {
 		const url = queue.shift()!;
 		visited.push(url);
-		expect(visited.length, `more than ${MAX_PAGES} pages; is a link multiplying?`).toBeLessThanOrEqual(
-			MAX_PAGES
-		);
+		expect(
+			visited.length,
+			`more than ${MAX_PAGES} pages; is a link multiplying?`
+		).toBeLessThanOrEqual(MAX_PAGES);
 
 		let visit = await load(browser, url);
 		// Throttled by the staging nginx (30 r/s per IP, burst 200, shared by
@@ -250,7 +265,9 @@ export async function reloadEveryPage(browser: Browser, site: SiteName) {
 	const report = failures
 		.map((f) => `${f.url}\n${f.errors.map((e) => `    ${e}`).join('\n')}`)
 		.join('\n');
-	console.log(`${site}: ${visited.length} pages reloaded\n${visited.map((u) => `  ${u}`).join('\n')}`);
+	console.log(
+		`${site}: ${visited.length} pages reloaded\n${visited.map((u) => `  ${u}`).join('\n')}`
+	);
 	for (const k of known.filter((k) => skippedKnown.has(k.path))) {
 		console.log(`  KNOWN ISSUE, not reloaded: ${k.path} (${k.why})`);
 	}

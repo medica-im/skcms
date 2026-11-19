@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import { variables } from '$lib/utils/constants';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import { variables } from '#lib/utils/constants.ts';
 	import * as m from '$msgs';
-	import BatchEmail from '$lib/Web/Email/BatchEmail.svelte';
+	import BatchEmail from '#lib/Web/Email/BatchEmail.svelte';
 </script>
 
 <svelte:head>

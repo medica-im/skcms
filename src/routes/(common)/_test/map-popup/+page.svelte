@@ -11,10 +11,10 @@
 	 * production.
 	 */
 	import { page } from '$app/state';
-	import MapLibre from '$lib/MapLibre/MapLibre.svelte';
-	import { createEntriesMapData, createFacilitiesMapData } from '$lib/components/Map/mapData.ts';
-	import type { Facility } from '$lib/interfaces/facility.interface.js';
-	import type { Entry } from '$lib/store/directoryStoreInterface.ts';
+	import MapLibre from '#lib/MapLibre/MapLibre.svelte';
+	import { createEntriesMapData, createFacilitiesMapData } from '#lib/components/Map/mapData.ts';
+	import type { Facility } from '#lib/interfaces/facility.interface.js';
+	import type { Entry } from '#lib/store/directoryStoreInterface.ts';
 
 	// Two well-separated facilities, plus a pair 56m apart — the real distance
 	// between the CPTS and the cabinet infirmier in Lyon 3, which is about 4px

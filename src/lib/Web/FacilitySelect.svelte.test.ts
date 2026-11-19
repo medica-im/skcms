@@ -32,26 +32,59 @@ vi.mock('$app/state', () => ({
 }));
 
 vi.mock('./data', () => ({
-	getDepartments: async () => [{ uid: 'd69', code: '69', name: 'Rhône', slug: 'rhone', wikidata: 'Q12724' }],
+	getDepartments: async () => [
+		{ uid: 'd69', code: '69', name: 'Rhône', slug: 'rhone', wikidata: 'Q12724' }
+	],
 	getCommunesByDpt: async () => [],
 	getFacilities: vi.fn(async () => [
-		{ uid: 'f1', name: 'Maison de santé du Parc', label: 'MSP du Parc', street: '12 rue de la République',
-		  commune: commune('c1', 'Lyon'), effectors: null },
-		{ uid: 'f2', name: "L'Hôpital Saint-Étienne", label: 'CHU Nord', street: 'Bd Leclerc',
-		  commune: commune('c2', 'Villeurbanne'), effectors: null },
-		{ uid: 'f3', name: null, label: null, street: '3 place Bellecour',
-		  commune: commune('c1', 'Lyon'), effectors: null },
+		{
+			uid: 'f1',
+			name: 'Maison de santé du Parc',
+			label: 'MSP du Parc',
+			street: '12 rue de la République',
+			commune: commune('c1', 'Lyon'),
+			effectors: null
+		},
+		{
+			uid: 'f2',
+			name: "L'Hôpital Saint-Étienne",
+			label: 'CHU Nord',
+			street: 'Bd Leclerc',
+			commune: commune('c2', 'Villeurbanne'),
+			effectors: null
+		},
+		{
+			uid: 'f3',
+			name: null,
+			label: null,
+			street: '3 place Bellecour',
+			commune: commune('c1', 'Lyon'),
+			effectors: null
+		},
 		// 86 characters displayed: the 90th percentile of production's lines.
-		{ uid: 'f4', name: 'Centre hospitalier universitaire Lyon Sud', label: null,
-		  street: '165 ch. Grand Revoyet', commune: commune('c3', 'Pierre-Bénite'), effectors: null },
+		{
+			uid: 'f4',
+			name: 'Centre hospitalier universitaire Lyon Sud',
+			label: null,
+			street: '165 ch. Grand Revoyet',
+			commune: commune('c3', 'Pierre-Bénite'),
+			effectors: null
+		},
 		// 122 characters: the longest production line.
-		{ uid: 'f5', name: 'Maison de santé pluriprofessionnelle des Monts du Lyonnais et du Beaujolais',
-		  label: null, street: '12500 avenue des Frères Lumières', commune: commune('c1', 'Lyon'), effectors: null }
+		{
+			uid: 'f5',
+			name: 'Maison de santé pluriprofessionnelle des Monts du Lyonnais et du Beaujolais',
+			label: null,
+			street: '12500 avenue des Frères Lumières',
+			commune: commune('c1', 'Lyon'),
+			effectors: null
+		}
 	])
 }));
 
 /** The options the open list shows, as text. */
-const shown = () => [...document.querySelectorAll('.list-item')].map((e) => e.textContent?.trim() ?? '');
+const shown = () =>
+	[...document.querySelectorAll('.list-item')].map((e) => e.textContent?.trim() ?? '');
 
 /**
  * Opens the facility list and types `query`. The list re-renders after each
@@ -79,7 +112,8 @@ async function search(query: string) {
 const BELLECOUR = '3 place Bellecour, Lyon, Rhône';
 const HOPITAL = "L'Hôpital Saint-Étienne, Bd Leclerc, Villeurbanne, Rhône";
 const PARC = 'Maison de santé du Parc, 12 rue de la République, Lyon, Rhône';
-const P90 = 'Centre hospitalier universitaire Lyon Sud, 165 ch. Grand Revoyet, Pierre-Bénite, Rhône';
+const P90 =
+	'Centre hospitalier universitaire Lyon Sud, 165 ch. Grand Revoyet, Pierre-Bénite, Rhône';
 const LONGEST =
 	'Maison de santé pluriprofessionnelle des Monts du Lyonnais et du Beaujolais, 12500 avenue des Frères Lumières, Lyon, Rhône';
 const ALL = [BELLECOUR, P90, HOPITAL, PARC, LONGEST];
@@ -108,7 +142,9 @@ describe('FacilitySelect search', () => {
 	it('shows the whole line on hover, where the list cuts it off', async () => {
 		await search('');
 		await expect.poll(shown).toEqual(ALL);
-		const titles = [...document.querySelectorAll('.list-item [title]')].map((e) => e.getAttribute('title'));
+		const titles = [...document.querySelectorAll('.list-item [title]')].map((e) =>
+			e.getAttribute('title')
+		);
 		expect(titles).toEqual(ALL);
 	});
 });
@@ -170,7 +206,12 @@ describe('FacilitySelect, every site', () => {
 		who.role = 'superuser';
 		const getFacilities = vi.mocked(data.getFacilities);
 		getFacilities.mockClear();
-		render(FacilitySelect, { selectedFacility: undefined, department: undefined, commune: undefined, facilityCount: 0 });
+		render(FacilitySelect, {
+			selectedFacility: undefined,
+			department: undefined,
+			commune: undefined,
+			facilityCount: 0
+		});
 		await expect.element(page.getByText('Établissements: 5')).toBeInTheDocument();
 		expect(getFacilities).toHaveBeenLastCalledWith('site');
 
@@ -194,14 +235,21 @@ describe('FacilitySelect, every site', () => {
 		// The department's ✖ is the page's first.
 		(document.querySelector('.clear-select') as HTMLElement).click();
 		await expect.element(page.getByPlaceholder('Sélectionner un département')).toBeInTheDocument();
-		await expect.element(page.getByPlaceholder("Sélectionner d'abord un département")).toBeInTheDocument();
+		await expect
+			.element(page.getByPlaceholder("Sélectionner d'abord un département"))
+			.toBeInTheDocument();
 
 		await expect.element(page.getByText('Établissements: 5')).toBeInTheDocument();
 	});
 
 	it('is not offered to an administrator', async () => {
 		who.role = 'administrator';
-		render(FacilitySelect, { selectedFacility: undefined, department: undefined, commune: undefined, facilityCount: 0 });
+		render(FacilitySelect, {
+			selectedFacility: undefined,
+			department: undefined,
+			commune: undefined,
+			facilityCount: 0
+		});
 		await expect.element(page.getByText('Établissements: 5')).toBeInTheDocument();
 		await expect.element(page.getByLabelText(ALL_SITES)).not.toBeInTheDocument();
 	});

@@ -14,12 +14,12 @@
 	import Fa from 'svelte-fa';
 	import { JsonView } from '@zerodevx/svelte-json-view';
 	import Dialog from '../Dialog.svelte';
-	import { getEffectorUid } from '$lib/components/Directory/context';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import { validate } from '$lib/Web/RPPS/validate.ts';
-	import type { Validation } from '$lib/Web/RPPS/validate.ts';
-	import type { EntryFull } from '$lib/store/directoryStoreInterface';
-	import type { FormResult } from '$lib/interfaces/v2/form';
+	import { getEffectorUid } from '#lib/components/Directory/context.ts';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import { validate } from '#lib/Web/RPPS/validate.ts';
+	import type { Validation } from '#lib/Web/RPPS/validate.ts';
+	import type { EntryFull } from '#lib/store/directoryStoreInterface.ts';
+	import type { FormResult } from '#lib/interfaces/v2/form.ts';
 	
 
 	let { data } : { data: EntryFull; } = $props();

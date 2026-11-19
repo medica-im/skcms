@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { roleLabel, roleShortLabel, roleVariant } from '$lib/roles';
+	import { roleLabel, roleShortLabel, roleVariant } from '#lib/roles.ts';
 
 	/**
 	 * A user's role, as a coloured badge.

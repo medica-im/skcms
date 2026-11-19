@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import { page } from 'vitest/browser';
 import Harness from './AppointmentsHarness.svelte';
-import type { Appointment as AppointmentType } from '$lib/interfaces/appointment.interface';
+import type { Appointment as AppointmentType } from '#lib/interfaces/appointment.interface.ts';
 
 /**
  * The appointment block on an entry, rendered.

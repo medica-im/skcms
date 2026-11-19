@@ -126,7 +126,5 @@ else:
 	const expected = Number(match![1]);
 	expect(expected, 'the directory has no entries to show').toBeGreaterThan(0);
 
-	await expect
-		.poll(() => page.locator('tbody tr').count(), { timeout: 8_000 })
-		.toBe(expected);
+	await expect.poll(() => page.locator('tbody tr').count(), { timeout: 8_000 }).toBe(expected);
 });

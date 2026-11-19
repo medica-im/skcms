@@ -43,7 +43,9 @@ describe('entryCanonicalUrl', () => {
 	});
 
 	it('is at the root of a site served at its root', () => {
-		expect(entryCanonicalUrl('https://santelyon3.fr', '', 'x-69')).toBe('https://santelyon3.fr/e/x-69');
+		expect(entryCanonicalUrl('https://santelyon3.fr', '', 'x-69')).toBe(
+			'https://santelyon3.fr/e/x-69'
+		);
 	});
 });
 
@@ -60,7 +62,10 @@ describe('entryTitle', () => {
 
 	// EffectorType.label is nullable; its name is the ungendered form.
 	it("falls back to the type's name when it has no label", () => {
-		const unlabelled = { ...generalist, effector_type: { label: null, name: 'médecin généraliste', raw_label: null } };
+		const unlabelled = {
+			...generalist,
+			effector_type: { label: null, name: 'médecin généraliste', raw_label: null }
+		};
 		expect(entryTitle(unlabelled)).toBe('DUPONT Jean, médecin généraliste à Lyon');
 		expect(entryDescription(unlabelled)).toMatch(/^DUPONT Jean, médecin généraliste — /);
 	});

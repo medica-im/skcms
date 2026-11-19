@@ -57,8 +57,11 @@ Given('the address book has a tag category linked to an effector type', async ()
 		const tags = await json<ApiTag[]>(`/api/v2/tags?category=${category.name}`);
 		if (!tags.length) continue;
 		const entry = entries.find(
-			(e) => e.active && e.entrySlug && e.effector_type?.uid
-				&& category.effector_types?.includes(e.effector_type.uid)
+			(e) =>
+				e.active &&
+				e.entrySlug &&
+				e.effector_type?.uid &&
+				category.effector_types?.includes(e.effector_type.uid)
 		);
 		if (entry) {
 			subject = { category, entry, tags };

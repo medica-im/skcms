@@ -4,10 +4,10 @@
 	import { faAddressBook } from '@fortawesome/free-regular-svg-icons';
 	import { faGlobe, faPhone } from '@fortawesome/free-solid-svg-icons';
 	import { faCalendarCheck } from '@fortawesome/free-regular-svg-icons';
-	import Put from '$lib/Web/Appointment/Put.svelte';
-	import Delete from '$lib/Web/Appointment/Delete.svelte';
-	import { getHostnameFromURL } from '$lib/utils/utils';
-	import type { Appointment } from '$lib/interfaces/appointment.interface.ts';
+	import Put from '#lib/Web/Appointment/Put.svelte';
+	import Delete from '#lib/Web/Appointment/Delete.svelte';
+	import { getHostnameFromURL } from '#lib/utils/utils.ts';
+	import type { Appointment } from '#lib/interfaces/appointment.interface.ts';
 
 	let { data, editMode }: { data: Appointment; editMode: boolean; } = $props();
 	

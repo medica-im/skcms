@@ -3,7 +3,7 @@ export interface CustomError {
 }
 
 export interface SveltekitError {
-        code: number,
-        message: string,
-		type: string,
-    }
+	code: number;
+	message: string;
+	type: string;
+}

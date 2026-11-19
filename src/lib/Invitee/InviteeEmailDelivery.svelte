@@ -24,8 +24,8 @@
 	import Fa from 'svelte-fa';
 	import { faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
-	import ListDateTime from '$lib/components/DateTime/ListDateTime.svelte';
-	import type { EmailDelivery } from '$lib/interfaces/v2/invitee';
+	import ListDateTime from '#lib/components/DateTime/ListDateTime.svelte';
+	import type { EmailDelivery } from '#lib/interfaces/v2/invitee.ts';
 	import { deliveryLook, errorKindWords, NEEDS_ACTION, SETTLED_OK, type DeliveryState } from './emailDelivery';
 
 	let {

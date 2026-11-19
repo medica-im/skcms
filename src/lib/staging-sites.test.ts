@@ -45,7 +45,10 @@ afterAll(() => rmSync(dir, { recursive: true, force: true }));
 
 describe('staging_names', () => {
 	it('lists the sites deployed with the staging compose file, in images.yml order', () => {
-		expect(lib('staging_names').split('\n')).toEqual(['staging.site.fr', 'staging.section.example.org']);
+		expect(lib('staging_names').split('\n')).toEqual([
+			'staging.site.fr',
+			'staging.section.example.org'
+		]);
 	});
 });
 
@@ -55,6 +58,8 @@ describe('site_origin', () => {
 	});
 
 	it('is the origin images.yml gives for a site served elsewhere', () => {
-		expect(lib('site_origin staging.section.example.org')).toBe('https://staging.example.org/annuaire');
+		expect(lib('site_origin staging.section.example.org')).toBe(
+			'https://staging.example.org/annuaire'
+		);
 	});
 });

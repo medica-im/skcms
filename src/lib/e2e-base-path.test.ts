@@ -48,7 +48,7 @@ describe('the site base path in the BDD suite', () => {
 		expect(fixtures).toMatch(/use\(apiOrigin\(/);
 	});
 
-	it('is read from the site\'s env file rather than hardcoded', () => {
+	it("is read from the site's env file rather than hardcoded", () => {
 		// Only unipa has one today. A literal '/annuaire' would be wrong for
 		// every other site and silently right for one.
 		const body = session.slice(session.indexOf('export function siteBasePath'));

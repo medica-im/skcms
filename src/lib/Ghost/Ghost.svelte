@@ -1,10 +1,10 @@
 <script lang="ts">
-	import RoundCard from '$lib/RoundCard/RoundCard.svelte';
-	import SignupForm from '$lib/Ghost/SignupForm.svelte';
-	import type { GhostSiteResponse, GhostSite, GhostError } from "$lib/interfaces/ghost.interface";
+	import RoundCard from '#lib/RoundCard/RoundCard.svelte';
+	import SignupForm from '#lib/Ghost/SignupForm.svelte';
+	import type { GhostSiteResponse, GhostSite, GhostError } from "#lib/interfaces/ghost.interface.ts";
 	import { page } from '$app/state';
 	import { getLocale } from '../../paraglide/runtime.js';
-	import { formatDate } from '$lib/utils/dateTimeFormat';
+	import { formatDate } from '#lib/utils/dateTimeFormat.ts';
 
 	let { data, ghost }: {
   data: any,

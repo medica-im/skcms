@@ -95,9 +95,7 @@ describe('classifying link-check failures', () => {
 	it('does not mistake another site for ours because the name starts the same', () => {
 		// staging.santelyon3.fr.evil.example is not us.
 		const { status } = classify(
-			page(`${ORIGIN}/`, [
-				{ url: 'https://staging.santelyon3.fr.evil.example/x', error: '404' }
-			])
+			page(`${ORIGIN}/`, [{ url: 'https://staging.santelyon3.fr.evil.example/x', error: '404' }])
 		);
 		expect(status).toBe(0);
 	});

@@ -1,4 +1,4 @@
-import type { Role } from '$lib/interfaces/v2/invitee';
+import type { Role } from '#lib/interfaces/v2/invitee.ts';
 import * as m from '$msgs';
 
 /**

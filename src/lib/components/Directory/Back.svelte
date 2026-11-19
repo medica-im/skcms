@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import * as m from '$msgs';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import Fa from 'svelte-fa';
 	import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 

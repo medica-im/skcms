@@ -13,7 +13,7 @@
 	import { faTriangleExclamation, faCheck } from '@fortawesome/free-solid-svg-icons';
 	import { invalidateAll } from '$app/navigation';
 	import * as m from '$msgs';
-	import type { Invitee } from '$lib/interfaces/v2/invitee';
+	import type { Invitee } from '#lib/interfaces/v2/invitee.ts';
 	import { addressProblemOf, addressProblemWords, dayOf, OPTED_OUT } from './emailDelivery';
 	import { correctInviteeAddress } from '../../invitee.remote';
 

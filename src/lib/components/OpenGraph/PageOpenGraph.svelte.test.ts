@@ -31,7 +31,8 @@ const site = {
 };
 const organization = { formatted_name: 'Maison de santé de Vedène' };
 
-const og = (p: string) => document.querySelector(`meta[property="${p}"]`)?.getAttribute('content') ?? null;
+const og = (p: string) =>
+	document.querySelector(`meta[property="${p}"]`)?.getAttribute('content') ?? null;
 const ogCount = (p: string) => document.querySelectorAll(`meta[property="${p}"]`).length;
 
 beforeEach(() => {

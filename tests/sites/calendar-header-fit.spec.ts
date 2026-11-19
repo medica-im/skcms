@@ -37,7 +37,11 @@ async function readToolbar(page: Page) {
 		if (!tb) return null;
 		const box = (el: Element) => {
 			const r = el.getBoundingClientRect();
-			return { width: Math.round(r.width), height: Math.round(r.height), right: Math.round(r.right) };
+			return {
+				width: Math.round(r.width),
+				height: Math.round(r.height),
+				right: Math.round(r.right)
+			};
 		};
 		const title = tb.querySelector('.fc-toolbar-title');
 		return {
@@ -46,9 +50,13 @@ async function readToolbar(page: Page) {
 			clientWidth: tb.clientWidth,
 			// The furthest right edge of any chunk: what actually overflows.
 			chunkRight: Math.max(
-				...[...tb.querySelectorAll('.fc-toolbar-chunk')].map((c) => Math.round(c.getBoundingClientRect().right))
+				...[...tb.querySelectorAll('.fc-toolbar-chunk')].map((c) =>
+					Math.round(c.getBoundingClientRect().right)
+				)
 			),
-			title: title ? { ...box(title), fontSize: parseFloat(getComputedStyle(title).fontSize) } : null,
+			title: title
+				? { ...box(title), fontSize: parseFloat(getComputedStyle(title).fontSize) }
+				: null,
 			// The page itself must not scroll sideways because of it.
 			docScroll: document.documentElement.scrollWidth,
 			docClient: document.documentElement.clientWidth
@@ -146,10 +154,9 @@ for (const [width, expected] of [
 		});
 		expect(seen, 'no view button was marked active').not.toBeNull();
 
-		expect(
-			seen!.className,
-			`the active button is not the ${expected} one`
-		).toContain(`fc-${expected}-button`);
+		expect(seen!.className, `the active button is not the ${expected} one`).toContain(
+			`fc-${expected}-button`
+		);
 
 		// Told apart by eye, not merely by a class: WCAG 1.4.11 asks 3:1 of a
 		// control's own boundary, and the two fills have to differ by about that

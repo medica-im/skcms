@@ -24,27 +24,35 @@ async function openDialog(page: Page) {
 	}).toPass({ timeout: 20_000 });
 }
 
-Given('an entry for them as {string}, owned by that staff member', async ({ baseURL }, typeName: string) => {
-	const origin = new URL(baseURL).origin;
-	const entry = await entryAs(origin, typeName, true);
-	ctx.entryUid = entry.uid;
-	ctx.slug = entry.entrySlug ?? entry.slug;
-	ctx.host = new URL(baseURL).hostname;
-	expect(ctx.slug, `the new entry has no slug: ${JSON.stringify(entry)}`).toBeTruthy();
-});
+Given(
+	'an entry for them as {string}, owned by that staff member',
+	async ({ baseURL }, typeName: string) => {
+		const origin = new URL(baseURL).origin;
+		const entry = await entryAs(origin, typeName, true);
+		ctx.entryUid = entry.uid;
+		ctx.slug = entry.entrySlug ?? entry.slug;
+		ctx.host = new URL(baseURL).hostname;
+		expect(ctx.slug, `the new entry has no slug: ${JSON.stringify(entry)}`).toBeTruthy();
+	}
+);
 
-Given('another entry for them as {string}, whose address I note', async ({ baseURL }, typeName: string) => {
-	const entry = await entryAs(new URL(baseURL).origin, typeName);
-	other.slug = entry.entrySlug ?? entry.slug;
-	expect(other.slug, `the other entry has no slug: ${JSON.stringify(entry)}`).toBeTruthy();
-});
+Given(
+	'another entry for them as {string}, whose address I note',
+	async ({ baseURL }, typeName: string) => {
+		const entry = await entryAs(new URL(baseURL).origin, typeName);
+		other.slug = entry.entrySlug ?? entry.slug;
+		expect(other.slug, `the other entry has no slug: ${JSON.stringify(entry)}`).toBeTruthy();
+	}
+);
 
 When('I change its address', async ({ page }) => {
 	ctx.formerSlug = ctx.slug;
 	const wanted = `${ctx.slug}-corrige`;
 	await openDialog(page);
 	await field(page).fill(wanted);
-	await expect(dialog(page).getByTestId('slug-status')).toHaveAttribute('data-status', 'free', { timeout: 10_000 });
+	await expect(dialog(page).getByTestId('slug-status')).toHaveAttribute('data-status', 'free', {
+		timeout: 10_000
+	});
 	await dialog(page).getByTestId('entry-slug-save').click();
 	await expect(page).toHaveURL(new RegExp(`/e/${wanted}$`), { timeout: 15_000 });
 	ctx.slug = wanted;
@@ -75,7 +83,9 @@ Then('I am told the address is already used by another entry', async ({ page }) 
 });
 
 Then('I am offered free addresses for this entry', async ({ page }) => {
-	await expect(dialog(page).getByTestId('slug-suggestions').getByRole('button').first()).toBeVisible();
+	await expect(
+		dialog(page).getByTestId('slug-suggestions').getByRole('button').first()
+	).toBeVisible();
 });
 
 Then('the address cannot be saved', async ({ page }) => {

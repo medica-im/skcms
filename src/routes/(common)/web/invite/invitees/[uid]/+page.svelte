@@ -1,13 +1,13 @@
 <script lang="ts">
-    import { InviteeDetail } from '$lib/Invitee';
-    import EditInviteeModal from '$lib/Invitee/EditInviteeModal.svelte';
-    import DeleteInviteeModal from '$lib/Invitee/DeleteInviteeModal.svelte';
+    import { InviteeDetail } from '#lib/Invitee/index.ts';
+    import EditInviteeModal from '#lib/Invitee/EditInviteeModal.svelte';
+    import DeleteInviteeModal from '#lib/Invitee/DeleteInviteeModal.svelte';
     import * as m from '$msgs';
     import Fa from 'svelte-fa';
     import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
     import type { PageData } from './$types';
-    import { base } from '$app/paths';
-    import { getLiveDeliveries } from '$lib/Invitee/liveDeliveries.svelte';
+    import { base } from '#lib/utils/base.ts';
+    import { getLiveDeliveries } from '#lib/Invitee/liveDeliveries.svelte.ts';
 
     let { data }: { data: PageData } = $props();
     // Its email's status as the backend pushes it: after a correction, the
@@ -21,7 +21,10 @@
 
 <div class="container mx-auto p-4">
     <header class="mb-6">
-        <a href="{base}/web/invite/invitees" class="btn variant-ghost-primary mb-4">
+        <a
+            href="{base()}/web/invite/invitees"
+            class="btn variant-ghost-primary mb-4"
+        >
             <span class="badge variant-filled-primary"><Fa icon={faArrowLeft} /></span>
             <span>{m.INVITEE_BACK_TO_LIST()}</span>
         </a>
@@ -29,7 +32,12 @@
     </header>
 
     {#if invitee}
-        <InviteeDetail {invitee} {createdByUser} onEdit={(inv) => editModal.handleEdit(inv)} onDelete={(inv) => deleteModal.handleDelete(inv)} />
+        <InviteeDetail
+            invitee={invitee}
+            createdByUser={createdByUser}
+            onEdit={(inv) => editModal.handleEdit(inv)}
+            onDelete={(inv) => deleteModal.handleDelete(inv)}
+        />
     {/if}
 </div>
 

@@ -59,8 +59,8 @@ describe('UpdateFacilityModal', () => {
 		expect(body, 'no enhance callback found on the update form').not.toBe('');
 		expect(
 			body,
-			"a saved facility does not refresh the entries: the directory map keeps " +
-				"the old pin until something re-runs the layout load. Fire " +
+			'a saved facility does not refresh the entries: the directory map keeps ' +
+				'the old pin until something re-runs the layout load. Fire ' +
 				"invalidate('app:entries') in the enhance callback, as " +
 				'AvatarUploadModal and AccessControl do.'
 		).toContain("invalidate('app:entries')");

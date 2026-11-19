@@ -1,9 +1,9 @@
 import { redirect } from '@sveltejs/kit';
-import { variables } from '$lib/utils/constants.ts';
-import { authReq } from '$lib/utils/request.ts';
-import type { Entry, EntryFull } from '$lib/store/directoryStoreInterface';
+import { variables } from '#lib/utils/constants.ts';
+import { authReq } from '#lib/utils/request.ts';
+import type { Entry, EntryFull } from '#lib/store/directoryStoreInterface.ts';
 import type { Cookies } from '@sveltejs/kit';
-import { base } from '$app/paths';
+import { resolve } from '$app/paths';
 
 /**
  * Find an entrySlug from the entries array using old commune-based URL params.
@@ -15,10 +15,7 @@ export function findEntrySlugByCommune(
 	effector: string
 ): string | null {
 	const entry = entries.find(
-		(e) =>
-			e.effector_type.slug === type &&
-			e.commune?.slug === commune &&
-			e.slug === effector
+		(e) => e.effector_type.slug === type && e.commune?.slug === commune && e.slug === effector
 	);
 	return entry?.entrySlug ?? null;
 }
@@ -34,9 +31,7 @@ export function findEntrySlugByFacility(
 ): string | null {
 	const entry = entries.find(
 		(e) =>
-			e.effector_type.slug === type &&
-			(e.facility as any)?.slug === facility &&
-			e.slug === effector
+			e.effector_type.slug === type && (e.facility as any)?.slug === facility && e.slug === effector
 	);
 	return entry?.entrySlug ?? null;
 }
@@ -45,10 +40,7 @@ export function findEntrySlugByFacility(
  * Fetch entrySlug from an API endpoint as a fallback when the entry
  * is not found in the entries array (e.g. inactive entries).
  */
-async function fetchEntrySlugFromApi(
-	cookies: Cookies,
-	apiPath: string
-): Promise<string | null> {
+async function fetchEntrySlugFromApi(cookies: Cookies, apiPath: string): Promise<string | null> {
 	const url = `${variables.BASE_URI}${apiPath}`;
 	const request = authReq(url, 'GET', cookies);
 	const res = await globalThis.fetch(request);
@@ -82,7 +74,7 @@ export async function redirectToEntrySlugByCommune(
 		);
 	}
 	if (entrySlug) {
-		redirect(301, `${base}/e/${entrySlug}${search}`);
+		redirect(301, resolve(`e/${entrySlug}${search}`));
 	}
 	return false;
 }
@@ -112,7 +104,7 @@ export async function redirectToEntrySlugByFacility(
 		);
 	}
 	if (entrySlug) {
-		redirect(301, `${base}/e/${entrySlug}${search}`);
+		redirect(301, resolve(`e/${entrySlug}${search}`));
 	}
 	return false;
 }

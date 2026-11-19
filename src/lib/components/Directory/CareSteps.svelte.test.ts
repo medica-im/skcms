@@ -9,12 +9,16 @@ import { render } from 'vitest-browser-svelte';
 import { page as screen } from 'vitest/browser';
 import * as m from '$msgs';
 import CareSteps from './CareSteps.svelte';
-import { AA_TEXT, inScheme, legibility } from '$lib/testing/contrast.ts';
+import { AA_TEXT, inScheme, legibility } from '#lib/testing/contrast.ts';
 import '../../../app.postcss';
 
 document.body.dataset.theme = 'wintry';
 
-const steps = () => screen.getByRole('list', { name: m.DIRECTORY_ENTRY_CARE_PATH() }).getByRole('listitem').elements();
+const steps = () =>
+	screen
+		.getByRole('list', { name: m.DIRECTORY_ENTRY_CARE_PATH() })
+		.getByRole('listitem')
+		.elements();
 
 describe('CareSteps', () => {
 	it('shows nothing when the level of care is unknown', async () => {
@@ -33,9 +37,15 @@ describe('CareSteps', () => {
 		]);
 	});
 
-	it('marks the entry\'s own steps, and only those', async () => {
+	it("marks the entry's own steps, and only those", async () => {
 		render(CareSteps, { props: { levels: ['emergency', 'primary'] } });
-		expect(steps().map((step) => step.dataset.current)).toEqual(['false', 'true', 'false', 'false', 'true']);
+		expect(steps().map((step) => step.dataset.current)).toEqual([
+			'false',
+			'true',
+			'false',
+			'false',
+			'true'
+		]);
 	});
 
 	for (const scheme of ['light', 'dark'] as const) {

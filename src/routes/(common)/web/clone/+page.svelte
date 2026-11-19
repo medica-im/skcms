@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { invalidate } from '$app/navigation';
-	import { base } from '$app/paths';
-	import { userRoles } from '$lib/auth/roles.ts';
+	import { resolve } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
+	import { userRoles } from '#lib/auth/roles.ts';
 	import { listDirectories, listInstances, listSourceEntries, preflight, executeClone } from '../../../../clone.remote.ts';
-	import { cloneToken, takeTokenFromHash } from '$lib/Web/Clone/token.svelte.ts';
-	import { partition, type Preflight } from '$lib/Web/Clone/cloneState.ts';
-	import CloneEntriesTable from '$lib/Web/Clone/CloneEntriesTable.svelte';
-	import CloneDirectorySettings from '$lib/Web/Clone/CloneDirectorySettings.svelte';
-	import { DEFAULT_PAGE_SIZE } from '$lib/Web/Clone/cloneTable.ts';
+	import { cloneToken, takeTokenFromHash } from '#lib/Web/Clone/token.svelte.ts';
+	import { partition, type Preflight } from '#lib/Web/Clone/cloneState.ts';
+	import CloneEntriesTable from '#lib/Web/Clone/CloneEntriesTable.svelte';
+	import CloneDirectorySettings from '#lib/Web/Clone/CloneDirectorySettings.svelte';
+	import { DEFAULT_PAGE_SIZE } from '#lib/Web/Clone/cloneTable.ts';
 
 	/**
 	 * Clone an entry from another deployment of this app.
@@ -111,12 +112,9 @@
 		const peer = instances.find((i) => i.name === instance);
 		if (!peer) return;
 		const target = window.location.origin;
-		const back = `${base}/web/clone/callback`;
-		window.location.href =
-			`${peer.origin}${base}/web/clone/authorize` +
-			`?target=${encodeURIComponent(target)}&return=${encodeURIComponent(back)}` +
-			`&instance=${encodeURIComponent(peer.name)}` +
-			(directory ? `&directory=${encodeURIComponent(directory)}` : '');
+		const back = resolve(`web/clone/callback`);
+
+		window.location.href = `${peer.origin}${base()}/web/clone/authorize` + `?target=${encodeURIComponent(target)}&return=${encodeURIComponent(back)}` + `&instance=${encodeURIComponent(peer.name)}` + (directory ? `&directory=${encodeURIComponent(directory)}` : '');
 	}
 
 	async function browse() {
@@ -223,19 +221,24 @@
 						</select>
 					</label>
 				{/if}
-				<p class="text-sm opacity-75">
-					Vous serez redirigé vers cette instance pour vous identifier. L'autorisation
-					dure 15&nbsp;minutes.
-				</p>
-				<button class="btn variant-filled-primary" disabled={!instance} onclick={authorize}>
-					Se connecter à cette instance
-				</button>
+
+				<p class="text-sm opacity-75">Vous serez redirigé vers cette instance pour vous identifier. L'autorisation dure 15 minutes.</p>
+
+				<button
+					class="btn variant-filled-primary"
+					disabled={!instance}
+					onclick={authorize}
+				>Se connecter à cette instance</button>
 			</div>
 		{:else if step === 'browse'}
 			<div class="card variant-soft p-4 space-y-4">
 				<h2 class="h3">2. Choisir les fiches</h2>
 				{#if token}
-					<CloneDirectorySettings {instance} {token} {directory} />
+					<CloneDirectorySettings
+						instance={instance}
+						token={token}
+						directory={directory}
+					/>
 				{/if}
 				{#if entries.length === 0}
 					<button class="btn variant-filled-primary" disabled={busy} onclick={browse}>
@@ -247,9 +250,12 @@
 					     ticked a row on page one would scroll past everything to
 					     reach them. -->
 					<div class="flex flex-wrap items-center gap-3">
-						<button class="btn variant-ghost" disabled={busy} onclick={backToInstance}>
-							← Changer d'instance
-						</button>
+						<button
+							class="btn variant-ghost"
+							disabled={busy}
+							onclick={backToInstance}
+						>← Changer d'instance</button>
+
 						<button
 							class="btn variant-filled-primary"
 							disabled={!selected.length || busy}
@@ -259,8 +265,8 @@
 						</button>
 					</div>
 					<CloneEntriesTable
-						{entries}
-						{alreadyHere}
+						entries={entries}
+						alreadyHere={alreadyHere}
 						origin={sourceOrigin}
 						bind:selected
 						bind:pageSize
@@ -301,9 +307,12 @@
 					</div>
 				{/each}
 				<div class="flex flex-wrap items-center gap-3">
-					<button class="btn variant-ghost" disabled={busy} onclick={backToBrowse}>
-						← Retour à la liste
-					</button>
+					<button
+						class="btn variant-ghost"
+						disabled={busy}
+						onclick={backToBrowse}
+					>← Retour à la liste</button>
+
 					<button
 						class="btn variant-filled-primary"
 						disabled={busy || clonable === 0}
@@ -332,7 +341,10 @@
 							{res.status}
 						</span>
 						{#if res.entry_slug}
-							<a class="anchor" href="{base}/e/{res.entry_slug}">{res.entry_slug}</a>
+							<a
+								class="anchor"
+								href="{base()}/e/{res.entry_slug}"
+							>{res.entry_slug}</a>
 						{:else}
 							<span class="text-sm">{res.error}</span>
 						{/if}

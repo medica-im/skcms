@@ -53,7 +53,10 @@ async function guardMessage(impl: () => Promise<Response>): Promise<string> {
 
 describe('the site guard, on why a site could not be measured', () => {
 	it('passes silently when the site is served', async () => {
-		vi.stubGlobal('fetch', vi.fn(async () => new Response('', { status: 200 })));
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => new Response('', { status: 200 }))
+		);
 		await expect(requireSite(SITE)).resolves.toBeUndefined();
 	});
 

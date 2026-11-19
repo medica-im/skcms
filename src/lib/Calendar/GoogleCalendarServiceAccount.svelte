@@ -4,7 +4,7 @@
 	import dayGridPlugin from '@fullcalendar/daygrid';
 	import listPlugin from '@fullcalendar/list';
 	import { getLocale } from '$prgld/runtime.js';
-	import Dialog from '$lib/Web/Dialog.svelte';
+	import Dialog from '#lib/Web/Dialog.svelte';
 	import Fa from 'svelte-fa';
 	import { faMaximize, faMinimize } from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';

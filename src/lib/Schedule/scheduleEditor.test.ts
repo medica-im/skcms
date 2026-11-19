@@ -117,7 +117,11 @@ describe('on Svelte state', () => {
 
 	test('toDraft copies a proxied schedule', () => {
 		const schedule = proxied({
-			uid: 'u', entry: 'e', channel: 'phone' as const, label: null, holidays: 'closed' as const,
+			uid: 'u',
+			entry: 'e',
+			channel: 'phone' as const,
+			label: null,
+			holidays: 'closed' as const,
 			days: { '1': [p('08:00', '12:00')] }
 		});
 		expect(toDraft(schedule).days[1]).toEqual([p('08:00', '12:00')]);

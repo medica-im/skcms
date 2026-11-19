@@ -49,8 +49,18 @@ const write = (path: string, text: string) => writeFileSync(path, text);
 const read = (path: string) => readFileSync(path, 'utf8');
 
 function snapshot(): Record<string, string> {
-	const out = execFileSync('bash', [SNAPSHOT_SCRIPT], { cwd: main, encoding: 'utf8', env: env(), stdio: 'pipe' });
-	return Object.fromEntries(out.trim().split('\n').map((l) => l.split('=') as [string, string]));
+	const out = execFileSync('bash', [SNAPSHOT_SCRIPT], {
+		cwd: main,
+		encoding: 'utf8',
+		env: env(),
+		stdio: 'pipe'
+	});
+	return Object.fromEntries(
+		out
+			.trim()
+			.split('\n')
+			.map((l) => l.split('=') as [string, string])
+	);
 }
 /** Snapshots `main` and brings the worktree to it. */
 function prepare() {
@@ -80,12 +90,32 @@ beforeEach(() => {
 	git(main, 'init', '-q', '-b', 'main');
 	write(join(main, 'app.ts'), 'committed app\n');
 	write(join(main, 'old.ts'), 'removed later\n');
-	write(join(main, '.gitignore'), ['.env', '.env.*', 'dev.yml', 'images.yml', 'node_modules', ''].join('\n'));
+	write(
+		join(main, '.gitignore'),
+		['.env', '.env.*', 'dev.yml', 'images.yml', 'node_modules', ''].join('\n')
+	);
 	git(main, 'add', '-A');
-	git(main, '-c', 'protocol.file.allow=always', 'submodule', 'add', '-q', '-b', 'site.fr', sub, 'sub');
+	git(
+		main,
+		'-c',
+		'protocol.file.allow=always',
+		'submodule',
+		'add',
+		'-q',
+		'-b',
+		'site.fr',
+		sub,
+		'sub'
+	);
 	git(main, 'commit', '-q', '-m', 'base');
 
-	for (const f of ['dev.yml', 'images.yml', '.env.dev.site.fr', '.env.staging.site.fr', '.env.test-all'])
+	for (const f of [
+		'dev.yml',
+		'images.yml',
+		'.env.dev.site.fr',
+		'.env.staging.site.fr',
+		'.env.test-all'
+	])
 		write(join(main, f), `${f} contents\n`);
 	for (const f of ['.env.test.w0', '.env.site.lyon3', '.env.staging.site.fr.bak.20260814'])
 		write(join(main, f), 'not an input\n');
@@ -120,7 +150,13 @@ describe('test-worktree.sh', () => {
 
 	it('links the ignored inputs back to the checkout', () => {
 		prepare();
-		for (const f of ['dev.yml', 'images.yml', '.env.dev.site.fr', '.env.staging.site.fr', '.env.test-all']) {
+		for (const f of [
+			'dev.yml',
+			'images.yml',
+			'.env.dev.site.fr',
+			'.env.staging.site.fr',
+			'.env.test-all'
+		]) {
 			expect(lstatSync(join(wt, f)).isSymbolicLink(), f).toBe(true);
 			expect(readlinkSync(join(wt, f)), f).toBe(join(main, f));
 		}
@@ -128,16 +164,29 @@ describe('test-worktree.sh', () => {
 
 	it('leaves the generated files, backups and .env itself to the worktree', () => {
 		prepare();
-		for (const f of ['.env', '.env.test.w0', '.env.site.lyon3', '.env.staging.site.fr.bak.20260814'])
+		for (const f of [
+			'.env',
+			'.env.test.w0',
+			'.env.site.lyon3',
+			'.env.staging.site.fr.bak.20260814'
+		])
 			expect(existsSync(join(wt, f)), f).toBe(false);
 	});
 
 	it('leaves the checkout alone', () => {
 		write(join(main, 'app.ts'), 'edited app\n');
 		write(join(main, 'sub', 'page.svelte'), 'edited page\n');
-		const before = { main: status(main), sub: status(join(main, 'sub')), branch: git(join(main, 'sub'), 'branch', '--show-current') };
+		const before = {
+			main: status(main),
+			sub: status(join(main, 'sub')),
+			branch: git(join(main, 'sub'), 'branch', '--show-current')
+		};
 		prepare();
 		prepare();
-		expect({ main: status(main), sub: status(join(main, 'sub')), branch: git(join(main, 'sub'), 'branch', '--show-current') }).toEqual(before);
+		expect({
+			main: status(main),
+			sub: status(join(main, 'sub')),
+			branch: git(join(main, 'sub'), 'branch', '--show-current')
+		}).toEqual(before);
 	});
 });

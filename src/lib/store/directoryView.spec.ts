@@ -81,9 +81,7 @@ describe('the unfiltered address book', () => {
 	});
 
 	it('shows active and inactive together when active is null', () => {
-		expect(names({ active: null })).toEqual(
-			sorted([...ALL_ACTIVE, 'Inès Fabre', 'Jean Ferrand'])
-		);
+		expect(names({ active: null })).toEqual(sorted([...ALL_ACTIVE, 'Inès Fabre', 'Jean Ferrand']));
 	});
 });
 
@@ -97,13 +95,9 @@ describe('each selector on its own', () => {
 	});
 
 	it('category accepts several types at once, as a union', () => {
-		expect(names({ categories: [DOCTOR.uid, PHYSIO.uid] })).toEqual([
-			'Chloé Nguyen',
-			'Damien Roux',
-			'Gaëlle Petit',
-			'Hugo Marchand',
-			'Élodie Barre'
-		].sort(byName));
+		expect(names({ categories: [DOCTOR.uid, PHYSIO.uid] })).toEqual(
+			['Chloé Nguyen', 'Damien Roux', 'Gaëlle Petit', 'Hugo Marchand', 'Élodie Barre'].sort(byName)
+		);
 	});
 
 	it('department keeps only that department code', () => {
@@ -132,11 +126,9 @@ describe('each selector on its own', () => {
 	});
 
 	it('facility keeps only that facility', () => {
-		expect(names({ facility: CENTRE_C.uid })).toEqual([
-			'Damien Roux',
-			'Farid Benali',
-			'Élodie Barre'
-		].sort(byName));
+		expect(names({ facility: CENTRE_C.uid })).toEqual(
+			['Damien Roux', 'Farid Benali', 'Élodie Barre'].sort(byName)
+		);
 	});
 
 	it('term matches on name, case-insensitively', () => {
@@ -158,11 +150,7 @@ describe('each selector on its own', () => {
 	});
 
 	it('a single tag keeps everyone carrying it', () => {
-		expect(names({ tags: [TAG_ONCO] })).toEqual([
-			'Alice Martin',
-			'Bruno Lopez',
-			'Gaëlle Petit'
-		]);
+		expect(names({ tags: [TAG_ONCO] })).toEqual(['Alice Martin', 'Bruno Lopez', 'Gaëlle Petit']);
 	});
 
 	it('situation keeps only the entries it lists', () => {
@@ -194,11 +182,9 @@ describe('each selector on its own', () => {
 	});
 
 	it('currentOrg false keeps non-members', () => {
-		expect(names({ currentOrg: false })).toEqual([
-			'Farid Benali',
-			'Hugo Marchand',
-			'Élodie Barre'
-		].sort(byName));
+		expect(names({ currentOrg: false })).toEqual(
+			['Farid Benali', 'Hugo Marchand', 'Élodie Barre'].sort(byName)
+		);
 	});
 
 	it('limitCategories restricts by type slug, not uid', () => {
@@ -232,16 +218,15 @@ describe('selectors combined', () => {
 	});
 
 	it('yields nothing when department and commune contradict each other', () => {
-		expect(
-			names({ department: { label: 'Gard', value: '30' }, communes: [GADAGNE.uid] })
-		).toEqual([]);
+		expect(names({ department: { label: 'Gard', value: '30' }, communes: [GADAGNE.uid] })).toEqual(
+			[]
+		);
 	});
 
 	it('combines a tag with a category', () => {
-		expect(names({ categories: [PHYSIO.uid], tags: [TAG_SPORT] })).toEqual([
-			'Hugo Marchand',
-			'Élodie Barre'
-		].sort(byName));
+		expect(names({ categories: [PHYSIO.uid], tags: [TAG_SPORT] })).toEqual(
+			['Hugo Marchand', 'Élodie Barre'].sort(byName)
+		);
 	});
 
 	it('combines a term with a category', () => {
@@ -259,10 +244,9 @@ describe('selectors combined', () => {
 	});
 
 	it('combines currentOrg with a selector', () => {
-		expect(names({ currentOrg: false, communes: [AVIGNON.uid] })).toEqual([
-			'Farid Benali',
-			'Élodie Barre'
-		].sort(byName));
+		expect(names({ currentOrg: false, communes: [AVIGNON.uid] })).toEqual(
+			['Farid Benali', 'Élodie Barre'].sort(byName)
+		);
 	});
 
 	it('lets active reach entries the other selectors still filter', () => {
@@ -342,30 +326,34 @@ describe('what the selectors may still offer', () => {
 			'kinesitherapeute',
 			'medecin'
 		]);
-		expect(o.communes.map((c) => c.name).sort(byName)).toEqual(['Avignon', 'Châteauneuf-de-Gadagne', 'Nîmes']);
+		expect(o.communes.map((c) => c.name).sort(byName)).toEqual([
+			'Avignon',
+			'Châteauneuf-de-Gadagne',
+			'Nîmes'
+		]);
 		expect(o.departments.sort()).toEqual(['30', '84']);
-		expect(o.facilities.map((f) => f.name).sort(byName)).toEqual([
-			'Cabinet B',
-			'Centre C',
-			'Maison de santé A',
-			'Pôle D'
-		].sort(byName));
+		expect(o.facilities.map((f) => f.name).sort(byName)).toEqual(
+			['Cabinet B', 'Centre C', 'Maison de santé A', 'Pôle D'].sort(byName)
+		);
 		expect(o.tags.map((t) => t.uid).sort()).toEqual(['tag-geria', 'tag-onco', 'tag-sport']);
 	});
 
 	it('narrows the categories on offer to the chosen commune', () => {
 		// Choosing Gadagne must not leave "kinésithérapeute" selectable: the
 		// only physio there is inactive, so picking it would empty the list.
-		expect(view({ communes: [GADAGNE.uid] }).options.categories.map((t) => t.name).sort(byName)).toEqual(
-			['infirmier', 'medecin']
-		);
+		expect(
+			view({ communes: [GADAGNE.uid] })
+				.options.categories.map((t) => t.name)
+				.sort(byName)
+		).toEqual(['infirmier', 'medecin']);
 	});
 
 	it('narrows the communes on offer to the chosen category', () => {
-		expect(view({ categories: [PHYSIO.uid] }).options.communes.map((c) => c.name).sort(byName)).toEqual([
-			'Avignon',
-			'Nîmes'
-		]);
+		expect(
+			view({ categories: [PHYSIO.uid] })
+				.options.communes.map((c) => c.name)
+				.sort(byName)
+		).toEqual(['Avignon', 'Nîmes']);
 	});
 
 	it('narrows the departments on offer to the chosen category', () => {
@@ -374,32 +362,34 @@ describe('what the selectors may still offer', () => {
 	});
 
 	it('narrows the facilities on offer to the chosen commune', () => {
-		expect(view({ communes: [GADAGNE.uid] }).options.facilities.map((f) => f.name).sort(byName)).toEqual([
-			'Cabinet B',
-			'Maison de santé A'
-		]);
+		expect(
+			view({ communes: [GADAGNE.uid] })
+				.options.facilities.map((f) => f.name)
+				.sort(byName)
+		).toEqual(['Cabinet B', 'Maison de santé A']);
 	});
 
 	it('narrows the tags on offer to the chosen category', () => {
-		expect(view({ categories: [PHYSIO.uid] }).options.tags.map((t) => t.uid).sort()).toEqual([
-			'tag-geria',
-			'tag-sport'
-		]);
+		expect(
+			view({ categories: [PHYSIO.uid] })
+				.options.tags.map((t) => t.uid)
+				.sort()
+		).toEqual(['tag-geria', 'tag-sport']);
 	});
 
 	it('does not let a selector narrow its own option list', () => {
 		// The category dropdown still offers every type after one is picked,
 		// or the user could never widen or change their mind.
-		expect(view({ categories: [NURSE.uid] }).options.categories.map((t) => t.name).sort(byName)).toEqual([
-			'infirmier',
-			'kinesitherapeute',
-			'medecin'
-		]);
-		expect(view({ communes: [GADAGNE.uid] }).options.communes.map((c) => c.name).sort(byName)).toEqual([
-			'Avignon',
-			'Châteauneuf-de-Gadagne',
-			'Nîmes'
-		]);
+		expect(
+			view({ categories: [NURSE.uid] })
+				.options.categories.map((t) => t.name)
+				.sort(byName)
+		).toEqual(['infirmier', 'kinesitherapeute', 'medecin']);
+		expect(
+			view({ communes: [GADAGNE.uid] })
+				.options.communes.map((c) => c.name)
+				.sort(byName)
+		).toEqual(['Avignon', 'Châteauneuf-de-Gadagne', 'Nîmes']);
 	});
 
 	it('offers no duplicates when many entries share a commune or facility', () => {
@@ -412,7 +402,11 @@ describe('what the selectors may still offer', () => {
 	it('offers options from the context-narrowed set, not the whole directory', () => {
 		// A situation limits who is in play, so it must limit what is offered.
 		const o = view({ situation: { label: 'urgent', value: SITUATION_URGENT.uid } }).options;
-		expect(o.communes.map((c) => c.name).sort(byName)).toEqual(['Avignon', 'Châteauneuf-de-Gadagne', 'Nîmes']);
+		expect(o.communes.map((c) => c.name).sort(byName)).toEqual([
+			'Avignon',
+			'Châteauneuf-de-Gadagne',
+			'Nîmes'
+		]);
 		expect(o.categories.map((t) => t.name).sort(byName)).toEqual([
 			'infirmier',
 			'kinesitherapeute',

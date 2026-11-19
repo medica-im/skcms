@@ -1,4 +1,4 @@
-import { facilityEntries } from '$lib/components/Directory/sites.ts';
+import { facilityEntries } from '#lib/components/Directory/sites.ts';
 import type { PageLoad } from './$types';
 
 /**
@@ -11,11 +11,11 @@ import type { PageLoad } from './$types';
  * would see the server copy alone, which comes back empty on staging.
  */
 export const load: PageLoad = async ({ data, parent }) => {
-    const { entries, labels } = await parent();
-    if (entries === undefined) throw new Error("entries undefined")
-    if (labels === undefined) throw new Error("labels undefined")
-    return {
-        ...data,
-        entryMap: facilityEntries(entries, data.facility?.uid, labels)
-    };
-}
+	const { entries, labels } = await parent();
+	if (entries === undefined) throw new Error('entries undefined');
+	if (labels === undefined) throw new Error('labels undefined');
+	return {
+		...data,
+		entryMap: facilityEntries(entries, data.facility?.uid, labels)
+	};
+};

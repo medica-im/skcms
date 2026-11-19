@@ -89,7 +89,9 @@ async function turn(page: import('@playwright/test').Page, on: boolean) {
 	// Enabled only once hydrated (DirectorySettingsRow): before that a click
 	// flips the box natively and nothing is saved.
 	await expect(input).toBeEnabled();
-	const saved = page.waitForResponse((r) => r.request().method() === 'POST' && r.url().includes('/_app/remote/'));
+	const saved = page.waitForResponse(
+		(r) => r.request().method() === 'POST' && r.url().includes('/_app/remote/')
+	);
 	await control.click();
 	await expect(control).toHaveAttribute('aria-checked', on ? 'true' : 'false');
 	await saved;
@@ -121,27 +123,24 @@ Then("the organization's entry page still opens", async ({ page }) => {
 	expect(response?.status()).toBe(200);
 });
 
-When(
-	'I follow the user menu to the entries table, without reloading',
-	async ({ page }) => {
-		// A marker on window survives a client-side navigation and dies with a
-		// reload: proof the table below is fed by the layout data already held.
-		await page.evaluate(() => ((window as any).__sameDocument = true));
-		const menu = page.locator('[data-popup="user"]');
-		const link = menu.locator('a[href$="/web/entries"]');
-		const trigger = page.getByRole('button', { name: TEST_ACCOUNTS.superuser.name });
-		await expect(async () => {
-			await trigger.click();
-			await expect(link).toBeVisible({ timeout: 1_000 });
-		}).toPass({ timeout: 10_000 });
-		// Dispatched rather than clicked: the popup keeps being repositioned, so
-		// the link never counts as "stable". SvelteKit's router still takes the
-		// click, and the marker check below proves it did not reload.
-		await link.dispatchEvent('click');
-		await expect(page).toHaveURL(/\/web\/entries$/);
-		expect(await page.evaluate(() => (window as any).__sameDocument)).toBe(true);
-	}
-);
+When('I follow the user menu to the entries table, without reloading', async ({ page }) => {
+	// A marker on window survives a client-side navigation and dies with a
+	// reload: proof the table below is fed by the layout data already held.
+	await page.evaluate(() => ((window as any).__sameDocument = true));
+	const menu = page.locator('[data-popup="user"]');
+	const link = menu.locator('a[href$="/web/entries"]');
+	const trigger = page.getByRole('button', { name: TEST_ACCOUNTS.superuser.name });
+	await expect(async () => {
+		await trigger.click();
+		await expect(link).toBeVisible({ timeout: 1_000 });
+	}).toPass({ timeout: 10_000 });
+	// Dispatched rather than clicked: the popup keeps being repositioned, so
+	// the link never counts as "stable". SvelteKit's router still takes the
+	// click, and the marker check below proves it did not reload.
+	await link.dispatchEvent('click');
+	await expect(page).toHaveURL(/\/web\/entries$/);
+	expect(await page.evaluate(() => (window as any).__sameDocument)).toBe(true);
+});
 
 Then("the entries table does not list the organization's entry", async ({ page }) => {
 	// Rows first, or "absent" would pass on a table still loading.
@@ -155,7 +154,9 @@ Then('the user menu has a link to the directories page', async ({ page }) => {
 
 Then("the organization's entry switch is not shown", async ({ page }) => {
 	// The row first, or "not shown" would pass on a page still loading.
-	await expect(page.locator(`[data-testid="directory-row"][data-directory="${ctx.directory}"]`)).toBeVisible();
+	await expect(
+		page.locator(`[data-testid="directory-row"][data-directory="${ctx.directory}"]`)
+	).toBeVisible();
 	await expect(toggle(page)).toHaveCount(0);
 });
 

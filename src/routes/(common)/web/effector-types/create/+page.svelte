@@ -4,8 +4,8 @@
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faCheck, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
-	import Select from '$lib/Web/Select.svelte';
-	import type { EffectorType } from '$lib/interfaces/v2/effector';
+	import Select from '#lib/Web/Select.svelte';
+	import type { EffectorType } from '#lib/interfaces/v2/effector.ts';
 
 	let { data, onclose }: { data: any; onclose?: () => void } = $props();
 
@@ -54,7 +54,7 @@
 		class="grid grid-cols-1 gap-4 w-full max-w-xl"
 	>
 		<!-- Hidden parent field -->
-		<input type="hidden" name="effector_type_uid" value={selectedParent?.value ?? ''} />
+		<input {...createEffectorType.for(formKey).fields.effector_type_uid.as('hidden', selectedParent?.value ?? '')} />
 
 		<!-- Name -->
 		<label class="label">
@@ -101,8 +101,9 @@
 		<!-- Definition -->
 		<label class="label">
 			<span>{m.EFFECTOR_TYPE_DEFINITION()}</span>
-			<textarea
-				name="definition_fr"
+			<input {...createEffectorType.for(formKey).fields.definition_fr.as('hidden', definition_fr ?? '')} />
+<textarea data-field="definition_fr"
+			
 				bind:value={definition_fr}
 				class="textarea"
 				rows="3"
@@ -112,8 +113,9 @@
 		<!-- Synonyms -->
 		<label class="label">
 			<span>{m.EFFECTOR_TYPE_COL_SYNONYMS()}</span>
-			<input
-				name="synonyms_fr"
+			<input {...createEffectorType.for(formKey).fields.synonyms_fr.as('hidden', synonyms_fr ?? '')} />
+<input data-field="synonyms_fr"
+			
 				type="text"
 				bind:value={synonyms_fr}
 				class="input"
@@ -139,8 +141,8 @@
 		<!-- Neo4j Labels -->
 		<div class="grid grid-cols-1 gap-2">
 			<span class="label">Labels</span>
-			<input type="hidden" name="isHCW" value={String(isHCW)} />
-			<input type="hidden" name="isRPPS" value={String(isRPPS)} />
+			<input {...createEffectorType.for(formKey).fields.isHCW.as('hidden', String(isHCW) ?? '')} />
+			<input {...createEffectorType.for(formKey).fields.isRPPS.as('hidden', String(isRPPS) ?? '')} />
 			<div class="flex gap-2 flex-wrap">
 				<span class="chip variant-filled-surface cursor-default opacity-75">EffectorType</span>
 				<button
@@ -159,9 +161,9 @@
 
 		<!-- HCW fields -->
 		{#if isHCW}
-			<input type="hidden" name="unique_ID" value={unique_ID} />
-			<input type="hidden" name="concept_en" value={concept_en} />
-			<input type="hidden" name="concept_fr" value={concept_fr} />
+			<input {...createEffectorType.for(formKey).fields.unique_ID.as('hidden', unique_ID ?? '')} />
+			<input {...createEffectorType.for(formKey).fields.concept_en.as('hidden', concept_en ?? '')} />
+			<input {...createEffectorType.for(formKey).fields.concept_fr.as('hidden', concept_fr ?? '')} />
 			<label class="label">
 				<span>{m.EFFECTOR_TYPE_MESH_UNIQUE_ID()}</span>
 				<input type="text" bind:value={unique_ID} class="input" />

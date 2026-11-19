@@ -6,10 +6,10 @@
 	import Fa from 'svelte-fa';
 	import { faCheck } from '@fortawesome/free-solid-svg-icons';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { uniq } from '$lib/utils/utils.ts';
-	import { variables } from '$lib/utils/constants.ts';
-	import type { Entry, CategorizedEntries, Type } from '$lib/store/directoryStoreInterface';
-	import type { EffectorType } from '$lib/interfaces/v2/effector';
+	import { uniq } from '#lib/utils/utils.ts';
+	import { variables } from '#lib/utils/constants.ts';
+	import type { Entry, CategorizedEntries, Type } from '#lib/store/directoryStoreInterface.ts';
+	import type { EffectorType } from '#lib/interfaces/v2/effector.ts';
 
 	let { rCFFE }: { rCFFE: CategorizedEntries } = $props();
 
@@ -66,16 +66,16 @@
 
 	function select(c: string, effectorTypes: Type[]): void {
 		if (categoryFromUrl == c || c == '') {
-			const url = new URL(page.url);
+			const url = new URL(page.url.href);
 			url.searchParams.delete('types');
 			const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
-			goto(newUrl, { noScroll: true, keepFocus: true });
+			goto(newUrl, { reset: false });
 		} else {
 			let effectorType = effectorTypes.find((x) => x.name == c);
 			if (effectorType) {
-				const url = new URL(page.url);
+				const url = new URL(page.url.href);
 				url.searchParams.set('types', JSON.stringify([effectorType.uid]));
-				goto(`${url.pathname}?${url.searchParams}`, { noScroll: true, keepFocus: true });
+				goto(`${url.pathname}?${url.searchParams}`, { reset: false });
 			}
 		}
 	}

@@ -4,9 +4,9 @@
 	import { untrack } from 'svelte';
 	import * as m from '$msgs';
 	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
-	import MemberCard from '$lib/Association/MemberCard.svelte';
-	import BoardMembersDisplay from '$lib/Association/BoardMembersDisplay.svelte';
-	import type { Entry } from '$lib/store/directoryStoreInterface';
+	import MemberCard from '#lib/Association/MemberCard.svelte';
+	import BoardMembersDisplay from '#lib/Association/BoardMembersDisplay.svelte';
+	import type { Entry } from '#lib/store/directoryStoreInterface.ts';
 
 	// $svlt, not ../../(skvar): a test site server's skvar is a worktree. The
 	// group escaped: after an alias a bare (association) is glob syntax and
@@ -26,9 +26,9 @@
 			const currentTab = page.url.searchParams.get('tab') ?? '';
 			const newTab = reverseTabMap[idx];
 			if (currentTab === newTab) return;
-			const url = new URL(page.url);
+			const url = new URL(page.url.href);
 			url.searchParams.set('tab', newTab);
-			goto(url.pathname + url.search, { replaceState: true, noScroll: true, keepFocus: true });
+			goto(url.pathname + url.search, { replaceState: true, reset: false });
 		});
 	});
 

@@ -3,9 +3,9 @@
 	import Fa from 'svelte-fa';
 	import { faCalendarCheck } from '@fortawesome/free-regular-svg-icons';
 	import Appointment from './Appointment.svelte';
-	import { getEditMode, getEntryUid } from '$lib/components/Directory/context.ts';
-	import CreateAppointment from '$lib/Web/Appointment/Create.svelte';
-	import type { Appointment as AppointmentType } from '$lib/interfaces/appointment.interface';
+	import { getEditMode, getEntryUid } from '#lib/components/Directory/context.ts';
+	import CreateAppointment from '#lib/Web/Appointment/Create.svelte';
+	import type { Appointment as AppointmentType } from '#lib/interfaces/appointment.interface.ts';
 	const editMode = getEditMode();
 
 	let { data }: { data: AppointmentType[] | null } = $props();

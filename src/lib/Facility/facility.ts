@@ -1,14 +1,14 @@
-import { ORIGIN } from '$lib/utils/origin.ts';
+import { ORIGIN } from '#lib/utils/origin.ts';
 import { error } from '@sveltejs/kit';
-import type { Facility } from '$lib/interfaces/facility.interface.ts';
-import type { Fetch } from '$lib/interfaces/fetch';
+import type { Facility } from '#lib/interfaces/facility.interface.ts';
+import type { Fetch } from '#lib/interfaces/fetch.ts';
 
 export const fetchFacilities = async (fetch: Fetch): Promise<Facility[]> => {
 	const url = `${ORIGIN}/api/v2/public/facilities`;
 	const response = await fetch(url, {
 		method: 'GET',
 		headers: {
-			'Accept': 'application/json',
+			Accept: 'application/json',
 			'content-type': 'application/json'
 		}
 	});

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { distanceEffectorsF } from '../store/directoryStore';
-	import { getAddressFeature } from '$lib/components/Directory/context.ts';
-	import { PUBLIC_LOCALE } from '$env/static/public';
+	import { getAddressFeature } from '#lib/components/Directory/context.ts';
+	import { PUBLIC_LOCALE } from '$app/env/public';
 
 	let { uid }: { uid: string } = $props();
 

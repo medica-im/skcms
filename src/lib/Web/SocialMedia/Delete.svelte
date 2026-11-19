@@ -12,10 +12,10 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Dialog from '../Dialog.svelte';
-    import WebsiteComponent from '$lib/Website/Website.svelte';
-	import SoMed from '$lib/SoMed/SoMed.svelte';
-	import type { FormResult } from '$lib/interfaces/v2/form';
-    import type { SocialNetwork } from '$lib/interfaces/socialnetwork.interface';
+    import WebsiteComponent from '#lib/Website/Website.svelte';
+	import SoMed from '#lib/SoMed/SoMed.svelte';
+	import type { FormResult } from '#lib/interfaces/v2/form.ts';
+    import type { SocialNetwork } from '#lib/interfaces/socialnetwork.interface.ts';
 
 	let {
 		data

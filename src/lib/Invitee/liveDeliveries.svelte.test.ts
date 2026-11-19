@@ -10,7 +10,11 @@
 import { describe, it, expect } from 'vitest';
 import { LiveDeliveries } from './liveDeliveries.svelte';
 
-const bounced = { status: 'bounced', at: '2026-10-06T12:00:00Z', error: '550 User unknown' } as never;
+const bounced = {
+	status: 'bounced',
+	at: '2026-10-06T12:00:00Z',
+	error: '550 User unknown'
+} as never;
 
 describe('LiveDeliveries', () => {
 	it('applies a received delivery to its invitation', () => {

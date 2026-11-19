@@ -27,25 +27,34 @@ const root = resolve(__dirname, '../..');
 /** Every signin link in src, as `file:line: text`. */
 function signinLinks(): string[] {
 	try {
-		return execFileSync(
-			'grep',
-			// steps/ too, not just src/: the BDD steps assert on this URL, and a
-			// rename that missed them left the app right and the suite red.
-			//
-			// -E and a character class for the separator, because the step files
-			// escape the '?' for a RegExp — a literal 'signin?redirect' matches
-			// application code and silently skips every step file.
-			['-rEn', '--include=*.ts', '--include=*.svelte', 'signin[\\\\?]*redirect', 'src/', 'steps/'],
-			{ cwd: root, encoding: 'utf8' }
-		)
-			.split('\n')
-			.filter(Boolean)
-			// This file names both spellings to describe them; it is not a caller.
-			.filter((l) => !l.startsWith('src/lib/signin-redirect-param.test.ts'))
-			// (skvar) is a submodule — a separate repository, on a per-site branch.
-			// Its links are the same contract but are not this repository's to
-			// rename, so they are reported there rather than failing this suite.
-			.filter((l) => !l.startsWith('src/routes/(skvar)/'));
+		return (
+			execFileSync(
+				'grep',
+				// steps/ too, not just src/: the BDD steps assert on this URL, and a
+				// rename that missed them left the app right and the suite red.
+				//
+				// -E and a character class for the separator, because the step files
+				// escape the '?' for a RegExp — a literal 'signin?redirect' matches
+				// application code and silently skips every step file.
+				[
+					'-rEn',
+					'--include=*.ts',
+					'--include=*.svelte',
+					'signin[\\\\?]*redirect',
+					'src/',
+					'steps/'
+				],
+				{ cwd: root, encoding: 'utf8' }
+			)
+				.split('\n')
+				.filter(Boolean)
+				// This file names both spellings to describe them; it is not a caller.
+				.filter((l) => !l.startsWith('src/lib/signin-redirect-param.test.ts'))
+				// (skvar) is a submodule — a separate repository, on a per-site branch.
+				// Its links are the same contract but are not this repository's to
+				// rename, so they are reported there rather than failing this suite.
+				.filter((l) => !l.startsWith('src/routes/(skvar)/'))
+		);
 	} catch {
 		return [];
 	}
@@ -80,7 +89,7 @@ describe('the signin redirect parameter', () => {
 
 	it('falls back to a destination inside the app, not the site root', () => {
 		// A bare /dashboard is WordPress's root on an instance served under a
-		// base path. The fallback has to carry `base` like every other link.
-		expect(page).toMatch(/\$\{base\}\/dashboard/);
+		// base path. The fallback has to carry the base path like every other link.
+		expect(page).toMatch(/resolve\(['"`]dashboard['"`]\)|\$\{base\(\)\}\/dashboard/);
 	});
 });

@@ -3,7 +3,7 @@
 	import * as m from '$msgs';
 	import { patchCommand, getPaymentMethods } from '../../../../entry.remote';
 	import { invalidate } from '$app/navigation';
-	import { areArraysEqualSets } from '$lib/utils/utils.ts';
+	import { areArraysEqualSets } from '#lib/utils/utils.ts';
 	import {
 		faPlus,
 		faCheck,
@@ -13,12 +13,12 @@
 		faTrashCanArrowUp
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import type { Email } from '$lib/interfaces/email.interface.ts';
-	import Select from '$lib/Web/Select.svelte';
+	import type { Email } from '#lib/interfaces/email.interface.ts';
+	import Select from '#lib/Web/Select.svelte';
 	import Dialog from '../../Dialog.svelte';
-	import { getEntryUid } from '$lib/components/Directory/context';
-	import type { PaymentMethod } from '$lib/interfaces/fullEffector.interface';
-	import type { FormResult } from '$lib/interfaces/v2/form';
+	import { getEntryUid } from '#lib/components/Directory/context.ts';
+	import type { PaymentMethod } from '#lib/interfaces/fullEffector.interface.ts';
+	import type { FormResult } from '#lib/interfaces/v2/form.ts';
 
 	let {
 		data

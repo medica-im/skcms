@@ -43,13 +43,18 @@ export const recreateEntryHref = (base: string, facilityUid: string, effectorUid
 	`${base}/web/entry?facility=${encodeURIComponent(facilityUid)}&effector=${encodeURIComponent(effectorUid)}`;
 
 /** Why the change cannot be made any more, in the organization's terms. */
-export function lockedExplanation(permission: Pick<TypeEditPermission, 'reason' | 'window_days'>): string {
+export function lockedExplanation(
+	permission: Pick<TypeEditPermission, 'reason' | 'window_days'>
+): string {
 	if (permission.reason === 'no_date') return m.ENTRY_TYPE_EDIT_NO_DATE();
 	return m.ENTRY_TYPE_EDIT_EXPIRED({ days: permission.window_days ?? 0 });
 }
 
 /** A refusal code from the backend, worded. */
-export function typeChangeRefusal(code: string | undefined, windowDays: number | null = null): string {
+export function typeChangeRefusal(
+	code: string | undefined,
+	windowDays: number | null = null
+): string {
 	switch (code) {
 		case 'same_type':
 			return m.ENTRY_TYPE_EDIT_ERROR_SAME_TYPE();
@@ -98,7 +103,11 @@ export async function creationPrefill<E = { uid: string }>(
 		effectorUid ? get(`/effectors/${encodeURIComponent(effectorUid)}`) : undefined
 	]);
 	const prefill: { facility?: { label: string; value: string }; effector?: E } = {};
-	if (facility?.uid) prefill.facility = { label: facility.label || facility.name || facility.uid, value: facility.uid };
+	if (facility?.uid)
+		prefill.facility = {
+			label: facility.label || facility.name || facility.uid,
+			value: facility.uid
+		};
 	if (effector?.uid) prefill.effector = effector as E;
 	return prefill;
 }

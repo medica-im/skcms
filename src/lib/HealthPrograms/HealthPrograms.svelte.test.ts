@@ -22,9 +22,7 @@ const programsNavLinks = {
 		id: 'prevention',
 		title: { en: 'Health prevention', fr: 'Prévention en santé' },
 		href: '/prevention',
-		list: [
-			{ href: '/prevention/canicule', label: 'Canicule', category: 'program', active: true }
-		]
+		list: [{ href: '/prevention/canicule', label: 'Canicule', category: 'program', active: true }]
 	}
 } as never;
 
@@ -77,7 +75,12 @@ describe('HealthPrograms, an archived programme', () => {
 			title: { en: 'Health education', fr: 'Éducation pour la santé' },
 			href: '/education-sante',
 			list: [
-				{ href: '/education-sante/parentalite', label: 'Parentalité', category: 'program', archive: true },
+				{
+					href: '/education-sante/parentalite',
+					label: 'Parentalité',
+					category: 'program',
+					archive: true
+				},
 				{ href: '/education-sante/sommeil', label: 'Sommeil', category: 'program' }
 			]
 		}

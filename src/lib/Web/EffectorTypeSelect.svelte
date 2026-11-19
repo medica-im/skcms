@@ -1,9 +1,9 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import Select from '$lib/Web/Select.svelte';
+	import Select from '#lib/Web/Select.svelte';
 	import { getEffectorTypes } from './data';
-	import { getTypeItems } from '$lib/components/Directory/SelectCategory.ts';
-	import type { EffectorType } from '$lib/interfaces/v2/effector';
+	import { getTypeItems } from '#lib/components/Directory/SelectCategory.ts';
+	import type { EffectorType } from '#lib/interfaces/v2/effector.ts';
 
 	let {
 		selectedEffectorType = $bindable(),

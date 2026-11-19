@@ -119,7 +119,8 @@ describe('release-staging.sh uses it', () => {
 		// somewhere else is how they would drift apart again.
 		// The quotes are backslash-escaped inside the shell string, so match the
 		// field name alone rather than the whole yq expression.
-		const reads = (path: string) => readFileSync(resolve(ROOT, path), 'utf8').match(/\.origin /g) ?? [];
+		const reads = (path: string) =>
+			readFileSync(resolve(ROOT, path), 'utf8').match(/\.origin /g) ?? [];
 		expect(reads('scripts/lib/staging-sites.sh')).toHaveLength(1);
 		expect(reads('scripts/release-staging.sh')).toHaveLength(0);
 		expect(reads('scripts/check-staging.sh')).toHaveLength(0);

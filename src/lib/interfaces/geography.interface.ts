@@ -1,6 +1,6 @@
 export interface Commune {
-    name: string,
-    slug: string,
-    uid: string,
-    wikidata: string
+	name: string;
+	slug: string;
+	uid: string;
+	wikidata: string;
 }

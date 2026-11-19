@@ -1,4 +1,4 @@
-import type { EmailDelivery } from '$lib/interfaces/v2/invitee';
+import type { EmailDelivery } from '#lib/interfaces/v2/invitee.ts';
 
 /**
  * Each invitation with the latest pushed delivery when there is one, the

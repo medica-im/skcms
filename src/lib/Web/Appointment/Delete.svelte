@@ -11,15 +11,15 @@
 		faTriangleExclamation
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import type { Email } from '$lib/interfaces/email.interface.ts';
-	import Select from '$lib/Web/Select.svelte';
-	import Dialog from '$lib/Web/Dialog.svelte';
-	import { getEntryUid } from '$lib/components/Directory/context';
-	import Payment from '$lib/Addressbook/Payment/Payment.svelte';
-	import type { SelectType } from '$lib/interfaces/select.ts';
-	import type { FormResult } from '$lib/interfaces/v2/form';
-	import type { Appointment } from '$lib/interfaces/appointment.interface';
-	import Appntmnt from '$lib/components/Effector/Appointment/Appointment.svelte';
+	import type { Email } from '#lib/interfaces/email.interface.ts';
+	import Select from '#lib/Web/Select.svelte';
+	import Dialog from '#lib/Web/Dialog.svelte';
+	import { getEntryUid } from '#lib/components/Directory/context.ts';
+	import Payment from '#lib/Addressbook/Payment/Payment.svelte';
+	import type { SelectType } from '#lib/interfaces/select.ts';
+	import type { FormResult } from '#lib/interfaces/v2/form.ts';
+	import type { Appointment } from '#lib/interfaces/appointment.interface.ts';
+	import Appntmnt from '#lib/components/Effector/Appointment/Appointment.svelte';
 
 	let {
 		data

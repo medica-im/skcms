@@ -1,81 +1,98 @@
 import { error, redirect, type Cookies } from '@sveltejs/kit';
-import { authReq } from '$lib/utils/request.ts';
-import { variables } from '$lib/utils/constants.ts';
+import { authReq } from '#lib/utils/request.ts';
+import { variables } from '#lib/utils/constants.ts';
 import type { Invitee } from '$src/lib/interfaces/v2/invitee';
-import type { ResendJob } from '$lib/Invitee/batchResend';
-import type { PageServerLoad } from "./$types"
-import { base } from '$app/paths';
+import type { ResendJob } from '#lib/Invitee/batchResend.ts';
+import type { PageServerLoad } from './$types';
+import { resolve } from '$app/paths';
 
 const ALLOWED_ROLES = ['administrator', 'superuser'];
 
 export const load: PageServerLoad = async ({ url, cookies, locals, fetch, parent }) => {
-   const session = await locals.auth();
-   if (!session) {
-      redirect(303, `${base}/signin?redirectTo=${url.pathname}`);
-   }
+	const session = await locals.auth();
+	if (!session) {
+		redirect(303, resolve(`signin?redirectTo=${url.pathname}`));
+	}
 
-   const { user } = await parent();
-   if (!user?.role || !ALLOWED_ROLES.includes(user.role)) {
-      error(403, {
-         message: 'Access restricted to administrators',
-         type: 'invitees-forbidden'
-      });
-   }
+	const { user } = await parent();
+	if (!user?.role || !ALLOWED_ROLES.includes(user.role)) {
+		error(403, {
+			message: 'Access restricted to administrators',
+			type: 'invitees-forbidden'
+		});
+	}
 
-   let invitees: Invitee[] | undefined;
-   let settings: { resendAfterDays: number } | undefined;
-   let resendJobs: ResendJob[] | undefined;
-   if (import.meta.env.DEV) {
-      // Use backend API URL directly for server-side requests
-      const endpointUrl = `${variables.BASE_URI}/api/v2/invitees`;
+	let invitees: Invitee[] | undefined;
+	let settings: { resendAfterDays: number } | undefined;
+	let resendJobs: ResendJob[] | undefined;
+	if (import.meta.env.DEV) {
+		// Use backend API URL directly for server-side requests
+		const endpointUrl = `${variables.BASE_URI}/api/v2/invitees`;
 
-      // Debug: log available cookies
-      const allCookies = cookies.getAll();
-      console.log('Available cookies:', allCookies.map(c => c.name));
-      const authCookies = allCookies.filter(({ name }) =>
-         name.includes('auth') || name.includes('session')
-      );
-      //console.log('Auth cookies:', authCookies);
+		// Debug: log available cookies
+		const allCookies = cookies.getAll();
 
-      try {
-         const request = authReq(endpointUrl, 'GET', cookies);
-         console.log('Request URL:', request.url);
-         console.log('Request cookie header:', request.headers.get('cookie'));
+		console.log(
+			'Available cookies:',
+			allCookies.map((c) => c.name)
+		);
 
-         const response = await fetch(request);
+		const authCookies = allCookies.filter(
+			({ name }) => name.includes('auth') || name.includes('session')
+		);
 
-         if (!response.ok) {
-            console.error(`Failed to fetch invitees: ${response.status} ${response.statusText}`);
-            throw new Error(`Response status: ${response.status}`);
-         }
+		//console.log('Auth cookies:', authCookies);
+		try {
+			const request = authReq(endpointUrl, 'GET', cookies);
+			console.log('Request URL:', request.url);
+			console.log('Request cookie header:', request.headers.get('cookie'));
 
-         invitees = await response.json();
-         console.log(`${invitees?.length} invitees fetched +page.server.ts`);
-      } catch (error: any) {
-         console.error('Error retrieving invitees:', error.message);
-      }
+			const response = await fetch(request);
 
-      [settings, resendJobs] = await Promise.all([
-         getJson<{ resendAfterDays: number }>(`${variables.BASE_URI}/api/v2/invitation-settings`, cookies, fetch),
-         getJson<ResendJob[]>(`${variables.BASE_URI}/api/v2/batch-invitees?kind=resend&limit=1`, cookies, fetch)
-      ]);
-   }
+			if (!response.ok) {
+				console.error(`Failed to fetch invitees: ${response.status} ${response.statusText}`);
+				throw new Error(`Response status: ${response.status}`);
+			}
 
-   return {
-      session: session,
-      invitees: invitees,
-      resendAfterDays: settings?.resendAfterDays,
-      latestResend: resendJobs ? (resendJobs[0] ?? null) : undefined
-   }
-}
+			invitees = await response.json();
+			console.log(`${invitees?.length} invitees fetched +page.server.ts`);
+		} catch (error: any) {
+			console.error('Error retrieving invitees:', error.message);
+		}
 
-async function getJson<T>(url: string, cookies: Cookies, fetch: typeof globalThis.fetch): Promise<T | undefined> {
-   try {
-      const response = await fetch(authReq(url, 'GET', cookies));
-      if (!response.ok) throw new Error(`Response status: ${response.status}`);
-      return await response.json();
-   } catch (error: any) {
-      console.error(`GET ${url}: ${error.message}`);
-      return undefined;
-   }
+		[settings, resendJobs] = await Promise.all([
+			getJson<{ resendAfterDays: number }>(
+				`${variables.BASE_URI}/api/v2/invitation-settings`,
+				cookies,
+				fetch
+			),
+			getJson<ResendJob[]>(
+				`${variables.BASE_URI}/api/v2/batch-invitees?kind=resend&limit=1`,
+				cookies,
+				fetch
+			)
+		]);
+	}
+
+	return {
+		session,
+		invitees,
+		resendAfterDays: settings?.resendAfterDays,
+		latestResend: resendJobs ? (resendJobs[0] ?? null) : undefined
+	};
+};
+
+async function getJson<T>(
+	url: string,
+	cookies: Cookies,
+	fetch: typeof globalThis.fetch
+): Promise<T | undefined> {
+	try {
+		const response = await fetch(authReq(url, 'GET', cookies));
+		if (!response.ok) throw new Error(`Response status: ${response.status}`);
+		return await response.json();
+	} catch (error: any) {
+		console.error(`GET ${url}: ${error.message}`);
+		return undefined;
+	}
 }

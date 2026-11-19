@@ -5,8 +5,8 @@
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-vi.mock('$app/paths', () => ({ base: '/annuaire' }));
-vi.mock('$lib/utils/appUrl', () => ({ APP_URL: 'https://api.test' }));
+vi.mock('$app/paths', () => ({ resolve: (path: string) => `/annuaire/${path}` }));
+vi.mock('#lib/utils/appUrl.ts', () => ({ APP_URL: 'https://api.test' }));
 
 import { directoryUrls, renderSitemap, sitemapResponse, UPSTREAM_TIMEOUT_MS } from './sitemap';
 import { wordpressUrls } from './wordpress';
@@ -48,7 +48,10 @@ interface StubOptions {
 let inFlight = 0;
 let maxInFlight = 0;
 
-function stubFetch(routes: Routes, { entries = {}, hangEntries = false, delayMs = 0 }: StubOptions = {}) {
+function stubFetch(
+	routes: Routes,
+	{ entries = {}, hangEntries = false, delayMs = 0 }: StubOptions = {}
+) {
 	inFlight = maxInFlight = 0;
 	vi.stubGlobal(
 		'fetch',
@@ -146,7 +149,9 @@ describe('wordpressUrls', () => {
 describe('renderSitemap', () => {
 	it('escapes each URL', () => {
 		const body = renderSitemap([{ loc: `${ORIGIN}/a/?x=1&y=2`, lastmod: '2026-01-01T00:00:00Z' }]);
-		expect(body).toContain('<loc>https://unipa.fr/a/?x=1&amp;y=2</loc><lastmod>2026-01-01T00:00:00Z</lastmod>');
+		expect(body).toContain(
+			'<loc>https://unipa.fr/a/?x=1&amp;y=2</loc><lastmod>2026-01-01T00:00:00Z</lastmod>'
+		);
 		expect(body.startsWith('<?xml version="1.0" encoding="UTF-8"?>')).toBe(true);
 	});
 });

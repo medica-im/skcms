@@ -10,7 +10,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import OpenGraph from './OpenGraph.svelte';
-import type { OpenGraph as Card } from '$lib/interfaces/openGraph.interface';
+import type { OpenGraph as Card } from '#lib/interfaces/openGraph.interface.ts';
 
 vi.mock('$app/state', () => ({
 	page: { url: new URL('https://santelyon3.fr/annuaire?types=%5B%22x%22%5D') }
@@ -25,8 +25,10 @@ const card: Card = {
 	username: '@msp'
 } as Card;
 
-const og = (p: string) => document.querySelector(`meta[property="${p}"]`)?.getAttribute('content') ?? null;
-const tw = (n: string) => document.querySelector(`meta[name="${n}"]`)?.getAttribute('content') ?? null;
+const og = (p: string) =>
+	document.querySelector(`meta[property="${p}"]`)?.getAttribute('content') ?? null;
+const tw = (n: string) =>
+	document.querySelector(`meta[name="${n}"]`)?.getAttribute('content') ?? null;
 
 describe('OpenGraph', () => {
 	it('writes each value under its og: and its twitter: name', async () => {
@@ -49,7 +51,9 @@ describe('OpenGraph', () => {
 	});
 
 	it('declares the card from its title alone, without an X description', async () => {
-		render(OpenGraph, { props: { opengraph: { ...card, twitter_description: null } as unknown as Card } });
+		render(OpenGraph, {
+			props: { opengraph: { ...card, twitter_description: null } as unknown as Card }
+		});
 		await expect.poll(() => tw('twitter:card')).toBe('summary');
 		expect(og('og:type')).toBe('website');
 	});

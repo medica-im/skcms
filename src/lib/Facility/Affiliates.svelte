@@ -3,9 +3,9 @@
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faPeopleGroup } from '@fortawesome/free-solid-svg-icons';
-	import Types from '$lib/components/Directory/Types.svelte';
-	import { cardCatEntries } from '$lib/components/Directory/directory';
-	import type { Entry } from '$lib/store/directoryStoreInterface';
+	import Types from '#lib/components/Directory/Types.svelte';
+	import { cardCatEntries } from '#lib/components/Directory/directory.ts';
+	import type { Entry } from '#lib/store/directoryStoreInterface.ts';
 
 	let { uid }: { uid: string } = $props();
 

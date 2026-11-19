@@ -5,16 +5,17 @@
 		faExclamationTriangle,
 		faExternalLinkAlt
 	} from '@fortawesome/free-solid-svg-icons';
-	import { batchJobStatus } from '$lib/Invitee/batchJobStatus';
+	import { batchJobStatus } from '#lib/Invitee/batchJobStatus.ts';
 	import * as m from '$msgs';
 	import type { PageData } from './$types';
-	import { base } from '$app/paths';
-	import InviteeEmailDelivery from '$lib/Invitee/InviteeEmailDelivery.svelte';
-	import InviteeAddressFlag from '$lib/Invitee/InviteeAddressFlag.svelte';
-	import { needsCheck } from '$lib/Invitee/inviteeFilter';
-	import { resendCounts } from '$lib/Invitee/batchResend';
-	import { deliveryLook, errorKindShort, NEEDS_ACTION, type DeliveryState } from '$lib/Invitee/emailDelivery';
-	import type { EmailErrorKind } from '$lib/interfaces/v2/invitee';
+	import { resolve } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
+	import InviteeEmailDelivery from '#lib/Invitee/InviteeEmailDelivery.svelte';
+	import InviteeAddressFlag from '#lib/Invitee/InviteeAddressFlag.svelte';
+	import { needsCheck } from '#lib/Invitee/inviteeFilter.ts';
+	import { resendCounts } from '#lib/Invitee/batchResend.ts';
+	import { deliveryLook, errorKindShort, NEEDS_ACTION, type DeliveryState } from '#lib/Invitee/emailDelivery.ts';
+	import type { EmailErrorKind } from '#lib/interfaces/v2/invitee.ts';
 
 	let { data }: { data: PageData } = $props();
 	let job = $derived(data.job);
@@ -25,18 +26,16 @@
 	// A row as an invitation, for the address checks shared with the list.
 	const asInvitee = (row: any) =>
 		({
-			uid: row.invitee_uid,
-			email: row.email,
-			emailDelivery: row.email_delivery,
-			addressIssue: row.addressIssue,
-			redeemedAt: null
-		}) as never;
+		uid: row.invitee_uid,
+		email: row.email,
+		emailDelivery: row.email_delivery,
+		addressIssue: row.addressIssue,
+		redeemedAt: null
+	} as never);
 	let rowsToCheck = $derived((job?.summary ?? []).filter((row: any) => needsCheck(asInvitee(row))));
 	let onlyToCheck = $state(false);
-	let shownRows = $derived(onlyToCheck ? rowsToCheck : (job?.summary ?? []));
-	let errorKindCounts = $derived(
-		Object.entries(job?.email_error_kind_counts ?? {}) as [EmailErrorKind, number][]
-	);
+	let shownRows = $derived(onlyToCheck ? rowsToCheck : job?.summary ?? []);
+	let errorKindCounts = $derived(Object.entries(job?.email_error_kind_counts ?? {}) as [EmailErrorKind, number][]);
 
 	function formatDateTime(dateString: string): string {
 		const date = new Date(dateString);
@@ -96,12 +95,18 @@
 <div class="container mx-auto p-4 max-w-4xl">
 	<header class="mb-6">
 		{#if job?.kind === 'resend'}
-			<a href="{base}/web/invite/reminder-logs" class="btn btn-sm variant-ghost mb-4">
+			<a
+				href="{base()}/web/invite/reminder-logs"
+				class="btn btn-sm variant-ghost mb-4"
+			>
 				<Fa icon={faArrowLeft} class="mr-2" />
 				{m.REMINDER_LOGS_TITLE()}
 			</a>
 		{:else}
-			<a href="{base}/web/invite/batch-logs" class="btn btn-sm variant-ghost mb-4">
+			<a
+				href="{base()}/web/invite/batch-logs"
+				class="btn btn-sm variant-ghost mb-4"
+			>
 				<Fa icon={faArrowLeft} class="mr-2" />
 				{m.BATCH_INVITEE_LOGS()}
 			</a>
@@ -150,40 +155,40 @@
 				</div>
 			</div>
 		{:else}
-		<div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
-			<div class="card p-3 text-center variant-soft-success">
-				<p class="text-2xl font-bold">{job.successful_count}</p>
-				<p class="text-sm">{m.BATCH_INVITEE_CREATED()}</p>
-			</div>
-			<div class="card p-3 text-center variant-soft-error">
-				<p class="text-2xl font-bold">{job.failed_count}</p>
-				<p class="text-sm">{m.BATCH_INVITEE_FAILED()}</p>
-			</div>
-			<div class="card p-3 text-center variant-soft-surface">
-				<p class="text-2xl font-bold">{job.skipped_duplicate_email_count}</p>
-				<p class="text-sm">{m.BATCH_INVITEE_SKIPPED_DUPLICATE()}</p>
-			</div>
-			<div class="card p-3 text-center variant-soft-surface">
-				<p class="text-2xl font-bold">{job.skipped_active_user_count}</p>
-				<p class="text-sm">{m.BATCH_INVITEE_SKIPPED_ACTIVE()}</p>
-			</div>
-			{#if job.failed_email_count > 0}
-				<div class="card p-3 text-center variant-soft-warning">
-					<p class="text-2xl font-bold">{job.failed_email_count}</p>
-					<p class="text-sm">{m.BATCH_INVITEE_EMAIL_ERRORS()}</p>
+			<div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+				<div class="card p-3 text-center variant-soft-success">
+					<p class="text-2xl font-bold">{job.successful_count}</p>
+					<p class="text-sm">{m.BATCH_INVITEE_CREATED()}</p>
 				</div>
-			{/if}
-			{#if rowsToCheck.length > 0}
+				<div class="card p-3 text-center variant-soft-error">
+					<p class="text-2xl font-bold">{job.failed_count}</p>
+					<p class="text-sm">{m.BATCH_INVITEE_FAILED()}</p>
+				</div>
+				<div class="card p-3 text-center variant-soft-surface">
+					<p class="text-2xl font-bold">{job.skipped_duplicate_email_count}</p>
+					<p class="text-sm">{m.BATCH_INVITEE_SKIPPED_DUPLICATE()}</p>
+				</div>
+				<div class="card p-3 text-center variant-soft-surface">
+					<p class="text-2xl font-bold">{job.skipped_active_user_count}</p>
+					<p class="text-sm">{m.BATCH_INVITEE_SKIPPED_ACTIVE()}</p>
+				</div>
+				{#if job.failed_email_count > 0}
+					<div class="card p-3 text-center variant-soft-warning">
+						<p class="text-2xl font-bold">{job.failed_email_count}</p>
+						<p class="text-sm">{m.BATCH_INVITEE_EMAIL_ERRORS()}</p>
+					</div>
+				{/if}
+				{#if rowsToCheck.length > 0}
 				<div class="card p-3 text-center variant-soft-warning" data-testid="batch-check-count">
-					<p class="text-2xl font-bold">{rowsToCheck.length}</p>
-					<p class="text-sm">{m.BATCH_INVITEE_CHECK_CARD()}</p>
+						<p class="text-2xl font-bold">{rowsToCheck.length}</p>
+						<p class="text-sm">{m.BATCH_INVITEE_CHECK_CARD()}</p>
+					</div>
+				{/if}
+				<div class="card p-3 text-center variant-soft-primary">
+					<p class="text-2xl font-bold">{job.total_rows}</p>
+					<p class="text-sm">Total</p>
 				</div>
-			{/if}
-			<div class="card p-3 text-center variant-soft-primary">
-				<p class="text-2xl font-bold">{job.total_rows}</p>
-				<p class="text-sm">Total</p>
 			</div>
-		</div>
 		{/if}
 
 		{#if emailStatusCounts.length > 0}
@@ -262,14 +267,16 @@
 										<InviteeEmailDelivery
 											delivery={row.email_delivery}
 											variant="column"
-											href={row.invitee_uid ? `${base}/web/invite/invitees/${row.invitee_uid}` : undefined}
+											href={row.invitee_uid
+												? resolve(`web/invite/invitees/${row.invitee_uid}`)
+												: undefined}
 										/>
 									{/if}
 								</td>
 								<td>
 									{#if row.existing_invitee_uid}
 										<a
-											href="{base}/web/invite/invitees/{row.existing_invitee_uid}"
+											href="{base()}/web/invite/invitees/{row.existing_invitee_uid}"
 											target="_blank"
 											rel="noopener noreferrer"
 											class="btn btn-sm variant-ghost-warning"
@@ -288,8 +295,13 @@
 
 		<!-- Actions -->
 		<div class="flex gap-4 justify-end mt-6">
-			<a href="{base}/web/invite/invitees" class="btn variant-filled-primary">
-				{job.kind === 'resend' ? m.INVITEE_BACK_TO_LIST() : m.BATCH_INVITEE_VIEW_INVITEES()}
+			<a
+				href="{base()}/web/invite/invitees"
+				class="btn variant-filled-primary"
+			>
+				{job.kind === 'resend'
+					? m.INVITEE_BACK_TO_LIST()
+					: m.BATCH_INVITEE_VIEW_INVITEES()}
 			</a>
 		</div>
 	{/if}

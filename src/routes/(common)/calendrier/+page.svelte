@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { variables } from '$src/lib/utils/constants';
 	import { page } from '$app/state';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import * as m from '$msgs';
-	import GoogleCalendar from '$lib/Calendar/GoogleCalendar.svelte';
+	import GoogleCalendar from '#lib/Calendar/GoogleCalendar.svelte';
 </script>
 
 <svelte:head>

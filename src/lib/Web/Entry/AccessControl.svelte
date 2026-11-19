@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import { invalidate } from '$app/navigation';
 	import { patchCommand } from '../../../entry.remote';
-	import { getEntryUid } from '$lib/components/Directory/context';
+	import { getEntryUid } from '#lib/components/Directory/context.ts';
 	import Dialog from '../Dialog.svelte';
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
@@ -13,7 +13,7 @@
 		faExclamationCircle,
 		faSpinner
 	} from '@fortawesome/free-solid-svg-icons';
-	import type { FormResult } from '$lib/interfaces/v2/form';
+	import type { FormResult } from '#lib/interfaces/v2/form.ts';
 	import { allAccessOptions, accessDescriptions } from './access';
 
 	let { access, editMode }: { access: string; editMode: boolean } = $props();

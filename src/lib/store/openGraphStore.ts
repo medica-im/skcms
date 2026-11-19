@@ -1,5 +1,5 @@
-import { ORIGIN } from '$lib/utils/origin.ts';
-import type { OpenGraph } from '$lib/interfaces/openGraph.interface';
+import { ORIGIN } from '#lib/utils/origin.ts';
+import type { OpenGraph } from '#lib/interfaces/openGraph.interface.ts';
 
 /**
  * The site's sharing card, or undefined. A site without one answers 204 (404
@@ -15,7 +15,7 @@ export const getOpenGraph = async (fetch: typeof globalThis.fetch = globalThis.f
 			throw new Error(`Response status: ${response.status}`);
 		}
 		const jsn = await response.json();
-		return jsn as OpenGraph
+		return jsn as OpenGraph;
 	} catch (error: any) {
 		console.error(error.message);
 	}

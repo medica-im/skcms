@@ -23,7 +23,8 @@ vi.mock('./data', () => ({
 }));
 
 /** The options the open list shows, as text. */
-const shown = () => [...document.querySelectorAll('.list-item')].map((e) => e.textContent?.trim() ?? '');
+const shown = () =>
+	[...document.querySelectorAll('.list-item')].map((e) => e.textContent?.trim() ?? '');
 
 describe('EffectorTypeSelect', () => {
 	it('offers professions and leaves out categories', async () => {

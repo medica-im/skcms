@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import type { OrganizationRole } from '$lib/interfaces/v2/association';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import type { OrganizationRole } from '#lib/interfaces/v2/association.ts';
 	import OrganizationRoleRow from './OrganizationRoleRow.svelte';
 	import CreateOrganizationRole from './CreateOrganizationRole.svelte';
 

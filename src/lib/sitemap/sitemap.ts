@@ -10,10 +10,10 @@
  * from ORIGIN -- the public address the instance is served under, and the same
  * value the canonical tag uses. No hostname is written here.
  */
-import { base } from '$app/paths';
-import { APP_URL } from '$lib/utils/appUrl';
-import { entrySlugPageUrl } from '$lib/utils/utils';
-import type { Entry } from '$lib/store/directoryStoreInterface';
+import { base } from '#lib/utils/base.ts';
+import { APP_URL } from '#lib/utils/appUrl.ts';
+import { entrySlugPageUrl } from '#lib/utils/utils.ts';
+import type { Entry } from '#lib/store/directoryStoreInterface.ts';
 
 export interface SitemapUrl {
 	loc: string;
@@ -54,19 +54,24 @@ export async function fetchJson<T>(url: string): Promise<{ body: T; totalPages: 
 export async function directoryUrls(origin: string): Promise<SitemapUrl[]> {
 	const { body: entries } = await fetchJson<Entry[]>(`${APP_URL}/api/v2/entries`);
 	return [
-		{ loc: `${origin}${base}/` },
+		{ loc: `${origin}${base()}/` },
 		// Active only, and strictly: the anonymous API returns inactive entries
 		// too, and their pages answer 404 -- each one a sitemap error in Search
 		// Console. `null` (never activated) is not active either.
-		...entries.filter((entry) => entry.active === true).map((entry) => ({
-			loc: `${origin}${entrySlugPageUrl(entry)}`,
-			lastmod: entry.updatedAt ? new Date(entry.updatedAt).toISOString() : undefined
-		}))
+		...entries
+			.filter((entry) => entry.active === true)
+			.map((entry) => ({
+				loc: `${origin}${entrySlugPageUrl(entry)}`,
+				lastmod: entry.updatedAt ? new Date(entry.updatedAt).toISOString() : undefined
+			}))
 	];
 }
 
 const escapeXml = (s: string) =>
-	s.replace(/[&<>"']/g, (c) => `&${{ '&': 'amp', '<': 'lt', '>': 'gt', '"': 'quot', "'": 'apos' }[c]};`);
+	s.replace(
+		/[&<>"']/g,
+		(c) => `&${{ '&': 'amp', '<': 'lt', '>': 'gt', '"': 'quot', "'": 'apos' }[c]};`
+	);
 
 export const renderSitemap = (urls: SitemapUrl[]) =>
 	'<?xml version="1.0" encoding="UTF-8"?>\n' +

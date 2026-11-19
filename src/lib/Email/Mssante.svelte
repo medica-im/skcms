@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	
 	import Fa from 'svelte-fa';
 	import { faAddressBook, faEnvelope } from '@fortawesome/free-regular-svg-icons';
 	import { faGlobe, faBlog } from '@fortawesome/free-solid-svg-icons';
-	import logo from '$lib/assets/images/logo_mssante_sigle.png';
+	import logo from '#lib/assets/images/logo_mssante_sigle.png';
 	import MssanteLogo from './MssanteLogo.svelte';
-	import Update from "$lib/Web/Email/Update.svelte";
-	import Delete from "$lib/Web/Email/Delete.svelte";
-	import type { Email } from '$lib/interfaces/email.interface';
+	import Update from "#lib/Web/Email/Update.svelte";
+	import Delete from "#lib/Web/Email/Delete.svelte";
+	import type { Email } from '#lib/interfaces/email.interface.ts';
 
 	let { data, editMode } : { data: Email; editMode: boolean } = $props();
 

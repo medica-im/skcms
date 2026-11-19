@@ -1,59 +1,78 @@
-import { categorizedFilteredEffectorsF, cardinalCategorizedFilteredEffectorsF } from '$lib/store/directoryStore.ts';
-import { filterInPlace } from '$lib/utils/utils';
-import { shuffle } from '$lib/helpers/random';
-import type { Entry } from '$lib/store/directoryStoreInterface';
-import type { Fetch } from '$lib/interfaces/fetch.ts';
-import type { Labels } from '$lib/interfaces/label.interace.ts';
+import {
+	categorizedFilteredEffectorsF,
+	cardinalCategorizedFilteredEffectorsF
+} from '#lib/store/directoryStore.ts';
+import { filterInPlace } from '#lib/utils/utils.ts';
+import { shuffle } from '#lib/helpers/random.ts';
+import type { Entry } from '#lib/store/directoryStoreInterface.ts';
+import type { Fetch } from '#lib/interfaces/fetch.ts';
+import type { Labels } from '#lib/interfaces/label.interace.ts';
 
-export const cardCatEntries = (entries: Entry[], labels: Labels, currentOrg: boolean | null=null, orgUid: string|null=null, types: string[]|null = null) => {
-    if (!entries) return null
-    const filteredEntries = entries.filter((e: Entry) => {
-        if (!e.active) return false;
-        if (currentOrg == true && orgUid) {
-            return e.memberships?.includes(orgUid)
-        } else if (currentOrg == false && orgUid) {
-            return !e.memberships?.includes(orgUid)
-        } else {
-            return true
-        }
-    });
-    if (types) {
-        filterInPlace(filteredEntries, (e: Entry) => {
-            return types.includes(e.effector_type.uid)
-        });
-    }
-    const categorizedEntries = categorizedFilteredEffectorsF(filteredEntries);
-    const cardinalCategorizedEntries = cardinalCategorizedFilteredEffectorsF(categorizedEntries, labels);
-    return cardinalCategorizedEntries;
+export const cardCatEntries = (
+	entries: Entry[],
+	labels: Labels,
+	currentOrg: boolean | null = null,
+	orgUid: string | null = null,
+	types: string[] | null = null
+) => {
+	if (!entries) return null;
+	const filteredEntries = entries.filter((e: Entry) => {
+		if (!e.active) return false;
+		if (currentOrg == true && orgUid) {
+			return e.memberships?.includes(orgUid);
+		} else if (currentOrg == false && orgUid) {
+			return !e.memberships?.includes(orgUid);
+		} else {
+			return true;
+		}
+	});
+	if (types) {
+		filterInPlace(filteredEntries, (e: Entry) => {
+			return types.includes(e.effector_type.uid);
+		});
+	}
+	const categorizedEntries = categorizedFilteredEffectorsF(filteredEntries);
+	const cardinalCategorizedEntries = cardinalCategorizedFilteredEffectorsF(
+		categorizedEntries,
+		labels
+	);
+	return cardinalCategorizedEntries;
 };
 
-export const filterEntries = (entries: Entry[], currentOrg: boolean | null=null, orgUid: string|null=null, types: string[]|null = null) => {
-    if (!entries) return null
-    const filteredEntries = entries.filter((e: Entry) => {
-        if (currentOrg == true && orgUid) {
-            return e.memberships?.includes(orgUid)
-        } else if (currentOrg == false && orgUid) {
-            return !e.memberships?.includes(orgUid)
-        } else {
-            return true
-        }
-    });
-    if (types) {
-        filterInPlace(filteredEntries, (e: Entry) => {
-            return types.includes(e.effector_type.uid)
-        });
-    }
-    return filteredEntries;
+export const filterEntries = (
+	entries: Entry[],
+	currentOrg: boolean | null = null,
+	orgUid: string | null = null,
+	types: string[] | null = null
+) => {
+	if (!entries) return null;
+	const filteredEntries = entries.filter((e: Entry) => {
+		if (currentOrg == true && orgUid) {
+			return e.memberships?.includes(orgUid);
+		} else if (currentOrg == false && orgUid) {
+			return !e.memberships?.includes(orgUid);
+		} else {
+			return true;
+		}
+	});
+	if (types) {
+		filterInPlace(filteredEntries, (e: Entry) => {
+			return types.includes(e.effector_type.uid);
+		});
+	}
+	return filteredEntries;
 };
 
 export const getAvatars = (entries: Entry[], uid: string) => {
-    let carousel = entries.filter((e: Entry)=>{
-        return (e.active && (e.avatar?.sm || e.avatar?.raw) && (e.memberships.includes(uid)))
-    });
-    shuffle(carousel);
-    return carousel
+	let carousel = entries.filter((e: Entry) => {
+		return e.active && (e.avatar?.sm || e.avatar?.raw) && e.memberships.includes(uid);
+	});
+	shuffle(carousel);
+	return carousel;
 };
 
 export const getMemberships = (entries: Entry[], uids: string[]) => {
-    return entries.filter((e: Entry) => { return uids.includes(e.uid) });
+	return entries.filter((e: Entry) => {
+		return uids.includes(e.uid);
+	});
 };

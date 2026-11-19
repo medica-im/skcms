@@ -1,5 +1,5 @@
-import { ORIGIN } from '$lib/utils/origin.ts';
-import type { AdminFields } from '$lib/Web/Entries/entriesTable';
+import { ORIGIN } from '#lib/utils/origin.ts';
+import type { AdminFields } from '#lib/Web/Entries/entriesTable.ts';
 import type { PageLoad } from './$types';
 
 // The page renders in the browser only: the table is a sortable, filterable
@@ -46,4 +46,4 @@ export const load: PageLoad = async ({ fetch }) => {
 	// with these seven-field rows — and every selector that reads
 	// commune, effector_type or facility crashed on undefined.
 	return { adminFields };
-}
+};

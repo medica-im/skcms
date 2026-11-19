@@ -1,17 +1,17 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import CreateEffectorTypeModal from '$lib/EffectorType/EffectorTypeModal.svelte';
+	import CreateEffectorTypeModal from '#lib/EffectorType/EffectorTypeModal.svelte';
 	import CreateEffectorType from '$routes/(common)/web/effector-types/create/+page.svelte';
-	import EditEffectorTypeModal from '$lib/EffectorType/EditEffectorTypeModal.svelte';
-	import DeleteEffectorTypeModal from '$lib/EffectorType/DeleteEffectorTypeModal.svelte';
-	import EffectorTypeRow from '$lib/EffectorType/EffectorTypeRow.svelte';
-	import { preloadData, pushState, goto } from '$app/navigation';
+	import EditEffectorTypeModal from '#lib/EffectorType/EditEffectorTypeModal.svelte';
+	import DeleteEffectorTypeModal from '#lib/EffectorType/DeleteEffectorTypeModal.svelte';
+	import EffectorTypeRow from '#lib/EffectorType/EffectorTypeRow.svelte';
+	import { preloadData, goto } from '$app/navigation';
 	import { faPlus } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import * as m from '$msgs';
-	import { normalize } from '$lib/helpers/stringHelpers.ts';
+	import { normalize } from '#lib/helpers/stringHelpers.ts';
 	import type { PageData } from './$types';
-	import { base } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 
 	let { data }: { data: PageData } = $props();
 	let effectorTypes = $derived(data.effectorTypes);
@@ -19,11 +19,8 @@
 	let filteredEffectorTypes = $derived.by(() => {
 		if (!searchTerm.trim()) return effectorTypes;
 		const term = normalize(searchTerm);
-		return effectorTypes?.filter((et) =>
-			normalize(et.name_fr).includes(term) ||
-			normalize(et.label_fr).includes(term) ||
-			et.synonyms_fr?.some(s => normalize(s).includes(term))
-		);
+
+		return effectorTypes?.filter((et) => normalize(et.name_fr).includes(term) || normalize(et.label_fr).includes(term) || et.synonyms_fr?.some((s) => normalize(s).includes(term)));
 	});
 	let editedUid = $derived(page.url.searchParams.get('edited'));
 	let editModal: EditEffectorTypeModal;
@@ -40,7 +37,7 @@
 			</p>
 		</div>
 		<a
-			href="{base}/web/effector-types/create"
+			href="{base()}/web/effector-types/create"
 			onclick={async (e) => {
 				if (e.shiftKey || e.metaKey || e.ctrlKey) return;
 				e.preventDefault();
@@ -48,7 +45,7 @@
 				const result = await preloadData(href);
 				if (result.type === 'loaded' && result.status === 200) {
 					createOpen = true;
-					pushState(href, { selected: result.data });
+					goto(href, { shallow: true, state: { selected: result.data } });
 				} else {
 					goto(href);
 				}
@@ -84,7 +81,7 @@
 	<div class="grid grid-cols-1 gap-2">
 		{#each filteredEffectorTypes ?? [] as effectorType (effectorType.uid)}
 			<EffectorTypeRow
-				{effectorType}
+				effectorType={effectorType}
 				highlighted={effectorType.uid === editedUid}
 				onEdit={(et) => editModal.handleEdit(et)}
 				onDelete={(et) => deleteModal.handleDelete(et)}

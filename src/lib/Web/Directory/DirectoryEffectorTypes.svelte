@@ -3,9 +3,9 @@
 	import Fa from 'svelte-fa';
 	import { faPen, faTriangleExclamation, faXmark } from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
-	import Dialog from '$lib/Web/Dialog.svelte';
-	import EffectorTypeSelect from '$lib/Web/EffectorTypeSelect.svelte';
-	import type { DirectorySettings } from '$lib/interfaces/v2/directory.ts';
+	import Dialog from '#lib/Web/Dialog.svelte';
+	import EffectorTypeSelect from '#lib/Web/EffectorTypeSelect.svelte';
+	import type { DirectorySettings } from '#lib/interfaces/v2/directory.ts';
 	import {
 		offerEffectorType,
 		withdrawEffectorType,

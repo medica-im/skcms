@@ -156,9 +156,8 @@ When('I scroll the dialog to the bottom', async ({ page }) => {
 		const scroller =
 			el.scrollHeight > el.clientHeight
 				? el
-				: Array.from(el.querySelectorAll('*')).find(
-						(n) => n.scrollHeight > n.clientHeight + 4
-					) ?? el;
+				: (Array.from(el.querySelectorAll('*')).find((n) => n.scrollHeight > n.clientHeight + 4) ??
+					el);
 		scroller.scrollTop = scroller.scrollHeight;
 	});
 	await page.waitForTimeout(400);

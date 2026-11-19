@@ -10,7 +10,7 @@ import { render } from 'vitest-browser-svelte';
 import { page as screen } from 'vitest/browser';
 import * as m from '$msgs';
 import EntryFacts from './EntryFacts.svelte';
-import { AA_TEXT, inScheme, legibility } from '$lib/testing/contrast.ts';
+import { AA_TEXT, inScheme, legibility } from '#lib/testing/contrast.ts';
 import '../../../app.postcss';
 
 document.body.dataset.theme = 'wintry';
@@ -36,21 +36,33 @@ describe('EntryFacts', () => {
 
 	it('puts the ages and the audiences under Public', async () => {
 		render(EntryFacts, { props: { entry: { ...none, age_min: 16, audiences: ['students'] } } });
-		await expect.element(section(m.DIRECTORY_ENTRY_PUBLIC()).getByText(m.DIRECTORY_AGE_FROM({ min: 16 }))).toBeVisible();
-		await expect.element(section(m.DIRECTORY_ENTRY_PUBLIC()).getByText(m.DIRECTORY_AUDIENCE_STUDENTS())).toBeVisible();
+		await expect
+			.element(section(m.DIRECTORY_ENTRY_PUBLIC()).getByText(m.DIRECTORY_AGE_FROM({ min: 16 })))
+			.toBeVisible();
+		await expect
+			.element(section(m.DIRECTORY_ENTRY_PUBLIC()).getByText(m.DIRECTORY_AUDIENCE_STUDENTS()))
+			.toBeVisible();
 		await expect.element(screen.getByText(m.DIRECTORY_ENTRY_ACCESS())).not.toBeInTheDocument();
 	});
 
 	it('says nothing of an age of 0 and up, which is everyone', async () => {
 		render(EntryFacts, { props: { entry: { ...none, age_min: 0, who_can_contact: 'anyone' } } });
 		await expect.element(screen.getByText(m.DIRECTORY_ENTRY_PUBLIC())).not.toBeInTheDocument();
-		await expect.element(screen.getByText(m.DIRECTORY_AGE_FROM({ min: 0 }))).not.toBeInTheDocument();
+		await expect
+			.element(screen.getByText(m.DIRECTORY_AGE_FROM({ min: 0 })))
+			.not.toBeInTheDocument();
 	});
 
 	it('puts who may contact it, the ways in, free and anonymous under Accès', async () => {
 		render(EntryFacts, {
 			props: {
-				entry: { ...none, who_can_contact: 'referral', access_modes: ['phone', 'home_visit'], free: true, anonymous_care: false }
+				entry: {
+					...none,
+					who_can_contact: 'referral',
+					access_modes: ['phone', 'home_visit'],
+					free: true,
+					anonymous_care: false
+				}
 			}
 		});
 		const access = section(m.DIRECTORY_ENTRY_ACCESS());
@@ -73,7 +85,9 @@ describe('EntryFacts legibility', () => {
 	for (const scheme of ['light', 'dark'] as const) {
 		it(`reads at AA in ${scheme} mode`, async () => {
 			await inScheme(scheme, async () => {
-				render(EntryFacts, { props: { entry: { ...none, age_min: 16, who_can_contact: 'anyone', free: true } } });
+				render(EntryFacts, {
+					props: { entry: { ...none, age_min: 16, who_can_contact: 'anyone', free: true } }
+				});
 				await expect.element(screen.getByText(m.DIRECTORY_ACCESS_ANYONE())).toBeVisible();
 				const unreadable = [...document.querySelectorAll('section li, section h4')]
 					.map((el) => ({ text: el.textContent?.trim(), ratio: legibility(el as HTMLElement) }))

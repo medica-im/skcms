@@ -2,13 +2,13 @@
 	import Fa from 'svelte-fa';
 	import { faUser, faCheck, faEye, faExclamationTriangle, faUserShield } from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
-	import type { User } from '$lib/interfaces/v2/user.ts';
-	import type { Role } from '$lib/interfaces/v2/invitee.ts';
+	import type { User } from '#lib/interfaces/v2/user.ts';
+	import type { Role } from '#lib/interfaces/v2/invitee.ts';
 	import type { UserWithRoles } from './ownerCreator.ts';
-	import { getEditMode } from '$lib/components/Directory/context';
-	import RoleBadge from '$lib/RoleBadge.svelte';
+	import { getEditMode } from '#lib/components/Directory/context.ts';
+	import RoleBadge from '#lib/RoleBadge.svelte';
 	import PatchOwnerModal from './PatchOwnerModal.svelte';
-	import { base } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 
 	/**
 	 * The owner / creator panel, told who to show rather than finding out.
@@ -45,7 +45,7 @@
 	const editMode = getEditMode();
 
 	function getPrimaryRole(user: User): Role {
-		return user.access.length > 0 ? (user.access[0].role as Role) : ('anonymous' as Role);
+		return user.access.length > 0 ? user.access[0].role as Role : 'anonymous' as Role;
 	}
 
 	/**
@@ -58,7 +58,7 @@
 	 * visible as an unresolvable owner.
 	 */
 	const unresolved = $derived.by(() => {
-		const named = [...new Set([...(owner ?? []), ...(creator ?? [])])];
+		const named = [...new Set([...owner ?? [], ...creator ?? []])];
 		const shown = new Set(users.map((u) => u.uid));
 		return named.filter((uid) => !shown.has(uid));
 	});
@@ -136,7 +136,7 @@
 							<span class="text-sm text-surface-500 truncate">{user.email || '—'}</span>
 
 							<!-- Role Badge -->
-							<RoleBadge {role} uniform />
+							<RoleBadge role={role} uniform />
 
 							<!-- Creator check -->
 							<div class="hidden sm:flex justify-center">
@@ -153,9 +153,11 @@
 							</div>
 
 							<!-- Link to user detail -->
-							<a href="{base}/web/users/{user.uid}" class="btn-icon btn-icon-sm variant-ghost-primary">
-								<Fa icon={faEye} />
-							</a>
+
+							<a
+								href="{base()}/web/users/{user.uid}"
+								class="btn-icon btn-icon-sm variant-ghost-primary"
+							><Fa icon={faEye} /></a>
 
 							<!-- Mobile badges -->
 							<div class="flex gap-2 px-3 sm:hidden">

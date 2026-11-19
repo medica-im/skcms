@@ -69,7 +69,15 @@ describe('fullFilteredEntriesF', () => {
 	});
 
 	it('limits to the given effector-type slugs', () => {
-		const result = fullFilteredEntriesF([], all, undefined, null, organization, [DOCTOR.slug], true);
+		const result = fullFilteredEntriesF(
+			[],
+			all,
+			undefined,
+			null,
+			organization,
+			[DOCTOR.slug],
+			true
+		);
 		expect(uids(result)).toEqual(['bob']);
 	});
 
@@ -209,11 +217,19 @@ describe('categorizedFilteredEffectorsF', () => {
 	});
 
 	it('sorts an entry without premises after the located ones, whatever its porteur is distance away', () => {
-		const line = { ...NURSE, uid: 'type-line', name: 'infirmier', immaterial: true } as typeof NURSE;
+		const line = {
+			...NURSE,
+			uid: 'type-line',
+			name: 'infirmier',
+			immaterial: true
+		} as typeof NURSE;
 		const help = makeEntry({ uid: 'help', name: 'Help', type: line, facilityUid: 'f-near' });
 		const near = makeEntry({ uid: 'near', name: 'Near', type: NURSE, facilityUid: 'f-near' });
 		const far = makeEntry({ uid: 'far', name: 'Far', type: NURSE, facilityUid: 'f-far' });
-		const result = categorizedFilteredEffectorsF([help, far, near], { 'f-near': 10, 'f-far': 5000 });
+		const result = categorizedFilteredEffectorsF([help, far, near], {
+			'f-near': 10,
+			'f-far': 5000
+		});
 		expect(result.get('infirmier')!.map((e) => e.uid)).toEqual(['near', 'far', 'help']);
 	});
 
@@ -293,9 +309,11 @@ describe('selector option lists', () => {
 	});
 
 	it('tagOfF lists the tags of the entries still in play', () => {
-		expect(tagOfF(all, null, [], [], null).map((t) => t.uid).sort()).toEqual(
-			[TAG_ONCO.uid, TAG_GERIA.uid].sort()
-		);
+		expect(
+			tagOfF(all, null, [], [], null)
+				.map((t) => t.uid)
+				.sort()
+		).toEqual([TAG_ONCO.uid, TAG_GERIA.uid].sort());
 		expect(tagOfF(all, null, [NURSE.uid], [], null).map((t) => t.uid)).toEqual([TAG_ONCO.uid]);
 	});
 });

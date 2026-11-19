@@ -73,7 +73,18 @@ beforeEach(() => {
 	write(join(main, 'gone.ts'), 'to be deleted\n');
 	write(join(main, '.gitignore'), 'ignored.txt\n');
 	git(main, 'add', '-A');
-	git(main, '-c', 'protocol.file.allow=always', 'submodule', 'add', '-q', '-b', 'site.fr', sub, 'sub');
+	git(
+		main,
+		'-c',
+		'protocol.file.allow=always',
+		'submodule',
+		'add',
+		'-q',
+		'-b',
+		'site.fr',
+		sub,
+		'sub'
+	);
 	git(main, 'commit', '-q', '-m', 'base');
 });
 afterEach(() => rmSync(dir, { recursive: true, force: true }));
@@ -109,7 +120,7 @@ describe('snapshot-tree.sh', () => {
 		expect(() => show(main, snapshot().SNAPSHOT, 'ignored.txt')).toThrow();
 	});
 
-	it("touches neither the index, the files nor HEAD", () => {
+	it('touches neither the index, the files nor HEAD', () => {
 		write(join(main, 'app.ts'), 'staged app\n');
 		git(main, 'add', 'app.ts');
 		write(join(main, 'app.ts'), 'working app\n');

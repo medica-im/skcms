@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
-	import type { SelectType } from '$lib/interfaces/select';
-	import Select from '$lib/Web/Select.svelte';
+	import type { FacilityOf } from '#lib/interfaces/facility.interface.ts';
+	import type { SelectType } from '#lib/interfaces/select.ts';
+	import Select from '#lib/Web/Select.svelte';
 	import { getSelectFacility, getFacilityChoice } from './context.ts';
 	import * as m from '$msgs';
 
@@ -49,18 +49,18 @@
 
 	function handleChange(selected: SelectType | undefined) {
 		if (selected) {
-			const url = new URL(page.url);
+			const url = new URL(page.url.href);
 			url.searchParams.set('facility', selected.value);
-			goto(`${url.pathname}?${url.searchParams}`, { noScroll: true, keepFocus: true });
+			goto(`${url.pathname}?${url.searchParams}`, { reset: false });
 		}
 	}
 
 	function handleClear(cleared: unknown) {
 		if (cleared) {
-			const url = new URL(page.url);
+			const url = new URL(page.url.href);
 			url.searchParams.delete('facility');
 			const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
-			goto(newUrl, { noScroll: true, keepFocus: true });
+			goto(newUrl, { reset: false });
 		}
 	}
 </script>

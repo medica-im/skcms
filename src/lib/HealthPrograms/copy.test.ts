@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { programsCopy, programsHeading } from './copy';
-import { cptsPostgres, mspPostgres } from '$lib/constants';
+import { cptsPostgres, mspPostgres } from '#lib/constants.ts';
 
 const org = 'la CPTS Lyon 3ème';
 

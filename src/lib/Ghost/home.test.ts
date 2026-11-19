@@ -34,7 +34,9 @@ describe('ghostHome', () => {
 	it('asks Ghost for the posts and the site together', async () => {
 		const loading = ghostHome(fetch, blog);
 
-		await vi.waitFor(() => expect(asked).toEqual(expect.arrayContaining(['posts', 'site'])), { timeout: 1000 });
+		await vi.waitFor(() => expect(asked).toEqual(expect.arrayContaining(['posts', 'site'])), {
+			timeout: 1000
+		});
 		release.posts([{ title: 'Canicule' }]);
 		release.site({ title: 'CPTS' });
 

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { ORIGIN } from '$lib/utils/origin.ts';
-	import { LiveDeliveries, setLiveDeliveries } from '$lib/Invitee/liveDeliveries.svelte';
+	import { ORIGIN } from '#lib/utils/origin.ts';
+	import { LiveDeliveries, setLiveDeliveries } from '#lib/Invitee/liveDeliveries.svelte.ts';
 
 	let { children }: { children: Snippet } = $props();
 

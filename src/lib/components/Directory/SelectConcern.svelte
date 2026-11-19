@@ -1,12 +1,12 @@
 <script lang="ts">
-	import Select from '$lib/Web/Select.svelte';
+	import Select from '#lib/Web/Select.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import * as m from '$msgs';
 	import { getSelectConcern } from './context';
-	import { normalize } from '$lib/store/directoryStore.ts';
-	import type { Concern } from '$lib/store/concernTree.ts';
-	import type { SelectType } from '$lib/interfaces/select';
+	import { normalize } from '#lib/store/directoryStore.ts';
+	import type { Concern } from '#lib/store/concernTree.ts';
+	import type { SelectType } from '#lib/interfaces/select.ts';
 
 	let {
 		concerns,
@@ -45,14 +45,14 @@
 	});
 
 	function pick(uid: string | null) {
-		const url = new URL(page.url);
+		const url = new URL(page.url.href);
 		if (uid) {
 			url.searchParams.set('concern', uid);
 		} else {
 			url.searchParams.delete('concern');
 		}
 		const query = url.searchParams.toString();
-		goto(query ? `${url.pathname}?${query}` : url.pathname, { noScroll: true, keepFocus: true });
+		goto(query ? `${url.pathname}?${query}` : url.pathname, { reset: false });
 	}
 </script>
 

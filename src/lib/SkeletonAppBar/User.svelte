@@ -1,14 +1,15 @@
 <script lang="ts">
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 
 	// SignOut builds action={`/${signOutPage}`} with no base path, so left at
 	// the default this form posts to the DOMAIN root — WordPress, on unipa.fr —
 	// and the HTML 404 that comes back fails as "Unexpected token '<'".
 	// `base` is '' for a site at its own root, so this stays "signout" there.
-	const signOutPath = base ? `${base.slice(1)}/signout` : 'signout';
+	const signOutPath = base() ? `${base().slice(1)}/signout` : 'signout';
 	import * as m from '$msgs';
 	import { page } from '$app/state';
-	import { userRoles } from '$lib/auth/roles';
+	import { userRoles } from '#lib/auth/roles.ts';
 	import { SignOut } from '@auth/sveltekit/components';
 	import { getDrawerStore } from '@skeletonlabs/skeleton';
 	import { popup } from '@skeletonlabs/skeleton';
@@ -48,9 +49,9 @@
 		if (!embedded) return;
 		drawerStore.close();
 	}
-	let session = $derived(page.data.session);
 
-	let signin = $derived(encodeURI(`${base}/signin?redirectTo=${page.url.pathname}`));
+	let session = $derived(page.data.session);
+	let signin = $derived(encodeURI(resolve(`signin?redirectTo=${page.url.pathname}`)));
 	const r = $derived(userRoles(page.data?.user?.role));
 	let isAdmin = $derived(
 		page.data?.user?.role === 'superuser' || page.data?.user?.role === 'administrator'
@@ -127,81 +128,82 @@
 			<!-- popup -->
 			<!-- prettier-ignore -->
 			<div class="card p-4 w-60 shadow-xl" data-popup="user">
-			<nav class="list-nav">
-				<ul>
+				<nav class="list-nav">
+					<ul>
 
-					<li>
-						<a href="{base}/dashboard"
-						title={session.user.name}
-						>
-							<span class="w-6 text-center"><Fa icon={faUser} /></span>
-							<span>{session.user.name}</span>
-						</a>
-						<a href="{base}/web/guide-utilisation">
-							<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
-							<span>Guide d'utilisation</span>
-						</a>
-						{#if isStaffOrHigher}
-						<a href="{base}/web/entry">
-							<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
-							<span>Créer une entrée</span>
-						</a>
-						{/if}
-						{#if isAdmin}
-						<a href="{base}/web/entries">
-							<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
-							<span>Toutes les entrées</span>
-						</a>
-						<a href="{base}/web/invite/invitees">
-							<span class="w-6 text-center"><Fa icon={faEnvelope} /></span>
-							<span class="capitalize">{m.invitation({ count: 2 })}</span>
-						</a>
-						<a href="{base}/web/invite/email-template">
-							<span class="w-6 text-center"><Fa icon={faEnvelopeOpenText} /></span>
-							<span>{m.EMAIL_TEMPLATE_NAV()}</span>
-						</a>
-							<a href="{base}/web/users">
-								<span class="w-6 text-center"><Fa icon={faUsers} /></span>
-								<span>Utilisateurs</span>
+						<li>
+							<a
+								href="{base()}/dashboard"
+								title={session.user.name}
+							>
+								<span class="w-6 text-center"><Fa icon={faUser} /></span>
+								<span>{session.user.name}</span>
 							</a>
-						{/if}
-						{#if isAdmin}
-						<a href="{base}/web/association">
-							<span class="w-6 text-center"><BookUser size={16} /></span>
-							<span>{m.ASSOCIATION_TITLE()}</span>
-						</a>
-						<a href="{base}/web/directories">
-							<span class="w-6 text-center"><Fa icon={faAddressBook} /></span>
-							<span>{m.DIRECTORIES_NAV()}</span>
-						</a>
-						<a href="{base}/web/quality">
-							<span class="w-6 text-center"><Fa icon={faClipboardCheck} /></span>
-							<span>{m.QUALITY_NAV()}</span>
-						</a>
-						{/if}
-						{#if r.SuperUser}
-						<a href="{base}/web/effector-types">
-							<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
-							<span>{m.CATEGORIES()}</span>
-						</a>
-						<a href="{base}/web/email">
-							<span class="w-6 text-center"><Fa icon={faAt} /></span>
-							<span>Email</span>
-						</a>
-						<a href="{base}/web/clone">
-							<span class="w-6 text-center"><Fa icon={faCopy} /></span>
-							<span>Cloner une fiche</span>
-						</a>
-						{/if}
-						<!--hr class="my-4"-->
-						<!--a href="/{ facility.category.slug }/projet-de-sante">
+							<a href="{base()}/web/guide-utilisation">
+								<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
+								<span>Guide d'utilisation</span>
+							</a>
+							{#if isStaffOrHigher}
+								<a href="{base()}/web/entry">
+									<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
+									<span>Créer une entrée</span>
+								</a>
+							{/if}
+							{#if isAdmin}
+								<a href="{base()}/web/entries">
+									<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
+									<span>Toutes les entrées</span>
+								</a>
+								<a href="{base()}/web/invite/invitees">
+									<span class="w-6 text-center"><Fa icon={faEnvelope} /></span>
+									<span class="capitalize">{m.invitation({ count: 2 })}</span>
+								</a>
+								<a href="{base()}/web/invite/email-template">
+									<span class="w-6 text-center"><Fa icon={faEnvelopeOpenText} /></span>
+									<span>{m.EMAIL_TEMPLATE_NAV()}</span>
+								</a>
+								<a href="{base()}/web/users">
+									<span class="w-6 text-center"><Fa icon={faUsers} /></span>
+									<span>Utilisateurs</span>
+								</a>
+							{/if}
+							{#if isAdmin}
+								<a href="{base()}/web/association">
+									<span class="w-6 text-center"><BookUser size={16} /></span>
+									<span>{m.ASSOCIATION_TITLE()}</span>
+								</a>
+								<a href="{base()}/web/directories">
+									<span class="w-6 text-center"><Fa icon={faAddressBook} /></span>
+									<span>{m.DIRECTORIES_NAV()}</span>
+								</a>
+								<a href="{base()}/web/quality">
+									<span class="w-6 text-center"><Fa icon={faClipboardCheck} /></span>
+									<span>{m.QUALITY_NAV()}</span>
+								</a>
+							{/if}
+							{#if r.SuperUser}
+								<a href="{base()}/web/effector-types">
+									<span class="w-6 text-center"><Fa icon={faHexagonNodes} /></span>
+									<span>{m.CATEGORIES()}</span>
+								</a>
+								<a href="{base()}/web/email">
+									<span class="w-6 text-center"><Fa icon={faAt} /></span>
+									<span>Email</span>
+								</a>
+								<a href="{base()}/web/clone">
+									<span class="w-6 text-center"><Fa icon={faCopy} /></span>
+									<span>Cloner une fiche</span>
+								</a>
+							{/if}
+							<!--hr class="my-4"-->
+							<!--a href="/{ facility.category.slug }/projet-de-sante">
 							<span class="w-6 text-center"><Fa icon={faBookMedical} /></span>
 							<span>{m.NAVBAR_HEALTH_PROJECT()}</span>
 						</a-->
-					</li>
-				</ul>
-			</nav>
-		</div>
+						</li>
+					</ul>
+				</nav>
+			</div>
 		</div>
 	</div>
 {:else}
@@ -209,9 +211,9 @@
 		class="{classesActive(signin)} btn btn-sm lg:btn-md hover:variant-soft-primary min-h-11"
 		href={signin}
 		title={m.NAVBAR_LOGIN()}
-		><span class="hidden lg:inline-block align-text-bottom"
-			><Fa icon={faRightToBracket} size="lg" /></span
-		><span class="lg:hidden align-text-bottom"><Fa icon={faRightToBracket} size="sm" /></span>
-		<span class="hidden xl:inline-block">{m.NAVBAR_LOGIN()}</span></a
 	>
+		<span class="hidden lg:inline-block align-text-bottom"><Fa icon={faRightToBracket} size="lg" /></span>
+		<span class="lg:hidden align-text-bottom"><Fa icon={faRightToBracket} size="sm" /></span>
+		<span class="hidden xl:inline-block">{m.NAVBAR_LOGIN()}</span>
+	</a>
 {/if}

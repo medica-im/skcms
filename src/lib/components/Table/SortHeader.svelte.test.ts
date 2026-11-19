@@ -48,7 +48,13 @@ describe('SortHeader', () => {
 	// value) is disabled rather than clickable-and-useless.
 	it('can be disabled, and then does nothing when pressed', async () => {
 		const onclick = vi.fn();
-		render(SortHeader, { label: 'Utilisation', active: false, direction: 'desc', onclick, disabled: true });
+		render(SortHeader, {
+			label: 'Utilisation',
+			active: false,
+			direction: 'desc',
+			onclick,
+			disabled: true
+		});
 		const button = page.getByRole('button', { name: 'Utilisation' });
 		await expect.element(button).toBeDisabled();
 		await button.click({ force: true });

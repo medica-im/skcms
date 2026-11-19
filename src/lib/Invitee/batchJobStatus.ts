@@ -35,7 +35,11 @@ export function batchJobStatus(
 		case 'failed':
 			return { icon: faXmark, className: 'text-error-500', label: m.BATCH_JOB_FAILED() };
 		case 'processing':
-			return { icon: faSpinner, className: 'text-primary-500', label: m.BATCH_INVITEE_PROCESSING() };
+			return {
+				icon: faSpinner,
+				className: 'text-primary-500',
+				label: m.BATCH_INVITEE_PROCESSING()
+			};
 		default:
 			return { icon: faClock, className: 'text-surface-500', label: m.BATCH_JOB_PENDING() };
 	}

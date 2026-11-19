@@ -1,4 +1,4 @@
-import type { Role } from '$lib/interfaces/v2/invitee';
+import type { Role } from '#lib/interfaces/v2/invitee.ts';
 
 /**
  * Which roles a caller may offer to grant.
@@ -15,13 +15,7 @@ import type { Role } from '$lib/interfaces/v2/invitee';
  */
 
 /** Least to most privileged. */
-export const HIERARCHY: Role[] = [
-	'anonymous',
-	'registered',
-	'staff',
-	'administrator',
-	'superuser'
-];
+export const HIERARCHY: Role[] = ['anonymous', 'registered', 'staff', 'administrator', 'superuser'];
 
 export function rank(role: string): number {
 	return HIERARCHY.indexOf(role as Role);
@@ -45,9 +39,7 @@ export function grantableRoles(actor: string, target: string): Role[] {
 	// direction — so a peer or a superuser is off limits entirely.
 	if (actor !== 'superuser' && rank(target) >= rank(actor)) return [];
 
-	const grantable = HIERARCHY.filter(
-		(role) => role !== 'anonymous' && rank(role) <= rank(actor)
-	);
+	const grantable = HIERARCHY.filter((role) => role !== 'anonymous' && rank(role) <= rank(actor));
 
 	if (actor === 'superuser') return grantable;
 

@@ -6,11 +6,11 @@
  * winning when there is one.
  */
 import { redirect, type Cookies } from '@sveltejs/kit';
-import { base } from '$app/paths';
-import { browser } from '$app/environment';
-import { authReq } from '$lib/utils/request.ts';
-import { variables } from '$lib/utils/constants.ts';
-import { APP_URL } from '$lib/utils/appUrl';
+import { resolve } from '$app/paths';
+import { browser } from '$app/env';
+import { authReq } from '#lib/utils/request.ts';
+import { variables } from '#lib/utils/constants.ts';
+import { APP_URL } from '#lib/utils/appUrl.ts';
 import type { BatchKind } from './batchJobStatus';
 
 export interface BatchJobListItem {
@@ -34,7 +34,12 @@ export interface BatchJobListItem {
 const path = (kind: BatchKind) => `/api/v2/batch-invitees?kind=${kind}`;
 
 export function serverLoadJobs(kind: BatchKind) {
-	return async ({ url, cookies, locals, fetch }: {
+	return async ({
+		url,
+		cookies,
+		locals,
+		fetch
+	}: {
 		url: URL;
 		cookies: Cookies;
 		locals: App.Locals;
@@ -42,7 +47,7 @@ export function serverLoadJobs(kind: BatchKind) {
 	}) => {
 		const session = await locals.auth();
 		if (!session) {
-			redirect(303, `${base}/signin?redirectTo=${url.pathname}`);
+			redirect(303, resolve(`signin?redirectTo=${url.pathname}`));
 		}
 
 		let jobs: BatchJobListItem[] | undefined;
@@ -59,7 +64,10 @@ export function serverLoadJobs(kind: BatchKind) {
 }
 
 export function universalLoadJobs(kind: BatchKind) {
-	return async ({ fetch, data }: {
+	return async ({
+		fetch,
+		data
+	}: {
 		fetch: typeof globalThis.fetch;
 		data: { session: unknown; jobs?: BatchJobListItem[] };
 	}) => {

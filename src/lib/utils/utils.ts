@@ -1,6 +1,7 @@
-import { base } from '$app/paths';
-import { cptsPostgres, mspPostgres } from '$lib/constants';
-import type { Entry } from '$lib/store/directoryStoreInterface.ts';
+import { resolve } from '$app/paths';
+import { base } from '#lib/utils/base.ts';
+import { cptsPostgres, mspPostgres } from '#lib/constants.ts';
+import type { Entry } from '#lib/store/directoryStoreInterface.ts';
 
 // Replaces the locale slug in a URL.
 //
@@ -10,23 +11,24 @@ import type { Entry } from '$lib/store/directoryStoreInterface.ts';
 // Otherwise (default) the URL relative to the base is returned.
 // e.g. https://mywebsite.com/en/blog/article-1 => /de/blog/article-1
 export const replaceLocaleInUrl = (url: URL, locale: string, full = false): string => {
-	const [, , ...rest] = url.pathname.split('/')
-	const new_pathname = `/${[locale, ...rest].join('/')}`
+	const [, , ...rest] = url.pathname.split('/');
+	const new_pathname = `/${[locale, ...rest].join('/')}`;
 	if (!full) {
-		return `${new_pathname}${url.search}`
+		return `${new_pathname}${url.search}`;
 	}
-	const newUrl = new URL(url.toString())
-	newUrl.pathname = new_pathname
-	return newUrl.toString()
-}
+	const newUrl = new URL(url.toString());
+	newUrl.pathname = new_pathname;
+	return newUrl.toString();
+};
 
 export const isObjectEmpty = (obj: Object) => {
 	for (var i in obj) return false;
 	return true;
-}
+};
 
 export function filterInPlace(array: any[], fn: Function) {
-	let from = 0, to = 0;
+	let from = 0,
+		to = 0;
 	while (from < array.length) {
 		if (fn(array[from])) {
 			array[to] = array[from];
@@ -38,10 +40,10 @@ export function filterInPlace(array: any[], fn: Function) {
 }
 
 /** assumes array elements are primitive types
-* check whether 2 arrays are equal sets.
-* @param  {} a1 is an array
-* @param  {} a2 is an array
-*/
+ * check whether 2 arrays are equal sets.
+ * @param  {} a1 is an array
+ * @param  {} a2 is an array
+ */
 export function areArraysEqualSets(a1: string[], a2: string[]) {
 	const superSet = {};
 	for (const i of a1) {
@@ -71,16 +73,21 @@ export const getByValue = (map: Map<string, string[]>, searchValue: string[]) =>
 			return key;
 		}
 	}
-}
+};
 
-export const mapToString = (map: Map<string,object>, start?: number|undefined, stop?: number|undefined) => {
-	if ( map==undefined ) return "undefined"
+export const mapToString = (
+	map: Map<string, object>,
+	start?: number | undefined,
+	stop?: number | undefined
+) => {
+	if (map == undefined) return 'undefined';
 	const _array = [];
 	for (let [key, value] of map) {
-        _array.push(key + ' = ' + JSON.stringify(value));
-    };
-	return _array.slice(start, stop).join('\n')
-}
+		_array.push(key + ' = ' + JSON.stringify(value));
+	}
+
+	return _array.slice(start, stop).join('\n');
+};
 
 export const entryPageUrl = (entry: Entry, org_category: string | null = null): string => {
 	const typeSlug = entry.effector_type.slug;
@@ -88,25 +95,25 @@ export const entryPageUrl = (entry: Entry, org_category: string | null = null): 
 	const nameSlug = entry.slug;
 	const facilitySlug = entry.facility?.slug;
 	if (org_category == 'msp') {
-		return `${base}/${facilitySlug}/${typeSlug}/${nameSlug}`;
+		return `${base()}/${facilitySlug}/${typeSlug}/${nameSlug}`;
 	}
-	return `${base}/${typeSlug}/${communeSlug}/${nameSlug}`;
-}
+	return `${base()}/${typeSlug}/${communeSlug}/${nameSlug}`;
+};
 
 // Typed on the one field it reads rather than on Entry, so an EntryFull — which
 // carries entrySlug too, but not commune or department — can be linked without
 // first looking the shorter Entry up just to satisfy the signature.
 export const entrySlugPageUrl = (entry: Pick<Entry, 'entrySlug'>) => {
-	return `${base}/e/${entry.entrySlug}`;
-}
+	return resolve(`e/${entry.entrySlug}`);
+};
 
 // Slug first, uid as the fallback: the address every other /sites/ link in the
 // app is written with, kept in one place so they cannot drift apart. Typed on
 // the two fields it reads, like entrySlugPageUrl above, so a FacilityOf or any
 // other trimmed shape can be linked without widening it to a full Facility.
 export const facilityPageUrl = (facility: { slug?: string | null; uid?: string | null }) => {
-	return `${base}/sites/${facility.slug || facility.uid}`;
-}
+	return resolve(`sites/${facility.slug || facility.uid}`);
+};
 
 export function isExpired(ttl: number, cacheTime: number): boolean {
 	const elapsed = Date.now() - cacheTime;
@@ -116,30 +123,30 @@ export function isExpired(ttl: number, cacheTime: number): boolean {
 export function logMap(map: Map<any, any>) {
 	const _arr = [];
 	for (const [key, value] of map) {
-        _arr.push(key + ' = ' + JSON.stringify(value))
-    };
-	return _arr.join('\n')
+		_arr.push(key + ' = ' + JSON.stringify(value));
+	}
+	return _arr.join('\n');
 }
 
 export function getHostnameFromURL(str: string) {
-		const regexp = /(http[s]?:\/\/)?([^\/\s]+)(.*)/g
-  		const array = [...str.matchAll(regexp)];
-  		return array.map(m => m[2]);
+	const regexp = /(http[s]?:\/\/)?([^\/\s]+)(.*)/g;
+	const array = [...str.matchAll(regexp)];
+	return array.map((m) => m[2]);
 }
 
 export function entryUrl(entry: Entry, org: string) {
-		let typeSlug = entry.effector_type.slug;
-		let facilitySlug = entry.facility.slug;
-		const communeSlug = entry.commune.slug;
-		let nameSlug = entry.slug;
-		if ( mspPostgres === org ) {
-			return `${base}/${facilitySlug}/${typeSlug}/${nameSlug}`;
-		} else if ( cptsPostgres === org ) {
-			return `${base}/${typeSlug}/${communeSlug}/${nameSlug}`;
-		}
+	let typeSlug = entry.effector_type.slug;
+	let facilitySlug = entry.facility.slug;
+	const communeSlug = entry.commune.slug;
+	let nameSlug = entry.slug;
+	if (mspPostgres === org) {
+		return `${base()}/${facilitySlug}/${typeSlug}/${nameSlug}`;
+	} else if (cptsPostgres === org) {
+		return `${base()}/${typeSlug}/${communeSlug}/${nameSlug}`;
 	}
+}
 
-	// See: https://jsperf.com/array-filter-unique/13
+// See: https://jsperf.com/array-filter-unique/13
 /** Filter an array to only contain unique items.
  * @argument selector Select what to compare on each given item. Defaults to the item itself.
  * @example
@@ -148,11 +155,11 @@ export function entryUrl(entry: Entry, org: string) {
  * @returns The actual filter function to be used with `array.filter(<here>)`.
  */
 export function arrayFilterUnique<T>(
-	selector: (i: T) => string | number = String,
+	selector: (i: T) => string | number = String
 ): (element: T) => boolean {
 	if (arguments.length > 1) {
 		throw new Error(
-			"array-filter-unique has to be called as a function like `array.filter(arrayFilterUnique(<optional arg>))`",
+			'array-filter-unique has to be called as a function like `array.filter(arrayFilterUnique(<optional arg>))`'
 		);
 	}
 

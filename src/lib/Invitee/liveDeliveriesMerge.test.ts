@@ -10,12 +10,18 @@ import { describe, expect, it } from 'vitest';
 import { withLatest } from './liveDeliveriesMerge';
 
 const sent = { status: 'sent', at: '2026-10-06T12:00:00Z', error: null } as const;
-const bounced = { status: 'bounced', at: '2026-10-06T12:00:09Z', error: '550 User unknown' } as const;
+const bounced = {
+	status: 'bounced',
+	at: '2026-10-06T12:00:09Z',
+	error: '550 User unknown'
+} as const;
 
 describe('withLatest', () => {
 	it('replaces a pushed invitation’s delivery', () => {
 		const list = [{ uid: 'a', name: 'A', emailDelivery: sent }];
-		expect(withLatest(list, { a: bounced })).toEqual([{ uid: 'a', name: 'A', emailDelivery: bounced }]);
+		expect(withLatest(list, { a: bounced })).toEqual([
+			{ uid: 'a', name: 'A', emailDelivery: bounced }
+		]);
 	});
 
 	it('leaves the others as loaded, the same objects', () => {
@@ -25,7 +31,9 @@ describe('withLatest', () => {
 	});
 
 	it('gives a delivery to an invitation loaded without one', () => {
-		expect(withLatest([{ uid: 'a', emailDelivery: null }], { a: sent })![0].emailDelivery).toEqual(sent);
+		expect(withLatest([{ uid: 'a', emailDelivery: null }], { a: sent })![0].emailDelivery).toEqual(
+			sent
+		);
 	});
 
 	it('passes a missing list through', () => {

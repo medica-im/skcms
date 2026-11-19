@@ -24,7 +24,7 @@ const draft = {
 
 const example = { name: 'Camille Fontaine', email: 'camille.fontaine@example.org' };
 
-const answer =(request: { invitee_name?: string; invitee_email?: string }) => ({
+const answer = (request: { invitee_name?: string; invitee_email?: string }) => ({
 	success: true,
 	status: 200,
 	data: {
@@ -36,13 +36,14 @@ const answer =(request: { invitee_name?: string; invitee_email?: string }) => ({
 });
 
 const lastRequest = () => vi.mocked(previewEmailTemplate).mock.lastCall?.[0];
-const name = () => page.getByRole('textbox', { name: "Nom de la personne invitée" });
+const name = () => page.getByRole('textbox', { name: 'Nom de la personne invitée' });
 const email = () => page.getByRole('textbox', { name: 'Adresse e-mail de la personne invitée' });
 
 describe('TemplatePreview', () => {
 	beforeEach(() => {
 		vi.mocked(previewEmailTemplate).mockReset();
-		vi.mocked(previewEmailTemplate).mockImplementation((async (request: any) => answer(request)) as any);
+		vi.mocked(previewEmailTemplate).mockImplementation((async (request: any) =>
+			answer(request)) as any);
 	});
 
 	it('opens on an example name and address, already rendered', async () => {
@@ -51,7 +52,10 @@ describe('TemplatePreview', () => {
 		await expect.element(email()).toHaveValue('camille.fontaine@example.org');
 		await expect
 			.poll(() => lastRequest())
-			.toMatchObject({ invitee_name: 'Camille Fontaine', invitee_email: 'camille.fontaine@example.org' });
+			.toMatchObject({
+				invitee_name: 'Camille Fontaine',
+				invitee_email: 'camille.fontaine@example.org'
+			});
 		await expect
 			.element(page.getByTestId('preview-subject'))
 			.toHaveTextContent('Invitation camille.fontaine@example.org');

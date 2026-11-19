@@ -12,7 +12,7 @@ const SITE_DOMAIN = process.env.SEED_SITE_DOMAIN ?? new URL(apiOrigin()).hostnam
 export const ctx: { uid?: string; slug?: string } = {};
 
 export const editDialog = (page: import('@playwright/test').Page) =>
-	page.locator('dialog[open]').filter({ has: page.locator('input[name="latitude"]') });
+	page.locator('dialog[open]').filter({ has: page.locator('input[data-field="latitude"]') });
 
 /**
  * A facility of our own: these scenarios change its position and fields, and a
@@ -146,12 +146,15 @@ When('I open the page of that facility in edit mode', async ({ page }) => {
 Given('I open the edit dialog of that facility', async ({ page }) => {
 	await page.goto(`/sites/${ctx.slug}`, { waitUntil: 'networkidle' });
 	await enterEditMode(page);
-	await page.getByRole('button', { name: /Modifier l'établissement/i }).first().click();
+	await page
+		.getByRole('button', { name: /Modifier l'établissement/i })
+		.first()
+		.click();
 	await expect(editDialog(page)).toBeVisible({ timeout: 8_000 });
 });
 
 When('I change its building to {string}', async ({ page }, building: string) => {
-	const field = editDialog(page).locator('input[name="building"]');
+	const field = editDialog(page).locator('input[data-field="building"]');
 	await field.fill(building);
 	await field.blur();
 });
@@ -179,7 +182,7 @@ When('I choose to save without a position', async ({ page }) => {
 Then('the geocoder is highlighted and has the focus', async ({ page }) => {
 	await expect(page.getByTestId('missing-gps-dialog')).toBeHidden();
 	await expect(editDialog(page).getByTestId('geocoder-glow')).toHaveAttribute('data-glow', 'true');
-	await expect(editDialog(page).locator('input[name="geocoder"]')).toBeFocused();
+	await expect(editDialog(page).locator('input[data-field="geocoder"]')).toBeFocused();
 });
 
 Then('the facility still has no saved building', async ({}) => {
@@ -235,6 +238,8 @@ When('I click the map in the dialog', async ({ page }) => {
 
 Then('the latitude and longitude fields are filled', async ({ page }) => {
 	for (const name of ['latitude', 'longitude']) {
-		await expect(editDialog(page).locator(`input[name="${name}"]`)).toHaveValue(/^-?\d+(\.\d+)?$/);
+		await expect(editDialog(page).locator(`input[data-field="${name}"]`)).toHaveValue(
+			/^-?\d+(\.\d+)?$/
+		);
 	}
 });

@@ -10,8 +10,8 @@ import { render } from 'vitest-browser-svelte';
 import { page as screen } from 'vitest/browser';
 import * as m from '$msgs';
 import EntryOffers from './EntryOffers.svelte';
-import { OFFERS } from '$lib/store/directoryStoreInterface.ts';
-import { AA_TEXT, inScheme, legibility } from '$lib/testing/contrast.ts';
+import { OFFERS } from '#lib/store/directoryStoreInterface.ts';
+import { AA_TEXT, inScheme, legibility } from '#lib/testing/contrast.ts';
 import '../../../app.postcss';
 
 document.body.dataset.theme = 'wintry';
@@ -27,7 +27,8 @@ beforeEach(() => {
 	nav.invalidate.mockResolvedValue(undefined);
 });
 
-const chips = () => screen.getByRole('list', { name: m.DIRECTORY_ENTRY_OFFERS() }).getByRole('listitem').elements();
+const chips = () =>
+	screen.getByRole('list', { name: m.DIRECTORY_ENTRY_OFFERS() }).getByRole('listitem').elements();
 
 describe('EntryOffers', () => {
 	it('shows nothing when the entry does not say what it offers', async () => {
@@ -35,8 +36,10 @@ describe('EntryOffers', () => {
 		await expect.element(screen.getByText(m.DIRECTORY_ENTRY_OFFERS())).not.toBeInTheDocument();
 	});
 
-	it('shows UNAFAM\'s offers as short chips, in the order of the vocabulary', async () => {
-		render(EntryOffers, { props: { offers: ['advocacy', 'listening', 'peer_support', 'information', 'training'] } });
+	it("shows UNAFAM's offers as short chips, in the order of the vocabulary", async () => {
+		render(EntryOffers, {
+			props: { offers: ['advocacy', 'listening', 'peer_support', 'information', 'training'] }
+		});
 		expect(chips().map((chip) => chip.textContent?.trim())).toEqual([
 			m.DIRECTORY_OFFER_LISTENING(),
 			m.DIRECTORY_OFFER_INFORMATION(),
@@ -48,7 +51,9 @@ describe('EntryOffers', () => {
 	});
 
 	it('tells a stay day and night from a day at the hospital', async () => {
-		render(EntryOffers, { props: { offers: ['day_hospitalisation', 'full_time_hospitalisation'] } });
+		render(EntryOffers, {
+			props: { offers: ['day_hospitalisation', 'full_time_hospitalisation'] }
+		});
 		expect(chips().map((chip) => chip.textContent?.trim())).toEqual([
 			m.DIRECTORY_OFFER_FULL_TIME_HOSPITALISATION(),
 			m.DIRECTORY_OFFER_DAY_HOSPITALISATION()
@@ -60,7 +65,9 @@ describe('EntryOffers', () => {
 	it('has a label and an icon for every offer of the vocabulary', async () => {
 		render(EntryOffers, { props: { offers: [...OFFERS] } });
 		expect(chips()).toHaveLength(OFFERS.length);
-		expect(chips().every((chip) => chip.textContent?.trim() && chip.querySelector('svg'))).toBe(true);
+		expect(chips().every((chip) => chip.textContent?.trim() && chip.querySelector('svg'))).toBe(
+			true
+		);
 	});
 
 	for (const scheme of ['light', 'dark'] as const) {
@@ -100,7 +107,10 @@ describe('editing what an entry offers', () => {
 		await expect.element(save()).toBeDisabled();
 		await box(m.DIRECTORY_OFFER_TRAINING()).click();
 		await save().click();
-		expect(remote.patchCommand).toHaveBeenCalledWith({ entry: 'e1', offers: ['listening', 'training'] });
+		expect(remote.patchCommand).toHaveBeenCalledWith({
+			entry: 'e1',
+			offers: ['listening', 'training']
+		});
 		await expect.element(screen.getByText(m.ENTRY_OFFERS_SAVED())).toBeVisible();
 		expect(nav.invalidate).toHaveBeenCalledWith('entry:now');
 	});
@@ -117,7 +127,10 @@ describe('editing what an entry offers', () => {
 	it('gives every box a 44px target', async () => {
 		render(EntryOffers, { props: { offers: null, entryUid: 'e1', editMode: true } });
 		await pen().click();
-		const small = screen.getByTestId('entry-offers-dialog').getByRole('checkbox').elements()
+		const small = screen
+			.getByTestId('entry-offers-dialog')
+			.getByRole('checkbox')
+			.elements()
 			.map((el) => el.closest('label')!.getBoundingClientRect().height)
 			.filter((height) => height < 44);
 		expect(small).toEqual([]);
@@ -129,6 +142,8 @@ describe('editing what an entry offers', () => {
 		await pen().click();
 		await box(m.DIRECTORY_OFFER_LISTENING()).click();
 		await save().click();
-		await expect.element(screen.getByTestId('entry-offers-refusal')).toHaveTextContent(m.ENTRY_DESCRIPTION_ERROR_NOT_ALLOWED());
+		await expect
+			.element(screen.getByTestId('entry-offers-refusal'))
+			.toHaveTextContent(m.ENTRY_DESCRIPTION_ERROR_NOT_ALLOWED());
 	});
 });

@@ -34,7 +34,8 @@ function fake(name: string, body: string): string {
 }
 
 describe('neo4j-health.sh', () => {
-	const compose = (ps: string) => fake('compose', `[[ "$1 $2" == "ps -q" ]] && printf '%s\\n' '${ps}'`);
+	const compose = (ps: string) =>
+		fake('compose', `[[ "$1 $2" == "ps -q" ]] && printf '%s\\n' '${ps}'`);
 
 	function health(composeCmd: string, dockerCmd: string) {
 		const result = spawnSync('bash', [NEO4J_HEALTH, 'neo4j'], {

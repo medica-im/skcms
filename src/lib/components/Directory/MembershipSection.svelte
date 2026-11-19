@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import Fa from 'svelte-fa';
 	import { faPeopleGroup } from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
-	import Membership from '$lib/Membership/Membership.svelte';
-	import PatchMembershipModal from '$lib/Web/Entry/Membership/PatchMembershipModal.svelte';
-	import type { Entry } from '$lib/store/directoryStoreInterface';
+	import Membership from '#lib/Membership/Membership.svelte';
+	import PatchMembershipModal from '#lib/Web/Entry/Membership/PatchMembershipModal.svelte';
+	import type { Entry } from '#lib/store/directoryStoreInterface.ts';
 
 	let { memberships, editMode, uid = '' }: { memberships: Entry[] | null; editMode: boolean; uid?: string } = $props();
 

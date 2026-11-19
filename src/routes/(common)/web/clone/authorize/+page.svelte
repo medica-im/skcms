@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { userRoles } from '$lib/auth/roles.ts';
+	import { userRoles } from '#lib/auth/roles.ts';
 	import { mintExportToken } from '../../../../../clone.remote.ts';
 
 	let { data } = $props();

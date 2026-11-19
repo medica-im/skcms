@@ -41,9 +41,9 @@
 		fullFilteredEntriesF,
 		filteredEntriesF,
 		categorizedFilteredEffectorsF
-	} from '$lib/store/directoryStore.ts';
-	import type { Entry, Situation } from '$lib/store/directoryStoreInterface.ts';
-	import type { Organization } from '$lib/interfaces/organization.ts';
+	} from '#lib/store/directoryStore.ts';
+	import type { Entry, Situation } from '#lib/store/directoryStoreInterface.ts';
+	import type { Organization } from '#lib/interfaces/organization.ts';
 
 	let {
 		entries = [],

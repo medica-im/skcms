@@ -91,7 +91,9 @@ describe('dev.sh: the server survives the SSH session', () => {
 
 	it('keeps an attached run behind --foreground, and takes it as an option', () => {
 		expect(source).toMatch(/--foreground\|-f\) FOREGROUND=1/);
-		expect(launch).toMatch(/if \[\[ "\$FOREGROUND" == 1 \]\]; then\s+exec pnpm exec vite --port "\$DEV_PORT" --strictPort/);
+		expect(launch).toMatch(
+			/if \[\[ "\$FOREGROUND" == 1 \]\]; then\s+exec pnpm exec vite --port "\$DEV_PORT" --strictPort/
+		);
 	});
 
 	it('documents both in the usage', () => {

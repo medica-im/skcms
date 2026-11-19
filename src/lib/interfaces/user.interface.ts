@@ -4,7 +4,7 @@ export interface Token {
 }
 
 export interface Access {
-    endpoint: string;
+	endpoint: string;
 	permissions: number;
 }
 
@@ -12,7 +12,7 @@ export interface Role {
 	id: number;
 	name: string;
 	label: string;
-	description: string
+	description: string;
 }
 
 export interface User {
@@ -20,10 +20,10 @@ export interface User {
 	name: string;
 	email: string;
 	picture: string;
-	full_name: string|null;
+	full_name: string | null;
 	role: string;
-	effector: string|null;
-	gender: string|null;
+	effector: string | null;
+	gender: string | null;
 	/**
 	 * Suspension withholds privileges without ending the identity: signing in
 	 * still works and `role` comes back null, which on its own is
@@ -31,7 +31,7 @@ export interface User {
 	 * is what lets the dashboard tell the two apart and explain itself.
 	 */
 	suspended?: boolean;
-	suspensionReason?: string|null;
+	suspensionReason?: string | null;
 }
 
 export interface UserResponse {

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import { createMembershipCategory } from '../../../association.remote';
 	import { invalidate } from '$app/navigation';
 	import { faCheck, faExclamationCircle, faPlus } from '@fortawesome/free-solid-svg-icons';
@@ -47,7 +47,8 @@
 			})}
 		>
 			<div class="space-y-4">
-				<input class="hidden" name="entry_uid" type="text" value={entryUid} />
+				<input {...createMembershipCategory.fields.entry_uid.as('hidden', entryUid ?? '')} />
+<input data-field="entry_uid" class="hidden" type="text" value={entryUid} />
 				<label class="label">
 					<span>{m.COL_LABEL()}</span>
 					{#each createMembershipCategory.fields.label.issues() as issue}

@@ -2,9 +2,9 @@
 	import { page } from '$app/state';
 	import * as m from '$msgs';
 	import { variables } from '$src/lib/utils/constants';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import LegalEntity from '$lib/components/LegalEntity/LegalEntity.svelte';
-	import Address from '$lib/Address/Address.svelte';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import LegalEntity from '#lib/components/LegalEntity/LegalEntity.svelte';
+	import Address from '#lib/Address/Address.svelte';
 	import Fa from 'svelte-fa';
 	import { faBuilding, faLocationDot, faServer } from '@fortawesome/free-solid-svg-icons';
 </script>

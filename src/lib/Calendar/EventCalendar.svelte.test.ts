@@ -14,10 +14,12 @@ const workshop = (n: number, day: string) => ({
 });
 
 const events = [workshop(1, '2025-04-22'), workshop(2, '2025-05-15'), workshop(3, '2025-06-26')];
-const range = { start: new Date('2025-04-22T00:00:00+02:00'), end: new Date('2025-06-27T00:00:00+02:00') };
+const range = {
+	start: new Date('2025-04-22T00:00:00+02:00'),
+	end: new Date('2025-06-27T00:00:00+02:00')
+};
 
-const button = (name: string) =>
-	document.querySelector<HTMLButtonElement>(`.fc-${name}-button`);
+const button = (name: string) => document.querySelector<HTMLButtonElement>(`.fc-${name}-button`);
 
 describe('EventCalendar', () => {
 	beforeEach(async () => {

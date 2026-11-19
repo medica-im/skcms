@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { deleteInvitee } from '$src/invitee.remote.ts';
 	import { goto } from '$app/navigation';
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 	import Fa from 'svelte-fa';
 	import { faCheck, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
-	import type { Invitee } from '$lib/interfaces/v2/invitee';
+	import type { Invitee } from '#lib/interfaces/v2/invitee.ts';
 	import type { PageData } from './$types';
 
 	interface Props {
@@ -33,8 +33,8 @@
 		{...deleteInvitee.for(data.invitee.uid)}
 		class="grid grid-cols-1 gap-4 w-full max-w-xl"
 	>
-		<input type="hidden" name="id" value={invitee?.uid} />
-		<input type="hidden" name="redirect" value={redirect ? 'true' : ''} />
+		<input {...deleteInvitee.for(data.invitee.uid).fields.id.as('hidden', invitee?.uid ?? '')} />
+		<input {...deleteInvitee.for(data.invitee.uid).fields.redirect.as('hidden', Boolean(redirect))} />
 
 		<!-- Submit button -->
 		<div class="flex gap-8">
@@ -47,16 +47,18 @@
 				{/if}
 			</div>
 			<div class="w-auto justify-center">
-				<button type="submit" class="btn variant-filled-error w-min" {disabled}>
-					{deleteInvitee.for(data.invitee.uid).pending ? 'Suppression...' : 'Supprimer'}
-				</button>
+				<button
+					type="submit"
+					class="btn variant-filled-error w-min"
+					disabled={disabled}
+				>{deleteInvitee.for(data.invitee.uid).pending ? 'Suppression...' : 'Supprimer'}</button>
 			</div>
 			<div class="w-auto justify-center">
 				<button
 					type="button"
 					class="variant-filled-surface btn w-min"
 					onclick={() => {
-						goto(`${base}/web/invite/invitees`);
+						goto(resolve(`web/invite/invitees`));
 					}}
 				>
 					{#if result?.success}Fermer{:else}Annuler{/if}

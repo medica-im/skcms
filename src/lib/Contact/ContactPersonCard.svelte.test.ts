@@ -11,7 +11,7 @@ import { describe, it, expect, vi } from 'vitest';
 import '../../app.postcss';
 import { render } from 'vitest-browser-svelte';
 import { page } from 'vitest/browser';
-import type { EntryFull } from '$lib/store/directoryStoreInterface';
+import type { EntryFull } from '#lib/store/directoryStoreInterface.ts';
 
 import ContactPersonCard from './ContactPersonCard.svelte';
 
@@ -37,11 +37,19 @@ const staffView = {
 	],
 	emails: [{ id: 3, email: 'coordination@example.org', roles: [] }],
 	socialnetworks: [
-		{ id: 4, handle: 'cpts', url: 'https://www.linkedin.com/company/cpts', type: 'LI', type_display: 'LinkedIn', roles: [] }
+		{
+			id: 4,
+			handle: 'cpts',
+			url: 'https://www.linkedin.com/company/cpts',
+			type: 'LI',
+			type_display: 'LinkedIn',
+			roles: []
+		}
 	]
 } as unknown as EntryFull;
 
-const links = () => [...document.querySelectorAll<HTMLAnchorElement>('a')].map((a) => a.getAttribute('href'));
+const links = () =>
+	[...document.querySelectorAll<HTMLAnchorElement>('a')].map((a) => a.getAttribute('href'));
 
 describe('ContactPersonCard', () => {
 	it('names the person and their job', async () => {
@@ -68,7 +76,10 @@ describe('ContactPersonCard', () => {
 	});
 
 	it('falls back to the placeholder when their picture cannot be loaded', async () => {
-		const broken = { ...staffView, avatar: { sm: '/media/profile_images/gone.webp', lg: '', raw: '' } };
+		const broken = {
+			...staffView,
+			avatar: { sm: '/media/profile_images/gone.webp', lg: '', raw: '' }
+		};
 		render(ContactPersonCard, { data: broken as unknown as EntryFull });
 
 		const picture = page.getByRole('img', { name: /Camille Bordagaray/ });
@@ -90,7 +101,11 @@ describe('ContactPersonCard', () => {
 
 		await expect.element(page.getByText('04 78 00 00 01')).toBeVisible();
 		expect(links()).toEqual(
-			expect.arrayContaining(['tel:04 78 00 00 01', 'tel:06 00 00 00 02', 'mailto:coordination@example.org'])
+			expect.arrayContaining([
+				'tel:04 78 00 00 01',
+				'tel:06 00 00 00 02',
+				'mailto:coordination@example.org'
+			])
 		);
 	});
 

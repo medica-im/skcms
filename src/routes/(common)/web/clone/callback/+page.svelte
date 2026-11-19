@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { base } from '$app/paths';
-	import { cloneToken } from '$lib/Web/Clone/token.svelte.ts';
+	import { resolve } from '$app/paths';
+	import { cloneToken } from '#lib/Web/Clone/token.svelte.ts';
 
 	/**
 	 * Where the source sends the superuser back, token in the fragment.
@@ -25,7 +25,7 @@
 			cloneToken.directory = params.get('dir') || null;
 		}
 		// replaceState so Back does not return to a URL that once held a token.
-		goto(`${base}/web/clone`, { replaceState: true, noScroll: true });
+		goto(resolve(`web/clone`), { replaceState: true, reset: false });
 	});
 </script>
 

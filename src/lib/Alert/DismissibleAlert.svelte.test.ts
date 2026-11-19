@@ -13,7 +13,9 @@ vi.mock('$app/state', () => ({ page: { data: { dismissedAlerts: ['closed-before'
 
 import DismissibleAlert from './DismissibleAlert.svelte';
 
-const children = createRawSnippet(() => ({ render: () => '<span>Les inscriptions sont ouvertes.</span>' }));
+const children = createRawSnippet(() => ({
+	render: () => '<span>Les inscriptions sont ouvertes.</span>'
+}));
 
 afterEach(() => {
 	document.cookie = 'dismissed-alerts=; Path=/; Max-Age=0';

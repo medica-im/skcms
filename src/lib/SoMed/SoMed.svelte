@@ -15,9 +15,9 @@
 		faMastodon
 	} from '@fortawesome/free-brands-svg-icons';
 	import { getDrawerStore } from '@skeletonlabs/skeleton';
-	import Update from '$lib/Web/SocialMedia/Update.svelte';
-	import Delete from '$lib/Web/SocialMedia/Delete.svelte';
-	import type { SocialNetwork } from '$lib/interfaces/socialnetwork.interface';
+	import Update from '#lib/Web/SocialMedia/Update.svelte';
+	import Delete from '#lib/Web/SocialMedia/Delete.svelte';
+	import type { SocialNetwork } from '#lib/interfaces/socialnetwork.interface.ts';
 	let {
 		embedded = false,
 		data,

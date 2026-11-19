@@ -1,15 +1,15 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
+	import { browser } from '$app/env';
 	import { untrack } from 'svelte';
 	import Fa, { FaLayers } from 'svelte-fa';
 	import { faLocationDot, faArrowsToCircle, faHome } from '@fortawesome/free-solid-svg-icons';
 	import { bbox } from '@turf/bbox';
 	import { lineString } from '@turf/helpers';
 	import { MapLibre, type Map } from 'svelte-maplibre';
-	import '$lib/MapLibre/worker';
+	import '#lib/MapLibre/worker.ts';
 	import type { LngLatBoundsLike, FitBoundsOptions, LngLatLike } from 'maplibre-gl';
-	import type { MapData } from '$lib/interfaces/mapData.interface.js';
-	import type { AddressFeature } from '$lib/store/directoryStoreInterface';
+	import type { MapData } from '#lib/interfaces/mapData.interface.js';
+	import type { AddressFeature } from '#lib/store/directoryStoreInterface.ts';
 	import {
 		Control,
 		ControlGroup,
@@ -21,7 +21,7 @@
 		FillLayer,
 		LineLayer
 	} from 'svelte-maplibre';
-	import { openStreetMap } from '$lib/MapLibre/style/openStreetMap';
+	import { openStreetMap } from '#lib/MapLibre/style/openStreetMap.ts';
 
 	let {
 		data,
@@ -29,11 +29,7 @@
 		target = null,
 		geojson = null,
 		highlight = null
-	}: {
-		data: MapData[];
-		showTooltip?: boolean;
-		target?: AddressFeature | null;
-		geojson?: any;
+
 		/**
 		 * Draw one marker larger and dim the rest, matched on its popup html.
 		 *
@@ -41,8 +37,13 @@
 		 * removing the others would refit the view and the map would jump. The
 		 * emphasis is purely visual — the reader keeps their bearings.
 		 */
-		highlight?: string | null;
-	} = $props();
+	}: { 
+		data: MapData[];
+		showTooltip?: boolean;
+		target?: AddressFeature | null;
+		geojson?: any;
+		highlight?: string | null
+	 } = $props();
 
 	/** MapLibre's own default pin blue, so the map looks unchanged. */
 	const MARKER_COLOUR = '#3FB1CE';
@@ -216,7 +217,7 @@ typeof bounds: '{typeof bounds}'<br>
 {Array.isArray(typeof target?.geometry?.coordinates)}
 -->
 <MapLibre
-	onload={(m) => (mapInstanceState = m as never)}
+	onload={(m) => mapInstanceState = m as never}
 	class="h-full"
 	standardControls
 	style={openStreetMap}
@@ -240,9 +241,7 @@ typeof bounds: '{typeof bounds}'<br>
 					</ControlButton>
 				{/if}
 				{#if data.length > 1 && bounds}
-					<ControlButton onclick={() => map.fitBounds(bounds, { padding: padding })}
-						><div class="variant-filled"><Fa size="lg" icon={faArrowsToCircle} /></div>
-					</ControlButton>
+					<ControlButton onclick={() => map.fitBounds(bounds, { padding })}><div class="variant-filled"><Fa size="lg" icon={faArrowsToCircle} /></div></ControlButton>
 				{:else}
 					<ControlButton
 						onclick={() => {

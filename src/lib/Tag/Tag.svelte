@@ -3,7 +3,7 @@
 	import { faMagnifyingGlass, faQuestion } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import { popup } from '@skeletonlabs/skeleton';
-	import type { Tag, TagCategory } from '$lib/store/directoryStoreInterface';
+	import type { Tag, TagCategory } from '#lib/store/directoryStoreInterface.ts';
 	import type { PopupSettings } from '@skeletonlabs/skeleton';
 	let { data, compact = false }: { data: Tag[] | null; compact: boolean } = $props();
 	const tagMap = $derived.by(() => {

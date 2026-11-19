@@ -10,7 +10,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render } from 'svelte/server';
 import { writable } from 'svelte/store';
 import SelectTagsR from './SelectTagsR.svelte';
-import { makeEntry, IPA, IPA_MENTIONS } from '$lib/store/directoryStore.fixtures.ts';
+import { makeEntry, IPA, IPA_MENTIONS } from '#lib/store/directoryStore.fixtures.ts';
 
 const entries = [makeEntry({ uid: 'ipa-1', type: IPA, tags: IPA_MENTIONS })];
 

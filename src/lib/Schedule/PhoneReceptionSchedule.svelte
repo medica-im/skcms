@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { dateTime } from '$lib/store/dateTimeStore.ts';
+	import { dateTime } from '#lib/store/dateTimeStore.ts';
 	import Fa from 'svelte-fa';
 	import {
 		faSync,
     faHeadset,
 	} from '@fortawesome/free-solid-svg-icons';
-	import Phones from '$lib/Directory/Phone/Phones.svelte';
-	import { isServiceAvailable } from '$lib/Schedule/available.ts';
-	import { publicHolidays } from '$lib/store/publicHolidaysStore.ts';
+	import Phones from '#lib/Directory/Phone/Phones.svelte';
+	import { isServiceAvailable } from '#lib/Schedule/available.ts';
+	import { publicHolidays } from '#lib/store/publicHolidaysStore.ts';
 
 	export let data;
 </script>

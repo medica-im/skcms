@@ -2,7 +2,7 @@
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faCheck, faRoute } from '@fortawesome/free-solid-svg-icons';
-	import type { EntryFull } from '$lib/store/directoryStoreInterface.ts';
+	import type { EntryFull } from '#lib/store/directoryStoreInterface.ts';
 
 	/** Where the entry sits in the care pathway: the five steps in order, its own marked. */
 	let { levels }: { levels: EntryFull['care_levels'] } = $props();

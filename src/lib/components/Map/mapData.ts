@@ -1,147 +1,168 @@
-import { entrySlugPageUrl, facilityPageUrl } from '$lib/utils/utils.ts';
+import { entrySlugPageUrl, facilityPageUrl } from '#lib/utils/utils.ts';
 import { hasCoordinates } from './coordinates.ts';
-import type { MapData } from '$lib/interfaces/mapData.interface.ts';
-import type { Facility, Address } from '$lib/interfaces/facility.interface.ts';
-import type { Facility as FacilityV1, FacilityV2 } from '$lib/interfaces/v2/facility.ts';
-import type { Entry, AddressFeature } from '$lib/store/directoryStoreInterface.ts';
+import type { MapData } from '#lib/interfaces/mapData.interface.ts';
+import type { Facility, Address } from '#lib/interfaces/facility.interface.ts';
+import type { Facility as FacilityV1, FacilityV2 } from '#lib/interfaces/v2/facility.ts';
+import type { Entry, AddressFeature } from '#lib/store/directoryStoreInterface.ts';
 
 export const createContactMapData = (address: Address, facilityName: string) => {
-    return {
-        lngLat: [parseFloat(address?.longitude||"0"), parseFloat(address?.latitude||"0")],
-        zoom: address?.zoom || 15,
-    } as {
-        lngLat: [number, number],
-        zoom: number
-    }
+	return {
+		lngLat: [parseFloat(address?.longitude || '0'), parseFloat(address?.latitude || '0')],
+		zoom: address?.zoom || 15
+	} as {
+		lngLat: [number, number];
+		zoom: number;
+	};
 };
 
 export const createMapData = (address: Address, facilityName: string) => {
-    const mapData: MapData[] = [];
-    mapData.push({
-        latLng: [Number(address?.latitude ?? 0), Number(address?.longitude ?? 0)],
-        zoom: address?.zoom ?? 15,
-        popup: null,
-        tooltip: {
-            text: facilityName,
-            permanent: false,
-            direction: "auto",
-            opacity: 0.7
-        }
-    });
-    return mapData;
+	const mapData: MapData[] = [];
+	mapData.push({
+		latLng: [Number(address?.latitude ?? 0), Number(address?.longitude ?? 0)],
+		zoom: address?.zoom ?? 15,
+		popup: null,
+		tooltip: {
+			text: facilityName,
+			permanent: false,
+			direction: 'auto',
+			opacity: 0.7
+		}
+	});
+	return mapData;
 };
 
 export const createMapData2 = (facility: FacilityV1 | FacilityV2) => {
-    if (!hasCoordinates(facility?.location?.latitude, facility?.location?.longitude)) {
-        return [];
-    }
-    const mapData: MapData[] = [
-        {
-            latLng: [Number(facility?.location?.latitude ?? 0), Number(facility?.location?.longitude ?? 0)],
-            zoom: facility?.zoom ?? 0,
-            popup: null,
-            tooltip: {
-                text: facility.name || "",
-                permanent: false,
-                direction: "auto",
-                opacity: 0.7
-            }
-        }
-    ];
-    return mapData;
+	if (!hasCoordinates(facility?.location?.latitude, facility?.location?.longitude)) {
+		return [];
+	}
+	const mapData: MapData[] = [
+		{
+			latLng: [
+				Number(facility?.location?.latitude ?? 0),
+				Number(facility?.location?.longitude ?? 0)
+			],
+			zoom: facility?.zoom ?? 0,
+			popup: null,
+			tooltip: {
+				text: facility.name || '',
+				permanent: false,
+				direction: 'auto',
+				opacity: 0.7
+			}
+		}
+	];
+	return mapData;
 };
 
-
-export const createFacilitiesMapData = (facilities: Facility[], tooltip = false, anchor = false) => {
-    const points: MapData[] = [];
-    facilities.filter((item) => hasCoordinates(item.address?.latitude, item.address?.longitude)).forEach((item: Facility) => {
-        // Opt-in, because the maps that draw a single facility do it on that
-        // facility's own page: a link there points at the page you are reading.
-        // Addressed slug-first and uid-second, the way every other /sites/ link
-        // in the app is written, and left unlinked when it has neither rather
-        // than promising a page that 404s — the rule createEntriesMapData
-        // follows for an entry with no slug.
-        const label = item.label || item.name;
-        const target = item.slug || item.uid;
-        const popupText = anchor && target
-            ? `<a class="anchor" href="${facilityPageUrl(item)}">${label}</a>`
-            : label;
-        points.push({
-            latLng: [Number(item.address?.latitude ?? 0), Number(item.address?.longitude ?? 0)],
-            zoom: item?.address?.zoom ?? 0,
-            popup: {
-                text: popupText
-            },
-            tooltip: {
-                text: item.address.tooltip_text || item.label || item.name,
-                permanent: tooltip,
-                direction: item.address.tooltip_direction || "auto",
-                opacity: 0.7
-            }
-        });
-    });
-    return points;
+export const createFacilitiesMapData = (
+	facilities: Facility[],
+	tooltip = false,
+	anchor = false
+) => {
+	const points: MapData[] = [];
+	facilities
+		.filter((item) => hasCoordinates(item.address?.latitude, item.address?.longitude))
+		.forEach((item: Facility) => {
+			// Opt-in, because the maps that draw a single facility do it on that
+			// facility's own page: a link there points at the page you are reading.
+			// Addressed slug-first and uid-second, the way every other /sites/ link
+			// in the app is written, and left unlinked when it has neither rather
+			// than promising a page that 404s — the rule createEntriesMapData
+			// follows for an entry with no slug.
+			const label = item.label || item.name;
+			const target = item.slug || item.uid;
+			const popupText =
+				anchor && target ? `<a class="anchor" href="${facilityPageUrl(item)}">${label}</a>` : label;
+			points.push({
+				latLng: [Number(item.address?.latitude ?? 0), Number(item.address?.longitude ?? 0)],
+				zoom: item?.address?.zoom ?? 0,
+				popup: {
+					text: popupText
+				},
+				tooltip: {
+					text: item.address.tooltip_text || item.label || item.name,
+					permanent: tooltip,
+					direction: item.address.tooltip_direction || 'auto',
+					opacity: 0.7
+				}
+			});
+		});
+	return points;
 };
 
 function getTarget(addressFeature: AddressFeature) {
-    return {
-        latLng: [addressFeature.geometry.coordinates[1], addressFeature.geometry.coordinates[0]] as [number, number],
-        zoom: 0,
-        tooltip: {
-            text: addressFeature.properties.label,
-            permanent: false,
-            direction: "auto",
-            opacity: 0.7
-        },
-        iconUrl: "/icons/home.png",
-        iconOptions: {
-            iconUrl: "/icons/home.png",
-            iconSize: [50, 50],
-            iconAnchor: [25, 50],
-            popupAnchor: [1, -34],
-            tooltipAnchor: [16, -28],
-        }
-    } as MapData
+	return {
+		latLng: [addressFeature.geometry.coordinates[1], addressFeature.geometry.coordinates[0]] as [
+			number,
+			number
+		],
+		zoom: 0,
+		tooltip: {
+			text: addressFeature.properties.label,
+			permanent: false,
+			direction: 'auto',
+			opacity: 0.7
+		},
+		iconUrl: '/icons/home.png',
+		iconOptions: {
+			iconUrl: '/icons/home.png',
+			iconSize: [50, 50],
+			iconAnchor: [25, 50],
+			popupAnchor: [1, -34],
+			tooltipAnchor: [16, -28]
+		}
+	} as MapData;
 }
 
-export const createEntriesMapData = (entries: Entry[], tooltip = false, target: AddressFeature | null, org_category: string | null = null) => {
-    const points: MapData[] = [];
-    entries.filter((entry) => !entry.effector_type?.immaterial && hasCoordinates(entry.address?.latitude, entry.address?.longitude)).forEach((entry: Entry) => {
-        let tooltipHtml = `
+export const createEntriesMapData = (
+	entries: Entry[],
+	tooltip = false,
+	target: AddressFeature | null,
+	org_category: string | null = null
+) => {
+	const points: MapData[] = [];
+	entries
+		.filter(
+			(entry) =>
+				!entry.effector_type?.immaterial &&
+				hasCoordinates(entry.address?.latitude, entry.address?.longitude)
+		)
+		.forEach((entry: Entry) => {
+			let tooltipHtml = `
         <b>${entry.address?.tooltip_text || entry.name}</b>
         <br>
-        ${entry.effector_type.name}<br>`
-        // Linked by the entry's own unique slug, the same way the list beside
-        // the map links it. This used to compose a URL out of the entry's parts
-        // via entryPageUrl() — /<type>/<commune>/<person>, or
-        // /<facility>/<type>/<person> for an `msp` — and nothing serves the
-        // first shape, so every marker on a non-msp site led to a 404.
-        //
-        // An entry with no slug gets a popup with no link rather than one
-        // pointing at /e/undefined: a marker that says who it is beats a marker
-        // that promises a page and 404s.
-        const label = entry.address?.tooltip_text || entry.name;
-        const link = entry.entrySlug
-            ? `<a class="anchor" href="${entrySlugPageUrl(entry)}">${label}</a>`
-            : label;
-        let popupHtml = `
+        ${entry.effector_type.name}<br>`;
+			// Linked by the entry's own unique slug, the same way the list beside
+			// the map links it. This used to compose a URL out of the entry's parts
+			// via entryPageUrl() — /<type>/<commune>/<person>, or
+			// /<facility>/<type>/<person> for an `msp` — and nothing serves the
+			// first shape, so every marker on a non-msp site led to a 404.
+			//
+			// An entry with no slug gets a popup with no link rather than one
+			// pointing at /e/undefined: a marker that says who it is beats a marker
+			// that promises a page and 404s.
+			const label = entry.address?.tooltip_text || entry.name;
+			const link = entry.entrySlug
+				? `<a class="anchor" href="${entrySlugPageUrl(entry)}">${label}</a>`
+				: label;
+			let popupHtml = `
         ${link}
         <br>
-        <span>${entry.effector_type.name}</span>`
+        <span>${entry.effector_type.name}</span>`;
 
-        points.push({
-            latLng: [Number(entry.address?.latitude ?? 0), Number(entry.address?.longitude ?? 0)],
-            zoom: entry?.address?.zoom ?? 0,
-            popup: {
-                text: popupHtml
-            },
-            tooltip: {
-                text: tooltipHtml,
-                permanent: tooltip,
-                direction: entry.address?.tooltip_direction || "auto",
-                opacity: 0.7
-            }
-        });
-    });
-    return points;
+			points.push({
+				latLng: [Number(entry.address?.latitude ?? 0), Number(entry.address?.longitude ?? 0)],
+				zoom: entry?.address?.zoom ?? 0,
+				popup: {
+					text: popupHtml
+				},
+				tooltip: {
+					text: tooltipHtml,
+					permanent: tooltip,
+					direction: entry.address?.tooltip_direction || 'auto',
+					opacity: 0.7
+				}
+			});
+		});
+	return points;
 };

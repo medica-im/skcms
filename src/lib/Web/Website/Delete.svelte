@@ -12,9 +12,9 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Dialog from '../Dialog.svelte';
-    import WebsiteComponent from '$lib/Website/Website.svelte';
-	import type { FormResult } from '$lib/interfaces/v2/form';
-    import type { Website } from '$lib/interfaces/website.interface.ts';
+    import WebsiteComponent from '#lib/Website/Website.svelte';
+	import type { FormResult } from '#lib/interfaces/v2/form.ts';
+    import type { Website } from '#lib/interfaces/website.interface.ts';
 
 	let {
 		data

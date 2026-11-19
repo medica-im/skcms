@@ -1,7 +1,7 @@
 import { getRequestEvent, query, command } from '$app/server';
 import * as z from 'zod';
-import { authReq } from '$lib/utils/request.ts';
-import { variables } from '$lib/utils/constants.ts';
+import { authReq } from '#lib/utils/request.ts';
+import { variables } from '#lib/utils/constants.ts';
 
 /**
  * Cloning an entry from another deployment of this app.
@@ -25,9 +25,7 @@ export const listDirectories = query(async () => {
 /** The peers this instance may pull from. */
 export const listInstances = query(async () => {
 	const { cookies } = getRequestEvent();
-	const res = await fetch(
-		authReq(`${variables.BASE_URI}/api/v2/clone/instances`, 'GET', cookies)
-	);
+	const res = await fetch(authReq(`${variables.BASE_URI}/api/v2/clone/instances`, 'GET', cookies));
 	return res.ok ? await res.json() : [];
 });
 
@@ -77,7 +75,12 @@ export const applyDirectorySettings = command(
 	async (body) => {
 		const { cookies } = getRequestEvent();
 		const res = await fetch(
-			authReq(`${variables.BASE_URI}/api/v2/clone/directory/apply`, 'POST', cookies, JSON.stringify(body))
+			authReq(
+				`${variables.BASE_URI}/api/v2/clone/directory/apply`,
+				'POST',
+				cookies,
+				JSON.stringify(body)
+			)
 		);
 		if (!res.ok) return { ok: false, status: res.status, applied: [], warnings: [] };
 		const data = await res.json();

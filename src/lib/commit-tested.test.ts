@@ -43,11 +43,29 @@ const read = (path: string) => readFileSync(path, 'utf8');
 
 /** What test-all does: snapshot at the start, and record a green end. */
 function testAllRun({ passes = true, note = 'full' } = {}) {
-	const out = execFileSync('bash', [SNAPSHOT], { cwd: main, encoding: 'utf8', env: env(), stdio: 'pipe' });
-	const s = Object.fromEntries(out.trim().split('\n').map((l) => l.split('=') as [string, string]));
+	const out = execFileSync('bash', [SNAPSHOT], {
+		cwd: main,
+		encoding: 'utf8',
+		env: env(),
+		stdio: 'pipe'
+	});
+	const s = Object.fromEntries(
+		out
+			.trim()
+			.split('\n')
+			.map((l) => l.split('=') as [string, string])
+	);
 	git(main, 'update-ref', 'refs/test-all/last', s.SNAPSHOT);
 	if (passes) {
-		git(main, 'update-ref', '--create-reflog', '-m', `test-all passed (${note})`, 'refs/test-all/passed', s.SNAPSHOT);
+		git(
+			main,
+			'update-ref',
+			'--create-reflog',
+			'-m',
+			`test-all passed (${note})`,
+			'refs/test-all/passed',
+			s.SNAPSHOT
+		);
 	}
 	return s;
 }
@@ -55,7 +73,12 @@ function testAllRun({ passes = true, note = 'full' } = {}) {
 /** Runs the script; returns its output, or throws with it. */
 function commitTested(...args: string[]): string {
 	try {
-		return execFileSync('bash', [SCRIPT, ...args], { cwd: main, encoding: 'utf8', env: env(), stdio: 'pipe' });
+		return execFileSync('bash', [SCRIPT, ...args], {
+			cwd: main,
+			encoding: 'utf8',
+			env: env(),
+			stdio: 'pipe'
+		});
 	} catch (e) {
 		const err = e as { stdout?: string; stderr?: string };
 		throw new Error(`${err.stdout ?? ''}${err.stderr ?? ''}`);
@@ -80,7 +103,18 @@ beforeEach(() => {
 	write(join(main, 'b.ts'), 'b committed\n');
 	write(join(main, 'gone.ts'), 'deleted later\n');
 	git(main, 'add', '-A');
-	git(main, '-c', 'protocol.file.allow=always', 'submodule', 'add', '-q', '-b', 'site.fr', sub, 'sub');
+	git(
+		main,
+		'-c',
+		'protocol.file.allow=always',
+		'submodule',
+		'add',
+		'-q',
+		'-b',
+		'site.fr',
+		sub,
+		'sub'
+	);
 	git(main, 'commit', '-q', '-m', 'base');
 });
 afterEach(() => rmSync(dir, { recursive: true, force: true }));

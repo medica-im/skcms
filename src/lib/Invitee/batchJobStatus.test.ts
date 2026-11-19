@@ -31,11 +31,26 @@ describe('batchJobStatus', () => {
 	});
 
 	it('gives each status its icon and colour', () => {
-		expect(batchJobStatus('completed', 'create')).toMatchObject({ icon: faCheck, className: 'text-success-500' });
-		expect(batchJobStatus('cancelled', 'create')).toMatchObject({ icon: faBan, className: 'text-warning-500' });
-		expect(batchJobStatus('failed', 'create')).toMatchObject({ icon: faXmark, className: 'text-error-500' });
-		expect(batchJobStatus('processing', 'create')).toMatchObject({ icon: faSpinner, className: 'text-primary-500' });
-		expect(batchJobStatus('pending', 'create')).toMatchObject({ icon: faClock, className: 'text-surface-500' });
+		expect(batchJobStatus('completed', 'create')).toMatchObject({
+			icon: faCheck,
+			className: 'text-success-500'
+		});
+		expect(batchJobStatus('cancelled', 'create')).toMatchObject({
+			icon: faBan,
+			className: 'text-warning-500'
+		});
+		expect(batchJobStatus('failed', 'create')).toMatchObject({
+			icon: faXmark,
+			className: 'text-error-500'
+		});
+		expect(batchJobStatus('processing', 'create')).toMatchObject({
+			icon: faSpinner,
+			className: 'text-primary-500'
+		});
+		expect(batchJobStatus('pending', 'create')).toMatchObject({
+			icon: faClock,
+			className: 'text-surface-500'
+		});
 	});
 
 	it('is an import when the job does not say', () => {

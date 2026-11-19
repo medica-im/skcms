@@ -3,16 +3,16 @@
 	import * as m from '$msgs';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import FileJson from '@lucide/svelte/icons/file-json';
-	import Types from '$lib/components/Directory/Types.svelte';
-	import Map from '$lib/MapLibre/MapLibre.svelte';
-	import Address from '$lib/Address/Address.svelte';
-	import Navigation from '$lib/Navigation/Navigation.svelte';
-	import { createMapData2 } from '$lib/components/Map/mapData.ts';
-	import UpdateFacilityModal from '$lib/Web/Facility/UpdateFacilityModal.svelte';
-	import PlaceImageUploadModal from '$lib/Web/Facility/PlaceImageUploadModal.svelte';
-	import type { FacilityV2 } from '$lib/interfaces/v2/facility.ts';
-	import type { Facility } from '$lib/interfaces/v2/facility.ts';
-	import { base } from '$app/paths';
+	import Types from '#lib/components/Directory/Types.svelte';
+	import Map from '#lib/MapLibre/MapLibre.svelte';
+	import Address from '#lib/Address/Address.svelte';
+	import Navigation from '#lib/Navigation/Navigation.svelte';
+	import { createMapData2 } from '#lib/components/Map/mapData.ts';
+	import UpdateFacilityModal from '#lib/Web/Facility/UpdateFacilityModal.svelte';
+	import PlaceImageUploadModal from '#lib/Web/Facility/PlaceImageUploadModal.svelte';
+	import type { FacilityV2 } from '#lib/interfaces/v2/facility.ts';
+	import type { Facility } from '#lib/interfaces/v2/facility.ts';
+	import { base } from '#lib/utils/base.ts';
 
 	let {
 		data,
@@ -45,37 +45,39 @@
 	</div>
 	{/if}-->
 	<div id="{data.name}_anchor" class="card variant-soft p-2 space-y-4 lg:scroll-mt-12 grid grid-cols-1 md:grid-cols-2">
-		<div class="overflow-hidden m-1 p-1">
-			<div class="p-2 space-y-2">
-				{#if update}
-					<div class="flex flex-col items-start gap-2">
-						<UpdateFacilityModal bind:facility={data} />
-						<PlaceImageUploadModal
-							facilityUid={data.uid}
-							hasImage={!!data.image}
-							alt={data.image?.alt ?? ''}
-						/>
-						{#if !mapData.length}
+	<div class="overflow-hidden m-1 p-1">
+		<div class="p-2 space-y-2">
+			{#if update}
+				<div class="flex flex-col items-start gap-2">
+					<UpdateFacilityModal bind:facility={data} />
+					<PlaceImageUploadModal
+						facilityUid={data.uid}
+						hasImage={!!data.image}
+						alt={data.image?.alt ?? ''}
+					/>
+					{#if !mapData.length}
 							<span class="badge variant-soft-warning" data-testid="facility-gps-missing"
 								>{m.FACILITY_GPS_MISSING()}</span
 							>
-						{/if}
-					</div>
-				{/if}
-				<div class="flex items-center text-wrap space-x-2">
-					<!--span class="badge variant-filled">Nom</span-->
-					<h6 class="h6">
-						{#if anchor}
-						<a href="{base}/sites/{data.slug}" class="anchor" data-sveltekit-preload-data="hover"
-							>{data.name}</a
-						>
-						{:else}
-						<b>{data.name}</b>
-						{/if}
-					</h6>
-					
+					{/if}
 				</div>
-				<!--div class="flex items-center space-x-2">
+			{/if}
+			<div class="flex items-center text-wrap space-x-2">
+				<!--span class="badge variant-filled">Nom</span-->
+				<h6 class="h6">
+					{#if anchor}
+						<a
+							href="{base()}/sites/{data.slug}"
+							class="anchor"
+							data-sveltekit-preload-data="hover"
+						>{data.name}</a>
+					{:else}
+						<b>{data.name}</b>
+					{/if}
+				</h6>
+					
+			</div>
+			<!--div class="flex items-center space-x-2">
 					<span class="badge variant-filled">Label</span>
 					<h4 class="h4">{data.label}</h4>
 				</div-->
@@ -84,12 +86,12 @@
 					<span class="badge variant-filled">Bâtiment</span>
 					<div>{data.building || '∅'}</div>
 				</div>
-				{/if}
-				<div class="flex flex-wrap space-x-2">
-					<!--span class="badge variant-filled">Rue</span-->
-					<span>{data?.street}</span>
-				</div>
-				{#if data.geographical_complement}
+			{/if}
+			<div class="flex flex-wrap space-x-2">
+				<!--span class="badge variant-filled">Rue</span-->
+				<span>{data?.street}</span>
+			</div>
+			{#if data.geographical_complement}
 				<div class="flex flex-wrap space-x-2">
 					<span class="badge variant-filled">Complément géographique</span>
 					<div>{data.geographical_complement || '∅'}</div>
@@ -120,20 +122,20 @@
 						>{data?.effectors?.join(', ') || '∅'}</span
 					>
 				</p>
-				{/if}
-			</div>
-			{#if entries}
+			{/if}
+		</div>
+		{#if entries}
 				<div>
 					<Types
 						data={entries}
 						displayEntries={false}
 					/>
 				</div>
-			{/if}
-		</div>
-		{#if mapData.length}
+		{/if}
+	</div>
+	{#if mapData.length}
 		<div class="mx-2 p-2 h-{mapHeight} lg:w-full z-0">
 			<Map data={mapData} />
 		</div>
-		{/if}
-	</div>
+	{/if}
+</div>

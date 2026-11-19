@@ -1,18 +1,17 @@
-import type { Handle, HandleServerError } from '@sveltejs/kit';
 import { paraglideMiddleware } from '$prgld/server';
-import { sequence } from '@sveltejs/kit/hooks';
-import { handle as handleAuth } from "$lib/auth.ts"
-import { env } from '$env/dynamic/private';
+import { sequence, type Handle, type HandleServerError } from '@sveltejs/kit/hooks';
+import { handle as handleAuth } from '#lib/auth.ts';
+import { DEBUG_MODE, SITE_THEME } from '$app/env/private';
 
 export const handleError: HandleServerError = async ({ error }) => {
-    console.error('[SSR Error]', (error as Error).message, (error as Error).stack);
-    if (env.DEBUG_MODE === 'true') {
-        return {
-            message: (error as Error).message,
-            stack: (error as Error).stack
-        };
-    }
-    return { message: 'Une erreur inattendue est survenue.' };
+	console.error('[SSR Error]', (error as Error).message, (error as Error).stack);
+	if (DEBUG_MODE === 'true') {
+		return {
+			message: (error as Error).message,
+			stack: (error as Error).stack
+		};
+	}
+	return { message: 'Une erreur inattendue est survenue.' };
 };
 
 /**
@@ -36,7 +35,8 @@ const trustForwardedProto: Handle = async ({ event, resolve }) => {
 	if (proto && event.url.protocol !== `${proto}:`) {
 		const url = new URL(event.url);
 		url.protocol = proto;
-		event.request = new Request(url, event.request);
+		// Readonly in SvelteKit 3's types, though still a plain property.
+		(event as { request: Request }).request = new Request(url, event.request);
 		// event.url is its own property, derived when SvelteKit built the event
 		// — replacing event.request above does *not* update it. It is what the
 		// enhanced fetch compares a target URL against to decide same-origin, so
@@ -58,11 +58,11 @@ const trustForwardedProto: Handle = async ({ event, resolve }) => {
 };
 
 const handleDebug: Handle = async ({ event, resolve }) => {
-    if (env.DEBUG_MODE === 'true') {
-        console.log(`[DEBUG] Requête reçue : ${event.request.method} ${event.url.pathname}`);
-        // Log des headers ou du payload si nécessaire
-    }
-    return await resolve(event);
+	if (DEBUG_MODE === 'true') {
+		console.log(`[DEBUG] Requête reçue : ${event.request.method} ${event.url.pathname}`);
+		// Log des headers ou du payload si nécessaire
+	}
+	return await resolve(event);
 };
 
 /**
@@ -80,7 +80,7 @@ const handleDebug: Handle = async ({ event, resolve }) => {
  * Not a PUBLIC_ variable: it is only ever read here, on the server, and the
  * value reaches the browser as the rendered data-theme attribute.
  */
-const DEFAULT_THEME = env.SITE_THEME || 'wintry';
+const DEFAULT_THEME = SITE_THEME || 'wintry';
 
 const cookie: Handle = async ({ event, resolve }) => {
 	let theme = '';
@@ -98,14 +98,13 @@ const cookie: Handle = async ({ event, resolve }) => {
 	// palette. See lib/theme/initialTheme.ts.
 	event.locals.theme = theme;
 	return await resolve(event, {
-		transformPageChunk: ({ html }) =>
-			html.replace('data-theme=""', `data-theme="${theme}"`)
+		transformPageChunk: ({ html }) => html.replace('data-theme=""', `data-theme="${theme}"`)
 	});
 };
 
 const paraglideHandle: Handle = ({ event, resolve }) =>
 	paraglideMiddleware(event.request, ({ request: localizedRequest, locale }) => {
-		event.request = localizedRequest;
+		(event as { request: Request }).request = localizedRequest;
 		return resolve(event, {
 			transformPageChunk: ({ html }) => {
 				return html.replace('%lang%', locale);

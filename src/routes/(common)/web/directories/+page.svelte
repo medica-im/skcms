@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import * as m from '$msgs';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import DirectorySettingsRow from '$lib/Web/Directory/DirectorySettingsRow.svelte';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import DirectorySettingsRow from '#lib/Web/Directory/DirectorySettingsRow.svelte';
 	import { getDirectorySettings } from '../../../../directory.remote';
 
 	/** This site's directories and their settings — superusers only. */

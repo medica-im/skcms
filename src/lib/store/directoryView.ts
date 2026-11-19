@@ -39,9 +39,9 @@ import type {
 	AddressFeature,
 	CategorizedEntries
 } from './directoryStoreInterface.ts';
-import type { Organization } from '$lib/interfaces/organization.ts';
-import type { FacilityOf } from '$lib/interfaces/facility.interface.ts';
-import type { SelectType } from '$lib/interfaces/select';
+import type { Organization } from '#lib/interfaces/organization.ts';
+import type { FacilityOf } from '#lib/interfaces/facility.interface.ts';
+import type { SelectType } from '#lib/interfaces/select.ts';
 
 /** Everything the user can pick. Every field optional: omitted means unset. */
 export type Selections = {

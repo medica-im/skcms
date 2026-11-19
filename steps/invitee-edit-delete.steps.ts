@@ -23,7 +23,10 @@ const ctx: { uid?: string } = {};
  * tag-wide delete would take a sibling scenario's data with it.
  */
 Given('an unused invitation exists', async ({ baseURL }) => {
-	const { uid } = await seedInvitee({ siteDomain: new URL(baseURL).hostname, name: 'Invitation e2e' });
+	const { uid } = await seedInvitee({
+		siteDomain: new URL(baseURL).hostname,
+		name: 'Invitation e2e'
+	});
 	ctx.uid = uid;
 });
 

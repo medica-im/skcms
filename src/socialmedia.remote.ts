@@ -1,8 +1,8 @@
 import { error, redirect } from '@sveltejs/kit';
 import { getRequestEvent, query, form } from '$app/server';
-import * as z from "zod";
-import { authReq } from '$lib/utils/request.ts';
-import { variables } from '$lib/utils/constants.ts';
+import * as z from 'zod';
+import { authReq } from '#lib/utils/request.ts';
+import { variables } from '#lib/utils/constants.ts';
 
 const RoleEnum = z.enum(['anonymous', 'staff', 'administrator', 'superuser']);
 
@@ -12,7 +12,7 @@ const Create = z.object({
 	roles: z.preprocess((val: string) => {
 		return val.split(',');
 	}, z.array(RoleEnum)),
-	url: z.string(),
+	url: z.string()
 });
 
 const path = '/api/v2/socialmedia';
@@ -21,26 +21,26 @@ export const create = form(Create, async (data) => {
 	console.log(`form data:${JSON.stringify(data)}`);
 	const { cookies } = getRequestEvent();
 	const url = `${variables.BASE_URI}${path}`;
- 	const request = authReq(url, 'POST', cookies, JSON.stringify(data));
+	const request = authReq(url, 'POST', cookies, JSON.stringify(data));
 	const response = await fetch(request);
 	if (response.ok == false) {
-		console.error(JSON.stringify(response))
-		console.error(response.status)
-		console.error(response.statusText)
+		console.error(JSON.stringify(response));
+		console.error(response.status);
+		console.error(response.statusText);
 		const resJson = await response.json();
 		console.error(resJson);
 		return {
 			success: false,
 			status: response.status,
 			text: response.statusText,
-			response: resJson,
-		}
+			response: resJson
+		};
 	} else {
 		return {
 			success: true,
 			status: response.status,
 			text: response.statusText
-		}
+		};
 	}
 });
 
@@ -50,7 +50,7 @@ const Update = z.object({
 	type: z.string(),
 	roles: z.preprocess((val: string) => {
 		return val.split(',');
-	}, z.array(RoleEnum)),
+	}, z.array(RoleEnum))
 });
 
 export const updateForm = form(Update, async (data) => {
@@ -67,17 +67,17 @@ export const updateForm = form(Update, async (data) => {
 			success: false,
 			status: response.status,
 			text: response.statusText,
-			response: resJson,
-		}
+			response: resJson
+		};
 	} else {
-		const resJson = await response.json()
+		const resJson = await response.json();
 		console.log(JSON.stringify(resJson));
 		return {
 			success: true,
 			status: response.status,
 			text: response.statusText,
 			response: resJson
-		}
+		};
 	}
 });
 
@@ -95,12 +95,12 @@ export const destroy = form(Destroy, async (data) => {
 			success: false,
 			status: response.status,
 			text: response.statusText
-		}
+		};
 	} else {
 		return {
 			success: true,
 			status: response.status,
 			text: response.statusText
-		}
+		};
 	}
 });

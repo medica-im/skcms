@@ -91,10 +91,9 @@ test(`the whole trail is shown at ${NARROW}px`, async ({ page }) => {
 	const hidden = t.items.filter((i) => i.display === 'none').map((i) => i.text);
 	expect(hidden, `these crumbs are display:none: ${hidden.join(', ')}`).toEqual([]);
 
-	expect(
-		t.items.map((i) => i.text).join(' '),
-		'the trail should start at the home page'
-	).toContain('Accueil');
+	expect(t.items.map((i) => i.text).join(' '), 'the trail should start at the home page').toContain(
+		'Accueil'
+	);
 });
 
 test(`a long trail wraps between words at ${NARROW}px`, async ({ page }) => {
@@ -137,18 +136,16 @@ test(`a long trail wraps between words at ${NARROW}px`, async ({ page }) => {
 	// rather than merely being indented.
 	const parent = t.items.find((i) => i.text === 'Accès aux soins');
 	expect(parent, 'expected the parent category crumb to be present').toBeDefined();
-	expect(
-		t.lines[0].top,
-		'the last crumb should start on the row the trail is already on'
-	).toBe(parent!.top);
+	expect(t.lines[0].top, 'the last crumb should start on the row the trail is already on').toBe(
+		parent!.top
+	);
 });
 
 test(`the trail never scrolls sideways at ${NARROW}px`, async ({ page }) => {
 	const t = await readTrail(page, NARROW, LONG_TRAIL);
-	expect(
-		t.olWidth,
-		`the trail is ${t.olWidth}px wide on a ${NARROW}px screen`
-	).toBeLessThanOrEqual(NARROW);
+	expect(t.olWidth, `the trail is ${t.olWidth}px wide on a ${NARROW}px screen`).toBeLessThanOrEqual(
+		NARROW
+	);
 
 	const doc = await page.evaluate(() => ({
 		scroll: document.documentElement.scrollWidth,

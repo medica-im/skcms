@@ -1,12 +1,12 @@
 <script lang="ts">
     import { page } from '$app/state';
-    import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-    import { UserCard } from '$lib/User';
-    import { ORIGIN } from '$lib/utils/origin.ts';
-    import ExportModeToggle from '$lib/components/ExportModeToggle/ExportModeToggle.svelte';
-    import SortHeader from '$lib/components/Table/SortHeader.svelte';
-    import SortSelect from '$lib/components/Table/SortSelect.svelte';
-    import { sortByDateTime, type SortDirection } from '$lib/utils/dateTimeSort';
+    import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+    import { UserCard } from '#lib/User/index.ts';
+    import { ORIGIN } from '#lib/utils/origin.ts';
+    import ExportModeToggle from '#lib/components/ExportModeToggle/ExportModeToggle.svelte';
+    import SortHeader from '#lib/components/Table/SortHeader.svelte';
+    import SortSelect from '#lib/components/Table/SortSelect.svelte';
+    import { sortByDateTime, type SortDirection } from '#lib/utils/dateTimeSort.ts';
     import * as m from '$msgs';
     import type { PageData } from './$types';
 

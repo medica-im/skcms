@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { variables } from '$lib/utils/constants';
+    import { variables } from '#lib/utils/constants.ts';
 	import Fa from 'svelte-fa';
 	import { faBlog } from '@fortawesome/free-solid-svg-icons';
 </script>

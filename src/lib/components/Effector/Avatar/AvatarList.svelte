@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { variables } from '$lib/utils/constants';
+	import { variables } from '#lib/utils/constants.ts';
 	import * as m from "$msgs";
-	import type { EntryFull } from '$lib/store/directoryStoreInterface';
-	import type { Entry } from '$lib/store/directoryStoreInterface';
-	import { PUBLIC_URL } from '$lib/utils/appUrl';
+	import type { EntryFull } from '#lib/store/directoryStoreInterface.ts';
+	import type { Entry } from '#lib/store/directoryStoreInterface.ts';
+	import { PUBLIC_URL } from '#lib/utils/appUrl.ts';
 	export let data: EntryFull|Entry;
 
 	/*if (import.meta.env.VITE_DEV == 'true') {

@@ -9,7 +9,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import { mergeCard } from './mergeCard';
-import type { OpenGraph } from '$lib/interfaces/openGraph.interface';
+import type { OpenGraph } from '#lib/interfaces/openGraph.interface.ts';
 
 const site: OpenGraph = {
 	title: 'Maison de santé de Vedène',
@@ -73,7 +73,9 @@ describe('mergeCard', () => {
 	});
 
 	it('is the page card alone on a site without one', () => {
-		expect(mergeCard(undefined, { title: 'Alimentation' })).toMatchObject({ title: 'Alimentation' });
+		expect(mergeCard(undefined, { title: 'Alimentation' })).toMatchObject({
+			title: 'Alimentation'
+		});
 		expect(mergeCard(undefined, {})).toBeUndefined();
 	});
 });

@@ -1,17 +1,17 @@
 import { error, redirect } from '@sveltejs/kit';
-import { authReq } from '$lib/utils/request.ts';
-import { variables } from '$lib/utils/constants.ts';
-import type { BatchEmailMessage } from '$lib/interfaces/v2/batchEmail';
-import type { User } from '$lib/interfaces/v2/user';
+import { authReq } from '#lib/utils/request.ts';
+import { variables } from '#lib/utils/constants.ts';
+import type { BatchEmailMessage } from '#lib/interfaces/v2/batchEmail.ts';
+import type { User } from '#lib/interfaces/v2/user.ts';
 import type { PageServerLoad } from './$types';
-import { base } from '$app/paths';
+import { resolve } from '$app/paths';
 
 export const ssr = false;
 
 export const load: PageServerLoad = async ({ url, cookies, locals, fetch, parent }) => {
 	const session = await locals.auth();
 	if (!session) {
-		redirect(303, `${base}/signin?redirectTo=${url.pathname}`);
+		redirect(303, resolve(`signin?redirectTo=${url.pathname}`));
 	}
 	const { user } = await parent();
 	if (!user || 'superuser' !== user.role) {

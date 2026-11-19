@@ -23,7 +23,11 @@ export type TestRole = 'superuser' | 'administrator' | 'staff' | 'registered';
 
 /** Must match the subs seeded by tests/fixtures/seed_test_users.py. */
 export const TEST_ACCOUNTS: Record<TestRole, { sub: string; email: string; name: string }> = {
-	superuser: { sub: 'e2e-sub-superuser', email: 'e2e-superuser@example.test', name: 'E2E Superuser' },
+	superuser: {
+		sub: 'e2e-sub-superuser',
+		email: 'e2e-superuser@example.test',
+		name: 'E2E Superuser'
+	},
 	administrator: {
 		sub: 'e2e-sub-administrator',
 		email: 'e2e-administrator@example.test',

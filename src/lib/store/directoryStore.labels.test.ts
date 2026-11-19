@@ -12,11 +12,16 @@ import { describe, it, expect } from 'vitest';
 import { genderedLabel } from './directoryStore.ts';
 import { makeEntry, NURSE } from './directoryStore.fixtures.ts';
 import type { Entry, Type } from './directoryStoreInterface';
-import type { Labels } from '$lib/interfaces/label.interace.ts';
+import type { Labels } from '#lib/interfaces/label.interace.ts';
 
 const NURSE_PROFESSION = { ...NURSE, nature: 'profession' } as Type;
 const PHARMACY = { ...NURSE, uid: 'type-pharmacy', name: 'pharmacie', nature: 'service' } as Type;
-const MEALS = { ...NURSE, uid: 'type-meals', name: 'portage de repas à domicile', nature: 'activity' } as Type;
+const MEALS = {
+	...NURSE,
+	uid: 'type-meals',
+	name: 'portage de repas à domicile',
+	nature: 'activity'
+} as Type;
 
 const forms = (F: string | null, M: string | null, N: string | null) => ({ F, M, N });
 const none = forms(null, null, null);
@@ -39,12 +44,18 @@ describe('a profession agrees with its practitioners', () => {
 	});
 
 	it('in the gender most of them have, and in the plural, for several', () => {
-		expect(genderedLabel(entries(NURSE_PROFESSION, 'F', 'F', 'M'), labels, 'fallback')).toBe('infirmières');
-		expect(genderedLabel(entries(NURSE_PROFESSION, 'F', 'M'), labels, 'fallback')).toBe('infirmiers');
+		expect(genderedLabel(entries(NURSE_PROFESSION, 'F', 'F', 'M'), labels, 'fallback')).toBe(
+			'infirmières'
+		);
+		expect(genderedLabel(entries(NURSE_PROFESSION, 'F', 'M'), labels, 'fallback')).toBe(
+			'infirmiers'
+		);
 	});
 
 	it('in the neutral when none of them has a gender', () => {
-		expect(genderedLabel(entries(NURSE_PROFESSION, null, null), labels, 'fallback')).toBe('infirmiers');
+		expect(genderedLabel(entries(NURSE_PROFESSION, null, null), labels, 'fallback')).toBe(
+			'infirmiers'
+		);
 	});
 
 	it('and so does a type whose nature is not known yet', () => {
@@ -59,15 +70,23 @@ describe('a service agrees in number only', () => {
 	});
 
 	it('reading its word from whichever gender holds it', () => {
-		const masculineOnly: Labels = { [PHARMACY.uid]: { S: forms(null, 'laboratoire', null), P: forms(null, 'laboratoires', null) } };
-		expect(genderedLabel(entries(PHARMACY, 'F', 'F'), masculineOnly, 'fallback')).toBe('laboratoires');
+		const masculineOnly: Labels = {
+			[PHARMACY.uid]: { S: forms(null, 'laboratoire', null), P: forms(null, 'laboratoires', null) }
+		};
+		expect(genderedLabel(entries(PHARMACY, 'F', 'F'), masculineOnly, 'fallback')).toBe(
+			'laboratoires'
+		);
 	});
 });
 
 describe('an activity has one form', () => {
 	it('however many entries offer it', () => {
-		expect(genderedLabel(entries(MEALS, 'F'), labels, 'fallback')).toBe('portage de repas à domicile');
-		expect(genderedLabel(entries(MEALS, 'F', 'M', null, null), labels, 'fallback')).toBe('portage de repas à domicile');
+		expect(genderedLabel(entries(MEALS, 'F'), labels, 'fallback')).toBe(
+			'portage de repas à domicile'
+		);
+		expect(genderedLabel(entries(MEALS, 'F', 'M', null, null), labels, 'fallback')).toBe(
+			'portage de repas à domicile'
+		);
 	});
 });
 

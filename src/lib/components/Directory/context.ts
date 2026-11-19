@@ -1,218 +1,223 @@
 import { getContext, setContext } from 'svelte';
 import { writable } from 'svelte/store';
 import type { Writable } from 'svelte/store';
-import type { Tag } from '$lib/store/directoryStoreInterface';
+import type { Tag } from '#lib/store/directoryStoreInterface.ts';
 
-import type { LimitCategoriesStore, AddressFeature, CurrentOrgStore, Type } from '$lib/store/directoryStoreInterface';
-import type { SelectType } from '$lib/interfaces/select';
-import { NO_FACETS, type FacetSelection } from '$lib/store/facetFilters.ts';
+import type {
+	LimitCategoriesStore,
+	AddressFeature,
+	CurrentOrgStore,
+	Type
+} from '#lib/store/directoryStoreInterface.ts';
+import type { SelectType } from '#lib/interfaces/select.ts';
+import { NO_FACETS, type FacetSelection } from '#lib/store/facetFilters.ts';
 
-export function setEffectorUid(uid:string) {
-    setContext('effectorUid', uid)
+export function setEffectorUid(uid: string) {
+	setContext('effectorUid', uid);
 }
 
 export function getEffectorUid() {
-    return getContext<string>('effectorUid')
+	return getContext<string>('effectorUid');
 }
 
-export function setEntryUid(uid:string) {
-    setContext('entryUid', uid)
+export function setEntryUid(uid: string) {
+	setContext('entryUid', uid);
 }
 
 export function getEntryUid() {
-    return getContext<string>('entryUid')
+	return getContext<string>('entryUid');
 }
 
 export function setDisplayMap() {
-    let displayMap = writable<boolean>(false);
-    setContext('displayMap', displayMap)
+	let displayMap = writable<boolean>(false);
+	setContext('displayMap', displayMap);
 }
 
 export function getDisplayMap() {
-    return getContext<Writable<boolean>>('displayMap')
+	return getContext<Writable<boolean>>('displayMap');
 }
 
 export function setEditMode() {
-    let editMode = writable<boolean>(false);
-    setContext('editMode', editMode)
+	let editMode = writable<boolean>(false);
+	setContext('editMode', editMode);
 }
 
 export function getEditMode() {
-    return getContext<Writable<boolean>>('editMode')
+	return getContext<Writable<boolean>>('editMode');
 }
 
 export function setTerm() {
-	let term = writable<string>("");
-	setContext('term', term)
+	let term = writable<string>('');
+	setContext('term', term);
 }
 
 export function getTerm() {
-	return getContext<Writable<string>>('term')
+	return getContext<Writable<string>>('term');
 }
 
 export function setSelectCategories() {
-    let selectCategories: Writable<string[]> = writable([]);
-    setContext('selectCategories', selectCategories)
+	let selectCategories: Writable<string[]> = writable([]);
+	setContext('selectCategories', selectCategories);
 }
 export function getSelectCategories() {
-    return getContext<Writable<string[]>>('selectCategories')
+	return getContext<Writable<string[]>>('selectCategories');
 }
 
 export function setLimitCategories() {
-    let limitCategories: LimitCategoriesStore = writable([]);
-    setContext('limitCategories', limitCategories);
+	let limitCategories: LimitCategoriesStore = writable([]);
+	setContext('limitCategories', limitCategories);
 }
 
 export function getLimitCategories() {
-    return getContext<Writable<string[]>>('limitCategories');
+	return getContext<Writable<string[]>>('limitCategories');
 }
 
 export function setSelectedDepartment() {
-    let selectDepartment: Writable<{label: string, value: string}|null> = writable();
-    setContext('selectedDepartment', selectDepartment)
+	let selectDepartment: Writable<{ label: string; value: string } | null> = writable();
+	setContext('selectedDepartment', selectDepartment);
 }
 
 export function getSelectedDepartment() {
-    return getContext<Writable<{label: string, value: string}|null>>('selectedDepartment');
+	return getContext<Writable<{ label: string; value: string } | null>>('selectedDepartment');
 }
 
 export function setSelectedTags() {
-    let selectedTags: Writable<Tag[]|null> = writable(null);
-    setContext('selectedTags', selectedTags)
+	let selectedTags: Writable<Tag[] | null> = writable(null);
+	setContext('selectedTags', selectedTags);
 }
 
 export function getSelectedTags() {
-    return getContext<Writable<Tag[]|null>>('selectedTags');
+	return getContext<Writable<Tag[] | null>>('selectedTags');
 }
 
 export function setSelectedCommunesUids() {
-    let selectCommunes: Writable<string[]> = writable([]);
-    setContext('selectedCommunesUids', selectCommunes)
+	let selectCommunes: Writable<string[]> = writable([]);
+	setContext('selectedCommunesUids', selectCommunes);
 }
 
 export function getSelectedCommunesUids() {
-    return getContext<Writable<string[]>>('selectedCommunesUids');
+	return getContext<Writable<string[]>>('selectedCommunesUids');
 }
 
 export function setSelectedCommunesChoices() {
-    let selectedCommunesChoices = writable(null);
-    setContext('selectedCommunesChoices', selectedCommunesChoices);
+	let selectedCommunesChoices = writable(null);
+	setContext('selectedCommunesChoices', selectedCommunesChoices);
 }
 
 export function getSelectedCommunesChoices() {
-    return getContext<Writable<{label: string, value: string}[]|null>>('selectedCommunesChoices');
+	return getContext<Writable<{ label: string; value: string }[] | null>>('selectedCommunesChoices');
 }
 
 export function setSelCatVal() {
-    let selCatVal: Writable<Type|null> = writable(null);
-    setContext('selCatVal', selCatVal);
+	let selCatVal: Writable<Type | null> = writable(null);
+	setContext('selCatVal', selCatVal);
 }
 
 export function getSelCatVal() {
-    return getContext<Writable<Type|null>>('selCatVal');
+	return getContext<Writable<Type | null>>('selCatVal');
 }
 
 export function setSelectSituation() {
-    let selectSituation: Writable<SelectType|null|undefined> = writable();
-    setContext('selectSituation', selectSituation);
+	let selectSituation: Writable<SelectType | null | undefined> = writable();
+	setContext('selectSituation', selectSituation);
 }
 
 export function getSelectSituation() {
-    return getContext<Writable<SelectType|undefined|null>>('selectSituation');
+	return getContext<Writable<SelectType | undefined | null>>('selectSituation');
 }
 
 export function setSelectConcern() {
-    let selectConcern: Writable<string|null> = writable(null);
-    setContext('selectConcern', selectConcern);
+	let selectConcern: Writable<string | null> = writable(null);
+	setContext('selectConcern', selectConcern);
 }
 
 export function getSelectConcern() {
-    return getContext<Writable<string|null>>('selectConcern');
+	return getContext<Writable<string | null>>('selectConcern');
 }
 
 export function setFacetSelection() {
-    let facetSelection: Writable<FacetSelection> = writable(NO_FACETS);
-    setContext('facetSelection', facetSelection);
+	let facetSelection: Writable<FacetSelection> = writable(NO_FACETS);
+	setContext('facetSelection', facetSelection);
 }
 
 export function getFacetSelection() {
-    return getContext<Writable<FacetSelection>>('facetSelection');
+	return getContext<Writable<FacetSelection>>('facetSelection');
 }
 
 export function setAddressFeature() {
-    let addressFeature: Writable<AddressFeature|null> = writable(null);
-    setContext('addressFeature', addressFeature);
+	let addressFeature: Writable<AddressFeature | null> = writable(null);
+	setContext('addressFeature', addressFeature);
 }
 
 export function getAddressFeature() {
-    return getContext<Writable<AddressFeature|null>>('addressFeature');
+	return getContext<Writable<AddressFeature | null>>('addressFeature');
 }
 
 export function setGeoInputAddress() {
-    let geoInputAddress: Writable<string|null> = writable(null);
-    setContext('geoInputAddress', geoInputAddress);
+	let geoInputAddress: Writable<string | null> = writable(null);
+	setContext('geoInputAddress', geoInputAddress);
 }
 
 export function getGeoInputAddress() {
-    return getContext<Writable<string|null>>('geoInputAddress');
+	return getContext<Writable<string | null>>('geoInputAddress');
 }
 
 export function setInputAddress() {
-    let inputAddress: Writable<string> = writable("");
-    setContext('inputAddress', inputAddress);
+	let inputAddress: Writable<string> = writable('');
+	setContext('inputAddress', inputAddress);
 }
 
 export function getInputAddress() {
-    return getContext<Writable<string>>('inputAddress');
+	return getContext<Writable<string>>('inputAddress');
 }
 
-export function setSelectFacility(facility: string|null=null) {
-    let selectFacility: Writable<string|null> = writable(facility);
-    setContext('selectFacility', selectFacility);
+export function setSelectFacility(facility: string | null = null) {
+	let selectFacility: Writable<string | null> = writable(facility);
+	setContext('selectFacility', selectFacility);
 }
 
 export function getSelectFacility() {
-    return getContext<Writable<string|null>>('selectFacility');
+	return getContext<Writable<string | null>>('selectFacility');
 }
 
 export function setFacilityChoice() {
-    let facilityChoice: Writable<{label: string; value: string}|undefined> = writable();
-    setContext('facilityChoice', facilityChoice);
+	let facilityChoice: Writable<{ label: string; value: string } | undefined> = writable();
+	setContext('facilityChoice', facilityChoice);
 }
 
 export function getFacilityChoice() {
-    return getContext<Writable<{label: string; value: string}|undefined>>('facilityChoice');
+	return getContext<Writable<{ label: string; value: string } | undefined>>('facilityChoice');
 }
 
 export function setCurrentOrg() {
-    let currentOrg: CurrentOrgStore = writable(true);
-    setContext('currentOrg', currentOrg);
+	let currentOrg: CurrentOrgStore = writable(true);
+	setContext('currentOrg', currentOrg);
 }
 
 export function getCurrentOrg(): CurrentOrgStore {
-    return getContext('currentOrg');
+	return getContext('currentOrg');
 }
 
 export function setDirectoryRedirect() {
-    let directoryRedirect: Writable<boolean> = writable(true);
-    setContext('directoryRedirect', directoryRedirect);
+	let directoryRedirect: Writable<boolean> = writable(true);
+	setContext('directoryRedirect', directoryRedirect);
 }
 
 export function getDirectoryRedirect(): Writable<boolean> {
-    return getContext('directoryRedirect');
+	return getContext('directoryRedirect');
 }
 
 export interface OwnerInfo {
-    uid: string;
-    name: string | null;
-    email: string | null;
+	uid: string;
+	name: string | null;
+	email: string | null;
 }
 
 export function setSelectedOwners() {
-    let selectedOwners: Writable<Map<string, OwnerInfo>> = writable(new Map());
-    setContext('selectedOwners', selectedOwners);
+	let selectedOwners: Writable<Map<string, OwnerInfo>> = writable(new Map());
+	setContext('selectedOwners', selectedOwners);
 }
 
 export function getSelectedOwners() {
-    return getContext<Writable<Map<string, OwnerInfo>>>('selectedOwners');
+	return getContext<Writable<Map<string, OwnerInfo>>>('selectedOwners');
 }

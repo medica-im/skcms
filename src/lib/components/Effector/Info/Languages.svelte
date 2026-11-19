@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as m from "$msgs";	import Fa from 'svelte-fa';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import type { SpokenLanguage } from "$lib/interfaces/fullEffector.interface";
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import type { SpokenLanguage } from "#lib/interfaces/fullEffector.interface.ts";
 	export let data: SpokenLanguage[]|null;
 </script>
 {#if data}

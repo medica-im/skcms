@@ -124,7 +124,7 @@ When('I rename the facility to {string}', async ({ page }, newName: string) => {
 	await enterEditMode(page);
 	await editButton(page).click();
 	await expect(dialog(page)).toBeVisible({ timeout: 8_000 });
-	const nameField = dialog(page).locator('input[name="name"]');
+	const nameField = dialog(page).locator('input[data-field="name"]');
 	await nameField.fill(newName);
 	await nameField.blur();
 	const submit = dialog(page).getByRole('button', { name: 'Envoyer' });
@@ -171,16 +171,18 @@ Then('the facility page shows {string}', async ({ page }, name: string) => {
  * document was never navigated again after the rename.
  */
 Then('I have not reloaded the page', async ({ page }) => {
-	const navigations = await page.evaluate(
-		() => performance.getEntriesByType('navigation').length
-	);
+	const navigations = await page.evaluate(() => performance.getEntriesByType('navigation').length);
 	expect(navigations, 'the page was reloaded').toBeLessThanOrEqual(1);
 });
 
 When('I navigate to the home page', async ({ page }) => {
 	// Click through rather than page.goto, so this exercises client-side
 	// navigation with its cached load data — where a stale name would show.
-	await page.getByRole('link').first().click({ trial: true }).catch(() => {});
+	await page
+		.getByRole('link')
+		.first()
+		.click({ trial: true })
+		.catch(() => {});
 	await page.goto('/', { waitUntil: 'networkidle' });
 });
 

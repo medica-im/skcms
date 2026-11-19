@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { base } from '$app/paths';
+import { resolve } from '$app/paths';
+import { base } from '#lib/utils/base.ts';
 
 /**
  * The sign-in form must post to this app, not to whatever serves the site root.
@@ -20,9 +21,8 @@ import { base } from '$app/paths';
  * tree by authFormActions.test.ts.
  */
 
-
 /** The same expression the page computes, kept in one place. */
-const signInPath = base ? `${base.slice(1)}/signin` : 'signin';
+const signInPath = base() ? `${base().slice(1)}/signin` : 'signin';
 
 describe('the sign-in form action', () => {
 	it('has no leading slash — the component adds one', () => {
@@ -34,7 +34,6 @@ describe('the sign-in form action', () => {
 	});
 
 	it('posts inside the app, base path included', () => {
-		expect(`/${signInPath}`).toBe(`${base}/signin`);
+		expect(`/${signInPath}`).toBe(resolve(`signin`));
 	});
-
 });

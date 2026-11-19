@@ -168,9 +168,32 @@ function rows(): Row[] {
 		.trim()
 		.split('\n')
 		.map((line) => {
-			const [env, component, host, commit, skvar, dirty, behind, skvarBehind, state, deployed, subject] =
-				line.split('\t');
-			return { env, component, host, commit, skvar, dirty, behind, skvarBehind, state, deployed, subject };
+			const [
+				env,
+				component,
+				host,
+				commit,
+				skvar,
+				dirty,
+				behind,
+				skvarBehind,
+				state,
+				deployed,
+				subject
+			] = line.split('\t');
+			return {
+				env,
+				component,
+				host,
+				commit,
+				skvar,
+				dirty,
+				behind,
+				skvarBehind,
+				state,
+				deployed,
+				subject
+			};
 		});
 }
 const row = (env: string, component: string) => {
@@ -392,7 +415,12 @@ describe('versions.sh: the display', () => {
 			.split('╭─ ')
 			.slice(1)
 			.map((b) => ({ title: b.split(' ─')[0], body: b }));
-		expect(boxes.map((b) => b.title)).toEqual(['dev', 'staging · stage', 'production', 'production · other']);
+		expect(boxes.map((b) => b.title)).toEqual([
+			'dev',
+			'staging · stage',
+			'production',
+			'production · other'
+		]);
 		const box = (title: string) => boxes.find((b) => b.title === title)?.body ?? '';
 		expect(box('production')).toContain('https://site.fr');
 		expect(box('production')).not.toContain('https://other.fr');
@@ -457,9 +485,10 @@ describe('versions.sh: only code commits count', () => {
 
 	it('shows each tip at its last code commit', () => {
 		commitPath(frontend, 'scripts/release.sh', 'x\n', 'a release script');
-		const tip = run()
-			.split('\n')
-			.find((l) => l.includes('skcms main')) ?? '';
+		const tip =
+			run()
+				.split('\n')
+				.find((l) => l.includes('skcms main')) ?? '';
 		expect(tip).toContain(`${short(f2)}  frontend two`);
 	});
 

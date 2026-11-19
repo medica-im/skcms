@@ -7,7 +7,7 @@
  * test states just the part it is about.
  */
 import type { Entry, EntryFacets, Situation, Tag, Type } from './directoryStoreInterface.ts';
-import type { Organization } from '$lib/interfaces/organization.ts';
+import type { Organization } from '#lib/interfaces/organization.ts';
 
 export const ORG_UID = '94d1371aff1f47208e79ce6f89c4a006';
 
@@ -181,9 +181,21 @@ export const IPA: Type = {
 	synonyms: []
 } as unknown as Type;
 
-const MENTION = { uid: 'tag-category-mention', label: 'mention', labelShort: 'mention', name: 'mention' };
+const MENTION = {
+	uid: 'tag-category-mention',
+	label: 'mention',
+	labelShort: 'mention',
+	name: 'mention'
+};
 const mention = (uid: string, labelShort: string, label: string): Tag =>
-	({ uid, name: uid, label, labelShort, category: MENTION, effector_types: [IPA.uid] }) as unknown as Tag;
+	({
+		uid,
+		name: uid,
+		label,
+		labelShort,
+		category: MENTION,
+		effector_types: [IPA.uid]
+	}) as unknown as Tag;
 
 export const IPA_MENTIONS: Tag[] = [
 	mention('tag-ooh', 'OOH', 'oncologie et hémato-oncologie'),
@@ -199,7 +211,12 @@ export const TAG_PHYSIO_RESPI: Tag = {
 	name: 'respi',
 	label: 'kinésithérapie respiratoire',
 	labelShort: 'respiratoire',
-	category: { uid: 'tag-category-orientation', label: 'orientation', labelShort: 'orientation', name: 'orientation' },
+	category: {
+		uid: 'tag-category-orientation',
+		label: 'orientation',
+		labelShort: 'orientation',
+		name: 'orientation'
+	},
 	effector_types: [PHYSIO.uid]
 } as unknown as Tag;
 
@@ -243,19 +260,156 @@ export const POLE_D = { uid: 'facility-d', name: 'Pôle D' };
  * that "the default hides them" is a statement a test can make.
  */
 export const directoryEntries: Entry[] = [
-	makeEntry({ uid: 'e-alice', name: 'Alice Martin', type: NURSE, communeUid: GADAGNE.uid, communeName: GADAGNE.name, departmentCode: GADAGNE.dept, facilityUid: MSP_A.uid, facilityName: MSP_A.name, memberships: [ORG_UID], tags: [TAG_ONCO], longitude: '4.939488', latitude: '43.927596' }),
-	makeEntry({ uid: 'e-bruno', name: 'Bruno Lopez', type: NURSE, communeUid: GADAGNE.uid, communeName: GADAGNE.name, departmentCode: GADAGNE.dept, facilityUid: CABINET_B.uid, facilityName: CABINET_B.name, memberships: [ORG_UID], tags: [TAG_ONCO, TAG_GERIA], longitude: '4.941000', latitude: '43.928000' }),
-	makeEntry({ uid: 'e-chloe', name: 'Chloé Nguyen', type: DOCTOR, communeUid: GADAGNE.uid, communeName: GADAGNE.name, departmentCode: GADAGNE.dept, facilityUid: MSP_A.uid, facilityName: MSP_A.name, memberships: [ORG_UID], tags: [], longitude: '4.939488', latitude: '43.927596' }),
-	makeEntry({ uid: 'e-damien', name: 'Damien Roux', type: DOCTOR, communeUid: AVIGNON.uid, communeName: AVIGNON.name, departmentCode: AVIGNON.dept, facilityUid: CENTRE_C.uid, facilityName: CENTRE_C.name, memberships: [ORG_UID], tags: [TAG_GERIA], longitude: '4.805528', latitude: '43.949317' }),
-	makeEntry({ uid: 'e-elodie', name: 'Élodie Barre', type: PHYSIO, communeUid: AVIGNON.uid, communeName: AVIGNON.name, departmentCode: AVIGNON.dept, facilityUid: CENTRE_C.uid, facilityName: CENTRE_C.name, memberships: [], tags: [TAG_SPORT], longitude: '4.805528', latitude: '43.949317' }),
-	makeEntry({ uid: 'e-farid', name: 'Farid Benali', type: NURSE, communeUid: AVIGNON.uid, communeName: AVIGNON.name, departmentCode: AVIGNON.dept, facilityUid: CENTRE_C.uid, facilityName: CENTRE_C.name, memberships: [], tags: [], longitude: '4.805528', latitude: '43.949317' }),
-	makeEntry({ uid: 'e-gaelle', name: 'Gaëlle Petit', type: DOCTOR, communeUid: NIMES.uid, communeName: NIMES.name, departmentCode: NIMES.dept, facilityUid: POLE_D.uid, facilityName: POLE_D.name, memberships: [ORG_UID], tags: [TAG_ONCO], longitude: '4.360054', latitude: '43.836699' }),
-	makeEntry({ uid: 'e-hugo', name: 'Hugo Marchand', type: PHYSIO, communeUid: NIMES.uid, communeName: NIMES.name, departmentCode: NIMES.dept, facilityUid: POLE_D.uid, facilityName: POLE_D.name, memberships: [], tags: [TAG_SPORT, TAG_GERIA], longitude: '4.360054', latitude: '43.836699' }),
-	makeEntry({ uid: 'e-ines', name: 'Inès Fabre', type: NURSE, communeUid: NIMES.uid, communeName: NIMES.name, departmentCode: NIMES.dept, facilityUid: POLE_D.uid, facilityName: POLE_D.name, memberships: [ORG_UID], tags: [], active: false, longitude: '4.360054', latitude: '43.836699' }),
-	makeEntry({ uid: 'e-jean', name: 'Jean Ferrand', type: PHYSIO, communeUid: GADAGNE.uid, communeName: GADAGNE.name, departmentCode: GADAGNE.dept, facilityUid: MSP_A.uid, facilityName: MSP_A.name, memberships: [ORG_UID], tags: [], active: false, longitude: '4.939488', latitude: '43.927596' })
+	makeEntry({
+		uid: 'e-alice',
+		name: 'Alice Martin',
+		type: NURSE,
+		communeUid: GADAGNE.uid,
+		communeName: GADAGNE.name,
+		departmentCode: GADAGNE.dept,
+		facilityUid: MSP_A.uid,
+		facilityName: MSP_A.name,
+		memberships: [ORG_UID],
+		tags: [TAG_ONCO],
+		longitude: '4.939488',
+		latitude: '43.927596'
+	}),
+	makeEntry({
+		uid: 'e-bruno',
+		name: 'Bruno Lopez',
+		type: NURSE,
+		communeUid: GADAGNE.uid,
+		communeName: GADAGNE.name,
+		departmentCode: GADAGNE.dept,
+		facilityUid: CABINET_B.uid,
+		facilityName: CABINET_B.name,
+		memberships: [ORG_UID],
+		tags: [TAG_ONCO, TAG_GERIA],
+		longitude: '4.941000',
+		latitude: '43.928000'
+	}),
+	makeEntry({
+		uid: 'e-chloe',
+		name: 'Chloé Nguyen',
+		type: DOCTOR,
+		communeUid: GADAGNE.uid,
+		communeName: GADAGNE.name,
+		departmentCode: GADAGNE.dept,
+		facilityUid: MSP_A.uid,
+		facilityName: MSP_A.name,
+		memberships: [ORG_UID],
+		tags: [],
+		longitude: '4.939488',
+		latitude: '43.927596'
+	}),
+	makeEntry({
+		uid: 'e-damien',
+		name: 'Damien Roux',
+		type: DOCTOR,
+		communeUid: AVIGNON.uid,
+		communeName: AVIGNON.name,
+		departmentCode: AVIGNON.dept,
+		facilityUid: CENTRE_C.uid,
+		facilityName: CENTRE_C.name,
+		memberships: [ORG_UID],
+		tags: [TAG_GERIA],
+		longitude: '4.805528',
+		latitude: '43.949317'
+	}),
+	makeEntry({
+		uid: 'e-elodie',
+		name: 'Élodie Barre',
+		type: PHYSIO,
+		communeUid: AVIGNON.uid,
+		communeName: AVIGNON.name,
+		departmentCode: AVIGNON.dept,
+		facilityUid: CENTRE_C.uid,
+		facilityName: CENTRE_C.name,
+		memberships: [],
+		tags: [TAG_SPORT],
+		longitude: '4.805528',
+		latitude: '43.949317'
+	}),
+	makeEntry({
+		uid: 'e-farid',
+		name: 'Farid Benali',
+		type: NURSE,
+		communeUid: AVIGNON.uid,
+		communeName: AVIGNON.name,
+		departmentCode: AVIGNON.dept,
+		facilityUid: CENTRE_C.uid,
+		facilityName: CENTRE_C.name,
+		memberships: [],
+		tags: [],
+		longitude: '4.805528',
+		latitude: '43.949317'
+	}),
+	makeEntry({
+		uid: 'e-gaelle',
+		name: 'Gaëlle Petit',
+		type: DOCTOR,
+		communeUid: NIMES.uid,
+		communeName: NIMES.name,
+		departmentCode: NIMES.dept,
+		facilityUid: POLE_D.uid,
+		facilityName: POLE_D.name,
+		memberships: [ORG_UID],
+		tags: [TAG_ONCO],
+		longitude: '4.360054',
+		latitude: '43.836699'
+	}),
+	makeEntry({
+		uid: 'e-hugo',
+		name: 'Hugo Marchand',
+		type: PHYSIO,
+		communeUid: NIMES.uid,
+		communeName: NIMES.name,
+		departmentCode: NIMES.dept,
+		facilityUid: POLE_D.uid,
+		facilityName: POLE_D.name,
+		memberships: [],
+		tags: [TAG_SPORT, TAG_GERIA],
+		longitude: '4.360054',
+		latitude: '43.836699'
+	}),
+	makeEntry({
+		uid: 'e-ines',
+		name: 'Inès Fabre',
+		type: NURSE,
+		communeUid: NIMES.uid,
+		communeName: NIMES.name,
+		departmentCode: NIMES.dept,
+		facilityUid: POLE_D.uid,
+		facilityName: POLE_D.name,
+		memberships: [ORG_UID],
+		tags: [],
+		active: false,
+		longitude: '4.360054',
+		latitude: '43.836699'
+	}),
+	makeEntry({
+		uid: 'e-jean',
+		name: 'Jean Ferrand',
+		type: PHYSIO,
+		communeUid: GADAGNE.uid,
+		communeName: GADAGNE.name,
+		departmentCode: GADAGNE.dept,
+		facilityUid: MSP_A.uid,
+		facilityName: MSP_A.name,
+		memberships: [ORG_UID],
+		tags: [],
+		active: false,
+		longitude: '4.939488',
+		latitude: '43.927596'
+	})
 ];
 
 /** Situations, as the API returns them: a uid and the entry uids it holds. */
-export const SITUATION_URGENT = makeSituation('situation-urgent', ['e-alice', 'e-damien', 'e-farid', 'e-hugo']);
+export const SITUATION_URGENT = makeSituation('situation-urgent', [
+	'e-alice',
+	'e-damien',
+	'e-farid',
+	'e-hugo'
+]);
 export const SITUATION_EMPTY = makeSituation('situation-empty', []);
 export const directorySituations: Situation[] = [SITUATION_URGENT, SITUATION_EMPTY];

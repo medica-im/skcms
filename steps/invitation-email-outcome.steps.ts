@@ -25,7 +25,10 @@ EmailSuppression.objects.filter(address=${JSON.stringify(ctx.email)}).delete()
  * then accepted by the mail service. No email actually leaves.
  */
 Given('an invitation whose email was just sent', async ({ baseURL }) => {
-	const seeded = await seedInvitee({ siteDomain: new URL(baseURL).hostname, name: `Envoi ${Date.now()}` });
+	const seeded = await seedInvitee({
+		siteDomain: new URL(baseURL).hostname,
+		name: `Envoi ${Date.now()}`
+	});
 	Object.assign(ctx, seeded);
 	const out = await djangoShell(`
 from mailer.delivery import record_queued, mark_result
@@ -90,34 +93,40 @@ When('the mail service reports that the email bounced', reportBounce);
 
 // The list's data is fetched before the report and shown after it: the moment
 // a stream opened by the list itself would not be listening yet.
-When('I go back to the list while the mail service reports that the email was delivered', async ({ page }) => {
-	const back = page.getByRole('link', { name: 'Retour aux invitations' });
-	await expect(back).toBeVisible();
-	// A reader's pace, as on the list.
-	await page.waitForTimeout(1000);
-	let fetched!: () => void;
-	const dataFetched = new Promise<void>((resolve) => (fetched = resolve));
-	let release!: () => void;
-	const released = new Promise<void>((resolve) => (release = resolve));
-	await page.route('**/web/invite/invitees/__data.json*', async (route) => {
-		const response = await route.fetch();
-		fetched();
-		await released;
-		await route.fulfill({ response });
-	});
-	await back.click();
-	await dataFetched;
-	await reportDelivered();
-	release();
-	await page.waitForURL('**/web/invite/invitees');
-});
+When(
+	'I go back to the list while the mail service reports that the email was delivered',
+	async ({ page }) => {
+		const back = page.getByRole('link', { name: 'Retour aux invitations' });
+		await expect(back).toBeVisible();
+		// A reader's pace, as on the list.
+		await page.waitForTimeout(1000);
+		let fetched!: () => void;
+		const dataFetched = new Promise<void>((resolve) => (fetched = resolve));
+		let release!: () => void;
+		const released = new Promise<void>((resolve) => (release = resolve));
+		await page.route('**/web/invite/invitees/__data.json*', async (route) => {
+			const response = await route.fetch();
+			fetched();
+			await released;
+			await route.fulfill({ response });
+		});
+		await back.click();
+		await dataFetched;
+		await reportDelivered();
+		release();
+		await page.waitForURL('**/web/invite/invitees');
+	}
+);
 
-Then("without reloading, that invitation's email is shown as {string}", async ({ page }, words: string) => {
-	// A marker on window dies with a reload: proof the list updated itself.
-	await page.evaluate(() => ((window as any).__sameDocument = true));
-	await expect(cell(page)).toContainText(words, { timeout: 30_000 });
-	expect(await page.evaluate(() => (window as any).__sameDocument)).toBe(true);
-});
+Then(
+	"without reloading, that invitation's email is shown as {string}",
+	async ({ page }, words: string) => {
+		// A marker on window dies with a reload: proof the list updated itself.
+		await page.evaluate(() => ((window as any).__sameDocument = true));
+		await expect(cell(page)).toContainText(words, { timeout: 30_000 });
+		expect(await page.evaluate(() => (window as any).__sameDocument)).toBe(true);
+	}
+);
 
 When('I open its page', async ({ page }) => {
 	await page.goto(`/web/invite/invitees/${ctx.uid}`);
@@ -144,6 +153,8 @@ When('the mail service reports that the email was delivered', reportDelivered);
 
 Then('without reloading, its page says its email is {string}', async ({ page }, words: string) => {
 	await page.evaluate(() => ((window as any).__sameDocument = true));
-	await expect(page.getByTestId('invitee-email-delivery')).toContainText(words, { timeout: 30_000 });
+	await expect(page.getByTestId('invitee-email-delivery')).toContainText(words, {
+		timeout: 30_000
+	});
 	expect(await page.evaluate(() => (window as any).__sameDocument)).toBe(true);
 });

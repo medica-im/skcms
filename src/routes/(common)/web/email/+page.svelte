@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import type { PageData } from './$types';
-	import type { BatchEmailMessage } from '$lib/interfaces/v2/batchEmail';
-	import type { User } from '$lib/interfaces/v2/user';
-	import BatchEmailCard from '$lib/Web/Email/BatchEmailCard.svelte';
+	import type { BatchEmailMessage } from '#lib/interfaces/v2/batchEmail.ts';
+	import type { User } from '#lib/interfaces/v2/user.ts';
+	import BatchEmailCard from '#lib/Web/Email/BatchEmailCard.svelte';
 	import Fa from 'svelte-fa';
 	import { faSearch, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
-	import SortHeader from '$lib/components/Table/SortHeader.svelte';
-	import { sortByDateTime } from '$lib/utils/dateTimeSort';
-	import { base } from '$app/paths';
+	import SortHeader from '#lib/components/Table/SortHeader.svelte';
+	import { sortByDateTime } from '#lib/utils/dateTimeSort.ts';
+	import { base } from '#lib/utils/base.ts';
 
 	let { data }: { data: PageData } = $props();
 	let emails = $derived(data.emails as BatchEmailMessage[] | undefined);
@@ -36,12 +36,8 @@
 				const authorUid = e.author_uid.toLowerCase();
 				const subject = e.subject.toLowerCase();
 				const recipientMatch = e.recipient_uids.some((uid) => uid.toLowerCase().includes(q));
-				return (
-					authorName.includes(q) ||
-					authorUid.includes(q) ||
-					subject.includes(q) ||
-					recipientMatch
-				);
+
+				return authorName.includes(q) || authorUid.includes(q) || subject.includes(q) || recipientMatch;
 			});
 		}
 		return sortByDateTime(list, (email) => email.sent_at, sortDesc ? 'desc' : 'asc');
@@ -57,7 +53,11 @@
 				{filteredEmails.length} message{filteredEmails.length !== 1 ? 's' : ''}
 			</p>
 		</div>
-		<a href="{base}/web/email/send" class="btn variant-filled-primary">
+
+		<a
+			href="{base()}/web/email/send"
+			class="btn variant-filled-primary"
+		>
 			<Fa icon={faPaperPlane} class="mr-2" />
 			Nouveau message
 		</a>
@@ -77,7 +77,7 @@
 			label="Date"
 			active={true}
 			direction={sortDesc ? 'desc' : 'asc'}
-			onclick={() => (sortDesc = !sortDesc)}
+			onclick={() => sortDesc = !sortDesc}
 		/>
 		<span>Auteur</span>
 		<span>Objet</span>
@@ -91,7 +91,7 @@
 		{#if filteredEmails.length > 0}
 			{#each filteredEmails as email (email.id)}
 				<BatchEmailCard
-					{email}
+					email={email}
 					authorName={getAuthorName(email.author_uid)}
 					authorUid={email.author_uid}
 				/>

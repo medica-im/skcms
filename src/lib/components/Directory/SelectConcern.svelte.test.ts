@@ -9,12 +9,12 @@ import { page as screen } from 'vitest/browser';
 import { writable } from 'svelte/store';
 import * as m from '$msgs';
 import SelectConcern from './SelectConcern.svelte';
-import { choose, clear, lastQuery } from '$lib/testing/directoryFilter';
-import type { Concern } from '$lib/store/concernTree';
-import { AA_TEXT, inScheme, legibility } from '$lib/testing/contrast.ts';
+import { choose, clear, lastQuery } from '#lib/testing/directoryFilter.ts';
+import type { Concern } from '#lib/store/concernTree.ts';
+import { AA_TEXT, inScheme, legibility } from '#lib/testing/contrast.ts';
 import '../../../app.postcss';
 // As the root layout loads it: the select's colours come from here and the theme.
-import '$lib/assets/css/svelte-select.css';
+import '#lib/assets/css/svelte-select.css';
 
 document.body.dataset.theme = 'wintry';
 

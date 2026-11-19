@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { base } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 	import { page } from '$app/state';
-	import Occupations from '$lib/Organization/Occupations.svelte';
+	import Occupations from '#lib/Organization/Occupations.svelte';
 	import Fa from 'svelte-fa';
 	import { faAddressBook } from '@fortawesome/free-regular-svg-icons';
-	import TeamCarousel from '$lib/Carousel/TeamCarousel.svelte';
+	import TeamCarousel from '#lib/Carousel/TeamCarousel.svelte';
 	import * as m from '$msgs';
 	export let data: any;
 
-	const dirPath = `${base}${page.data.directory.setting.path || "/"}`;
+	const dirPath = `${base()}${page.data.directory.setting.path || "/"}`;
 
 	function displayTitle(): string|undefined {
 		if ( page.data.organization.category.name == 'msp' ) {

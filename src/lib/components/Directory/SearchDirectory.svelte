@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { getTerm } from '$lib/components/Directory/context';
+	import { getTerm } from '#lib/components/Directory/context.ts';
 	import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import DocsIcon from '$lib/Icon/Icon.svelte';
+	import DocsIcon from '#lib/Icon/Icon.svelte';
 	import * as m from "$msgs";
 
 	const term = getTerm();
@@ -24,24 +24,24 @@
 		placeholder={m.ADDRESSBOOK_SEARCH_PLACEHOLDER()}
 		bind:value={$term}
 		onblur={() => {
-			const url = new URL(page.url);
+			const url = new URL(page.url.href);
 			if ($term) {
 				url.searchParams.set('term', $term);
 			} else {
 				url.searchParams.delete('term');
 			}
 			const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
-			goto(newUrl, { replaceState: true, noScroll: true, keepFocus: true });
+			goto(newUrl, { replaceState: true, reset: false });
 		}}
 		aria-label={m.ADDRESSBOOK_SEARCH_ARIA_LABEL()}
 	/>
 	<button
 		class="variant-filled-secondary"
 		onclick={() => {
-			const url = new URL(page.url);
+			const url = new URL(page.url.href);
 			url.searchParams.delete('term');
 			const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
-			goto(newUrl, { noScroll: true, keepFocus: true });
+			goto(newUrl, { reset: false });
 		}}
 		aria-label={m.ADDRESSBOOK_CLEAR()}
 		disabled={!$term}

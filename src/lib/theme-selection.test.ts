@@ -80,8 +80,7 @@ describe('the theme the dropdown starts on', () => {
  * pure helper would not have caught it in the first place.
  */
 describe('the appbar and the theme store, as wired', () => {
-	const read = (p: string) =>
-		readFileSync(new URL(p, import.meta.url), 'utf8');
+	const read = (p: string) => readFileSync(new URL(p, import.meta.url), 'utf8');
 
 	it('does not hardcode a theme as the store default', () => {
 		// `localStorageStore('storeTheme', 'wintry')` is the bug: a literal that

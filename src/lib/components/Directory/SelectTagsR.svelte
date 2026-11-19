@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import Select from '$lib/Web/Select.svelte';
+	import Select from '#lib/Web/Select.svelte';
 	import { onMount } from 'svelte';
 	import * as m from '$msgs';
 	import { getSelectedTags, getSelectCategories } from './context';
-	import { arrayFilterUnique } from '$lib/utils/utils.ts';
-	import type { Tag, TagCategory, Type } from '$lib/store/directoryStoreInterface';
-	import { tagCategoriesShownF } from '$lib/store/directoryStore';
-	import type { SelectType } from '$lib/interfaces/select';
-	import type { Entry } from '$lib/store/directoryStoreInterface';
+	import { arrayFilterUnique } from '#lib/utils/utils.ts';
+	import type { Tag, TagCategory, Type } from '#lib/store/directoryStoreInterface.ts';
+	import { tagCategoriesShownF } from '#lib/store/directoryStore.ts';
+	import type { SelectType } from '#lib/interfaces/select.ts';
+	import type { Entry } from '#lib/store/directoryStoreInterface.ts';
 
 	let { tagOf, categoryOf }: { tagOf: Tag[]; categoryOf: Type[] } = $props();
 
@@ -67,8 +67,9 @@
 		if (cleared) {
 			$selectedTags = null;
 			if (page.url.searchParams.get('tags')) {
-				page.url.searchParams.delete('tags');
-				goto(page.url.pathname + '?' + page.url.searchParams);
+				const url = new URL(page.url.href);
+				url.searchParams.delete('tags');
+				goto(url.pathname + '?' + url.searchParams);
 			}
 		}
 	}

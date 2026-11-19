@@ -26,7 +26,11 @@ function run(...args: string[]): { out: string; status: number } {
 
 function runWith(env: Record<string, string>, ...args: string[]): { out: string; status: number } {
 	try {
-		const options = { encoding: 'utf8' as const, stdio: 'pipe' as const, env: { ...process.env, ...env } };
+		const options = {
+			encoding: 'utf8' as const,
+			stdio: 'pipe' as const,
+			env: { ...process.env, ...env }
+		};
 		return { out: execFileSync('bash', [SCRIPT, ...args], options), status: 0 };
 	} catch (e: unknown) {
 		const err = e as { stdout?: string; stderr?: string; status?: number };
@@ -80,7 +84,8 @@ describe('check-staging.sh', () => {
  */
 describe('check-staging.sh run log', () => {
 	const logDir = () => mkdtempSync(join(tmpdir(), 'check-staging-logs-'));
-	const logs = (dir: string) => readdirSync(dir).filter((f) => /^check-staging-2\d+-\d+\.log$/.test(f));
+	const logs = (dir: string) =>
+		readdirSync(dir).filter((f) => /^check-staging-2\d+-\d+\.log$/.test(f));
 
 	it('writes each run to a dated file, and points -latest at it', () => {
 		const [site] = stagingNames();
@@ -108,7 +113,11 @@ describe('check-staging.sh run log', () => {
 	it('keeps the last 20 runs', () => {
 		const [site] = stagingNames();
 		const dir = logDir();
-		for (let i = 0; i < 25; i++) writeFileSync(join(dir, `check-staging-2020010${i % 9}-0000${String(i).padStart(2, '0')}.log`), '');
+		for (let i = 0; i < 25; i++)
+			writeFileSync(
+				join(dir, `check-staging-2020010${i % 9}-0000${String(i).padStart(2, '0')}.log`),
+				''
+			);
 		runWith({ CHECK_STAGING_LOG_DIR: dir }, '--dry-run', site);
 		expect(logs(dir).length).toBeLessThanOrEqual(20);
 	});

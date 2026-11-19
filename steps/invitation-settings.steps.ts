@@ -18,25 +18,28 @@ After({ tags: '@invitation-settings' }, async () => {
 	);
 });
 
-When('I set the days before a reminder to {int} and save', async ({ page, baseURL }, days: number) => {
-	const siteDomain = new URL(baseURL).hostname;
-	const out = await djangoShell(
-		`from facility.models import Organization\n` +
-			`print("DAYS", Organization.objects.get(site__domain=${JSON.stringify(siteDomain)}).invitation_resend_after_days)`,
-		{ readOnly: true }
-	);
-	restore = { siteDomain, days: Number(out.match(/DAYS (\d+)/)![1]) };
+When(
+	'I set the days before a reminder to {int} and save',
+	async ({ page, baseURL }, days: number) => {
+		const siteDomain = new URL(baseURL).hostname;
+		const out = await djangoShell(
+			`from facility.models import Organization\n` +
+				`print("DAYS", Organization.objects.get(site__domain=${JSON.stringify(siteDomain)}).invitation_resend_after_days)`,
+			{ readOnly: true }
+		);
+		restore = { siteDomain, days: Number(out.match(/DAYS (\d+)/)![1]) };
 
-	const input = page.getByRole('spinbutton', { name: 'Délai avant relance, en jours' });
-	const save = page.getByRole('button', { name: 'Enregistrer' });
-	// Filled until the button answers: a value typed before hydration
-	// reaches no handler, and the button stays disabled.
-	await expect(async () => {
-		await input.fill(String(days));
-		await expect(save).toBeEnabled({ timeout: 1000 });
-	}).toPass();
-	await save.click();
-});
+		const input = page.getByRole('spinbutton', { name: 'Délai avant relance, en jours' });
+		const save = page.getByRole('button', { name: 'Enregistrer' });
+		// Filled until the button answers: a value typed before hydration
+		// reaches no handler, and the button stays disabled.
+		await expect(async () => {
+			await input.fill(String(days));
+			await expect(save).toBeEnabled({ timeout: 1000 });
+		}).toPass();
+		await save.click();
+	}
+);
 
 Then('the settings are saved', async ({ page }) => {
 	await expect(page.getByTestId('settings-saved')).toContainText('Réglages enregistrés.');

@@ -12,13 +12,13 @@
 		faSquarePlus,
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import type { Email } from '$lib/interfaces/email.interface.ts';
-	import Select from '$lib/Web/Select.svelte';
+	import type { Email } from '#lib/interfaces/email.interface.ts';
+	import Select from '#lib/Web/Select.svelte';
 	import Dialog from '../Dialog.svelte';
 	import { copy } from 'svelte-copy';
 	import { page } from '$app/state';
-	import { accessSelectTypes, getRoles } from '$lib/Web/access.ts';
-	import type { SelectType } from '$lib/interfaces/select.ts';
+	import { accessSelectTypes, getRoles } from '#lib/Web/access.ts';
+	import type { SelectType } from '#lib/interfaces/select.ts';
 
 	let {
 		entry

@@ -1,4 +1,4 @@
-import { dev } from '$app/environment';
+import { dev } from '$app/env';
 import { error } from '@sveltejs/kit';
 
 // A fixture for the BDD suite, not a page of the site. Guarded rather than

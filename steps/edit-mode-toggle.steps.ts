@@ -9,8 +9,7 @@ const { Given, When, Then } = createBdd(test);
 /** Backend of the site under test, read from PUBLIC_ORIGIN in .env. */
 const API_ORIGIN = apiOrigin();
 
-const editButton = (page: import('@playwright/test').Page) =>
-	page.getByRole('switch').first();
+const editButton = (page: import('@playwright/test').Page) => page.getByRole('switch').first();
 
 /**
  * Any entry page will do — the button is part of the shared contact layout, not
@@ -131,13 +130,21 @@ Then('the on and off states differ in shape', async ({ page }) => {
 	const button = editButton(page);
 	const on = await button.evaluate((el) => {
 		const style = getComputedStyle(el);
-		return { background: style.backgroundColor, border: style.borderWidth, shadow: style.boxShadow };
+		return {
+			background: style.backgroundColor,
+			border: style.borderWidth,
+			shadow: style.boxShadow
+		};
 	});
 	await button.click();
 	await page.waitForTimeout(300);
 	const off = await button.evaluate((el) => {
 		const style = getComputedStyle(el);
-		return { background: style.backgroundColor, border: style.borderWidth, shadow: style.boxShadow };
+		return {
+			background: style.backgroundColor,
+			border: style.borderWidth,
+			shadow: style.boxShadow
+		};
 	});
 	expect(
 		on.border !== off.border || on.shadow !== off.shadow,

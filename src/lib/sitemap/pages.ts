@@ -2,8 +2,8 @@
  * A site's own pages, for its sitemap.xml: what its menu links to, plus any
  * page the menu leaves out, named by the site's skvar route.
  */
-import { base } from '$app/paths';
-import type { MenuNavCat } from '$lib/interfaces/variables.interface';
+import { base } from '#lib/utils/base.ts';
+import type { MenuNavCat } from '#lib/interfaces/variables.interface.ts';
 import type { SitemapUrl } from './sitemap';
 
 /** Every category page and every page the menu shows a link to, once, in menu order. */
@@ -21,5 +21,5 @@ export function menuPaths(menu: MenuNavCat[]): string[] {
 }
 
 export async function pageUrls(origin: string, paths: string[]): Promise<SitemapUrl[]> {
-	return paths.map((path) => ({ loc: `${origin}${base}${path}` }));
+	return paths.map((path) => ({ loc: `${origin}${base()}${path}` }));
 }

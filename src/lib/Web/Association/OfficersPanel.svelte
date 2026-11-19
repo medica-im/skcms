@@ -1,8 +1,8 @@
 <script lang="ts">
 	import * as m from '$msgs';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import type { Officer, OrganizationRole } from '$lib/interfaces/v2/association';
-	import type { Effector } from '$lib/interfaces/v2/effector';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import type { Officer, OrganizationRole } from '#lib/interfaces/v2/association.ts';
+	import type { Effector } from '#lib/interfaces/v2/effector.ts';
 	import OfficerRow from './OfficerRow.svelte';
 	import CreateOfficer from './CreateOfficer.svelte';
 

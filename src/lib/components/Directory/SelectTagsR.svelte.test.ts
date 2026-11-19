@@ -14,8 +14,8 @@ import { render } from 'vitest-browser-svelte';
 import { page as screen, userEvent } from 'vitest/browser';
 import { get, writable } from 'svelte/store';
 import SelectTagsR from './SelectTagsR.svelte';
-import type { Tag } from '$lib/store/directoryStoreInterface';
-import { makeEntry, NURSE, IPA, IPA_MENTIONS } from '$lib/store/directoryStore.fixtures.ts';
+import type { Tag } from '#lib/store/directoryStoreInterface.ts';
+import { makeEntry, NURSE, IPA, IPA_MENTIONS } from '#lib/store/directoryStore.fixtures.ts';
 import '../../../app.postcss';
 
 const entries = [
@@ -34,7 +34,10 @@ vi.mock('$app/state', () => ({
 }));
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
 
-const stores = () => ({ selectCategories: writable<string[]>([]), selectedTags: writable<Tag[] | null>(null) });
+const stores = () => ({
+	selectCategories: writable<string[]>([]),
+	selectedTags: writable<Tag[] | null>(null)
+});
 const mount = (categoryOf: (typeof IPA)[], tagOf: Tag[] = IPA_MENTIONS, s = stores()) => ({
 	s,
 	view: render(SelectTagsR, {
@@ -47,7 +50,8 @@ const mount = (categoryOf: (typeof IPA)[], tagOf: Tag[] = IPA_MENTIONS, s = stor
 });
 const mentionSelect = () => screen.getByPlaceholder('mention');
 /** The options the open list shows, as text. */
-const shown = () => [...document.querySelectorAll('.list-item')].map((e) => e.textContent?.trim() ?? '');
+const shown = () =>
+	[...document.querySelectorAll('.list-item')].map((e) => e.textContent?.trim() ?? '');
 /**
  * Types `query` until the list shows `until`, by fill rather than click.
  *
@@ -83,7 +87,9 @@ describe('SelectTagsR', () => {
 		await typeUntil('PCS', (options) => options.includes('PCS'));
 		await userEvent.click(screen.getByText('PCS', { exact: true }));
 		await expect.poll(() => get(s.selectedTags)?.map((t) => t.labelShort)).toEqual(['PCS']);
-		await expect.poll(() => document.querySelector('.selected-item')?.textContent?.trim()).toBe('PCS');
+		await expect
+			.poll(() => document.querySelector('.selected-item')?.textContent?.trim())
+			.toBe('PCS');
 	});
 
 	it('keeps them hidden while infirmiers are offered too, until IPA is chosen', async () => {

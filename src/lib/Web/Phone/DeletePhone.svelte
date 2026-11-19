@@ -12,9 +12,9 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Dialog from '../Dialog.svelte';
-	import Phone from '$lib/Directory/Phone/Phone.svelte';
-	import type { FormResult } from '$lib/interfaces/v2/form';
-	import type { Phone as PhoneType } from '$lib/interfaces/phone.interface.ts';
+	import Phone from '#lib/Directory/Phone/Phone.svelte';
+	import type { FormResult } from '#lib/interfaces/v2/form.ts';
+	import type { Phone as PhoneType } from '#lib/interfaces/phone.interface.ts';
 
 	let {
 		data

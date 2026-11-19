@@ -4,7 +4,7 @@
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faCheck, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
-	import type { EffectorType } from '$lib/interfaces/v2/effector';
+	import type { EffectorType } from '#lib/interfaces/v2/effector.ts';
 
 	interface Props {
 		data: {
@@ -31,7 +31,7 @@
 		{...deleteEffectorType.for(effectorType.uid)}
 		class="grid grid-cols-1 gap-4 w-full max-w-xl"
 	>
-		<input type="hidden" name="uid" value={effectorType.uid} />
+		<input {...deleteEffectorType.for(effectorType.uid).fields.uid.as('hidden', effectorType.uid ?? '')} />
 
 		<!-- Submit -->
 		<div class="flex gap-8">

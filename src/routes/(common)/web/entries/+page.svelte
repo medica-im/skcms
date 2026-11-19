@@ -2,10 +2,10 @@
 	import { variables } from '$src/lib/utils/constants';
 	import { page } from '$app/state';
 	import * as m from '$msgs';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import Directory from '$lib/components/Directory/CtxDirectory.svelte';
-	import EntriesTable from '$lib/Web/Entries/EntriesTable.svelte';
-	import { mergeAdmin, type AdminEntry, type AdminFields } from '$lib/Web/Entries/entriesTable';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import Directory from '#lib/components/Directory/CtxDirectory.svelte';
+	import EntriesTable from '#lib/Web/Entries/EntriesTable.svelte';
+	import { mergeAdmin, type AdminEntry, type AdminFields } from '#lib/Web/Entries/entriesTable.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();

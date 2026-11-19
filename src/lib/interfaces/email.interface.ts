@@ -1,6 +1,5 @@
-
 export interface Email {
-    id: number,
-    email: string,
-    roles: string[]
+	id: number;
+	email: string;
+	roles: string[];
 }

@@ -10,7 +10,10 @@ import { DISMISSED_COOKIE, dismissedCookie, parseDismissed } from './dismissed';
 
 describe('parseDismissed', () => {
 	it('reads the ids from the cookie', () => {
-		expect(parseDismissed('association-alert-v1,heatwave')).toEqual(['association-alert-v1', 'heatwave']);
+		expect(parseDismissed('association-alert-v1,heatwave')).toEqual([
+			'association-alert-v1',
+			'heatwave'
+		]);
 	});
 
 	it('reads no cookie, or an empty one, as nothing closed', () => {
@@ -27,6 +30,8 @@ describe('dismissedCookie', () => {
 	});
 
 	it('lists an alert once, however often it is closed', () => {
-		expect(dismissedCookie(['a'], 'a', false)).toBe(`${DISMISSED_COOKIE}=a; Path=/; Max-Age=31536000; SameSite=Lax`);
+		expect(dismissedCookie(['a'], 'a', false)).toBe(
+			`${DISMISSED_COOKIE}=a; Path=/; Max-Age=31536000; SameSite=Lax`
+		);
 	});
 });

@@ -37,11 +37,19 @@ describe('sortByDateTime', () => {
 	const undated = row('undated', null);
 
 	it('puts the newest first when descending, whatever the date type', () => {
-		expect(ids(sortByDateTime([march, september, june], byDate, 'desc'))).toEqual(['september', 'june', 'march']);
+		expect(ids(sortByDateTime([march, september, june], byDate, 'desc'))).toEqual([
+			'september',
+			'june',
+			'march'
+		]);
 	});
 
 	it('puts the oldest first when ascending', () => {
-		expect(ids(sortByDateTime([march, september, june], byDate, 'asc'))).toEqual(['march', 'june', 'september']);
+		expect(ids(sortByDateTime([march, september, june], byDate, 'asc'))).toEqual([
+			'march',
+			'june',
+			'september'
+		]);
 	});
 
 	it('puts an undated row last in either direction', () => {

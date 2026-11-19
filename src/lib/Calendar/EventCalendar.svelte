@@ -12,7 +12,7 @@
 	// (Monday first) with it.
 	import frLocale from '@fullcalendar/core/locales/fr';
 	import { getLocale } from '$prgld/runtime.js';
-	import Dialog from '$lib/Web/Dialog.svelte';
+	import Dialog from '#lib/Web/Dialog.svelte';
 	import Fa from 'svelte-fa';
 	import { faMaximize, faMinimize } from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';

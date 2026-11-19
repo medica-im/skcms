@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { getEntryUid } from '$lib/components/Directory/context';
+	import { getEntryUid } from '#lib/components/Directory/context.ts';
 	import { onMount } from 'svelte';
 	import { invalidateAll } from '$app/navigation';
 	import { patchCommand } from '../../../../entry.remote';
-	import { variables } from '$lib/utils/constants.ts';
+	import { variables } from '#lib/utils/constants.ts';
 	import { page } from '$app/state';
 	import { SvelteSet } from 'svelte/reactivity';
-	import Dialog from '$lib/Web/Dialog.svelte';
+	import Dialog from '#lib/Web/Dialog.svelte';
 	import Fa from 'svelte-fa';
 	import {
 		faPlus,
@@ -14,12 +14,12 @@
 		faCheck,
 		faExclamationCircle
 	} from '@fortawesome/free-solid-svg-icons';
-	import Select from '$lib/Web/Select.svelte';
-	import { areArraysEqualSets } from '$lib/utils/utils.ts';
-	import { mspNeo4j, cptsNeo4j } from '$lib/constants.ts';
-	import type { SelectType } from '$lib/interfaces/select';
-	import type { Entry } from '$lib/store/directoryStoreInterface';
-	import type { FormResult } from '$lib/interfaces/v2/form';
+	import Select from '#lib/Web/Select.svelte';
+	import { areArraysEqualSets } from '#lib/utils/utils.ts';
+	import { mspNeo4j, cptsNeo4j } from '#lib/constants.ts';
+	import type { SelectType } from '#lib/interfaces/select.ts';
+	import type { Entry } from '#lib/store/directoryStoreInterface.ts';
+	import type { FormResult } from '#lib/interfaces/v2/form.ts';
 
 	let {
 		currentMemberships

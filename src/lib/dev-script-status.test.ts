@@ -40,7 +40,11 @@ async function freePort(): Promise<number> {
 async function listen(port: number, name = 'vite'): Promise<ChildProcess> {
 	const child = spawn(
 		process.execPath,
-		['-e', `require('net').createServer().listen(${port}, '127.0.0.1', () => console.log('up'))`, name],
+		[
+			'-e',
+			`require('net').createServer().listen(${port}, '127.0.0.1', () => console.log('up'))`,
+			name
+		],
 		{ stdio: ['ignore', 'pipe', 'inherit'] }
 	);
 	servers.push(child);
@@ -96,14 +100,17 @@ afterEach(() => {
 	rmSync(dir, { recursive: true, force: true });
 });
 
-const line = (out: string, start: string) => out.split('\n').find((l) => l.trimStart().startsWith(start)) ?? '';
+const line = (out: string, start: string) =>
+	out.split('\n').find((l) => l.trimStart().startsWith(start)) ?? '';
 
 describe('dev.sh --list', () => {
 	it('marks the context whose server is running, with its pid', async () => {
 		const server = await listen(ports.lyon3);
 		const { out, status } = run('--list');
 		expect(status).toBe(0);
-		expect(line(out, 'lyon3')).toMatch(new RegExp(`${ports.lyon3}\\s+● running \\(pid ${server.pid}, up `));
+		expect(line(out, 'lyon3')).toMatch(
+			new RegExp(`${ports.lyon3}\\s+● running \\(pid ${server.pid}, up `)
+		);
 		expect(line(out, 'gadagne')).not.toMatch(/running/);
 	});
 
@@ -120,7 +127,9 @@ describe('dev.sh with no site named', () => {
 		const server = await listen(ports.lyon3);
 		const { out, status } = run();
 		expect(status).toBe(0);
-		expect(line(out, 'running')).toMatch(new RegExp(`lyon3 on :${ports.lyon3} \\(pid ${server.pid}, up `));
+		expect(line(out, 'running')).toMatch(
+			new RegExp(`lyon3 on :${ports.lyon3} \\(pid ${server.pid}, up `)
+		);
 		expect(line(out, '.env')).toContain('.env.dev.santelyon3.fr (lyon3)');
 		expect(line(out, 'skvar')).toContain('santelyon3.fr (lyon3)');
 		expect(out).not.toMatch(/warning:/);
@@ -143,7 +152,9 @@ describe('dev.sh with no site named', () => {
 		rmSync(join(dir, '.env'));
 		symlinkSync('.env.dev.sante-gadagne.fr', join(dir, '.env'));
 		const { out } = run();
-		expect(out).toMatch(/warning: skvar is on santelyon3\.fr, gadagne develops on sante-gadagne\.fr/);
+		expect(out).toMatch(
+			/warning: skvar is on santelyon3\.fr, gadagne develops on sante-gadagne\.fr/
+		);
 	});
 
 	it('names the test servers left running', async () => {

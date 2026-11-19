@@ -11,7 +11,7 @@ const { Given, When, Then } = createBdd(test);
 // the facility are removed afterwards.
 
 const slugInput = (page: import('@playwright/test').Page) =>
-	page.getByTestId('facility-slug-step').locator('input[name="slug"]');
+	page.getByTestId('facility-slug-step').locator('input[data-field="slug"]');
 
 let proposed: string | undefined;
 

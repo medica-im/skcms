@@ -1,32 +1,32 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import CreateInviteeModal from '$lib/Invitee/CreateInviteeModal.svelte';
+	import CreateInviteeModal from '#lib/Invitee/CreateInviteeModal.svelte';
 	import CreateInvitee from '$routes/(common)/web/invite/create/+page.svelte';
-	import EditInviteeModal from '$lib/Invitee/EditInviteeModal.svelte';
-	import DeleteInviteeModal from '$lib/Invitee/DeleteInviteeModal.svelte';
-	import { Invitee } from '$lib/Invitee';
-	import { preloadData, pushState, goto, invalidateAll } from '$app/navigation';
+	import EditInviteeModal from '#lib/Invitee/EditInviteeModal.svelte';
+	import DeleteInviteeModal from '#lib/Invitee/DeleteInviteeModal.svelte';
+	import { Invitee } from '#lib/Invitee/index.ts';
+	import { preloadData, goto, invalidateAll } from '$app/navigation';
 	import { faPlus, faFileLines, faPaperPlane, faGear, faClockRotateLeft } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import ExportModeToggle from '$lib/components/ExportModeToggle/ExportModeToggle.svelte';
+	import ExportModeToggle from '#lib/components/ExportModeToggle/ExportModeToggle.svelte';
 	import * as m from '$msgs';
-	import { normalize } from '$lib/helpers/stringHelpers.ts';
-	import { ORIGIN } from '$lib/utils/origin.ts';
+	import { normalize } from '#lib/helpers/stringHelpers.ts';
+	import { ORIGIN } from '#lib/utils/origin.ts';
 	import type { PageData } from './$types';
-	import { base } from '$app/paths';
-	import { sortByDateTime, type SortDirection } from '$lib/utils/dateTimeSort';
-	import SortHeader from '$lib/components/Table/SortHeader.svelte';
-	import SortSelect from '$lib/components/Table/SortSelect.svelte';
-	import Pagination from '$lib/components/Table/Pagination.svelte';
-	import { paginate, pageFromParam, pageSizeFromParam, PAGE_SIZES, type PageSize } from '$lib/utils/paginate';
-	import InviteeStatusFilter from '$lib/Invitee/InviteeStatusFilter.svelte';
-	import { getLiveDeliveries } from '$lib/Invitee/liveDeliveries.svelte';
-	import ResendBar from '$lib/Invitee/ResendBar.svelte';
-	import ResendConfirmDialog from '$lib/Invitee/ResendConfirmDialog.svelte';
-	import BatchResendStatus from '$lib/Invitee/BatchResendStatus.svelte';
-	import ListDateTime from '$lib/components/DateTime/ListDateTime.svelte';
-	import { resendEligibility, initialResendSelection, type ResendEligibility, type ResendRefusal } from '$lib/Invitee/resendSelection';
-	import { isRunning, type ResendJob } from '$lib/Invitee/batchResend';
+	import { base } from '#lib/utils/base.ts';
+	import { sortByDateTime, type SortDirection } from '#lib/utils/dateTimeSort.ts';
+	import SortHeader from '#lib/components/Table/SortHeader.svelte';
+	import SortSelect from '#lib/components/Table/SortSelect.svelte';
+	import Pagination from '#lib/components/Table/Pagination.svelte';
+	import { paginate, pageFromParam, pageSizeFromParam, PAGE_SIZES, type PageSize } from '#lib/utils/paginate.ts';
+	import InviteeStatusFilter from '#lib/Invitee/InviteeStatusFilter.svelte';
+	import { getLiveDeliveries } from '#lib/Invitee/liveDeliveries.svelte.ts';
+	import ResendBar from '#lib/Invitee/ResendBar.svelte';
+	import ResendConfirmDialog from '#lib/Invitee/ResendConfirmDialog.svelte';
+	import BatchResendStatus from '#lib/Invitee/BatchResendStatus.svelte';
+	import ListDateTime from '#lib/components/DateTime/ListDateTime.svelte';
+	import { resendEligibility, initialResendSelection, type ResendEligibility, type ResendRefusal } from '#lib/Invitee/resendSelection.ts';
+	import { isRunning, type ResendJob } from '#lib/Invitee/batchResend.ts';
 	import { startBatchResend } from '$src/invitee.remote.ts';
 	import {
 		countByStatus,
@@ -34,7 +34,7 @@
 		filterInvitees,
 		filterToParam,
 		type InviteeFilter
-	} from '$lib/Invitee/inviteeFilter';
+	} from '#lib/Invitee/inviteeFilter.ts';
 
 	let { data }: { data: PageData } = $props();
 	// Each email's status as the backend pushes it (bounced, delivered...),
@@ -68,10 +68,10 @@
 	const pageNumber = $derived(pageFromParam(page.url.searchParams.get('page')));
 	const pageSize = $derived(pageSizeFromParam(page.url.searchParams.get('par')));
 
-	function navigate(change: (url: URL) => void, noScroll = true) {
-		const url = new URL(page.url);
+	function navigate(change: (url: URL) => void, reset = false) {
+		const url = new URL(page.url.href);
 		change(url);
-		goto(url, { keepFocus: true, noScroll });
+		goto(url, { reset });
 	}
 
 	function setStatusFilter(filter: InviteeFilter) {
@@ -116,9 +116,8 @@
 	let searchedInvitees = $derived.by(() => {
 		if (!invitees || !searchTerm.trim()) return invitees;
 		const term = normalize(searchTerm);
-		return invitees.filter(
-			(inv) => (inv.name && normalize(inv.name).includes(term)) || normalize(inv.email).includes(term)
-		);
+
+		return invitees.filter((inv) => inv.name && normalize(inv.name).includes(term) || normalize(inv.email).includes(term));
 	});
 	const statusCounts = $derived(countByStatus(searchedInvitees ?? []));
 	// Addresses to check in the whole list, whatever the search: the banner.
@@ -284,9 +283,9 @@
 
 	const listed = $derived(
 		resendMode && onlyExcluded
-			? (filteredInvitees ?? []).filter((i) => !selectedUids.has(i.uid))
-			: (filteredInvitees ?? [])
-	);
+		? (filteredInvitees ?? []).filter((i) => !selectedUids.has(i.uid))
+		: filteredInvitees ?? []);
+
 	const view = $derived(paginate(listed, pageNumber, pageSize));
 </script>
 
@@ -311,7 +310,7 @@
 					<span class="hidden lg:block">{m.INVITEE_RESEND_MODE_BUTTON()}</span>
 				</button>
 				<a
-					href="{base}/web/invite/reminder-logs"
+					href="{base()}/web/invite/reminder-logs"
 					class="btn min-h-11 variant-ghost-secondary"
 					class:pointer-events-none={resendMode}
 					class:opacity-50={resendMode}
@@ -322,7 +321,7 @@
 					<Fa icon={faClockRotateLeft} />
 				</a>
 				<a
-					href="{base}/web/invite/batch"
+					href="{base()}/web/invite/batch"
 					class:pointer-events-none={resendMode}
 					tabindex={resendMode ? -1 : undefined}
 				>
@@ -332,7 +331,7 @@
 					</button>
 				</a>
 				<a
-					href="{base}/web/invite/create"
+					href="{base()}/web/invite/create"
 					class:pointer-events-none={resendMode}
 					tabindex={resendMode ? -1 : undefined}
 					onclick={async (e) => {
@@ -344,7 +343,7 @@
 
 						if (result.type === 'loaded' && result.status === 200) {
 							createOpen = true;
-							pushState(href, { selected: result.data });
+							goto(href, { shallow: true, state: { selected: result.data } });
 						} else {
 							goto(href);
 						}
@@ -359,7 +358,11 @@
 		</div>
 		{#if isSuperuser && !resendMode}
 			<div class="flex justify-end gap-2">
-				<a href="{base}/web/invite/settings" class="btn min-h-11 variant-ghost" title={m.INVITATION_SETTINGS_TITLE()}>
+				<a
+					href="{base()}/web/invite/settings"
+					class="btn min-h-11 variant-ghost"
+					title={m.INVITATION_SETTINGS_TITLE()}
+				>
 					<span><Fa icon={faGear} /></span>
 					<span>{m.INVITATION_SETTINGS_TITLE()}</span>
 				</a>
@@ -439,14 +442,22 @@
 	<SortSelect
 		value={`${effectiveSortColumn}:${sortDirection}`}
 		options={[
-			{ value: 'createdAt:desc', label: m.INVITEE_SORT_CREATED_NEWEST() },
-			{ value: 'createdAt:asc', label: m.INVITEE_SORT_CREATED_OLDEST() },
-			...(canSortByUse
+			{
+				value: 'createdAt:desc',
+				label: m.INVITEE_SORT_CREATED_NEWEST()
+			},
+
+			{
+				value: 'createdAt:asc',
+				label: m.INVITEE_SORT_CREATED_OLDEST()
+			},
+
+			...canSortByUse
 				? [
 						{ value: 'redeemedAt:desc', label: m.INVITEE_SORT_REDEEMED_NEWEST() },
 						{ value: 'redeemedAt:asc', label: m.INVITEE_SORT_REDEEMED_OLDEST() }
-					]
-				: [])
+				]
+				: []
 		]}
 		onchange={(value) => {
 			const [column, direction] = value.split(':');
@@ -496,7 +507,12 @@
 						onchange={() => toggleInvitee(invitee.uid)}
 					/>
 					<div class="flex-1">
-						<Invitee {invitee} highlighted={(Date.now() - new Date(invitee.createdAt).getTime()) < 60_000} onEdit={(inv) => editModal.handleEdit(inv)} onDelete={(inv) => deleteModal.handleDelete(inv)} />
+						<Invitee
+							invitee={invitee}
+							highlighted={Date.now() - new Date(invitee.createdAt).getTime() < 60_000}
+							onEdit={(inv) => editModal.handleEdit(inv)}
+							onDelete={(inv) => deleteModal.handleDelete(inv)}
+						/>
 					</div>
 				</div>
 			{:else if resendMode}
@@ -513,7 +529,7 @@
 						/>
 					</label>
 					<div class="flex-1 min-w-0">
-						<Invitee {invitee} />
+						<Invitee invitee={invitee} />
 						{#if reminder && !reminder.sendable}
 							<p class="px-3 pt-1 text-sm text-surface-600-300-token" data-testid="resend-reason">
 								{REFUSAL_LABEL[reminder.reason]()}
@@ -526,7 +542,12 @@
 					</div>
 				</div>
 			{:else}
-				<Invitee {invitee} highlighted={(Date.now() - new Date(invitee.createdAt).getTime()) < 60_000} onEdit={(inv) => editModal.handleEdit(inv)} onDelete={(inv) => deleteModal.handleDelete(inv)} />
+				<Invitee
+					invitee={invitee}
+					highlighted={Date.now() - new Date(invitee.createdAt).getTime() < 60_000}
+					onEdit={(inv) => editModal.handleEdit(inv)}
+					onDelete={(inv) => deleteModal.handleDelete(inv)}
+				/>
 			{/if}
 		{/each}
 	</div>
@@ -544,9 +565,9 @@
 		<ResendBar
 			selected={selectedUids.size}
 			sendable={sendableUids.length}
-			{onlyExcluded}
-			onselectall={() => (selectedUids = new Set(sendableUids))}
-			onselectnone={() => (selectedUids = new Set())}
+			onlyExcluded={onlyExcluded}
+			onselectall={() => selectedUids = new Set(sendableUids)}
+			onselectnone={() => selectedUids = new Set()}
 			ononlyexcluded={(only) => {
 				onlyExcluded = only;
 				firstPage();
@@ -568,7 +589,7 @@
 
 {#if createOpen}
 	<CreateInviteeModal onresult={() => {}} title={"Créer une invitation"}>
-		<CreateInvitee data={page.state.selected ?? data} onclose={() => {
+		<CreateInvitee data={(page.state.selected as any) ?? data} onclose={() => {
 			createOpen = false;
 			history.back();
 		}} />

@@ -68,11 +68,11 @@ const fullentry = (owner: string[] | null, creator: string[] | null) => ({
 	memberships: null
 });
 
-vi.mock('$lib/utils/constants.ts', () => ({
+vi.mock('#lib/utils/constants.ts', () => ({
 	variables: { BASE_URI: 'https://backend.test' }
 }));
 
-vi.mock('$lib/utils/request', () => ({
+vi.mock('#lib/utils/request.ts', () => ({
 	authReq: (url: string, method: string) => new Request(url, { method })
 }));
 
@@ -81,7 +81,7 @@ vi.mock('$lib/utils/request', () => ({
 // browser project transforming beside it, that first import took up to 13 s:
 // every test here timed out, and each timed-out load then ran into the next
 // test's backend.
-vi.mock('$app/paths', () => ({ base: '' }));
+vi.mock('$app/paths', () => ({ resolve: (path: string) => `/${path}` }));
 
 /**
  * A backend that answers the entry and the user lookups, and records what was
@@ -223,7 +223,10 @@ describe('the entry page load, on owners and creators', () => {
 		for (const role of ['staff', 'registered']) {
 			const { result, asked } = await runLoad([ALICE], [BRUNO], role);
 			expect(result.users, role).toEqual([]);
-			expect(asked.some((u) => u.includes('/api/v2/users/')), role).toBe(false);
+			expect(
+				asked.some((u) => u.includes('/api/v2/users/')),
+				role
+			).toBe(false);
 		}
 	});
 
@@ -231,9 +234,7 @@ describe('the entry page load, on owners and creators', () => {
 		// Both roles render the panel, so both must be served its data.
 		const { result } = await runLoad([ALICE], [], 'superuser');
 
-		expect(result.users).toEqual([
-			expect.objectContaining({ uid: ALICE, isOwner: true })
-		]);
+		expect(result.users).toEqual([expect.objectContaining({ uid: ALICE, isOwner: true })]);
 	});
 
 	it('resolves them on the server, so the panel needs no second round trip', async () => {

@@ -10,7 +10,9 @@ describe('holidaysFor', () => {
 	test('asks the national calendar for the whole zone, every year at once', async () => {
 		const fetchFn = vi.fn(() => ok({ '2026-12-25': 'Noël' }));
 		expect(await holidaysFor('metropole', fetchFn)).toEqual({ '2026-12-25': 'Noël' });
-		expect(fetchFn).toHaveBeenCalledWith('https://calendrier.api.gouv.fr/jours-feries/metropole.json');
+		expect(fetchFn).toHaveBeenCalledWith(
+			'https://calendrier.api.gouv.fr/jours-feries/metropole.json'
+		);
 	});
 
 	test('asks once per zone however many schedules are on the page', async () => {
@@ -38,7 +40,10 @@ describe('holidaysFor', () => {
 	});
 
 	test('a failure is not remembered: the next call asks again', async () => {
-		const fetchFn = vi.fn().mockImplementationOnce(failing).mockImplementation(() => ok({ '2026-01-01': 'Jour de l’an' }));
+		const fetchFn = vi
+			.fn()
+			.mockImplementationOnce(failing)
+			.mockImplementation(() => ok({ '2026-01-01': 'Jour de l’an' }));
 		await holidaysFor('metropole', fetchFn);
 		expect(await holidaysFor('metropole', fetchFn)).toEqual({ '2026-01-01': 'Jour de l’an' });
 		expect(fetchFn).toHaveBeenCalledTimes(2);

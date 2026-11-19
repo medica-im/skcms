@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { Avatar } from '@skeletonlabs/skeleton';
 	import * as m from '$msgs';
-	import Phone from '$lib/Directory/Phone/Phone.svelte';
-	import Emails from '$lib/Email/Emails.svelte';
-	import { avatarSrc } from '$lib/components/Effector/Avatar/avatarUrl.ts';
-	import { PUBLIC_URL } from '$lib/utils/appUrl';
-	import type { EntryFull } from '$lib/store/directoryStoreInterface';
+	import Phone from '#lib/Directory/Phone/Phone.svelte';
+	import Emails from '#lib/Email/Emails.svelte';
+	import { avatarSrc } from '#lib/components/Effector/Avatar/avatarUrl.ts';
+	import { PUBLIC_URL } from '#lib/utils/appUrl.ts';
+	import type { EntryFull } from '#lib/store/directoryStoreInterface.ts';
 
 	let { data }: { data: EntryFull } = $props();
 </script>

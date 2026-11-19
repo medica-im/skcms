@@ -1,13 +1,13 @@
 <script lang="ts">
-	import Phones from '$lib/Directory/Phone/Phones.svelte';
-	import FacilityLink from '$lib/Facility/FacilityLink.svelte';
-	import Avatar from '$lib/components/Effector/Avatar/Avatar.svelte';
+	import Phones from '#lib/Directory/Phone/Phones.svelte';
+	import FacilityLink from '#lib/Facility/FacilityLink.svelte';
+	import Avatar from '#lib/components/Effector/Avatar/Avatar.svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import CommunityAddress from '$lib/Address/CommunityAddress.svelte';
-	import Tag from '$lib/Tag/Tag.svelte';
-	import { entrySlugPageUrl } from '$lib/utils/utils';
-	import type { Entry } from '$lib/store/directoryStoreInterface';
+	import CommunityAddress from '#lib/Address/CommunityAddress.svelte';
+	import Tag from '#lib/Tag/Tag.svelte';
+	import { entrySlugPageUrl } from '#lib/utils/utils.ts';
+	import type { Entry } from '#lib/store/directoryStoreInterface.ts';
 	import * as m from '$msgs';
 	let { entry, displayAvatar }: { entry: Entry; displayAvatar: boolean } = $props();
 

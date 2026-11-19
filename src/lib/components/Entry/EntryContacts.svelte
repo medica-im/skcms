@@ -1,6 +1,6 @@
 <script lang="ts">
 	import EntryContact from './EntryContact.svelte';
-	import type { EntryFull } from '$lib/store/directoryStoreInterface';
+	import type { EntryFull } from '#lib/store/directoryStoreInterface.ts';
 
 	let { entries, avatar = true }: { entries: EntryFull[]; avatar?: boolean } = $props();
 </script>

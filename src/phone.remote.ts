@@ -1,20 +1,19 @@
 import { error, redirect } from '@sveltejs/kit';
 import { getRequestEvent, query, form } from '$app/server';
-import * as z from "zod";
-import { authReq } from '$lib/utils/request.ts';
-import { variables } from '$lib/utils/constants.ts';
+import * as z from 'zod';
+import { authReq } from '#lib/utils/request.ts';
+import { variables } from '#lib/utils/constants.ts';
 
 const RoleEnum = z.enum(['anonymous', 'staff', 'administrator', 'superuser']);
 
-
 const CreatePhone = z.object({
 	entry: z.string(),
-	type: z.enum(["M", "MW", "W", "F", "AS"]),
+	type: z.enum(['M', 'MW', 'W', 'F', 'AS']),
 	roles: z.preprocess((val: string) => {
 		console.log(val);
 		return val.split(',');
 	}, z.array(RoleEnum)),
-	phone: z.string(),
+	phone: z.string()
 });
 
 export const createPhone = form(CreatePhone, async (data) => {
@@ -24,35 +23,35 @@ export const createPhone = form(CreatePhone, async (data) => {
 	const request = authReq(url, 'POST', cookies, JSON.stringify(data));
 	const response = await fetch(request);
 	if (response.ok == false) {
-		console.error(JSON.stringify(response))
-		console.error(response.status)
-		console.error(response.statusText)
+		console.error(JSON.stringify(response));
+		console.error(response.status);
+		console.error(response.statusText);
 		return {
 			success: false,
 			status: response.status,
 			text: response.statusText,
 			response: await response.json()
-		}
+		};
 	} else {
-		const json = await response.json()
+		const json = await response.json();
 		console.log(`Success! Status: ${response.status} Status text: ${response.statusText}`);
 		console.log(json);
 		return {
 			success: true,
 			status: response.status,
 			text: response.statusText
-		}
+		};
 	}
 });
 
 const UpdatePhone = z.object({
 	id: z.string(),
-	type: z.enum(["M", "MW", "W", "F", "AS"]),
+	type: z.enum(['M', 'MW', 'W', 'F', 'AS']),
 	phone: z.string(),
 	roles: z.preprocess((val: string) => {
 		console.log(val);
 		return val.split(',');
-	}, z.array(RoleEnum)),
+	}, z.array(RoleEnum))
 });
 
 export const updatePhone = form(UpdatePhone, async (data) => {
@@ -62,24 +61,24 @@ export const updatePhone = form(UpdatePhone, async (data) => {
 	const request = authReq(url, 'PUT', cookies, JSON.stringify(data));
 	const response = await fetch(request);
 	if (response.ok == false) {
-		console.error(JSON.stringify(response))
-		console.error(response.status)
-		console.error(response.statusText)
+		console.error(JSON.stringify(response));
+		console.error(response.status);
+		console.error(response.statusText);
 		return {
 			success: false,
 			status: response.status,
 			text: response.statusText,
 			response: await response.json()
-		}
+		};
 	} else {
-		const json = await response.json()
+		const json = await response.json();
 		console.log(`Success! Status: ${response.status} Status text: ${response.statusText}`);
 		console.log(json);
 		return {
 			success: true,
 			status: response.status,
 			text: response.statusText
-		}
+		};
 	}
 });
 
@@ -94,22 +93,22 @@ export const deletePhone = form(DeletePhone, async (data) => {
 	const request = authReq(url, 'DELETE', cookies);
 	const response = await fetch(request);
 	if (response.ok == false) {
-		console.error(JSON.stringify(response))
-		console.error(response.status)
-		console.error(response.statusText)
+		console.error(JSON.stringify(response));
+		console.error(response.status);
+		console.error(response.statusText);
 		return {
 			success: false,
 			status: response.status,
 			text: response.statusText
-		}
+		};
 	} else {
-		const json = await response.json()
+		const json = await response.json();
 		console.log(`Success! Status: ${response.status} Status text: ${response.statusText}`);
 		console.log(json);
 		return {
 			success: true,
 			status: response.status,
 			text: response.statusText
-		}
+		};
 	}
 });

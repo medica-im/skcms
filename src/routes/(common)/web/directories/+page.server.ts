@@ -1,5 +1,5 @@
 import { error, redirect } from '@sveltejs/kit';
-import { base } from '$app/paths';
+import { resolve } from '$app/paths';
 import type { PageServerLoad } from './$types';
 
 // Superusers and administrators: administrators set the categories a directory
@@ -11,7 +11,7 @@ const ROLES = ['superuser', 'administrator'];
 export const load: PageServerLoad = async ({ url, locals, parent }) => {
 	const session = await locals.auth();
 	if (!session) {
-		redirect(303, `${base}/signin?redirectTo=${url.pathname}`);
+		redirect(303, resolve(`signin?redirectTo=${url.pathname}`));
 	}
 
 	const { user } = await parent();

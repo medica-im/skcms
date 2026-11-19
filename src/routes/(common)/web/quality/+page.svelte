@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { base } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 	import * as m from '$msgs';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import { qualityText, bySeverity } from '$lib/Web/Quality/quality.ts';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import { qualityText, bySeverity } from '#lib/Web/Quality/quality.ts';
 
 	let { data } = $props();
 </script>
@@ -45,7 +45,7 @@
 											<li>
 												<a
 													class="btn variant-ringed-primary text-primary-800-100-token min-h-11"
-													href="{base}/e/{entry.slug}"
+													href="{base()}/e/{entry.slug}"
 												>
 													{entry.label ?? entry.name}{#if entry.type}<span class="text-surface-600-300-token"> · {entry.type}</span>{/if}
 												</a>

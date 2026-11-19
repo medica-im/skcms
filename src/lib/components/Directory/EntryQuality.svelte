@@ -2,7 +2,7 @@
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faClipboardCheck } from '@fortawesome/free-solid-svg-icons';
-	import { bySeverity, qualityText, type QualityProblem } from '$lib/Web/Quality/quality.ts';
+	import { bySeverity, qualityText, type QualityProblem } from '#lib/Web/Quality/quality.ts';
 
 	/**
 	 * What the entry is missing (backend directory/quality.py), for whoever may edit it. Warnings

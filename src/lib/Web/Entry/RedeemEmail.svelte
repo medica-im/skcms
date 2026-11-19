@@ -12,10 +12,10 @@
 		faTriangleExclamation
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import Dialog from '$lib/Web/Dialog.svelte';
-	import { getEntryUid } from '$lib/components/Directory/context';
-	import type { FormResult } from '$lib/interfaces/v2/form';
-	import type { EntryFull } from '$lib/store/directoryStoreInterface';
+	import Dialog from '#lib/Web/Dialog.svelte';
+	import { getEntryUid } from '#lib/components/Directory/context.ts';
+	import type { FormResult } from '#lib/interfaces/v2/form.ts';
+	import type { EntryFull } from '#lib/store/directoryStoreInterface.ts';
 
 	let { data, editMode = false }: { data: EntryFull; editMode?: boolean } = $props();
 

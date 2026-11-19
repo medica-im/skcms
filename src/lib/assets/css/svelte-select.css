@@ -1,5 +1,5 @@
 .svelte-select {
-    /*
+	/*
         Above the map's own furniture.
 
         svelte-select gives its list `z-index: 2` by default, and maplibre gives
@@ -13,20 +13,20 @@
         staying low leaves the modal and drawer layers above it where they
         belong.
     */
-    --list-z-index: 50;
-    --border-radius: var(--theme-rounded-container);
-    --border-color: rgb(var(--color-surface-400));
-    --border-focused: 1px solid rgb(var(--color-primary-500));
-    --border-hover: 1px solid rgb(var(--color-primary-400));
-    --height: 3rem;
-    --background: rgb(var(--color-surface-200));
-    --list-background: rgb(var(--color-surface-200));
-    --item-color: rgb(var(--color-surface-900));
-    --item-hover-bg: rgb(var(--color-primary-500) / 0.15);
-    --item-is-active-bg: rgb(var(--color-primary-500) / 0.25);
-    --input-color: rgb(var(--color-surface-900));
-    --placeholder-color: rgb(var(--color-surface-600));
-    /*
+	--list-z-index: 50;
+	--border-radius: var(--theme-rounded-container);
+	--border-color: rgb(var(--color-surface-400));
+	--border-focused: 1px solid rgb(var(--color-primary-500));
+	--border-hover: 1px solid rgb(var(--color-primary-400));
+	--height: 3rem;
+	--background: rgb(var(--color-surface-200));
+	--list-background: rgb(var(--color-surface-200));
+	--item-color: rgb(var(--color-surface-900));
+	--item-hover-bg: rgb(var(--color-primary-500) / 0.15);
+	--item-is-active-bg: rgb(var(--color-primary-500) / 0.25);
+	--input-color: rgb(var(--color-surface-900));
+	--placeholder-color: rgb(var(--color-surface-600));
+	/*
         The chosen option, and the cross that clears it.
 
         svelte-select defaults --selected-item-color to `inherit` and
@@ -38,41 +38,41 @@
 
         Guarded by tests/sites/select-selection-visible.spec.ts.
     */
-    --selected-item-color: rgb(var(--color-surface-900));
-    --icons-color: rgb(var(--color-surface-700));
-    --clear-select-color: rgb(var(--color-surface-700));
-    --disabled-background: rgb(var(--color-surface-300));
-    --disabled-color: rgb(var(--color-surface-600));
-    --disabled-placeholder-color: rgb(var(--color-surface-400));
+	--selected-item-color: rgb(var(--color-surface-900));
+	--icons-color: rgb(var(--color-surface-700));
+	--clear-select-color: rgb(var(--color-surface-700));
+	--disabled-background: rgb(var(--color-surface-300));
+	--disabled-color: rgb(var(--color-surface-600));
+	--disabled-placeholder-color: rgb(var(--color-surface-400));
 }
 
 .dark .svelte-select {
-    --border-color: rgb(var(--color-surface-500));
-    --border-focused: 1px solid rgb(var(--color-primary-400));
-    --border-hover: 1px solid rgb(var(--color-primary-300));
-    --background: rgb(var(--color-surface-700));
-    --list-background: rgb(var(--color-surface-700));
-    --item-color: rgb(var(--color-surface-100));
-    --input-color: rgb(var(--color-surface-100));
-    --placeholder-color: rgb(var(--color-surface-300));
-    --error-background: rgb(var(--color-surface-700));
-    --error-border: 1px solid rgb(var(--color-error-500));
-    --item-hover-bg: rgb(var(--color-primary-500) / 0.3);
-    --item-hover-color: rgb(var(--color-surface-50));
-    --item-is-active-bg: rgb(var(--color-primary-500) / 0.4);
-    --item-is-active-color: rgb(var(--color-surface-50));
-    --disabled-background: rgb(var(--color-surface-800));
-    --disabled-color: rgb(var(--color-surface-400));
-    --disabled-placeholder-color: rgb(var(--color-surface-500));
-    --selected-item-color: rgb(var(--color-surface-50));
-    --multi-item-bg: rgb(var(--color-surface-500));
-    --multi-item-color: rgb(var(--color-surface-50));
-    --multi-item-outline: 1px solid rgb(var(--color-surface-400));
-    --multi-item-clear-icon-color: rgb(var(--color-surface-200));
-    /* The single-select cross, which --multi-item-clear-icon-color above does
+	--border-color: rgb(var(--color-surface-500));
+	--border-focused: 1px solid rgb(var(--color-primary-400));
+	--border-hover: 1px solid rgb(var(--color-primary-300));
+	--background: rgb(var(--color-surface-700));
+	--list-background: rgb(var(--color-surface-700));
+	--item-color: rgb(var(--color-surface-100));
+	--input-color: rgb(var(--color-surface-100));
+	--placeholder-color: rgb(var(--color-surface-300));
+	--error-background: rgb(var(--color-surface-700));
+	--error-border: 1px solid rgb(var(--color-error-500));
+	--item-hover-bg: rgb(var(--color-primary-500) / 0.3);
+	--item-hover-color: rgb(var(--color-surface-50));
+	--item-is-active-bg: rgb(var(--color-primary-500) / 0.4);
+	--item-is-active-color: rgb(var(--color-surface-50));
+	--disabled-background: rgb(var(--color-surface-800));
+	--disabled-color: rgb(var(--color-surface-400));
+	--disabled-placeholder-color: rgb(var(--color-surface-500));
+	--selected-item-color: rgb(var(--color-surface-50));
+	--multi-item-bg: rgb(var(--color-surface-500));
+	--multi-item-color: rgb(var(--color-surface-50));
+	--multi-item-outline: 1px solid rgb(var(--color-surface-400));
+	--multi-item-clear-icon-color: rgb(var(--color-surface-200));
+	/* The single-select cross, which --multi-item-clear-icon-color above does
        not reach: that one styles the × on each chip of a multi-select. */
-    --icons-color: rgb(var(--color-surface-200));
-    --clear-select-color: rgb(var(--color-surface-200));
+	--icons-color: rgb(var(--color-surface-200));
+	--clear-select-color: rgb(var(--color-surface-200));
 }
 
 /*
@@ -88,23 +88,29 @@
 .svelte-select input:not(:disabled),
 .svelte-select .multi-item:not(.disabled),
 .svelte-select-list .item:not(.not-selectable):not(.list-group-title) {
-    cursor: pointer;
+	cursor: pointer;
 }
 
 .svelte-select-glow {
-    --border-color: rgb(var(--color-primary-500));
-    --border: 2px solid rgb(var(--color-primary-500));
-    --border-focused: 2px solid rgb(var(--color-primary-700));
-    --border-hover: 2px solid rgb(var(--color-primary-600));
-    --placeholder-color: rgb(var(--color-primary-700));
-    animation: svelte-select-glow 2s ease-in-out 3;
+	--border-color: rgb(var(--color-primary-500));
+	--border: 2px solid rgb(var(--color-primary-500));
+	--border-focused: 2px solid rgb(var(--color-primary-700));
+	--border-hover: 2px solid rgb(var(--color-primary-600));
+	--placeholder-color: rgb(var(--color-primary-700));
+	animation: svelte-select-glow 2s ease-in-out 3;
 }
 
 .dark .svelte-select-glow {
-    --placeholder-color: rgb(var(--color-primary-300));
+	--placeholder-color: rgb(var(--color-primary-300));
 }
 
 @keyframes svelte-select-glow {
-    0%, 100% { box-shadow: 0 0 0 0 transparent; }
-    50% { box-shadow: 0 0 0 3px rgba(var(--color-primary-500) / 0.25); border-radius: var(--theme-rounded-container); }
+	0%,
+	100% {
+		box-shadow: 0 0 0 0 transparent;
+	}
+	50% {
+		box-shadow: 0 0 0 3px rgba(var(--color-primary-500) / 0.25);
+		border-radius: var(--theme-rounded-container);
+	}
 }

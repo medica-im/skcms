@@ -17,15 +17,24 @@ describe('InviteeStatusFilter', () => {
 		render(InviteeStatusFilter, { value: 'all', counts, onchange: () => {} });
 		const group = page.getByRole('group', { name: 'Filtrer par statut' });
 		await expect.element(group).toBeVisible();
-		for (const [label, count] of [['Toutes', 12], ['Actives', 8], ['Utilisées', 3], ['Désactivées', 1]] as const) {
+		for (const [label, count] of [
+			['Toutes', 12],
+			['Actives', 8],
+			['Utilisées', 3],
+			['Désactivées', 1]
+		] as const) {
 			await expect.element(group.getByRole('button', { name: `${label} ${count}` })).toBeVisible();
 		}
 	});
 
 	it('marks the current choice as pressed, and only it', async () => {
 		render(InviteeStatusFilter, { value: 'used', counts, onchange: () => {} });
-		await expect.element(page.getByRole('button', { name: /^Utilisées/ })).toHaveAttribute('aria-pressed', 'true');
-		await expect.element(page.getByRole('button', { name: /^Toutes/ })).toHaveAttribute('aria-pressed', 'false');
+		await expect
+			.element(page.getByRole('button', { name: /^Utilisées/ }))
+			.toHaveAttribute('aria-pressed', 'true');
+		await expect
+			.element(page.getByRole('button', { name: /^Toutes/ }))
+			.toHaveAttribute('aria-pressed', 'false');
 	});
 
 	it('reports the status chosen', async () => {
@@ -36,13 +45,21 @@ describe('InviteeStatusFilter', () => {
 	});
 
 	it('leaves out "Désactivées" when there is none', async () => {
-		render(InviteeStatusFilter, { value: 'all', counts: { ...counts, disabled: 0 }, onchange: () => {} });
+		render(InviteeStatusFilter, {
+			value: 'all',
+			counts: { ...counts, disabled: 0 },
+			onchange: () => {}
+		});
 		await expect.element(page.getByRole('button', { name: /^Actives/ })).toBeVisible();
 		expect(page.getByRole('button', { name: /^Désactivées/ }).elements()).toHaveLength(0);
 	});
 
 	it('keeps "Désactivées" while it is the current choice, so it can be undone', async () => {
-		render(InviteeStatusFilter, { value: 'disabled', counts: { ...counts, disabled: 0 }, onchange: () => {} });
+		render(InviteeStatusFilter, {
+			value: 'disabled',
+			counts: { ...counts, disabled: 0 },
+			onchange: () => {}
+		});
 		await expect.element(page.getByRole('button', { name: /^Désactivées/ })).toBeVisible();
 	});
 
@@ -55,7 +72,9 @@ describe('InviteeStatusFilter', () => {
 
 	it('can be held on one status: reminders go to active invitations only', async () => {
 		render(InviteeStatusFilter, { value: 'active', counts, onchange: () => {}, disabled: true });
-		await expect.element(page.getByRole('button', { name: /^Actives/ })).toHaveAttribute('aria-pressed', 'true');
+		await expect
+			.element(page.getByRole('button', { name: /^Actives/ }))
+			.toHaveAttribute('aria-pressed', 'true');
 		await expect.element(page.getByRole('button', { name: /^Toutes/ })).toBeDisabled();
 	});
 });

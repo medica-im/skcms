@@ -60,13 +60,19 @@ When('I show only the addresses to check', async ({ page }) => {
 });
 
 Then('that invitation is listed under {string}', async ({ page }, filter: string) => {
-	await expect(page.getByRole('button', { name: new RegExp(filter) })).toHaveAttribute('aria-pressed', 'true');
+	await expect(page.getByRole('button', { name: new RegExp(filter) })).toHaveAttribute(
+		'aria-pressed',
+		'true'
+	);
 	await expect(row(page, ctx.email!)).toBeVisible();
 });
 
 /** An invitation whose email bounced, and the address remembered for it. */
 async function bouncedInvitation(baseURL: string, batchJobUid: string | null = null) {
-	const seeded = await seedInvitee({ siteDomain: new URL(baseURL).hostname, name: `Rejet ${Date.now()}` });
+	const seeded = await seedInvitee({
+		siteDomain: new URL(baseURL).hostname,
+		name: `Rejet ${Date.now()}`
+	});
 	Object.assign(own, seeded);
 	await djangoShell(`
 from mailer import suppression
@@ -161,7 +167,9 @@ When('I type the invitation address {string}', async ({ page }, address: string)
 });
 
 Then('I am asked whether I meant {string}', async ({ page }, suggestion: string) => {
-	await expect(page.getByTestId('address-check-hint').getByRole('button', { name: suggestion })).toBeVisible();
+	await expect(
+		page.getByTestId('address-check-hint').getByRole('button', { name: suggestion })
+	).toBeVisible();
 });
 
 When('I accept the suggestion', async ({ page }) => {

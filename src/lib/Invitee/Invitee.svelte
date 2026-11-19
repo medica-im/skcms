@@ -11,17 +11,17 @@
 	 * The action buttons are snippets, so both layouts share them.
 	 */
 	import { page } from '$app/state';
-	import type { Invitee } from '$lib/interfaces/v2/invitee';
+	import type { Invitee } from '#lib/interfaces/v2/invitee.ts';
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faEnvelope, faUser, faEye, faPenToSquare, faTrash, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 	import InviteeStatus from './InviteeStatus.svelte';
 	import InviteeEmailDelivery from './InviteeEmailDelivery.svelte';
 	import { onMount } from 'svelte';
-	import RoleBadge from '$lib/RoleBadge.svelte';
+	import RoleBadge from '#lib/RoleBadge.svelte';
 	import InviteeAddressFlag from './InviteeAddressFlag.svelte';
-	import ListDateTime from '$lib/components/DateTime/ListDateTime.svelte';
-	import { base } from '$app/paths';
+	import ListDateTime from '#lib/components/DateTime/ListDateTime.svelte';
+	import { resolve } from '$app/paths';
 
 	let { invitee, showLink = true, highlighted = false, onEdit, onDelete }: { invitee: Invitee; showLink?: boolean; highlighted?: boolean; onEdit?: (invitee: Invitee) => void; onDelete?: (invitee: Invitee) => void } = $props();
 
@@ -33,7 +33,7 @@
 	});
 
 	let showDetailLink = $derived(showLink && (import.meta.env.DEV || page.data?.user?.role === 'superuser'));
-	const detailHref = $derived(`${base}/web/invite/invitees/${invitee.uid}`);
+	const detailHref = $derived(resolve(`web/invite/invitees/${invitee.uid}`));
 
 	// An active invitation carries a green bar on its leading edge; an inset
 	// shadow, so it takes no room and the rows stay aligned.
@@ -80,7 +80,7 @@
 			</div>
 			<div class="flex items-center gap-2 min-w-0 text-sm">
 				<span class="truncate">{invitee.email}</span>
-				<InviteeAddressFlag {invitee} />
+				<InviteeAddressFlag invitee={invitee} />
 			</div>
 			<!-- Only when the email needs attention (failed or pending):
 			     the compact card has no "Envoi" column to say it. -->
@@ -91,7 +91,11 @@
 					<InviteeStatus active={invitee.active} redeemedAt={invitee.redeemedAt} />
 					{#if isRedeemed}<ListDateTime value={invitee.redeemedAt} />{/if}
 				</span>
-				<span>{m.INVITEE_COL_CREATED()}&nbsp;: <ListDateTime value={invitee.createdAt} /></span>
+
+				<span>
+					{m.INVITEE_COL_CREATED()} : 
+					<ListDateTime value={invitee.createdAt} />
+				</span>
 			</div>
 		</div>
 		{#if !isRedeemed && (onEdit || onDelete)}
@@ -112,7 +116,7 @@
 		<div class="flex items-center gap-2 text-surface-600 min-w-0">
 			<span class="w-4 flex-shrink-0"><Fa icon={faEnvelope} size="sm" /></span>
 			<span class="truncate">{invitee.email}</span>
-			<InviteeAddressFlag {invitee} />
+			<InviteeAddressFlag invitee={invitee} />
 		</div>
 
 		<RoleBadge role={invitee.role} uniform />
@@ -132,10 +136,25 @@
 		<InviteeStatus active={invitee.active} redeemedAt={invitee.redeemedAt} />
 
 		<!-- Whether the email went out; a failure is a link to the details -->
-		<InviteeEmailDelivery delivery={invitee.emailDelivery} variant="column" href={detailHref} />
 
-		{#if !isRedeemed && onEdit}{@render editButton(false)}{:else}<span></span>{/if}
-		{#if !isRedeemed && onDelete}{@render deleteButton(false)}{:else}<span></span>{/if}
+		<InviteeEmailDelivery
+			delivery={invitee.emailDelivery}
+			variant="column"
+			href={detailHref}
+		/>
+
+		{#if !isRedeemed && onEdit}
+			{@render editButton(false)}
+		{:else}
+			<span></span>
+		{/if}
+
+		{#if !isRedeemed && onDelete}
+			{@render deleteButton(false)}
+		{:else}
+			<span></span>
+		{/if}
+
 		{#if showDetailLink}
 			<a href={detailHref} class="btn-icon btn-icon-sm variant-ghost-primary" aria-label={m.INVITEE_VIEW()} title={m.INVITEE_VIEW()}>
 				<Fa icon={faEye} />

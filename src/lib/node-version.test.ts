@@ -41,6 +41,8 @@ describe('the Node version', () => {
 	it('takes the latest patch of the base at every build', () => {
 		// Without --pull, docker reuses whatever node image was pulled last on
 		// this machine, so security fixes reach the images only by accident.
-		expect(read('scripts/build-image.sh')).toMatch(/docker build[^\n]*\\\n(\s+[^\n]*\\\n)*\s+--pull\b|docker build --pull\b/);
+		expect(read('scripts/build-image.sh')).toMatch(
+			/docker build[^\n]*\\\n(\s+[^\n]*\\\n)*\s+--pull\b|docker build --pull\b/
+		);
 	});
 });

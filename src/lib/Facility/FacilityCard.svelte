@@ -4,22 +4,22 @@
 		faMagnifyingGlass,
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
-	import Types from '$lib/components/Directory/Types.svelte';
-	import Map from '$lib/MapLibre/MapLibre.svelte';
-	import Address from '$lib/Address/Address.svelte';
-	import Navigation from '$lib/Navigation/Navigation.svelte';
-	import Email from '$lib/Email/Email.svelte';
-	import SoMed from '$lib/SoMed/SoMed.svelte';
-	import Website from '$lib/components/Website/Website.svelte';
-	import { browser } from '$app/environment';
-	import { isMobile } from '$lib/helpers/deviceDetector.ts';
-	import { createFacilitiesMapData } from '$lib/components/Map/mapData.ts';
-	import { hasCoordinates } from '$lib/components/Map/coordinates.ts';
-	import type { Facility } from '$lib/interfaces/facility.interface.ts';
-	import type { Entry } from '$lib/store/directoryStoreInterface';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
+	import Types from '#lib/components/Directory/Types.svelte';
+	import Map from '#lib/MapLibre/MapLibre.svelte';
+	import Address from '#lib/Address/Address.svelte';
+	import Navigation from '#lib/Navigation/Navigation.svelte';
+	import Email from '#lib/Email/Email.svelte';
+	import SoMed from '#lib/SoMed/SoMed.svelte';
+	import Website from '#lib/components/Website/Website.svelte';
+	import { browser } from '$app/env';
+	import { isMobile } from '#lib/helpers/deviceDetector.ts';
+	import { createFacilitiesMapData } from '#lib/components/Map/mapData.ts';
+	import { hasCoordinates } from '#lib/components/Map/coordinates.ts';
+	import type { Facility } from '#lib/interfaces/facility.interface.ts';
+	import type { Entry } from '#lib/store/directoryStoreInterface.ts';
 	import type { SvelteSet } from 'svelte/reactivity';
-	import { base } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 
 	let { facility, entries, intersecting } : { facility: Facility; entries: Entry[]|undefined; intersecting: SvelteSet<string> } = $props();
 
@@ -49,12 +49,19 @@
 			<!-- Body -->
 			<div class="space-y-2 space-x-2">
 				{#if !isUUID(facility.name)}
-				<a href="{base}/sites/{facility.slug||facility.uid}" class="anchor" data-sveltekit-preload-data="hover">
-					<h4 class="h4">{facility.name}</h4>
-					</a>
+					<a
+						href="{base()}/sites/{facility.slug || facility.uid}"
+						class="anchor"
+						data-sveltekit-preload-data="hover"
+					><h4 class="h4">{facility.name}</h4></a>
 				{/if}
-				<a href="{base}/sites/{facility.slug||facility.uid}" class="px-2 py-1 btn btn-sm variant-ghost-primary">
-					<span class=""><Fa icon={faMagnifyingGlass} size="sm"/></span><span>En détail</span>
+
+				<a
+					href="{base()}/sites/{facility.slug || facility.uid}"
+					class="px-2 py-1 btn btn-sm variant-ghost-primary"
+				>
+					<span class=""><Fa icon={faMagnifyingGlass} size="sm" /></span>
+					<span>En détail</span>
 				</a>
 				<div class="space-x-2">
 					<Address data={facility} />
@@ -76,7 +83,7 @@
 				<span class="inline-block align-middle space-x-1">
 					{#if facility?.websites}
 						{#each facility.websites as website}
-							<Website {website} />
+							<Website website={website} />
 						{/each}
 					{/if}
 					{#if facility?.socialnetworks}

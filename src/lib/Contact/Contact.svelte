@@ -1,18 +1,18 @@
 <script lang="ts">
-	import { ORIGIN } from '$lib/utils/origin.ts';
+	import { ORIGIN } from '#lib/utils/origin.ts';
 	import { MapLibre, DefaultMarker } from 'svelte-maplibre';
-	import '$lib/MapLibre/worker';
+	import '#lib/MapLibre/worker.ts';
 	import { page } from '$app/state';
 	import Fa from 'svelte-fa';
-	import Address from '$lib/Address/Address.svelte';
-	import { createContactMapData } from '$lib/components/Map/mapData';
-	import { hasCoordinates } from '$lib/components/Map/coordinates';
-	import Phones from '$lib/Directory/Phone/Phones.svelte';
-	import Emails from '$lib/Email/Emails.svelte';
+	import Address from '#lib/Address/Address.svelte';
+	import { createContactMapData } from '#lib/components/Map/mapData.ts';
+	import { hasCoordinates } from '#lib/components/Map/coordinates.ts';
+	import Phones from '#lib/Directory/Phone/Phones.svelte';
+	import Emails from '#lib/Email/Emails.svelte';
 	import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
-	import { openStreetMap } from '$lib/MapLibre/style/openStreetMap';
-	import Websites from '$lib/Website/Websites.svelte';
-	import type { EntryFull } from '$lib/store/directoryStoreInterface';
+	import { openStreetMap } from '#lib/MapLibre/style/openStreetMap.ts';
+	import Websites from '#lib/Website/Websites.svelte';
+	import type { EntryFull } from '#lib/store/directoryStoreInterface.ts';
 
 	let { data }: { data: EntryFull|undefined } = $props();
 

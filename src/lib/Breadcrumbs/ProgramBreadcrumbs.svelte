@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { programTrail } from './trail.ts';
-	import type { ProgramsNavLinks } from '$lib/interfaces/variables.interface.ts';
+	import type { ProgramsNavLinks } from '#lib/interfaces/variables.interface.ts';
 
 	let { programsNavLinks }: { programsNavLinks: ProgramsNavLinks } = $props();
 

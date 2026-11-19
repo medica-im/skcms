@@ -12,13 +12,13 @@
 		faTrashCanArrowUp
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import type { Email } from '$lib/interfaces/email.interface.ts';
-	import Select from '$lib/Web/Select.svelte';
+	import type { Email } from '#lib/interfaces/email.interface.ts';
+	import Select from '#lib/Web/Select.svelte';
 	import Dialog from '../../Dialog.svelte';
-	import { getEntryUid } from '$lib/components/Directory/context';
-	import { areArraysEqualSets } from '$lib/utils/utils.ts';
-	import type { ThirdPartyPayer } from '$lib/interfaces/fullEffector.interface';
-	import type { FormResult } from '$lib/interfaces/v2/form';
+	import { getEntryUid } from '#lib/components/Directory/context.ts';
+	import { areArraysEqualSets } from '#lib/utils/utils.ts';
+	import type { ThirdPartyPayer } from '#lib/interfaces/fullEffector.interface.ts';
+	import type { FormResult } from '#lib/interfaces/v2/form.ts';
 
 	let {
 		data

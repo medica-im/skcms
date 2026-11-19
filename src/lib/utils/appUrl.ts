@@ -1,6 +1,6 @@
-import { browser } from '$app/environment';
-import { base } from '$app/paths';
-import { PUBLIC_SSR_API_URL } from '$env/static/public';
+import { browser } from '$app/env';
+import { base } from '#lib/utils/base.ts';
+import { PUBLIC_SSR_API_URL } from '$app/env/public';
 
 /**
  * Where this app's API is reached from, whichever side is asking.
@@ -53,4 +53,4 @@ export const APP_URL = browser ? '' : PUBLIC_SSR_API_URL;
  * at one tenant's media. A root-relative path resolves against whichever host
  * served the page, which is right in every case.
  */
-export const PUBLIC_URL = base;
+export const PUBLIC_URL = base();

@@ -2,7 +2,7 @@
  * An invitation's status, and filtering the invitations list by it.
  * The rules and why: see inviteeFilter.test.ts.
  */
-import type { AddressIssue, EmailDelivery } from '$lib/interfaces/v2/invitee';
+import type { AddressIssue, EmailDelivery } from '#lib/interfaces/v2/invitee.ts';
 
 export type InviteeStatusValue = 'active' | 'used' | 'disabled';
 /** A status, everything, or "à vérifier": a cut across the statuses. */
@@ -60,7 +60,9 @@ const PARAM: Record<Exclude<InviteeFilter, 'all'>, string> = {
 };
 
 export function filterFromParam(value: string | null): InviteeFilter {
-	const found = (Object.keys(PARAM) as Exclude<InviteeFilter, 'all'>[]).find((k) => PARAM[k] === value);
+	const found = (Object.keys(PARAM) as Exclude<InviteeFilter, 'all'>[]).find(
+		(k) => PARAM[k] === value
+	);
 	return found ?? 'all';
 }
 

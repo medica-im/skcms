@@ -1,4 +1,4 @@
-import type { SortDirection } from '$lib/utils/dateTimeSort';
+import type { SortDirection } from '#lib/utils/dateTimeSort.ts';
 
 export type { SortDirection };
 

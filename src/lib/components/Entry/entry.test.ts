@@ -11,10 +11,14 @@
  */
 import { describe, it, expect } from 'vitest';
 import { entrySlugsOfType } from './entry';
-import type { Entry } from '$lib/store/directoryStoreInterface';
+import type { Entry } from '#lib/store/directoryStoreInterface.ts';
 
 const entry = (entrySlug: string, typeName: string, active: boolean | null = true) =>
-	({ entrySlug, active, effector_type: { name: typeName, slug: `${typeName}-slug` } }) as unknown as Entry;
+	({
+		entrySlug,
+		active,
+		effector_type: { name: typeName, slug: `${typeName}-slug` }
+	}) as unknown as Entry;
 
 describe('entrySlugsOfType', () => {
 	it('finds every active entry of the type', () => {
@@ -27,12 +31,17 @@ describe('entrySlugsOfType', () => {
 	});
 
 	it('leaves out an entry no longer active, whose page would 404', () => {
-		const entries = [entry('virginie-reusser-coordo-84', 'coordinateur', false), entry('lea-coordo-84', 'coordinateur')];
+		const entries = [
+			entry('virginie-reusser-coordo-84', 'coordinateur', false),
+			entry('lea-coordo-84', 'coordinateur')
+		];
 		expect(entrySlugsOfType(entries, 'coordinateur')).toEqual(['lea-coordo-84']);
 	});
 
 	it('finds nobody on a site without the type', () => {
-		expect(entrySlugsOfType([entry('paul-mg-84', 'médecin généraliste')], 'coordinateur')).toEqual([]);
+		expect(entrySlugsOfType([entry('paul-mg-84', 'médecin généraliste')], 'coordinateur')).toEqual(
+			[]
+		);
 		expect(entrySlugsOfType(undefined, 'coordinateur')).toEqual([]);
 	});
 });

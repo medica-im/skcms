@@ -40,21 +40,30 @@ async function seedWeekdayHours(origin: string, text: string, holidays: 'closed'
 	});
 }
 
-Given('that entry has weekday hours {string}, closed on public holidays', async ({ baseURL }, text: string) => {
-	await seedWeekdayHours(new URL(baseURL).origin, text, 'closed');
-});
+Given(
+	'that entry has weekday hours {string}, closed on public holidays',
+	async ({ baseURL }, text: string) => {
+		await seedWeekdayHours(new URL(baseURL).origin, text, 'closed');
+	}
+);
 
-Given('that entry has weekday hours {string}, open on public holidays', async ({ baseURL }, text: string) => {
-	await seedWeekdayHours(new URL(baseURL).origin, text, 'open');
-});
+Given(
+	'that entry has weekday hours {string}, open on public holidays',
+	async ({ baseURL }, text: string) => {
+		await seedWeekdayHours(new URL(baseURL).origin, text, 'open');
+	}
+);
 
 When('I look at that entry', async ({ page }) => {
 	await page.goto(`/e/${entry.slug}`, { waitUntil: 'networkidle' });
 });
 
-When('I add weekday hours from {string} to {string}', async ({ page }, opens: string, closes: string) => {
-	await addWeekdayHours(page, opens, closes);
-});
+When(
+	'I add weekday hours from {string} to {string}',
+	async ({ page }, opens: string, closes: string) => {
+		await addWeekdayHours(page, opens, closes);
+	}
+);
 
 When(
 	'I add weekday hours from {string} to {string}, open on public holidays',
@@ -79,7 +88,8 @@ async function addWeekdayHours(
 	await editor.getByRole('button', { name: 'Ajouter une plage' }).click();
 	await editor.getByLabel('De', { exact: true }).fill(opens);
 	await editor.getByLabel('à', { exact: true }).fill(closes);
-	if (holidays) await editor.getByRole('radiogroup', { name: 'Jours fériés' }).getByText(holidays).click();
+	if (holidays)
+		await editor.getByRole('radiogroup', { name: 'Jours fériés' }).getByText(holidays).click();
 	await editor.getByRole('button', { name: 'Enregistrer' }).click();
 	await expect(page.getByTestId('schedule-editor')).toBeHidden({ timeout: 15_000 });
 }

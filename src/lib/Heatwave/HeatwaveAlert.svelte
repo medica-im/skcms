@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { browser } from '$app/environment';
-	import { ORIGIN } from '$lib/utils/origin.ts';
+	import { browser } from '$app/env';
+	import { ORIGIN } from '#lib/utils/origin.ts';
 	import Fa from 'svelte-fa';
 	import { faArrowRight, faXmark, faTemperatureHigh } from '@fortawesome/free-solid-svg-icons';
 
@@ -44,7 +44,7 @@
 		}
 		const result = await fetch(url);
 		if (result.ok) {
-			alert = (await result.json()) as HeatwaveAlert;
+			alert = await result.json() as HeatwaveAlert;
 		} else {
 			if (import.meta.env.DEV) {
 				console.log(result);
@@ -123,57 +123,57 @@
 				class="alert border-4 max-w-3xl mx-auto"
 				style="border-color:{riskColor(alert)}"
 			>
-			<!-- Icon -->
-			<div class="hidden lg:block">
+				<!-- Icon -->
+				<div class="hidden lg:block">
 				<Fa style="font-size:3em" icon={faTemperatureHigh} color={riskColor(alert)} />
-			</div>
-			<!-- Message -->
-			<div class="alert-message">
-				<h3 class="h3 text-center">
+				</div>
+				<!-- Message -->
+				<div class="alert-message">
+					<h3 class="h3 text-center">
 					<span class="inline-block lg:hidden px-1"
 						><Fa icon={faTemperatureHigh} color={riskColor(alert)} /></span
 					>
-					Vigilance {riskName(alert)} canicule
-				</h3>
-				<p>
+						Vigilance {riskName(alert)} canicule
+					</h3>
+					<p>
 					Vigilance météorologique canicule {page.data.organization.department.name} émise par Météo France
 					le {formatDate(alert.start_time)} valable jusqu'au {formatDate(alert.end_time)}.
-				</p>
-			</div>
-			<!-- Actions -->
-			<div
-				class="flex flex-wrap lg:flex-nowrap alert-actions gap-4 align-center place-content-center"
-			>
-				{#if !isOnCaniculePage}
-					{#if link}
-						<a href={CANICULE_PATH} class="btn variant-ghost">
-							<span><Fa icon={faArrowRight} /></span>
-							<span>Fiche prévention canicule</span>
-						</a>
-					{:else}
-						<a
-							href="https://vigilance.meteofrance.fr/fr/{page.data.organization.department.slug}"
-							target="_blank"
-							rel="noopener noreferrer"
-							class="btn variant-ghost"
-						>
-							<span><Fa icon={faArrowRight} /></span>
+					</p>
+				</div>
+				<!-- Actions -->
+				<div
+					class="flex flex-wrap lg:flex-nowrap alert-actions gap-4 align-center place-content-center"
+				>
+					{#if !isOnCaniculePage}
+						{#if link}
+							<a href={CANICULE_PATH} class="btn variant-ghost">
+								<span><Fa icon={faArrowRight} /></span>
+								<span>Fiche prévention canicule</span>
+							</a>
+						{:else}
+							<a
+								href="https://vigilance.meteofrance.fr/fr/{page.data.organization.department.slug}"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="btn variant-ghost"
+							>
+								<span><Fa icon={faArrowRight} /></span>
 							<span
 								>VIGILANCE METEO {page.data.organization.department.name.toUpperCase()} ({page.data
 									.organization.department.code})</span
 							>
-						</a>
+							</a>
+						{/if}
 					{/if}
-				{/if}
-				<button
-					onclick={dismiss}
-					data-testid="heatwave-alert-close"
-					aria-label="Fermer l'alerte canicule"
+					<button
+						onclick={dismiss}
+						data-testid="heatwave-alert-close"
+						aria-label="Fermer l'alerte canicule"
 					class="btn variant-ghost"><span><Fa icon={faXmark} /></span></button
 				>
-			</div>
-		</aside>
-	{/if}
+				</div>
+			</aside>
+		{/if}
 	{:catch error}
 		{#if import.meta.env.DEV}
 			<p>Error loading heatwave alert: {error.message}</p>

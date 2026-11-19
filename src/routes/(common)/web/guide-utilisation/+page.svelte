@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { scrollY } from '$lib/store/scrollStore.ts';
+	import { scrollY } from '#lib/store/scrollStore.ts';
 	import * as m from '$msgs';
 	import { page } from '$app/state';
 	import Fa from 'svelte-fa';
@@ -16,10 +16,10 @@
 		faPlusCircle
 
 	} from '@fortawesome/free-solid-svg-icons';
-	import { capitalizeFirstLetter } from '$lib/helpers/stringHelpers';
+	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import { TableOfContents, tocCrawler } from '@skeletonlabs/skeleton';
 	import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
-	import { base } from '$app/paths';
+	import { base } from '#lib/utils/base.ts';
 
 	let top: Element;
 	let showOnPx = 600;
@@ -28,7 +28,7 @@
 	};
 </script>
 
-<svelte:window bind:scrollY={$scrollY} />
+<svelte:window bind:scrollY={$scrollY}></svelte:window>
 
 <svelte:head>
 	<title>
@@ -39,9 +39,9 @@
 </svelte:head>
 
 {#snippet inlineIcon(icon: IconDefinition)}
-	<span class="inline-flex flex-shrink-0 justify-center items-center w-4 h-4 px-3">
-		<Fa {icon} /></span
-	>
+	<span
+		class="inline-flex flex-shrink-0 justify-center items-center w-4 h-4 px-3"
+	><Fa icon={icon} /></span>
 {/snippet}
 
 <div class="mx-auto w-full">
@@ -137,7 +137,13 @@
 				</p>
 
 				<h3 class="h3">Créer une entrée</h3>
-				<p>Après connexion, le menu utilisateur apparaît en haut et à droite: {@render inlineIcon(faUser)}. Un clic déroule plusieurs choix dont "<a class="anchor" href="{base}/web/entry" >Créer une entrée</a>".</p>
+
+				<p>
+					Après connexion, le menu utilisateur apparaît en haut et à droite: 
+					{@render inlineIcon(faUser)}. Un clic déroule plusieurs choix dont "
+					<a class="anchor" href="{base()}/web/entry">Créer une entrée</a>
+					".
+				</p>
 
 				<h4 class="h4">1. Sélectionner ou créer un établissement</h4>
 				<p>
