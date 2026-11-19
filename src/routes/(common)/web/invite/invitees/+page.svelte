@@ -342,8 +342,8 @@
 						const result = await preloadData(href);
 
 						if (result.type === 'loaded' && result.status === 200) {
+							await goto(href, { shallow: true, state: { selected: result.data } });
 							createOpen = true;
-							goto(href, { shallow: true, state: { selected: result.data } });
 						} else {
 							goto(href);
 						}

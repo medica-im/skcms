@@ -65,8 +65,8 @@
 				const result = await preloadData(href);
 
 				if (result.type === 'loaded' && result.status === 200) {
+					await goto(href, { shallow: true, state: { facilityCreate: result.data } });
 					facilityCreateOpen = true;
-					goto(href, { shallow: true, state: { facilityCreate: result.data } });
 				} else {
 					goto(href);
 				}
