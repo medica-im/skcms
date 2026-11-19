@@ -232,7 +232,7 @@ beforeEach(() => {
 	skvar = repo('skvar', 'site.fr');
 	s1 = commit(skvar, 'skvar one');
 	s2 = commit(skvar, 'skvar two');
-	backend = repo('backend', 'production');
+	backend = repo('backend', 'main');
 	b1 = commit(backend, 'backend one');
 	b2 = commit(backend, 'backend two');
 
@@ -433,7 +433,7 @@ describe('versions.sh: the display', () => {
 		const lines = run().split('\n');
 		const tip = (label: string) => lines.find((l) => l.includes(label)) ?? '';
 		expect(tip('skcms main')).toContain(`${short(f2)}  frontend two`);
-		expect(tip('backend production')).toContain(`${short(b2)}  backend two`);
+		expect(tip('backend main')).toContain(`${short(b2)}  backend two`);
 	});
 });
 
