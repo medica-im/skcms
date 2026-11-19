@@ -83,10 +83,11 @@
 			<div class="p-2 space-y-4 gap-6">
 					<label class="label">
 						<span></span>
+						<input {...createPhone.fields.entry.as('hidden', entry ?? '')} />
 						<input
 							oninput={() => {}}
 							class="input hidden"
-							name="entry"
+							data-field="entry"
 							type="text"
 							placeholder=""
 							bind:value={entry}
@@ -98,10 +99,11 @@
 					{/if}-->
 					<label class="label">
 						<span>{capitalizeFirstLetter(m.PHONE_NUMBER())}</span>
+						<input {...createPhone.fields.phone.as('hidden', _phone ?? '')} />
 						<input
 							oninput={() => {}}
 							class="input"
-							name="phone"
+							data-field="phone"
 							type="text"
 							placeholder=""
 							bind:value={_phone}
@@ -109,10 +111,11 @@
 					</label>
 					<label class="label">
 						<span>Type</span>
+						<input {...createPhone.fields.type.as('hidden', _type ?? '')} />
 						<input
 							oninput={() => {}}
 							class="input hidden"
-							name="type"
+							data-field="type"
 							type="text"
 							placeholder=""
 							bind:value={_type}
@@ -121,10 +124,11 @@
 					</label>
 					<label class="label">
 						<span>Accès</span>
+						<input {...createPhone.fields.roles.as('hidden', (_roles ?? []).join(','))} />
 						<input
 							oninput={() => {}}
 							class="input hidden"
-							name="roles"
+							data-field="roles"
 							type="text"
 							placeholder=""
 							bind:value={_roles}

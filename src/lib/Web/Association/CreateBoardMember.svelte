@@ -115,10 +115,11 @@
 					{#each createBoardMember.fields.start.issues() as issue}
 						<p class="text-error-500 text-sm">{issue.message}</p>
 					{/each}
+					<input {...createBoardMember.fields.start.as('hidden', start ?? '')} />
 					<input
 						oninput={() => {}}
 						class="input"
-						name="start"
+						data-field="start"
 						type="date"
 						bind:value={start}
 					/>
@@ -126,10 +127,11 @@
 
 				<label class="label">
 					<span>{m.COL_STOP()}</span>
+					<input {...createBoardMember.fields.stop.as('hidden', stop ?? '')} />
 					<input
 						oninput={() => {}}
 						class="input"
-						name="stop"
+						data-field="stop"
 						type="date"
 						bind:value={stop}
 					/>

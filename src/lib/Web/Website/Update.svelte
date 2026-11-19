@@ -75,20 +75,22 @@
 			})}
 		>
 			<div class="grid grid-cols-1 gap-6">
+				<input {...updateForm.for(uuid).fields.id.as('hidden', String(data.id))} />
 				<input
 					oninput={() => {}}
 					class="hidden"
-					name="id"
+					data-field="id"
 					type="text"
 					placeholder=""
 					value={data.id}
 				/>
 				<label class="label">
 					<span>Adresse web</span>
+					<input {...updateForm.for(uuid).fields.url.as('hidden', _url ?? '')} />
 					<input
 						oninput={() => {}}
 						class="input"
-						name="url"
+						data-field="url"
 						type="url"
 						placeholder=""
 						bind:value={_url}
@@ -96,10 +98,11 @@
 				</label>
 				<label class="label">
 					<span>Accès</span>
+					<input {...updateForm.for(uuid).fields.roles.as('hidden', (_roles ?? []).join(','))} />
 					<input
 						oninput={() => {}}
 						class="input hidden"
-						name="roles"
+						data-field="roles"
 						type="text"
 						placeholder=""
 						bind:value={_roles}

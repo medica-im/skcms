@@ -72,10 +72,11 @@
 
 				<label class="label">
 					<span>{m.ROLE_LABEL()}</span>
+					<input {...updateOfficer.for(uuid).fields.role_label.as('hidden', roleLabel ?? '')} />
 					<input
 						oninput={() => {}}
 						class="input"
-						name="role_label"
+						data-field="role_label"
 						type="text"
 						placeholder=""
 						bind:value={roleLabel}
@@ -84,10 +85,11 @@
 
 				<label class="label">
 					<span>{m.COL_START()}</span>
+					<input {...updateOfficer.for(uuid).fields.start.as('hidden', start ?? '')} />
 					<input
 						oninput={() => {}}
 						class="input"
-						name="start"
+						data-field="start"
 						type="date"
 						bind:value={start}
 					/>
@@ -95,10 +97,11 @@
 
 				<label class="label">
 					<span>{m.COL_STOP()}</span>
+					<input {...updateOfficer.for(uuid).fields.stop.as('hidden', stop ?? '')} />
 					<input
 						oninput={() => {}}
 						class="input"
-						name="stop"
+						data-field="stop"
 						type="date"
 						bind:value={stop}
 					/>

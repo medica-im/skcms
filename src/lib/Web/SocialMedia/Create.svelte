@@ -74,10 +74,11 @@
 				{#each create.fields.entry.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
+					<input {...create.fields.entry.as('hidden', entry ?? '')} />
 					<input
 						oninput={() => {}}
 						class="hidden"
-						name="entry"
+						data-field="entry"
 						type="text"
 						placeholder=""
 						bind:value={entry}
@@ -87,10 +88,11 @@
 					{#each create.fields.url.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
+					<input {...create.fields.url.as('hidden', _url ?? '')} />
 					<input
 						oninput={() => {}}
 						class="input"
-						name="url"
+						data-field="url"
 						type="url"
 						placeholder="https://"
 						bind:value={_url}
@@ -101,10 +103,11 @@
 					{#each create.fields.type.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
+					<input {...create.fields.type.as('hidden', _type ?? '')} />
 					<input
 						oninput={() => {}}
 						class="hidden"
-						name="type"
+						data-field="type"
 						type="text"
 						bind:value={_type}
 					/>
@@ -115,10 +118,11 @@
 					{#each create.fields.roles.issues() as issue}
 							<p class="issue">{issue.message}</p>
 						{/each}
+					<input {...create.fields.roles.as('hidden', (_roles ?? []).join(','))} />
 					<input
 						oninput={() => {}}
 						class="hidden"
-						name="roles"
+						data-field="roles"
 						type="text"
 						placeholder=""
 						bind:value={_roles}

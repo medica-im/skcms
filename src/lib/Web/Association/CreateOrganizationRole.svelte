@@ -46,10 +46,11 @@
 					{#each createOrganizationRole.fields.label.issues() as issue}
 						<p class="text-error-500 text-sm">{issue.message}</p>
 					{/each}
+					<input {...createOrganizationRole.fields.label.as('hidden', label ?? '')} />
 					<input
 						oninput={() => {}}
 						class="input"
-						name="label"
+						data-field="label"
 						type="text"
 						placeholder=""
 						bind:value={label}

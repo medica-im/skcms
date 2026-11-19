@@ -83,10 +83,11 @@
 			<div class="p-2 space-y-4 justify-items-stretch gap-6">
 				<div class="p-2 space-y-2 w-full">
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
+						<input {...createEmail.fields.entry.as('hidden', entry ?? '')} />
 						<input
 							oninput={() => {}}
 							class="input hidden"
-							name="entry"
+							data-field="entry"
 							type="text"
 							placeholder=""
 							bind:value={entry}
@@ -94,10 +95,11 @@
 					</label>
 					<label class="flex label place-self-start place-items-center space-x-2 w-full">
 						<span>Adresse électronique</span>
+						<input {...createEmail.fields.email.as('hidden', _email ?? '')} />
 						<input
 							oninput={() => {}}
 							class="input"
-							name="email"
+							data-field="email"
 							type="email"
 							placeholder=""
 							bind:value={_email}
@@ -105,10 +107,11 @@
 					</label>
 <label class="flex label place-self-start place-items-center space-x-2 w-full">
 						<span>Accès:</span>
+						<input {...createEmail.fields.roles.as('hidden', (_roles ?? []).join(','))} />
 						<input
 							oninput={() => {}}
 							class="input hidden"
-							name="roles"
+							data-field="roles"
 							type="text"
 							placeholder=""
 							bind:value={_roles}

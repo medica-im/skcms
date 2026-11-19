@@ -118,7 +118,7 @@ test.describe('select dropdowns inside a modal', () => {
 		const submit = dialog.getByRole('button', { name: 'Créer' });
 		await expect(submit, 'submit should start disabled').toBeDisabled();
 
-		await dialog.locator('input[name="email"]').fill('select-test@example.test');
+		await dialog.locator('input[data-field="email"]:not([type="hidden"])').fill('select-test@example.test');
 		await dialog.locator('.svelte-select').first().click();
 		await page.locator('.svelte-select-list .item').first().click();
 

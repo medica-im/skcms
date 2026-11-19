@@ -116,9 +116,10 @@
 					{#each createEffector.for(uuid).fields.label_fr.issues() as issue}
 						<p class="issue text-error-500">{issue.message}</p>
 					{/each}
+					<input {...createEffector.for(uuid).fields.label_fr.as('hidden', label_fr ?? '')} />
 					<input
 						class="{name_fr.length > 30 ? '' : 'hidden'} input w-full"
-						name="label_fr"
+						data-field="label_fr"
 						type="text"
 						placeholder=""
 						bind:value={label_fr}

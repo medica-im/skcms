@@ -62,10 +62,11 @@
 
 				<label class="label">
 					<span>{m.COL_START()}</span>
+					<input {...updateBoardMember.for(uuid).fields.start.as('hidden', start ?? '')} />
 					<input
 						oninput={() => {}}
 						class="input"
-						name="start"
+						data-field="start"
 						type="date"
 						bind:value={start}
 					/>
@@ -73,10 +74,11 @@
 
 				<label class="label">
 					<span>{m.COL_STOP()}</span>
+					<input {...updateBoardMember.for(uuid).fields.stop.as('hidden', stop ?? '')} />
 					<input
 						oninput={() => {}}
 						class="input"
-						name="stop"
+						data-field="stop"
 						type="date"
 						bind:value={stop}
 					/>

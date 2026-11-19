@@ -42,10 +42,11 @@
 				}
 			})}
 		>
+			<input {...deletePhone.for(data.id.toString()).fields.id.as('hidden', String(data.id))} />
 			<input
 				oninput={() => {}}
 				class="input hidden"
-				name="id"
+				data-field="id"
 				type="text"
 				placeholder=""
 				value={data.id}

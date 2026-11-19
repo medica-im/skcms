@@ -89,20 +89,22 @@
 		>
 			<div class="p-2 space-y-4 justify-items-stretch gap-6">
 				<div class="p-2 space-y-2 w-full">
+					<input {...updatePhone.for(data.id.toString()).fields.id.as('hidden', String(data.id))} />
 					<input
 						oninput={() => {}}
 						class="input hidden"
-						name="id"
+						data-field="id"
 						type="text"
 						placeholder=""
 						value={data.id}
 					/>
 					<label class="label">
 						<span>{capitalizeFirstLetter(m.PHONE_NUMBER())}</span>
+						<input {...updatePhone.for(data.id.toString()).fields.phone.as('hidden', _phone ?? '')} />
 						<input
 							oninput={() => {}}
 							class="input"
-							name="phone"
+							data-field="phone"
 							type="text"
 							placeholder=""
 							bind:value={_phone}
@@ -113,10 +115,11 @@
 					{/each}
 					<label class="label">
 						<span>Type</span>
+						<input {...updatePhone.for(data.id.toString()).fields.type.as('hidden', _type ?? '')} />
 						<input
 							oninput={() => {}}
 							class="input hidden"
-							name="type"
+							data-field="type"
 							type="text"
 							placeholder=""
 							bind:value={_type}
@@ -128,10 +131,11 @@
 					{/each}
 					<label class="label">
 						<span>Accès</span>
+						<input {...updatePhone.for(data.id.toString()).fields.roles.as('hidden', (_roles ?? []).join(','))} />
 						<input
 							oninput={() => {}}
 							class="input hidden"
-							name="roles"
+							data-field="roles"
 							type="text"
 							placeholder=""
 							bind:value={_roles}
