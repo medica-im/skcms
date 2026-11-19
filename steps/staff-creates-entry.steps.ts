@@ -50,6 +50,56 @@ Then('I can create a facility from there', async ({ page }) => {
 	});
 });
 
+/**
+ * Chooses a commune the way a person does. The department select is there only
+ * on sites that do not fix their department, and the communes offered depend on
+ * the data: some departments have none, so the first that has one is taken.
+ */
+When('I choose a department and a commune', async ({ page }) => {
+	const selectOf = (label: string) =>
+		page.locator('div', { has: page.locator(`> p:text-is("${label}")`) }).locator('.svelte-select').first();
+	const items = page.locator('.svelte-select-list .item');
+	const asksDepartment = (await page.locator('p:text-is("Département")').count()) > 0;
+
+	for (let department = 0; department < (asksDepartment ? 8 : 1); department++) {
+		if (asksDepartment) {
+			await selectOf('Département').click();
+			await items.nth(department).click({ timeout: 15_000 });
+		}
+		await selectOf('Commune').click();
+		if (await items.first().isVisible({ timeout: 3_000 }).catch(() => false)) {
+			await items.first().click();
+			return;
+		}
+		await page.keyboard.press('Escape');
+	}
+	throw new Error('no department offered a commune');
+});
+
+const pageErrors: string[] = [];
+
+When('I press the button to create a facility', async ({ page }) => {
+	pageErrors.length = 0;
+	page.on('pageerror', (error) => pageErrors.push(String(error)));
+	await page.getByRole('button', { name: /Créer un établissement/i }).first().click();
+});
+
+Then('the facility creation form is open in a dialog', async ({ page }) => {
+	const dialog = page.getByRole('dialog');
+	await expect(
+		dialog.getByRole('heading', { name: /Créer un établissement/i }),
+		'the dialog did not open'
+	).toBeVisible({ timeout: 10_000 });
+	await expect(
+		dialog.getByRole('searchbox', { name: /Recherche de l'adresse/i }),
+		'the dialog opened without the creation form in it'
+	).toBeVisible();
+});
+
+Then('the page raised no error', async () => {
+	expect(pageErrors).toEqual([]);
+});
+
 /** A commune is required by FacilityPost, so borrow one the site already uses. */
 async function aCommuneUid(): Promise<string> {
 	const response = await fetch(`${API_ORIGIN}/api/v2/public/facilities`, {

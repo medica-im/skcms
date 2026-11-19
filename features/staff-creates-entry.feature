@@ -23,6 +23,17 @@ Feature: A staff user builds their first entry
       When I start creating an entry
       Then I can create a facility from there
 
+    # The form is the facility creation route shown in a dialog, with the data of
+    # that route handed over through the page's state. Open before that state
+    # exists, it has nothing to show and the page errors.
+    Scenario: Pressing the button opens the facility creation form
+      Given I am signed in with the role "staff"
+      When I start creating an entry
+      And I choose a department and a commune
+      And I press the button to create a facility
+      Then the facility creation form is open in a dialog
+      And the page raised no error
+
     Scenario: A staff user creates a facility through the API
       Given I am signed in with the role "staff"
       When I create a facility through the API
