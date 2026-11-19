@@ -47,7 +47,7 @@ for (const [name, browserType] of Object.entries(BROWSERS))
 			const errors: string[] = [];
 			page.on('pageerror', (e) => errors.push(String(e)));
 
-			await page.goto(`${ORIGIN}${PATH}`);
+			await page.goto(`${ORIGIN}${PATH}`, { waitUntil: 'networkidle' });
 			await page.reload();
 			await page.locator(RAIL).waitFor({ timeout: 20_000 });
 			const samples = await sample(page);
