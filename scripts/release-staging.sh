@@ -46,7 +46,18 @@ Options:
   --dry-run      print what would run, without building or deploying
   --build-only   build and push, skip the deploy
   --no-linkcheck do not run scripts/check-staging.sh on the deployed sites
+  --stop-test-servers[=frontend|backend|all]
+                 before anything is built, stop the servers a test-all run left
+                 up, to leave this machine room for the builds and the check
+                 (bare means all; backend leaves your dev servers without a
+                 backend until the next test-all run or a 'docker compose up').
+                 On a terminal, without it, you are asked if any is up.
   -h, --help     this help
+
+Before the build this looks at the machine (memory, load, test servers up), once,
+so the question comes at the start of a long release and not at the end. Your
+own dev servers are never stopped, nor anything while a test-all run is in
+progress. CHECK_STAGING_JOBS sets how many sites the final check runs at once.
 
 A site whose build fails is not deployed; the others carry on. The exit status
 is non-zero if any site failed.
@@ -62,12 +73,15 @@ EOF
 # --- Output ------------------------------------------------------------------
 # shellcheck source=lib/output.sh
 source "$REPO_ROOT/scripts/lib/output.sh"
+# shellcheck source=lib/test-servers.sh
+source "$REPO_ROOT/scripts/lib/test-servers.sh"
 
 # --- Arguments ---------------------------------------------------------------
 DRY_RUN=0
 BUILD_ONLY=0
 LIST=0
 SKIP_LINKCHECK=0
+STOP_MODE=ask
 NAMES=()
 for arg in "$@"; do
     case "$arg" in
@@ -76,6 +90,9 @@ for arg in "$@"; do
         --dry-run) DRY_RUN=1 ;;
         --build-only) BUILD_ONLY=1 ;;
         --no-linkcheck) SKIP_LINKCHECK=1 ;;
+        --stop-test-servers) STOP_MODE=all ;;
+        --stop-test-servers=frontend|--stop-test-servers=backend|--stop-test-servers=all)
+            STOP_MODE="${arg#--stop-test-servers=}" ;;
         -*) echo "error: unknown option $arg" >&2; usage >&2; exit 1 ;;
         *) NAMES+=("$arg") ;;
     esac
@@ -191,13 +208,9 @@ trap restore_skvar EXIT
 #
 # Started rather than reported: a backend that is merely down is not a decision
 # worth interrupting a release for.
-BACKEND_HOST="${BACKEND_HOST:-staging}"
-# /opt/backend on the staging server since the 2026-08 move. The old path was
-# /opt/dev.medica.im/backend, named after a host that had not been called that
-# for years; the new server flattens every deploy directory to /opt/<what it
-# is>.
-BACKEND_DIR="${BACKEND_DIR:-/opt/backend}"
-BACKEND_COMPOSE="${BACKEND_COMPOSE:-docker-compose-production.yml}"
+BACKEND_HOST="${BACKEND_HOST:-$STAGING_BACKEND_HOST}"
+BACKEND_DIR="${BACKEND_DIR:-$STAGING_BACKEND_DIR}"
+BACKEND_COMPOSE="${BACKEND_COMPOSE:-$STAGING_BACKEND_COMPOSE}"
 # How long to wait for `up -d` to bring every service to healthy. The chain is
 # serialised by depends_on (database and neo4j, then django, then fastapi and
 # celery), so this is the sum of several start_periods, not one.
@@ -393,6 +406,14 @@ SECONDS=0
 printf '%sReleasing %d staging site(s)%s\n' "$BOLD" "${#NAMES[@]}" "$NC"
 for n in "${NAMES[@]}"; do info "$n"; done
 
+# Once, up front: the final check runs a browser per site at once and the image
+# builds want the memory too, and a question asked after twenty minutes of
+# building gets no answer from somebody who has walked away. Skipped where no
+# check follows (--no-linkcheck, --build-only) and for --dry-run.
+if [[ $BUILD_ONLY -eq 0 && $DRY_RUN -eq 0 && $SKIP_LINKCHECK -eq 0 ]]; then
+    machine_preflight "${CHECK_STAGING_JOBS:-${#NAMES[@]}}" "$STOP_MODE"
+fi
+
 # Once, before anything is built: every site shares the one backend, and a
 # build that cannot be deployed is wasted. Skipped for --build-only and
 # --dry-run, which never reach the site.
@@ -475,9 +496,11 @@ CHECKED=0
 if [[ $SKIP_LINKCHECK -eq 0 && $BUILD_ONLY -eq 0 && ${#OK_NAMES[@]} -gt 0 ]]; then
     step "check"
     if [[ $DRY_RUN -eq 1 ]]; then
-        info "(dry run) $CHECK ${OK_NAMES[*]}"
+        info "(dry run) $CHECK --no-preflight ${OK_NAMES[*]}"
     else
-        "$CHECK" "${OK_NAMES[@]}" || CHECKED=1
+        # --no-preflight: the machine was looked at, and asked about, before
+        # the build.
+        "$CHECK" --no-preflight "${OK_NAMES[@]}" || CHECKED=1
     fi
 fi
 

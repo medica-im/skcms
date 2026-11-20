@@ -8,6 +8,17 @@ IMAGES_FILE="${IMAGES_FILE:-$STAGING_SITES_ROOT/images.yml}"
 STAGING_COMPOSE="${STAGING_COMPOSE:-docker-compose-staging.yml}"
 LINKCHECK_IMAGE="${LINKCHECK_IMAGE:-raviqqe/muffet:latest}"
 
+# The backend every staging site talks to. Prefixed STAGING_: test-all.sh has a
+# BACKEND_DIR of its own, the development stack's, and sources the same libs.
+#
+# /opt/backend on the staging server since the 2026-08 move. The old path was
+# /opt/dev.medica.im/backend, named after a host that had not been called that
+# for years; the new server flattens every deploy directory to /opt/<what it
+# is>.
+STAGING_BACKEND_HOST="${STAGING_BACKEND_HOST:-staging}"
+STAGING_BACKEND_DIR="${STAGING_BACKEND_DIR:-/opt/backend}"
+STAGING_BACKEND_COMPOSE="${STAGING_BACKEND_COMPOSE:-docker-compose-production.yml}"
+
 # Every staging site, in the order images.yml lists them.
 #
 # By compose file, not by name: annuaire.medica.im is a *production* site that

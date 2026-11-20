@@ -203,6 +203,9 @@ else
     BOLD=''; RED=''; GREEN=''; YELLOW=''; DIM=''; NC=''
 fi
 
+# shellcheck source=lib/test-servers.sh
+source "$FRONTEND_DIR/scripts/lib/test-servers.sh"
+
 # Runs a command with the lock file descriptor closed.
 #
 # Anything started here that outlives the run — the worker dev servers most of
@@ -848,28 +851,6 @@ ensure_site_server_for() {
     return 1
 }
 
-# Stop every site server this script started, found by their stamps.
-#
-# The stamp names the pid that ended up on the port (the vite child, not the
-# npx launcher), so a developer's own dev server on the dev port is never
-# touched: this run's servers are on the dev port + SITE_TEST_PORT_OFFSET.
-stop_site_servers() {
-    local stamp pid waited
-    for stamp in "$FRONTEND_DIR"/.e2e-workers/site-*.started; do
-        [[ -f "$stamp" ]] || continue
-        pid="$(sed -n '2p' "$stamp")"
-        rm -f "$stamp"
-        [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null || continue
-        kill "$pid" 2>/dev/null || continue
-        waited=0
-        while (( waited < 10 )) && kill -0 "$pid" 2>/dev/null; do
-            sleep 1; waited=$((waited + 1))
-        done
-        kill -0 "$pid" 2>/dev/null && kill -9 "$pid" 2>/dev/null
-    done
-    return 0
-}
-
 # Close what the BDD stage started: the site servers always, the workers unless
 # E2E_STOP_AFTER=0. Does nothing for a run that never started them, so a
 # typecheck-only run cannot stop servers someone else is using.
@@ -877,7 +858,7 @@ release_servers() {
     (( SERVERS_STARTED_BY_RUN )) || return 0
     SERVERS_STARTED_BY_RUN=0
     info "stopping the site servers this run started"
-    stop_site_servers
+    stop_site_servers "$FRONTEND_DIR"
     if [[ "$E2E_STOP_AFTER" == "1" ]]; then
         info "stopping worker dev servers"
         "$FRONTEND_DIR/scripts/e2e-workers.sh" stop >/dev/null 2>&1 || true
@@ -886,7 +867,7 @@ release_servers() {
 
 # Interrupting the run must not cost the user their dev server.
 trap 'start_dev_server' INT TERM
-trap 'start_dev_server; release_servers' EXIT
+trap 'start_dev_server; release_servers; restore_staging' EXIT
 
 ensure_e2e_workers() {
     # Reused only if they serve this run's code: workers left up by a run in
@@ -1050,7 +1031,7 @@ suite_bdd() {
     # Leftover site servers (from a run that was killed, or one started with
     # E2E_STOP_AFTER=0) are stopped, not reused: every run measures servers
     # that booted for it.
-    stop_site_servers
+    stop_site_servers "$FRONTEND_DIR"
     # The specs under .features-gen are generated from features/*.feature and are
     # not in git, so a fresh checkout has none and Playwright reports "No tests
     # found". Regenerating is also what picks up edits to the feature files.
@@ -1263,7 +1244,7 @@ if [[ -n "$RUN_LOG" ]]; then
             sleep 0.1
         done
     }
-    trap 'start_dev_server; release_servers; finish_run_log' EXIT
+    trap 'start_dev_server; release_servers; restore_staging; finish_run_log' EXIT
 fi
 
 # --- Run ---------------------------------------------------------------------
@@ -1282,6 +1263,17 @@ fi
 info "backend:  $BACKEND_DIR"
 
 info "sites:    ${CONTEXTS[*]}"
+
+# Staging runs on this machine too, and a test run has no use for it: about
+# 6 GB that the browsers and the dev backend can use. Stopped here and started
+# again when the run ends (restore_staging, in the EXIT traps). TEST_ALL_STOP_STAGING
+# is ask (the default: asks on a terminal, does nothing without one), yes or no.
+stop_staging_args=()
+case "${TEST_ALL_STOP_STAGING:-ask}" in
+    yes) stop_staging_args=(--yes) ;;
+    no) stop_staging_args=(--no) ;;
+esac
+"$FRONTEND_DIR/scripts/free-machine.sh" stop staging "${stop_staging_args[@]}"
 
 # Which stages depend on the tenant that is checked out.
 #
