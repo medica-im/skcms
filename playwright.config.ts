@@ -137,7 +137,12 @@ export default defineConfig({
 	// After hooks do not run when a run is interrupted, and what they leave
 	// behind can make later scenarios pass while proving the opposite of their
 	// name (see tests/globalSetup.ts).
-	globalSetup: './tests/globalSetup.ts',
+	//
+	// Not for a check of staging (scripts/check-staging.sh): it cleans up the
+	// development stack through a Django shell, which a staging check has no use
+	// for and which is stopped on purpose while a release runs
+	// (scripts/free-machine.sh).
+	globalSetup: process.env.STAGING_CHECK_ORIGIN ? undefined : './tests/globalSetup.ts',
 	// list on the terminal as before, plus a JSON file so DURATIONS survive the
 	// run. Without it every timing is printed and thrown away, and the only
 	// signal a scenario has got slower is the timeout -- which reports a
