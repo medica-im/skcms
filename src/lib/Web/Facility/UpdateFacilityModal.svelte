@@ -278,6 +278,7 @@
 					>
 						<Geocoder
 							commune={facility.commune.name_fr}
+							departmentCode={facility.commune.department?.code ?? null}
 							notice={m.FACILITY_GEOCODER_NOTICE()}
 							placeholder={"Entrer l'adresse"}
 							inputClass={inputClass.geocoder}

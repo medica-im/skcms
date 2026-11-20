@@ -15,6 +15,7 @@
 
 	let {
 		commune = null,
+		departmentCode = null,
 		placeholder = 'Adresse de l’usager',
 		inputClass = $bindable(''),
 		isValid = $bindable({geocoder: false}),
@@ -22,6 +23,8 @@
 		notice = null
 	}: {
 		commune?: string | null;
+		/** Tells apart communes sharing a name; BAN's `context` starts with it. */
+		departmentCode?: string | null;
 		placeholder?: string;
 		inputClass?: string;
 		isValid?: IsValid;
@@ -66,6 +69,11 @@
 			})
 			.filter((e: AddressFeature) => {
 				return commune ? e.properties.city == commune : true;
+			})
+			.filter((e: AddressFeature) => {
+				return departmentCode
+					? e.properties.context?.startsWith(`${departmentCode},`)
+					: true;
 			})
 			.filter((e: AddressFeature) => {
 				if (limitToZip === false) {

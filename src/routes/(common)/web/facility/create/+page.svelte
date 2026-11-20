@@ -225,6 +225,7 @@
 				>
 					<Geocoder
 						commune={commune.label}
+						departmentCode={department.value}
 						placeholder={"Entrer l'adresse: N° & voie"}
 						bind:isValid={validateForm}
 						limitToZip={false}

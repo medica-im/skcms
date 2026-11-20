@@ -60,6 +60,43 @@ describe('Geocoder, with a notice', () => {
 	});
 });
 
+const address = (street: string, city: string, context: string) => ({
+	type: 'Feature',
+	geometry: { type: 'Point', coordinates: [0, 0] },
+	properties: { housenumber: '1', street, name: `1 ${street}`, city, postcode: '00000', context }
+});
+
+describe('Geocoder, for a commune whose name is shared by several departments', () => {
+	const homonyms = {
+		features: [
+			address('Rue du Moulin', 'Châteauvieux', "41, Loir-et-Cher, Centre-Val de Loire"),
+			address('Rue des Alpes', 'Châteauvieux', "05, Hautes-Alpes, Provence-Alpes-Côte d'Azur"),
+			address('Rue du Var', 'Châteauvieux', "83, Var, Provence-Alpes-Côte d'Azur")
+		]
+	};
+
+	it('offers only the addresses of the given department', async () => {
+		vi.stubGlobal('fetch', answering(200, homonyms));
+		render(Geocoder, { commune: 'Châteauvieux', departmentCode: '05', limitToZip: false });
+
+		await search('1 rue');
+
+		await expect.element(page.getByText('1 Rue des Alpes')).toBeVisible();
+		await expect.element(page.getByText('1 Rue du Moulin')).not.toBeInTheDocument();
+		await expect.element(page.getByText('1 Rue du Var')).not.toBeInTheDocument();
+	});
+
+	it('offers every homonym when no department is given', async () => {
+		vi.stubGlobal('fetch', answering(200, homonyms));
+		render(Geocoder, { commune: 'Châteauvieux', limitToZip: false });
+
+		await search('1 rue');
+
+		await expect.element(page.getByText('1 Rue du Moulin')).toBeVisible();
+		await expect.element(page.getByText('1 Rue des Alpes')).toBeVisible();
+	});
+});
+
 describe('Geocoder, when the address service fails', () => {
 	it('says so when the service answers an error', async () => {
 		vi.stubGlobal('fetch', answering(504));
