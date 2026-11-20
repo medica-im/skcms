@@ -1,6 +1,7 @@
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
 import { test } from './fixtures';
+import { apiOrigin } from '../tests/fixtures/session';
 
 const { When, Then } = createBdd(test);
 
@@ -28,6 +29,24 @@ Then('the commune cannot be edited', async ({ page }) => {
 const geocoder = (page: import('@playwright/test').Page) =>
 	dialog(page).locator('input[data-field="geocoder"]');
 
+/**
+ * The department the dialog restricts the geocoder to, read from the API the
+ * way the page does (address.department_code) rather than guessed from the
+ * postal code, whose first digits are not the department in Corsica ("2A")
+ * or overseas (three digits).
+ */
+async function departmentCodeOf(page: import('@playwright/test').Page): Promise<string> {
+	const slug = new URL(page.url()).pathname.split('/').filter(Boolean).pop();
+	const response = await fetch(`${apiOrigin()}/api/v2/public/facilities/${slug}`, {
+		headers: { Accept: 'application/json', 'Cache-Control': 'no-cache' }
+	});
+	expect(response.ok, `GET public/facilities/${slug} -> ${response.status}`).toBeTruthy();
+	const facility = (await response.json()) as { address?: { department_code?: string } };
+	const code = facility.address?.department_code;
+	expect(code, `facility ${slug} has no department_code`).toBeTruthy();
+	return code!;
+}
+
 // The address service is a public one we don't run: a stub keeps the scenario
 // about what the dialog does with an answer, not about the service's uptime.
 let offeredPostcode = '';
@@ -37,6 +56,7 @@ When(
 	async ({ page }) => {
 		const zip = await field(page, 'Code postal').inputValue();
 		const commune = await field(page, 'Commune').inputValue();
+		const department = await departmentCodeOf(page);
 		const last = Number(zip.slice(-1));
 		offeredPostcode = zip.slice(0, -1) + String((last + 1) % 10);
 		await page.route('https://api-adresse.data.gouv.fr/search/**', (route) =>
@@ -54,7 +74,10 @@ When(
 								housenumber: '1',
 								street: 'Rue du Correctif',
 								postcode: offeredPostcode,
-								city: commune
+								city: commune,
+								// BAN's "code, department, region": the dialog keeps only
+								// the addresses of the facility's own department.
+								context: `${department}, Département, Région`
 							}
 						}
 					]
