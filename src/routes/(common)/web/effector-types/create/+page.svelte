@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { createEffectorType } from '$src/effectorType.remote.ts';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import * as m from '$msgs';
 	import Fa from 'svelte-fa';
 	import { faCheck, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
@@ -203,7 +204,7 @@
 					class="variant-filled-error btn w-min"
 					onclick={() => {
 						if (onclose) onclose();
-						else goto('/web/effector-types');
+						else goto(resolve('web/effector-types'));
 					}}
 				>{#if result?.success}{m.CLOSE()}{:else}{m.CANCEL()}{/if}</button>
 			</div>
