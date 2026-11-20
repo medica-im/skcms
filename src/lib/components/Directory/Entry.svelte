@@ -22,7 +22,7 @@
 
 	const goTo = () => {
 		const url = entrySlugPageUrl(entry);
-		goto(url, { replaceState: false });
+		goto(url);
 	};
 </script>
 

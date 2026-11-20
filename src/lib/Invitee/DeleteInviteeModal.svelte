@@ -13,12 +13,12 @@
         const result = await preloadData(href);
 
         if (result.type === 'loaded' && result.status === 200) {
-            goto(href, {
+            await goto(href, {
                 shallow: true,
                 state: { deleting: { ...result.data, invitee } }
             });
         } else {
-            goto(href);
+            await goto(href);
         }
     }
 </script>

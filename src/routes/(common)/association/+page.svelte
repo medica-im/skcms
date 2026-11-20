@@ -28,7 +28,9 @@
 			if (currentTab === newTab) return;
 			const url = new URL(page.url.href);
 			url.searchParams.set('tab', newTab);
-			goto(url.pathname + url.search, { replaceState: true, reset: false });
+			goto(url.pathname + url.search, { replace: true, reset: false }).catch((e) =>
+				console.error('association: tab not written to the address', e)
+			);
 		});
 	});
 

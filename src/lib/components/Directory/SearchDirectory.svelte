@@ -31,7 +31,7 @@
 				url.searchParams.delete('term');
 			}
 			const newUrl = url.searchParams.toString() ? `${url.pathname}?${url.searchParams}` : url.pathname;
-			goto(newUrl, { replaceState: true, reset: false });
+			goto(newUrl, { replace: true, reset: false });
 		}}
 		aria-label={m.ADDRESSBOOK_SEARCH_ARIA_LABEL()}
 	/>

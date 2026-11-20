@@ -5,6 +5,7 @@
 	import { enhance, applyAction, type SubmitFunction } from '$app/forms';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { getModalStore } from '@skeletonlabs/skeleton';
 	import * as m from '$msgs';
 
@@ -141,7 +142,7 @@
 
 			<form
 				method="POST"
-				action="/ghost/add-member"
+				action={resolve('ghost/add-member')}
 				use:enhance={mySubmitFunction}
 				class="p-2 space-y-4 grid grid-cols-1 justify-items-stretch grow-0"
 			>

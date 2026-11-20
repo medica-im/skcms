@@ -13,7 +13,7 @@
 		// EntryFull carries entrySlug itself. The lookup that used to stand here
 		// existed only to reach the commune the old /<type>/<commune>/<person>
 		// URL was composed from, and EntryFull does not carry one.
-		goto(entrySlugPageUrl(entry), { replaceState: false });
+		goto(entrySlugPageUrl(entry));
 	};
 </script>
 

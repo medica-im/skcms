@@ -24,8 +24,10 @@
 			cloneToken.orgEntry = params.get('org');
 			cloneToken.directory = params.get('dir') || null;
 		}
-		// replaceState so Back does not return to a URL that once held a token.
-		goto(resolve(`web/clone`), { replaceState: true, reset: false });
+		// replace so Back does not return to a URL that once held a token.
+		goto(resolve(`web/clone`), { replace: true, reset: false }).catch((e) =>
+			console.error('clone callback: could not leave the token address', e)
+		);
 	});
 </script>
 

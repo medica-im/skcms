@@ -15,34 +15,16 @@ import type { EffectorType } from '#lib/interfaces/v2/effector.ts';
 import { goto } from '$app/navigation';
 import { testPageState } from './testState.svelte.ts';
 
-const { form } = vi.hoisted(() => {
-	const form = {};
-	const hidden = (value: unknown) => ({ value, enumerable: false });
-	Object.defineProperties(form, {
-		fields: hidden(
-			new Proxy(
-				{},
-				{
-					get: (_, field) => ({
-						issues: () => [],
-						as: (type: string, value?: unknown) => ({ name: `${String(field)}/form`, type, value })
-					})
-				}
-			)
-		),
-		pending: hidden(0),
-		result: hidden(undefined),
-		enhance: hidden(() => ({ method: 'POST' }))
-	});
-	return { form };
+vi.mock('$src/effectorType.remote.ts', async () => {
+	const { fakeRemoteForm } = await import('../test-fake-form.ts');
+	const form = fakeRemoteForm();
+	return {
+		createEffectorType: { for: () => form },
+		updateEffectorType: { for: () => form },
+		deleteEffectorType: { for: () => form },
+		disconnectEffectorTypeParent: vi.fn()
+	};
 });
-
-vi.mock('$src/effectorType.remote.ts', () => ({
-	createEffectorType: { for: () => form },
-	updateEffectorType: { for: () => form },
-	deleteEffectorType: { for: () => form },
-	disconnectEffectorTypeParent: vi.fn()
-}));
 
 vi.mock('$app/paths', () => ({
 	resolve: (path: string) => `/annuaire/${path}`,
@@ -61,9 +43,11 @@ vi.mock('$app/state', () => ({
 	}
 }));
 
+const pathOf = (href: string) => (href.startsWith('http') ? new URL(href).pathname : href);
+
 vi.mock('$app/navigation', () => ({
 	preloadData: vi.fn(async (href: string) => {
-		if (!href.startsWith('/annuaire/')) {
+		if (!pathOf(href).startsWith('/annuaire/')) {
 			throw new Error(`Attempted to preload a URL that does not belong to this app: ${href}`);
 		}
 		return {
@@ -73,7 +57,7 @@ vi.mock('$app/navigation', () => ({
 		};
 	}),
 	goto: vi.fn(async (href: string, opts?: { shallow?: boolean; state?: Record<string, unknown> }) => {
-		if (!href.startsWith('/annuaire/')) {
+		if (!pathOf(href).startsWith('/annuaire/')) {
 			throw new Error(`Attempted to navigate to a URL that does not belong to this app: ${href}`);
 		}
 		if (opts?.state) {
@@ -140,6 +124,41 @@ describe('EffectorTypeModals', () => {
 			// The delete modal must open with its title
 			const modalTitle = page.getByRole('heading', { name: m.EFFECTOR_TYPE_DELETE() });
 			await expect.element(modalTitle).toBeVisible();
+		});
+	});
+
+	describe('creating a type from the list of types', () => {
+		const openList = () =>
+			render(EffectorTypesListPage, {
+				props: {
+					data: { effectorTypes: [testEffectorType] } as never
+				}
+			});
+		const createTitle = () => page.getByRole('heading', { name: m.EFFECTOR_TYPE_CREATE() });
+
+		it('opens the create modal once the shallow navigation has settled', async () => {
+			openList();
+
+			await page.getByRole('button', { name: m.CREATE() }).click();
+
+			await expect.element(createTitle()).toBeVisible();
+			expect(goto).toHaveBeenCalledWith(
+				expect.stringMatching(/\/annuaire\/web\/effector-types\/create$/),
+				expect.objectContaining({ shallow: true })
+			);
+		});
+
+		it('closes the create modal and steps back in history on Cancel', async () => {
+			const back = vi.spyOn(history, 'back').mockImplementation(() => {});
+			openList();
+			await page.getByRole('button', { name: m.CREATE() }).click();
+			await expect.element(createTitle()).toBeVisible();
+
+			await page.getByRole('button', { name: m.CANCEL() }).click();
+
+			expect(back).toHaveBeenCalledOnce();
+			await expect.element(createTitle()).not.toBeInTheDocument();
+			back.mockRestore();
 		});
 	});
 

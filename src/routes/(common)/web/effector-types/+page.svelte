@@ -47,7 +47,7 @@
 					await goto(href, { shallow: true, state: { selected: result.data } });
 					createOpen = true;
 				} else {
-					goto(href);
+					await goto(href);
 				}
 			}}
 		>

@@ -68,10 +68,10 @@
 	const pageNumber = $derived(pageFromParam(page.url.searchParams.get('page')));
 	const pageSize = $derived(pageSizeFromParam(page.url.searchParams.get('par')));
 
-	function navigate(change: (url: URL) => void, reset = false) {
+	async function navigate(change: (url: URL) => void, reset = false) {
 		const url = new URL(page.url.href);
 		change(url);
-		goto(url, { reset });
+		await goto(url, { reset });
 	}
 
 	function setStatusFilter(filter: InviteeFilter) {
@@ -345,7 +345,7 @@
 							await goto(href, { shallow: true, state: { selected: result.data } });
 							createOpen = true;
 						} else {
-							goto(href);
+							await goto(href);
 						}
 					}}
 				>

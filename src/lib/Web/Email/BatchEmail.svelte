@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { InputChip } from '@skeletonlabs/skeleton';
 	import { sendBatchEmail } from '../../../batchemail.remote.ts';
 	import { setSelectedOwners, getSelectedOwners } from '#lib/components/Directory/context.ts';
@@ -109,7 +110,7 @@
 						await submit();
 						if (sendBatchEmail.result?.success) {
 							currentStep = 2;
-							setTimeout(() => goto('/web/email'), 2000);
+							setTimeout(() => goto(resolve('web/email')), 2000);
 						}
 					} catch (error) {
 						console.error(error);

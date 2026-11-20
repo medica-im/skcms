@@ -42,7 +42,8 @@
 	 */
 	const drawerMenu = menuWithOwnPages(base(), capitalizeFirstLetter(m.ADDRESSBOOK_TITLE(), variables.DEFAULT_LANGUAGE), capitalizeFirstLetter(m.LEGAL_NOTICES(), variables.DEFAULT_LANGUAGE));
 
-	const dirPath = page.data.directory.setting.path || '/';
+	const directoryPath = page.data.directory.setting.path || '/';
+	const dirPath = `${base()}${directoryPath}`;
 	const drawerStore = getDrawerStore();
 
 	function onClickAnchor(): void {
@@ -117,7 +118,7 @@
 			<AppRailAnchor
 				data-sveltekit-preload-data="false"
 				href="{base()}/"
-				selected={page.url.pathname == '/' && !currentRailCategory}
+				selected={page.url.pathname == (base() || '/') && !currentRailCategory}
 				class="lg:hidden"
 				on:click={() => {
 					onClickAnchor();
@@ -128,7 +129,7 @@
 			>
 				<span>{m.HOME_TITLE()}</span>
 			</AppRailAnchor>
-			{#if dirPath != '/'}
+			{#if directoryPath != '/'}
 				<AppRailAnchor
 					href={dirPath}
 					selected={page.url.pathname.startsWith(dirPath) && !currentRailCategory}
@@ -150,7 +151,7 @@
 			{#if siteMenu?.footer.showSites ?? true}
 				<AppRailAnchor
 					href="{base()}/sites"
-					selected={page.url.pathname == '/sites' && !currentRailCategory}
+					selected={page.url.pathname == `${base()}/sites` && !currentRailCategory}
 					class="lg:hidden"
 					on:click={() => {
 						onClickAnchor();
@@ -165,7 +166,7 @@
 			{#if page.data.organization.google_calendar_id && page.data.organization.google_calendar_api_key}
 				<AppRailAnchor
 					href="{base()}/calendrier"
-					selected={page.url.pathname == '/calendrier' && !currentRailCategory}
+					selected={page.url.pathname == `${base()}/calendrier` && !currentRailCategory}
 					class="lg:hidden"
 					on:click={() => {
 						onClickAnchor();
@@ -221,7 +222,7 @@
 			<AppRailAnchor
 				href={siteMenu?.footer.contactHref ?? resolve(`contact`)}
 				rel={siteMenu ? 'noopener' : undefined}
-				selected={page.url.pathname == '/contact' && !currentRailCategory}
+				selected={page.url.pathname == `${base()}/contact` && !currentRailCategory}
 				class="lg:hidden"
 				on:click={() => {
 					onClickAnchor();

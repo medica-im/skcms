@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { goto, invalidate, invalidateAll } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
 	import * as m from '$msgs';
 	import { updateFacility } from '../../../facility.remote.ts';
@@ -86,7 +87,7 @@
 	let slug: string = $state(facility.slug ?? '');
 	let slugOk: boolean = $state(true);
 	let redirect: boolean = $derived(
-		slug != (facility.slug ?? '') && !page.url.pathname.startsWith('/web')
+		slug != (facility.slug ?? '') && !page.url.pathname.startsWith(resolve('web'))
 	);
 	let building: string | null = $state(facility.building);
 	let street: string = $derived($addressFeature?.properties?.name || facility.street);

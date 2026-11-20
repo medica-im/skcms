@@ -96,7 +96,7 @@
 		<button
 			use:popup={{ event: 'click', target: 'user' }}
 			title={session.user.name}
-			class="{classesActive('/dashboard')} btn btn-sm hover:variant-soft-primary min-h-11"
+			class="{classesActive(resolve('dashboard'))} btn btn-sm hover:variant-soft-primary min-h-11"
 			><span class="hidden lg:inline-block align-text-bottom"><Fa icon={faUser} size="lg" /></span
 			><span class="lg:hidden"><Fa icon={faUser} size="sm" /></span>
 			<span class="hidden lg:inline-block">{session.user.name}</span>

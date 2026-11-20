@@ -27,7 +27,11 @@
 
 	$effect(() => {
 		const address = addressForTab(location.href, tab);
-		if (address !== location.href) goto(address, { shallow: true, replace: true, state: page.state });
+		if (address !== location.href) {
+			goto(address, { shallow: true, replace: true, state: page.state }).catch((e) =>
+				console.error('email template: tab not written to the address', e)
+			);
+		}
 	});
 
 	/**

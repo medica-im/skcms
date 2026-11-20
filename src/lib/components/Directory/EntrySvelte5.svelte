@@ -8,7 +8,7 @@
 	let { entry, avatar }: { entry: Entry; avatar: boolean } = $props();
 
 	const goTo = () => {
-		goto(entrySlugPageUrl(entry), { replaceState: false });
+		goto(entrySlugPageUrl(entry));
 	};
 </script>
 

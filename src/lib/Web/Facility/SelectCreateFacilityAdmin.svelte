@@ -68,7 +68,7 @@
 					await goto(href, { shallow: true, state: { facilityCreate: result.data } });
 					facilityCreateOpen = true;
 				} else {
-					goto(href);
+					await goto(href);
 				}
 			}}
 		>

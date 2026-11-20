@@ -1,4 +1,5 @@
 import { redirect, invalid } from '@sveltejs/kit';
+import { resolve } from '$app/paths';
 import { getRequestEvent, form, command } from '$app/server';
 import * as z from 'zod';
 import { authReq } from '#lib/utils/request.ts';
@@ -129,7 +130,7 @@ export const updateEffectorType = form(UpdateEffectorType, async (data) => {
 			data: json
 		};
 	}
-	redirect(303, `/web/effector-types?edited=${uid}&t=${Date.now()}`);
+	redirect(303, resolve(`web/effector-types`) + `?edited=${uid}&t=${Date.now()}`);
 });
 
 const DeleteEffectorType = z.object({

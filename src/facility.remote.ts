@@ -1,4 +1,5 @@
 import { error, redirect } from '@sveltejs/kit';
+import { resolve } from '$app/paths';
 import { getRequestEvent, form, command } from '$app/server';
 import * as z from 'zod';
 import { authReq } from '#lib/utils/request.ts';
@@ -144,7 +145,7 @@ export const updateFacility = form(putFacility, async (data) => {
 				data: json
 			};
 		}
-		const redirectUrl: string = `/sites/${json.slug}?success=true`;
+		const redirectUrl: string = `${resolve(`sites/${json.slug}`)}?success=true`;
 		redirect(303, redirectUrl);
 	}
 });
