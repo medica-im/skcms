@@ -4,7 +4,8 @@
 	import { resolve } from '$app/paths';
 	import { base } from '#lib/utils/base.ts';
 	import { userRoles } from '#lib/auth/roles.ts';
-	import { listDirectories, listInstances, listSourceEntries, preflight, executeClone } from '../../../../clone.remote.ts';
+	import { getPeerBasePath, listDirectories, listInstances, listSourceEntries, preflight, executeClone } from '../../../../clone.remote.ts';
+	import { authorizeUrl } from '#lib/Web/Clone/authorizeUrl.ts';
 	import { cloneToken, takeTokenFromHash } from '#lib/Web/Clone/token.svelte.ts';
 	import { partition, type Preflight } from '#lib/Web/Clone/cloneState.ts';
 	import CloneEntriesTable from '#lib/Web/Clone/CloneEntriesTable.svelte';
@@ -108,13 +109,19 @@
 	}
 	loadInstances();
 
-	function authorize() {
+	async function authorize() {
 		const peer = instances.find((i) => i.name === instance);
 		if (!peer) return;
-		const target = window.location.origin;
-		const back = resolve(`web/clone/callback`);
 
-		window.location.href = `${peer.origin}${base()}/web/clone/authorize` + `?target=${encodeURIComponent(target)}&return=${encodeURIComponent(back)}` + `&instance=${encodeURIComponent(peer.name)}` + (directory ? `&directory=${encodeURIComponent(directory)}` : '');
+		window.location.href = authorizeUrl({
+			peerOrigin: peer.origin,
+			peerBasePath: await getPeerBasePath({ instance: peer.name }),
+			ownBasePath: base(),
+			target: window.location.origin,
+			back: resolve(`web/clone/callback`),
+			instance: peer.name,
+			directory
+		});
 	}
 
 	async function browse() {

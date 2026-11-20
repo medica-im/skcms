@@ -62,7 +62,7 @@
 				<button class="btn variant-filled-primary" disabled={busy || !data.target} onclick={approve}>
 					{busy ? 'Autorisation…' : 'Autoriser'}
 				</button>
-				<a class="btn variant-ghost" href={data.target || '/'}>Annuler</a>
+				<a class="btn variant-ghost" href={data.cancelUrl} rel="external">Annuler</a>
 			</div>
 		</div>
 	{/if}

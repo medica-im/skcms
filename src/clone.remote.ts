@@ -2,6 +2,7 @@ import { getRequestEvent, query, command } from '$app/server';
 import * as z from 'zod';
 import { authReq } from '#lib/utils/request.ts';
 import { variables } from '#lib/utils/constants.ts';
+import { peerBasePath } from '#lib/Web/Clone/peerBasePath.ts';
 
 /**
  * Cloning an entry from another deployment of this app.
@@ -22,11 +23,23 @@ export const listDirectories = query(async () => {
 	return rows.sort((a, b) => Number(b.main) - Number(a.main));
 });
 
-/** The peers this instance may pull from. */
-export const listInstances = query(async () => {
+async function peers(): Promise<{ name: string; display_name: string; origin: string }[]> {
 	const { cookies } = getRequestEvent();
 	const res = await fetch(authReq(`${variables.BASE_URI}/api/v2/clone/instances`, 'GET', cookies));
 	return res.ok ? await res.json() : [];
+}
+
+/** The peers this instance may pull from. */
+export const listInstances = query(peers);
+
+/**
+ * Where a peer serves its pages, as the peer states it, null when it could not
+ * say. Asked when one is chosen rather than with the list, so the list does not
+ * wait on every peer. The origin comes from the registry, never from the page.
+ */
+export const getPeerBasePath = command(z.object({ instance: z.string() }), async ({ instance }) => {
+	const peer = (await peers()).find((p) => p.name === instance);
+	return peer ? peerBasePath(peer.origin) : null;
 });
 
 const relaySchema = z.object({

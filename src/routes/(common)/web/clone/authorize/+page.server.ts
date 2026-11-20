@@ -13,7 +13,11 @@ import type { PageServerLoad } from './$types';
  */
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const session = await locals.auth();
-	if (!session) redirect(303, resolve(`signin?redirectTo=${url.pathname}${url.search}`));
+	// Encoded: the query (target, return, instance, directory) would otherwise
+	// become parameters of the sign-in page and be lost on the way back.
+	if (!session) {
+		redirect(303, resolve(`signin?redirectTo=${encodeURIComponent(`${url.pathname}${url.search}`)}`));
+	}
 	// The target has to be an absolute https origin, checked here rather than
 	// trusted from the query string. Empty or relative, the browser resolves
 	// `${target}${returnTo}` against the current document and produces a
@@ -35,14 +39,24 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			: 'No target instance was given — open this page from the clone wizard.';
 	}
 
-	const returnTo = url.searchParams.get('return') ?? resolve(`web/clone/callback`);
+	// A path on the target, never an absolute URL: an attacker-supplied return
+	// would otherwise carry the token to a host of their choosing. The target
+	// always sends its own, with its own base path; there is no default, since
+	// this instance's base path says nothing about the target's.
+	const asked = url.searchParams.get('return') ?? '';
+	const returnTo = asked.startsWith('/') && !asked.startsWith('//') ? asked : '';
+	if (!returnTo && !targetError) {
+		targetError = 'No return path was given — open this page from the clone wizard.';
+	}
 	return {
 		session,
 		target,
 		targetError,
-		// A path on the target, never an absolute URL: an attacker-supplied
-		// return would otherwise carry the token to a host of their choosing.
-		returnTo: returnTo.startsWith('/') ? returnTo : resolve(`web/clone/callback`),
+		returnTo,
+		// The target's callback page sends anyone who arrives without a token on
+		// to the wizard: declining ends there, in the target's app, rather than
+		// at the root of its domain, which under a base path is another site.
+		cancelUrl: `${target}${returnTo}`,
 		instance: url.searchParams.get('instance') ?? '',
 		sourceDirectory: url.searchParams.get('directory') ?? ''
 	};
