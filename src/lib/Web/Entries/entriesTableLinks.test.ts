@@ -26,6 +26,9 @@ import { readFileSync } from 'node:fs';
 const BASE = process.env.LINKCHECK_ORIGIN ?? 'https://dev.santelyon3.fr';
 const COMPONENT = new URL('./EntriesTable.svelte', import.meta.url).pathname;
 
+/** Above two 10 s fetches: the dev server compiles a route on its first request, slowly when busy. */
+const TEST_TIMEOUT = 25_000;
+
 /**
  * The link shapes the table renders, and how to find a live example of each.
  *
@@ -102,7 +105,7 @@ describe.skipIf(!online)(`links resolve against ${BASE}`, () => {
 		const res = await fetch(`${BASE}${path}`, { signal: AbortSignal.timeout(10_000) });
 
 		expect(res.status, `${BASE}${path} returned ${res.status}`).toBe(200);
-	});
+	}, TEST_TIMEOUT);
 
 	it('would have caught the facility link that shipped broken', async () => {
 		// The bug this file exists for: /web/facility/{slug} has only a
@@ -116,5 +119,5 @@ describe.skipIf(!online)(`links resolve against ${BASE}`, () => {
 		});
 
 		expect(res.status).toBe(404);
-	});
+	}, TEST_TIMEOUT);
 });
