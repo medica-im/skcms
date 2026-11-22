@@ -23,8 +23,9 @@ const API_ORIGIN = apiOrigin();
  * dialog behaves on a small screen — so any facility of the site under test
  * will do, and asking the API for one keeps it right on every worker.
  *
- * It must have a postal code: each worker site also holds a seeded facility
- * with none (e2e-wN-facility), and facility-edit-scope.feature needs the zip.
+ * It must have a postal code, one of the directory's: each worker site also holds
+ * a seeded facility with none (e2e-wN-facility), and facility-edit-scope.feature
+ * needs the zip, and a geocoder that will offer an address next to it.
  */
 const facilityCtx: { slug?: string } = {};
 
@@ -35,8 +36,21 @@ async function facilitySlug(): Promise<string> {
 	});
 	expect(response.ok, `GET public/facilities -> ${response.status}`).toBeTruthy();
 	const facilities = (await response.json()) as { slug?: string; address?: { zip?: string } }[];
-	const candidate = facilities.find((f) => f.slug && f.address?.zip);
-	expect(candidate, 'no facility with a slug on this site').toBeTruthy();
+	// The geocoder offers only addresses within the directory's postal codes, and
+	// the API lists facilities in no particular order: take one inside them.
+	const directoryResponse = await fetch(`${API_ORIGIN}/api/v1/directory/`, {
+		headers: { Accept: 'application/json', 'Cache-Control': 'no-cache' }
+	});
+	expect(directoryResponse.ok, `GET directory -> ${directoryResponse.status}`).toBeTruthy();
+	const directoryBody = await directoryResponse.json();
+	const prefixes: string[] =
+		(Array.isArray(directoryBody) ? directoryBody[0] : directoryBody)?.postal_codes ?? [];
+	const inArea = (zip: string) => !prefixes.length || prefixes.some((p) => zip.startsWith(p));
+	const candidate = facilities.find((f) => f.slug && f.address?.zip && inArea(f.address.zip));
+	expect(
+		candidate,
+		'no facility with a slug and a postal code of the directory on this site'
+	).toBeTruthy();
 	facilityCtx.slug = candidate!.slug;
 	return facilityCtx.slug!;
 }
