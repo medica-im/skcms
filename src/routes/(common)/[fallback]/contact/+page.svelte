@@ -5,6 +5,7 @@
 	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import * as m from '$msgs';
 	import Contact from '#lib/Contact/Contact.svelte';
+	import Establishments from '#lib/Contact/Establishments.svelte';
     import type { PageProps } from './$types';
 	let { data }: PageProps = $props();
 </script>
@@ -18,6 +19,11 @@
 <!-- programs -->
 <section id="programs" class="bg-surface-100-800-token programs-gradient">
 	<div class="section-container">
+		{#if data.establishments.length}
+			<Establishments places={data.establishments} />
+			<hr class="my-8 opacity-50" />
+			<h2 class="h2 mb-4">Siège social</h2>
+		{/if}
 		<Contact data={data.fullentry} />
 	</div>
 </section>

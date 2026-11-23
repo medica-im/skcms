@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import Types from '#lib/components/Directory/Types.svelte';
 	import MapLibre from '#lib/MapLibre/MapLibre.svelte';
 	import Address from '#lib/Address/Address.svelte';
 	import Navigation from '#lib/Navigation/Navigation.svelte';
@@ -17,7 +16,6 @@
 	import { PUBLIC_URL } from '#lib/utils/appUrl.ts';
 
 	export let facility: Facility;
-	export let entries: Map<any, any>;
 
 	const createFacilityGeoData = (facility: Facility) => {
 		let address = facility?.address;
@@ -70,12 +68,6 @@
 				{/if}
 			</span>
 		{/if}
-		<div class="w-full">
-			<Types
-				data={entries}
-				displayEntries={true}
-			/>
-		</div>
 	</div>
 	<!--
 		The photograph of the place, shown to every visitor: it is what lets a

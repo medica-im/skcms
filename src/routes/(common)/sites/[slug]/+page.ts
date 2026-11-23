@@ -1,4 +1,5 @@
-import { facilityEntries } from '#lib/components/Directory/sites.ts';
+import { facilityEntries, findSecretariat } from '#lib/components/Directory/sites.ts';
+import { fetchSchedules } from '#lib/Schedule/scheduleApi.ts';
 import type { PageLoad } from './$types';
 
 /**
@@ -10,12 +11,15 @@ import type { PageLoad } from './$types';
  * only falls back to the server's copy — reading them through a server load
  * would see the server copy alone, which comes back empty on staging.
  */
-export const load: PageLoad = async ({ data, parent }) => {
+export const load: PageLoad = async ({ data, parent, fetch }) => {
 	const { entries, labels } = await parent();
 	if (entries === undefined) throw new Error('entries undefined');
 	if (labels === undefined) throw new Error('labels undefined');
+	const secretariat = findSecretariat(entries, data.facility?.uid);
 	return {
 		...data,
-		entryMap: facilityEntries(entries, data.facility?.uid, labels)
+		entryMap: facilityEntries(entries, data.facility?.uid, labels),
+		secretariat,
+		secretariatSchedules: secretariat ? await fetchSchedules(fetch, secretariat.uid) : []
 	};
 };

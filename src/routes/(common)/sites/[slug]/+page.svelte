@@ -3,6 +3,8 @@
 	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
 	import * as m from '$msgs';
 	import FacilityPage from '#lib/Facility/FacilityPage.svelte';
+	import FacilitySecretariat from '#lib/Facility/FacilitySecretariat.svelte';
+	import Types from '#lib/components/Directory/Types.svelte';
 	import { hasCoordinates } from '#lib/components/Map/coordinates.ts';
 	import SitesLink from '#lib/components/Sites/SitesLink.svelte';
 	import { page } from '$app/state';
@@ -165,7 +167,13 @@
      columns would otherwise run almost to the edges of the window. -->
 <div class="mx-0 flex flex-col items-center justify-center p-4 py-6 lg:px-8 xl:px-12 2xl:px-20">
 	<div class="grid grid-cols-1 w-full gap-4 mx-auto justify-items-center">
-		<FacilityPage facility={data.facility} entries={data.entryMap} />
+		<FacilityPage facility={data.facility} />
+		{#if data.secretariat}
+			<FacilitySecretariat entry={data.secretariat} schedules={data.secretariatSchedules} />
+		{/if}
+		<div class="w-full max-w-5xl">
+			<Types data={data.entryMap} displayEntries={true} />
+		</div>
 		<SitesLink />
 		<Back />
 	</div>

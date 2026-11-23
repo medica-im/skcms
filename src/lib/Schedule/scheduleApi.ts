@@ -1,3 +1,4 @@
+import { APP_URL } from '#lib/utils/appUrl.ts';
 import type { IsoDay, OpeningSchedule, Period } from './openingHours.ts';
 
 export type Channel = 'on_site' | 'phone' | 'sms' | 'online';
@@ -20,6 +21,25 @@ export type ScheduleDraft = {
 };
 
 export const ISO_DAYS: IsoDay[] = [1, 2, 3, 4, 5, 6, 7];
+
+/**
+ * An entry's schedules, public like the entry. Never throws: a page that cannot read them still
+ * renders, without hours. Pass the load's own `fetch`, so a server load forwards what it must.
+ */
+export const fetchSchedules = async (
+	fetch: typeof globalThis.fetch,
+	entryUid: string
+): Promise<ApiSchedule[]> => {
+	const url = `${APP_URL}/api/v2/entries/${entryUid}/schedules`;
+	try {
+		const response = await fetch(url);
+		if (response.ok) return (await response.json()) as ApiSchedule[];
+		console.error(`schedules fetch ${url} answered ${response.status}`);
+	} catch (err) {
+		console.error(`schedules fetch ${url} failed:`, err);
+	}
+	return [];
+};
 
 // Not structuredClone: that refuses the proxy Svelte's $state puts around a draft.
 export const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value));

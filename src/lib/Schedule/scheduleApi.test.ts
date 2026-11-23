@@ -1,5 +1,11 @@
-import { describe, expect, test } from 'vitest';
-import { toOpeningSchedule, toPayload, emptyDays, type ApiSchedule } from './scheduleApi.ts';
+import { describe, expect, test, vi } from 'vitest';
+import {
+	fetchSchedules,
+	toOpeningSchedule,
+	toPayload,
+	emptyDays,
+	type ApiSchedule
+} from './scheduleApi.ts';
 
 const live: ApiSchedule = {
 	uid: 'a'.repeat(32),
@@ -59,5 +65,31 @@ describe('emptyDays', () => {
 		expect(Object.keys(days)).toHaveLength(7);
 		days[1].push({ opens: '08:00', closes: '09:00' });
 		expect(days[2]).toEqual([]);
+	});
+});
+
+describe('fetchSchedules', () => {
+	const answer = (ok: boolean, body: unknown) =>
+		vi.fn(
+			async (_url: RequestInfo | URL) =>
+				({ ok, status: ok ? 200 : 502, json: async () => body }) as Response
+		);
+
+	test('asks for the schedules of the entry and returns them', async () => {
+		const fetch = answer(true, [live]);
+		expect(await fetchSchedules(fetch, 'e1')).toEqual([live]);
+		expect(fetch.mock.calls[0][0]).toMatch(/\/api\/v2\/entries\/e1\/schedules$/);
+	});
+
+	test('a page still renders when the schedules cannot be read', async () => {
+		expect(await fetchSchedules(answer(false, 'bad gateway'), 'e1')).toEqual([]);
+		expect(
+			await fetchSchedules(
+				vi.fn(async () => {
+					throw new Error('offline');
+				}),
+				'e1'
+			)
+		).toEqual([]);
 	});
 });
