@@ -1206,5 +1206,16 @@
   "CLONE_SETTING_SOURCE": "Source",
   "CLONE_SETTING_HERE": "Ici",
   "CLONE_SETTING_EMPTY": "aucun",
-  "CLONE_SETTING_MISSING_HERE": "Absent ici, ignoré : {names}"
+  "CLONE_SETTING_MISSING_HERE": "Absent ici, ignoré : {names}",
+  "BACKEND_OFFLINE": "Le serveur de données de {name} ne répond pas ({status}) : il est probablement hors ligne.",
+  "BACKEND_OFFLINE_NO_ANSWER": "Le serveur de données de {name} ne répond pas : il est probablement hors ligne.",
+  "CLONE_PEER_GROUP_PRODUCTION": "Production",
+  "CLONE_PEER_GROUP_STAGING": "Staging",
+  "CLONE_PEER_GROUP_DEVELOPMENT": "Développement",
+  "CLONE_PEER_GROUP_OTHER": "Autres",
+  "CLONE_PEER_ONLINE": "En ligne",
+  "CLONE_PEER_OFFLINE": "Hors ligne",
+  "CLONE_PEER_CHECKING": "Vérification…",
+  "CLONE_PEER_RECHECK": "Vérifier à nouveau",
+  "CLONE_PEER_OFFLINE_HINT": "Cette instance ne répond pas : elle ne peut pas être choisie tant que son serveur est hors ligne."
 }

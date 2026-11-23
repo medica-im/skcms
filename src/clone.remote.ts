@@ -3,6 +3,7 @@ import * as z from 'zod';
 import { authReq } from '#lib/utils/request.ts';
 import { variables } from '#lib/utils/constants.ts';
 import { peerBasePath } from '#lib/Web/Clone/peerBasePath.ts';
+import { peerStatus, type PeerStatus } from '#lib/Web/Clone/peerStatus.ts';
 
 /**
  * Cloning an entry from another deployment of this app.
@@ -31,6 +32,22 @@ async function peers(): Promise<{ name: string; display_name: string; origin: st
 
 /** The peers this instance may pull from. */
 export const listInstances = query(peers);
+
+/**
+ * Which peers answer now, all asked at once. A command rather than a query: it
+ * is asked again on demand, and a query's cache would hand back the old answer.
+ */
+export const checkPeers = command(async () => {
+	const all = await peers();
+	const answers = await Promise.all(all.map((p) => peerStatus(p.origin)));
+	return Object.fromEntries(all.map((p, i) => [p.name, answers[i]])) as Record<string, PeerStatus>;
+});
+
+/** One peer, asked again just before leaving for it: it may have stopped since the list was drawn. */
+export const checkPeer = command(z.object({ instance: z.string() }), async ({ instance }) => {
+	const peer = (await peers()).find((p) => p.name === instance);
+	return peer ? await peerStatus(peer.origin) : ({ online: false, status: null } as PeerStatus);
+});
 
 /**
  * Where a peer serves its pages, as the peer states it, null when it could not

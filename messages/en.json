@@ -1206,5 +1206,16 @@
   "CLONE_SETTING_SOURCE": "Source",
   "CLONE_SETTING_HERE": "Here",
   "CLONE_SETTING_EMPTY": "none",
-  "CLONE_SETTING_MISSING_HERE": "Not here, skipped: {names}"
+  "CLONE_SETTING_MISSING_HERE": "Not here, skipped: {names}",
+  "BACKEND_OFFLINE": "The data server of {name} is not answering ({status}): it is probably offline.",
+  "BACKEND_OFFLINE_NO_ANSWER": "The data server of {name} is not answering: it is probably offline.",
+  "CLONE_PEER_GROUP_PRODUCTION": "Production",
+  "CLONE_PEER_GROUP_STAGING": "Staging",
+  "CLONE_PEER_GROUP_DEVELOPMENT": "Development",
+  "CLONE_PEER_GROUP_OTHER": "Other",
+  "CLONE_PEER_ONLINE": "Online",
+  "CLONE_PEER_OFFLINE": "Offline",
+  "CLONE_PEER_CHECKING": "Checking…",
+  "CLONE_PEER_RECHECK": "Check again",
+  "CLONE_PEER_OFFLINE_HINT": "This instance is not answering: it cannot be chosen while its server is offline."
 }

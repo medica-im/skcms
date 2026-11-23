@@ -4,8 +4,10 @@
 	import { resolve } from '$app/paths';
 	import { base } from '#lib/utils/base.ts';
 	import { userRoles } from '#lib/auth/roles.ts';
-	import { getPeerBasePath, listDirectories, listInstances, listSourceEntries, preflight, executeClone } from '../../../../clone.remote.ts';
+	import { checkPeer, checkPeers, getPeerBasePath, listDirectories, listInstances, listSourceEntries, preflight, executeClone } from '../../../../clone.remote.ts';
 	import { authorizeUrl } from '#lib/Web/Clone/authorizeUrl.ts';
+	import PeerPicker from '#lib/Web/Clone/PeerPicker.svelte';
+	import { isGatewayFailure, unreachableMessage, type PeerStatus } from '#lib/Web/Clone/peerStatus.ts';
 	import { cloneToken, takeTokenFromHash } from '#lib/Web/Clone/token.svelte.ts';
 	import { partition, type Preflight } from '#lib/Web/Clone/cloneState.ts';
 	import CloneEntriesTable from '#lib/Web/Clone/CloneEntriesTable.svelte';
@@ -24,6 +26,8 @@
 	let step = $state<'instance' | 'browse' | 'verify' | 'done'>('instance');
 	let instances = $state<Array<{ name: string; display_name: string; origin: string }>>([]);
 	let instance = $state('');
+	/** Undefined until the peers have been asked. */
+	let statuses = $state<Record<string, PeerStatus> | undefined>(undefined);
 	let directories = $state<Array<{ name: string; display_name: string | null; main: boolean }>>([]);
 	/** This site's directory the clone lists and writes into; the source scopes its token to the same name. */
 	let directory = $state('');
@@ -46,6 +50,14 @@
 	const blocked = $derived(partition(plans).blocked);
 	/** How many the "Cloner" button would actually write. */
 	const clonable = $derived(plans.filter((p) => p.blockers.length === 0).length);
+
+	/** A failed call, said as "the source is offline" when its proxy has no server behind it. */
+	function failure(what: string, status: number): string {
+		const peer = instances.find((i) => i.name === instance);
+		return peer && isGatewayFailure(status)
+			? unreachableMessage(peer.display_name, status)
+			: `${what} (${status}).`;
+	}
 
 	/**
 	 * Back to the instance picker, dropping the fetched list.
@@ -109,9 +121,25 @@
 	}
 	loadInstances();
 
+	async function recheckInstances() {
+		statuses = undefined;
+		statuses = await checkPeers();
+	}
+	recheckInstances();
+
 	async function authorize() {
 		const peer = instances.find((i) => i.name === instance);
 		if (!peer) return;
+
+		busy = true;
+		error = null;
+		const status = await checkPeer({ instance: peer.name });
+		busy = false;
+		if (!status.online) {
+			statuses = { ...statuses, [peer.name]: status };
+			error = unreachableMessage(peer.display_name, status.status);
+			return;
+		}
 
 		window.location.href = authorizeUrl({
 			peerOrigin: peer.origin,
@@ -130,7 +158,7 @@
 		const res = await listSourceEntries({ instance, token: token!, directory: directory || null });
 		busy = false;
 		if (!res.ok) {
-			error = `The source refused the entry list (${res.status}).`;
+			error = failure('The source refused the entry list', res.status);
 			return;
 		}
 		entries = res.entries;
@@ -145,7 +173,7 @@
 		const res = await preflight({ instance, token: token!, entry_uids: selected });
 		busy = false;
 		if (!res.ok) {
-			error = `Preflight failed (${res.status}).`;
+			error = failure('Preflight failed', res.status);
 			return;
 		}
 		plans = res.entries;
@@ -172,6 +200,11 @@
 			directory: directory || null,
 			resolutions
 		});
+		if (!res.ok) {
+			busy = false;
+			error = failure('The clone failed', res.status);
+			return;
+		}
 		results = res.results;
 
 		// A clone writes an entry, and often a facility, into *this* instance.
@@ -212,12 +245,7 @@
 		{#if step === 'instance'}
 			<div class="card variant-soft p-4 space-y-4">
 				<h2 class="h3">1. Choisir l'instance source</h2>
-				<select class="select" bind:value={instance}>
-					<option value="">—</option>
-					{#each instances as i}
-						<option value={i.name}>{i.display_name}</option>
-					{/each}
-				</select>
+				<PeerPicker {instances} {statuses} bind:value={instance} onrecheck={recheckInstances} />
 				{#if directories.length > 1}
 					<label class="label">
 						<span>Annuaire</span>
@@ -233,7 +261,7 @@
 
 				<button
 					class="btn variant-filled-primary"
-					disabled={!instance}
+					disabled={!instance || busy || statuses?.[instance]?.online !== true}
 					onclick={authorize}
 				>Se connecter à cette instance</button>
 			</div>

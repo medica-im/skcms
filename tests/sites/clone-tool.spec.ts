@@ -103,4 +103,22 @@ test.describe('the wizard is reachable', () => {
 		expect(errors, 'the clone page threw').toEqual([]);
 		await context.close();
 	});
+
+	test('a source is offered once it answers, and not before one is chosen', async ({ browser }) => {
+		const cookie = await createSessionCookie('superuser', ORIGIN);
+		const context = await browser.newContext();
+		await context.addCookies([{ name: sessionCookieName(ORIGIN), value: cookie, url: ORIGIN }]);
+		const page = await context.newPage();
+		await page.goto(`${ORIGIN}/web/clone`, { waitUntil: 'networkidle' });
+
+		const go = page.getByRole('button', { name: 'Se connecter à cette instance' });
+		await expect(page.getByText('Vérification…')).toHaveCount(0, { timeout: 15000 });
+		await expect(go).toBeDisabled();
+
+		const online = page.getByRole('radio').and(page.locator(':enabled'));
+		await expect(online.first()).toBeVisible();
+		await online.first().check();
+		await expect(go).toBeEnabled();
+		await context.close();
+	});
 });
