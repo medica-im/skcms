@@ -1,3 +1,5 @@
+import { error, isHttpError } from '@sveltejs/kit';
+import { isGatewayFailure, unreachableMessage } from '#lib/Web/Clone/peerStatus.ts';
 import { ORIGIN } from '#lib/utils/origin.ts';
 import { authReq } from '#lib/utils/request.ts';
 import { getEntries } from '#lib/api.ts';
@@ -37,12 +39,19 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch, depends }
 				method: 'GET',
 				headers: { 'content-type': 'application/json' }
 			});
+			// A proxy with no server behind it: every page would go on to fail on
+			// the missing data, in a way that names nothing (2026-11-23, a stopped
+			// dev backend showed as "reading 'google_calendar_id'").
+			if (isGatewayFailure(response.status)) {
+				error(503, unreachableMessage(new URL(ORIGIN).host, response.status));
+			}
 			if (!response.ok) {
 				throw new Error(`Response status: ${response.status}`);
 			}
 			return (await response.json()) as T;
-		} catch (error: any) {
-			console.error(`${what} from layout.server.ts ${error.message}`);
+		} catch (e: any) {
+			if (isHttpError(e)) throw e;
+			console.error(`${what} from layout.server.ts ${e.message}`);
 		}
 	};
 

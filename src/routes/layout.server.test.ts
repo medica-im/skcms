@@ -168,4 +168,21 @@ describe('the root layout’s data', () => {
 		expect(data.user).toEqual({ username: 'alice' });
 		expect(data.labels).toEqual({ t: {} });
 	});
+
+	it.each([502, 503, 504])(
+		'says the backend is offline, and whose, when its proxy answers %i',
+		async (status) => {
+			const loading = load(event());
+			const refused = expect(loading).rejects.toMatchObject({
+				status: 503,
+				body: { message: expect.stringContaining('api.test') }
+			});
+			await vi.waitFor(() => expect(started()).toEqual(expect.arrayContaining(INDEPENDENT)), {
+				timeout: 1000
+			});
+
+			answer('/api/v2/organization', '<html>Bad Gateway</html>', status);
+			await refused;
+		}
+	);
 });
