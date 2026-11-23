@@ -29,8 +29,9 @@ Feature: An entry says when it can be reached
       Given that entry has weekday hours "08:00-12:00,14:00-18:00", closed on public holidays
       And I am signed out
       When I look at that entry
-      Then its hours read "Lundi au vendredi : 08:00–12:00 et 14:00–18:00"
-      And its hours do not mention "Samedi"
+      Then its hours show "Lundi" as "8:00–12:00 et 14:00–18:00"
+      And its hours show "Vendredi" as "8:00–12:00 et 14:00–18:00"
+      And its hours show "Samedi" as "Fermé"
       And its hours say "Fermé les jours fériés."
 
     Scenario: A service that stays open on public holidays says so
@@ -50,7 +51,8 @@ Feature: An entry says when it can be reached
       Given I am signed in with the role "staff"
       When I open that entry in edit mode
       And I add weekday hours from "08:00" to "20:00"
-      Then its hours read "Lundi au vendredi : 08:00–20:00"
+      Then its hours show "Lundi" as "8:00–20:00"
+      And its hours show "Vendredi" as "8:00–20:00"
       And its hours say "Fermé les jours fériés."
 
     Scenario: The creator says the service stays open on public holidays

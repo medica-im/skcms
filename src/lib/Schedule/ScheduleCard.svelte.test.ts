@@ -56,7 +56,7 @@ describe('ScheduleCard', () => {
 			.not.toBeInTheDocument();
 	});
 
-	it('lists the days of a schedule that closes, even when it is open all day on weekdays', async () => {
+	it('draws the week of a schedule that closes, even when it is open all day on weekdays', async () => {
 		render(ScheduleCard, {
 			props: {
 				schedule: schedule({ ...week([]), 1: ALL, 2: ALL, 3: ALL, 4: ALL, 5: ALL }, 'open'),
@@ -64,7 +64,44 @@ describe('ScheduleCard', () => {
 			}
 		});
 		await expect.element(screen.getByTestId('schedule-round-the-clock')).not.toBeInTheDocument();
-		await expect.element(screen.getByText('Lundi au vendredi', { exact: false })).toBeVisible();
+		await expect.element(screen.getByTestId('week-row-1')).toHaveTextContent('Lundi');
+		await expect.element(screen.getByTestId('week-row-1')).toHaveTextContent('24h/24');
+		await expect.element(screen.getByTestId('week-row-6')).toHaveTextContent('Fermé');
+	});
+
+	it('shows a headset for the phone reception', async () => {
+		render(ScheduleCard, {
+			props: { schedule: schedule(week(ALL), 'closed'), zone: 'metropole' }
+		});
+		await expect.element(screen.getByTestId('channel-icon-phone')).toBeInTheDocument();
+		await expect.element(screen.getByTestId('channel-icon-on_site')).not.toBeInTheDocument();
+	});
+
+	it('shows a checked-in person for the front desk', async () => {
+		render(ScheduleCard, {
+			props: {
+				schedule: { ...schedule(week(ALL), 'closed'), channel: 'on_site' as const },
+				zone: 'metropole'
+			}
+		});
+		await expect.element(screen.getByTestId('channel-icon-on_site')).toBeInTheDocument();
+		await expect.element(screen.getByTestId('channel-icon-phone')).not.toBeInTheDocument();
+	});
+
+	it('draws the week of a front desk with its two periods a day', async () => {
+		const frontDesk = [
+			{ opens: '08:30', closes: '11:00' },
+			{ opens: '14:00', closes: '17:00' }
+		];
+		render(ScheduleCard, {
+			props: {
+				schedule: schedule({ ...week([]), 1: frontDesk, 2: frontDesk }, 'closed'),
+				zone: 'metropole'
+			}
+		});
+		await expect
+			.element(screen.getByTestId('week-row-2'))
+			.toHaveTextContent('8:30–11:00 et 14:00–17:00');
 	});
 
 	it('lists the days when it closes on public holidays, as before', async () => {

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { describeChange, formatDays, formatPeriods } from './scheduleText.ts';
+import { describeChange, formatDays, formatPeriods, weekLines } from './scheduleText.ts';
 import { isoDayAt } from './openingHours.ts';
 
 const p = (opens: string, closes: string) => ({ opens, closes });
@@ -23,6 +23,21 @@ describe('formatPeriods', () => {
 
 	test('a whole day is "24h/24"', () => {
 		expect(formatPeriods([p('00:00', '24:00')])).toBe('24h/24');
+	});
+
+	test('compact drops the leading zero of an hour and keeps the minutes', () => {
+		expect(formatPeriods([p('08:30', '11:00'), p('14:00', '17:00')], true)).toBe(
+			'8:30–11:00 et 14:00–17:00'
+		);
+	});
+
+	test('compact keeps a midnight hour readable', () => {
+		expect(formatPeriods([p('00:00', '09:05')], true)).toBe('0:00–9:05');
+		expect(formatPeriods([p('20:00', '24:00')], true)).toBe('20:00–24:00');
+	});
+
+	test('compact does not change a whole day', () => {
+		expect(formatPeriods([p('00:00', '24:00')], true)).toBe('24h/24');
 	});
 });
 
@@ -79,5 +94,26 @@ describe('isoDayAt', () => {
 		const instant = new Date('2026-11-03T00:30:00Z');
 		expect(isoDayAt(instant, 'Europe/Paris')).toBe(2);
 		expect(isoDayAt(instant, 'America/New_York')).toBe(1);
+	});
+});
+
+describe('weekLines', () => {
+	const p = (opens: string, closes: string) => ({ opens, closes });
+	const phone = [p('09:00', '11:00'), p('15:00', '17:00')];
+
+	test('groups the days that share their hours, one line per group', () => {
+		const opening = {
+			days: { 1: phone, 2: phone, 3: phone, 4: phone, 5: phone, 6: [p('09:00', '11:00')], 7: [] },
+			holidays: 'closed' as const
+		};
+		expect(weekLines(opening)).toEqual([
+			'Lundi au vendredi : 09:00–11:00 et 15:00–17:00',
+			'Samedi : 09:00–11:00'
+		]);
+	});
+
+	test('a week with no period has no line', () => {
+		const closed = { days: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] }, holidays: 'closed' as const };
+		expect(weekLines(closed)).toEqual([]);
 	});
 });

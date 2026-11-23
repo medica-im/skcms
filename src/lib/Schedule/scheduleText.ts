@@ -1,12 +1,16 @@
-import type { Change, IsoDay, Period } from './openingHours.ts';
+import { summarize, type Change, type IsoDay, type OpeningSchedule, type Period } from './openingHours.ts';
 import { DAY_NAMES } from './scheduleEditor.ts';
 
 const capitalized = (text: string) => `${text[0].toUpperCase()}${text.slice(1)}`;
 
-export const formatPeriods = (periods: Period[]): string => {
+const withoutLeadingZero = (time: string) => time.replace(/^0(\d:)/, '$1');
+
+/** `compact` drops the zero before a one-digit hour (8:30 for 08:30), to save room in a tight row. */
+export const formatPeriods = (periods: Period[], compact = false): string => {
 	if (periods.length === 1 && periods[0].opens === '00:00' && periods[0].closes === '24:00')
 		return '24h/24';
-	const items = periods.map((p) => `${p.opens}–${p.closes}`);
+	const time = compact ? withoutLeadingZero : (t: string) => t;
+	const items = periods.map((p) => `${time(p.opens)}–${time(p.closes)}`);
 	if (items.length < 2) return items.join('');
 	return `${items.slice(0, -1).join(', ')} et ${items[items.length - 1]}`;
 };
@@ -17,6 +21,12 @@ export const formatDays = (from: IsoDay, to: IsoDay): string => {
 	if (to === from + 1) return `${capitalized(DAY_NAMES[from])} et ${DAY_NAMES[to]}`;
 	return `${capitalized(DAY_NAMES[from])} au ${DAY_NAMES[to]}`;
 };
+
+/** The week in words, one line per run of days sharing the same hours. */
+export const weekLines = (schedule: OpeningSchedule): string[] =>
+	summarize(schedule).map(
+		(group) => `${formatDays(group.from, group.to)} : ${formatPeriods(group.periods)}`
+	);
 
 export const describeChange = (change: Change | null): string | null => {
 	if (!change) return null;

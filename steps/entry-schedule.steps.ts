@@ -111,9 +111,9 @@ Then('its hours read {string}', async ({ page }, text: string) => {
 	await expect(cards(page).first()).toContainText(text, { timeout: 15_000 });
 });
 
-Then('its hours do not mention {string}', async ({ page }, text: string) => {
-	await expect(cards(page).first()).toBeVisible();
-	await expect(cards(page).first()).not.toContainText(text);
+Then('its hours show {string} as {string}', async ({ page }, day: string, text: string) => {
+	const row = cards(page).first().locator('[data-testid^="week-row-"]').filter({ hasText: day });
+	await expect(row).toContainText(text, { timeout: 15_000 });
 });
 
 Then('its hours say {string}', async ({ page }, text: string) => {

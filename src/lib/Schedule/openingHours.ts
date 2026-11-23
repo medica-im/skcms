@@ -46,6 +46,9 @@ const localMoment = (instant: Date, timeZone: string): LocalMoment => {
 export const isoDayAt = (instant: Date, timeZone: string): IsoDay =>
 	localMoment(instant, timeZone).isoDay;
 
+export const minutesAt = (instant: Date, timeZone: string): number =>
+	localMoment(instant, timeZone).minutes;
+
 const shiftDate = (dateKey: string, days: number) => {
 	const [y, m, d] = dateKey.split('-').map(Number);
 	return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);

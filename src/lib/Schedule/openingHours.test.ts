@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import {
 	isOpen,
 	isRoundTheClock,
+	minutesAt,
 	nextChange,
 	summarize,
 	type OpeningSchedule
@@ -246,5 +247,17 @@ describe('isRoundTheClock', () => {
 
 	test('an empty week is not', () => {
 		expect(isRoundTheClock(week({}, 'open'))).toBe(false);
+	});
+});
+
+describe('minutesAt', () => {
+	test('is the minute of the day in the place, not in the viewer’s zone', () => {
+		const instant = new Date('2026-11-02T08:30:00Z');
+		expect(minutesAt(instant, PARIS)).toBe(9 * 60 + 30);
+		expect(minutesAt(instant, NEW_YORK)).toBe(3 * 60 + 30);
+	});
+
+	test('midnight is minute 0, not 24 hours', () => {
+		expect(minutesAt(new Date('2026-11-01T23:00:00Z'), PARIS)).toBe(0);
 	});
 });

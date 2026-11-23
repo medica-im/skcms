@@ -1,13 +1,35 @@
 
 <script lang="ts">
 	import Fa from 'svelte-fa';
-	import { faPen, faClock } from '@fortawesome/free-solid-svg-icons';
+	import {
+		faPen,
+		faClock,
+		faUserCheck,
+		faHeadset,
+		faSms,
+		faGlobe
+	} from '@fortawesome/free-solid-svg-icons';
 	import * as m from '$msgs';
 	import { dateTime } from '#lib/store/dateTimeStore.ts';
 	import { holidaysFor, timeZoneOf } from './holidays.ts';
-	import { isOpen, isoDayAt, isRoundTheClock, nextChange, summarize } from './openingHours.ts';
+	import {
+		isOpen,
+		isoDayAt,
+		isRoundTheClock,
+		minutesAt,
+		nextChange,
+		summarize
+	} from './openingHours.ts';
 	import { toOpeningSchedule, type ApiSchedule } from './scheduleApi.ts';
-	import { describeChange, formatDays, formatPeriods } from './scheduleText.ts';
+	import { describeChange } from './scheduleText.ts';
+	import ScheduleWeek from './ScheduleWeek.svelte';
+
+	const CHANNEL_ICONS = {
+		on_site: faUserCheck,
+		phone: faHeadset,
+		sms: faSms,
+		online: faGlobe
+	};
 
 	const CHANNELS = {
 		on_site: 'Sur place',
@@ -20,8 +42,18 @@
 		schedule,
 		zone,
 		editable = false,
-		onedit
-	}: { schedule: ApiSchedule; zone: string; editable?: boolean; onedit?: () => void } = $props();
+		onedit,
+		aligned = false
+	}: {
+		schedule: ApiSchedule;
+		zone: string;
+		editable?: boolean;
+		onedit?: () => void;
+		/** Sits in a grid with other cards and shares its rows with them (subgrid). */
+		aligned?: boolean;
+	} = $props();
+
+	const tone = $derived(schedule.channel === 'on_site' ? 'success' : 'primary');
 
 	const opening = $derived(toOpeningSchedule(schedule));
 	const timeZone = $derived(timeZoneOf(zone));
@@ -32,9 +64,17 @@
 	const roundTheClock = $derived(isRoundTheClock(opening));
 </script>
 
-<div class="card p-4 space-y-2" data-testid="schedule-card">
+<div
+	class="card border border-t-4 border-surface-300-600-token p-4 {tone === 'success'
+		? '!border-t-success-500'
+		: '!border-t-primary-500'} {aligned ? 'grid grid-rows-subgrid row-span-10 gap-y-2' : 'space-y-2'}"
+	data-testid="schedule-card"
+>
 	<div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-		<h5 class="h5">{schedule.label || CHANNELS[schedule.channel]}</h5>
+		<h5 class="h5 inline-flex items-center gap-2">
+			<span data-testid="channel-icon-{schedule.channel}"><Fa icon={CHANNEL_ICONS[schedule.channel]} /></span>
+			{schedule.label || CHANNELS[schedule.channel]}
+		</h5>
 		{#if roundTheClock}
 			<span
 				class="rounded-full px-3 py-1 text-lg font-bold variant-filled-success inline-flex items-center gap-2"
@@ -66,13 +106,13 @@
 	{#if roundTheClock}
 		<!-- said above -->
 	{:else if groups.length}
-		<ul class="space-y-1">
-			{#each groups as group (group.from)}
-				<li class={group.from <= today && today <= group.to ? 'font-bold' : ''}>
-					{formatDays(group.from, group.to)} : {formatPeriods(group.periods)}
-				</li>
-			{/each}
-		</ul>
+		<ScheduleWeek
+			schedule={opening}
+			{today}
+			minutes={minutesAt($dateTime, timeZone)}
+			{tone}
+			{aligned}
+		/>
 	{:else}
 		<p>Fermé toute la semaine.</p>
 	{/if}
