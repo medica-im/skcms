@@ -6,7 +6,7 @@ import { join, relative, resolve } from 'node:path';
  * That shared code reaches the site's skvar through the `$skvar` alias.
  *
  * A test site server (scripts/site-routes.sh) renders its tenant's skvar from a
- * worktree, and svelte.config.js points `$skvar`, `$var` and `$svlt` at it. A
+ * worktree, and svelte.config.js points `$skvar` and `$var` at it. A
  * relative path such as `../../routes/(skvar)/...` bypasses that and reaches
  * the submodule — whichever tenant's branch it is sitting on. It builds and
  * renders without an error, as another site:
@@ -51,7 +51,7 @@ const strip = (src: string) =>
  * whose skvar path has no parenthesis, and nothing in the image built for
  * staging.unipa.fr, which showed the generic app bar (2026-10-07; measured
  * with a bare Vite build). Use the narrower alias (`$var/siteMenu.ts`) or
- * escape the group (`$svlt/\\(association\\)/Join.svelte`).
+ * escape the groups (`$skvar/\\(components\\)/\\(association\\)/Join.svelte`).
  */
 const globPatterns = (source: string) =>
 	[...source.matchAll(/import\.meta\.glob[^(]*\(\s*(['"`])(.*?)\1/g)].map((m) => m[2]);

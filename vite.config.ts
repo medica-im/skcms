@@ -116,7 +116,6 @@ export default defineConfig(({ mode }) => {
 					// it to decide whether /contact falls back.
 					$skvar: SKVAR_DIR,
 					$var: `${SKVAR_DIR}/(var)`,
-					$svlt: `${SKVAR_DIR}/(svlt)`,
 					$routes: './src/routes',
 					'$routes/*': './src/routes/*',
 					$src: './src',
