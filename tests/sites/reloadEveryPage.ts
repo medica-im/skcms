@@ -15,7 +15,9 @@
  *   - an uncaught exception in the page (hydration errors land here);
  *   - a console error;
  *   - a navigation that times out twice. Once is forgiven and reported: a
- *     check run straight after a release meets servers still warming up.
+ *     check run straight after a release meets servers still warming up;
+ *   - a load cut by a network change (ERR_NETWORK_CHANGED) that is cut again
+ *     on the second load; the first is forgiven and reported (networkChange.ts).
  *
  * Pages are found by following the site's own links, breadth first, from its
  * root. Dynamic routes are the same code for every slug, and there are
@@ -26,6 +28,7 @@
  * bundled SSR shows on staging alone.
  */
 import { expect, type Browser } from '@playwright/test';
+import { hasNetworkChange } from './networkChange';
 import { basePathFor, originFor, type SiteName } from './sites';
 
 /**
@@ -230,6 +233,7 @@ export async function reloadEveryPage(browser: Browser, site: SiteName) {
 	};
 
 	const slowOnce: string[] = [];
+	const networkChangedOnce: string[] = [];
 	while (queue.length) {
 		const url = queue.shift()!;
 		visited.push(url);
@@ -249,6 +253,10 @@ export async function reloadEveryPage(browser: Browser, site: SiteName) {
 		if (visit.errors.some(isNavigationTimeout)) {
 			visit = await load(browser, url);
 			if (!visit.errors.some(isNavigationTimeout)) slowOnce.push(url);
+		}
+		if (hasNetworkChange(visit.errors)) {
+			visit = await load(browser, url);
+			if (!hasNetworkChange(visit.errors)) networkChangedOnce.push(url);
 		}
 		const { status, errors, hrefs } = visit;
 		if (visit.throttled) errors.push('still rate limited (429) after two pauses');
@@ -272,5 +280,8 @@ export async function reloadEveryPage(browser: Browser, site: SiteName) {
 		console.log(`  KNOWN ISSUE, not reloaded: ${k.path} (${k.why})`);
 	}
 	for (const url of slowOnce) console.log(`  TIMED OUT ONCE, passed on retry: ${url}`);
+	for (const url of networkChangedOnce) {
+		console.log(`  NETWORK CHANGED ONCE, passed on retry: ${url}`);
+	}
 	expect(failures, `pages that fail on a hard reload:\n${report}`).toEqual([]);
 }
