@@ -1264,6 +1264,11 @@ info "backend:  $BACKEND_DIR"
 
 info "sites:    ${CONTEXTS[*]}"
 
+# What an earlier run left behind (its site servers, and the test-all that
+# started them when that was killed) is memory this run is about to need.
+# Everything this run starts shares its session, so only the rest is stopped.
+reap_leftover_test_servers "$(ps -o sid= -p $$ | tr -d ' ')"
+
 # Staging runs on this machine too, and a test run has no use for it: about
 # 6 GB that the browsers and the dev backend can use. Stopped here and started
 # again when the run ends (restore_staging, in the EXIT traps). TEST_ALL_STOP_STAGING

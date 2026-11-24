@@ -43,6 +43,67 @@ stop_site_servers() {
     return 0
 }
 
+# The test servers and test-all runs an earlier run left behind, found in the
+# process table because the stamps stop_site_servers goes by are gone by the
+# time anybody needs this: a unipa site server and the `test-all.sh bdd` that
+# started it sat there for 22 hours, 760 MB, beside a run starving for memory.
+#
+#   list_leftover_test_servers <current-sid>
+#
+# One "pid<TAB>kind<TAB>MB" line each; kind is `server` (a vite started with a
+# test --mode) or `run` (a test-all.sh). Whatever the run going on now started
+# is in its session, so anything else that looks like one is a leftover. The
+# developer's own dev servers have no --mode and are never listed.
+#
+# TS_PROCESS_TABLE stands in for `ps -eo pid=,sid=,rss=,args=` in tests.
+list_leftover_test_servers() {
+    local current_sid="$1"
+    {
+        if [[ -n "${TS_PROCESS_TABLE+x}" ]]; then
+            printf '%s\n' "$TS_PROCESS_TABLE"
+        else
+            ps -eo pid=,sid=,rss=,args=
+        fi
+    } | awk -v me="$current_sid" '
+        $2 == me { next }
+        {
+            args = $0
+            sub(/^ *[0-9]+ +[0-9]+ +[0-9]+ +/, "", args)
+            kind = ""
+            if (args ~ /^(\/usr)?(\/bin\/)?bash [^ ]*\/scripts\/test-all\.sh( |$)/) kind = "run"
+            else if (args ~ /vite\/bin\/vite\.js --port [0-9]+ --strictPort --mode (site\.[A-Za-z0-9_-]+|test\.w[0-9]+)( |$)/) kind = "server"
+            if (kind != "") printf "%s\t%s\t%d\n", $1, kind, int($3 / 1024 + 0.5)
+        }'
+}
+
+# Stops what list_leftover_test_servers finds, saying what and how much.
+#
+#   reap_leftover_test_servers <current-sid>
+#
+# A leftover test-all is killed outright, not asked to stop: its exit trap
+# would start the staging containers again from TS_STAGING_STATE, the file the
+# run going on now is keeping, and put them back mid-run. It has been
+# orphaned for hours; there is nothing it still needs to clean up.
+reap_leftover_test_servers() {
+    local pid kind mb waited total=0
+    while IFS=$'\t' read -r pid kind mb; do
+        warn "left over from an earlier run: $kind pid $pid ($mb MB); stopping it"
+        total=$((total + mb))
+        if [[ "$kind" == run ]]; then
+            kill -9 "$pid" 2>/dev/null
+            continue
+        fi
+        kill "$pid" 2>/dev/null || continue
+        waited=0
+        while (( waited < 10 )) && kill -0 "$pid" 2>/dev/null; do
+            sleep 1; waited=$((waited + 1))
+        done
+        kill -0 "$pid" 2>/dev/null && kill -9 "$pid" 2>/dev/null
+    done < <(list_leftover_test_servers "$1")
+    (( total == 0 )) || info "freed about $total MB"
+    return 0
+}
+
 # Prints the pid of a test-all run holding the lock and returns 0; returns 1
 # when nobody holds it. Same lock file as test-all.sh.
 #
@@ -121,6 +182,14 @@ _ts_report() {
         pid="$(_ts_pid_on_port "$port")"
         [[ -n "$pid" ]] && info "dev server :$port  pid $pid  $(_ts_rss_mb "$pid") MB  (yours, never stopped)"
     done
+
+    # Another session than the run that holds the lock, if one does.
+    local holder sid="" kind mb
+    holder="$(test_all_running)" && [[ "$holder" =~ ^[0-9]+$ ]] &&
+        sid="$(ps -o sid= -p "$holder" 2>/dev/null | tr -d ' ')"
+    while IFS=$'\t' read -r pid kind mb; do
+        warn "left over from an earlier run: $kind pid $pid ($mb MB); the next test-all stops it"
+    done < <(list_leftover_test_servers "$sid")
     return 0
 }
 
