@@ -7,6 +7,7 @@
 	import { SignIn } from '@auth/sveltekit/components';
 	import { resolve } from '$app/paths';
 	import { base } from '#lib/utils/base.ts';
+	import { signinRedirectTo } from '#lib/Auth/signinRedirect.ts';
 
 	// SignIn builds action={`/${signInPage}`} with no base path, so on an
 	// instance served under one the form posts to the site root — WordPress, on
@@ -24,8 +25,7 @@
 	const redirectParam = page.url.searchParams.get('redirectTo');
 	// Base-prefixed: on an instance served under one, a bare /dashboard is the
 	// *site* root, which on unipa.fr is WordPress rather than the app.
-	const redirect = redirectParam ? redirectParam : resolve(`dashboard`);
-	const redirectTo = encodeURI(`${redirect}`);
+	const redirectTo = signinRedirectTo(redirectParam, resolve(`dashboard`));
 </script>
 
 <svelte:head><link rel="canonical" href="{base()}/signin" /></svelte:head>
