@@ -1,7 +1,6 @@
 import { ORIGIN } from '#lib/utils/origin.ts';
 import { checkVersion } from '#lib/version.ts';
 import { getSituationsV2 } from '#lib/store/directoryStore.ts';
-import type { User } from '#lib/interfaces/user.interface.ts';
 import type { Entry } from '#lib/store/directoryStoreInterface.ts';
 import type { Situation } from '#lib/store/directoryStoreInterface.ts';
 import type { LayoutLoad } from './$types';
@@ -19,25 +18,7 @@ export const load: LayoutLoad = async ({ fetch, data, depends }) => {
 	// an auth navigation invalidates this load automatically.
 	const currentSession = data?.session ?? null;
 	let response;
-	let user: User | undefined;
 	console.log('layout.ts browser', browser, 'session:', currentSession ? 'yes' : 'no');
-	if (browser && import.meta.env.PROD) {
-		const userUrl = `${ORIGIN}/api/v2/users/me`;
-		try {
-			response = await fetch(userUrl, {
-				credentials: 'include',
-				method: 'GET',
-				headers: { 'content-type': 'application/json' }
-			});
-			if (!response.ok) {
-				throw new Error(`Response status: ${response.status}`);
-			}
-			user = await response.json();
-			console.log('user layout.ts', user);
-		} catch (error: any) {
-			console.error('There was an error while retrieving user from layout.ts', error.message);
-		}
-	}
 	let entries: Entry[] | undefined;
 	if (browser && import.meta.env.PROD) {
 		try {
@@ -68,7 +49,6 @@ export const load: LayoutLoad = async ({ fetch, data, depends }) => {
 	return {
 		...data,
 		situations: situations || data.situations,
-		user: user || data.user,
 		entries: entries || data.entries
 	};
 };

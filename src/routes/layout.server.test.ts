@@ -17,9 +17,18 @@ let held: Held[];
 let authAsked: boolean;
 let releaseAuth: (session: unknown) => void;
 
+const USER = '/api/v2/users/me';
+
+// The user is asked for only once the session is known, so it is answered as
+// soon as it is asked rather than held with the requests that go out at once.
 const fakeFetch = (input: RequestInfo | URL) =>
 	new Promise<Response>((resolve) => {
 		const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+		if (new URL(url).pathname === USER) {
+			held.push({ path: USER, answer: () => {} });
+			resolve(new Response(JSON.stringify({ username: 'alice' })));
+			return;
+		}
 		held.push({
 			path: new URL(url).pathname,
 			answer: (body, status = 200) =>
@@ -32,7 +41,6 @@ const answer = (path: string, body: unknown, status = 200) =>
 	held.find((h) => h.path === path)!.answer(body, status);
 
 const INDEPENDENT = [
-	'/api/v2/users/me',
 	'/api/v2/entries',
 	'/api/v2/organization',
 	'/api/v1/directory/',
@@ -63,7 +71,6 @@ const answerAll = (
 	directory: unknown = { inputField: { situation: false } },
 	card: unknown = CARD
 ) => {
-	answer('/api/v2/users/me', { username: 'alice' });
 	answer('/api/v2/entries', [{ name: 'Alice Martin' }]);
 	answer('/api/v2/organization', { name: 'CPTS' });
 	answer('/api/v1/directory/', directory);
@@ -102,6 +109,43 @@ describe('the root layout’s data', () => {
 		expect(data.session).toEqual({ user: { email: 'alice@example.org' } });
 		expect(data.situations).toBeUndefined();
 		expect(started()).not.toContain('/api/v2/situations');
+	});
+
+	it('does not ask the backend who a visitor is when they have no session', async () => {
+		const loading = load(event());
+		await vi.waitFor(() => expect(started()).toEqual(expect.arrayContaining(INDEPENDENT)), {
+			timeout: 1000
+		});
+
+		releaseAuth(null);
+		answer('/api/v2/entries', [{ name: 'Alice Martin' }]);
+		answer('/api/v2/organization', { name: 'CPTS' });
+		answer('/api/v1/directory/', { inputField: { situation: false } });
+		answer('/api/v2/effector-type-labels', { t: {} });
+		answer('/api/v2/opengraph', CARD);
+
+		const data = (await loading) as Record<string, unknown>;
+		expect(started()).not.toContain(USER);
+		expect(data.user).toBeUndefined();
+		expect(data.organization).toEqual({ name: 'CPTS' });
+	});
+
+	it('warns when the backend rejects the session of a signed-in user', async () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		vi.stubGlobal('fetch', (input: RequestInfo | URL) =>
+			new URL(input instanceof Request ? input.url : String(input)).pathname === USER
+				? Promise.resolve(new Response('{}', { status: 401 }))
+				: fakeFetch(input)
+		);
+		const loading = load(event());
+		await vi.waitFor(() => expect(started()).toEqual(expect.arrayContaining(INDEPENDENT)), {
+			timeout: 1000
+		});
+		answerAll();
+
+		const data = (await loading) as Record<string, unknown>;
+		expect(data.user).toBeUndefined();
+		expect(warn).toHaveBeenCalledWith(expect.stringContaining('rejected the session'));
 	});
 
 	it('asks for the situations once the directory says it uses them', async () => {
@@ -156,12 +200,11 @@ describe('the root layout’s data', () => {
 		});
 
 		answer('/api/v2/organization', { detail: 'boom' }, 500);
-		answer('/api/v2/users/me', { username: 'alice' });
 		answer('/api/v2/entries', [{ name: 'Alice Martin' }]);
 		answer('/api/v1/directory/', { inputField: { situation: false } });
 		answer('/api/v2/effector-type-labels', { t: {} });
 		answer('/api/v2/opengraph', CARD);
-		releaseAuth(null);
+		releaseAuth({ user: { email: 'alice@example.org' } });
 
 		const data = (await loading) as Record<string, unknown>;
 		expect(data.organization).toBeUndefined();

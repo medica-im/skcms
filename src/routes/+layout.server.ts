@@ -15,9 +15,18 @@ import type { Directory } from '#lib/interfaces/directory.interface.ts';
 export const load: LayoutServerLoad = async ({ locals, cookies, fetch, depends }) => {
 	depends('app:entries');
 
-	const getUser = async (): Promise<User | undefined> => {
+	// A visitor with no session is always answered 401, so they are not asked.
+	// The session is read from the cookie, with no round trip.
+	const getUser = async (session: Promise<unknown>): Promise<User | undefined> => {
+		if (!(await session)) return;
 		try {
 			const response = await globalThis.fetch(authReq(`${ORIGIN}/api/v2/users/me`, 'GET', cookies));
+			// With a session, a 401 means the backend turned it down: expired, or signed
+			// with a secret it does not know.
+			if (response.status === 401) {
+				console.warn('The backend rejected the session of a signed-in user (401 on /users/me)');
+				return;
+			}
 			if (!response.ok) {
 				throw new Error(`Response status: ${response.status}`);
 			}
@@ -69,9 +78,11 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch, depends }
 			: undefined
 	}));
 
+	const sessionRequest = locals.auth();
+
 	const [user, entries, organization, { directory, situations }, labels, openGraph, session] =
 		await Promise.all([
-			getUser(),
+			getUser(sessionRequest),
 			// here retrieving entries with auth works with http://localhost and pnpm run dev
 			getEntries(globalThis.fetch, cookies),
 			getJson<Organization>(`${ORIGIN}/api/v2/organization`, 'organization'),
@@ -79,7 +90,7 @@ export const load: LayoutServerLoad = async ({ locals, cookies, fetch, depends }
 			getJson<Labels>(`${ORIGIN}/api/v2/effector-type-labels`, 'labels'),
 			// Here, on the server only, so the browser never asks for the card itself.
 			getOpenGraph(fetch),
-			locals.auth()
+			sessionRequest
 		]);
 
 	return {
