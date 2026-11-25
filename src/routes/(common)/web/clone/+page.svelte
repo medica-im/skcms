@@ -11,6 +11,7 @@
 	import { cloneToken, takeTokenFromHash } from '#lib/Web/Clone/token.svelte.ts';
 	import { partition, type Preflight } from '#lib/Web/Clone/cloneState.ts';
 	import CloneEntriesTable from '#lib/Web/Clone/CloneEntriesTable.svelte';
+	import Directory from '#lib/components/Directory/CtxDirectory.svelte';
 	import CloneDirectorySettings from '#lib/Web/Clone/CloneDirectorySettings.svelte';
 	import { DEFAULT_PAGE_SIZE } from '#lib/Web/Clone/cloneTable.ts';
 
@@ -299,12 +300,27 @@
 							Vérifier {selected.length} fiche(s)
 						</button>
 					</div>
-					<CloneEntriesTable
-						entries={entries}
-						alreadyHere={alreadyHere}
-						origin={sourceOrigin}
-						bind:selected
-						bind:pageSize
+					<!-- The address book's own search, type and facility selectors and
+					     filtering, over the source's entries, as /web/entries does
+					     over this instance's. `active={null}` keeps the inactive
+					     ones: cloning a directory takes all of it. -->
+					<Directory
+						data={entries}
+						propCurrentOrg={null}
+						displayCategory={true}
+						displayFacility={true}
+						displaySearch={true}
+						displayCommune={false}
+						displayDepartment={false}
+						displayGeocoder={false}
+						displayOrganization={false}
+						displaySituation={false}
+						displayTag={false}
+						displayFacets={false}
+						avatar={false}
+						setRedirect={false}
+						active={null}
+						results={cloneResults}
 					/>
 				{/if}
 			</div>
@@ -390,6 +406,16 @@
 		{/if}
 	{/if}
 </div>
+
+{#snippet cloneResults(filtered: any[])}
+	<CloneEntriesTable
+		entries={filtered}
+		alreadyHere={alreadyHere}
+		origin={sourceOrigin}
+		bind:selected
+		bind:pageSize
+	/>
+{/snippet}
 
 <style lang="postcss">
 	.section-container {
