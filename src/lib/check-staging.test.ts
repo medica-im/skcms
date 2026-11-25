@@ -78,6 +78,46 @@ describe('check-staging.sh', () => {
 });
 
 /**
+ * What a site's image says about how it was built is a fact about the release,
+ * not about whether staging works: links and pages say that. A release run from a
+ * tree with uncommitted changes tags its images `-dirty`, and the check once
+ * marked every site FAIL for it although each had deployed and each page loaded:
+ * red for "the commit is not what runs", in the one place that answers "does it
+ * work". It is a note after the summary now.
+ */
+describe('check-staging.sh and how the image was built', () => {
+	const withVersions = (state: string, ...args: string[]) => {
+		const [site] = stagingNames();
+		const stub = join(mkdtempSync(join(tmpdir(), 'check-staging-versions-')), 'versions.sh');
+		writeFileSync(
+			stub,
+			`#!/usr/bin/env bash\nprintf 'staging\\t${site}\\thost\\td525f89\\tc5a1fd1\\t0\\t0\\t0\\t${state}\\t2026-11-25 02:06\\tsubject\\n'\n`,
+			{ mode: 0o755 }
+		);
+		return {
+			site,
+			...runWith({ TEE_LOG: '', CHECK_STAGING_VERSIONS: stub }, '--no-links', '--no-browser', '--no-preflight', site, ...args)
+		};
+	};
+
+	it('is green for a site built from uncommitted changes, and says so after the summary', () => {
+		const { out, status, site } = withVersions('dirty');
+		expect(status).toBe(0);
+		expect(out).toMatch(new RegExp(`OK\\s+${site}`));
+		expect(out).not.toMatch(/FAIL/);
+		const [, afterSummary] = out.split('==> Summary');
+		expect(afterSummary).toContain(site);
+		expect(afterSummary).toMatch(/uncommitted/);
+	});
+
+	it('has no note for a site that is current', () => {
+		const { out, status } = withVersions('current');
+		expect(status).toBe(0);
+		expect(out.split('==> Summary')[1]).not.toMatch(/uncommitted|Notes/);
+	});
+});
+
+/**
  * Every check is kept, as test-all's runs are: a post-release failure is read
  * hours later, and until now it lived in the terminal that ran it and nowhere
  * else. Colours stay on screen; the file has none, so a grep over it works.

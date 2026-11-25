@@ -6,7 +6,9 @@
 #
 # For each staging site:
 #   1. what its host runs (scripts/versions.sh): the commit, and whether its
-#      container answers at all;
+#      container answers at all. An image built from uncommitted changes
+#      (-dirty) is a note after the summary, not a failure: only steps 2 and 3
+#      say whether the site works;
 #   2. its links (muffet, scripts/lib/staging-sites.sh): our own broken links
 #      fail, somebody else's are printed and forgiven;
 #   3. its pages in a browser (tests/staging): every page loaded cold, failing
@@ -127,6 +129,7 @@ if [[ -n "$RUN_LOG" ]]; then
 fi
 
 declare -A FAILED=()
+NOTES=()
 fail() { FAILED[$1]="${FAILED[$1]:+${FAILED[$1]}, }$2"; }
 
 # Each site's output and failures wait here until it is printed: a background
@@ -167,12 +170,12 @@ else
         case "$state" in
             current) info "$line" ;;
             behind) warn "$line ($behind commit(s) behind main)" ;;
-            *)
-                warn "$line"
-                [[ "$component" != backend ]] && fail "$component" "$state"
-                ;;
+            # How the image was built says nothing about whether the site works:
+            # the links and the pages do. A note after the summary, never a FAIL.
+            dirty) warn "$line"; NOTES+=("$component: built from uncommitted changes; its tag names a commit that does not contain what runs") ;;
+            *) warn "$line"; NOTES+=("$component: could not tell whether it is up to date ($state)") ;;
         esac
-    done < <("$REPO_ROOT/scripts/versions.sh" --tsv)
+    done < <("${CHECK_STAGING_VERSIONS:-$REPO_ROOT/scripts/versions.sh}" --tsv)
 fi
 
 # --- 2. Links, 3. pages in a browser -----------------------------------------
@@ -251,4 +254,8 @@ for name in "${NAMES[@]}"; do
         printf '  %sOK%s    %s\n' "$GREEN" "$NC" "$name"
     fi
 done
+if [[ ${#NOTES[@]} -gt 0 ]]; then
+    printf '\n%s==> Notes%s (about how it was built, not about whether it works)\n' "$BOLD" "$NC"
+    printf '  %s\n' "${NOTES[@]}"
+fi
 [[ ${#FAILED[@]} -eq 0 ]]
