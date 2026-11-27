@@ -73,6 +73,7 @@
 		<Select loading={true} placeholder={m.ADDRESSBOOK_FACILITIES_PLACEHOLDER()} />
 	{:else}
 		<Select
+			fitOnPhone={true}
 			{label}
 			{itemId}
 			items={getItems(facilityOf)}

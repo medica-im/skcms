@@ -74,6 +74,7 @@
 		<Select loading={true} placeholder={m.ADDRESSBOOK_DEPARTMENTS_PLACEHOLDER()} />
 	{:else}
 		<Select
+			fitOnPhone={true}
 			{label}
 			{itemId}
 			{items}

@@ -91,6 +91,7 @@ $selectedCommunesChoices: {JSON.stringify($selectedCommunesChoices)}
 		<Select loading={true} placeholder={m.ADDRESSBOOK_COMMUNES_PLACEHOLDER()} />
 	{:else}
 		<Select
+			fitOnPhone={true}
 			{label}
 			{itemId}
 			items={getItems(communeOf)}

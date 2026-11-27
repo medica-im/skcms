@@ -59,6 +59,7 @@
 		showChevron = true,
 		floatingConfig = {},
 		empty,
+		fitOnPhone = false,
 		...rest
 	}: Record<string, unknown> & {
 		value?: unknown;
@@ -67,6 +68,8 @@
 		showChevron?: boolean;
 		floatingConfig?: Record<string, unknown>;
 		empty?: Snippet;
+		/** On a phone, bring the field under the app bar once tapped and open the list below it, above the keyboard. Not inside a dialog, which scrolls on its own. */
+		fitOnPhone?: boolean;
 	} = $props();
 
 	/**
@@ -100,6 +103,140 @@
 	const keepFocus = (e: MouseEvent) => {
 		if (!(e.target instanceof HTMLInputElement)) e.preventDefault();
 	};
+
+	/**
+	 * On a touch screen the keyboard takes half the screen: once a choice is tapped, or
+	 * cleared, the input lets go of the focus so the keyboard goes away and the choice
+	 * shows. Not in a multiple select, where one picks several in a row, nor with a
+	 * mouse, where the focus stays where a keyboard user left it. One tick late, because
+	 * svelte-select takes the focus back after a clear.
+	 */
+	let lastPointer = $state('mouse');
+	$effect(() => {
+		const track = (e: PointerEvent) => (lastPointer = e.pointerType);
+		window.addEventListener('pointerdown', track, true);
+		return () => window.removeEventListener('pointerdown', track, true);
+	});
+	const letGo = () => {
+		if (rest.multiple || lastPointer !== 'touch') return;
+		setTimeout(() => {
+			const active = document.activeElement;
+			if (active instanceof HTMLElement && host?.contains(active)) active.blur();
+		});
+	};
+	type Callback = ((...args: unknown[]) => void) | undefined;
+	const onchange = (...args: unknown[]) => {
+		(rest.onchange as Callback)?.(...args);
+		letGo();
+	};
+	const onclear = (...args: unknown[]) => {
+		(rest.onclear as Callback)?.(...args);
+		letGo();
+	};
+
+	/**
+	 * On a phone the keyboard takes the lower half of the screen: with `fitOnPhone`, the
+	 * field goes to the top, under the app bar, and the list gets the room left above the
+	 * keyboard, so it opens downwards instead of squeezing upwards.
+	 */
+	const box = () => host?.querySelector<HTMLElement>('.svelte-select') ?? null;
+
+	// Until the keyboard shows (some 300ms after the tap) its height is a guess: about
+	// this share of the screen on Android and iOS alike. Once it shows, the browser
+	// reports what is really left visible.
+	const KEYBOARD_SHARE = 0.45;
+	const MIN_LIST = 176;
+	const GAP = 16;
+
+	function visibleBottom() {
+		const viewport = window.visualViewport;
+		const keyboardUp = viewport && viewport.height < window.innerHeight * 0.85;
+		return keyboardUp
+			? viewport.offsetTop + viewport.height
+			: window.innerHeight * (1 - KEYBOARD_SHARE);
+	}
+
+	const scrollerOf = (el: HTMLElement): HTMLElement => {
+		for (let node = el.parentElement; node; node = node.parentElement) {
+			const { overflowY } = getComputedStyle(node);
+			if (/(auto|scroll)/.test(overflowY) && node.scrollHeight > node.clientHeight) return node;
+		}
+		return document.scrollingElement as HTMLElement;
+	};
+
+	// Quick enough not to wait on, slow enough to see where the field went.
+	function scrollBy(scroller: HTMLElement, distance: number, done: () => void) {
+		const from = scroller.scrollTop;
+		const to = Math.min(from + distance, scroller.scrollHeight - scroller.clientHeight);
+		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || to === from) {
+			scroller.scrollTop = to;
+			return done();
+		}
+		const start = performance.now();
+		const step = (now: number) => {
+			const t = Math.min((now - start) / 200, 1);
+			scroller.scrollTop = from + (to - from) * (1 - (1 - t) ** 3);
+			if (t < 1) requestAnimationFrame(step);
+			else done();
+		};
+		requestAnimationFrame(step);
+	}
+
+	// The page moves only by what the list lacks between the field and the keyboard,
+	// and never past the field reaching the top: a short list opens where it is or
+	// nearly, so the reader keeps their place; a long one gets the field to the top.
+	function fitAboveKeyboard() {
+		const el = box();
+		if (!el || !window.matchMedia('(max-width: 767px)').matches) return;
+		const setRoom = () => {
+			const room = visibleBottom() - el.getBoundingClientRect().bottom - GAP;
+			el.style.setProperty('--list-max-height', `${Math.max(room, MIN_LIST)}px`);
+		};
+		// No list open, nothing to make room for: a clear gives the field the focus back
+		// with its list closed.
+		const list = el.querySelector<HTMLElement>('.svelte-select-list');
+		if (!list) return;
+		const lacking = list.scrollHeight - (visibleBottom() - el.getBoundingClientRect().bottom - GAP);
+		if (lacking <= 0) return setRoom();
+		const scroller = scrollerOf(el);
+		const top = scroller === document.scrollingElement ? 0 : scroller.getBoundingClientRect().top;
+		const toTop = el.getBoundingClientRect().top - top - 8;
+		scrollBy(scroller, Math.min(lacking, toTop), setRoom);
+	}
+
+	// A tap ends with a click the browser sends where the finger touched: scrolling
+	// before it moves the page under the finger, the click lands beside the select,
+	// which closes its list and drops the focus before the keyboard can show.
+	function afterTap(then: () => void) {
+		let done = false;
+		const run = () => {
+			if (done) return;
+			done = true;
+			window.removeEventListener('click', run, true);
+			requestAnimationFrame(then);
+		};
+		window.addEventListener('click', run, true);
+		setTimeout(run, 400);
+	}
+
+	const onfocus = (event: FocusEvent) => {
+		(rest.onfocus as Callback)?.(event);
+		if (!fitOnPhone || inDialog) return;
+		const input = event.target;
+		afterTap(() => {
+			if (document.activeElement !== input) return;
+			fitAboveKeyboard();
+			window.visualViewport?.addEventListener('resize', fitAboveKeyboard);
+		});
+	};
+
+	const onblur = (event: FocusEvent) => {
+		(rest.onblur as Callback)?.(event);
+		window.visualViewport?.removeEventListener('resize', fitAboveKeyboard);
+		box()?.style.removeProperty('--list-max-height');
+	};
+
+	$effect(() => () => window.visualViewport?.removeEventListener('resize', fitAboveKeyboard));
 </script>
 
 {#snippet noOptions()}
@@ -115,6 +252,10 @@
 <div bind:this={host} class="contents" onmousedown={keepFocus} role="none">
 	<Select
 		{...rest}
+		{onchange}
+		{onclear}
+		{onfocus}
+		{onblur}
 		{placeholder}
 		{showChevron}
 		{ariaValues}

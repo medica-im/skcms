@@ -6,9 +6,9 @@
  * override it. The hand comes from the shared stylesheet, so it is measured
  * with that stylesheet loaded as the root layout loads it.
  */
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render } from 'vitest-browser-svelte';
-import { cdp, server, userEvent } from 'vitest/browser';
+import { cdp, page, server, userEvent } from 'vitest/browser';
 import * as m from '$msgs';
 import Select from './Select.svelte';
 import '../../app.postcss';
@@ -74,6 +74,103 @@ describe.runIf(server.browser === 'chromium')('Select on a touch screen', () => 
 		await expect.poll(() => document.querySelector('.svelte-select-list')).not.toBeNull();
 		await new Promise((r) => setTimeout(r, 300));
 		expect(document.querySelector('.svelte-select-list')).not.toBeNull();
+	});
+
+	const option = (label: string) =>
+		[...document.querySelectorAll('.svelte-select-list .item')].find(
+			(el) => el.textContent?.trim() === label
+		)!;
+	const inputFocused = () => document.activeElement === document.querySelector('.svelte-select input');
+
+	async function tapOpen(props: Record<string, unknown> = {}) {
+		const onchange = vi.fn();
+		render(Select, { props: { items, label: 'label', itemId: 'uid', onchange, ...props } } as never);
+		await expect.poll(() => document.querySelector('.svelte-select input')).not.toBeNull();
+		await tap(document.querySelector('.svelte-select input')!);
+		await expect.poll(() => document.querySelector('.svelte-select-list .item')).not.toBeNull();
+		await expect.poll(inputFocused).toBe(true);
+		return onchange;
+	}
+
+	it('lets go of the focus once a choice is tapped, so the keyboard goes away', async () => {
+		const onchange = await tapOpen();
+		await tap(option('Médecin généraliste'));
+		await expect.poll(() => onchange.mock.calls.length).toBe(1);
+		await expect.poll(inputFocused).toBe(false);
+	});
+
+	it('lets go of the focus once the choice is cleared with a tap, though svelte-select takes it back', async () => {
+		await tapOpen({ value: items[0] });
+		await expect.poll(() => document.querySelector('.svelte-select .clear-select')).not.toBeNull();
+		await tap(document.querySelector('.svelte-select .clear-select')!);
+		await new Promise((r) => setTimeout(r, 300));
+		expect(inputFocused()).toBe(false);
+	});
+
+	it('keeps the focus in a multiple select, where one picks several in a row', async () => {
+		await tapOpen({ multiple: true });
+		await tap(option('Infirmier'));
+		await new Promise((r) => setTimeout(r, 300));
+		expect(inputFocused()).toBe(true);
+	});
+});
+
+describe.runIf(server.browser === 'chromium')('Select fitted to a phone (fitOnPhone)', () => {
+	const container = () => document.querySelector<HTMLElement>('.svelte-select')!;
+	const room = () => container().style.getPropertyValue('--list-max-height');
+
+	afterEach(() => page.viewport(1280, 720));
+
+	async function tapped(props: Record<string, unknown>) {
+		render(Select, { props: { items, label: 'label', itemId: 'uid', ...props } } as never);
+		await expect.poll(() => document.querySelector('.svelte-select input')).not.toBeNull();
+		await tap(document.querySelector('.svelte-select input')!);
+	}
+
+	it('gives the list the room left between the field and the bottom of what is visible', async () => {
+		await page.viewport(360, 640);
+		await tapped({ fitOnPhone: true });
+		await expect.poll(room).toMatch(/px$/);
+		expect(parseFloat(room())).toBeLessThanOrEqual(640 - container().getBoundingClientRect().bottom);
+	});
+
+	it('keeps its list open and its focus once the tap has landed', async () => {
+		await page.viewport(360, 640);
+		await tapped({ fitOnPhone: true });
+		await expect.poll(() => document.querySelector('.svelte-select-list')).not.toBeNull();
+		await new Promise((r) => setTimeout(r, 800));
+		expect(document.querySelector('.svelte-select-list')).not.toBeNull();
+		expect(document.activeElement).toBe(document.querySelector('.svelte-select input'));
+	});
+
+	it('is left alone without the option', async () => {
+		await page.viewport(360, 640);
+		await tapped({});
+		await expect.poll(() => document.querySelector('.svelte-select-list')).not.toBeNull();
+		await new Promise((r) => setTimeout(r, 600));
+		expect(room()).toBe('');
+	});
+
+	it('is left alone on a wide screen', async () => {
+		await page.viewport(1280, 720);
+		await tapped({ fitOnPhone: true });
+		await expect.poll(() => document.querySelector('.svelte-select-list')).not.toBeNull();
+		await new Promise((r) => setTimeout(r, 600));
+		expect(room()).toBe('');
+	});
+});
+
+describe('Select with a mouse', () => {
+	it('keeps the focus where a keyboard user left it once a choice is clicked', async () => {
+		const onchange = vi.fn();
+		const view = await render(Select, {
+			props: { items, label: 'label', itemId: 'uid', onchange }
+		} as never);
+		await userEvent.click(document.querySelector<HTMLElement>('.svelte-select input')!);
+		await userEvent.click(view.getByText('Infirmier', { exact: true }));
+		await expect.poll(() => onchange.mock.calls.length).toBe(1);
+		await new Promise((r) => setTimeout(r, 300));
+		expect(document.activeElement).toBe(document.querySelector('.svelte-select input'));
 	});
 });
 

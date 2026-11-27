@@ -141,6 +141,7 @@
 {:else}
 	<div class="text-surface-700 svelte-select">
 		<Select
+			fitOnPhone={true}
 			itemFilter={itemFilter}
 			label={label}
 			itemId={itemId}

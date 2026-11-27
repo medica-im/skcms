@@ -93,6 +93,7 @@
 			<Select loading={true} placeholder={aTC.labelShort} />
 		{:else}
 			<Select
+				fitOnPhone={true}
 				{label}
 				{itemId}
 				items={getItems(aTC)}

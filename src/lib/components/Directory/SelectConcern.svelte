@@ -87,6 +87,7 @@
 
 <div class="concern-select text-surface-700 svelte-select">
 	<Select
+		fitOnPhone={true}
 		items={items}
 		searchable={true}
 		itemFilter={matches}
