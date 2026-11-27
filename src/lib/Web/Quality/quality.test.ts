@@ -5,7 +5,23 @@
  * both languages, or a rule added there would show a raw code to the person editing the entry.
  */
 import { describe, it, expect } from 'vitest';
-import { QUALITY_RULES, qualityText, bySeverity } from './quality.ts';
+import { QUALITY_RULES, qualityText, bySeverity, showsQualityBox } from './quality.ts';
+
+describe('showsQualityBox', () => {
+	it('is for superusers only, for now', () => {
+		expect(showsQualityBox('superuser')).toBe(true);
+		for (const role of ['administrator', 'staff', 'anonymous', undefined]) {
+			expect(showsQualityBox(role), String(role)).toBe(false);
+		}
+	});
+
+	it('with no role restriction, leaves it to the backend for anyone signed in', () => {
+		for (const role of ['superuser', 'administrator', 'staff']) {
+			expect(showsQualityBox(role, null), role).toBe(true);
+		}
+		expect(showsQualityBox(undefined, null)).toBe(false);
+	});
+});
 
 describe('qualityText', () => {
 	it('words every rule the backend can raise', () => {

@@ -6,7 +6,7 @@ import { resolveOwnerCreator } from '#lib/Web/Users/ownerCreator.ts';
 import type { EntryFull } from '#lib/store/directoryStoreInterface.ts';
 import { currentSlugFor, type TypeEditPermission } from '#lib/Web/Entry/entryType.ts';
 import type { ApiSchedule } from '#lib/Schedule/scheduleApi.ts';
-import type { QualityProblem } from '#lib/Web/Quality/quality.ts';
+import { showsQualityBox, type QualityProblem } from '#lib/Web/Quality/quality.ts';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ fetch, params, cookies, parent, depends, url }) => {
@@ -80,7 +80,7 @@ export const load: PageServerLoad = async ({ fetch, params, cookies, parent, dep
 	// Per user and never cached: what the entry is missing is for whoever may edit it, and the
 	// backend answers 403 to anyone else, which here means no box.
 	let quality: QualityProblem[] = [];
-	if (user?.role) {
+	if (showsQualityBox(user?.role)) {
 		try {
 			const qualityUrl = `${variables.BASE_URI}/api/v2/entries/${fullentry.uid}/quality`;
 			const qualityRes = await globalThis.fetch(authReq(qualityUrl, 'GET', cookies));

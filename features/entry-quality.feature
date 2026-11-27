@@ -12,12 +12,17 @@ Feature: An entry says what it is missing
   * to administrators and superusers, for the whole directory, on one page, rule by rule,
     each with the entries to fix.
 
+  For now (decided 2026-11-27) the box on an entry page is shown to superusers only, while
+  the rules are being settled; the backend still allows the others. Giving it back to
+  everyone who may fix the entry is `QUALITY_BOX_ROLES = null` in
+  src/lib/Web/Quality/quality.ts, and the owner scenario below then says the opposite.
+
   Background:
     Given a person and a facility created by a staff member of this site
 
-  Scenario: The owner sees what the entry is missing, and each fix removes its line
+  Scenario: A superuser sees what the entry is missing, and each fix removes its line
     Given an entry for them as "ligne d'écoute", owned by that staff member
-    And I am signed in with the role "staff"
+    And I am signed in with the role "superuser"
     When I open that entry in edit mode
     Then the quality box says "Ligne d'écoute sans numéro de téléphone"
     And the quality box says "Pas de présentation"
@@ -25,9 +30,15 @@ Feature: An entry says what it is missing
     Then the quality box no longer says "Pas de présentation"
     And the quality box says "Ligne d'écoute sans numéro de téléphone"
 
-  Scenario: Outside edit mode the page says nothing of what is missing
+  Scenario: For now, the owner is not shown the box
     Given an entry for them as "ligne d'écoute", owned by that staff member
     And I am signed in with the role "staff"
+    When I open that entry in edit mode
+    Then there is no quality box
+
+  Scenario: Outside edit mode the page says nothing of what is missing
+    Given an entry for them as "ligne d'écoute", owned by that staff member
+    And I am signed in with the role "superuser"
     When I look at that entry without editing
     Then there is no quality box
 

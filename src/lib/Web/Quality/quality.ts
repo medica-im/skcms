@@ -6,6 +6,18 @@ export interface QualityProblem {
 	severity: 'missing' | 'incomplete' | string;
 }
 
+/**
+ * The roles shown the "À corriger sur cette fiche" box on an entry page. Superusers only for
+ * now; `null` gives it back to everyone the backend lets read it: the entry's owner or creator,
+ * administrators and superusers.
+ */
+export const QUALITY_BOX_ROLES: readonly string[] | null = ['superuser'];
+
+export const showsQualityBox = (
+	role: string | undefined,
+	roles: readonly string[] | null = QUALITY_BOX_ROLES
+): boolean => !!role && (roles === null || roles.includes(role));
+
 /** One rule of the directory report, with the entries that break it. */
 export interface RuleReport {
 	code: string;
