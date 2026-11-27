@@ -23,6 +23,7 @@
 	import EntryCreationForm from '#lib/Web/EntryCreationForm.svelte';
 	import SelectMembershipModal from './Membership/SelectMembershipModal.svelte';
 	import StepProgress from '#lib/Web/StepProgress.svelte';
+	import EntryTypeTags from '#lib/Web/Tag/EntryTypeTags.svelte';
 	import type { Effector } from '#lib/interfaces/v2/effector.ts';
 	import type { SelectType } from '#lib/interfaces/select.ts';
 	import type { User } from '#lib/interfaces/user.interface.ts';
@@ -65,10 +66,12 @@
 	let department: { label: string; value: string } | undefined = $state(defaultDpt);
 	let effectorType: { label: string; value: string; nature?: Nature | null } | undefined = $state();
 	let effectorTypeValue = $derived(effectorType?.value);
+	let tags: SelectType[] = $state([]);
+	let tagsDecided: boolean = $state(false);
 	let submitted: boolean = $state(false);
 	let steps = $derived([
 		{ label: 'Établissement', completed: !!facility },
-		{ label: 'Catégorie', completed: !!effectorType },
+		{ label: 'Catégorie', completed: !!effectorType && tagsDecided },
 		{ label: 'Personne', completed: !!effector },
 		{ label: 'Valider', completed: submitted }
 	]);
@@ -86,7 +89,7 @@ membershipsDone: {membershipsDone}
 -->
 <div id="top"></div>
 <StepProgress steps={steps} />
-{#if effector && facility && effectorType && membershipsDone}
+{#if effector && facility && effectorType && tagsDecided && membershipsDone}
 	<div
 		class="grid grid-cols-1 w-full p-2 place-items-center"
 		in:slide={{ duration: 400, delay: 300 }}
@@ -97,6 +100,8 @@ membershipsDone: {membershipsDone}
 			bind:effector
 			bind:facility
 			bind:effectorType
+			bind:tags
+			bind:tagsDecided
 			bind:submitted
 			bind:memberships
 			bind:membershipsDone
@@ -146,6 +151,8 @@ membershipsDone: {membershipsDone}
 							title="Supprimer la sélection"
 							onclick={() => {
 								effectorType = undefined;
+								tags = [];
+								tagsDecided = false;
 							}}><Fa icon={faXmark} /></button
 						>
 					</div>
@@ -158,10 +165,15 @@ membershipsDone: {membershipsDone}
 							>
 						</p>
 					{/if}
+					<EntryTypeTags
+						effectorType={effectorType.value}
+						bind:tags
+						bind:decided={tagsDecided}
+					/>
 				{/if}
 			</div>
 		{/if}
-		{#if facility && effectorType}
+		{#if facility && effectorType && tagsDecided}
 			<div class="grid grid-cols-1 gap-4 w-full place-items-center p-4" use:scrollIntoView>
 				{#if effector}
 					<div class="card variant-ringed p-2 items-center">
@@ -229,7 +241,7 @@ membershipsDone: {membershipsDone}
 				{/if}
 			</div>
 		{/if}
-		{#if facility && effectorType && effector && displayMembershipStep}
+		{#if facility && effectorType && tagsDecided && effector && displayMembershipStep}
 			<div class="grid grid-cols-1 gap-4 w-full place-items-center p-4" use:scrollIntoView>
 				<h3 class="h3">Affiliations</h3>
 				<p>

@@ -41,6 +41,8 @@ export interface TagCategory {
 	name: string;
 	label: string;
 	labelShort: string;
+	/** The uids of the effector types the category describes; sent by GET /api/v2/tag_categories. */
+	effector_types?: string[] | null;
 }
 
 export interface Tag {

@@ -11,17 +11,20 @@ import type { SlugCheck } from '#lib/Web/Slug/slugView.ts';
 
 const RoleEnum = z.enum(['anonymous', 'staff', 'administrator', 'superuser']);
 
+const commaList = z.preprocess((val: string) => {
+	if (val) {
+		return val.split(',');
+	} else {
+		return null;
+	}
+}, z.array(z.string()).nullable());
+
 const postEntry = z.object({
 	effector: z.string(),
 	effector_type: z.string(),
 	facility: z.string(),
-	memberships: z.preprocess((val: string) => {
-		if (val) {
-			return val.split(',');
-		} else {
-			return null;
-		}
-	}, z.array(z.string()).nullable()),
+	memberships: commaList,
+	tags: commaList,
 	directory: z.string().optional(),
 	organization_category: z.string().optional(),
 	isOwner: z.boolean().default(true),

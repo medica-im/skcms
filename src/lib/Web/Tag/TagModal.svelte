@@ -12,6 +12,7 @@
 	import Fa from 'svelte-fa';
 	import { JsonView } from '@zerodevx/svelte-json-view';
 	import Select from '#lib/Web/Select.svelte';
+	import TagSelect from './TagSelect.svelte';
 	import Dialog from '../Dialog.svelte';
 	import { getEntryUid } from '#lib/components/Directory/context.ts';
 	import { capitalizeFirstLetter } from '#lib/helpers/stringHelpers.ts';
@@ -206,16 +207,13 @@
 					onclear={onCategoryClear}
 				/>
 			</label>
-			<label class="label">
-				<span>{capitalizeFirstLetter(m.tag({ count: tagChoices?.length || 1 }))}</span>
-				<Select
-					multiple
-					items={tagChoices}
-					bind:value={selectedTags}
-					onchange={onTagChange}
-					onclear={onTagClear}
-				/>
-			</label>
+			<TagSelect
+				label={capitalizeFirstLetter(m.tag({ count: tagChoices?.length || 1 }))}
+				items={tagChoices}
+				bind:value={selectedTags}
+				onchange={onTagChange}
+				onclear={onTagClear}
+			/>
 
 			<div class="flex w-full items-center">
 				<div class="w-1/3">

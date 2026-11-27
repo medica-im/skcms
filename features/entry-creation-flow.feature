@@ -13,7 +13,9 @@ Feature: Creating an entry, step by step
   changes must still pass them.
 
   Each scenario uses a person and a facility created for it by a staff member
-  of the site, and an occupation that exists. That is what every role's lists
+  of the site, and an occupation that exists and has no tag category: one that
+  has adds a tags question before the person, which "Tagging an entry while
+  creating it" covers. That is what every role's lists
   offer: a person is listed to its creator, to administrators as a
   colleague's, to a superuser among everyone; a facility is listed to staff
   and administrators only when it belongs to the organization, which a

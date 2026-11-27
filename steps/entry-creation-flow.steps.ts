@@ -140,8 +140,29 @@ When('I choose that facility', async ({ page }) => {
 	await expect(page.getByText('1 établissement sélectionné')).toBeVisible();
 });
 
-When('I choose an occupation', async ({ page }) => {
-	await pick(page, 'Sélectionner une catégorie', 'infirmi');
+/**
+ * An occupation of this directory with no tag to ask for: one that has some
+ * adds a tags question before the person, which entry-creation-tags.feature
+ * covers and these scenarios do not expect.
+ */
+async function untaggedOccupation(origin: string): Promise<string> {
+	const get = async <T>(path: string) => (await (await fetch(`${origin}${path}`)).json()) as T;
+	const types = await get<{ uid: string; name_fr: string }[]>('/api/v2/effector-types?scope=directory');
+	const categories = await get<{ uid: string; effector_types: string[] | null }[]>('/api/v2/tag_categories');
+	const tags = await get<{ category: string }[]>('/api/v2/tags');
+	const tagged = new Set(
+		categories
+			.filter((c) => tags.some((t) => t.category === c.uid))
+			.flatMap((c) => c.effector_types ?? [])
+	);
+	const type = types.find((t) => !tagged.has(t.uid));
+	expect(type, 'every occupation of this directory has tags to ask for').toBeTruthy();
+	return type!.name_fr;
+}
+
+When('I choose an occupation', async ({ page, baseURL }) => {
+	const name = await untaggedOccupation(new URL(baseURL!).origin);
+	await pick(page, 'Sélectionner une catégorie', name);
 	await expect(page.getByText('1 catégorie sélectionnée')).toBeVisible();
 });
 

@@ -18,6 +18,8 @@
 		facility = $bindable(),
 		effectorType = $bindable(),
 		memberships = $bindable(),
+		tags = $bindable([]),
+		tagsDecided = $bindable(false),
 		submitted = $bindable(false),
 		membershipsDone = $bindable(),
 		displayMembershipStep
@@ -26,6 +28,8 @@
 		facility: SelectType | undefined;
 		effectorType: SelectType | undefined;
 		memberships: SelectType[];
+		tags?: SelectType[];
+		tagsDecided?: boolean;
 		submitted?: boolean;
 		membershipsDone: boolean;
 		displayMembershipStep: boolean;
@@ -75,6 +79,8 @@
 		effectorType = undefined;
 		directory = undefined;
 		memberships = [];
+		tags = [];
+		tagsDecided = false;
 		membershipsDone = !displayMembershipStep;
 		access = 'anonymous';
 	};
@@ -106,7 +112,11 @@ hasErrors: {hasErrors}-->
 							? 'Une entrée active avec la même personne, la même catégorie et le même établissement existe déjà.'
 							: issue.message === 'type_not_offered'
 								? m.ENTRY_TYPE_NOT_OFFERED()
-								: issue.message}</p>
+								: issue.message === 'unknown_tag'
+									? m.TAG_UNKNOWN()
+									: issue.message === 'tag_not_for_type'
+										? m.TAG_NOT_FOR_TYPE()
+										: issue.message}</p>
 					</div>
 				</aside>
 			{/each}
@@ -121,6 +131,18 @@ hasErrors: {hasErrors}-->
 					<input class="input hidden" {...fields.effector_type.as('hidden', effector_type ?? '')} />
 					<div class="badge variant-ghost-surface">{effectorType?.label}</div>
 				</label>
+				<input
+					class="hidden"
+					{...fields.tags.as('hidden', tags?.length ? tags.map((e) => e.value).join(',') : '')}
+				/>
+				{#if tags?.length}
+					<div class="flex flex-wrap items-center gap-1 w-full">
+						<span class="text-sm font-medium">{m.TAGS_AT_CREATION_TITLE()}</span>
+						{#each tags as tag (tag.value)}
+							<span class="badge variant-ghost-surface">{tag.label}</span>
+						{/each}
+					</div>
+				{/if}
 				<label class="label w-full">
 					<span class="text-sm font-medium">Établissement</span>
 					<input class="input hidden" {...fields.facility.as('hidden', facilityUid ?? '')} />
