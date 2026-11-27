@@ -11,6 +11,7 @@ import {
 	buildTree,
 	searchConcerns,
 	filterByConcern,
+	offeredConcerns,
 	seeAlsoOf,
 	type Concern
 } from './concernTree.ts';
@@ -93,6 +94,32 @@ describe('selecting', () => {
 
 	it('keeps none when the node is not offered', () => {
 		expect(filterByConcern(entries, CONCERNS, 'gone')).toEqual([]);
+	});
+});
+
+describe('what the offered nodes are, given the other selectors', () => {
+	const uidsOf = (concerns: Concern[]) => concerns.map((c) => c.uid);
+	const some = (...uids: string[]) => uids.map((uid) => makeEntry({ uid }));
+
+	it('offers every node while the other selectors leave an entry of each', () => {
+		expect(uidsOf(offeredConcerns(CONCERNS, some('e1', 'e2', 'e3', 'e4'), null))).toEqual(
+			uidsOf(CONCERNS)
+		);
+	});
+
+	it('leaves out the nodes no remaining entry is picked by, a chapter staying through its descendants', () => {
+		expect(uidsOf(offeredConcerns(CONCERNS, some('e2'), null))).toEqual([
+			'addictions',
+			'cannabis'
+		]);
+	});
+
+	it('keeps the picked node although the other selectors left it nothing, so it can be unpicked', () => {
+		expect(uidsOf(offeredConcerns(CONCERNS, some('e3'), 'alcool'))).toContain('alcool');
+	});
+
+	it('offers nothing when no entry is left', () => {
+		expect(offeredConcerns(CONCERNS, [], null)).toEqual([]);
 	});
 });
 

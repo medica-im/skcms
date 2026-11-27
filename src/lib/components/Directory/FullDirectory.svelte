@@ -49,6 +49,8 @@
 		seeAlso = [],
 		displayFacets = true,
 		facetEntries = [],
+		facetBase = undefined,
+		concernEntries = undefined,
 	}: {
 		data: any;
 		concerns?: Concern[] | null;
@@ -56,6 +58,10 @@
 		displayFacets?: boolean;
 		/** The entries the facet selectors may narrow: what they offer and when they show come from these. */
 		facetEntries?: Entry[];
+		/** What the other selectors leave, before the facets: what each facet value would still reach. */
+		facetBase?: Entry[];
+		/** What the other selectors and the facets leave, before the condition: the conditions still worth offering. */
+		concernEntries?: Entry[];
 		displayCategory: boolean;
 		displayCommune: boolean;
 		displayDepartment: boolean;
@@ -108,10 +114,10 @@
 				<SelectSituations />
 			{/if}
 			{#if concerns?.length}
-				<SelectConcern {concerns} {seeAlso} />
+				<SelectConcern {concerns} {seeAlso} available={concernEntries} />
 			{/if}
 			{#if displayFacets}
-				<SelectFacets entries={facetEntries} />
+				<SelectFacets entries={facetEntries} base={facetBase} />
 			{/if}
 			{#if displayDepartment}
 				<SelectDepartments {departmentOf} />

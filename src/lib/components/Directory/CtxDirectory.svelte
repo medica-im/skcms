@@ -198,10 +198,35 @@
 			$facetSelection
 		);
 	});
+	// What the facet selectors would still reach: everything but the facets themselves.
+	const rBeforeFacets = $derived.by(() => {
+		return filterByConcern(
+			filteredEntriesF(
+				rFullFilteredEntries,
+				$selectCategories,
+				$selectDepartment,
+				$selectCommunes,
+				$selectFacility,
+				$term,
+				$selectTags
+			),
+			concerns ?? [],
+			$selectConcern
+		);
+	});
 	let rFilteredEntries = $derived.by(() => {
 		return filterByConcern(rBeforeConcern, concerns ?? [], $selectConcern);
 	});
 	const seeAlso = $derived(seeAlsoOf(rBeforeConcern, concerns ?? [], $selectConcern));
+	// The type, place and tag selectors offer what the condition and the facets leave, as
+	// they offer what each other leave; with neither picked this is the same array.
+	const rNarrowed = $derived.by(() => {
+		return filterByConcern(
+			filterByFacets(rFullFilteredEntries, $facetSelection),
+			concerns ?? [],
+			$selectConcern
+		);
+	});
 	//$inspect("rFullFilteredEntries", rFullFilteredEntries);
 	//$inspect("rFilteredEntries", rFilteredEntries);
 
@@ -226,19 +251,19 @@
 	//$inspect("rCardinalCategorizedFilteredEntries", rCardinalCategorizedFilteredEntries);
 
 	const communeOf = $derived.by(() => {
-		return communeOfF(rFullFilteredEntries, $selectCategories, $selectDepartment, $selectFacility);
+		return communeOfF(rNarrowed, $selectCategories, $selectDepartment, $selectFacility);
 	});
 	const departmentOf = $derived.by(() => {
-		return departmentOfF(rFullFilteredEntries, $selectFacility, $selectCategories, $selectCommunes);
+		return departmentOfF(rNarrowed, $selectFacility, $selectCategories, $selectCommunes);
 	});
 	const facilityOf = $derived.by(() => {
-		return facilityOfF(rFullFilteredEntries, $selectCategories, $selectCommunes, $selectDepartment);
+		return facilityOfF(rNarrowed, $selectCategories, $selectCommunes, $selectDepartment);
 	});
 	const categoryOf = $derived.by(() => {
-		return categoryOfF(rFullFilteredEntries, $selectCommunes, $selectDepartment, $selectFacility);
+		return categoryOfF(rNarrowed, $selectCommunes, $selectDepartment, $selectFacility);
 	});
 	const tagOf = $derived.by(() => {
-		return tagOfF(rFullFilteredEntries, $selectFacility, $selectCategories, $selectCommunes, $selectDepartment, );
+		return tagOfF(rNarrowed, $selectFacility, $selectCategories, $selectCommunes, $selectDepartment, );
 	});
 </script>
 
@@ -273,4 +298,6 @@
 		{seeAlso}
 		{displayFacets}
 		facetEntries={rFullFilteredEntries}
+		facetBase={rBeforeFacets}
+		concernEntries={rBeforeConcern}
 	/>

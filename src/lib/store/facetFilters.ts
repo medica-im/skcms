@@ -68,6 +68,8 @@ const FIELD = {
 	access: 'who_can_contact'
 } as const;
 
+const MAX_AGE = 120;
+
 const inAgeRange = (entry: Entry, age: number) =>
 	(entry.age_min == null || entry.age_min <= age) &&
 	(entry.age_max == null || age <= entry.age_max);
@@ -120,6 +122,58 @@ export const optionsOf = (
 	return (VOCABULARY[key] as readonly string[])
 		.filter((value) => counts.has(value))
 		.map((value) => ({ value, count: counts.get(value)! }));
+};
+
+const CLEARED = { careLevels: [], audiences: [], access: null } as const;
+
+/**
+ * What a selector offers given every other selector: its own choice is left out, so
+ * the values one could switch to stay reachable, and only what the others let through
+ * is counted.
+ */
+export const facetCountsOf = (
+	entries: Entry[],
+	selection: FacetSelection,
+	key: keyof typeof FIELD
+): { value: string; count: number }[] =>
+	optionsOf(filterByFacets(entries, { ...selection, [key]: CLEARED[key] }), key);
+
+/** How many entries the other selectors leave once a switch (free, anonymous) is turned on. */
+export const booleanCountOf = (
+	entries: Entry[],
+	selection: FacetSelection,
+	key: 'free' | 'anonymous'
+): number => filterByFacets(entries, { ...selection, [key]: true }).length;
+
+export interface AgeBand {
+	/** The first age of the band; any age of it selects the same entries. */
+	from: number;
+	/** The last age of the band, null for the open last band. */
+	to: number | null;
+	/** The entries that cover the band; one of unknown age covers all. */
+	count: number;
+}
+
+/**
+ * The age ranges worth telling apart among these entries: cut where an entry starts or
+ * stops (`age_min`, `age_max + 1`), so every entry covers a whole band or none of it.
+ */
+export const ageBandsOf = (entries: Entry[]): AgeBand[] => {
+	const cuts = new Set([0]);
+	for (const entry of entries) {
+		if (entry.age_min != null && entry.age_min > 0 && entry.age_min <= MAX_AGE) {
+			cuts.add(entry.age_min);
+		}
+		if (entry.age_max != null && entry.age_max + 1 <= MAX_AGE) {
+			cuts.add(entry.age_max + 1);
+		}
+	}
+	const starts = [...cuts].sort((a, b) => a - b);
+	return starts.map((from, index) => ({
+		from,
+		to: index + 1 < starts.length ? starts[index + 1] - 1 : null,
+		count: entries.filter((entry) => inAgeRange(entry, from)).length
+	}));
 };
 
 const distinct = (entries: Entry[], key: keyof typeof FIELD) => optionsOf(entries, key).length;

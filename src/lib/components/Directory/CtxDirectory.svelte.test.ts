@@ -202,3 +202,60 @@ describe('the grouped view follows too', () => {
 		expect(categories(screen)).toEqual(['infirmier']);
 	});
 });
+
+describe('the selectors offer what the condition and the facets leave', () => {
+	const concerns = [
+		{
+			uid: 'c-nurse',
+			slug: 'c-nurse',
+			name: 'Plaies',
+			kind: 'condition',
+			parent: null,
+			synonyms: [],
+			entries: ['alice', 'claire'],
+			see_also: []
+		}
+	] as const;
+
+	const typeOptions = (screen: Screen) =>
+		screen
+			.getByTestId('type-option')
+			.elements()
+			.map((el) => el.textContent);
+
+	it('offers every type before anything is picked', async () => {
+		const screen = await mount({ concerns });
+		await expect.element(screen.getByTestId('count')).toHaveTextContent('3');
+		expect(typeOptions(screen)).toEqual(['infirmier', 'medecin']);
+	});
+
+	it('drops the types no entry of the picked condition has, and offers them again when it is cleared', async () => {
+		const screen = await mount({ concerns });
+		const { selectConcern } = screen.component.stores;
+
+		selectConcern.set('c-nurse');
+		await expect.element(screen.getByTestId('count')).toHaveTextContent('2');
+		expect(typeOptions(screen)).toEqual(['infirmier']);
+
+		selectConcern.set(null);
+		await expect.element(screen.getByTestId('count')).toHaveTextContent('3');
+		expect(typeOptions(screen)).toEqual(['infirmier', 'medecin']);
+	});
+
+	it('drops the types no entry a facet leaves has', async () => {
+		const screen = await mount({
+			entries: [
+				makeEntry({ uid: 'alice', name: 'Alice Martin', type: NURSE, facets: { free: true } }),
+				makeEntry({ uid: 'bob', name: 'Bob Durand', type: DOCTOR, facets: { free: false } })
+			],
+			organization
+		});
+		const { facetSelection } = screen.component.stores;
+		let selection;
+		facetSelection.subscribe((value) => (selection = value))();
+
+		facetSelection.set({ ...(selection as any), free: true });
+		await expect.element(screen.getByTestId('count')).toHaveTextContent('1');
+		expect(typeOptions(screen)).toEqual(['infirmier']);
+	});
+});

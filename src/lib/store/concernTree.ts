@@ -70,6 +70,22 @@ export const filterByConcern = (
 	return entries.filter((entry) => selected.has(entry.uid));
 };
 
+/**
+ * The nodes worth offering given the entries the other selectors leave: those some of
+ * these entries are picked by (a chapter through its descendants), and the picked one,
+ * which stays so it can be unpicked.
+ */
+export const offeredConcerns = (
+	concerns: Concern[],
+	entries: Pick<Entry, 'uid'>[],
+	picked: string | null
+): Concern[] => {
+	const left = new Set(entries.map((entry) => entry.uid));
+	return concerns.filter(
+		(concern) => concern.uid === picked || concern.entries.some((uid) => left.has(uid))
+	);
+};
+
 /** "Voir aussi": the offered situations or conditions the picked node can lead to, with the listed entries that manage them. */
 export const seeAlsoOf = (entries: Entry[], concerns: Concern[], picked: string | null) => {
 	const leadsTo = new Set(concerns.find((concern) => concern.uid === picked)?.see_also);

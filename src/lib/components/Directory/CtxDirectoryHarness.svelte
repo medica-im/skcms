@@ -35,13 +35,20 @@
 		setSelectedTags,
 		getSelectedTags,
 		setSelectSituation,
-		getSelectSituation
+		getSelectSituation,
+		setSelectConcern,
+		getSelectConcern,
+		setFacetSelection,
+		getFacetSelection
 	} from './context';
 	import {
 		fullFilteredEntriesF,
 		filteredEntriesF,
-		categorizedFilteredEffectorsF
+		categorizedFilteredEffectorsF,
+		categoryOfF
 	} from '#lib/store/directoryStore.ts';
+	import { filterByFacets } from '#lib/store/facetFilters.ts';
+	import { filterByConcern, type Concern } from '#lib/store/concernTree.ts';
 	import type { Entry, Situation } from '#lib/store/directoryStoreInterface.ts';
 	import type { Organization } from '#lib/interfaces/organization.ts';
 
@@ -51,8 +58,10 @@
 		organization = undefined,
 		currentOrg = null,
 		limitCategories = [],
-		active = true
+		active = true,
+		concerns = []
 	}: {
+		concerns?: Concern[];
 		entries?: Entry[];
 		situations?: Situation[];
 		organization?: Organization;
@@ -68,6 +77,8 @@
 	setSelectFacility(null);
 	setSelectedTags();
 	setSelectSituation();
+	setSelectConcern();
+	setFacetSelection();
 
 	// Exported so a test can drive the selectors exactly as the real selector
 	// components do — by writing to the context stores, not by setting props.
@@ -78,7 +89,9 @@
 		selectCommunes: getSelectedCommunesUids(),
 		selectFacility: getSelectFacility(),
 		selectTags: getSelectedTags(),
-		selectSituation: getSelectSituation()
+		selectSituation: getSelectSituation(),
+		selectConcern: getSelectConcern(),
+		facetSelection: getFacetSelection()
 	};
 
 	const {
@@ -88,7 +101,9 @@
 		selectCommunes,
 		selectFacility,
 		selectTags,
-		selectSituation
+		selectSituation,
+		selectConcern,
+		facetSelection
 	} = stores;
 
 	let rFullFilteredEntries = $derived.by(() =>
@@ -104,15 +119,30 @@
 	);
 
 	let rFilteredEntries = $derived.by(() =>
-		filteredEntriesF(
-			rFullFilteredEntries,
-			$selectCategories,
-			$selectDepartment,
-			$selectCommunes,
-			$selectFacility,
-			$term,
-			$selectTags
+		filterByConcern(
+			filterByFacets(
+				filteredEntriesF(
+					rFullFilteredEntries,
+					$selectCategories,
+					$selectDepartment,
+					$selectCommunes,
+					$selectFacility,
+					$term,
+					$selectTags
+				),
+				$facetSelection
+			),
+			concerns,
+			$selectConcern
 		)
+	);
+
+	// The selectors offer what the condition and the facets leave, as in CtxDirectory.
+	const rNarrowed = $derived.by(() =>
+		filterByConcern(filterByFacets(rFullFilteredEntries, $facetSelection), concerns, $selectConcern)
+	);
+	const categoryOf = $derived.by(() =>
+		categoryOfF(rNarrowed, $selectCommunes, $selectDepartment, $selectFacility)
 	);
 
 	let rCategorizedFilteredEntries = $derived.by(() =>
@@ -125,6 +155,12 @@
 <ul data-testid="entries">
 	{#each rFilteredEntries as entry (entry.uid)}
 		<li data-testid="entry">{entry.name}</li>
+	{/each}
+</ul>
+
+<ul data-testid="type-options">
+	{#each categoryOf as type (type.uid)}
+		<li data-testid="type-option">{type.name}</li>
 	{/each}
 </ul>
 
