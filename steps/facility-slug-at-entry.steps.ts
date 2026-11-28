@@ -1,7 +1,7 @@
 import { createBdd } from 'playwright-bdd';
 import { test, expect } from './fixtures';
 import { djangoShell } from './seed';
-import { ctx as creation, asStaff, pick } from './entry-creation-flow.steps';
+import { ctx as creation, asStaff, pick, untaggedOccupation } from './entry-creation-flow.steps';
 
 const { Given, When, Then } = createBdd(test);
 
@@ -18,8 +18,9 @@ let proposed: string | undefined;
 // With a place and a person chosen and no affiliations step (staff), the
 // occupation is the last answer: the page goes on to the confirmation form and
 // "1 catégorie sélectionnée" is never shown.
-When('I choose an occupation and the confirmation form appears', async ({ page }) => {
-	await pick(page, 'Sélectionner une catégorie', 'infirmi');
+When('I choose an occupation and the confirmation form appears', async ({ page, baseURL }) => {
+	const profession = await untaggedOccupation(new URL(baseURL).origin, 'profession');
+	await pick(page, 'Sélectionner une catégorie', profession);
 	await expect(page.getByRole('button', { name: 'Valider' })).toBeVisible({ timeout: 15_000 });
 });
 

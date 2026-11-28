@@ -145,9 +145,13 @@ When('I choose that facility', async ({ page }) => {
  * adds a tags question before the person, which entry-creation-tags.feature
  * covers and these scenarios do not expect.
  */
-async function untaggedOccupation(origin: string): Promise<string> {
+export async function untaggedOccupation(origin: string, nature?: string): Promise<string> {
 	const get = async <T>(path: string) => (await (await fetch(`${origin}${path}`)).json()) as T;
-	const types = await get<{ uid: string; name_fr: string }[]>('/api/v2/effector-types?scope=directory');
+	const types = (
+		await get<{ uid: string; name_fr: string; nature?: string | null }[]>(
+			'/api/v2/effector-types?scope=directory'
+		)
+	).filter((t) => !nature || t.nature === nature);
 	const categories = await get<{ uid: string; effector_types: string[] | null }[]>('/api/v2/tag_categories');
 	const tags = await get<{ category: string }[]>('/api/v2/tags');
 	const tagged = new Set(
